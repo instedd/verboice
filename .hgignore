@@ -1,0 +1,9 @@
+syntax: glob
+*.log
+*.sqlite3
+*.tmp*~
+*.orig
+*.lock
+*.pid
+*.*~
+
