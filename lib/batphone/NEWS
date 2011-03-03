@@ -1,0 +1,3 @@
+As of version 0.2.0, Response#result is a string, not an integer. This is
+because the empty string (on a timeout) or e.g. a '*' are valid results.
+(Thanks David Jagoe)

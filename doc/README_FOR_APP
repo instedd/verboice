@@ -7,29 +7,47 @@ Verbo Installation Guide
  $ gem install bundler
  $ bundle install
 
- * Install FreeSWITCH:
-   * Mac: http://wiki.freeswitch.org/wiki/Installation_and_Tips_for_Mac_OS_X
+ * FreeSWITCH
 
- * Make sure FreeSWITCH is running:
-   * Mac: /usr/local/freeswitch/bin/freeswitch
+   * Install FreeSWITCH:
+     * Mac: http://wiki.freeswitch.org/wiki/Installation_and_Tips_for_Mac_OS_X
 
- * Install Blink (a SIP client):
-   * Download: http://icanblink.com/
-   * Once installed, go to Preferences and add a new account:
-     * SIP Address: 1000@<your-ip>
-     * Password: 1234
-     (these are the defualts for FreeSWITCH)
-   * You can check if it works by calling the number 1000 (type it on the search box and press enter).
-     This will call yourself :-P
+   * Make sure FreeSWITCH is running:
+     * Mac: /usr/local/freeswitch/bin/freeswitch
 
- * Enable mod event socket in FreeSWITCH: http://wiki.freeswitch.org/wiki/Event_Socket
-   * Usually mod event socket is enabled and the defaults are OK
+   * Enable mod event socket in FreeSWITCH: http://wiki.freeswitch.org/wiki/Event_Socket
+     * Usually mod event socket is enabled and the defaults are OK
 
- * Add a dialplan extension to communicate FreeSWITCH with Verbo:
-   * Edit /usr/local/freeswitch/conf/dialplan/default.xml to add:
+   * Add a dialplan extension to communicate FreeSWITCH with Verbo:
+     * Edit /usr/local/freeswitch/conf/dialplan/default.xml to add:
 
-     <extension name="verbo">
-       <condition field="destination_number" expression="^9999$">
-         <action application="socket" data="localhost:9876 sync full"/>
-       </condition>
-     </extension>
+       <extension name="verbo">
+         <condition field="destination_number" expression="^9999$">
+           <action application="socket" data="localhost:9876 sync full"/>
+         </condition>
+       </extension>
+
+  * Asterisk
+
+    * Install Asterisk:
+      * Download the source tarball: http://www.asterisk.org/downloads
+      * Untar it, go to that directory
+        $ ./configure --prefix=/usr/local/asterisk
+        $ make
+        $ make install
+        * On verbo root execute:
+          $ cp etc/asterisk/* /usr/local/asterisk/etc/asterisk/
+
+  * Blink: to test FreeSWITCH and Asterisk are properly installed
+   * Install Blink (a SIP client):
+     * Download: http://icanblink.com/
+     * Once installed, go to Preferences and add a new account:
+       * For FreeSWITCH:
+         * SIP Address: 1000@<your-ip>
+         * Password: 1234
+         (these are the defualts for FreeSWITCH)
+       * For Asterisk:
+         * SIP Address: 200@<your-ip>
+         * Password: 200
+     * You can check if it works by calling the number 1000 (type it on the search box and press enter).
+       This will call yourself :-P
