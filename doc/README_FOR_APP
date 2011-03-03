@@ -1,8 +1,17 @@
 Verbo Installation Guide
 ========================
+ * Note: $ entries are commands to execute on the terminal
+
+ * Recommended: install RVM and then rvm use 1.9.2 (and better to create a gemset for it)
+
+ $ gem install bundler
+ $ bundle install
 
  * Install FreeSWITCH:
    * Mac: http://wiki.freeswitch.org/wiki/Installation_and_Tips_for_Mac_OS_X
+
+ * Make sure FreeSWITCH is running:
+   * Mac: /usr/local/freeswitch/bin/freeswitch
 
  * Install Blink (a SIP client):
    * Download: http://icanblink.com/
@@ -12,3 +21,15 @@ Verbo Installation Guide
      (these are the defualts for FreeSWITCH)
    * You can check if it works by calling the number 1000 (type it on the search box and press enter).
      This will call yourself :-P
+
+ * Enable mod event socket in FreeSWITCH: http://wiki.freeswitch.org/wiki/Event_Socket
+   * Usually mod event socket is enabled and the defaults are OK
+
+ * Add a dialplan extension to communicate FreeSWITCH with Verbo:
+   * Edit /usr/local/freeswitch/conf/dialplan/default.xml to add:
+
+     <extension name="verbo">
+       <condition field="destination_number" expression="^9999$">
+         <action application="socket" data="localhost:9876 sync full"/>
+       </condition>
+     </extension>
