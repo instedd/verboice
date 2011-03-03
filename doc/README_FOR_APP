@@ -1,2 +1,14 @@
-Use this README file to introduce your application and point to useful places in the API for learning more.
-Run "rake doc:app" to generate API documentation for your models, controllers, helpers, and libraries.
+Verbo Installation Guide
+========================
+
+ * Install FreeSWITCH:
+   * Mac: http://wiki.freeswitch.org/wiki/Installation_and_Tips_for_Mac_OS_X
+
+ * Install Blink (a SIP client):
+   * Download: http://icanblink.com/
+   * Once installed, go to Preferences and add a new account:
+     * SIP Address: 1000@<your-ip>
+     * Password: 1234
+     (these are the defualts for FreeSWITCH)
+   * You can check if it works by calling the number 1000 (type it on the search box and press enter).
+     This will call yourself :-P
