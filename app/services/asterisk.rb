@@ -5,9 +5,9 @@ class FastAGIServer < FastAGIProtocol
     answer
     p "Hola!"
 
-   #stream_file('beep', nil).callback do |response|
-   #  close_connection
-   #end
+    stream_file('beep', nil).callback do |response|
+      close_connection
+    end
   end
 end
 
