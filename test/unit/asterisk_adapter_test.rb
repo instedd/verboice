@@ -6,8 +6,10 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
     @adapter = AsteriskAdapter.new @context
   end
 
-  test "answer" do
-    @context.expects(:answer)
-    @adapter.answer
+  [:answer, :hangup].each do |cmd|
+    test cmd.to_s do
+      @context.expects(cmd)
+      @adapter.send cmd
+    end
   end
 end

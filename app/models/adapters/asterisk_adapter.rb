@@ -6,4 +6,8 @@ class AsteriskAdapter
   def answer
     @context.answer
   end
+
+  def hangup
+    @context.hangup
+  end
 end

@@ -11,9 +11,11 @@ class FastAGIServer < FastAGIProtocol
 
     p "Hola!"
 
-    stream_file('beep', nil).callback do |response|
-      close_connection
-    end
+    #stream_file('beep', nil).callback do |response|
+      #close_connection
+    #end
+
+    close_connection
   rescue Exception => e
     puts "#{e.message}: #{e.backtrace}"
   end
