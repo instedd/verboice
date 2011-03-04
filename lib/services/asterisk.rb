@@ -1,13 +1,21 @@
+require(File.expand_path '../../../config/boot.rb', __FILE__)
+require(File.expand_path '../../../config/environment.rb', __FILE__)
 require(File.expand_path '../../../lib/batphone/lib/fastagi.rb', __FILE__)
 
 class FastAGIServer < FastAGIProtocol
   def agi_post_init
-    answer
+    context = AsteriskAdapter.new self
+
+    flow = Flow.new context
+    flow.run [:answer]
+
     p "Hola!"
 
     stream_file('beep', nil).callback do |response|
       close_connection
     end
+  rescue Exception => e
+    puts "#{e.message}: #{e.backtrace}"
   end
 end
 
