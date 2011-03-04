@@ -6,16 +6,16 @@ class FastAGIServer < FastAGIProtocol
   def agi_post_init
     context = AsteriskAdapter.new self
 
+    p "agi_post_init"
+
     flow = Flow.new context
-    flow.run [:answer]
-
-    p "Hola!"
-
-    #stream_file('beep', nil).callback do |response|
-      #close_connection
-    #end
-
-    close_connection
+    flow.run [
+      :answer,
+      {:play => 'http://people.sc.fsu.edu/~jburkardt/data/wav/woman.wav'},
+      {:puts => 'Sigo...'},
+      :hangup,
+      {:puts => 'Funciona?'},
+    ]
   rescue Exception => e
     puts "#{e.message}: #{e.backtrace}"
   end

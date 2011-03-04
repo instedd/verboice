@@ -35,11 +35,15 @@ class FastAGIProtocol < EventMachine::Protocols::LineAndTextProtocol
 
   # Send a command, and return a Deferrable for the Response object.
   def send(cmd, *args)
+    f = Fiber.current
     msg = build_msg(cmd, *args)
     d = EM::DefaultDeferrable.new
     @agi_queue << [msg, d]
     flush_queue
-    d
+    d.callback do
+      f.resume
+    end
+    Fiber.yield
   end
 
   # Try to send the next command from the queue.

@@ -37,6 +37,10 @@ Verbo Installation Guide
         $ make install
         * On verbo root execute:
           $ cp etc/asterisk/* /usr/local/asterisk/etc/asterisk/
+  * sox
+
+    * Install sox:
+      * Mac: $ brew install sox
 
   * Blink: to test FreeSWITCH and Asterisk are properly installed
    * Install Blink (a SIP client):
