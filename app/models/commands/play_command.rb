@@ -4,32 +4,36 @@ class PlayCommand
   end
 
   def run(context)
-    md5 = Digest::MD5.hexdigest @url
+    # Create a hash for the url to store it locally with that name
+    @md5 = Digest::MD5.hexdigest @url
+    @target_filename = context.sound_path_for @md5
 
-    target_filename = context.sound_path_for md5
-    if File.exists? target_filename
-      context.play target_filename
-      return
-    end
+    # Download the sound if it does not exist locally already
+    download unless File.exists? @target_filename
 
-    tmp_filename = "#{Rails.root}/tmp/#{md5}"
-    tmp_file = File.new tmp_filename, "wb"
+    # And play it!
+    context.play @target_filename
+  end
 
+  private
+
+  def download
+    # Download the file to a temporary location
     http = EventMachine::HttpRequest.new(@url).get
-    http.stream do |chunk|
-      tmp_file.print chunk
-    end
 
+    tmp_file = File.new "#{Rails.root}/tmp/#{@md5}", "wb"
+    http.stream{|chunk| tmp_file.print chunk}
+
+    # When done, convert it to gsm and delete the temp file
     f = Fiber.current
     http.callback do
-      `sox #{tmp_filename} -r 8000 -c1 #{target_filename}`
+      tmp_file.flush
+      `sox #{tmp_file.path} -r 8000 -c1 #{@target_filename}`
       File.delete tmp_file
 
       f.resume
     end
 
     Fiber.yield
-
-    context.play target_filename
   end
 end
