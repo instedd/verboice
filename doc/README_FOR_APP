@@ -46,12 +46,8 @@ Verbo Installation Guide
    * Install Blink (a SIP client):
      * Download: http://icanblink.com/
      * Once installed, go to Preferences and add a new account:
-       * For FreeSWITCH:
-         * SIP Address: 1000@<your-ip>
-         * Password: 1234
-         (these are the defualts for FreeSWITCH)
-       * For Asterisk:
-         * SIP Address: 200@<your-ip>
-         * Password: 200
+       * SIP Address: 1000@<your-ip>
+       * Password: 1234
+       (these will work for FreeSWITCH defaults and for asterisk when copying the config from this project)
      * You can check if it works by calling the number 1000 (type it on the search box and press enter).
        This will call yourself :-P
