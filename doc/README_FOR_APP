@@ -37,10 +37,16 @@ Verbo Installation Guide
         $ make install
         * On verbo root execute:
           $ cp etc/asterisk/* /usr/local/asterisk/etc/asterisk/
-  * sox
+
+  * sox (wav to gsm converter)
 
     * Install sox:
       * Mac: $ brew install sox
+
+  * lame (mp3 to wav converter)
+
+    * Install lame:
+      * Mac: I think it comes in xcode
 
   * Blink: to test FreeSWITCH and Asterisk are properly installed
    * Install Blink (a SIP client):
