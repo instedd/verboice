@@ -4,18 +4,15 @@ class Flow
   end
 
   def run(commands)
-    f = Fiber.new do
-      commands.each do |cmd|
-        if cmd.is_a? Hash
-          cmd, args = cmd.first
-          cmd = "#{cmd.to_s.camelcase}Command".constantize.new args
-        else
-          cmd = "#{cmd.to_s.camelcase}Command".constantize.new
-        end
-
-        cmd.run @context
+    commands.each do |cmd|
+      if cmd.is_a? Hash
+        cmd, args = cmd.first
+        cmd = "#{cmd.to_s.camelcase}Command".constantize.new args
+      else
+        cmd = "#{cmd.to_s.camelcase}Command".constantize.new
       end
+
+      cmd.run @context
     end
-    f.resume
   end
 end

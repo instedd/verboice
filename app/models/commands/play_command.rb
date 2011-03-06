@@ -22,7 +22,7 @@ class PlayCommand
 
     f = Fiber.current
     http.callback do
-      target_filename = context.install_sound tmp_filename
+      `sox #{tmp_filename} -r 8000 -c1 #{target_filename}`
       File.delete tmp_file
 
       f.resume

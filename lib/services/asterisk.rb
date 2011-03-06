@@ -4,20 +4,19 @@ require(File.expand_path '../../../lib/batphone/lib/fastagi.rb', __FILE__)
 
 class FastAGIServer < FastAGIProtocol
   def agi_post_init
-    context = AsteriskAdapter.new self
+    f = Fiber.new do
+      context = AsteriskAdapter.new self
 
-    p "agi_post_init"
-
-    flow = Flow.new context
-    flow.run [
-      :answer,
-      {:play => 'http://people.sc.fsu.edu/~jburkardt/data/wav/woman.wav'},
-      {:puts => 'Sigo...'},
-      :hangup,
-      {:puts => 'Funciona?'},
-    ]
-  rescue Exception => e
-    puts "#{e.message}: #{e.backtrace}"
+      flow = Flow.new context
+      flow.run [
+        :answer,
+        {:play => 'http://people.sc.fsu.edu/~jburkardt/data/wav/woman.wav'},
+        {:puts => 'After play'},
+        :hangup,
+        {:puts => 'After hangup'},
+      ]
+    end
+    f.resume
   end
 end
 

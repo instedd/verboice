@@ -11,10 +11,13 @@ class MyApp < Librevox::Listener::Outbound
     context = FreeswitchAdapter.new self
 
     flow = Flow.new context
-    flow.run [:answer]
-
-    p session
-    hangup
+    flow.run [
+      :answer,
+      {:play => 'http://people.sc.fsu.edu/~jburkardt/data/wav/woman.wav'},
+      {:puts => 'After play'},
+      :hangup,
+      {:puts => 'After hangup'},
+    ]
   end
 end
 

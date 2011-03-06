@@ -20,14 +20,8 @@ class AsteriskAdapter
     "#{SoundsPath}#{basename}.gsm"
   end
 
-  def install_sound(filename)
-    target = sound_path_for File.basename(filename)
-    `sox #{filename} -r 8000 -c1 #{target}`
-    target
-  end
-
   def play(filename)
-    filename = filename[SoundsPath.length .. -5] # Remove sounds_path and .gsm extension
+    filename = filename[SoundsPath.length .. -5] # Remove SoundsPath and .gsm extension
     @context.stream_file("verbo/#{filename}", nil)
   end
 end
