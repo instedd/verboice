@@ -16,7 +16,10 @@ class FastAGIProtocol < EventMachine::Protocols::LineAndTextProtocol
       if @agi_mode == :environment
         if not parse_env line
           @agi_mode = :commands
-          agi_post_init if respond_to? :agi_post_init
+          f = Fiber.new do
+            agi_post_init
+          end
+          f.resume
         end
       else # @agi_mode == :commands
         @log.debug "<< "+line if not @log.nil?
