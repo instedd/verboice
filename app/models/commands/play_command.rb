@@ -4,50 +4,48 @@ class PlayCommand
   end
 
   def run(context)
-    # Create a hash for the url to store it locally with that name
     @md5 = Digest::MD5.hexdigest @url
-    @target_filename = context.sound_path_for @md5
+    target_path = context.sound_path_for @md5
 
-    # Download the sound if it does not exist locally already
-    download unless File.exists? @target_filename
+    download_url_to target_path unless File.exists? target_path
 
-    # And play it!
-    context.play @target_filename
+    context.play target_path
   end
 
   private
 
-  def download
-    # Download the file to a temporary location
-    dot_extension = @url.dot_extension
-    tmp_file = File.new "#{Rails.root}/tmp/#{@md5}#{dot_extension}", "wb"
+  def download_url_to(target_path)
+    download_url_to_temporary_location do |file|
+      convert_to_wav file if @url.end_with? '.mp3'
+      convert_to_8000_hz_gsm file, target_path
+    end
+  end
+
+  def download_url_to_temporary_location
+    tmp_file = File.new "#{Rails.root}/tmp/#{@md5}#{@url.dot_extension}", "wb"
 
     http = EventMachine::HttpRequest.new(@url).get
     http.stream{|chunk| tmp_file.print chunk}
 
-    # When done, convert it to gsm and delete the temp file
     f = Fiber.current
     http.callback do
       tmp_file.flush
 
-      convert_to_wav tmp_file if dot_extension == '.mp3'
-      convert_to_8000hz_gsm tmp_file
+      yield tmp_file.path
 
       File.delete tmp_file
-
       f.resume
     end
-
     Fiber.yield
   end
 
-  def convert_to_wav(tmp_file)
-    `lame --decode #{tmp_file.path} #{tmp_file.path}.wav`
-    File.delete tmp_file.path
-    FileUtils.mv "#{tmp_file.path}.wav", tmp_file.path
+  def convert_to_wav(file)
+    `lame --decode #{file} #{file}.wav`
+    File.delete file
+    FileUtils.mv "#{file}.wav", file
   end
 
-  def convert_to_8000hz_gsm(tmp_file)
-    `sox #{tmp_file.path} -r 8000 -c1 #{@target_filename}`
+  def convert_to_8000_hz_gsm(input, output)
+    `sox #{input} -r 8000 -c1 #{output}`
   end
 end
