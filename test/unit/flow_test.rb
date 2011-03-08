@@ -8,12 +8,12 @@ class FlowTest < ActiveSupport::TestCase
 
   test "run no args command" do
     @context.expects(:foo)
-    @flow.run [:no_args]
+    @flow.run { no_args }
   end
 
   test "run args command" do
     @context.expects(:bar).with(1)
-    @flow.run [:args => {:n => 1}]
+    @flow.run { args :n => 1 }
   end
 end
 

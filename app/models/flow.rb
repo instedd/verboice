@@ -3,7 +3,8 @@ class Flow
     @context = context
   end
 
-  def run(commands)
+  def run(commands = [], &block)
+    commands = Script.new(&block).commands if block_given?
     commands.each do |cmd|
       if cmd.is_a? Hash
         cmd, args = cmd.first

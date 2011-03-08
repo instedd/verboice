@@ -8,7 +8,10 @@ class MyApp < Librevox::Listener::Outbound
   end
 
   def session_initiated
-    commands = script do
+    context = FreeswitchAdapter.new self
+
+    flow = Flow.new context
+    flow.run do
       answer
       puts 'Play a gsm'
       play 'http://www.nch.com.au/acm/sample.gsm'
@@ -20,11 +23,6 @@ class MyApp < Librevox::Listener::Outbound
       hangup
       puts 'After hangup'
     end
-
-    context = FreeswitchAdapter.new self
-
-    flow = Flow.new context
-    flow.run commands
   end
 end
 

@@ -4,7 +4,10 @@ require(File.expand_path '../../../lib/batphone/lib/fastagi.rb', __FILE__)
 
 class FastAGIServer < FastAGIProtocol
   def agi_post_init
-    commands = script do
+    context = AsteriskAdapter.new self
+
+    flow = Flow.new context
+    flow.run do
       answer
       puts 'Play a gsm'
       play 'http://www.nch.com.au/acm/sample.gsm'
@@ -16,11 +19,6 @@ class FastAGIServer < FastAGIProtocol
       hangup
       puts 'After hangup'
     end
-
-    context = AsteriskAdapter.new self
-
-    flow = Flow.new context
-    flow.run commands
   end
 end
 

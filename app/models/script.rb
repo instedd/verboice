@@ -3,7 +3,7 @@
 #
 # You can use it in two ways.
 #
-#    script do
+#    script = Script.new do
 #      answer
 #      play 'something'
 #      hangup
@@ -12,13 +12,15 @@
 # But the previous way won't allow you to include an if command, so
 # you can instead do this:
 #
-#    script do |s|
+#    script = Script.new do |s|
 #      s.answer
 #      s.play 'something'
 #      s.hangup
 #    end
 #
-# In both cases, you will get an array of symbols/hashes.
+# In both cases, you can get the array of commands by doing:
+#
+#    script.commands
 class Script
   attr_accessor :commands
 
