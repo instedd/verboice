@@ -18,24 +18,20 @@
 #      s.hangup
 #    end
 #
-# In both cases, you can get the array of commands by doing:
-#
-#    script.commands
-class Script
+# In both cases, doing Script.new will return an array of commands,
+# *not* an instance of the Script class.
+class Script < BasicObject
   attr_accessor :commands
 
-  def initialize(&block)
-    @commands = []
+  def self.new(&block)
+    script = super()
+    script.commands = []
     if block.arity == 1
-      yield self
+      yield script
     else
-      instance_eval &block
+      script.instance_eval &block
     end
-    @commands
-  end
-
-  def puts(something)
-    @commands << {:puts => something}
+    script.commands
   end
 
   def method_missing(name, *args)

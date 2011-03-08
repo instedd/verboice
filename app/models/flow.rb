@@ -4,7 +4,7 @@ class Flow
   end
 
   def run(commands = [], &block)
-    commands = Script.new(&block).commands if block_given?
+    commands = Script.new &block if block_given?
     commands.each do |cmd|
       if cmd.is_a? Hash
         cmd, args = cmd.first
