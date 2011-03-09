@@ -48,4 +48,16 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     CaptureCommand.new(:finish_on_key => '*').run @context
   end
+
+  test "capture with play" do
+    @context = mock('context')
+    @context.expects(:capture).with(:min => 1, :max => 1, :finish_on_key => '#', :timeout => 5, :play => :target_path).returns(:digit)
+    @context.expects(:set_last_capture).with(:digit)
+
+    play = mock('play')
+    play.expects(:download).with(@context).returns(:target_path)
+    PlayCommand.expects(:new).with(:url).returns(play)
+
+    CaptureCommand.new(:play => :url).run @context
+  end
 end

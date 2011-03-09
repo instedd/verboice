@@ -6,6 +6,8 @@ class CaptureCommand
   end
 
   def run(context)
+    @options[:play] = PlayCommand.new(@options[:play]).download(context) if @options[:play]
+
     digits = context.capture @options
     context.set_last_capture digits
   end

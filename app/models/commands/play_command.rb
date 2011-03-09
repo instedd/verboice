@@ -4,12 +4,15 @@ class PlayCommand
   end
 
   def run(context)
+    target_path = download context
+    context.play target_path
+  end
+
+  def download(context)
     @md5 = Digest::MD5.hexdigest @url
     target_path = context.sound_path_for @md5
-
     download_url_to target_path unless File.exists? target_path
-
-    context.play target_path
+    target_path
   end
 
   private
