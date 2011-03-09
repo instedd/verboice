@@ -22,4 +22,20 @@ class FreeswitchAdapter
   def play(filename)
     @context.playback filename
   end
+
+  def capture(options)
+    file = options[:play] || 'silence_stream://1'
+    freeswitch_options = {
+      :min => options[:min],
+      :max => options[:max],
+      :terminators => options[:finish_on_key],
+      :timeout => options[:timeout] * 1000,
+      :variable => 'last_capture'
+    }
+    @context.read file, freeswitch_options
+  end
+
+  def set_last_capture(digits)
+    p digits
+  end
 end
