@@ -12,4 +12,9 @@ class FreeswitchAdapterTest < ActiveSupport::TestCase
       @adapter.send cmd
     end
   end
+
+  test "play" do
+    @context.expects(:playback).with(:url)
+    @adapter.play :url
+  end
 end

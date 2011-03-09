@@ -16,4 +16,11 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
     @context.expects :close_connection
     @adapter.send :hangup
   end
+
+  test "play" do
+    path = @adapter.sound_path_for 'something'
+
+    @context.expects(:stream_file).with('verbo/something', nil)
+    @adapter.play path
+  end
 end
