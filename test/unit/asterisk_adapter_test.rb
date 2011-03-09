@@ -4,6 +4,7 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
   setup do
     @context = mock('context')
     @adapter = AsteriskAdapter.new @context
+    @seq = sequence('seq')
   end
 
   test 'answer' do
@@ -20,7 +21,7 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
   test "play" do
     path = @adapter.sound_path_for 'something'
 
-    @context.expects(:stream_file).with('verbo/something', nil).returns(stub('line', :result => '1'.ord.to_s))
+    @context.expects(:stream_file).with('verbo/something', nil).returns(line '1'.ord.to_s)
     value = @adapter.play path
     assert_equal '1', value
   end
@@ -28,7 +29,7 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
   test "play with escape digits" do
     path = @adapter.sound_path_for 'something'
 
-    @context.expects(:stream_file).with('verbo/something', '123').returns(stub('line', :result => '0'))
+    @context.expects(:stream_file).with('verbo/something', '123').returns(line '0')
     value = @adapter.play path, '123'
     assert_nil value
   end
@@ -40,7 +41,7 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
    '42' => '*',
    '0' => nil}.each do |result, digit|
     test "capture one digit #{digit}" do
-      @context.expects(:wait_for_digit).with(5 * 1000).returns(stub('line', :result => result))
+      expect_digit result
       value = @adapter.capture :min => 1, :max => 1, :finish_on_key => '', :timeout => 5
       assert_equal digit, value
     end
@@ -49,9 +50,7 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
   test "capture two digits" do
     seq = sequence('digits')
 
-    '42'.each_char do |c|
-      @context.expects(:wait_for_digit).with(5 * 1000).returns(stub('line', :result => c.ord.to_s)).in_sequence(seq)
-    end
+    expect_digits '42'
     value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '#', :timeout => 5
     assert_equal '42', value
   end
@@ -59,9 +58,7 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
   test "capture three digits timeout" do
     seq = sequence('digits')
 
-    ['4'.ord.to_s, '2'.ord.to_s, '0'].each do |c|
-      @context.expects(:wait_for_digit).with(5 * 1000).returns(stub('line', :result => c)).in_sequence(seq)
-    end
+    expect_digits ['4'.ord.to_s, '2'.ord.to_s, '0']
     value = @adapter.capture :min => 3, :max => 3, :finish_on_key => '#', :timeout => 5
     assert_equal nil, value
   end
@@ -69,9 +66,7 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
   test "capture digits finishes on key" do
     seq = sequence('digits')
 
-    '42#'.each_char do |c|
-      @context.expects(:wait_for_digit).with(5 * 1000).returns(stub('line', :result => c.ord.to_s)).in_sequence(seq)
-    end
+    expect_digits '42#'
     value = @adapter.capture :min => 1, :max => 5, :finish_on_key => '#', :timeout => 5
     assert_equal '42', value
   end
@@ -79,17 +74,31 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
   test "capture digits while playing" do
     seq = sequence('digits')
 
-    @adapter.expects(:play).with('some_file', '0123456789#*').returns('4')
-    @context.expects(:wait_for_digit).with(5 * 1000).returns(stub('line', :result => '50')).in_sequence(seq)
+    @adapter.expects(:play).with('some_file', '0123456789#*').returns('4').in_sequence(@seq)
+    expect_digit '2'.ord.to_s
     value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '#', :timeout => 5, :play => 'some_file'
     assert_equal '42', value
   end
 
   test "capture digits and play is finish key" do
-    seq = sequence('digits')
-
-    @adapter.expects(:play).with('some_file', '0123456789#*').returns('*')
+    @adapter.expects(:play).with('some_file', '0123456789#*').returns('*').in_sequence(@seq)
     value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
     assert_equal nil, value
+  end
+
+  def expect_digits(digits)
+    if digits.is_a? Array
+      digits.each { |digit| expect_digit digit }
+    else
+      digits.each_char { |c| expect_digit c.ord.to_s }
+    end
+  end
+
+  def expect_digit(result)
+    @context.expects(:wait_for_digit).with(5 * 1000).returns(line result).in_sequence(@seq)
+  end
+
+  def line(result)
+    stub('line', :result => result)
   end
 end
