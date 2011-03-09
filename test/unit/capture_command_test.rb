@@ -1,9 +1,13 @@
 require 'test_helper'
 
 class CaptureCommandTest < ActiveSupport::TestCase
+  setup do
+    @defaults = {:min => 1, :max => 1, :finish_on_key => '#', :timeout => 5}
+  end
+
   test "capture one key" do
     @context = mock('context')
-    @context.expects(:capture).with(:min => 1, :max => 1, :finish_on_key => '#', :timeout => 5).returns(:digit)
+    @context.expects(:capture).with(@defaults).returns(:digit)
     @context.expects(:set_last_capture).with(:digit)
 
     CaptureCommand.new.run @context
@@ -11,7 +15,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
   test "capture at least two keys" do
     @context = mock('context')
-    @context.expects(:capture).with(:min => 2, :max => Float::INFINITY, :finish_on_key => '#', :timeout => 5).returns(:digit)
+    @context.expects(:capture).with(@defaults.merge :min => 2, :max => Float::INFINITY).returns(:digit)
     @context.expects(:set_last_capture).with(:digit)
 
     CaptureCommand.new(:min => 2).run @context
@@ -19,7 +23,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
   test "capture at most three keys" do
     @context = mock('context')
-    @context.expects(:capture).with(:min => 1, :max => 3, :finish_on_key => '#', :timeout => 5).returns(:digit)
+    @context.expects(:capture).with(@defaults.merge :max => 3).returns(:digit)
     @context.expects(:set_last_capture).with(:digit)
 
     CaptureCommand.new(:max => 3).run @context
@@ -27,7 +31,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
   test "capture exactly four keys" do
     @context = mock('context')
-    @context.expects(:capture).with(:min => 4, :max => 4, :finish_on_key => '#', :timeout => 5).returns(:digit)
+    @context.expects(:capture).with(@defaults.merge :min => 4, :max => 4).returns(:digit)
     @context.expects(:set_last_capture).with(:digit)
 
     CaptureCommand.new(:min => 4, :max => 4).run @context
@@ -35,7 +39,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
   test "capture with timeout" do
     @context = mock('context')
-    @context.expects(:capture).with(:min => 1, :max => 1, :finish_on_key => '#', :timeout => 1).returns(:digit)
+    @context.expects(:capture).with(@defaults.merge :timeout => 1).returns(:digit)
     @context.expects(:set_last_capture).with(:digit)
 
     CaptureCommand.new(:timeout => 1).run @context
@@ -43,7 +47,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
   test "capture with finish on key" do
     @context = mock('context')
-    @context.expects(:capture).with(:min => 1, :max => 1, :finish_on_key => '*', :timeout => 5).returns(:digit)
+    @context.expects(:capture).with(@defaults.merge :finish_on_key => '*').returns(:digit)
     @context.expects(:set_last_capture).with(:digit)
 
     CaptureCommand.new(:finish_on_key => '*').run @context
@@ -51,7 +55,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
   test "capture with play" do
     @context = mock('context')
-    @context.expects(:capture).with(:min => 1, :max => 1, :finish_on_key => '#', :timeout => 5, :play => :target_path).returns(:digit)
+    @context.expects(:capture).with(@defaults.merge :play => :target_path).returns(:digit)
     @context.expects(:set_last_capture).with(:digit)
 
     play = mock('play')
