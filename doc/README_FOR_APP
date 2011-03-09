@@ -57,3 +57,9 @@ Verbo Installation Guide
        (these will work for FreeSWITCH defaults and for asterisk when copying the config from this project)
      * You can check if it works by calling the number 1000 (type it on the search box and press enter).
        This will call yourself :-P
+
+Documentation
+=============
+
+  * Asterisk AGI commands: http://www.voip-info.org/wiki/view/Asterisk+AGI
+  * FreeSWITCH commands: http://wiki.freeswitch.org/wiki/Mod_dptools

@@ -11,18 +11,7 @@ class MyApp < Librevox::Listener::Outbound
     context = FreeswitchAdapter.new self
 
     flow = Flow.new context
-    flow.run do
-      answer
-      puts 'Play a gsm'
-      play 'http://www.nch.com.au/acm/sample.gsm'
-      puts 'Play a wav'
-      play 'http://people.sc.fsu.edu/~jburkardt/data/wav/woman.wav'
-      puts 'Play an mp3'
-      play 'http://www.tonycuffe.com/mp3/tailtoddle_lo.mp3'
-      puts 'After play'
-      hangup
-      puts 'After hangup'
-    end
+    flow.run "#{Rails.root}/lib/services/commands.rb"
   end
 end
 

@@ -43,8 +43,8 @@ class FastAGIProtocol < EventMachine::Protocols::LineAndTextProtocol
     d = EM::DefaultDeferrable.new
     @agi_queue << [msg, d]
     flush_queue
-    d.callback do
-      f.resume
+    d.callback do |line|
+      f.resume line
     end
     Fiber.yield
   end

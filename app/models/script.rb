@@ -20,6 +20,10 @@
 #
 # In both cases, doing Script.new will return an array of commands,
 # *not* an instance of the Script class.
+#
+# You can also load a script from the filesystem doing:
+#
+#    script = Script.load "/foo/bar/path"
 class Script < BasicObject
   attr_accessor :commands
 
@@ -32,6 +36,10 @@ class Script < BasicObject
       script.instance_eval &block
     end
     script.commands
+  end
+
+  def self.load(file)
+    new { instance_eval(::File.read file) }
   end
 
   def method_missing(name, *args)

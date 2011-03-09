@@ -7,20 +7,13 @@ class FastAGIServer < FastAGIProtocol
     context = AsteriskAdapter.new self
 
     flow = Flow.new context
-    flow.run do
-      answer
-      puts 'Play a gsm'
-      play 'http://www.nch.com.au/acm/sample.gsm'
-      puts 'Play a wav'
-      play 'http://people.sc.fsu.edu/~jburkardt/data/wav/woman.wav'
-      puts 'Play an mp3'
-      play 'http://www.tonycuffe.com/mp3/tailtoddle_lo.mp3'
-      puts 'After play'
-      hangup
-      puts 'After hangup'
-    end
+    flow.run "#{Rails.root}/lib/services/commands.rb"
   end
 end
+
+set_trace_func proc { |event, file, line, id, binding, classname|
+  printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname if event == 'raise'
+}
 
 EM::run do
   EM::start_server '127.0.0.1', 19000, FastAGIServer
