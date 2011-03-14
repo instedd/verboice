@@ -10,6 +10,14 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 0) do
+ActiveRecord::Schema.define(:version => 20110314183952) do
+
+  create_table "applications", :force => true do |t|
+    t.string   "name"
+    t.string   "callback_url"
+    t.text     "flow"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end
