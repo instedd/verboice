@@ -35,6 +35,6 @@ class TwimlParser < XmlParser
       end
     end
 
-    {:gather => options}
+    {:capture => options}
   end
 end
