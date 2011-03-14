@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- http://wiki.freeswitch.org/wiki/Dialplan_XML -->
+<include>
+  <context name="default">
+
+    <extension name="verbo">
+      <condition field="destination_number" expression="^.*$">
+        <action application="set" data="verbo_application_id=${destination_number}"/>
+        <action application="socket" data="localhost:9876 sync full"/>
+      </condition>
+    </extension>
+
+  </context>
+</include>
