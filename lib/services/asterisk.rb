@@ -6,7 +6,8 @@ class FastAGIServer < FastAGIProtocol
   def agi_post_init
     context = AsteriskAdapter.new self
 
-    app = Application.find self['arg_1']
+    app_id = self['arg_1']
+    app = Application.find app_id
     app.run context
   end
 end

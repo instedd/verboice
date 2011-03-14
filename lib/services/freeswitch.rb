@@ -10,8 +10,9 @@ class MyApp < Librevox::Listener::Outbound
   def session_initiated
     context = FreeswitchAdapter.new self
 
-    flow = Flow.new context
-    flow.run "#{Rails.root}/lib/services/commands.rb"
+    app_id = session[:variable_verbo_application_id]
+    app = Application.find app_id
+    app.run context
   end
 end
 
