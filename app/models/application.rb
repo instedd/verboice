@@ -5,8 +5,12 @@ class Application < ActiveRecord::Base
     session = Session.new
     session.pbx = pbx
     session.application = self
-    session.commands = (self.flow || [:answer, {:callback => self.callback_url}]).dup
+    session.commands = self.commands.dup
 
     session.run
+  end
+
+  def commands
+    self.flow || [:answer, {:callback => self.callback_url}]
   end
 end

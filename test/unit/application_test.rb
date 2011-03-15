@@ -10,13 +10,15 @@ class ApplicationTest < ActiveSupport::TestCase
     assert_equal [:play => 'foo'], app.flow
   end
 
-  test "run with flow" do
-    pbx = mock('pbx')
-    pbx.expects(:answer)
-
+  test "commands is flow when present" do
     app = Application.make_unsaved
     app.flow = [:answer]
-    app.run pbx
+    assert_equal app.flow, app.commands
   end
 
+  test "commands when callback url is present" do
+    app = Application.make_unsaved
+    app.callback_url = 'http://example.com'
+    assert_equal [:answer, {:callback => app.callback_url}], app.commands
+  end
 end
