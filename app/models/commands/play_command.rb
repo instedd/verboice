@@ -3,14 +3,14 @@ class PlayCommand
     @url = url
   end
 
-  def run(context)
-    target_path = download context
-    context.play target_path
+  def run(session)
+    target_path = download session
+    session.pbx.play target_path
   end
 
-  def download(context)
+  def download(session)
     @md5 = Digest::MD5.hexdigest @url
-    target_path = context.sound_path_for @md5
+    target_path = session.pbx.sound_path_for @md5
     download_url_to target_path unless File.exists? target_path
     target_path
   end

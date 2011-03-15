@@ -1,5 +1,5 @@
 class AnswerCommand
-  def run(context)
-    context.answer
+  def run(session)
+    session.pbx.answer
   end
 end

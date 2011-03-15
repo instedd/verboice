@@ -5,9 +5,9 @@ class PlayCommandTest < ActiveSupport::TestCase
     @url = url
     Digest::MD5.expects(:hexdigest).with(@url).returns(:md5)
 
-    @context = mock('context')
-    @context.expects(:sound_path_for).with(:md5).returns(:target_path)
-    @context.expects(:play).with(:target_path)
+    @session = Session.new :pbx => mock('pbx')
+    @session.pbx.expects(:sound_path_for).with(:md5).returns(:target_path)
+    @session.pbx.expects(:play).with(:target_path)
   end
 
   test "don't download if already downloaded" do
@@ -17,7 +17,7 @@ class PlayCommandTest < ActiveSupport::TestCase
 
     cmd = PlayCommand.new @url
     cmd.expects(:download_url_to).never
-    cmd.run(@context)
+    cmd.run @session
   end
 
   test "download mp3 converts first to wav then to gsm" do
@@ -29,7 +29,7 @@ class PlayCommandTest < ActiveSupport::TestCase
     cmd.expects(:download_url_to_temporary_location).yields(:tmp_file)
     cmd.expects(:convert_to_wav).with(:tmp_file)
     cmd.expects(:convert_to_8000_hz_gsm).with(:tmp_file, :target_path)
-    cmd.run(@context)
+    cmd.run @session
   end
 
   test "download wav converts to gsm" do
@@ -41,7 +41,7 @@ class PlayCommandTest < ActiveSupport::TestCase
     cmd.expects(:download_url_to_temporary_location).yields(:tmp_file)
     cmd.expects(:convert_to_wav).never
     cmd.expects(:convert_to_8000_hz_gsm).with(:tmp_file, :target_path)
-    cmd.run(@context)
+    cmd.run @session
   end
 
   test "download gsm still converts to gsm to make it 8000 hz" do
@@ -54,6 +54,6 @@ class PlayCommandTest < ActiveSupport::TestCase
     cmd.expects(:download_url_to_temporary_location).yields(:tmp_file)
     cmd.expects(:convert_to_wav).never
     cmd.expects(:convert_to_8000_hz_gsm).with(:tmp_file, :target_path)
-    cmd.run(@context)
+    cmd.run @session
   end
 end

@@ -5,10 +5,10 @@ class CaptureCommand
     @options[:max] = Float::INFINITY if @options[:max] < @options[:min]
   end
 
-  def run(context)
-    @options[:play] = PlayCommand.new(@options[:play]).download(context) if @options[:play]
+  def run(session)
+    @options[:play] = PlayCommand.new(@options[:play]).download(session) if @options[:play]
 
-    digits = context.capture @options
-    context.last_capture = digits
+    digits = session.pbx.capture @options
+    session[:last_capture] = digits
   end
 end

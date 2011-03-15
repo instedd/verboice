@@ -4,11 +4,11 @@ require(File.expand_path '../../../lib/batphone/lib/fastagi.rb', __FILE__)
 
 class FastAGIServer < FastAGIProtocol
   def agi_post_init
-    context = AsteriskAdapter.new self
+    pbx = AsteriskAdapter.new self
 
     app_id = self['arg_1']
     app = Application.find app_id
-    app.run context
+    app.run pbx
   end
 end
 

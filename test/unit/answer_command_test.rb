@@ -2,8 +2,8 @@ require 'test_helper'
 
 class AnswerCommandTest < ActiveSupport::TestCase
   test "run" do
-    context = mock('context')
-    context.expects(:answer)
-    AnswerCommand.new.run context
+    session = Session.new :pbx => mock('pbx')
+    session.pbx.expects(:answer)
+    AnswerCommand.new.run session
   end
 end

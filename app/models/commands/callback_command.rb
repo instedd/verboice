@@ -3,16 +3,16 @@ class CallbackCommand
     @url = url
   end
 
-  def run(context)
-    @url = context.callback_url unless @url
+  def run(session)
+    @url = session.application.callback_url unless @url
 
-    http = EventMachine::HttpRequest.new(@url).post :body => "CallSid=#{context.session_id}&Digits=#{context.last_capture}"
+    http = EventMachine::HttpRequest.new(@url).post :body => "CallSid=#{session.id}&Digits=#{session[:last_capture]}"
 
     f = Fiber.current
     http.callback do
       body = http.response
       commands = XmlParser.parse body
-      context.push commands
+      session.push_commands commands
 
       f.resume
     end

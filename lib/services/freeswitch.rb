@@ -10,11 +10,11 @@ class MyApp < Librevox::Listener::Outbound
   def session_initiated
     answer
 
-    context = FreeswitchAdapter.new self
+    pbx = FreeswitchAdapter.new self
 
     app_id = session[:variable_verbo_application_id]
     app = Application.find app_id
-    app.run context
+    app.run pbx
   end
 end
 

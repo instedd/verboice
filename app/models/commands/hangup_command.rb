@@ -1,5 +1,5 @@
 class HangupCommand
-  def run(context)
-    context.hangup
+  def run(session)
+    session.pbx.hangup
   end
 end
