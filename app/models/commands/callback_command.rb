@@ -4,9 +4,8 @@ class CallbackCommand
   end
 
   def run(session)
-    @url = session.application.callback_url unless @url
-
-    http = EventMachine::HttpRequest.new(@url).post :body => "CallSid=#{session.id}&Digits=#{session[:last_capture]}"
+    url = @url || session.application.callback_url
+    http = EventMachine::HttpRequest.new(url).post :body => "CallSid=#{session.id}&Digits=#{session[:last_capture]}"
 
     f = Fiber.current
     http.callback do
@@ -17,7 +16,7 @@ class CallbackCommand
       f.resume
     end
     http.errback do
-      puts "Error getting #{@url}"
+      puts "Error getting #{url}"
       f.resume
     end
     Fiber.yield

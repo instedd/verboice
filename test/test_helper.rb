@@ -13,4 +13,16 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here...
   include Mocha::API
+
+  def expect_em_http(method, url, options = {})
+    http = mock('http')
+    EventMachine::HttpRequest.expects(:new).with(url).returns(http)
+
+    http2 = mock('http2')
+    http.expects(method).with(options[:with]).returns(http2)
+
+    http2.expects(:response).returns(options[:returns])
+    http2.expects(:callback).yields
+    http2.expects(:errback)
+  end
 end
