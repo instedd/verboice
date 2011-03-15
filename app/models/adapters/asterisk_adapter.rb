@@ -1,4 +1,6 @@
 class AsteriskAdapter
+  include Context
+
   InstallDir = '/usr/local/asterisk'
   SoundsPath = "#{InstallDir}/var/lib/asterisk/sounds/verbo/"
   FileUtils.mkdir_p SoundsPath
@@ -39,10 +41,6 @@ class AsteriskAdapter
       break if digits.length == options[:max]
     end
     digits.length < options[:min] ? nil : digits
-  end
-
-  def set_last_capture(digits)
-    p digits
   end
 
   private

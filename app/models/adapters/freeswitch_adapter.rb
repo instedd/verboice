@@ -1,4 +1,6 @@
 class FreeswitchAdapter
+  include Context
+
   InstallDir = '/usr/local/freeswitch'
   SoundsPath = "#{InstallDir}/sounds/verbo/"
   FileUtils.mkdir_p SoundsPath
@@ -33,9 +35,5 @@ class FreeswitchAdapter
       :variable => 'last_capture'
     }
     @context.read file, freeswitch_options
-  end
-
-  def set_last_capture(digits)
-    p digits
   end
 end

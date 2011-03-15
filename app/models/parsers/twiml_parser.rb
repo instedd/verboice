@@ -10,7 +10,9 @@ class TwimlParser < XmlParser
       when 'Play'
         script << play(child)
       when 'Gather'
-        script << gather(child)
+        script += gather(child)
+      when 'Hangup'
+        script << :hangup
       end
     end
     script
@@ -35,6 +37,6 @@ class TwimlParser < XmlParser
       end
     end
 
-    {:capture => options}
+    [{:capture => options}, :callback]
   end
 end

@@ -9,6 +9,7 @@ gem 'sqlite3-ruby', :require => 'sqlite3'
 gem 'librevox'
 gem 'em-http-request'
 gem 'nokogiri'
+gem 'guid'
 
 group :test do
   gem 'machinist'

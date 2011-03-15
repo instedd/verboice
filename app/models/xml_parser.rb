@@ -2,8 +2,11 @@ class XmlParser
   @parsers = []
 
   def self.parse(xml)
+    xml = Nokogiri.XML xml
     @parsers.each do |parser|
-      return parser.parse xml if parser.can_parse? xml
+      if parser.can_parse? xml
+        return parser.parse xml
+      end
     end
   end
 
