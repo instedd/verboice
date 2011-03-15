@@ -1,6 +1,4 @@
 class AsteriskAdapter
-  include Context
-
   InstallDir = '/usr/local/asterisk'
   SoundsPath = "#{InstallDir}/var/lib/asterisk/sounds/verbo/"
   FileUtils.mkdir_p SoundsPath

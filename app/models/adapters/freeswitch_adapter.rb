@@ -1,6 +1,4 @@
 class FreeswitchAdapter
-  include Context
-
   InstallDir = '/usr/local/freeswitch'
   SoundsPath = "#{InstallDir}/sounds/verbo/"
   FileUtils.mkdir_p SoundsPath
