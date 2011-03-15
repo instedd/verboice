@@ -10,6 +10,7 @@ gem 'librevox'
 gem 'em-http-request'
 gem 'nokogiri'
 gem 'guid'
+gem 'devise'
 
 group :test do
   gem 'machinist'

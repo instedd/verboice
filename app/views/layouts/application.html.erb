@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Verbo</title>
+  <title>Verbo<%= ' - ' + current_account.email if account_signed_in? %></title>
   <%= stylesheet_link_tag :all %>
   <%= javascript_include_tag :defaults %>
   <%= csrf_meta_tag %>
 </head>
 <body>
+
+<div id="header">
+<%= link_to 'Verbo', root_path, :id => 'title' -%>
+<% if account_signed_in? %>
+  <span id="toolbar"><%= current_account.email -%> |
+    <%= link_to 'Logoff', destroy_account_session_path -%></span>
+<% end %>
+</div>
+
+<p class="notice"><%= notice %></p>
+<p class="alert"><%= alert %></p>
 
 <%= yield %>
 
