@@ -8,8 +8,6 @@ class MyApp < Librevox::Listener::Outbound
   end
 
   def session_initiated
-    answer
-
     pbx = FreeswitchAdapter.new self
 
     app_id = session[:variable_verbo_application_id]
