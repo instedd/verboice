@@ -1,5 +1,23 @@
 Verbo::Application.routes.draw do
+  resources :controllers
+
+  get "application/new"
+
+  get "application/index"
+
+  get "application/create"
+
+  get "application/show"
+
+  get "application/edit"
+
+  get "application/update"
+
+  get "application/destroy"
+
   devise_for :accounts
+
+  root :to => "home#index"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -50,7 +68,7 @@ Verbo::Application.routes.draw do
 
   # You can have the root of your site routed with "root"
   # just remember to delete public/index.html.
-  root :to => "home#index"
+  # root :to => "welcome#index"
 
   # See how all your routes lay out with "rake routes"
 

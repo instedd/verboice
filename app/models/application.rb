@@ -1,4 +1,6 @@
 class Application < ActiveRecord::Base
+  belongs_to :account
+
   serialize :flow, Array
 
   def run(pbx)
