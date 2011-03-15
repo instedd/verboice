@@ -1,0 +1,18 @@
+<p>
+  <b>Name:</b>
+  <%= @application.name %>
+</p>
+
+<p>
+  <b>Callback url:</b>
+  <%= @application.callback_url %>
+</p>
+
+<p>
+  <b>Flow:</b>
+  <%= @application.flow %>
+</p>
+
+
+<%= link_to 'Edit', edit_application_path(@application) %> |
+<%= link_to 'Back', applications_path %>

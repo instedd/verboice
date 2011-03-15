@@ -1,23 +1,9 @@
 Verbo::Application.routes.draw do
-  resources :controllers
-
-  get "application/new"
-
-  get "application/index"
-
-  get "application/create"
-
-  get "application/show"
-
-  get "application/edit"
-
-  get "application/update"
-
-  get "application/destroy"
+  root :to => "applications#index"
 
   devise_for :accounts
 
-  root :to => "home#index"
+  resources :applications
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

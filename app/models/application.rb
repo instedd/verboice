@@ -1,6 +1,9 @@
 class Application < ActiveRecord::Base
   belongs_to :account
 
+  validates_presence_of :name
+  validates_uniqueness_of :name, :scope => :account_id
+
   serialize :flow, Array
 
   def run(pbx)

@@ -1,0 +1,27 @@
+<h1>Listing applications</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Callback url</th>
+    <th>Flow</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @applications.each do |application| %>
+  <tr>
+    <td><%= application.name %></td>
+    <td><%= application.callback_url %></td>
+    <td><%= application.flow %></td>
+    <td><%= link_to 'Show', application %></td>
+    <td><%= link_to 'Edit', edit_application_path(application) %></td>
+    <td><%= link_to 'Destroy', application, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Application', new_application_path %>

@@ -24,6 +24,7 @@ class PlayCommandTest < ActiveSupport::TestCase
     setup_for_url 'http://foo.mp3'
 
     File.expects(:exists?).with(:target_path).returns(false)
+    File.expects(:is_mpeg?).with(:tmp_file).returns(true)
 
     cmd = PlayCommand.new @url
     cmd.expects(:download_url_to_temporary_location).yields(:tmp_file)
