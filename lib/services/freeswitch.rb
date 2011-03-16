@@ -12,7 +12,12 @@ class MyApp < Librevox::Listener::Outbound
 
     app_id = session[:variable_verbo_application_id]
     app = Application.find app_id
-    app.run pbx
+    begin
+      app.run pbx
+    rescue Exception => ex
+      puts "FATAL: #{ex.inspect}"
+      close_connection
+    end
   end
 end
 
