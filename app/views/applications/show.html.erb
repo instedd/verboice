@@ -4,15 +4,29 @@
 </p>
 
 <p>
-  <b>Callback url:</b>
-  <%= @application.callback_url %>
+  <b>Mode:</b>
+  <%= @application.info %>
 </p>
 
-<p>
-  <b>Flow:</b>
-  <%= @application.flow %>
-</p>
-
+<% if @application.mode == :flow %>
+  <ul>
+    <% @application.commands.each do |cmd| %>
+      <li>
+        <% if cmd.is_a? Hash %>
+          <% name, args = cmd.first %>
+          <b><%= name %></b>
+          <% if args.is_a? Hash %>
+            <%= args.reject { |k, v| v.blank? }.map { |k, v| "#{k}: #{v}" }.join ', ' %>
+          <% else %>
+            <%= args %>
+          <% end %>
+        <% else %>
+          <b><%= cmd %></b>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
 
 <%= link_to 'Edit', edit_application_path(@application) %> |
 <%= link_to 'Back', applications_path %>

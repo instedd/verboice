@@ -38,7 +38,7 @@ $(function() {
       }
       args_html += '/>';
     }
-    var $li = $('<li>' + name + args_html + ' &nbsp; <a href="javascript:void(0)">remove</a>' + '</li>');
+    var $li = $('<li><b>' + name + '</b>' + args_html + ' &nbsp; <a href="javascript:void(0)">remove</a>' + '</li>');
     $li.find('a').click(function() { $li.remove(); });
 
     $application_flow.append($li);
