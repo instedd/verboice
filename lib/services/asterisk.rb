@@ -13,7 +13,10 @@ class FastAGIServer < FastAGIProtocol
       app.run pbx
     rescue Exception => ex
       puts "FATAL: #{ex.inspect}"
+    ensure
+      p "Closing..."
       close_connection
+      p "Closed..."
     end
   end
 end
@@ -21,6 +24,10 @@ end
 #set_trace_func proc { |event, file, line, id, binding, classname|
 #  printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname if event == 'raise'
 #}
+
+EM.error_handler do |err|
+  p err
+end
 
 EM::run do
   EM::start_server '127.0.0.1', 19000, FastAGIServer

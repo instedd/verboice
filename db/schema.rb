@@ -43,7 +43,7 @@ ActiveRecord::Schema.define(:version => 20110316202540) do
   create_table "call_logs", :force => true do |t|
     t.integer  "account_id"
     t.integer  "application_id"
-    t.datetime "finshed_at"
+    t.datetime "finished_at"
     t.string   "direction"
     t.string   "address"
     t.string   "state"

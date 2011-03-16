@@ -23,6 +23,17 @@ class SessionTest < ActiveSupport::TestCase
     @session.commands = [:push => :no_args]
     @session.run
   end
+
+  test "saves log" do
+    @pbx.expects(:answer)
+    @session.log = CallLog.make
+    @session.commands = [:answer]
+    @session.run
+
+    logs = CallLog.all
+    assert_equal 1, logs.length
+    assert_match /^I.*?Answer/, logs.first.details
+  end
 end
 
 class NoArgsCommand

@@ -3,9 +3,9 @@ require(File.expand_path '../../../config/environment.rb', __FILE__)
 require 'librevox'
 
 class MyApp < Librevox::Listener::Outbound
-  event :channel_hangup do
-    done
-  end
+  #event :channel_hangup do
+    #done
+  #end
 
   def session_initiated
     pbx = FreeswitchAdapter.new self
@@ -17,6 +17,8 @@ class MyApp < Librevox::Listener::Outbound
     rescue Exception => ex
       puts "FATAL: #{ex.inspect}"
       close_connection
+    ensure
+      done
     end
   end
 end

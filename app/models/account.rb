@@ -8,4 +8,5 @@ class Account < ActiveRecord::Base
   attr_accessible :email, :password, :password_confirmation, :remember_me
 
   has_many :applications
+  has_many :call_logs
 end

@@ -1,0 +1,18 @@
+<p>
+  Here you can see the details of incoming and outgoing calls.
+</p>
+
+<table class="table">
+  <tr>
+    <th></th>
+  </tr>
+
+<% @logs.each do |log| %>
+  <tr>
+    <td><%= log.inspect %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+

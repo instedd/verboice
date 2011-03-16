@@ -1,5 +1,6 @@
 class Application < ActiveRecord::Base
   belongs_to :account
+  has_many :call_logs
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
@@ -10,6 +11,7 @@ class Application < ActiveRecord::Base
     session = Session.new
     session.pbx = pbx
     session.application = self
+    session.log = CallLog.create! :account => account, :application => self, :state => :active, :details => ''
     session.commands = self.commands.dup
 
     session.run
