@@ -1,4 +1,6 @@
-class PlayCommand
+class PlayCommand < Command
+  param :url, :string, :ui_length => 80
+
   def initialize(url)
     @url = url
   end

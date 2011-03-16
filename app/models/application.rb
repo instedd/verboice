@@ -22,4 +22,12 @@ class Application < ActiveRecord::Base
   def info
     self.flow ? "custom flow" : "callback #{self.callback_url}"
   end
+
+  def mode
+    self.flow ? :flow : :callback_url
+  end
+
+  def mode=(value)
+    # This is just for the UI
+  end
 end

@@ -11,6 +11,7 @@ gem 'em-http-request'
 gem 'nokogiri'
 gem 'guid'
 gem 'devise'
+gem "jquery-rails"
 
 group :test do
   gem 'machinist'

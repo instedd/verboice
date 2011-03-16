@@ -1,8 +1,15 @@
+<% content_for(:head) do %>
+  <%= javascript_include_tag 'flow' %>
+  <script type="text/javascript">
+    var commands = <%= raw Command.specs.to_json %>;
+    var flow = <%= raw @application.flow.to_json %>;
+  </script>
+<% end %>
+
 <%= form_for(@application) do |f| %>
   <% if @application.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@application.errors.count, "error") %> prohibited this application from being saved:</h2>
-
       <ul>
       <% @application.errors.full_messages.each do |msg| %>
         <li><%= msg %></li>
@@ -17,13 +24,20 @@
       <%= f.text_field :name %>
     </div>
   <% end %>
+
   <div class="field">
+    <%= f.select :mode, options_for_select([['Use a callback URL', :callback_url], ['Use a custom flow', :flow]], @application.mode) %>
+  </div>
+
+  <div id="callback_url_container" class="field" <%= raw 'style="display:none"' if @application.mode != :callback_url %>>
     <%= f.label :callback_url %><br />
     <%= f.text_field :callback_url %>
   </div>
-  <div class="field">
+  <div id="flow_container" class="field" <%= raw 'style="display:none"' if @application.mode != :flow %>>
     <%= f.label :flow %><br />
-    <%= f.text_area :flow %>
+    <select id="flow_actions"></select>
+    <ul id="application_flow">
+    </ul>
   </div>
   <div class="actions">
     <%= f.submit %>

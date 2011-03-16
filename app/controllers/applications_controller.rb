@@ -37,13 +37,12 @@ class ApplicationsController < ApplicationController
   # GET /applications/1/edit
   def edit
     @application = current_account.applications.find(params[:id])
-    @application.flow = @application.flow.inspect if @application.flow
   end
 
   # POST /applications
   # POST /applications.xml
   def create
-    params[:application][:flow] = eval(params[:application][:flow])
+    params[:application][:flow] = get_flow
 
     @application = Application.new(params[:application])
     @application.account = current_account
@@ -62,7 +61,7 @@ class ApplicationsController < ApplicationController
   # PUT /applications/1
   # PUT /applications/1.xml
   def update
-    params[:application][:flow] = eval(params[:application][:flow])
+    params[:application][:flow] = get_flow
 
     @application = current_account.applications.find(params[:id])
 
@@ -87,5 +86,20 @@ class ApplicationsController < ApplicationController
       format.html { redirect_to(applications_url, :notice => "Application #{@application.name} successfully deleted.") }
       format.xml  { head :ok }
     end
+  end
+
+  private
+
+  def get_flow
+    ret = params[:application][:flow].map do |props|
+      name = props[:name].downcase.to_sym
+      args = props.reject { |k, v| k.to_sym == :name}
+      case args.length
+      when 0 then name
+      when 1 then {name => args.first[1]}
+      else {name => args.to_hash}
+      end
+    end
+    ret
   end
 end

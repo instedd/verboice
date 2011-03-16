@@ -1,5 +1,8 @@
 class XmlParser
   @parsers = []
+  def self.inherited(subclass)
+    @parsers << subclass
+  end
 
   def self.parse(xml)
     xml = Nokogiri.XML xml
@@ -9,8 +12,8 @@ class XmlParser
       end
     end
   end
+end
 
-  def self.inherited(subclass)
-    @parsers << subclass
-  end
+Dir["#{Rails.root}/app/models/parsers/*"].each do |file|
+  ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]).constantize
 end

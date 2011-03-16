@@ -1,4 +1,5 @@
-class CallbackCommand
+class CallbackCommand < Command
+  param :url, :string, :optional => true
   def initialize(url = nil)
     @url = url
   end
