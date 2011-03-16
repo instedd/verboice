@@ -1,3 +1,4 @@
-context default {
-  9999 => AGI(agi://127.0.0.1:19000/);
+context verbo {
+    h => NoOp();
+    _. => AGI(agi://localhost:19000,${EXTEN});
 }
