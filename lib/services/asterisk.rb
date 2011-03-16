@@ -5,10 +5,16 @@ require(File.expand_path '../../../lib/batphone/lib/fastagi.rb', __FILE__)
 class FastAGIServer < FastAGIProtocol
   def agi_post_init
     pbx = AsteriskAdapter.new self
+    @log = Rails.logger
 
     app_id = self['arg_1']
     app = Application.find app_id
-    app.run pbx
+    begin
+      app.run pbx
+    rescue Exception => ex
+      puts "FATAL: #{ex.inspect}"
+      close_connection
+    end
   end
 end
 

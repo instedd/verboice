@@ -32,12 +32,16 @@ class PlayCommand
 
     f = Fiber.current
     http.callback do
-      tmp_file.flush
+      begin
+        tmp_file.flush
 
-      yield tmp_file.path
+        yield tmp_file.path
 
-      File.delete tmp_file
-      f.resume
+        File.delete tmp_file
+        f.resume
+      rescue Exception => e
+        f.resume e
+      end
     end
     Fiber.yield
   end
@@ -51,5 +55,8 @@ class PlayCommand
 
   def convert_to_8000_hz_gsm(input, output)
     `sox #{input} -r 8000 -c1 #{output}`
+    if $?.exitstatus == 2
+      raise Exception.new 'Error processing audio file'
+    end
   end
 end

@@ -6,4 +6,4 @@ syntax: glob
 *.lock
 *.pid
 *.*~
-
+tmp/*
