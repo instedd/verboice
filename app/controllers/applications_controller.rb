@@ -37,7 +37,7 @@ class ApplicationsController < ApplicationController
   # GET /applications/1/edit
   def edit
     @application = current_account.applications.find(params[:id])
-    @application.flow = @application.flow.inspect
+    @application.flow = @application.flow.inspect if @application.flow
   end
 
   # POST /applications
@@ -50,7 +50,7 @@ class ApplicationsController < ApplicationController
 
     respond_to do |format|
       if @application.save
-        format.html { redirect_to(@application, :notice => 'Application was successfully created.') }
+        format.html { redirect_to(applications_path, :notice => "Application #{@application.name} successfully created.") }
         format.xml  { render :xml => @application, :status => :created, :location => @application }
       else
         format.html { render :action => "new" }
@@ -68,7 +68,7 @@ class ApplicationsController < ApplicationController
 
     respond_to do |format|
       if @application.update_attributes(params[:application])
-        format.html { redirect_to(@application, :notice => 'Application was successfully updated.') }
+        format.html { redirect_to(applications_path, :notice => "Application #{@application.name} successfully updated.") }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }
@@ -84,7 +84,7 @@ class ApplicationsController < ApplicationController
     @application.destroy
 
     respond_to do |format|
-      format.html { redirect_to(applications_url) }
+      format.html { redirect_to(applications_url, :notice => "Application #{@application.name} successfully deleted.") }
       format.xml  { head :ok }
     end
   end

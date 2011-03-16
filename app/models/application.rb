@@ -18,4 +18,8 @@ class Application < ActiveRecord::Base
   def commands
     self.flow || [:answer, {:callback => self.callback_url}]
   end
+
+  def info
+    self.flow ? "custom flow" : "callback #{self.callback_url}"
+  end
 end

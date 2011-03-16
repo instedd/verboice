@@ -12,6 +12,16 @@ pre {
   font-size: 11px;
 }
 
+h4 {
+  color: white;
+  text-decoration: none;
+  background-color: #a79261;
+  border-top: 2px solid #68573c;
+  font-weight: bold;
+  padding: 2px;
+  clear: both;
+}
+
 a { color: #000; }
 a:visited { color: #666; }
 a:hover { color: #fff; background-color:#000; }
@@ -70,4 +80,42 @@ div.field, div.actions {
   font-size: 14px;
   float:right;
   clear:both;
+}
+
+table.table {
+  padding: 0px;
+  border: 0px;
+}
+
+.table td {
+  border: 0px;
+  padding: 1px;
+  background-color: #EFEFEF;
+}
+
+.table tr.even td {
+  background-color: #EFEFEF;
+}
+
+.table tr.odd td {
+  background-color: #DADADA;
+}
+
+.table th  {
+  border: 0px;
+  padding: 1px;
+  background-color: #DAD1BC;
+  font-size: 12px;
+}
+
+.notice {
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  background:#FFF1A8;
+  padding:4px 10px 4px 10px;
+  font-weight:bold;
+  margin-left:35%;
+  display:inline-block;
+  text-align:center;
+  clear: both;
 }
