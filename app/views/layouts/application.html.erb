@@ -13,16 +13,18 @@
       <%- unless notice.nil? -%>
         <span class="notice"><%= notice -%></span>
       <%- end -%>
-      <%- unless alert.nil? -%>
-        <span class="alert"><%= alert -%></span>
-      <%- end -%>
       <% if account_signed_in? %>
         <span id="toolbar"><%= current_account.email -%> |
           <%= link_to 'Logoff', destroy_account_session_path -%></span>
       <% end %>
     </div>
-    <%= render :partial => 'shared/tabs' -%>
+    <% if account_signed_in? %>
+      <%= render :partial => 'shared/tabs' -%>
+    <% end %>
     <div id="main">
+      <%- unless alert.nil? -%>
+        <span class="alert"><%= alert -%></span>
+      <%- end -%>
       <%= yield %>
     </div>
     <div id="version_separator"></div>
