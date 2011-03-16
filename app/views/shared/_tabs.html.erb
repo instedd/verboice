@@ -1,0 +1,13 @@
+<ul id="tabs">
+  <%-
+    selected_tab = @selected_tab || controller.class.name[0 .. -11].downcase.to_sym
+    [
+      ['Applications', :applications]
+      #['Channels', :channels]
+    ].each do |name, action|
+    -%>
+  <li<%= raw (selected_tab == action ? ' class="selected"' : '')%>><%= link_to name, eval("#{action}_path") -%></li>
+    <%-
+  end
+  -%>
+</ul>

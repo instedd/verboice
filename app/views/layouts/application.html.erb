@@ -7,22 +7,26 @@
   <%= csrf_meta_tag %>
 </head>
 <body>
-
-<div id="header">
-<%= link_to 'Verbo', root_path, :id => 'title' -%>
-<%- unless notice.nil? -%>
-  <span class="notice"><%= notice -%></span>
-<%- end -%>
-<%- unless alert.nil? -%>
-  <span class="alert"><%= alert -%></span>
-<%- end -%>
-<% if account_signed_in? %>
-  <span id="toolbar"><%= current_account.email -%> |
-    <%= link_to 'Logoff', destroy_account_session_path -%></span>
-<% end %>
-</div>
-
-<%= yield %>
-
+  <div id="container">
+    <div id="header">
+      <%= link_to 'Verbo', root_path, :id => 'title' -%>
+      <%- unless notice.nil? -%>
+        <span class="notice"><%= notice -%></span>
+      <%- end -%>
+      <%- unless alert.nil? -%>
+        <span class="alert"><%= alert -%></span>
+      <%- end -%>
+      <% if account_signed_in? %>
+        <span id="toolbar"><%= current_account.email -%> |
+          <%= link_to 'Logoff', destroy_account_session_path -%></span>
+      <% end %>
+    </div>
+    <%= render :partial => 'shared/tabs' -%>
+    <div id="main">
+      <%= yield %>
+    </div>
+    <div id="version_separator"></div>
+    <div id="version">Version: <%= verbo_version -%></div>
+  </div>
 </body>
 </html>
