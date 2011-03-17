@@ -21,6 +21,9 @@ class ActiveSupport::TestCase
     http2 = mock('http2')
     http.expects(method).with(options[:with]).returns(http2)
 
+    headers = stub('headers', :status => 200)
+    http2.expects(:response_header).returns(headers)
+
     http2.expects(:response).returns(options[:returns])
     http2.expects(:callback).yields
     http2.expects(:errback)

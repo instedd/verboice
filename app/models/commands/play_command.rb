@@ -6,9 +6,9 @@ class PlayCommand < Command
   end
 
   def run(session)
-    target_path = download session
-
     session.info "Play #{@url}"
+
+    target_path = download session
     session.pbx.play target_path
   end
 
@@ -37,11 +37,15 @@ class PlayCommand < Command
     tmp_file = File.new "#{Rails.root}/tmp/#{@md5}", "wb"
 
     http = EventMachine::HttpRequest.new(@url).get
-    http.stream{|chunk| tmp_file.print chunk}
+    http.stream { |chunk| tmp_file.print chunk }
 
     f = Fiber.current
     http.callback do
       begin
+        if http.response_header.status.to_i != 200
+          raise "Donwload failed with status #{http.response_header.status}"
+        end
+
         tmp_file.flush
 
         yield tmp_file.path
@@ -52,6 +56,7 @@ class PlayCommand < Command
         f.resume e
       end
     end
+    http.errback { f.resume Exception.new(http.error) }
     Fiber.yield
   end
 

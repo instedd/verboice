@@ -77,7 +77,9 @@ class CaptureCommandTest < ActiveSupport::TestCase
   end
 
   test "capture with play" do
-    expect_capture :play => :target_path
+    @session.expects(:log).with(:info => "Waiting user input", :trace => "Waiting user input: #{@defaults.merge(:play => :url).to_pretty_s}")
+    @session.pbx.expects(:capture).with(@defaults.merge(:play => :target_path)).returns(@digit)
+    @session.expects(:info).with("User pressed: #{@digit}")
 
     play = mock('play')
     play.expects(:download).with(@session).returns(:target_path)

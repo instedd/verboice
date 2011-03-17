@@ -15,18 +15,24 @@ class CallbackCommand < Command
 
     f = Fiber.current
     http.callback do
-      body = http.response
+      begin
+        if http.response_header.status.to_i != 200
+          raise "Callback failed with status #{http.response_header.status}"
+        end
 
-      session.trace "Callback returned: #{body}"
+        body = http.response
 
-      commands = XmlParser.parse body
-      session.push_commands commands
+        session.trace "Callback returned: #{body}"
 
-      f.resume
+        commands = XmlParser.parse body
+        session.push_commands commands
+
+        f.resume
+      rescue Exception => e
+        f.resume e
+      end
     end
-    http.errback do
-      f.resume Exception.new("Callback failed with status #{http.response_header.status}")
-    end
+    http.errback { f.resume Exception.new(http.error) }
     Fiber.yield
   end
 end
