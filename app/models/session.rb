@@ -8,6 +8,7 @@ class Session
   def initialize(options = {})
     @vars = {}
     @id = Guid.new.to_s
+    @log_level = :trace
     options.each do |key, value|
       send "#{key}=", value
     end
@@ -22,14 +23,11 @@ class Session
   end
 
   def run
-    p "!!!"
     run_command until @commands.empty?
-    p "???"
-  rescue => ex
-    p ":-("
+  rescue Exception => ex
+    error ex.message
     @log.finish :failed if @log
   else
-    p ":-D"
     @log.finish :completed if @log
   end
 
@@ -38,17 +36,29 @@ class Session
   end
 
   def info(text)
-    log 'I', text
+    _log 'I', text
   end
 
   def error(text)
-    log 'E', text
+    _log 'E', text
+  end
+
+  def trace(text)
+    _log 'T', text
+  end
+
+  def log(options)
+    if @log_level == :trace
+      _log 'T', options[:trace]
+    else
+      _log 'I', options[:info]
+    end
   end
 
   private
 
-  def log(level, text)
-    @log.details << "#{level} #{Time.now.utc.to_s} #{text}\n" if @log
+  def _log(level, text)
+    @log.details << "#{level} #{Time.now.utc - @log.created_at} #{text}\n" if @log
     @log.details_will_change!
   end
 

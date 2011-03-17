@@ -8,12 +8,15 @@ class PlayCommandTest < ActiveSupport::TestCase
     @session = Session.new :pbx => mock('pbx')
     @session.pbx.expects(:sound_path_for).with(:md5).returns(:target_path)
     @session.pbx.expects(:play).with(:target_path)
+    @session.expects(:info).with("Play #{@url}")
   end
 
   test "don't download if already downloaded" do
     setup_for_url 'http://foo.gsm'
 
     File.expects(:exists?).with(:target_path).returns(true)
+
+    @session.expects(:trace).with("File #{@url} is already downloaded")
 
     cmd = PlayCommand.new @url
     cmd.expects(:download_url_to).never
@@ -25,6 +28,8 @@ class PlayCommandTest < ActiveSupport::TestCase
 
     File.expects(:exists?).with(:target_path).returns(false)
     File.expects(:is_mpeg?).with(:tmp_file).returns(true)
+
+    @session.expects(:trace).with("Download #{@url}")
 
     cmd = PlayCommand.new @url
     cmd.expects(:download_url_to_temporary_location).yields(:tmp_file)
@@ -38,6 +43,8 @@ class PlayCommandTest < ActiveSupport::TestCase
 
     File.expects(:exists?).with(:target_path).returns(false)
 
+    @session.expects(:trace).with("Download #{@url}")
+
     cmd = PlayCommand.new @url
     cmd.expects(:download_url_to_temporary_location).yields(:tmp_file)
     cmd.expects(:convert_to_wav).never
@@ -50,6 +57,8 @@ class PlayCommandTest < ActiveSupport::TestCase
     setup_for_url 'http://foo.gsm'
 
     File.expects(:exists?).with(:target_path).returns(false)
+
+    @session.expects(:trace).with("Download #{@url}")
 
     cmd = PlayCommand.new @url
     cmd.expects(:download_url_to_temporary_location).yields(:tmp_file)

@@ -7,13 +7,20 @@ class PlayCommand < Command
 
   def run(session)
     target_path = download session
+
+    session.info "Play #{@url}"
     session.pbx.play target_path
   end
 
   def download(session)
     @md5 = Digest::MD5.hexdigest @url
     target_path = session.pbx.sound_path_for @md5
-    download_url_to target_path unless File.exists? target_path
+    if File.exists? target_path
+      session.trace "File #{@url} is already downloaded"
+    else
+      session.trace "Download #{@url}"
+      download_url_to target_path
+    end
     target_path
   end
 

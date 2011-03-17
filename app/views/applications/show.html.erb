@@ -16,7 +16,7 @@
           <% name, args = cmd.first %>
           <b><%= name %></b>
           <% if args.is_a? Hash %>
-            <%= args.reject { |k, v| v.blank? }.map { |k, v| "#{k}: #{v}" }.join ', ' %>
+            <%= args.to_pretty_s %>
           <% else %>
             <%= args %>
           <% end %>

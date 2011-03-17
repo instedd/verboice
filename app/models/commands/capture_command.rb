@@ -12,9 +12,12 @@ class CaptureCommand < Command
   end
 
   def run(session)
-    @options[:play] = PlayCommand.new(@options[:play]).download(session) if @options[:play]
+    session.log :info => "Waiting user input", :trace => "Waiting user input: #{@options.to_pretty_s}"
 
+    @options[:play] = PlayCommand.new(@options[:play]).download(session) if @options[:play]
     digits = session.pbx.capture @options
+
+    session.info(digits ? "User pressed: #{digits}" : "User didn't press anything")
     session[:last_capture] = digits
   end
 end

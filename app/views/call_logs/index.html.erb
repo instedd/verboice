@@ -2,17 +2,41 @@
   Here you can see the details of incoming and outgoing calls.
 </p>
 
-<table class="table">
-  <tr>
-    <th></th>
-  </tr>
+<% if @logs.empty? %>
+  No call logs found.
+<% else %>
+  <div><%= page_entries_info @logs, :entry_name => 'call log' -%></div>
+  <%= will_paginate @logs, :param_name => 'page' -%>
 
-<% @logs.each do |log| %>
-  <tr>
-    <td><%= log.inspect %></td>
-  </tr>
+  <br />
+
+  <table class="table">
+    <tr>
+      <th>Started</th>
+      <th>Finished</th>
+      <th>Duration</th>
+      <th>Application</th>
+      <th>State</th>
+      <th></th>
+    </tr>
+
+    <% @logs.each do |log| %>
+      <tr>
+        <td><%= raw time_ago log.created_at %></td>
+        <td><%= raw time_ago log.finished_at %></td>
+        <td><%= distance_of_time_in_words(log.finished_at, log.created_at, true) if log.finished_at %></td>
+        <td><%= log.application.try(:name) %></td>
+        <td><%= log.state %></td>
+        <td><%= link_to 'view details', call_log_path(log) %></td>
+      </tr>
+    <% end %>
+  </table>
+
+  <br />
+
+  <div><%= page_entries_info @logs, :entry_name => 'call log' -%></div>
+  <%= will_paginate @logs, :param_name => 'page' -%>
 <% end %>
-</table>
 
 <br />
 

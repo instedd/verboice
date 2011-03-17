@@ -1,0 +1,45 @@
+<h4>Call log details</h4>
+
+<table class="table">
+  <tr>
+    <td><b>Started:</b></td>
+    <td><%= @log.created_at %></td>
+  </tr>
+  <tr>
+    <td><b>Finished:</b></td>
+    <td><%= @log.finished_at %></td>
+  </tr>
+  <tr>
+    <td><b>Duration:</b></td>
+    <td><%= distance_of_time_in_words(@log.finished_at, @log.created_at, true) if @log.finished_at %></td>
+  </tr>
+  <tr>
+    <td><b>Application:</b></td>
+    <td><%= @log.application.try(:name) %></td>
+  </tr>
+  <tr>
+    <td><b>State:</b></td>
+    <td><%= @log.state %></td>
+  </tr>
+</table>
+
+<br />
+
+<table class="table">
+  <tr>
+    <th>Severity</th>
+    <th>When</th>
+    <th>Text</th>
+  </tr>
+  <% @log.structured_details.each do |detail| %>
+    <tr>
+      <td><%= detail[:severity] %></td>
+      <td><%= detail[:time] %></td>
+      <td><%= detail[:text] %></td>
+    </tr>
+  <% end %>
+</table>
+
+<br/>
+
+<%= link_to 'Back', call_logs_path %>
