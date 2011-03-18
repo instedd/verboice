@@ -43,13 +43,7 @@ module Globals
   end
 end
 
-class PbxInterface < EventMachine::Connection
-  include EventMachine::Protocols::ObjectProtocol
-
-  def receive_object(obj)
-    method, args = obj.first
-    self.send(method, *args)
-  end
+class PbxInterface < MagicObjectProtocol::Server
 
   def call(address, application_id)
     EM.schedule do
@@ -69,16 +63,16 @@ class PbxInterface < EventMachine::Connection
 
 end
 
-
 EM.error_handler do |err|
   p err
 end
 
-
 EM::run do
-  EM::start_server '127.0.0.1', 19000, FastAGIServer
-  Globals.ami = EM::connect '127.0.0.1', 5038, AmiClient
-  EM::start_server '127.0.0.1', 8787, PbxInterface
-  puts 'Ready'
-
+  EM.schedule do
+    EM::start_server '127.0.0.1', 19000, FastAGIServer
+    Globals.ami = EM::connect '127.0.0.1', 5038, AmiClient
+    EM::start_server '127.0.0.1', 8787, PbxInterface
+    puts 'Ready'
+  end
 end
+EM.reactor_thread.join

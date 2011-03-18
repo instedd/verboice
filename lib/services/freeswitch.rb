@@ -24,3 +24,4 @@ class MyApp < Librevox::Listener::Outbound
 end
 
 Librevox.start MyApp, :port => "9876"
+EM.reactor_thread.join
