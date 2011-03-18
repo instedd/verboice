@@ -12,27 +12,25 @@ class FastAGIProtocol < EventMachine::Protocols::LineAndTextProtocol
   end
 
   def receive_line(line)
-    begin
-      if @agi_mode == :environment
-        if not parse_env line
-          @agi_mode = :commands
-          f = Fiber.new do
-            agi_post_init
-          end
-          f.resume
+    if @agi_mode == :environment
+      if not parse_env line
+        @agi_mode = :commands
+        f = Fiber.new do
+          agi_post_init
         end
-      else # @agi_mode == :commands
-        @log.debug "<< "+line if not @log.nil?
-        return if @agi_last_defer.nil?
-        @agi_last_defer.succeed Response.new(line)
-        @agi_last_defer = nil
-        flush_queue
+        f.resume
       end
-    rescue Exception => e
-      if not @log.nil?
-        @log.error "#{e.class.name}: #{e.message}"
-        e.backtrace.each { |line| @log.error "\t#{line}" }
-      end
+    else # @agi_mode == :commands
+      @log.debug "<< "+line if not @log.nil?
+      return if @agi_last_defer.nil?
+      @agi_last_defer.succeed Response.new(line)
+      @agi_last_defer = nil
+      flush_queue
+    end
+  rescue Exception => e
+    if not @log.nil?
+      @log.error "#{e.class.name}: #{e.message}"
+      e.backtrace.each { |line| @log.error "\t#{line}" }
     end
   end
 

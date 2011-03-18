@@ -14,9 +14,7 @@ class FastAGIServer < FastAGIProtocol
     rescue Exception => ex
       puts "FATAL: #{ex.inspect}"
     ensure
-      p "Closing..."
       close_connection
-      p "Closed..."
     end
   end
 end
