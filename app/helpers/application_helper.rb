@@ -4,12 +4,12 @@ module ApplicationHelper
     '<span title="' << time.utc.to_s << '">' << time_ago_in_words(time.utc, true) << ' ago</span>'
   end
 
-  def verbo_version
+  def verboice_version
     begin
-      @@verbo_version = File.read('VERSION').strip unless defined? @@verbo_version
+      @@verboice_version = File.read('VERSION').strip unless defined? @@verbo_version
     rescue Errno::ENOENT
-      @@verbo_version = 'Development'
+      @@verboice_version = 'Development'
     end
-    @@verbo_version
+    @@verboice_version
   end
 end

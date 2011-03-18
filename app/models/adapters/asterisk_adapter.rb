@@ -1,6 +1,6 @@
 class AsteriskAdapter
   InstallDir = '/usr/local/asterisk'
-  SoundsPath = "#{InstallDir}/var/lib/asterisk/sounds/verbo/"
+  SoundsPath = "#{InstallDir}/var/lib/asterisk/sounds/verboice/"
   FileUtils.mkdir_p SoundsPath
 
   def initialize(context)
@@ -22,7 +22,7 @@ class AsteriskAdapter
 
   def play(filename, escape_digits = nil)
     filename = filename[SoundsPath.length .. -5] # Remove SoundsPath and .gsm extension
-    line = @context.stream_file("verbo/#{filename}", escape_digits)
+    line = @context.stream_file("verboice/#{filename}", escape_digits)
     ascii_to_number line.result
   end
 

@@ -1,6 +1,6 @@
 class FreeswitchAdapter
   InstallDir = '/usr/local/freeswitch'
-  SoundsPath = "#{InstallDir}/sounds/verbo/"
+  SoundsPath = "#{InstallDir}/sounds/verboice/"
   FileUtils.mkdir_p SoundsPath
 
   def initialize(context)

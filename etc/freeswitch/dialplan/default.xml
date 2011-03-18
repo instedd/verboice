@@ -3,9 +3,9 @@
 <include>
   <context name="default">
 
-    <extension name="verbo">
+    <extension name="verboice">
       <condition field="destination_number" expression="^.*$">
-        <action application="set" data="verbo_application_id=${destination_number}"/>
+        <action application="set" data="verboice_application_id=${destination_number}"/>
         <action application="socket" data="localhost:9876 sync full"/>
       </condition>
     </extension>

@@ -21,7 +21,7 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
   test "play" do
     path = @adapter.sound_path_for 'something'
 
-    @context.expects(:stream_file).with('verbo/something', nil).returns(line '1'.ord.to_s)
+    @context.expects(:stream_file).with('verboice/something', nil).returns(line '1'.ord.to_s)
     value = @adapter.play path
     assert_equal '1', value
   end
@@ -29,7 +29,7 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
   test "play with escape digits" do
     path = @adapter.sound_path_for 'something'
 
-    @context.expects(:stream_file).with('verbo/something', '123').returns(line '0')
+    @context.expects(:stream_file).with('verboice/something', '123').returns(line '0')
     value = @adapter.play path, '123'
     assert_nil value
   end

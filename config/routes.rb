@@ -1,4 +1,4 @@
-Verbo::Application.routes.draw do
+Verboice::Application.routes.draw do
   root :to => "applications#index"
 
   devise_for :accounts

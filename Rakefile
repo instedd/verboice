@@ -4,4 +4,4 @@
 require File.expand_path('../config/application', __FILE__)
 require 'rake'
 
-Verbo::Application.load_tasks
+Verboice::Application.load_tasks

@@ -1,4 +1,4 @@
-Verbo Installation Guide
+Verboice Installation Guide
 ========================
  * Note: $ entries are commands to execute on the terminal
 
@@ -18,8 +18,8 @@ Verbo Installation Guide
    * Enable mod event socket in FreeSWITCH: http://wiki.freeswitch.org/wiki/Event_Socket
      * Usually mod event socket is enabled and the defaults are OK
 
-   * Add a dialplan extension to communicate FreeSWITCH with Verbo:
-     * On verbo root execute:
+   * Add a dialplan extension to communicate FreeSWITCH with Verboice:
+     * On verboice root execute:
        $ cp etc/freeswitch/dialplan/default.xml /usr/local/freeswitch/conf/dialplan
 
   * Asterisk
@@ -30,7 +30,7 @@ Verbo Installation Guide
         $ ./configure --prefix=/usr/local/asterisk
         $ make
         $ make install
-        * On verbo root execute:
+        * On verboice root execute:
           $ cp etc/asterisk/* /usr/local/asterisk/etc/asterisk/
 
   * sox (wav to gsm converter)
