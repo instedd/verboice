@@ -30,6 +30,8 @@ class AmiProtocol < EventMachine::Protocols::LineAndTextProtocol
       puts "Error, received: #{line}"
       close_connection
     end
+  rescue Exception => ex
+    puts ex
   end
 
   def resume_fiber_with(packet)
