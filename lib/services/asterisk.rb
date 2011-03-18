@@ -46,19 +46,11 @@ end
 class PbxInterface < MagicObjectProtocol::Server
 
   def call(address, application_id)
-    EM.schedule do
-      f = Fiber.new do
-        puts address
-
-        response = Globals.ami.originate :channel => address,
-                      :context => 'verboice',
-                      :exten => application_id,
-                      :priority => 1,
-                      :async => true
-        p response
-      end
-      f.resume
-    end
+    Globals.ami.originate :channel => address,
+      :context => 'verboice',
+      :exten => application_id,
+      :priority => 1,
+      :async => true
   end
 
 end

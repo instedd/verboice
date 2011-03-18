@@ -6,7 +6,10 @@ class ApiController < ApplicationController
     @address = params[:address]
 
     client = EM.connect '127.0.0.1', 8787, MagicObjectProtocol::Client
-    client.call @address, @application.id
-    head :ok
+    resp = client.call @address, @application.id
+
+    render :json => resp
+  rescue Exception => ex
+    p ex
   end
 end
