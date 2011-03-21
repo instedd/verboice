@@ -86,6 +86,12 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
     assert_equal nil, value
   end
 
+  test "capture digits and play just one digit" do
+    @adapter.expects(:play).with('some_file', '0123456789#*').returns('1').in_sequence(@seq)
+    value = @adapter.capture :min => 1, :max => 1, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
+    assert_equal '1', value
+  end
+
   def expect_digits(digits)
     if digits.is_a? Array
       digits.each { |digit| expect_digit digit }

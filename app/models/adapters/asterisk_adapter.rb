@@ -31,12 +31,11 @@ class AsteriskAdapter
     digits = play(options[:play], '0123456789#*') || '' if options[:play]
     return nil if digits != '' && options[:finish_on_key].include?(digits)
 
-    while true
+    until digits.length == options[:max]
       digit = capture_digit(options[:timeout] * 1000)
       break if digit.nil? || options[:finish_on_key].include?(digit)
 
       digits << digit
-      break if digits.length == options[:max]
     end
     digits.length < options[:min] ? nil : digits
   end
