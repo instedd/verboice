@@ -35,7 +35,13 @@ class AmiClient < AmiProtocol
   end
 
   def receive_event(event)
-    p event
+    if event[:event] == 'OriginateResponse' && event[:response] == 'Failure'
+      p event
+      call_log = CallLog.find event[:actionid]
+      return unless call_log
+      call_log.log 'E', 'Failed to establish the communication'
+      call_log.finish :failed
+    end
   end
 end
 
@@ -51,7 +57,8 @@ class PbxInterface < MagicObjectProtocol::Server
     Globals.ami.originate :channel => address,
       :application => 'AGI',
       :data => "agi://localhost:19000,#{application_id},#{call_log_id}",
-      :async => true
+      :async => true,
+      :actionid => call_log_id
   end
 
 end
