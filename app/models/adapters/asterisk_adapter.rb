@@ -23,6 +23,9 @@ class AsteriskAdapter
   def play(filename, escape_digits = nil)
     filename = filename[SoundsPath.length .. -5] # Remove SoundsPath and .gsm extension
     line = @context.stream_file("verboice/#{filename}", escape_digits)
+    if line.result == '-1'
+      raise Exception.new 'Error playing file'
+    end
     ascii_to_number line.result
   end
 

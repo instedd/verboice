@@ -34,6 +34,13 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
     assert_nil value
   end
 
+  test "play throws exception when fails" do
+    @context.expects(:stream_file).returns(line '-1')
+    assert_raise(Exception) do
+      @adapter.play 'foo'
+    end
+  end
+
   {'48' => '0',
    '49' => '1',
    '57' => '9',
