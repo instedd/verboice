@@ -36,30 +36,24 @@ class Session
   end
 
   def info(text)
-    _log 'I', text
+    @log.log 'I', text if @log
   end
 
   def error(text)
-    _log 'E', text
+    @log.log 'E', text if @log
   end
 
   def trace(text)
-    _log 'T', text
+    @log.log 'T', text if @log
   end
 
   def log(options)
+    return unless @log
     if @log_level == :trace
-      _log 'T', options[:trace]
+      @log.log 'T', options[:trace]
     else
-      _log 'I', options[:info]
+      @log.log 'I', options[:info]
     end
-  end
-
-  private
-
-  def _log(level, text)
-    @log.details << "#{level} #{Time.now.utc - @log.created_at} #{text}\n" if @log
-    @log.details_will_change!
   end
 
   def run_command
