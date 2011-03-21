@@ -24,4 +24,9 @@ class CallLog < ActiveRecord::Base
     end
     str
   end
+
+  def log(level, text)
+    details << "#{level} #{Time.now.utc - created_at} #{text}\n"
+    details_will_change!
+  end
 end

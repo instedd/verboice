@@ -7,11 +7,11 @@ class Application < ActiveRecord::Base
 
   serialize :flow, Array
 
-  def run(pbx)
+  def run(pbx, call_log = nil)
     session = Session.new
     session.pbx = pbx
     session.application = self
-    session.log = CallLog.create! :account => account, :application => self, :state => :active, :details => ''
+    session.log = call_log || CallLog.create!(:account => account, :application => self, :state => :active, :details => '')
     session.commands = self.commands.dup
 
     session.run

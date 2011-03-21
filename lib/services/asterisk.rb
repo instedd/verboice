@@ -8,9 +8,11 @@ class FastAGIServer < FastAGIProtocol
     @log = Rails.logger
 
     app_id = self['arg_1']
+    call_log_id = self['arg_2']
     app = Application.find app_id
+    call_log = CallLog.find call_log_id if call_log_id
     begin
-      app.run pbx
+      app.run pbx, call_log
     rescue Exception => ex
       puts "FATAL: #{ex.inspect}"
     ensure
@@ -45,11 +47,10 @@ end
 
 class PbxInterface < MagicObjectProtocol::Server
 
-  def call(address, application_id)
+  def call(address, application_id, call_log_id)
     Globals.ami.originate :channel => address,
-      :context => 'verboice',
-      :exten => application_id,
-      :priority => 1,
+      :application => 'AGI',
+      :data => "agi://localhost:19000,#{application_id},#{call_log_id}",
       :async => true
   end
 
