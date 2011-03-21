@@ -11,7 +11,7 @@ class Application < ActiveRecord::Base
     session = Session.new
     session.pbx = pbx
     session.application = self
-    session.log = call_log || CallLog.create!(:account => account, :application => self, :state => :active, :details => '')
+    session.log = call_log || create_call_log
     session.commands = self.commands.dup
 
     session.run
@@ -31,5 +31,22 @@ class Application < ActiveRecord::Base
 
   def mode=(value)
     # This is just for the UI
+  end
+
+  def call(address)
+    call_log = create_call_log
+    call_log.log 'I', "Initiating call from API to #{address}"
+    call_log.save!
+
+    client = EM.connect '127.0.0.1', 8787, MagicObjectProtocol::Client
+    begin
+      return client.call address, self.id, call_log.id
+    ensure
+      client.close_connection
+    end
+  end
+
+  def create_call_log
+    CallLog.create!(:account => account, :application => self, :state => :active, :details => '')
   end
 end
