@@ -1,6 +1,6 @@
 class Application < ActiveRecord::Base
   belongs_to :account
-  has_many :call_logs
+  has_many :call_logs, :dependent => :destroy
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
