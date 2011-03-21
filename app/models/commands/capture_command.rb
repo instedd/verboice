@@ -9,11 +9,11 @@ class CaptureCommand < Command
     @options = {:min => 1, :max => 1, :finish_on_key => '#', :timeout => 5}
     @options.merge! options
     @options[:max] = Float::INFINITY if @options[:max] < @options[:min]
+    @options = @options.with_indifferent_access
   end
 
   def run(session)
     session.log :info => "Waiting user input", :trace => "Waiting user input: #{@options.to_pretty_s}"
-
     @options[:play] = PlayCommand.new(@options[:play]).download(session) if @options[:play]
     digits = session.pbx.capture @options
 
