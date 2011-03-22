@@ -22,7 +22,6 @@ class FastAGIServer < FastAGIProtocol
 end
 
 class AmiClient < AmiProtocol
-
   def post_init
     Fiber.new do
       response = self.login :username => 'verboice', :secret => 'verboice'
@@ -41,6 +40,13 @@ class AmiClient < AmiProtocol
       call_log.finish :failed
     end
   end
+
+  def unbind
+    EM.add_timer(1) do
+      Globals.ami = EM::connect '127.0.0.1', 5038, AmiClient
+    end
+    super
+  end
 end
 
 module Globals
@@ -52,6 +58,7 @@ end
 class PbxInterface < MagicObjectProtocol::Server
 
   def call(address, application_id, call_log_id)
+    raise "PBX is not available" if Globals.ami.error?
     result = Globals.ami.originate :channel => address,
       :application => 'AGI',
       :data => "agi://localhost:19000,#{application_id},#{call_log_id}",
