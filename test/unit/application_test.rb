@@ -21,4 +21,36 @@ class ApplicationTest < ActiveSupport::TestCase
     app.callback_url = 'http://example.com'
     assert_equal [:answer, {:callback => app.callback_url}], app.commands
   end
+
+  test "call ok" do
+    app = Application.make
+    app.expects(:with_pbx_interface).yields(client = mock('client'))
+
+    the_call_log_id = nil
+
+    client.expects(:call).with do |address, app_id, call_log_id|
+      the_call_log_id = call_log_id
+      address == 'foo' && app_id == app.id
+    end
+
+    call_log = app.call 'foo'
+    assert_equal the_call_log_id, call_log.id
+    assert_equal :active, call_log.state
+  end
+
+  test "call raises" do
+    app = Application.make
+    app.expects(:with_pbx_interface).yields(client = mock('client'))
+
+    the_call_log_id = nil
+
+    client.expects(:call).with do |address, app_id, call_log_id|
+      the_call_log_id = call_log_id
+      address == 'foo' && app_id == app.id
+    end.raises("Oh no!")
+
+    call_log = app.call 'foo'
+    assert_equal the_call_log_id, call_log.id
+    assert_equal :failed, call_log.state
+  end
 end
