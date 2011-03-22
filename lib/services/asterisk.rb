@@ -2,6 +2,12 @@ require(File.expand_path '../../../config/boot.rb', __FILE__)
 require(File.expand_path '../../../config/environment.rb', __FILE__)
 require(File.expand_path '../../../lib/batphone/lib/fastagi.rb', __FILE__)
 
+AsteriskConfig = Rails.configuration.asterisk_configuration
+AmiPort = AsteriskConfig[:ami_port].to_i
+FastAgiPort = AsteriskConfig[:fast_agi_port].to_i
+
+PbxInterfacePort = Rails.configuration.verboice_configuration[:pbx_interface_port].to_i
+
 class FastAGIServer < FastAGIProtocol
   def agi_post_init
     pbx = AsteriskAdapter.new self
@@ -43,7 +49,7 @@ class AmiClient < AmiProtocol
 
   def unbind
     EM.add_timer(1) do
-      Globals.ami = EM::connect '127.0.0.1', 5038, AmiClient
+      Globals.ami = EM::connect '127.0.0.1', AmiPort, AmiClient
     end
     super
   end
@@ -61,7 +67,7 @@ class PbxInterface < MagicObjectProtocol::Server
     raise "PBX is not available" if Globals.ami.error?
     result = Globals.ami.originate :channel => address,
       :application => 'AGI',
-      :data => "agi://localhost:19000,#{application_id},#{call_log_id}",
+      :data => "agi://localhost:#{FastAgiPort},#{application_id},#{call_log_id}",
       :async => true,
       :actionid => call_log_id
     raise result[:message] if result[:response] == 'Error'
@@ -76,9 +82,9 @@ end
 
 EM::run do
   EM.schedule do
-    EM::start_server '127.0.0.1', 19000, FastAGIServer
-    Globals.ami = EM::connect '127.0.0.1', 5038, AmiClient
-    EM::start_server '127.0.0.1', 8787, PbxInterface
+    EM::start_server 'localhost', FastAgiPort, FastAGIServer
+    Globals.ami = EM::connect 'localhost', AmiPort, AmiClient
+    EM::start_server 'localhost', PbxInterfacePort, PbxInterface
     puts 'Ready'
   end
 end

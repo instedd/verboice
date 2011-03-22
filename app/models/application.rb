@@ -38,17 +38,24 @@ class Application < ActiveRecord::Base
     call_log.info "Initiating call from API to #{address}"
     call_log.save!
 
-    client = EM.connect '127.0.0.1', 8787, MagicObjectProtocol::Client
     begin
-      client.call address, self.id, call_log.id
-    rescue Exception => ex
+      with_pbx_interface { |client| client.call address, self.id, call_log.id }
+    rescue
       call_log.error ex.message
       call_log.finish :failed
-    ensure
-      client.close_connection
     end
 
     call_log
+  end
+
+  def with_pbx_interface
+    port = Rails.configuration.verboice_configuration[:pbx_interface_port].to_i
+    client = EM.connect '127.0.0.1', port, MagicObjectProtocol::Client
+    begin
+      yield client
+    ensure
+      client.close_connection
+    end
   end
 
   def create_call_log

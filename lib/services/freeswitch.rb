@@ -2,6 +2,9 @@ require(File.expand_path '../../../config/boot.rb', __FILE__)
 require(File.expand_path '../../../config/environment.rb', __FILE__)
 require 'librevox'
 
+OutboundListenerPort = Rails.configuration.freeswitch_configuration[:outbound_listener_port].to_i
+PbxInterfacePort = Rails.configuration.verboice_configuration[:pbx_interface_port].to_i
+
 class FreeswitchOutboundListener < Librevox::Listener::Outbound
   #event :channel_hangup do
     #done
@@ -61,7 +64,7 @@ class PbxInterface < MagicObjectProtocol::Server
   def call(address, application_id, call_log_id)
     raise "PBX is not available" if Globals.freeswitch.error?
     vars = "{verboice_application_id=#{application_id},verboice_call_log_id=#{call_log_id}}"
-    Globals.freeswitch.command "bgapi originate #{vars}#{address} '&socket(localhost:9876 sync full)'"
+    Globals.freeswitch.command "bgapi originate #{vars}#{address} '&socket(localhost:#{OutboundListenerPort} sync full)'"
     nil
   end
 
@@ -70,10 +73,10 @@ end
 EM::run do
   EM.schedule do
     Librevox.start do
-      run FreeswitchOutboundListener, :port => "9876"
+      run FreeswitchOutboundListener, :port => OutboundListenerPort
       Globals.freeswitch = run FreeswitchInboundListener
     end
-    EM::start_server '127.0.0.1', 8787, PbxInterface
+    EM::start_server '127.0.0.1', PbxInterfacePort, PbxInterface
     puts 'Ready'
   end
 end

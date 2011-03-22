@@ -1,5 +1,5 @@
 class AsteriskAdapter
-  InstallDir = '/usr/local/asterisk'
+  InstallDir = Rails.configuration.asterisk_configuration[:install_dir]
   SoundsPath = "#{InstallDir}/var/lib/asterisk/sounds/verboice/"
   FileUtils.mkdir_p SoundsPath
 
