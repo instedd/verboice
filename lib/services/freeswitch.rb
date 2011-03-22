@@ -33,7 +33,7 @@ class FreeswitchInboundListener < Librevox::Listener::Inbound
       args = CGI.unescape event.content[:job_command_arg]
       if args.match /verboice_call_log_id=(\d+)/
         call_log = CallLog.find($1) or return
-        call_log.log 'E', "Failed to establish the communication: #{error_message}"
+        call_log.error "Failed to establish the communication: #{error_message}"
         call_log.finish :failed
       end
     end

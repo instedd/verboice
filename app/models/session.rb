@@ -35,24 +35,21 @@ class Session
     @commands.unshift *commands
   end
 
-  def info(text)
-    @log.log 'I', text if @log
-  end
-
-  def error(text)
-    @log.log 'E', text if @log
-  end
-
-  def trace(text)
-    @log.log 'T', text if @log
+  [:info, :error, :trace].each do |name|
+    class_eval %Q(
+      def #{name}(text)
+        @log.#{name} text if @log
+      end
+    )
   end
 
   def log(options)
     return unless @log
+
     if @log_level == :trace
-      @log.log 'T', options[:trace]
+      @log.trace options[:trace]
     else
-      @log.log 'I', options[:info]
+      @log.info options[:info]
     end
   end
 

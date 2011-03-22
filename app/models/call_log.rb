@@ -25,6 +25,16 @@ class CallLog < ActiveRecord::Base
     str
   end
 
+  [:info, :error, :trace].each do |name|
+    class_eval %Q(
+      def #{name}(text)
+        log '#{name.to_s[0].upcase}', text
+      end
+    )
+  end
+
+  private
+
   def log(level, text)
     details << "#{level} #{Time.now.utc - created_at} #{text}\n"
     details_will_change!

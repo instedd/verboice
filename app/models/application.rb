@@ -35,7 +35,7 @@ class Application < ActiveRecord::Base
 
   def call(address)
     call_log = create_call_log
-    call_log.log 'I', "Initiating call from API to #{address}"
+    call_log.info "Initiating call from API to #{address}"
     call_log.save!
 
     client = EM.connect '127.0.0.1', 8787, MagicObjectProtocol::Client

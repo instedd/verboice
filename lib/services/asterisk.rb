@@ -36,8 +36,8 @@ class AmiClient < AmiProtocol
 
   def receive_event(event)
     if event[:event] == 'OriginateResponse' && event[:response] == 'Failure'
-      call_log = CallLog.find event[:actionid] or return
-      call_log.log 'E', 'Failed to establish the communication'
+      call_log = CallLog.find(event[:actionid]) or return
+      call_log.error 'Failed to establish the communication'
       call_log.finish :failed
     end
   end
