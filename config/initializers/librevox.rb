@@ -1,6 +1,6 @@
 
 
-class Librevox::Listener::Base
+class Librevox::Listener::Inbound
 
   def handle_response_with_command_reply
     if response.command_reply? && @command_queue.any?
