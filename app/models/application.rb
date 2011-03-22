@@ -40,7 +40,7 @@ class Application < ActiveRecord::Base
 
     begin
       with_pbx_interface { |client| client.call address, self.id, call_log.id }
-    rescue
+    rescue Exception => ex
       call_log.error ex.message
       call_log.finish :failed
     end
