@@ -6,9 +6,9 @@ numbers = {}
 post '/' do
   session_id = params[:CallSid]
   number = numbers[session_id]
+  pressed = params[:Digits].to_i
 
-  if number
-    pressed = params[:Digits].to_i
+  if number && pressed > 0
     if number == pressed
       '<Response><Play>http://localhost:4567/woman.gsm</Play><Hangup /></Response>'
     elsif number > pressed
