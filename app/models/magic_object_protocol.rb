@@ -25,15 +25,22 @@ module MagicObjectProtocol
       @cv ||= ConditionVariable.new
       send_object name => args
       @mutex.synchronize do
-        @cv.wait @mutex
+        @cv.wait @mutex unless @obj
       end
       raise @obj if @obj.is_a? Exception
       @obj
     end
 
     def receive_object(obj)
-      @obj = obj
       @mutex.synchronize do
+        @obj = obj
+        @cv.signal
+      end
+    end
+
+    def unbind
+      @mutex.synchronize do
+        @obj = Exception.new 'Cannot connect to PBX'
         @cv.signal
       end
     end
