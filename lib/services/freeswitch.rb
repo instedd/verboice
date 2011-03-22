@@ -38,7 +38,7 @@ class PbxInterface < MagicObjectProtocol::Server
 
   def call(address, application_id, call_log_id)
     vars = "{verboice_application_id=#{application_id},verboice_call_log_id=#{call_log_id}}"
-    Globals.freeswitch.command "api originate #{vars}#{address} '&socket(localhost:9876 sync full)'"
+    Globals.freeswitch.command "bgapi originate #{vars}#{address} '&socket(localhost:9876 sync full)'"
   end
 
 end
