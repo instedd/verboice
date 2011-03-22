@@ -13,3 +13,26 @@ class Librevox::Listener::Base
   alias_method_chain :handle_response, :command_reply
 
 end
+
+class Librevox::Response
+
+  attr_accessor :body
+
+  def content_with_body=(content)
+    ignore = true
+    @body = ""
+    content.each do |line|
+      if ignore
+        ignore = false if line.strip == ""
+      else
+        @body << line.strip
+      end
+    end
+
+    self.content_without_body = content
+  end
+
+  alias_method :content_without_body=, :content=
+  alias_method :content=, :content_with_body=
+
+end
