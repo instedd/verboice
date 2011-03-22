@@ -10,6 +10,12 @@ class Librevox::Listener::Base
     end
   end
 
+  def unbind
+    @command_queue.each do |cmd|
+      cmd.resume Exception.new 'Error executing command in PBX'
+    end
+  end
+
   alias_method_chain :handle_response, :command_reply
 
 end

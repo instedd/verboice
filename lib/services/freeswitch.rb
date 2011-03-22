@@ -23,6 +23,7 @@ class FreeswitchOutboundListener < Librevox::Listener::Outbound
       done
     end
   end
+
 end
 
 class FreeswitchInboundListener < Librevox::Listener::Inbound
@@ -39,6 +40,14 @@ class FreeswitchInboundListener < Librevox::Listener::Inbound
     end
   end
 
+  def unbind
+    done
+    EM.add_timer(1) do
+      Globals.freeswitch = Librevox.run FreeswitchInboundListener
+    end
+    super
+  end
+
 end
 
 class Globals
@@ -50,6 +59,7 @@ end
 class PbxInterface < MagicObjectProtocol::Server
 
   def call(address, application_id, call_log_id)
+    raise "PBX is not available" if Globals.freeswitch.error?
     vars = "{verboice_application_id=#{application_id},verboice_call_log_id=#{call_log_id}}"
     Globals.freeswitch.command "bgapi originate #{vars}#{address} '&socket(localhost:9876 sync full)'"
   end

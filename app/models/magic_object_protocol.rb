@@ -6,8 +6,12 @@ module MagicObjectProtocol
     def receive_object(obj)
       method, args = obj.first
       f = Fiber.new do
-        response = self.send(method, *args)
-        send_object response
+        begin
+          response = self.send(method, *args)
+          send_object response
+        rescue Exception => ex
+          send_object ex
+        end
       end
       f.resume
     end
@@ -23,6 +27,7 @@ module MagicObjectProtocol
       @mutex.synchronize do
         @cv.wait @mutex
       end
+      raise @obj if @obj.is_a? Exception
       @obj
     end
 
