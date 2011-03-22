@@ -28,7 +28,8 @@ module MagicObjectProtocol
         @cv.wait @mutex unless @obj
       end
       raise @obj if @obj.is_a? Exception
-      @obj
+      obj, @obj = @obj, nil
+      obj
     end
 
     def receive_object(obj)
