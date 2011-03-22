@@ -62,6 +62,7 @@ class PbxInterface < MagicObjectProtocol::Server
     raise "PBX is not available" if Globals.freeswitch.error?
     vars = "{verboice_application_id=#{application_id},verboice_call_log_id=#{call_log_id}}"
     Globals.freeswitch.command "bgapi originate #{vars}#{address} '&socket(localhost:9876 sync full)'"
+    nil
   end
 
 end

@@ -5,8 +5,8 @@ class ApiController < ApplicationController
     @application = current_account.applications.find params[:application]
     @address = params[:address]
 
-    resp = @application.call @address
+    call_log = @application.call @address
 
-    render :json => resp
+    render :json => {:call_id => call_log.id, :state => call_log.state}
   end
 end

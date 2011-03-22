@@ -40,10 +40,15 @@ class Application < ActiveRecord::Base
 
     client = EM.connect '127.0.0.1', 8787, MagicObjectProtocol::Client
     begin
-      return client.call address, self.id, call_log.id
+      client.call address, self.id, call_log.id
+    rescue Exception => ex
+      call_log.error ex.message
+      call_log.finish :failed
     ensure
       client.close_connection
     end
+
+    call_log
   end
 
   def create_call_log

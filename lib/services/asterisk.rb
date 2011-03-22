@@ -52,11 +52,13 @@ end
 class PbxInterface < MagicObjectProtocol::Server
 
   def call(address, application_id, call_log_id)
-    Globals.ami.originate :channel => address,
+    result = Globals.ami.originate :channel => address,
       :application => 'AGI',
       :data => "agi://localhost:19000,#{application_id},#{call_log_id}",
       :async => true,
       :actionid => call_log_id
+    raise result[:message] if result[:response] == 'Error'
+    nil
   end
 
 end
