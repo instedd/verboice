@@ -1,9 +1,5 @@
 class AmiProtocol < EventMachine::Protocols::LineAndTextProtocol
 
-  def initialize
-    super
-  end
-
   def receive_line(line)
     return @first_line_consumed = true unless @first_line_consumed
 
