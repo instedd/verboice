@@ -6,9 +6,9 @@ OutboundListenerPort = Rails.configuration.freeswitch_configuration[:outbound_li
 PbxInterfacePort = Rails.configuration.verboice_configuration[:pbx_interface_port].to_i
 
 class FreeswitchOutboundListener < Librevox::Listener::Outbound
-  #event :channel_hangup do
-    #done
-  #end
+  event :channel_hangup do |event|
+    @command_queue.shift.resume Exception.new("Communication broken") if @command_queue.any?
+  end
 
   def session_initiated
     pbx = FreeswitchAdapter.new self
