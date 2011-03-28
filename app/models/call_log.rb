@@ -4,6 +4,10 @@ class CallLog < ActiveRecord::Base
 
   Levels = {'E' => :error, 'I' => :info, 'T' => :trace}
 
+  def state
+    read_attribute(:state).try(:to_sym)
+  end
+
   def finish(state)
     self.state = state
     self.finished_at = Time.now.utc
