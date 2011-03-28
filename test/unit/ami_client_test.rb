@@ -1,5 +1,3 @@
-class FastAGIProtocol; end # Because this is in lib/bathphone it doesn't get loaded...
-
 require 'test_helper'
 
 class AmiClientTest < ActiveSupport::TestCase
