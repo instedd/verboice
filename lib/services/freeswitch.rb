@@ -24,6 +24,10 @@ class MyPbxInterface < Freeswitch::PbxInterface
   end
 end
 
+EM.error_handler do |err|
+  p err
+end
+
 EM::run do
   EM.schedule do
     Librevox.start do

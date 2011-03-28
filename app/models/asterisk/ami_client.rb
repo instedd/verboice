@@ -1,5 +1,7 @@
 module Asterisk
   class AmiClient < AmiProtocol
+    Port = Rails.configuration.asterisk_configuration[:ami_port].to_i
+
     def post_init
       Fiber.new do
         response = self.login :username => 'verboice', :secret => 'verboice'

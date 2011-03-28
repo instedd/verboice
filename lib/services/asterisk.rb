@@ -2,12 +2,6 @@ require(File.expand_path '../../../config/boot.rb', __FILE__)
 require(File.expand_path '../../../config/environment.rb', __FILE__)
 require(File.expand_path '../../../lib/batphone/lib/fastagi.rb', __FILE__)
 
-AsteriskConfig = Rails.configuration.asterisk_configuration
-AmiPort = AsteriskConfig[:ami_port].to_i
-FastAgiPort = AsteriskConfig[:fast_agi_port].to_i
-
-PbxInterfacePort = Rails.configuration.verboice_configuration[:pbx_interface_port].to_i
-
 module Globals
   class << self
     attr_accessor :pbx
@@ -17,7 +11,7 @@ end
 class MyAmiClient < Asterisk::AmiClient
   def unbind
     EM.add_timer(1) do
-      Globals.pbx = EM::connect '127.0.0.1', AmiPort, MyAmiClient
+      Globals.pbx = EM::connect '127.0.0.1', Port, MyAmiClient
     end
     super
   end
@@ -35,9 +29,9 @@ end
 
 EM::run do
   EM.schedule do
-    EM::start_server 'localhost', FastAgiPort, Asterisk::FastAGIServer
-    Globals.pbx = EM::connect 'localhost', AmiPort, MyAmiClient
-    EM::start_server 'localhost', PbxInterfacePort, MyPbxInterface
+    EM::start_server 'localhost', Asterisk::FastAGIServer::Port, Asterisk::FastAGIServer
+    Globals.pbx = EM::connect 'localhost', Asterisk::AmiClient::Port, MyAmiClient
+    EM::start_server 'localhost', Asterisk::PbxInterface::Port, MyPbxInterface
     puts 'Ready'
   end
 end
