@@ -2,6 +2,8 @@ class Application < ActiveRecord::Base
   belongs_to :account
   has_many :call_logs, :dependent => :destroy
 
+  before_validation :set_name_to_callback_url, :unless => :name?
+
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
 
@@ -64,4 +66,11 @@ class Application < ActiveRecord::Base
   def create_call_log
     CallLog.create!(:account => account, :application => self, :state => :active, :details => '')
   end
+
+  private
+
+  def set_name_to_callback_url
+    self.name = callback_url
+  end
+
 end

@@ -1,6 +1,16 @@
 require 'test_helper'
 
 class ApplicationTest < ActiveSupport::TestCase
+  test "sets name to callback url if name is empty" do
+    app = Application.make :name => nil, :callback_url => 'foo'
+    assert_equal app.callback_url, app.name
+  end
+
+  test "keeps name if name set" do
+    app = Application.make :name => 'bar', :callback_url => 'foo'
+    assert_equal 'bar', app.name
+  end
+
   test "saves flow in json" do
     app = Application.make_unsaved
     app.flow = [:play => 'foo']
