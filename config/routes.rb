@@ -6,7 +6,7 @@ Verboice::Application.routes.draw do
   resources :applications
   resources :call_logs
 
-  match "api/call/:application" => "api#call"
+  match "api/call" => "api#call"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
