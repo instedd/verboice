@@ -28,4 +28,5 @@ class ActiveSupport::TestCase
     http2.expects(:callback).yields
     http2.expects(:errback)
   end
+
 end
