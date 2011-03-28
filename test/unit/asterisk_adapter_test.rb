@@ -3,7 +3,7 @@ require 'test_helper'
 class AsteriskAdapterTest < ActiveSupport::TestCase
   setup do
     @context = mock('context')
-    @adapter = AsteriskAdapter.new @context
+    @adapter = Asterisk::Adapter.new @context
     @seq = sequence('seq')
   end
 

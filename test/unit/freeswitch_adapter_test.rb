@@ -3,7 +3,7 @@ require 'test_helper'
 class FreeswitchAdapterTest < ActiveSupport::TestCase
   setup do
     @context = mock('context')
-    @adapter = FreeswitchAdapter.new @context
+    @adapter = Freeswitch::Adapter.new @context
   end
 
   [:answer, :hangup].each do |cmd|

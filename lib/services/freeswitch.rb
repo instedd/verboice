@@ -11,7 +11,7 @@ class FreeswitchOutboundListener < Librevox::Listener::Outbound
   end
 
   def session_initiated
-    pbx = FreeswitchAdapter.new self
+    pbx = Freeswitch::Adapter.new self
 
     app_id = session[:variable_verboice_application_id]
     call_log_id = session[:variable_verboice_call_log_id]
@@ -46,7 +46,7 @@ class FreeswitchInboundListener < Librevox::Listener::Inbound
   def unbind
     done
     EM.add_timer(1) do
-      Globals.pbx = Librevox.run FreeswitchInboundListener
+      Globals.freeswitch = Librevox.run FreeswitchInboundListener
     end
     super
   end

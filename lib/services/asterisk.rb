@@ -10,7 +10,7 @@ PbxInterfacePort = Rails.configuration.verboice_configuration[:pbx_interface_por
 
 class FastAGIServer < FastAGIProtocol
   def agi_post_init
-    pbx = AsteriskAdapter.new self
+    pbx = Asterisk::Adapter.new self
     @log = Rails.logger
 
     app_id = self['arg_1']
