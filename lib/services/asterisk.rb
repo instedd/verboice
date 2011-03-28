@@ -49,7 +49,7 @@ class AmiClient < AmiProtocol
 
   def unbind
     EM.add_timer(1) do
-      Globals.ami = EM::connect '127.0.0.1', AmiPort, AmiClient
+      Globals.pbx = EM::connect '127.0.0.1', AmiPort, AmiClient
     end
     super
   end
@@ -57,15 +57,19 @@ end
 
 module Globals
   class << self
-    attr_accessor :ami
+    attr_accessor :pbx
   end
 end
 
 class PbxInterface < MagicObjectProtocol::Server
 
+  def post_init
+    @pbx = Globals.pbx
+  end
+
   def call(address, application_id, call_log_id)
-    raise "PBX is not available" if Globals.ami.error?
-    result = Globals.ami.originate :channel => address,
+    raise "PBX is not available" if @pbx.error?
+    result = @pbx.originate :channel => address,
       :application => 'AGI',
       :data => "agi://localhost:#{FastAgiPort},#{application_id},#{call_log_id}",
       :async => true,
@@ -83,7 +87,7 @@ end
 EM::run do
   EM.schedule do
     EM::start_server 'localhost', FastAgiPort, FastAGIServer
-    Globals.ami = EM::connect 'localhost', AmiPort, AmiClient
+    Globals.pbx = EM::connect 'localhost', AmiPort, AmiClient
     EM::start_server 'localhost', PbxInterfacePort, PbxInterface
     puts 'Ready'
   end

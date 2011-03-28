@@ -46,7 +46,7 @@ class FreeswitchInboundListener < Librevox::Listener::Inbound
   def unbind
     done
     EM.add_timer(1) do
-      Globals.freeswitch = Librevox.run FreeswitchInboundListener
+      Globals.pbx = Librevox.run FreeswitchInboundListener
     end
     super
   end
@@ -55,16 +55,20 @@ end
 
 class Globals
   class << self
-    attr_accessor :freeswitch
+    attr_accessor :pbx
   end
 end
 
 class PbxInterface < MagicObjectProtocol::Server
 
+  def post_init
+    @pbx = Globals.pbx
+  end
+
   def call(address, application_id, call_log_id)
-    raise "PBX is not available" if Globals.freeswitch.error?
+    raise "PBX is not available" if @pbx.error?
     vars = "{verboice_application_id=#{application_id},verboice_call_log_id=#{call_log_id}}"
-    Globals.freeswitch.command "bgapi originate #{vars}#{address} '&socket(localhost:#{OutboundListenerPort} sync full)'"
+    @pbx.command "bgapi originate #{vars}#{address} '&socket(localhost:#{OutboundListenerPort} sync full)'"
     nil
   end
 
@@ -74,7 +78,7 @@ EM::run do
   EM.schedule do
     Librevox.start do
       run FreeswitchOutboundListener, :port => OutboundListenerPort
-      Globals.freeswitch = run FreeswitchInboundListener
+      Globals.pbx = run FreeswitchInboundListener
     end
     EM::start_server '127.0.0.1', PbxInterfacePort, PbxInterface
     puts 'Ready'
