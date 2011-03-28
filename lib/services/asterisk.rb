@@ -17,7 +17,7 @@ end
 class MyAmiClient < Asterisk::AmiClient
   def unbind
     EM.add_timer(1) do
-      Globals.pbx = EM::connect '127.0.0.1', AmiPort, self.class
+      Globals.pbx = EM::connect '127.0.0.1', AmiPort, MyAmiClient
     end
     super
   end
