@@ -7,7 +7,7 @@ PbxInterfacePort = Rails.configuration.verboice_configuration[:pbx_interface_por
 
 class FreeswitchOutboundListener < Librevox::Listener::Outbound
   event :channel_hangup do |event|
-    @command_queue.shift.resume Exception.new("Communication broken") if @command_queue.any?
+    @session.quit!
   end
 
   def session_initiated
@@ -18,7 +18,8 @@ class FreeswitchOutboundListener < Librevox::Listener::Outbound
     app = Application.find app_id
     call_log = CallLog.find call_log_id if call_log_id
     begin
-      app.run pbx, call_log
+      @session = app.new_session pbx, call_log
+      @session.run
     rescue Exception => ex
       puts "FATAL: #{ex.inspect}"
       close_connection
@@ -26,7 +27,6 @@ class FreeswitchOutboundListener < Librevox::Listener::Outbound
       done
     end
   end
-
 end
 
 class FreeswitchInboundListener < Librevox::Listener::Inbound

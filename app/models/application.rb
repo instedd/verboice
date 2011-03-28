@@ -8,13 +8,16 @@ class Application < ActiveRecord::Base
   serialize :flow, Array
 
   def run(pbx, call_log = nil)
+    new_session(pbx, call_log).run
+  end
+
+  def new_session(pbx, call_log = nil)
     session = Session.new
     session.pbx = pbx
     session.application = self
     session.log = call_log || create_call_log
     session.commands = self.commands.dup
-
-    session.run
+    session
   end
 
   def commands

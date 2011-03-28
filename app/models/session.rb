@@ -31,6 +31,10 @@ class Session
     @log.finish :completed if @log
   end
 
+  def quit!
+    @quit = true
+  end
+
   def push_commands(commands)
     @commands.unshift *commands
   end
@@ -54,6 +58,8 @@ class Session
   end
 
   def run_command
+    raise "Quit" if @quit
+
     cmd = @commands.shift
     if cmd.is_a? Hash
       cmd, args = cmd.first
