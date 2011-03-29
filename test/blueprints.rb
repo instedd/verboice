@@ -22,3 +22,9 @@ end
 CallLog.blueprint do
   application
 end
+
+Channel.blueprint do
+  application
+  account { application.account }
+  name
+end

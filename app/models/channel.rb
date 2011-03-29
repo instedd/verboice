@@ -4,4 +4,10 @@ class Channel < ActiveRecord::Base
 
   validates_presence_of :account
   validates_presence_of :application
+
+  after_save :call_pbx_update_channel
+
+  def call_pbx_update_channel
+    PbxClient.update_channel self
+  end
 end
