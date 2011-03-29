@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require(File.expand_path '../../../config/boot.rb', __FILE__)
 require(File.expand_path '../../../config/environment.rb', __FILE__)
 require(File.expand_path '../../../lib/batphone/lib/fastagi.rb', __FILE__)
