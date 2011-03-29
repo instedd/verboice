@@ -17,7 +17,7 @@ class Application < ActiveRecord::Base
     session = Session.new
     session.pbx = pbx
     session.application = self
-    session.log = call_log || create_call_log
+    session.log = call_log || call_logs.create!
     session.commands = self.commands.dup
     session
   end
@@ -39,7 +39,7 @@ class Application < ActiveRecord::Base
   end
 
   def call(address)
-    call_log = create_call_log
+    call_log = call_logs.create!
     call_log.info "Initiating call from API to #{address}"
     call_log.save!
 
@@ -61,10 +61,6 @@ class Application < ActiveRecord::Base
     ensure
       client.close_connection
     end
-  end
-
-  def create_call_log
-    CallLog.create!(:account => account, :application => self, :state => :active, :details => '')
   end
 
   private

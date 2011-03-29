@@ -21,6 +21,4 @@ end
 
 CallLog.blueprint do
   application
-  account { application.account }
-  details { '' }
 end

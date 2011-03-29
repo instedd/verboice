@@ -2,6 +2,11 @@ class CallLog < ActiveRecord::Base
   belongs_to :account
   belongs_to :application
 
+  before_validation :set_account_to_application_account, :if => :application_id?
+
+  validates_presence_of :account
+  validates_presence_of :application
+
   Levels = {'E' => :error, 'I' => :info, 'T' => :trace}
 
   def state
@@ -42,5 +47,9 @@ class CallLog < ActiveRecord::Base
   def log(level, text)
     details << "#{level} #{Time.now.utc - created_at} #{text}\n"
     details_will_change!
+  end
+
+  def set_account_to_application_account
+    self.account_id = self.application.account_id
   end
 end
