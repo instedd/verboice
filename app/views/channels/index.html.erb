@@ -1,0 +1,25 @@
+<div><%= link_to 'Create a new Channel', new_channel_path %></div>
+
+<br />
+
+<table class="table">
+  <tr>
+    <th>Name</th>
+    <th>Application</th>
+    <th></th>
+  </tr>
+
+<% @channels.each do |channel| %>
+  <tr>
+    <td><%= channel.name %></td>
+    <td><%= channel.application_id %></td>
+    <td>
+      <%= link_to 'view', channel %>
+      <%= link_to 'edit', edit_channel_path(channel) %>
+      <%= link_to 'delete', channel, :confirm => "Are you sure you want to delete the channel #{channel.name}?", :method => :delete %>
+    </td>
+  </tr>
+<% end %>
+</table>
+
+<br />

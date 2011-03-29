@@ -9,7 +9,7 @@ module Asterisk
       result = pbx.originate :channel => address,
         :application => 'AGI',
         :data => "agi://localhost:#{Asterisk::FastAGIServer::Port},#{application_id},#{call_log_id}",
-      :async => true,
+        :async => true,
         :actionid => call_log_id
       raise result[:message] if result[:response] == 'Error'
       nil

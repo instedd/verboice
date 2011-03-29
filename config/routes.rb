@@ -1,4 +1,6 @@
 Verboice::Application.routes.draw do
+  resources :channels
+
   root :to => "applications#index"
 
   devise_for :accounts

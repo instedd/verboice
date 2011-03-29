@@ -3,7 +3,7 @@
     selected_tab = @selected_tab || controller.class.name[0 .. -11].underscore.to_sym
     [
       ['Applications', :applications],
-      #['Channels', :channels],
+      ['Channels', :channels],
       ['Call logs', :call_logs]
     ].each do |name, action|
     -%>
