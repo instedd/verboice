@@ -8,6 +8,6 @@ class Channel < ActiveRecord::Base
   after_save :call_pbx_update_channel
 
   def call_pbx_update_channel
-    PbxClient.update_channel self
+    PbxClient.update_channel self.id
   end
 end

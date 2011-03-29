@@ -9,7 +9,9 @@ class ChannelTest < ActiveSupport::TestCase
 
   test "call PbxClient.update_channel on save" do
     channel = Channel.make_unsaved
-    PbxClient.expects(:update_channel).with(channel)
+    PbxClient.expects(:update_channel).with do |channel_id|
+      channel_id == channel.id
+    end
     channel.save
   end
 end
