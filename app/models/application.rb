@@ -44,23 +44,13 @@ class Application < ActiveRecord::Base
     call_log.save!
 
     begin
-      with_pbx_interface { |client| client.call address, self.id, call_log.id }
+      PbxClient.call address, self.id, call_log.id
     rescue Exception => ex
       call_log.error ex.message
       call_log.finish :failed
     end
 
     call_log
-  end
-
-  def with_pbx_interface
-    port = Rails.configuration.verboice_configuration[:pbx_interface_port].to_i
-    client = EM.connect '127.0.0.1', port, MagicObjectProtocol::Client
-    begin
-      yield client
-    ensure
-      client.close_connection
-    end
   end
 
   private

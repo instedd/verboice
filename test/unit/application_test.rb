@@ -51,11 +51,10 @@ class ApplicationTest < ActiveSupport::TestCase
   context "call" do
     setup do
       @app = Application.make
-      @app.expects(:with_pbx_interface).yields(@client = mock('client'))
     end
 
     should "call ok" do
-      @client.expects(:call).with do |address, app_id, call_log_id|
+      PbxClient.expects(:call).with do |address, app_id, call_log_id|
         @the_call_log_id = call_log_id
         address == 'foo' && app_id == @app.id
       end
@@ -66,7 +65,7 @@ class ApplicationTest < ActiveSupport::TestCase
     end
 
     should "call raises" do
-      @client.expects(:call).with do |address, app_id, call_log_id|
+      PbxClient.expects(:call).with do |address, app_id, call_log_id|
         @the_call_log_id = call_log_id
         address == 'foo' && app_id == @app.id
       end.raises("Oh no!")
