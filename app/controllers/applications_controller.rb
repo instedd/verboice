@@ -91,6 +91,8 @@ class ApplicationsController < ApplicationController
   private
 
   def get_flow
+    return nil unless params[:application][:flow].present?
+
     ret = params[:application][:flow].map do |props|
       name = props[:name].downcase.to_sym
       args = props.reject { |k, v| k.to_sym == :name}
