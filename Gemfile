@@ -17,6 +17,7 @@ gem "will_paginate", "~> 3.0.pre2"
 group :test do
   gem 'machinist'
   gem 'ffaker'
+  gem "shoulda"
   gem 'mocha', :require => false
 end
 

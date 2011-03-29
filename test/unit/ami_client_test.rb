@@ -1,36 +1,33 @@
 require 'test_helper'
 
 class AmiClientTest < ActiveSupport::TestCase
-  setup do
-    @ami = Asterisk::AmiClient.new 1
-  end
+  context "receiving events" do
+    setup do
+      @ami = Asterisk::AmiClient.new 1
+      @call_log = CallLog.make
+    end
 
-  test "receive event originate response failure fails call log" do
-    call_log = CallLog.make
+    should "receive event originate response failure fails call log" do
+      @ami.receive_event :event => 'OriginateResponse', :response => 'Failure', :actionid => @call_log.id.to_s
 
-    @ami.receive_event :event => 'OriginateResponse', :response => 'Failure', :actionid => call_log.id.to_s
+      @call_log.reload
+      assert_match /Failed to establish the communication/, @call_log.details
+      assert_equal :failed, @call_log.state
+    end
 
-    call_log.reload
-    assert_match /Failed to establish the communication/, call_log.details
-    assert_equal :failed, call_log.state
-  end
+    should "receive originate response without failure ignores it" do
+      @ami.receive_event :event => 'OriginateResponse', :response => 'Success', :actionid => @call_log.id.to_s
 
-  test "receive originate response without failure ignores it" do
-    call_log = CallLog.make :state => :active
+      @call_log.reload
+      assert_equal :active, @call_log.state
+    end
 
-    @ami.receive_event :event => 'OriginateResponse', :response => 'Success', :actionid => call_log.id.to_s
+    should "receive other failure event ignores it" do
+      @ami.receive_event :event => 'SomeOtherEvent', :response => 'Failure', :actionid => @call_log.id.to_s
 
-    call_log.reload
-    assert_equal :active, call_log.state
-  end
-
-  test "receive other failure event ignores it" do
-    call_log = CallLog.make :state => :active
-
-    @ami.receive_event :event => 'SomeOtherEvent', :response => 'Failure', :actionid => call_log.id.to_s
-
-    call_log.reload
-    assert_equal :active, call_log.state
+      @call_log.reload
+      assert_equal :active, @call_log.state
+    end
   end
 end
 

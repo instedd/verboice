@@ -1,3 +1,5 @@
+class FastAGIProtocol; end;
+
 module Asterisk
   class FastAGIServer < FastAGIProtocol
     Port = Rails.configuration.asterisk_configuration[:fast_agi_port].to_i

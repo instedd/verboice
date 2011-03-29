@@ -1,25 +1,30 @@
 require 'test_helper'
 
 class AccountTest < ActiveSupport::TestCase
-  test "call application" do
-    account = Account.make
-    app = account.applications.make
+  should have_many(:applications)
+  should have_many(:channels)
+  should have_many(:call_logs)
 
-    seq = sequence('seq')
-    account.applications.expects(:find).with(app.id).returns(app).in_sequence(seq)
-    app.expects(:call).with('1234').in_sequence(seq)
+  context "call" do
+    setup do
+      @account = Account.make
+      @account.stubs(:applications => mock('applications'))
+      @app = mock('application')
+      @seq = sequence('seq')
+    end
 
-    account.call :application => app.id, :address => '1234'
-  end
+    should "call application" do
+      @account.applications.expects(:find).with(987).returns(@app).in_sequence(@seq)
+      @app.expects(:call).with('1234').in_sequence(@seq)
 
-  test "call callback finds or creates application" do
-    account = Account.make
-    app = mock('app')
+      @account.call :application => 987, :address => '1234'
+    end
 
-    seq = sequence('seq')
-    account.applications.expects(:find_or_create_by_callback_url).with('callback').returns(app).in_sequence(seq)
-    app.expects(:call).with('1234').in_sequence(seq)
+    should "call callback finds or creates application" do
+      @account.applications.expects(:find_or_create_by_callback_url).with('callback').returns(@app).in_sequence(@seq)
+      @app.expects(:call).with('1234').in_sequence(@seq)
 
-    account.call :callback => 'callback', :address => '1234'
+      @account.call :callback => 'callback', :address => '1234'
+    end
   end
 end

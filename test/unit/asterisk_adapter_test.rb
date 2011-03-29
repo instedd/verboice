@@ -18,100 +18,94 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
     @adapter.send :hangup
   end
 
-  test "play" do
-    path = @adapter.sound_path_for 'something'
+  context "play" do
+    setup do
+      @path = @adapter.sound_path_for 'something'
+    end
 
-    @context.expects(:stream_file).with('verboice/something', nil).returns(line '1'.ord.to_s)
-    value = @adapter.play path
-    assert_equal '1', value
-  end
+    should "play" do
+      @context.expects(:stream_file).with('verboice/something', nil).returns(line '1'.ord.to_s)
+      value = @adapter.play @path
+      assert_equal '1', value
+    end
 
-  test "play with escape digits" do
-    path = @adapter.sound_path_for 'something'
+    should "play with escape digits" do
+      @context.expects(:stream_file).with('verboice/something', '123').returns(line '0')
+      value = @adapter.play @path, '123'
+      assert_nil value
+    end
 
-    @context.expects(:stream_file).with('verboice/something', '123').returns(line '0')
-    value = @adapter.play path, '123'
-    assert_nil value
-  end
-
-  test "play throws exception when fails" do
-    @context.expects(:stream_file).returns(line '-1')
-    assert_raise(Exception) do
-      @adapter.play 'foo'
+    should "play throws exception when fails" do
+      @context.expects(:stream_file).returns(line '-1')
+      assert_raise(Exception) { @adapter.play 'foo' }
     end
   end
 
-  {'48' => '0',
-   '49' => '1',
-   '57' => '9',
-   '35' => '#',
-   '42' => '*',
-   '0' => nil}.each do |result, digit|
-    test "capture one digit #{digit}" do
-      expect_digit result
-      value = @adapter.capture :min => 1, :max => 1, :finish_on_key => '', :timeout => 5
-      assert_equal digit, value
+  context "capture" do
+    {'48' => '0',
+     '49' => '1',
+     '57' => '9',
+     '35' => '#',
+     '42' => '*',
+     '0' => nil}.each do |result, digit|
+      should "capture one digit #{digit}" do
+        expect_digit result
+        value = @adapter.capture :min => 1, :max => 1, :finish_on_key => '', :timeout => 5
+        assert_equal digit, value
+      end
+     end
+
+    should "capture two digits" do
+      expect_digits '42'
+      value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '#', :timeout => 5
+      assert_equal '42', value
     end
-  end
 
-  test "capture two digits" do
-    seq = sequence('digits')
-
-    expect_digits '42'
-    value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '#', :timeout => 5
-    assert_equal '42', value
-  end
-
-  test "capture three digits timeout" do
-    seq = sequence('digits')
-
-    expect_digits ['4'.ord.to_s, '2'.ord.to_s, '0']
-    value = @adapter.capture :min => 3, :max => 3, :finish_on_key => '#', :timeout => 5
-    assert_equal nil, value
-  end
-
-  test "capture digits finishes on key" do
-    seq = sequence('digits')
-
-    expect_digits '42#'
-    value = @adapter.capture :min => 1, :max => 5, :finish_on_key => '#', :timeout => 5
-    assert_equal '42', value
-  end
-
-  test "capture digits while playing" do
-    seq = sequence('digits')
-
-    @adapter.expects(:play).with('some_file', '0123456789#*').returns('4').in_sequence(@seq)
-    expect_digit '2'.ord.to_s
-    value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '#', :timeout => 5, :play => 'some_file'
-    assert_equal '42', value
-  end
-
-  test "capture digits and play is finish key" do
-    @adapter.expects(:play).with('some_file', '0123456789#*').returns('*').in_sequence(@seq)
-    value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
-    assert_equal nil, value
-  end
-
-  test "capture digits and play just one digit" do
-    @adapter.expects(:play).with('some_file', '0123456789#*').returns('1').in_sequence(@seq)
-    value = @adapter.capture :min => 1, :max => 1, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
-    assert_equal '1', value
-  end
-
-  def expect_digits(digits)
-    if digits.is_a? Array
-      digits.each { |digit| expect_digit digit }
-    else
-      digits.each_char { |c| expect_digit c.ord.to_s }
+    should "capture three digits timeout" do
+      expect_digits ['4'.ord.to_s, '2'.ord.to_s, '0']
+      value = @adapter.capture :min => 3, :max => 3, :finish_on_key => '#', :timeout => 5
+      assert_equal nil, value
     end
-  end
 
-  def expect_digit(result)
-    @context.expects(:wait_for_digit).with(5 * 1000).returns(line result).in_sequence(@seq)
-  end
+    should "capture digits finishes on key" do
+      expect_digits '42#'
+      value = @adapter.capture :min => 1, :max => 5, :finish_on_key => '#', :timeout => 5
+      assert_equal '42', value
+    end
 
-  def line(result)
-    stub('line', :result => result)
+    should "capture digits while playing" do
+      @adapter.expects(:play).with('some_file', '0123456789#*').returns('4').in_sequence(@seq)
+      expect_digit '2'.ord.to_s
+      value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '#', :timeout => 5, :play => 'some_file'
+      assert_equal '42', value
+    end
+
+    should "capture digits and play is finish key" do
+      @adapter.expects(:play).with('some_file', '0123456789#*').returns('*').in_sequence(@seq)
+      value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
+      assert_equal nil, value
+    end
+
+    should "capture digits and play just one digit" do
+      @adapter.expects(:play).with('some_file', '0123456789#*').returns('1').in_sequence(@seq)
+      value = @adapter.capture :min => 1, :max => 1, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
+      assert_equal '1', value
+    end
+
+    def expect_digits(digits)
+      if digits.is_a? Array
+        digits.each { |digit| expect_digit digit }
+      else
+        digits.each_char { |c| expect_digit c.ord.to_s }
+      end
+    end
+
+    def expect_digit(result)
+      @context.expects(:wait_for_digit).with(5 * 1000).returns(line result).in_sequence(@seq)
+    end
+
+    def line(result)
+      stub('line', :result => result)
+    end
   end
 end

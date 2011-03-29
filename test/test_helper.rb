@@ -1,7 +1,5 @@
 ENV["RAILS_ENV"] = "test"
 
-class FastAGIProtocol; end # Because this is in lib/bathphone it doesn't get loaded...
-
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require File.expand_path(File.dirname(__FILE__) + '/blueprints')

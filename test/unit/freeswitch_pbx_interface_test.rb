@@ -17,11 +17,7 @@ class FreeswitchPbxInterfaceTest < ActiveSupport::TestCase
   test "call fails on pbx error" do
     @interface.pbx.expects(:error?).returns(true)
 
-    begin
-      @interface.call 'user/1000', 1, 2
-      fail 'Expected exception to be thrown'
-    rescue => ex
-      assert_match /not available/, ex.message
-    end
+    ex = assert_raise(RuntimeError) { @interface.call 'user/1000', 1, 2 }
+    assert_match /not available/, ex.message
   end
 end

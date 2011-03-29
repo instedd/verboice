@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class CallbackCommandTest < ActiveSupport::TestCase
-
   test "run with url" do
     url = 'http://www.example.com'
 
