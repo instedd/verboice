@@ -12,7 +12,7 @@ class MyFreeswitchInboundListener < Freeswitch::InboundListener
   def unbind
     done
     EM.add_timer(1) do
-      Globals.freeswitch = Librevox.run FreeswitchInboundListener
+      Globals.freeswitch = Librevox.run MyFreeswitchInboundListener
     end
     super
   end
@@ -32,7 +32,7 @@ EM::run do
   EM.schedule do
     Librevox.start do
       run Freeswitch::OutboundListener, :port => Freeswitch::OutboundListener::Port
-      Globals.pbx = run Freeswitch::InboundListener
+      Globals.pbx = run MyFreeswitchInboundListener
     end
     EM::start_server '127.0.0.1', Freeswitch::PbxInterface::Port, MyPbxInterface
     puts 'Ready'
