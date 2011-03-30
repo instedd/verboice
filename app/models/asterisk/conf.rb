@@ -25,7 +25,7 @@ module Asterisk
 
     def remove_action(section, action, value)
       @str = @remove_actions[section.to_s]
-      @str << "|" if @str.present?
+      @str << "|" if @str.length > 0
       @str << "#{action}\\s*=\>\\s*#{value}\\s*"
     end
 
@@ -34,54 +34,69 @@ module Asterisk
     end
 
     def flush
-      target = Tempfile.new 'asterisk_conf', "#{Rails.root}/tmp"
-      section = nil
-
-      File.open @file, 'r' do |file|
-        while(line = file.gets)
-          case line
-          when /^\s*\[(.*)\]/
-            if @add_actions.has_key? section
-              @add_actions[section].each do |actions|
-                actions.each { |x| target.puts x }
-              end
-              target.puts
-            end
-            section = $1
-            if options = @adds[section]
-              write_section section, options, target
-              @adds.delete section
-            end
-          end
-
-          if @removes.exclude? section
-            if @remove_actions.has_key? section
-              if line =~ /^\s*#{@remove_actions[section]}/
-                next
-              end
-            end
-
-            target.write line
-          end
-
-        end
-      end
-
-      @adds.each do |section, options|
-        write_section section, options, target
-      end
+      target = Tempfile.new 'asterisk_conf'
+      process_file target
     ensure
       target.close
       FileUtils.mv target, @file
     end
 
+    private
+
+    def process_file(target)
+      section = nil
+
+      File.open @file, 'r' do |file|
+        while line = file.gets
+          if line =~ /^\s*\[(.*)\]/
+            process_add_actions section, target
+            section = $1
+            process_adds section, target
+          end
+
+          target.write line unless removed? section, line
+        end
+
+        write_adds target
+      end
+    end
+
+    def process_add_actions(section, target)
+      if @add_actions.has_key? section
+        @add_actions[section].each do |actions|
+          actions.each { |x| target.puts x }
+        end
+        target.puts
+      end
+    end
+
+    def process_adds(section, target)
+      if options = @adds[section]
+        write_section section, options, target
+        @adds.delete section
+      end
+    end
+
+    def process_removes(section, line, target)
+      if @removes.exclude? section
+        unless @remove_actions.has_key?(section) && line =~ /^\s*#{@remove_actions[section]}/
+          target.write line
+        end
+      end
+    end
+
+    def removed?(section, line)
+      @removes.include?(section) || (@remove_actions.has_key?(section) && line =~ /^\s*#{@remove_actions[section]}/)
+    end
+
+    def write_adds(target)
+      @adds.each { |section, options| write_section section, options, target }
+    end
+
     def write_section(section, options, target)
       target.puts "[#{section}]"
       options.each do |key, values|
-        values = *values
-        values.each do |value|
-          target.puts "#{key}=#{value}"
-        end
+        Array(values).each { |value| target.puts "#{key}=#{value}" }
       end
       target.puts
     end
