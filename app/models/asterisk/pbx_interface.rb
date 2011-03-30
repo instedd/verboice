@@ -14,5 +14,9 @@ module Asterisk
       raise result[:message] if result[:response] == 'Error'
       nil
     end
+
+    def update_channel(channel_id)
+
+    end
   end
 end

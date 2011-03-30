@@ -7,6 +7,8 @@ class Channel < ActiveRecord::Base
 
   after_save :call_pbx_update_channel
 
+  serialize :config, Hash
+
   def call_pbx_update_channel
     PbxClient.update_channel self.id
   end
