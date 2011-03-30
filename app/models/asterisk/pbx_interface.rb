@@ -16,7 +16,12 @@ module Asterisk
     end
 
     def update_channel(channel_id)
-
+      channel = Channel.find channel_id
+      [gw]
+      type=friend
+      secret=password
+      context=verboice
+      host=dynamic
     end
   end
 end
