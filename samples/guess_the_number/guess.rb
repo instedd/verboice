@@ -1,21 +1,23 @@
+#!/usr/bin/env ruby
 require 'rubygems'
 require 'sinatra'
 
-numbers = {}
+Numbers = {}
 
 post '/' do
   session_id = params[:CallSid]
-  number = numbers[session_id]
+  number = Numbers[session_id]
   pressed = params[:Digits].to_i
 
   if not number
-    numbers[session_id] = (1..99).to_a.sample
+    Numbers[session_id] = (1..99).to_a.sample
     return guess
   end
 
   return guess if pressed <= 0
 
   if number == pressed
+    Numbers.delete session_id
     play 'woman.gsm'
   elsif number > pressed
     gather_with_file 'larger.mp3'
