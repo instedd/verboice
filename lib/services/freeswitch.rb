@@ -12,7 +12,7 @@ class MyFreeswitchInboundListener < Freeswitch::InboundListener
   def unbind
     done
     EM.add_timer(1) do
-      Globals.freeswitch = Librevox.run MyFreeswitchInboundListener
+      Globals.pbx = Librevox.run MyFreeswitchInboundListener
     end
     super
   end

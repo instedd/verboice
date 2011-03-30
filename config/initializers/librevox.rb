@@ -1,5 +1,3 @@
-
-
 class Librevox::Listener::Inbound
 
   def handle_response_with_command_reply

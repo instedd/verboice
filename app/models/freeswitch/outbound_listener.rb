@@ -3,7 +3,7 @@ module Freeswitch
     Port = Rails.configuration.freeswitch_configuration[:outbound_listener_port].to_i
 
     event :channel_hangup do |event|
-      @session.quit!
+      @current_session.quit! if @current_session
     end
 
     def session_initiated
@@ -14,8 +14,8 @@ module Freeswitch
       app = Application.find app_id
       call_log = CallLog.find call_log_id if call_log_id
       begin
-        @session = app.new_session pbx, call_log
-        @session.run
+        @current_session = app.new_session pbx, call_log
+        @current_session.run
       rescue Exception => ex
         puts "FATAL: #{ex.inspect}"
         close_connection
