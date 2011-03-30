@@ -35,6 +35,22 @@ class AsteriskConfTest < ActiveSupport::TestCase
     assert_result 'add_when_already_present'
   end
 
+  test "add register to global section" do
+    Asterisk::Conf.change TmpFileName do
+      add_action :general, :register, 'xxx:yyy@zzz.com'
+    end
+
+    assert_result 'add_action'
+  end
+
+  test "remove register from global section" do
+    Asterisk::Conf.change TmpFileName do
+      remove_action :general, :register, 'foo:bar@host.com'
+    end
+
+    assert_result 'remove_action'
+  end
+
   def assert_result(file)
     result = `diff #{Rails.root}/test/fixtures/#{file}.conf #{TmpFileName}`
     assert_equal 0, $?.exitstatus, result
