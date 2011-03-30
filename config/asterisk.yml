@@ -1,3 +1,4 @@
 install_dir: /usr/local/asterisk
+config_dir: /usr/local/asterisk/etc/asterisk
 ami_port: 5038
 fast_agi_port: 19000

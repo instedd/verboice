@@ -1,6 +1,7 @@
 module Asterisk
   class PbxInterface < MagicObjectProtocol::Server
     Port = Rails.configuration.verboice_configuration[:pbx_interface_port].to_i
+    ConfigDir = Rails.configuration.asterisk_configuration[:config_dir]
 
     attr_accessor :pbx
 
@@ -17,11 +18,9 @@ module Asterisk
 
     def update_channel(channel_id)
       channel = Channel.find channel_id
-      [gw]
-      type=friend
-      secret=password
-      context=verboice
-      host=dynamic
+      Asterisk::Conf.change "#{ConfigDir}/sip.conf" do
+        add "verboice_#{channel_id}", :type => :friend, :secret => channel.config['password'], :context => :verboice, :host => :dynamic
+      end
     end
   end
 end
