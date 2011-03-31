@@ -35,5 +35,9 @@ module Freeswitch
       }
       @context.read file, freeswitch_options
     end
+
+    def record
+      @context.record "#{SoundsPath}/foo.wav"
+    end
   end
 end

@@ -45,7 +45,7 @@ module Asterisk
     end
 
     def record
-      @context.record_file("#{SoundsPath}/foo", 'wav', '0123456789*#', '5000', 'beep')
+      @context.record_file "#{SoundsPath}/foo", 'wav', '0123456789*#', '5000', 'beep'
     end
 
     private
