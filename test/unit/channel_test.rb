@@ -16,8 +16,18 @@ class ChannelTest < ActiveSupport::TestCase
     Account.destroy_all
   end
 
-  test "call PbxClient.update_channel on save" do
+  test "call PbxClient.update_channel on create" do
     channel = Channel.make_unsaved
+    PbxClient.expects(:update_channel).with do |channel_id|
+      channel_id == channel.id
+    end
+    channel.save!
+  end
+
+  test "call PbxClient.update_channel on update" do
+    PbxClient.expects(:update_channel)
+    channel = Channel.make
+
     PbxClient.expects(:update_channel).with do |channel_id|
       channel_id == channel.id
     end
