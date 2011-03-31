@@ -55,6 +55,7 @@ module Asterisk
           write_add section, target if has_add? section
         end
 
+        check_remove_add_action section, line
         target.write line unless removed? section, line
       end
 
@@ -62,12 +63,23 @@ module Asterisk
       write_remaining_added_sections target
     end
 
-    def has_action?(section)
-      @add_actions.has_key? section
+    def has_action?(section, line = nil)
+      @add_actions[section].present?
     end
 
     def has_add?(section)
       @adds.has_key? section
+    end
+
+    def check_remove_add_action(section, line)
+      return unless @add_actions.has_key? section
+
+      @add_actions[section].each do |action|
+        if line =~ /^\s*#{action}\s*/
+          @add_actions[section].delete action
+          return
+        end
+      end
     end
 
     def write_actions(section, target)
