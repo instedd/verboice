@@ -44,6 +44,10 @@ module Asterisk
       digits.length < options[:min] ? nil : digits
     end
 
+    def record
+      @context.record_file("#{SoundsPath}/foo", 'wav', '0123456789*#', '5000', 'beep')
+    end
+
     private
 
     def capture_digit(timeout)
