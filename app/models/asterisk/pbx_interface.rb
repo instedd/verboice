@@ -22,5 +22,12 @@ module Asterisk
         add "verboice_#{channel_id}", :type => :friend, :secret => channel.config['password'], :context => :verboice, :host => :dynamic
       end
     end
+
+    def delete_channel(channel_id)
+      channel = Channel.find channel_id
+      Asterisk::Conf.change "#{ConfigDir}/sip.conf" do
+        delete "verboice_#{channel_id}"
+      end
+    end
   end
 end

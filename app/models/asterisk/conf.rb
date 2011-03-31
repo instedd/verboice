@@ -28,10 +28,12 @@ module Asterisk
       @str << "|" if @str.length > 0
       @str << "#{action}\\s*=\>\\s*#{value}\\s*"
     end
+    alias_method :delete_action, :remove_action
 
     def remove(section)
       @removes << section.to_s
     end
+    alias_method :delete, :remove
 
     def flush
       target = Tempfile.new 'asterisk_conf'
@@ -56,6 +58,8 @@ module Asterisk
 
           target.write line unless removed? section, line
         end
+
+        process_add_actions section, target
 
         write_adds target
       end
