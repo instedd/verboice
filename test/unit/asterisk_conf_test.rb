@@ -35,20 +35,20 @@ class AsteriskConfTest < ActiveSupport::TestCase
     assert_result 'add_when_already_present'
   end
 
-  test "add section when already present and last" do
-    Asterisk::Conf.change TmpFileName do
-      add :gateway3, :type => :peer, :context => :verboice, :allow => [:foo, :bar]
-    end
-
-    assert_result 'add_when_already_present_and_last'
-  end
-
   test "add register to global section" do
     Asterisk::Conf.change TmpFileName do
       add_action :general, :register, 'xxx:yyy@zzz.com'
     end
 
     assert_result 'add_action'
+  end
+
+  test "add register to last section" do
+    Asterisk::Conf.change TmpFileName do
+      add_action :gateway3, :register, 'xxx:yyy@zzz.com'
+    end
+
+    assert_result 'add_last_action'
   end
 
   test "remove register from global section" do

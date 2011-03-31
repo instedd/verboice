@@ -48,37 +48,38 @@ module Asterisk
     def process_file(target)
       section = nil
 
-      File.open @file, 'r' do |file|
-        while line = file.gets
-          if line =~ /^\s*\[(.*)\]/
-            process_add_actions section, target
-            section = $1
-            process_adds section, target
-          end
-
-          target.write line unless removed? section, line
+      File.foreach @file do |line|
+        if line =~ /^\s*\[(.*)\]/ # That is, a section header is found
+          write_actions section, target if has_action? section
+          section = $1
+          write_add section, target if has_add? section
         end
 
-        process_add_actions section, target
-
-        write_adds target
+        target.write line unless removed? section, line
       end
+
+      write_actions section, target if has_action? section
+      write_remaining_added_sections target
     end
 
-    def process_add_actions(section, target)
-      if @add_actions.has_key? section
-        @add_actions[section].each do |actions|
-          actions.each { |x| target.puts x }
-        end
-        target.puts
-      end
+    def has_action?(section)
+      @add_actions.has_key? section
     end
 
-    def process_adds(section, target)
-      if options = @adds[section]
-        write_section section, options, target
-        @adds.delete section
+    def has_add?(section)
+      @adds.has_key? section
+    end
+
+    def write_actions(section, target)
+      @add_actions[section].each do |actions|
+        actions.each { |x| target.puts x }
       end
+      target.puts
+    end
+
+    def write_add(section, target)
+      write_section section, @adds[section], target
+      @adds.delete section
     end
 
     def process_removes(section, line, target)
@@ -93,7 +94,7 @@ module Asterisk
       @removes.include?(section) || (@remove_actions.has_key?(section) && line =~ /^\s*#{@remove_actions[section]}/)
     end
 
-    def write_adds(target)
+    def write_remaining_added_sections(target)
       @adds.each { |section, options| write_section section, options, target }
     end
 
