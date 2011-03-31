@@ -6,7 +6,7 @@ Sham.define do
   name { Faker::Name.name }
   email { Faker::Internet.email }
   username { Faker::Internet.user_name }
-  password { Faker::Name.name }
+  password { Faker::Name.name[0..10] }
 end
 
 Account.blueprint do

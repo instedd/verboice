@@ -10,9 +10,34 @@ class Channel < ActiveRecord::Base
 
   serialize :config, Hash
 
+  def config
+    read_attribute(:config) || {}
+  end
+
+  def host_and_port?
+    config['host_and_port'].present?
+  end
+
+  def host_and_port
+    config['host_and_port'].split ':', 2
+  end
+
+  def user
+    config['user']
+  end
+
+  def password
+    config['password']
+  end
+
+  def register?
+    config['register'] == '1'
+  end
+
   private
 
   def call_pbx_update_channel
+    puts "UPDATING!!"
     PbxClient.update_channel self.id
   end
 

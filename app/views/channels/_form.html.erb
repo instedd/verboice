@@ -34,7 +34,7 @@
     </div>
     <div class="field">
       <%= c.label :register %><br />
-      <%= c.check_box :register, {:checked => @channel.config.try(:[], 'register') == '1'}  %>
+      <%= c.check_box :register, {:checked => @channel.register?}  %>
     </div>
   <% end %>
   <div class="actions">

@@ -18,10 +18,22 @@ module Asterisk
     end
 
     def update_channel(channel_id)
+      puts "UPDATE #{channel_id}"
       channel = Channel.find channel_id
-      Asterisk::Conf.change SipConf do
-        add "verboice_#{channel_id}", :type => :friend, :secret => channel.config['password'], :context => :verboice, :host => :dynamic
+      options = { :type => :friend, :secret => channel.config['password'], :context => :verboice, :host => :dynamic }
+      if channel.host_and_port?
+        host, port = channel.host_and_port
+        options[:host] = host
+        options[:port] = port if port
       end
+      Asterisk::Conf.change SipConf do
+        add "verboice_#{channel_id}", options
+        if channel.register?
+          add_action :general, :register, "#{channel.user}:#{channel.password}@#{channel.config['host_and_port']}/#{channel.application_id}"
+        end
+      end
+    rescue Exception => ex
+      puts ex
     end
 
     def delete_channel(channel_id)
