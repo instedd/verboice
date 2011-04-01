@@ -12,7 +12,7 @@ module Freeswitch
 
     def application_id; @context.session[:variable_verboice_application_id]; end
     def call_log_id; @context.session[:variable_verboice_call_log_id]; end
-    def caller_id; @context.session[:variable_effective_caller_id]; end
+    def caller_id; @context.session[:variable_effective_caller_id_number]; end
 
     def answer
       @context.answer

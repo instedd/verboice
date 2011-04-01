@@ -14,6 +14,14 @@
     <td><%= distance_of_time_in_words(@log.finished_at, @log.created_at, true) if @log.finished_at %></td>
   </tr>
   <tr>
+    <td><b>Caller ID:</b></td>
+    <td><%= @log.address %></td>
+  </tr>
+  <tr>
+    <td><b>Direction:</b></td>
+    <td><%= @log.direction %></td>
+  </tr>
+  <tr>
     <td><b>Application:</b></td>
     <td><%= @log.application.try(:name) %></td>
   </tr>

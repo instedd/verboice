@@ -9,7 +9,7 @@ class FreeswitchAdapterTest < ActiveSupport::TestCase
   [
     [:application_id, :variable_verboice_application_id],
     [:call_log_id, :variable_verboice_call_log_id],
-    [:caller_id, :variable_effective_caller_id]
+    [:caller_id, :variable_effective_caller_id_number]
   ].each do |method, key|
     test "#{method}" do
       @context.stubs(:session => {key => :id})
