@@ -83,9 +83,19 @@ class ApplicationTest < ActiveSupport::TestCase
     end
   end
 
-  test "new session without call log sets direction incoming" do
-    app = Application.make
-    session = app.new_session :pbx
-    assert_equal :incoming, session.call_log.direction
+  context "new session" do
+    setup do
+      @app = Application.make
+    end
+
+    should "set direction incoming when no call log is given" do
+      session = @app.new_session :pbx
+      assert_equal :incoming, session.call_log.direction
+    end
+
+    should "set caller id when given" do
+      session = @app.new_session :pbx, :caller_id => 'foo'
+      assert_equal 'foo', session.call_log.address
+    end
   end
 end
