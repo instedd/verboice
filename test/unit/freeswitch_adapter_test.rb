@@ -6,6 +6,16 @@ class FreeswitchAdapterTest < ActiveSupport::TestCase
     @adapter = Freeswitch::Adapter.new @context
   end
 
+  test "application_id" do
+    @context.stubs(:session => {:variable_verboice_application_id => :id})
+    assert_equal :id, @adapter.application_id
+  end
+
+  test "call_log_id" do
+    @context.stubs(:session => {:variable_verboice_call_log_id => :id})
+    assert_equal :id, @adapter.call_log_id
+  end
+
   [:answer, :hangup].each do |cmd|
     test cmd.to_s do
       @context.expects(cmd)

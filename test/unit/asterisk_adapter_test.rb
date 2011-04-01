@@ -7,6 +7,16 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
     @seq = sequence('seq')
   end
 
+  test "application_id" do
+    @context.expects(:[], 'arg_1').returns :id
+    assert_equal :id, @adapter.application_id
+  end
+
+  test "call_log_id" do
+    @context.expects(:[], 'arg_2').returns :id
+    assert_equal :id, @adapter.call_log_id
+  end
+
   test 'answer' do
     @context.expects :answer
     @adapter.send :answer
