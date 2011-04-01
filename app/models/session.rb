@@ -2,7 +2,7 @@ class Session
   attr_accessor :pbx
   attr_accessor :commands
   attr_accessor :application
-  attr_accessor :log
+  attr_accessor :call_log
   attr_reader :id
 
   def initialize(options = {})
@@ -26,9 +26,9 @@ class Session
     run_command until @commands.empty?
   rescue Exception => ex
     error ex.message
-    @log.finish :failed if @log
+    @call_log.finish :failed if @call_log
   else
-    @log.finish :completed if @log
+    @call_log.finish :completed if @call_log
   end
 
   def quit!
@@ -42,18 +42,18 @@ class Session
   [:info, :error, :trace].each do |name|
     class_eval %Q(
       def #{name}(text)
-        @log.#{name} text if @log
+        @call_log.#{name} text if @call_log
       end
     )
   end
 
   def log(options)
-    return unless @log
+    return unless @call_log
 
     if @log_level == :trace
-      @log.trace options[:trace]
+      @call_log.trace options[:trace]
     else
-      @log.info options[:info]
+      @call_log.info options[:info]
     end
   end
 

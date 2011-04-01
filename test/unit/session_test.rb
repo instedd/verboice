@@ -26,7 +26,7 @@ class SessionTest < ActiveSupport::TestCase
 
   test "saves log" do
     @pbx.expects(:answer)
-    @session.log = CallLog.make
+    @session.call_log = CallLog.make
     @session.commands = [:answer]
     @session.run
 
