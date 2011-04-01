@@ -10,13 +10,9 @@ module Asterisk
       @context = context
     end
 
-    def application_id
-      @context['arg_1']
-    end
-
-    def call_log_id
-      @context['arg_2']
-    end
+    def application_id; @context['arg_1']; end
+    def call_log_id; @context['arg_2']; end
+    def caller_id; @context['callerid']; end
 
     def answer
       @context.answer

@@ -7,14 +7,15 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
     @seq = sequence('seq')
   end
 
-  test "application_id" do
-    @context.expects(:[], 'arg_1').returns :id
-    assert_equal :id, @adapter.application_id
-  end
-
-  test "call_log_id" do
-    @context.expects(:[], 'arg_2').returns :id
-    assert_equal :id, @adapter.call_log_id
+  [
+    [:application_id, 'arg_1'],
+    [:call_log_id, 'arg_2'],
+    [:caller_id, 'callerid']
+  ].each do |method, key|
+    test "#{method}" do
+      @context.expects(:[]).with(key).returns :id
+      assert_equal :id, @adapter.send(method)
+    end
   end
 
   test 'answer' do
