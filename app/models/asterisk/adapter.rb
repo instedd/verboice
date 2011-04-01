@@ -4,8 +4,18 @@ module Asterisk
     SoundsPath = "#{InstallDir}/var/lib/asterisk/sounds/verboice/"
     FileUtils.mkdir_p SoundsPath
 
+    include BaseAdapter
+
     def initialize(context)
       @context = context
+    end
+
+    def application_id
+      @context['arg_1']
+    end
+
+    def call_log_id
+      @context['arg_2']
     end
 
     def answer
