@@ -40,7 +40,7 @@ class Channel < ActiveRecord::Base
   def call_pbx_update_channel
     PbxClient.update_channel self.id
   end
-  alias_method :call_pbx_update_channel, :call_pbx_create_channel
+  alias_method :call_pbx_create_channel, :call_pbx_update_channel
 
   def call_pbx_delete_channel
     PbxClient.delete_channel self.id
