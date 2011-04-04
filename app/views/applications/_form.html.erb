@@ -34,8 +34,10 @@
     <%= f.text_field :callback_url %>
   </div>
   <div id="flow_container" class="field" <%= raw 'style="display:none"' if @application.mode != :flow %>>
-    <%= f.label :flow %><br />
-    <select id="flow_actions"></select>
+    <%= f.label :flow, "Flow (click on a command to add it)" %><br />
+    <br/>
+    <ul id="flow_actions"></ul>
+    <br style="clear: both" />
     <ul id="application_flow">
     </ul>
   </div>

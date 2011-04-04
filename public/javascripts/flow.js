@@ -16,9 +16,9 @@ $(function() {
     }
   });
 
-  $flow_actions.append('<option>Select an action to add...</option>');
+  $flow_actions.append('<li>Available commands:</li>');
   for(var name in commands) {
-    $flow_actions.append('<option>' + name + '</option>');
+    $flow_actions.append('<li><a href="javascript:void(0)">' + name + '</a></li>');
   }
 
   function add_command(name, args) {
@@ -51,8 +51,8 @@ $(function() {
     return temp;
   }
 
-  $flow_actions.change(function() {
-    var name = $flow_actions.val();
+  $('#flow_actions li a').live('click', function() {
+    var name = $(this).text();
     var options = commands[name];
     add_command(name, options);
     $flow_actions.find('option').get(0).selected = 'selected';

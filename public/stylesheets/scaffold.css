@@ -188,3 +188,18 @@ table.table {
   font-size: 8pt;
 }
 
+#flow_actions {
+  list-style: none;
+  display: block;
+  float: left;
+  position: relative;
+  margin: 0px;
+  padding: 0px;
+}
+
+#flow_actions li {
+  float: left;
+  display: block;
+  margin-right: 10px;
+  margin-left: 0px;
+}
