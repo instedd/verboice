@@ -34,6 +34,37 @@ class SessionTest < ActiveSupport::TestCase
     assert_equal 1, logs.length
     assert_match /^I.*?Answer/, logs.first.details
   end
+
+  context "answering machine detection" do
+    setup do
+      @call_log = mock('call_log')
+      @session.call_log = @call_log
+    end
+
+    should "run ok if call is incoming" do
+      @call_log.expects(:outgoing?).returns(false)
+      @call_log.expects(:finish).with(:completed)
+      @session.commands = []
+      @session.run
+    end
+
+    should "run ok if call is outgoing but not an answeing machine" do
+      @pbx.expects(:is_answering_machine?).returns(false)
+      @call_log.expects(:outgoing?).returns(true)
+      @call_log.expects(:finish).with(:completed)
+      @session.commands = []
+      @session.run
+    end
+
+    should "fail if call is outgoing and an answeing machine" do
+      @pbx.expects(:is_answering_machine?).returns(true)
+      @call_log.expects(:outgoing?).returns(true)
+      @call_log.expects(:error).with('Answering machine detected')
+      @call_log.expects(:finish).with(:failed)
+      @session.commands = []
+      @session.run
+    end
+  end
 end
 
 class NoArgsCommand

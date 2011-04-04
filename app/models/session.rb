@@ -23,6 +23,8 @@ class Session
   end
 
   def run
+    raise "Answering machine detected" if @call_log && @call_log.outgoing? && @pbx.is_answering_machine?
+
     run_command until @commands.empty?
   rescue Exception => ex
     error ex.message

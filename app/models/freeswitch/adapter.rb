@@ -45,5 +45,9 @@ module Freeswitch
     def record
       @context.record "#{SoundsPath}/foo.wav"
     end
+
+    def is_answering_machine?
+      false
+    end
   end
 end

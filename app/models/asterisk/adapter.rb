@@ -54,6 +54,13 @@ module Asterisk
       @context.record_file "#{SoundsPath}/foo", 'wav', '0123456789*#', '5000', 'beep'
     end
 
+    def is_answering_machine?
+      amd_result = @context.exec('amd').result
+      return false if amd_result.to_i == -2
+
+      @context.get_variable('amdstatus').raw =~ /MACHINE/
+    end
+
     private
 
     def capture_digit(timeout)

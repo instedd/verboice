@@ -13,6 +13,14 @@ class CallLog < ActiveRecord::Base
     read_attribute(:state).try(:to_sym)
   end
 
+  def direction
+    read_attribute(:direction).try(:to_sym)
+  end
+
+  def outgoing?
+    direction == :outgoing
+  end
+
   def finish(state)
     self.state = state
     self.finished_at = Time.now.utc
