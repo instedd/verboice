@@ -53,8 +53,7 @@ class CallLog < ActiveRecord::Base
   private
 
   def log(level, text)
-    details << "#{level} #{Time.now.utc - created_at} #{text}\n"
-    details_will_change!
+    self.details += "#{level} #{Time.now.utc - created_at} #{text}\n"
   end
 
   def set_account_to_application_account
