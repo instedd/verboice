@@ -1,7 +1,7 @@
 module Asterisk
   class Adapter
-    InstallDir = Rails.configuration.asterisk_configuration[:install_dir]
-    SoundsPath = "#{InstallDir}/var/lib/asterisk/sounds/verboice/"
+    SoundsDir = Rails.configuration.asterisk_configuration[:sounds_dir]
+    SoundsPath = "#{SoundsDir}/verboice/"
     FileUtils.mkdir_p SoundsPath
 
     include BaseAdapter
