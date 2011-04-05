@@ -13,7 +13,7 @@ class CallbackCommandTest < ActiveSupport::TestCase
     session.expects(:trace).with("Callback returned: <Response><Hangup/></Response>")
     session.expects(:push_commands).with([:hangup])
 
-    expect_em_http :post, url, :with => {:body => "CallSid=#{session.id}&Digits=123"}, :returns => '<Response><Hangup/></Response>'
+    expect_em_http :post, url, :with => {:body => {:CallSid => session.id, :Digits => '123'}}, :returns => '<Response><Hangup/></Response>'
 
     CallbackCommand.new(url).run session
   end
@@ -31,7 +31,7 @@ class CallbackCommandTest < ActiveSupport::TestCase
     session.expects(:trace).with("Callback returned: <Response><Hangup/></Response>")
     session.expects(:push_commands).with([:hangup])
 
-    expect_em_http :post, url, :with => {:body => "CallSid=#{session.id}&Digits=123"}, :returns => '<Response><Hangup/></Response>'
+    expect_em_http :post, url, :with => {:body => {:CallSid => session.id, :Digits => '123'}}, :returns => '<Response><Hangup/></Response>'
 
     CallbackCommand.new.run session
   end
