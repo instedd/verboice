@@ -5,7 +5,7 @@ class CallLogsController < ApplicationController
   def index
     @page = params[:page] || 1
     @per_page = 10
-    @logs = current_account.call_logs.includes(:application).order('id DESC').paginate :page => @page, :per_page => @per_page
+    @logs = current_account.call_logs.includes(:application).includes(:channel).order('id DESC').paginate :page => @page, :per_page => @per_page
   end
 
   def show

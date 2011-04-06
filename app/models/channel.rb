@@ -4,13 +4,35 @@ class Channel < ActiveRecord::Base
   belongs_to :account
   belongs_to :application
 
+  has_many :call_logs, :dependent => :destroy
+
   validates_presence_of :account
   validates_presence_of :application
+
+  validates_presence_of :name
+  validates_uniqueness_of :name, :scope => :account_id
 
   after_commit :call_pbx_update_channel, :if => :persisted?
   before_destroy :call_pbx_delete_channel
 
   serialize :config, Hash
+
+  delegate :new_session, :to => :application
+
+  def call(address)
+    call_log = call_logs.create! :direction => :outgoing, :application_id => application_id
+    call_log.info "Initiating call from API to #{address}"
+    call_log.save!
+
+    begin
+      PbxClient.call address, self.id, call_log.id
+    rescue Exception => ex
+      call_log.error ex.message
+      call_log.finish :failed
+    end
+
+    call_log
+  end
 
   def config
     read_attribute(:config) || {}

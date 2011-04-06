@@ -4,6 +4,8 @@
 
 <div><%= link_to 'Create a new Application', new_application_path %></div>
 
+<% if @applications.present? %>
+
 <br />
 
 <table class="table">
@@ -25,6 +27,8 @@
   </tr>
 <% end %>
 </table>
+
+<% end %>
 
 <br />
 

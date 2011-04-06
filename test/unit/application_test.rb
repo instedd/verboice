@@ -48,41 +48,6 @@ class ApplicationTest < ActiveSupport::TestCase
     end
   end
 
-  context "call" do
-    setup do
-      @app = Application.make
-    end
-
-    should "call ok" do
-      PbxClient.expects(:call).with do |address, app_id, call_log_id|
-        @the_call_log_id = call_log_id
-        address == 'foo' && app_id == @app.id
-      end
-
-      call_log = @app.call 'foo'
-      assert_equal @the_call_log_id, call_log.id
-      assert_equal :active, call_log.state
-    end
-
-    should "call raises" do
-      PbxClient.expects(:call).with do |address, app_id, call_log_id|
-        @the_call_log_id = call_log_id
-        address == 'foo' && app_id == @app.id
-      end.raises("Oh no!")
-
-      call_log = @app.call 'foo'
-      assert_equal @the_call_log_id, call_log.id
-      assert_equal :failed, call_log.state
-    end
-
-    should "call and set direction outgoing" do
-      PbxClient.expects(:call)
-
-      call_log = @app.call 'foo'
-      assert_equal :outgoing, call_log.direction
-    end
-  end
-
   context "new session" do
     setup do
       @app = Application.make

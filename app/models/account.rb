@@ -12,12 +12,10 @@ class Account < ActiveRecord::Base
   has_many :call_logs
 
   def call(options = {})
-    if options[:application]
-      application = applications.find options[:application]
-    elsif options[:callback]
-      application = applications.find_or_create_by_callback_url options[:callback]
+    if options[:channel]
+      channel = channels.find_by_name options[:channel]
     end
 
-    application.call options[:address]
+    channel.call options[:address]
   end
 end

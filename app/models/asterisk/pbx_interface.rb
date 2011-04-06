@@ -6,15 +6,23 @@ module Asterisk
 
     attr_accessor :pbx
 
-    def call(address, application_id, call_log_id)
+    def call(address, channel_id, call_log_id)
       raise "PBX is not available" if pbx.error?
+
+      channel = Channel.find channel_id
+      address = send "#{channel.kind}_address", channel, address
+
       result = pbx.originate :channel => address,
         :application => 'AGI',
-        :data => "agi://localhost:#{Asterisk::FastAGIServer::Port},#{application_id},#{call_log_id}",
+        :data => "agi://localhost:#{Asterisk::FastAGIServer::Port},#{channel_id},#{call_log_id}",
         :async => true,
         :actionid => call_log_id
-      raise result[:message] if result[:response] == 'Error'
-      nil
+
+      result[:response] == 'Error' ? raise(result[:message]) : nil
+    end
+
+    def sip2sip_address(channel, address)
+      "SIP/verboice_#{channel.id}-0/#{address}"
     end
 
     def update_channel(channel_id)
@@ -48,7 +56,7 @@ module Asterisk
           add "#{section}-#{i}", :template => section, :host => host
         end
 
-        add_action :general, :register, "#{user}:#{password}@sip2sip.info/#{channel.application_id}"
+        add_action :general, :register, "#{user}:#{password}@sip2sip.info/#{channel.id}"
       end
     end
 
@@ -67,7 +75,7 @@ module Asterisk
 
         4.times { |i| remove "#{section}-#{i}" }
 
-        remove_action :general, :register, "#{user}:#{password}@sip2sip.info/#{channel.application_id}"
+        remove_action :general, :register, "#{user}:#{password}@sip2sip.info/#{channel.id}"
       end
     end
   end

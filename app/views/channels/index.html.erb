@@ -5,7 +5,11 @@
 -%>
 <%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') -%>
 
-<br />
+<br/>
+
+<% if @channels.present? %>
+
+<br/>
 
 <table class="table">
   <tr>
@@ -17,7 +21,7 @@
 <% @channels.each do |channel| %>
   <tr>
     <td><%= channel.name %></td>
-    <td><%= channel.application_id %></td>
+    <td><%= channel.application.try(:name) %></td>
     <td>
       <%= link_to 'view', channel %>
       <%= link_to 'edit', edit_channel_path(channel) %>
@@ -25,6 +29,9 @@
     </td>
   </tr>
 <% end %>
+
 </table>
+
+<% end %>
 
 <br />

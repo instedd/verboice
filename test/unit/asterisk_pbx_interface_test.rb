@@ -4,41 +4,42 @@ class AsteriskPbxInterfaceTest < ActiveSupport::TestCase
   setup do
     @interface = Asterisk::PbxInterface.new 1
     @interface.pbx = mock('pbx')
+    @channel = Channel.make :kind => 'sip2sip'
   end
 
   context "call" do
     should "call ok" do
       @interface.pbx.expects(:error?).returns(false)
       @interface.pbx.expects(:originate).with({
-        :channel => 'SIP/1000',
+        :channel => "SIP/verboice_#{@channel.id}-0/1234",
         :application => 'AGI',
-        :data => "agi://localhost:#{Asterisk::FastAGIServer::Port},1,2",
+        :data => "agi://localhost:#{Asterisk::FastAGIServer::Port},#{@channel.id},2",
         :async => true,
-          :actionid => 2
+        :actionid => 2
       }).returns(:response => 'OK')
 
-      result = @interface.call 'SIP/1000', 1, 2
+      result = @interface.call '1234', @channel.id, 2
       assert_nil result
     end
 
     should "call fails on pbx error" do
       @interface.pbx.expects(:error?).returns(true)
 
-      ex = assert_raise(RuntimeError) { @interface.call 'SIP/1000', 1, 2 }
+      ex = assert_raise(RuntimeError) { @interface.call '1234', 1, 2 }
       assert_match /not available/, ex.message
     end
 
     should "call fails on originate error" do
       @interface.pbx.expects(:error?).returns(false)
       @interface.pbx.expects(:originate).with({
-        :channel => 'SIP/1000',
+        :channel => "SIP/verboice_#{@channel.id}-0/1234",
         :application => 'AGI',
-        :data => "agi://localhost:#{Asterisk::FastAGIServer::Port},1,2",
+        :data => "agi://localhost:#{Asterisk::FastAGIServer::Port},#{@channel.id},2",
         :async => true,
-          :actionid => 2
+        :actionid => 2
       }).returns(:response => 'Error', :message => 'Oops')
 
-      ex = assert_raise(RuntimeError) { @interface.call 'SIP/1000', 1, 2 }
+      ex = assert_raise(RuntimeError) { @interface.call '1234', @channel.id, 2 }
       assert_equal 'Oops', ex.message
     end
   end

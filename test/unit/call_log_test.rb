@@ -3,9 +3,11 @@ require 'test_helper'
 class CallLogTest < ActiveSupport::TestCase
   should belong_to(:account)
   should belong_to(:application)
+  should belong_to(:channel)
 
   should validate_presence_of(:account)
   should validate_presence_of(:application)
+  should validate_presence_of(:channel)
 
   test "call log structured details" do
     log = CallLog.new :details => <<EOF

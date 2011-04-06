@@ -8,7 +8,7 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
   end
 
   [
-    [:application_id, 'arg_1'],
+    [:channel_id, 'arg_1'],
     [:call_log_id, 'arg_2'],
     [:caller_id, 'callerid']
   ].each do |method, key|

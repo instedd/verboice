@@ -17,6 +17,7 @@
       <th>Duration</th>
       <th>Caller ID</th>
       <th>Direction</th>
+      <th>Channel</th>
       <th>Application</th>
       <th>State</th>
       <th></th>
@@ -29,6 +30,7 @@
         <td><%= distance_of_time_in_words(log.finished_at, log.created_at, true) if log.finished_at %></td>
         <td><%= log.address %></td>
         <td><%= log.direction %></td>
+        <td><%= log.channel.try(:name) %></td>
         <td><%= log.application.try(:name) %></td>
         <td><%= log.state %></td>
         <td><%= link_to 'view details', call_log_path(log) %></td>

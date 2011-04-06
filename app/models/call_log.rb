@@ -1,11 +1,13 @@
 class CallLog < ActiveRecord::Base
   belongs_to :account
   belongs_to :application
+  belongs_to :channel
 
   before_validation :set_account_to_application_account, :if => :application_id?
 
   validates_presence_of :account
   validates_presence_of :application
+  validates_presence_of :channel
 
   Levels = {'E' => :error, 'I' => :info, 'T' => :trace}
 

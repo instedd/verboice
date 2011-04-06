@@ -8,23 +8,16 @@ class AccountTest < ActiveSupport::TestCase
   context "call" do
     setup do
       @account = Account.make
-      @account.stubs(:applications => mock('applications'))
-      @app = mock('application')
+      @account.stubs(:channels => mock('channels'))
+      @channel = mock('channel')
       @seq = sequence('seq')
     end
 
-    should "call application" do
-      @account.applications.expects(:find).with(987).returns(@app).in_sequence(@seq)
-      @app.expects(:call).with('1234').in_sequence(@seq)
+    should "call channel" do
+      @account.channels.expects(:find_by_name).with('some_channel').returns(@channel).in_sequence(@seq)
+      @channel.expects(:call).with('1234').in_sequence(@seq)
 
-      @account.call :application => 987, :address => '1234'
-    end
-
-    should "call callback finds or creates application" do
-      @account.applications.expects(:find_or_create_by_callback_url).with('callback').returns(@app).in_sequence(@seq)
-      @app.expects(:call).with('1234').in_sequence(@seq)
-
-      @account.call :callback => 'callback', :address => '1234'
+      @account.call :channel => 'some_channel', :address => '1234'
     end
   end
 end

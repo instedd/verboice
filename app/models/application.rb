@@ -40,18 +40,6 @@ class Application < ActiveRecord::Base
   end
 
   def call(address)
-    call_log = call_logs.create! :direction => :outgoing
-    call_log.info "Initiating call from API to #{address}"
-    call_log.save!
-
-    begin
-      PbxClient.call address, self.id, call_log.id
-    rescue Exception => ex
-      call_log.error ex.message
-      call_log.finish :failed
-    end
-
-    call_log
   end
 
   private

@@ -10,7 +10,7 @@ module Asterisk
       @context = context
     end
 
-    def application_id; @context['arg_1']; end
+    def channel_id; @context['arg_1']; end
     def call_log_id; @context['arg_2']; end
     def caller_id; @context['callerid']; end
 
@@ -55,6 +55,9 @@ module Asterisk
     end
 
     def is_answering_machine?
+      # TODO: add configuration for this. For now it's kind of annoying when it doesn't work.
+      return false
+
       amd_result = @context.exec('amd').result
       return false if amd_result.to_i == -2
 

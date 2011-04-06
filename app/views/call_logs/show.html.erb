@@ -22,6 +22,10 @@
     <td><%= @log.direction %></td>
   </tr>
   <tr>
+    <td><b>Channel:</b></td>
+    <td><%= @log.channel.try(:name) %></td>
+  </tr>
+  <tr>
     <td><b>Application:</b></td>
     <td><%= @log.application.try(:name) %></td>
   </tr>
