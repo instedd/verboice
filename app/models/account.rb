@@ -13,7 +13,7 @@ class Account < ActiveRecord::Base
 
   def call(options = {})
     if options[:channel]
-      channel = channels.find_by_name options[:channel]
+      channel = channels.find_by_name! options[:channel]
     end
 
     channel.call options[:address]

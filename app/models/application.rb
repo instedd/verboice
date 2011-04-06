@@ -17,7 +17,8 @@ class Application < ActiveRecord::Base
     session = Session.new
     session.pbx = pbx
     session.application = self
-    session.call_log = options[:call_log] || call_logs.create!(:direction => :incoming)
+    session.channel = options[:channel] if options[:channel]
+    session.call_log = options[:call_log] || call_logs.create!(:channel_id => session.channel.try(:id), :direction => :incoming)
     session.call_log.address = options[:caller_id]
     session.commands = self.commands.dup
     session

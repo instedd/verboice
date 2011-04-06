@@ -12,12 +12,17 @@ class Channel < ActiveRecord::Base
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
 
-  after_commit :call_pbx_update_channel, :if => :persisted?
+  after_commit :call_pbx_create_channel, :if => :persisted?
+  before_update :call_pbx_delete_channel
   before_destroy :call_pbx_delete_channel
 
   serialize :config, Hash
 
   delegate :new_session, :to => :application
+
+  def new_session(pbx, options = {})
+    application.new_session pbx, options.merge(:channel => self)
+  end
 
   def call(address)
     call_log = call_logs.create! :direction => :outgoing, :application_id => application_id
@@ -60,8 +65,8 @@ class Channel < ActiveRecord::Base
 
   private
 
-  def call_pbx_update_channel
-    PbxClient.update_channel self.id
+  def call_pbx_create_channel
+    PbxClient.create_channel self.id
   end
 
   def call_pbx_delete_channel

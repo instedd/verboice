@@ -25,14 +25,31 @@ module Asterisk
       "SIP/verboice_#{channel.id}-0/#{address}"
     end
 
-    def update_channel(channel_id)
+    def create_channel(channel_id)
+      raise "PBX is not available" if pbx.error?
+
       channel = Channel.find channel_id
-      send "update_#{channel.kind}_channel", channel
+      send "create_#{channel.kind}_channel", channel
+
+      reload!
     rescue Exception => ex
       puts "#{ex}, #{ex.backtrace}"
     end
 
-    def update_sip2sip_channel(channel)
+    def delete_channel(channel_id)
+      raise "PBX is not available" if pbx.error?
+
+      channel = Channel.find_by_id channel_id
+      send "delete_#{channel.kind}_channel", channel
+
+      reload!
+    end
+
+    def reload!
+      pbx.command :command => 'sip reload'
+    end
+
+    def create_sip2sip_channel(channel)
       section = "verboice_#{channel.id}"
       user = channel.config['username']
       password = channel.config['password']
@@ -58,11 +75,6 @@ module Asterisk
 
         add_action :general, :register, "#{user}:#{password}@sip2sip.info/#{channel.id}"
       end
-    end
-
-    def delete_channel(channel_id)
-      channel = Channel.find_by_id channel_id
-      send "delete_#{channel.kind}_channel", channel
     end
 
     def delete_sip2sip_channel(channel)

@@ -15,19 +15,19 @@ class AmiProtocol < EventMachine::Protocols::LineAndTextProtocol
         @packet = nil
       else
         key, value = line.split(':', 2)
-        key = key.downcase.to_sym
-        @packet[key] = value.strip
+        if key && value
+          key = key.downcase.to_sym
+          @packet[key] = value.strip
+        end
       end
     elsif line =~ /^Response: (.*)/i
       @packet = {:type => :response, :response => $1}
     elsif line =~ /^Event: (.*)/i
       @packet = {:type => :event, :event => $1}
     else
-      puts "Error, received: #{line}"
       close_connection
+      raise "Error in AMI protocol, received: #{line}"
     end
-  rescue Exception => ex
-    puts ex
   end
 
   def resume_fiber_with(packet)

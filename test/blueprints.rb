@@ -20,7 +20,8 @@ Application.blueprint do
 end
 
 CallLog.blueprint do
-  application
+  channel
+  application { channel.application }
 end
 
 Channel.blueprint do

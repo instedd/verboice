@@ -57,34 +57,32 @@ class ChannelTest < ActiveSupport::TestCase
     end
   end
 
-  test "call PbxClient.update_channel on create" do
+  test "call PbxClient.create_channel on create" do
     channel = Channel.make_unsaved
-    PbxClient.expects(:update_channel).with do |channel_id|
+    PbxClient.expects(:create_channel).with do |channel_id|
       channel_id == channel.id
     end
     channel.save!
   end
 
-  test "call PbxClient.update_channel on update" do
-    PbxClient.expects(:update_channel)
+  test "call PbxClient.delete_channel and PbxClient.create_channel on update" do
+    PbxClient.expects(:create_channel)
     channel = Channel.make
 
-    PbxClient.expects(:update_channel).with do |channel_id|
-      channel_id == channel.id
-    end
+    seq = sequence('seq')
+    PbxClient.expects(:delete_channel).with(channel.id).in_sequence(seq)
+    PbxClient.expects(:create_channel).with(channel.id).in_sequence(seq)
+
     channel.save!
   end
 
   test "call PbxClient.delete_channel on destroy" do
     channel = Channel.make
-    PbxClient.expects(:delete_channel).with do |channel_id|
-      channel_id == channel.id
-    end
+    PbxClient.expects(:delete_channel).with(channel.id)
     channel.destroy
   end
 
   context 'host and port' do
-
     setup do
       @channel_with_host_and_port = Channel.new :config => { 'host_and_port' => 'host:1234' }
       @channel_without_host_and_port = Channel.new
@@ -101,7 +99,6 @@ class ChannelTest < ActiveSupport::TestCase
     should "return host_and_port" do
       assert_equal ['host', '1234'], @channel_with_host_and_port.host_and_port
     end
-
   end
 
   test "register? returns true" do

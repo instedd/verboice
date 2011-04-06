@@ -25,8 +25,9 @@ and some other text... possibly...'}, details[2])
   end
 
   test "create for application assigns account" do
-    app = Application.make
-    call_log = app.call_logs.create!
+    chan = Channel.make
+    app = chan.application
+    call_log = app.call_logs.create! :channel => chan
     assert_equal app.account_id, call_log.account_id
   end
 end

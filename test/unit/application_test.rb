@@ -50,16 +50,17 @@ class ApplicationTest < ActiveSupport::TestCase
 
   context "new session" do
     setup do
-      @app = Application.make
+      @chan = Channel.make
+      @app = @chan.application
     end
 
     should "set direction incoming when no call log is given" do
-      session = @app.new_session :pbx
+      session = @app.new_session :pbx, :channel => @chan
       assert_equal :incoming, session.call_log.direction
     end
 
     should "set caller id when given" do
-      session = @app.new_session :pbx, :caller_id => 'foo'
+      session = @app.new_session :pbx, :caller_id => 'foo', :channel => @chan
       assert_equal 'foo', session.call_log.address
     end
   end

@@ -28,6 +28,15 @@ class AmiProtocolTest < ActiveSupport::TestCase
       @ami.receive_line("\n")
     end
 
+    should "receive response ignores if : not found" do
+      @ami.expects(:resume_fiber_with).with({:response => 'Success'})
+
+      @ami.receive_line("Asterisk Call Manager/1.1\n")
+      @ami.receive_line("Response: Success\n")
+      @ami.receive_line(" -- END COMMAND -- \n")
+      @ami.receive_line("\n")
+    end
+
     should "receive event" do
       @ami.expects(:receive_event).with({:event => 'Hangup', :actionid => 'sarasa', :message => 'something'})
 

@@ -2,6 +2,7 @@ class Session
   attr_accessor :pbx
   attr_accessor :commands
   attr_accessor :application
+  attr_accessor :channel
   attr_accessor :call_log
   attr_reader :id
 
