@@ -11,7 +11,7 @@ module Asterisk
       begin
         pbx.run
       rescue Exception => ex
-        puts "FATAL: #{ex.inspect}"
+        puts "FATAL: #{ex.inspect}, #{ex.backtrace}"
       ensure
         close_connection
       end

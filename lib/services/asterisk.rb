@@ -26,6 +26,7 @@ end
 
 EM.error_handler do |err|
   p err
+  p err.backtrace
 end
 
 EM::run do
