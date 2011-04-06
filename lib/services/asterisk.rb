@@ -1,4 +1,8 @@
 #!/usr/bin/env ruby
+
+ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
+$log_path = File.expand_path '../../../log/asterisk.log', __FILE__
+
 require(File.expand_path '../../../config/boot.rb', __FILE__)
 require(File.expand_path '../../../config/environment.rb', __FILE__)
 require(File.expand_path '../../../lib/batphone/lib/fastagi.rb', __FILE__)
