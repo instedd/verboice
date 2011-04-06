@@ -53,6 +53,7 @@ class CallLog < ActiveRecord::Base
   private
 
   def log(level, text)
+    self.details ||= ""
     self.details += "#{level} #{Time.now.utc - created_at} #{text}\n"
   end
 
