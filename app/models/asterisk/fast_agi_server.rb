@@ -1,4 +1,4 @@
-class FastAGIProtocol; end;
+class FastAGIProtocol < EventMachine::Protocols::LineAndTextProtocol; end
 
 module Asterisk
   class FastAGIServer < FastAGIProtocol
