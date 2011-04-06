@@ -1,4 +1,6 @@
 class Channel < ActiveRecord::Base
+  Kinds = %w(sip2sip)
+
   belongs_to :account
   belongs_to :application
 

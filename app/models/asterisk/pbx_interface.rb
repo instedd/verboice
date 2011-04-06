@@ -18,27 +18,56 @@ module Asterisk
     end
 
     def update_channel(channel_id)
-      puts "UPDATE #{channel_id}"
       channel = Channel.find channel_id
-      options = { :type => :friend, :secret => channel.config['password'], :context => :verboice, :host => :dynamic }
-      if channel.host_and_port?
-        host, port = channel.host_and_port
-        options[:host] = host
-        options[:port] = port if port
-      end
-      Asterisk::Conf.change SipConf do
-        add "verboice_#{channel_id}", options
-        if channel.register?
-          add_action :general, :register, "#{channel.user}:#{channel.password}@#{channel.config['host_and_port']}/#{channel.application_id}"
-        end
-      end
+      send "update_#{channel.kind}_channel", channel
     rescue Exception => ex
-      puts ex
+      puts "#{ex}, #{ex.backtrace}"
+    end
+
+    def update_sip2sip_channel(channel)
+      section = "verboice_#{channel.id}"
+      user = channel.config['username']
+      password = channel.config['password']
+
+      Asterisk::Conf.change SipConf do
+        add section, :template => '!',
+          :type => :peer,
+          :canreinvite => :no,
+          :nat => :yes,
+          :qualify => :yes,
+          :domain => 'sip2sip.info',
+          :fromdomain => 'sip2sip.info',
+          :outboundproxy => 'proxy.sipthor.net',
+          :fromuser => user,
+          :defaultuser => user,
+          :secret => password,
+          :insecure => :invite,
+          :context => :verboice
+
+        ['sip2sip.info', '81.23.228.129', '81.23.228.150', '85.17.186.7'].each_with_index do |host, i|
+          add "#{section}-#{i}", :template => section, :host => host
+        end
+
+        add_action :general, :register, "#{user}:#{password}@sip2sip.info/#{channel.application_id}"
+      end
     end
 
     def delete_channel(channel_id)
+      channel = Channel.find_by_id channel_id
+      send "delete_#{channel.kind}_channel", channel
+    end
+
+    def delete_sip2sip_channel(channel)
+      section = "verboice_#{channel.id}"
+      user = channel.config['username']
+      password = channel.config['password']
+
       Asterisk::Conf.change SipConf do
-        delete "verboice_#{channel_id}"
+        remove section
+
+        4.times { |i| remove "#{section}-#{i}" }
+
+        remove_action :general, :register, "#{user}:#{password}@sip2sip.info/#{channel.application_id}"
       end
     end
   end

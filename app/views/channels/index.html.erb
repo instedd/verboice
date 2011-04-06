@@ -1,4 +1,9 @@
-<div><%= link_to 'Create a new Channel', new_channel_path %></div>
+<%-
+  channel_kinds = Channel::Kinds.dup
+  channel_kinds.map!{|x| ["#{x} channel", x]}
+  channel_kinds = [['Create new...', '']] + channel_kinds
+-%>
+<%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') -%>
 
 <br />
 

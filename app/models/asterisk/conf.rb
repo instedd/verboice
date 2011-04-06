@@ -111,7 +111,12 @@ module Asterisk
     end
 
     def write_section(section, options, target)
-      target.puts "[#{section}]"
+      target.write "[#{section}]"
+
+      template = options.delete :template
+      target.write "(#{template})" if template
+
+      target.puts
       options.each do |key, values|
         Array(values).each { |value| target.puts "#{key}=#{value}" }
       end

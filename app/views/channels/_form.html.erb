@@ -19,24 +19,13 @@
     <%= f.label :application_id %><br />
     <%= f.select :application_id, options_from_collection_for_select(current_account.applications, :id, :name, @channel.application_id) %>
   </div>
+
+  <%= f.hidden_field :kind %>
+
   <%= f.fields_for :config do |c| %>
-    <div class="field">
-      <%= c.label :host_and_port %><br />
-      <%= c.text_field :host_and_port, :value => @channel.config.try(:[], 'host_and_port') %>
-    </div>
-    <div class="field">
-      <%= c.label :user %><br />
-      <%= c.text_field :user, :value => @channel.config.try(:[], 'user')  %>
-    </div>
-    <div class="field">
-      <%= c.label :password %><br />
-      <%= c.password_field :password, :value => @channel.config.try(:[], 'password')  %>
-    </div>
-    <div class="field">
-      <%= c.label :register %><br />
-      <%= c.check_box :register, {:checked => @channel.register?}  %>
-    </div>
+    <%= render :partial => "form_#{@channel.kind}", :locals => {:f => c} %>
   <% end %>
+
   <div class="actions">
     <%= f.submit %>
   </div>

@@ -67,6 +67,16 @@ class AsteriskConfTest < ActiveSupport::TestCase
     assert_result 'remove_action'
   end
 
+  test "add with template" do
+    Asterisk::Conf.change TmpFileName do
+      add :gateway2, :type => :peer, :context => :verboice, :allow => [:foo, :bar], :template => '!'
+      add :gateway2_0, :host => :foo, :template => :gateway2
+      add :gateway2_1, :host => :bar, :template => :gateway2
+    end
+
+    assert_result 'add_with_template'
+  end
+
   def assert_result(file)
     result = `diff -U10 #{Rails.root}/test/fixtures/#{file}.conf #{TmpFileName}`
     assert_equal 0, $?.exitstatus, result
