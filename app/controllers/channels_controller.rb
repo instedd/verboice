@@ -22,7 +22,6 @@ class ChannelsController < ApplicationController
   end
 
   # POST /channels
-  # POST /channels.xml
   def create
     @channel = current_account.channels.new(params[:channel])
 
@@ -34,7 +33,6 @@ class ChannelsController < ApplicationController
   end
 
   # PUT /channels/1
-  # PUT /channels/1.xml
   def update
     @channel = current_account.channels.find(params[:id])
 

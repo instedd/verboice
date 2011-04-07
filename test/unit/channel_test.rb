@@ -36,6 +36,7 @@ class ChannelTest < ActiveSupport::TestCase
       call_log = @channel.call 'foo'
       assert_equal @the_call_log_id, call_log.id
       assert_equal :active, call_log.state
+      assert_equal 'foo', call_log.address
     end
 
     should "call raises" do

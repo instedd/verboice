@@ -25,7 +25,7 @@ class Channel < ActiveRecord::Base
   end
 
   def call(address)
-    call_log = call_logs.create! :direction => :outgoing, :application_id => application_id
+    call_log = call_logs.create! :direction => :outgoing, :application_id => application_id, :address => address
     call_log.info "Initiating call from API to #{address}"
     call_log.save!
 

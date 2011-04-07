@@ -19,7 +19,7 @@ class Application < ActiveRecord::Base
     session.application = self
     session.channel = options[:channel] if options[:channel]
     session.call_log = options[:call_log] || call_logs.create!(:channel_id => session.channel.try(:id), :direction => :incoming)
-    session.call_log.address = options[:caller_id]
+    session.call_log.address = options[:caller_id] unless session.call_log.address.present?
     session.commands = self.commands.dup
     session
   end
