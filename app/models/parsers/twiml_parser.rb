@@ -54,21 +54,12 @@ class TwimlParser < XmlParser
     #   1. Capture
     #   2. If timeout or finish_key => continue with next verbs
     #   3. Otherwise => callback
-    #
-    # This is read as:
-    #   if timeout or finish_key => continue with next verbs
-    #   else callback
-    #
-    # but... we still don't know what the if command expression language will be
-    # to implement a proper "or", so...
     all_commands = [
       {:capture => options},
-      {:if => {:condition => :timeout,
+      {:if => {:condition => 'timeout || finish_key',
                :then => timeout_or_finish_key_commands,
-               :else => {:if => {:condition => :finish_key,
-                                 :then => timeout_or_finish_key_commands,
-                                 :else => :callback}}
-    }}
+               :else => :callback}
+      }
     ]
 
     [all_commands, timeout_or_finish_key_commands]

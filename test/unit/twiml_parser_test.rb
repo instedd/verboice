@@ -21,12 +21,7 @@ class TwimlParserTest < ActiveSupport::TestCase
     def gather_commands(capture_options = {}, next_commands = [])
       [
         {:capture => capture_options},
-        {:if => {:condition => :timeout,
-             :then => next_commands,
-             :else => {:if => {:condition => :finish_key,
-                           :then => next_commands,
-                           :else => :callback}}
-        }}
+        {:if => {:condition => 'timeout || finish_key', :then => next_commands, :else => :callback}}
       ]
     end
 

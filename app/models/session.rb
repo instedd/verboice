@@ -10,6 +10,7 @@ class Session
     @vars = {}
     @id = Guid.new.to_s
     @log_level = :trace
+    @js = V8::Context.new
     options.each do |key, value|
       send "#{key}=", value
     end
@@ -17,6 +18,7 @@ class Session
 
   def []=(key, value)
     @vars[key] = value
+    @js[key.to_s] = value
   end
 
   def [](key)
@@ -25,6 +27,11 @@ class Session
 
   def delete(key)
     @vars.delete key
+    @js[key.to_s] = nil
+  end
+
+  def eval(expr)
+    @js.eval expr.to_s
   end
 
   def run
