@@ -76,6 +76,14 @@ class CaptureCommandTest < ActiveSupport::TestCase
     assert_equal @digit, @session[:capture]
   end
 
+  test "capture with play empty" do
+    expect_capture :finish_on_key => '*'
+
+    CaptureCommand.new(:finish_on_key => '*', :play => ' ').run @session
+
+    assert_equal @digit, @session[:capture]
+  end
+
   test "capture with play" do
     @session.expects(:log).with(:info => "Waiting user input", :trace => "Waiting user input: #{@defaults.merge(:play => :url).to_pretty_s}")
     @session.pbx.expects(:capture).with(@defaults.merge(:play => :target_path)).returns(@digit)
