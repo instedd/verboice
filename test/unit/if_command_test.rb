@@ -34,4 +34,16 @@ class IfCommandTest < ActiveSupport::TestCase
     cmd = IfCommand.new :condition => :some_var, :then => [:first], :else => :second
     cmd.run @session
   end
+
+  test "if variable true branch empty" do
+    @session[:some_var] = true
+
+    cmd = IfCommand.new :condition => :some_var
+    cmd.run @session
+  end
+
+  test "if variable else branch empty" do
+    cmd = IfCommand.new :condition => :some_var
+    cmd.run @session
+  end
 end

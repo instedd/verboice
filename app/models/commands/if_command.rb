@@ -6,6 +6,7 @@ class IfCommand
   end
 
   def run(session)
-    session.push_commands(Array(session[@condition] ? @then : @else))
+    commands = session[@condition] ? @then : @else
+    session.push_commands Array(commands) if commands
   end
 end
