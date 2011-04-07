@@ -5,7 +5,7 @@ class CallbackCommandTest < ActiveSupport::TestCase
     url = 'http://www.example.com'
 
     session = Session.new
-    session[:last_capture] = '123'
+    session[:capture] = '123'
     session.expects(:log).with({
       :info => "Callback #{url}",
       :trace => "Callback #{url} with CallSid=#{session.id}&Digits=123"
@@ -23,7 +23,7 @@ class CallbackCommandTest < ActiveSupport::TestCase
 
     session = Session.new :application => mock('application')
     session.application.expects(:callback_url).returns(url)
-    session[:last_capture] = '123'
+    session[:capture] = '123'
     session.expects(:log).with({
       :info => "Callback #{url}",
       :trace => "Callback #{url} with CallSid=#{session.id}&Digits=123"

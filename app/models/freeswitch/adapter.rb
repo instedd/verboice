@@ -37,7 +37,7 @@ module Freeswitch
         :max => options[:max],
         :terminators => options[:finish_on_key],
         :timeout => options[:timeout] * 1000,
-        :variable => 'last_capture'
+        :variable => 'capture'
       }
       @context.read file, freeswitch_options
     end

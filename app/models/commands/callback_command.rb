@@ -7,7 +7,7 @@ class CallbackCommand < Command
 
   def run(session)
     url = @url || session.application.callback_url
-    body = {:CallSid => session.id, :Digits => session[:last_capture]}
+    body = {:CallSid => session.id, :Digits => session[:capture]}
 
     session.log :info => "Callback #{url}", :trace => "Callback #{url} with #{body.to_query}"
 

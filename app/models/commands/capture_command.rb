@@ -17,6 +17,6 @@ class CaptureCommand < Command
     digits = session.pbx.capture @options
 
     session.info(digits ? "User pressed: #{digits}" : "User didn't press anything")
-    session[:last_capture] = digits
+    session[:capture] = digits
   end
 end
