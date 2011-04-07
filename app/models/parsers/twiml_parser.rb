@@ -37,6 +37,21 @@ class TwimlParser < XmlParser
       end
     end
 
+    # TODO: actually twiml logic should be something like:
+    # [
+    #   {:capture => options},
+    #   {:if => :timeout,
+    #      :then => execute other actions in script...,
+    #      :else => :callback
+    #   }
+    # ]
+    #
+    # But we don't have the if command, and we don't have the concept
+    # of timeout yet, so for now just capture and callback.
+    #
+    # Also missing: use the action and verb of the Gather node.
+    #
+    # See: http://www.twilio.com/docs/api/twiml/gather
     [{:capture => options}, :callback]
   end
 end
