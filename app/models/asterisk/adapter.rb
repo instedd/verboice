@@ -43,10 +43,11 @@ module Asterisk
 
       if options[:play]
         play_digit = play(options[:play], '0123456789#*')
-        return :timeout if play_digit.nil?
-        return :finish_key if options[:finish_on_key].include? play_digit
+        if play_digit
+          return :finish_key if options[:finish_on_key].include? play_digit
 
-        digits << play_digit
+          digits << play_digit
+        end
       end
 
       until digits.length == options[:max]
