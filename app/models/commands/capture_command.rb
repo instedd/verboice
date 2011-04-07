@@ -21,9 +21,22 @@ class CaptureCommand < Command
       options.delete :play
     end
 
-    digits = session.pbx.capture options
+    [:capture, :timeout, :finish_key].each { |key| session.delete key }
 
-    session.info(digits ? "User pressed: #{digits}" : "User didn't press anything")
-    session[:capture] = digits
+    digits = session.pbx.capture options
+    case digits
+    when nil
+      session.info("User didn't press enough digits")
+      session[:timeout] = true
+    when :timeout
+      session.info("User timeout")
+      session[:timeout] = true
+    when :finish_key
+      session.info("User pressed the finish key")
+      session[:finish_key] = true
+    else
+      session.info("User pressed: #{digits}")
+      session[:capture] = digits
+    end
   end
 end

@@ -23,6 +23,10 @@ class Session
     @vars[key]
   end
 
+  def delete(key)
+    @vars.delete key
+  end
+
   def run
     raise "Answering machine detected" if @call_log && @call_log.outgoing? && @pbx.is_answering_machine?
 

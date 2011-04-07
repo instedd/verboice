@@ -58,7 +58,7 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
      '57' => '9',
      '35' => '#',
      '42' => '*',
-     '0' => nil}.each do |result, digit|
+     '0' => :timeout}.each do |result, digit|
       should "capture one digit #{digit}" do
         expect_digit result
         value = @adapter.capture :min => 1, :max => 1, :finish_on_key => '', :timeout => 5
@@ -75,13 +75,25 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
     should "capture three digits timeout" do
       expect_digits ['4'.ord.to_s, '2'.ord.to_s, '0']
       value = @adapter.capture :min => 3, :max => 3, :finish_on_key => '#', :timeout => 5
-      assert_equal nil, value
+      assert_equal :timeout, value
     end
 
     should "capture digits finishes on key" do
       expect_digits '42#'
       value = @adapter.capture :min => 1, :max => 5, :finish_on_key => '#', :timeout => 5
       assert_equal '42', value
+    end
+
+    should "capture digits and press finish key the first time" do
+      expect_digits '#'
+      value = @adapter.capture :min => 1, :max => 5, :finish_on_key => '#', :timeout => 5
+      assert_equal :finish_key, value
+    end
+
+    should "capture digits and timeout" do
+      expect_digit '0'
+      value = @adapter.capture :min => 1, :max => 5, :finish_on_key => '#', :timeout => 5
+      assert_equal :timeout, value
     end
 
     should "capture digits while playing" do
@@ -91,17 +103,23 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
       assert_equal '42', value
     end
 
-    should "capture digits with string timeout" do
+    should "capture digits with string values" do
       @adapter.expects(:play).with('some_file', '0123456789#*').returns('4').in_sequence(@seq)
       expect_digit '2'.ord.to_s
-      value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '#', :timeout => '5', :play => 'some_file'
+      value = @adapter.capture :min => '2', :max => '2', :finish_on_key => '#', :timeout => '5', :play => 'some_file'
       assert_equal '42', value
     end
 
     should "capture digits and play is finish key" do
       @adapter.expects(:play).with('some_file', '0123456789#*').returns('*').in_sequence(@seq)
       value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
-      assert_equal nil, value
+      assert_equal :finish_key, value
+    end
+
+    should "capture digits and play is timeout" do
+      @adapter.expects(:play).with('some_file', '0123456789#*').returns(nil).in_sequence(@seq)
+      value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
+      assert_equal :timeout, value
     end
 
     should "capture digits and play just one digit" do

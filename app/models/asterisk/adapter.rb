@@ -37,13 +37,35 @@ module Asterisk
     end
 
     def capture(options)
+      [:min, :max, :timeout].each { |key| options[key] = options[key].to_i }
+
       digits = ''
-      digits = play(options[:play], '0123456789#*') || '' if options[:play]
-      return nil if digits != '' && options[:finish_on_key].include?(digits)
+
+      if options[:play]
+        play_digit = play(options[:play], '0123456789#*')
+        return :timeout if play_digit.nil?
+        return :finish_key if options[:finish_on_key].include? play_digit
+
+        digits << play_digit
+      end
 
       until digits.length == options[:max]
-        digit = capture_digit(options[:timeout].to_i * 1000)
-        break if digit.nil? || options[:finish_on_key].include?(digit)
+        digit = capture_digit(options[:timeout] * 1000)
+
+        # Timeout
+        if digit.nil?
+          return :timeout if digits.length < options[:min]
+          break
+        end
+
+        # Terminator
+        if options[:finish_on_key].include? digit
+          if digits.length == 0
+            return :finish_key
+          else
+            break
+          end
+        end
 
         digits << digit
       end

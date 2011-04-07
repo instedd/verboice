@@ -12,10 +12,15 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     @session.expects(:log).with(:info => "Waiting user input", :trace => "Waiting user input: #{options.to_pretty_s}")
     @session.pbx.expects(:capture).with(options).returns(@digit)
-    if @digit
-      @session.expects(:info).with("User pressed: #{@digit}")
+    case @digit
+    when nil
+      @session.expects(:info).with("User didn't press enough digits")
+    when :timeout
+      @session.expects(:info).with("User timeout")
+    when :finish_key
+      @session.expects(:info).with("User pressed the finish key")
     else
-      @session.expects(:info).with("User didn't press anything")
+      @session.expects(:info).with("User pressed: #{@digit}")
     end
   end
 
@@ -25,15 +30,30 @@ class CaptureCommandTest < ActiveSupport::TestCase
     CaptureCommand.new.run @session
 
     assert_equal :digit, @session[:capture]
+    assert !@session[:timeout]
+    assert !@session[:finish_key]
   end
 
-  test "capture one key timesout" do
-    @digit = nil
+  test "capture one key timeout" do
+    @digit = :timeout
     expect_capture
 
     CaptureCommand.new.run @session
 
     assert_nil @session[:capture]
+    assert @session[:timeout]
+    assert !@session[:finish_key]
+  end
+
+  test "capture one key finish key" do
+    @digit = :finish_key
+    expect_capture
+
+    CaptureCommand.new.run @session
+
+    assert_nil @session[:capture]
+    assert !@session[:timeout]
+    assert @session[:finish_key]
   end
 
   test "capture at least two keys" do
