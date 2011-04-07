@@ -42,7 +42,7 @@ module Asterisk
       return nil if digits != '' && options[:finish_on_key].include?(digits)
 
       until digits.length == options[:max]
-        digit = capture_digit(options[:timeout] * 1000)
+        digit = capture_digit(options[:timeout].to_i * 1000)
         break if digit.nil? || options[:finish_on_key].include?(digit)
 
         digits << digit

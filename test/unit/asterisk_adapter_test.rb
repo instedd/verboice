@@ -91,6 +91,13 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
       assert_equal '42', value
     end
 
+    should "capture digits with string timeout" do
+      @adapter.expects(:play).with('some_file', '0123456789#*').returns('4').in_sequence(@seq)
+      expect_digit '2'.ord.to_s
+      value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '#', :timeout => '5', :play => 'some_file'
+      assert_equal '42', value
+    end
+
     should "capture digits and play is finish key" do
       @adapter.expects(:play).with('some_file', '0123456789#*').returns('*').in_sequence(@seq)
       value = @adapter.capture :min => 2, :max => 2, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
