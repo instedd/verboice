@@ -27,7 +27,7 @@ class TwimlParser < XmlParser
   end
 
   def self.redirect(xml)
-    {:callback => xml.text}
+    {:callback => {:url => xml.text, :method => (xml.attributes['method'].try(:value) || 'post')}}
   end
 
   def self.gather(xml)
