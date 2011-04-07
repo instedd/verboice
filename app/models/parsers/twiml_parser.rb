@@ -40,9 +40,7 @@ class TwimlParser < XmlParser
     # TODO: actually twiml logic should be something like:
     # [
     #   {:capture => options},
-    #   {:if => :timeout,
-    #      :then => execute other actions in script...,
-    #      :else => :callback
+    #   {:if => [:timeout, execute other actions in script ..., :callback]},
     #   }
     # ]
     #
