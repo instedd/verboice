@@ -5,19 +5,24 @@ class TwimlParser < XmlParser
 
   def self.parse(xml)
     script = []
+    main_script = script
+
     xml.root.children.each do |child|
       case child.name
       when 'Play'
         script << play(child)
       when 'Gather'
-        script += gather(child)
+        commands, timeout_or_finish_key_commands = gather(child)
+        commands.each { |cmd| script << cmd }
+
+        script = timeout_or_finish_key_commands
       when 'Redirect'
         script << redirect(child)
       when 'Hangup'
         script << :hangup
       end
     end
-    script
+    main_script
   end
 
   private
@@ -43,19 +48,29 @@ class TwimlParser < XmlParser
       end
     end
 
-    # TODO: actually twiml logic should be something like:
-    # [
-    #   {:capture => options},
-    #   {:if => [:timeout, execute other actions in script ..., :callback]},
-    #   }
-    # ]
-    #
-    # But we don't have the if command, and we don't have the concept
-    # of timeout yet, so for now just capture and callback.
-    #
-    # Also missing: use the action and verb of the Gather node.
-    #
+    timeout_or_finish_key_commands = []
+
     # See: http://www.twilio.com/docs/api/twiml/gather
-    [{:capture => options}, :callback]
+    #   1. Capture
+    #   2. If timeout or finish_key => continue with next verbs
+    #   3. Otherwise => callback
+    #
+    # This is read as:
+    #   if timeout or finish_key => continue with next verbs
+    #   else callback
+    #
+    # but... we still don't know what the if command expression language will be
+    # to implement a proper "or", so...
+    all_commands = [
+      {:capture => options},
+      {:if => {:condition => :timeout,
+               :then => timeout_or_finish_key_commands,
+               :else => {:if => {:condition => :finish_key,
+                                 :then => timeout_or_finish_key_commands,
+                                 :else => :callback}}
+    }}
+    ]
+
+    [all_commands, timeout_or_finish_key_commands]
   end
 end

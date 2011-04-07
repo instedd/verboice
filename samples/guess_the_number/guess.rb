@@ -11,27 +11,27 @@ post '/' do
 
   if not number
     Numbers[session_id] = (1..99).to_a.sample
-    return guess
+    return guess request
   end
 
-  return guess if pressed <= 0
+  return guess request if pressed <= 0
 
   if number == pressed
     Numbers.delete session_id
     play 'woman.gsm'
   elsif number > pressed
-    gather_with_file 'larger.mp3'
+    gather_with_file 'larger.mp3', request
   else
-    gather_with_file 'smaller.mp3'
+    gather_with_file 'smaller.mp3', request
   end
 end
 
-def guess
-  gather_with_file 'guess.mp3'
+def guess(request)
+  gather_with_file 'guess.mp3', request
 end
 
-def gather_with_file(file)
-  %Q(<Response><Gather numDigits="2"><Play>http://localhost:4567/#{file}</Play></Gather></Response>)
+def gather_with_file(file, request)
+  %Q(<Response><Gather numDigits="2"><Play>http://localhost:4567/#{file}</Play></Gather><Redirect>#{request.env['REQUEST_URI']}</Redirect></Response>)
 end
 
 def play(file)

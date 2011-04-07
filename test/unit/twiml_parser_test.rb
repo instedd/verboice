@@ -18,18 +18,34 @@ class TwimlParserTest < ActiveSupport::TestCase
   end
 
   context "gather" do
+    def gather_commands(capture_options = {}, next_commands = [])
+      [
+        {:capture => capture_options},
+        {:if => {:condition => :timeout,
+             :then => next_commands,
+             :else => {:if => {:condition => :finish_key,
+                           :then => next_commands,
+                           :else => :callback}}
+        }}
+      ]
+    end
+
     should "parse gather" do
-      assert_parse '<Response><Gather/></Response>', [{:capture => {}}, :callback]
+      assert_parse '<Response><Gather/></Response>', gather_commands
     end
 
     should "parse gather with attributes" do
       assert_parse '<Response><Gather timeout="3" finishOnKey="*" numDigits="4"/></Response>',
-        [{:capture => {:timeout => 3, :finish_on_key => "*", :min => 4, :max => 4}}, :callback]
+        gather_commands(:timeout => 3, :finish_on_key => "*", :min => 4, :max => 4)
     end
 
     should "parse gather with emedded play" do
       assert_parse '<Response><Gather><Play>http://foo</Play></Gather></Response>',
-        [{:capture => {:play => 'http://foo'}}, :callback]
+        gather_commands(:play => 'http://foo')
+    end
+
+    should "parse gather with next commands on timeout/finish_key" do
+      assert_parse '<Response><Gather/><Hangup /></Response>', gather_commands({}, [:hangup])
     end
   end
 
