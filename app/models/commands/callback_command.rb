@@ -1,17 +1,26 @@
 class CallbackCommand < Command
   param :url, :string, :optional => true
+  param :method, :string, :optional => true, :default => 'post'
 
-  def initialize(url = nil)
-    @url = url
+  def initialize(options = {})
+    if options.is_a? String
+      @url = options
+    else
+      options.symbolize_keys!
+      @url = options[:url]
+      @method = options[:method]
+    end
   end
 
   def run(session)
     url = @url || session.application.callback_url
+    method = (@method || 'post').to_s.downcase.to_sym
+
     body = {:CallSid => session.id, :Digits => session[:capture]}
+    session.log :info => "Callback #{method} #{url}", :trace => "Callback #{method} #{url} with #{body.to_query}"
 
-    session.log :info => "Callback #{url}", :trace => "Callback #{url} with #{body.to_query}"
-
-    http = EventMachine::HttpRequest.new(url).post :body => body
+    request = EventMachine::HttpRequest.new(url)
+    http = method == :get ? request.get(body) : request.post(:body => body)
 
     f = Fiber.current
     http.callback do
