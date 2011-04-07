@@ -11,6 +11,8 @@ class TwimlParser < XmlParser
         script << play(child)
       when 'Gather'
         script += gather(child)
+      when 'Redirect'
+        script << redirect(child)
       when 'Hangup'
         script << :hangup
       end
@@ -22,6 +24,10 @@ class TwimlParser < XmlParser
 
   def self.play(xml)
     {:play => xml.text}
+  end
+
+  def self.redirect(xml)
+    {:callback => xml.text}
   end
 
   def self.gather(xml)
