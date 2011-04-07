@@ -49,14 +49,14 @@ class CallbackCommandTest < ActiveSupport::TestCase
 
     expect_em_http :get, url, :with => {:CallSid => session.id, :Digits => '123'}, :returns => '<Response><Hangup/></Response>'
 
-    CallbackCommand.new('url' => url, 'method' => :get).run session
+    CallbackCommand.new(:url => url, :method => :get).run session
   end
 
   test "run without url" do
     url = 'http://www.example.com'
 
     session = Session.new :application => mock('application')
-    session.application.expects(:callback_url).returns(url)
+    session.expects(:callback_url).returns(url)
     session[:capture] = '123'
     session.expects(:log).with({
       :info => "Callback post #{url}",

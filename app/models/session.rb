@@ -10,7 +10,8 @@ class Session
     @vars = {}
     @id = Guid.new.to_s
     @log_level = :trace
-    @js = V8::Context.new
+    @js = new_v8_context
+
     options.each do |key, value|
       send "#{key}=", value
     end
@@ -34,11 +35,16 @@ class Session
     @js.eval expr.to_s
   end
 
+  def callback_url
+    application.callback_url
+  end
+
   def run
     raise "Answering machine detected" if @call_log && @call_log.outgoing? && @pbx.is_answering_machine?
 
     run_command until @commands.empty?
   rescue Exception => ex
+    p "#{ex} #{ex.backtrace}"
     error ex.message
     @call_log.finish :failed if @call_log
   else
@@ -75,13 +81,22 @@ class Session
     raise "Quit" if @quit
 
     cmd = @commands.shift
+
     if cmd.is_a? Hash
       cmd, args = cmd.first
+      args.symbolize_keys! if args.is_a? Hash
+
       cmd = "#{cmd.to_s.camelcase}Command".constantize.new args
-    else
+    elsif !cmd.respond_to?(:run)
       cmd = "#{cmd.to_s.camelcase}Command".constantize.new
     end
 
     cmd.run self
+  end
+
+  def new_v8_context
+    ctx = V8::Context.new
+    [:capture, :timeout, :finish_key].each { |key| ctx[key] = nil }
+    ctx
   end
 end

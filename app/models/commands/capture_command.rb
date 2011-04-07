@@ -7,7 +7,7 @@ class CaptureCommand < Command
 
   def initialize(options = {})
     @options = {:min => 1, :max => 1, :finish_on_key => '#', :timeout => 5}
-    @options.merge! options.symbolize_keys
+    @options.merge! options
     @options[:max] = Float::INFINITY if @options[:max] < @options[:min]
   end
 

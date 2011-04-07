@@ -6,14 +6,13 @@ class CallbackCommand < Command
     if options.is_a? String
       @url = options
     else
-      options.symbolize_keys!
       @url = options[:url]
       @method = options[:method]
     end
   end
 
   def run(session)
-    url = @url || session.application.callback_url
+    url = @url || session.callback_url
     method = (@method || 'post').to_s.downcase.to_sym
 
     body = {:CallSid => session.id, :Digits => session[:capture]}

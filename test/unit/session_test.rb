@@ -18,6 +18,12 @@ class SessionTest < ActiveSupport::TestCase
     @session.run
   end
 
+  test "run command with class" do
+    @pbx.expects(:foo)
+    @session.commands = [NoArgsCommand.new]
+    @session.run
+  end
+
   test "run and push commands" do
     @pbx.expects(:foo)
     @session.commands = [:push => :no_args]
