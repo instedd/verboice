@@ -8,7 +8,7 @@ class FreeswitchPbxInterfaceTest < ActiveSupport::TestCase
 
   test "call ok" do
     @interface.pbx.expects(:error?).returns(false)
-    @interface.pbx.expects(:command).with("bgapi originate {verboice_application_id=1,verboice_call_log_id=2}user/1000 '&socket(localhost:#{Freeswitch::OutboundListener::Port} sync full)'")
+    @interface.pbx.expects(:command).with("bgapi originate {verboice_channel_id=1,verboice_call_log_id=2}user/1000 '&socket(localhost:#{Freeswitch::OutboundListener::Port} sync full)'")
 
     result = @interface.call 'user/1000', 1, 2
     assert_nil result

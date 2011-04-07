@@ -5,14 +5,15 @@ module Freeswitch
 
     attr_accessor :pbx
 
-    def call(address, application_id, call_log_id)
+    def call(address, channel_id, call_log_id)
       raise "PBX is not available" if pbx.error?
-      vars = "{verboice_application_id=#{application_id},verboice_call_log_id=#{call_log_id}}"
+
+      vars = "{verboice_channel_id=#{channel_id},verboice_call_log_id=#{call_log_id}}"
       pbx.command "bgapi originate #{vars}#{address} '&socket(localhost:#{Freeswitch::OutboundListener::Port} sync full)'"
       nil
     end
 
-    def update_channel(channel_id)
+    def create_channel(channel_id)
       channel = Channel.find channel_id
       xml = <<EOF
 <include>
@@ -40,6 +41,10 @@ EOF
       File.open(path, 'w') do |file|
         file.write xml
       end
+    end
+
+    def delete_channel(channel_id)
+      # TODO
     end
   end
 end

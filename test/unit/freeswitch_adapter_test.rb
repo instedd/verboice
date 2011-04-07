@@ -7,7 +7,7 @@ class FreeswitchAdapterTest < ActiveSupport::TestCase
   end
 
   [
-    [:application_id, :variable_verboice_application_id],
+    [:channel_id, :variable_verboice_channel_id],
     [:call_log_id, :variable_verboice_call_log_id],
     [:caller_id, :variable_effective_caller_id_number]
   ].each do |method, key|
