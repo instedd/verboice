@@ -29,7 +29,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     CaptureCommand.new.run @session
 
-    assert_equal :digit, @session[:capture]
+    assert_equal :digit, @session[:digits]
     assert !@session[:timeout]
     assert !@session[:finish_key]
   end
@@ -40,7 +40,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     CaptureCommand.new.run @session
 
-    assert_nil @session[:capture]
+    assert_nil @session[:digits]
     assert @session[:timeout]
     assert !@session[:finish_key]
   end
@@ -51,7 +51,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     CaptureCommand.new.run @session
 
-    assert_nil @session[:capture]
+    assert_nil @session[:digits]
     assert !@session[:timeout]
     assert @session[:finish_key]
   end
@@ -61,7 +61,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     CaptureCommand.new(:min => 2).run @session
 
-    assert_equal @digit, @session[:capture]
+    assert_equal @digit, @session[:digits]
   end
 
   test "capture at most three keys" do
@@ -69,7 +69,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     CaptureCommand.new(:max => 3).run @session
 
-    assert_equal @digit, @session[:capture]
+    assert_equal @digit, @session[:digits]
   end
 
   test "capture exactly four keys" do
@@ -77,7 +77,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     CaptureCommand.new(:min => 4, :max => 4).run @session
 
-    assert_equal @digit, @session[:capture]
+    assert_equal @digit, @session[:digits]
   end
 
   test "capture with timeout" do
@@ -85,7 +85,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     CaptureCommand.new(:timeout => 1).run @session
 
-    assert_equal @digit, @session[:capture]
+    assert_equal @digit, @session[:digits]
   end
 
   test "capture with finish on key" do
@@ -93,7 +93,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     CaptureCommand.new(:finish_on_key => '*').run @session
 
-    assert_equal @digit, @session[:capture]
+    assert_equal @digit, @session[:digits]
   end
 
   test "capture with play empty" do
@@ -101,7 +101,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     CaptureCommand.new(:finish_on_key => '*', :play => ' ').run @session
 
-    assert_equal @digit, @session[:capture]
+    assert_equal @digit, @session[:digits]
   end
 
   test "capture with play" do
@@ -115,6 +115,6 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     CaptureCommand.new(:play => :url).run @session
 
-    assert_equal @digit, @session[:capture]
+    assert_equal @digit, @session[:digits]
   end
 end

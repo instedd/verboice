@@ -21,7 +21,7 @@ class CaptureCommand < Command
       options.delete :play
     end
 
-    [:capture, :timeout, :finish_key].each { |key| session.delete key }
+    [:digits, :timeout, :finish_key].each { |key| session.delete key }
 
     digits = session.pbx.capture options
     case digits
@@ -36,7 +36,7 @@ class CaptureCommand < Command
       session[:finish_key] = true
     else
       session.info("User pressed: #{digits}")
-      session[:capture] = digits
+      session[:digits] = digits
     end
   end
 end

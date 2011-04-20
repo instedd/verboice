@@ -96,7 +96,17 @@ class Session
 
   def new_v8_context
     ctx = V8::Context.new
-    [:capture, :timeout, :finish_key].each { |key| ctx[key] = nil }
+    ['digits', 'timeout', 'finish_key'].each { |key| ctx[key] = nil }
+    ['answer', 'assign', 'callback', 'capture', 'hangup', 'js', 'play', 'record', 'say'].each do |func|
+      ctx[func] = lambda do |*options|
+        if options.length == 1 && options[0].respond_to?(:to_hash)
+          options[0] = options[0].to_hash
+          options[0].symbolize_keys!
+        end
+        "#{func.camelcase}Command".constantize.new(*options).run self
+      end
+    end
+    ctx['alert'] = lambda { |str| info str }
     ctx
   end
 end

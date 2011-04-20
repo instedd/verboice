@@ -1,6 +1,6 @@
 class Command
-  @commands = []
   def self.inherited(subclass)
+    @commands ||= []
     @commands << subclass
     subclass.instance_eval { @spec = [] }
   end

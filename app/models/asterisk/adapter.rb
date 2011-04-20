@@ -37,7 +37,7 @@ module Asterisk
     end
 
     def capture(options)
-      [:min, :max, :timeout].each { |key| options[key] = options[key].to_i }
+      [:min, :max, :timeout].each { |key| options[key] = options[key].to_i rescue nil }
 
       digits = ''
 
