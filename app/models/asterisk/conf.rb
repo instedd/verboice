@@ -41,6 +41,7 @@ module Asterisk
     ensure
       target.close
       FileUtils.mv target, @file
+      File.chmod 0644, @file
     end
 
     private
