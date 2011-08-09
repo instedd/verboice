@@ -58,6 +58,10 @@ class TwimlParserTest < ActiveSupport::TestCase
       assert_parse '<Response><Redirect method="get">http://foo</Redirect></Response>', [:callback => {:url => 'http://foo', :method => 'get'}]
     end
   end
+  
+  test "parse say" do
+    assert_parse '<Response><Say>Hello</Say></Response>', [:say => 'Hello']
+  end
 
   test "parse hangup" do
     assert_parse '<Response><Hangup/></Response>', [:hangup]

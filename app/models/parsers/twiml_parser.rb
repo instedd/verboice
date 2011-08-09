@@ -20,6 +20,8 @@ class TwimlParser < XmlParser
         script << redirect(child)
       when 'Hangup'
         script << :hangup
+      when 'Say'
+        script << say(child)
       end
     end
     main_script
@@ -33,6 +35,10 @@ class TwimlParser < XmlParser
 
   def self.redirect(xml)
     {:callback => {:url => xml.text, :method => (xml.attributes['method'].try(:value) || 'post')}}
+  end
+  
+  def self.say(xml)
+    {:say => xml.text}
   end
 
   def self.gather(xml)
