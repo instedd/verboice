@@ -18,10 +18,10 @@ class TwimlParserTest < ActiveSupport::TestCase
   end
 
   context "gather" do
-    def gather_commands(capture_options = {}, next_commands = [])
+    def gather_commands(capture_options = {}, next_commands = [], callback_options = {})
       [
         {:capture => capture_options},
-        {:if => {:condition => 'timeout || finish_key', :then => next_commands, :else => :callback}}
+        {:if => {:condition => 'timeout || finish_key', :then => next_commands, :else => {:callback => callback_options}}}
       ]
     end
 
@@ -41,6 +41,11 @@ class TwimlParserTest < ActiveSupport::TestCase
 
     should "parse gather with next commands on timeout/finish_key" do
       assert_parse '<Response><Gather/><Hangup /></Response>', gather_commands({}, [:hangup])
+    end
+    
+    should "parse gather with callback options" do
+      assert_parse '<Response><Gather action="http://www.domain.com/controller/action" method="GET"/></Response>',
+        gather_commands({}, [], {:url => 'http://www.domain.com/controller/action', :method => 'GET'})
     end
   end
 

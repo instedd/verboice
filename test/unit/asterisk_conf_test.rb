@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class AsteriskConfTest < ActiveSupport::TestCase
+  FileUtils.mkdir_p "#{Rails.root}/tmp"
   TmpFileName = "#{Rails.root}/tmp/sip.conf"
 
   setup do

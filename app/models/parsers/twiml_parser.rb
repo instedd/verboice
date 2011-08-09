@@ -40,7 +40,11 @@ class TwimlParser < XmlParser
     options[:timeout] = xml.attributes['timeout'].value.to_i if xml.attributes['timeout']
     options[:finish_on_key] = xml.attributes['finishOnKey'].value if xml.attributes['finishOnKey']
     options[:min] = options[:max] = xml.attributes['numDigits'].value.to_i if xml.attributes['numDigits']
-
+    
+    callback_options = {}
+    callback_options[:url] = xml.attributes['action'].value if xml.attributes['action']
+    callback_options[:method] = xml.attributes['method'].value if xml.attributes['method']
+        
     xml.children.each do |child|
       case child.name
       when 'Play'
@@ -58,7 +62,7 @@ class TwimlParser < XmlParser
       {:capture => options},
       {:if => {:condition => 'timeout || finish_key',
                :then => timeout_or_finish_key_commands,
-               :else => :callback}
+               :else => {:callback => callback_options}}
       }
     ]
 
