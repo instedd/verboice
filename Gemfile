@@ -22,6 +22,8 @@ group :test do
   gem 'ffaker'
   gem "shoulda"
   gem 'mocha', :require => false
+  gem 'ci_reporter'
+  gem 'test-unit'
 end
 
 # Use unicorn as the web server

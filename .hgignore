@@ -3,7 +3,7 @@ syntax: glob
 *.sqlite3
 *.tmp*~
 *.orig
-*.lock
 *.pid
 *.*~
 tmp/*
+test/reports/*
