@@ -4,17 +4,19 @@ class Session
   attr_accessor :application
   attr_accessor :channel
   attr_accessor :call_log
-  attr_reader :id
 
   def initialize(options = {})
     @vars = {}
-    @id = Guid.new.to_s
     @log_level = :trace
     @js = new_v8_context
 
     options.each do |key, value|
       send "#{key}=", value
     end
+  end
+  
+  def id
+    @call_log.id
   end
 
   def []=(key, value)
