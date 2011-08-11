@@ -40,6 +40,12 @@ class SessionTest < ActiveSupport::TestCase
     assert_equal 1, logs.length
     assert_match /^I.*?Answer/, logs.first.details
   end
+  
+  test "returns id of call log" do
+    call_log = CallLog.make
+    @session.call_log = call_log
+    assert_equal call_log.id, @session.id
+  end
 
   context "answering machine detection" do
     setup do
