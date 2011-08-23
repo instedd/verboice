@@ -3,6 +3,8 @@ class FastAGIProtocol < EventMachine::Protocols::LineAndTextProtocol; end
 module Asterisk
   class FastAGIServer < FastAGIProtocol
     Port = Rails.configuration.asterisk_configuration[:fast_agi_port].to_i
+    
+    attr_accessor :pbx_interface
 
     def agi_post_init
       @log = Rails.logger

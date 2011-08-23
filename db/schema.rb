@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110406181435) do
+ActiveRecord::Schema.define(:version => 20110818175949) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -51,6 +51,15 @@ ActiveRecord::Schema.define(:version => 20110406181435) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "channel_id"
+    t.datetime "started_at"
+  end
+
+  create_table "call_queues", :force => true do |t|
+    t.integer  "channel_id"
+    t.integer  "call_log_id"
+    t.string   "address"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "channels", :force => true do |t|

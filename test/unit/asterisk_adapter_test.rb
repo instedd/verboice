@@ -6,6 +6,12 @@ class AsteriskAdapterTest < ActiveSupport::TestCase
     @adapter = Asterisk::Adapter.new @context
     @seq = sequence('seq')
   end
+  
+  test 'returns interface' do
+    interface = mock('interface')
+    @context.expects(:pbx_interface).returns(interface)
+    assert_equal interface, @adapter.interface
+  end
 
   [
     [:channel_id, 'arg_1'],

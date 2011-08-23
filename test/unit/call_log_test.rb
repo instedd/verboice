@@ -30,4 +30,16 @@ and some other text... possibly...'}, details[2])
     call_log = app.call_logs.create! :channel => chan
     assert_equal app.account_id, call_log.account_id
   end
+  
+  test "save started at" do
+    call_log = CallLog.make
+    assert_nil call_log.started_at
+    
+    time = Time.now
+    Time.stubs(:now).returns(time)
+    
+    call_log.start
+    assert_equal time, call_log.started_at
+  end
+  
 end

@@ -6,17 +6,26 @@ module Asterisk
 
     attr_accessor :pbx
 
-    def call(address, channel_id, call_log_id)
+    def try_call_from_queue channel_id
+      channel = Channel.find channel_id
+      if channel.can_call?
+        queued_call = CallQueue.poll channel
+        self.call(queued_call.address, queued_call.channel, queued_call.call_log) if queued_call
+      end
+    end
+    
+    def call(address, channel, call_log)
+      call_log.start
+      
       raise "PBX is not available" if pbx.error?
 
-      channel = Channel.find channel_id
       address = send "#{channel.kind}_address", channel, address
 
       result = pbx.originate :channel => address,
         :application => 'AGI',
-        :data => "agi://localhost:#{Asterisk::FastAGIServer::Port},#{channel_id},#{call_log_id}",
+        :data => "agi://localhost:#{Asterisk::FastAGIServer::Port},#{channel.id},#{call_log.id}",
         :async => true,
-        :actionid => call_log_id
+        :actionid => call_log.id
 
       result[:response] == 'Error' ? raise(result[:message]) : nil
     end

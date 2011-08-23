@@ -10,6 +10,7 @@ require(File.expand_path '../../../lib/batphone/lib/fastagi.rb', __FILE__)
 module Globals
   class << self
     attr_accessor :pbx
+    attr_accessor :pbx_interface
   end
 end
 
@@ -28,6 +29,12 @@ class MyPbxInterface < Asterisk::PbxInterface
   end
 end
 
+class MyFastAGIServer < Asterisk::FastAGIServer
+  def post_init
+    self.pbx_interface = Globals.pbx
+  end
+end
+
 EM.error_handler do |err|
   p err
   p err.backtrace
@@ -35,9 +42,9 @@ end
 
 EM::run do
   EM.schedule do
-    EM::start_server 'localhost', Asterisk::FastAGIServer::Port, Asterisk::FastAGIServer
     Globals.pbx = EM::connect 'localhost', Asterisk::AmiClient::Port, MyAmiClient
-    EM::start_server 'localhost', Asterisk::PbxInterface::Port, MyPbxInterface
+    Globals.pbx_interface = EM::start_server 'localhost', Asterisk::PbxInterface::Port, MyPbxInterface
+    EM::start_server 'localhost', Asterisk::FastAGIServer::Port, MyFastAGIServer
     puts 'Ready'
   end
 end

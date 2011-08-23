@@ -13,6 +13,10 @@ module Asterisk
     def channel_id; @context['arg_1']; end
     def call_log_id; @context['arg_2']; end
     def caller_id; @context['callerid']; end
+    
+    def interface
+      @context.pbx_interface
+    end
 
     def answer
       @context.answer

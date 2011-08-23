@@ -22,6 +22,11 @@ class CallLog < ActiveRecord::Base
   def outgoing?
     direction == :outgoing
   end
+  
+  def start
+    self.started_at = Time.now.utc
+    self.save!
+  end
 
   def finish(state)
     self.state = state

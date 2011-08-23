@@ -6,3 +6,7 @@
   <%= f.label :password %><br />
   <%= f.password_field :password, :value => @channel.config['password'] %>
 </div>
+<div class="field">
+  <%= f.label :limit %><br />
+  <%= f.text_field :limit, :value => @channel.config['limit'] %>
+</div>

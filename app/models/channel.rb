@@ -11,6 +11,8 @@ class Channel < ActiveRecord::Base
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
+  
+  validates_numericality_of :limit, :only_integer => true, :greater_than => 0, :if => Proc.new { |x| x.has_limit? }
 
   after_commit :call_pbx_create_channel, :if => :persisted?
   before_update :call_pbx_delete_channel
@@ -29,14 +31,21 @@ class Channel < ActiveRecord::Base
     call_log.info "Initiating call from API to #{address}"
     call_log.save!
 
+    call = CallQueue.enqueue self, call_log, address
+
     begin
-      PbxClient.call address, self.id, call_log.id
+      PbxClient.try_call_from_queue self.id
     rescue Exception => ex
       call_log.error ex.message
       call_log.finish :failed
+      call.destroy
     end
 
     call_log
+  end
+  
+  def can_call?
+    !has_limit? || call_logs.where('started_at IS NOT NULL AND finished_at IS NULL').count < limit.to_i
   end
 
   def config
@@ -61,6 +70,14 @@ class Channel < ActiveRecord::Base
 
   def register?
     config['register'] == '1'
+  end
+  
+  def limit
+    config['limit']
+  end
+  
+  def has_limit?
+    config['limit'].present?
   end
 
   private

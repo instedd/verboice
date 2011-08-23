@@ -21,6 +21,37 @@ class ChannelTest < ActiveSupport::TestCase
     should validate_presence_of(:name)
     should validate_uniqueness_of(:name).scoped_to(:account_id)
   end
+  
+  context "can call" do
+    
+    setup do
+      @channel = Channel.make
+    end
+    
+    should "tell true if channel has no limit" do
+      @channel.expects(:has_limit?).returns(false)
+      assert_true @channel.can_call?
+    end
+    
+    should "tell true if active calls are inside limit" do
+      @channel.expects(:has_limit?).returns(true)
+      @channel.expects(:limit).returns(5)
+      
+      1.upto(4).each{ CallLog.make :channel => @channel, :started_at => Time.now, :finished_at => nil }
+      
+      assert_true @channel.can_call?
+    end
+    
+    should "tell false if limit is exceeded" do
+      @channel.expects(:has_limit?).returns(true)
+      @channel.expects(:limit).returns(5)
+      
+      1.upto(5).each{ CallLog.make :channel => @channel, :started_at => Time.now, :finished_at => nil }
+      
+      assert_false @channel.can_call?
+    end
+    
+  end
 
   context "call" do
     setup do
@@ -28,33 +59,55 @@ class ChannelTest < ActiveSupport::TestCase
     end
 
     should "call ok" do
-      PbxClient.expects(:call).with do |address, channel_id, call_log_id|
-        @the_call_log_id = call_log_id
-        address == 'foo' && channel_id == @channel.id
+      PbxClient.expects(:try_call_from_queue).with do |channel_id|
+        # @the_call_log_id = call_log_id
+        # address == 'foo' && channel_id == @channel.id
+        channel_id == @channel.id
       end
 
       call_log = @channel.call 'foo'
-      assert_equal @the_call_log_id, call_log.id
+      # assert_equal @the_call_log_id, call_log.id
       assert_equal :active, call_log.state
       assert_equal 'foo', call_log.address
     end
 
     should "call raises" do
-      PbxClient.expects(:call).with do |address, channel_id, call_log_id|
-        @the_call_log_id = call_log_id
-        address == 'foo' && channel_id == @channel.id
+      PbxClient.expects(:try_call_from_queue).with do |channel_id|
+        # @the_call_log_id = call_log_id
+        # address == 'foo' && channel_id == @channel.id
+        channel_id == @channel.id
       end.raises("Oh no!")
 
       call_log = @channel.call 'foo'
-      assert_equal @the_call_log_id, call_log.id
+      # assert_equal @the_call_log_id, call_log.id
       assert_equal :failed, call_log.state
     end
 
     should "call and set direction outgoing" do
-      PbxClient.expects(:call)
+      PbxClient.expects(:try_call_from_queue)
 
       call_log = @channel.call 'foo'
       assert_equal :outgoing, call_log.direction
+    end
+    
+    should "enqueue call" do
+      PbxClient.stubs(:try_call_from_queue)
+      CallQueue.expects(:enqueue).with do |channel, call_log, address|
+        @the_call_log = call_log
+        address == 'foo' && channel.id == @channel.id
+      end
+      
+      call_log = @channel.call 'foo'
+      assert_equal @the_call_log, call_log
+    end
+    
+    should "destroy enqueued call if exception is raised" do
+      call = mock('mock')
+      PbxClient.expects(:try_call_from_queue).raises
+      CallQueue.expects(:enqueue).returns(call)
+      call.expects(:destroy)
+      
+      @channel.call 'foo'
     end
   end
 
@@ -111,4 +164,5 @@ class ChannelTest < ActiveSupport::TestCase
     channel = Channel.new :config => { 'register' => '0' }
     assert !channel.register?
   end
+  
 end

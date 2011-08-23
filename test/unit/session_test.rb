@@ -3,6 +3,9 @@ require 'test_helper'
 class SessionTest < ActiveSupport::TestCase
   setup do
     @pbx = mock('pbx')
+    @pbx_interface = mock('pbx_interface')
+    @pbx.stubs(:interface).returns(@pbx_interface)
+    @pbx_interface.stubs(:try_call_from_queue)
     @session = Session.new :pbx => @pbx
   end
 
@@ -45,6 +48,23 @@ class SessionTest < ActiveSupport::TestCase
     call_log = CallLog.make
     @session.call_log = call_log
     assert_equal call_log.id, @session.id
+  end
+  
+  context "call next queued call" do
+    setup do
+      @pbx_interface.expects(:try_call_from_queue)
+    end
+    
+    should "call from queue after run" do
+      @session.run
+    end
+    
+    should "call from queue after exception" do
+      @session.expects(:run_command).raises(Exception.new)
+      @session.commands.expects(:empty?).returns(false)
+      @session.run
+    end
+    
   end
 
   context "answering machine detection" do

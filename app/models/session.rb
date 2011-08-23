@@ -51,6 +51,8 @@ class Session
     @call_log.finish :failed if @call_log
   else
     @call_log.finish :completed if @call_log
+  ensure
+    @pbx.interface.try_call_from_queue @channel
   end
 
   def quit!
