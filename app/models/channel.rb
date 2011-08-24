@@ -1,5 +1,5 @@
 class Channel < ActiveRecord::Base
-  Kinds = %w(sip2sip)
+  Kinds = %w(sip2sip callcentric)
 
   belongs_to :account
   belongs_to :application

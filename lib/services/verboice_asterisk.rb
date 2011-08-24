@@ -31,7 +31,7 @@ end
 
 class MyFastAGIServer < Asterisk::FastAGIServer
   def post_init
-    self.pbx_interface = Globals.pbx
+    self.pbx_interface = Globals.pbx_interface
   end
 end
 

@@ -52,7 +52,7 @@ class Session
   else
     @call_log.finish :completed if @call_log
   ensure
-    @pbx.interface.try_call_from_queue @channel
+    # @pbx.interface.try_call_from_queue @channel.id
   end
 
   def quit!

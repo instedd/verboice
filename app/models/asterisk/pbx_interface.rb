@@ -33,6 +33,10 @@ module Asterisk
     def sip2sip_address(channel, address)
       "SIP/verboice_#{channel.id}-0/#{address}"
     end
+    
+    def callcentric_address(channel, address)
+      "SIP/verboice_#{channel.id}/#{address}"
+    end
 
     def create_channel(channel_id)
       raise "PBX is not available" if pbx.error?
@@ -97,6 +101,38 @@ module Asterisk
         4.times { |i| remove "#{section}-#{i}" }
 
         remove_action :general, :register, "#{user}:#{password}@sip2sip.info/#{channel.id}"
+      end
+    end
+    
+    def create_callcentric_channel(channel)
+      section = "verboice_#{channel.id}"
+      user = channel.config['username']
+      password = channel.config['password']
+      
+      Asterisk::Conf.change SipConf do
+        add section,
+          :type => :friend,
+          :nat => :yes,
+          :host => 'callcentric.com',
+          :fromdomain => 'callcentric.com',
+          :fromuser => user,
+          :defaultuser => user,
+          :secret => password,
+          :insecure => 'port,invite',
+          :context => :verboice
+
+        add_action :general, :register, "#{user}:#{password}@callcentric.com/#{channel.id}"
+      end
+    end
+    
+    def delete_callcentric_channel(channel)
+      section = "verboice_#{channel.id}"
+      user = channel.config['username']
+      password = channel.config['password']
+
+      Asterisk::Conf.change SipConf do
+        remove section
+        remove_action :general, :register, "#{user}:#{password}@callcentric.com/#{channel.id}"
       end
     end
   end

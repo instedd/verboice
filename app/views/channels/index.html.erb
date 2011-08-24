@@ -15,6 +15,7 @@
   <tr>
     <th>Name</th>
     <th>Application</th>
+	<th>Kind</th>
     <th></th>
   </tr>
 
@@ -22,6 +23,7 @@
   <tr>
     <td><%= channel.name %></td>
     <td><%= channel.application.try(:name) %></td>
+	<td><%= channel.kind %></td>
     <td>
       <%= link_to 'view', channel %>
       <%= link_to 'edit', edit_channel_path(channel) %>
