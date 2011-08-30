@@ -1,2 +1,2 @@
-outbound_listener_port: 9876
+call_manager_port: 9876
 directory_dir: /usr/local/freeswitch/conf/directory/default

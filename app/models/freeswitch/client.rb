@@ -1,5 +1,5 @@
 module Freeswitch
-  class InboundListener < Librevox::Listener::Inbound
+  class Client < Librevox::Listener::Inbound
     event :background_job do |event|
       if event.body.match /^-ERR (.*)/
         error_message = $1

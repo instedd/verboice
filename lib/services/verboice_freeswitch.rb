@@ -7,39 +7,42 @@ require(File.expand_path '../../../config/boot.rb', __FILE__)
 require(File.expand_path '../../../config/environment.rb', __FILE__)
 require 'librevox'
 
+BaseBroker.instance = Freeswitch::Broker.new
+
 class Globals
   class << self
-    attr_accessor :pbx
+    attr_accessor :freeswitch_client
   end
 end
 
-class MyFreeswitchInboundListener < Freeswitch::InboundListener
+class MyFreeswitchClient < Freeswitch::Client
   def unbind
     done
     EM.add_timer(1) do
-      Globals.pbx = Librevox.run MyFreeswitchInboundListener
+      Globals.freeswitch_client = Librevox.run MyFreeswitchClient
     end
     super
   end
 end
 
-class MyPbxInterface < Freeswitch::PbxInterface
+class MyBrokerFacade < BrokerFacade
   def post_init
-    self.pbx = Globals.pbx
+    BaseBroker.instance.freeswitch_client = Globals.freeswitch_client
   end
 end
 
 EM.error_handler do |err|
   p err
+  p err.backtrace
 end
 
 EM::run do
   EM.schedule do
     Librevox.start do
-      run Freeswitch::OutboundListener, :port => Freeswitch::OutboundListener::Port
-      Globals.pbx = run MyFreeswitchInboundListener
+      run Freeswitch::CallManager, :port => Freeswitch::CallManager::Port
+      Globals.freeswitch_client = run MyFreeswitchClient
     end
-    EM::start_server '127.0.0.1', Freeswitch::PbxInterface::Port, MyPbxInterface
+    EM::start_server '127.0.0.1', Freeswitch::CallManager::Port, Freeswitch::CallManager
     puts 'Ready'
   end
 end

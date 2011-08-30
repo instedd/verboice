@@ -1,20 +1,20 @@
 module Freeswitch
-  class PbxInterface < MagicObjectProtocol::Server
-    Port = Rails.configuration.verboice_configuration[:pbx_interface_port].to_i
+  class Broker < BaseBroker
     DirectoryDir = Rails.configuration.freeswitch_configuration[:directory_dir]
 
-    attr_accessor :pbx
+    attr_accessor :freeswitch_client
 
-    def call(address, channel_id, call_log_id)
-      raise "PBX is not available" if pbx.error?
+    def call(queued_call)
+      check_freeswitch_available!
 
-      vars = "{verboice_channel_id=#{channel_id},verboice_call_log_id=#{call_log_id}}"
-      pbx.command "bgapi originate #{vars}#{address} '&socket(localhost:#{Freeswitch::OutboundListener::Port} sync full)'"
+      vars = "{verboice_channel_id=#{queued_call.channel.id},verboice_call_log_id=#{queued_call.call_log.id}}"
+      freeswitch_client.command "bgapi originate #{vars}#{queued_call.address} '&socket(localhost:#{Freeswitch::CallManager::Port} sync full)'"
       nil
     end
 
-    def create_channel(channel_id)
-      channel = Channel.find channel_id
+    def create_channel(channel)
+      check_freeswitch_available!
+
       xml = <<EOF
 <include>
   <user id="#{channel.name.parameterize}">
@@ -43,8 +43,14 @@ EOF
       end
     end
 
-    def delete_channel(channel_id)
+    def delete_channel(channel)
+      check_freeswitch_available!
+
       # TODO
+    end
+
+    def check_freeswitch_available!
+      raise "Freeswitch is not available" if freeswitch_client.error?
     end
   end
 end
