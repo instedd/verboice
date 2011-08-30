@@ -2,7 +2,7 @@ require 'test_helper'
 
 class AmiProtocolTest < ActiveSupport::TestCase
   setup do
-    @ami = AmiProtocol.new nil
+    @ami = Asterisk::AmiProtocol.new nil
   end
 
   context "send" do
