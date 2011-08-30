@@ -1,8 +1,8 @@
-module PbxClient
+module BrokerClient
+  Port = Rails.configuration.verboice_configuration[:broker_port].to_i
 
   def self.open
-    port = Rails.configuration.verboice_configuration[:pbx_interface_port].to_i
-    client = EM.connect '127.0.0.1', port, MagicObjectProtocol::Client
+    client = EM.connect '127.0.0.1', Port, MagicObjectProtocol::Client
     begin
       yield client
     ensure
@@ -15,5 +15,4 @@ module PbxClient
       client.send name, *args
     end
   end
-
 end

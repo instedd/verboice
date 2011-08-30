@@ -1,65 +1,57 @@
 module Asterisk
-  class PbxInterface < MagicObjectProtocol::Server
-    Port = Rails.configuration.verboice_configuration[:pbx_interface_port].to_i
+  class Broker < BaseBroker
     ConfigDir = Rails.configuration.asterisk_configuration[:config_dir]
     SipConf = "#{ConfigDir}/sip.conf"
 
-    attr_accessor :pbx
+    attr_accessor :asterisk_client
 
-    def try_call_from_queue channel_id
-      channel = Channel.find channel_id
-      if channel.can_call?
-        queued_call = CallQueue.poll channel
-        self.call(queued_call.address, queued_call.channel, queued_call.call_log) if queued_call
-      end
-    end
-    
-    def call(address, channel, call_log)
-      call_log.start
-      
-      raise "PBX is not available" if pbx.error?
+    def call(queued_call)
+      check_asterisk_available!
 
-      address = send "#{channel.kind}_address", channel, address
+      queued_call.call_log.start
 
-      result = pbx.originate :channel => address,
+      address = send "#{queued_call.channel.kind}_address", queued_call.channel, queued_call.address
+
+      result = asterisk_client.originate({
+        :channel => address,
         :application => 'AGI',
-        :data => "agi://localhost:#{Asterisk::FastAGIServer::Port},#{channel.id},#{call_log.id}",
+        :data => "agi://localhost:#{Asterisk::CallManager::Port},#{queued_call.channel.id},#{queued_call.call_log.id}",
         :async => true,
-        :actionid => call_log.id
+        :actionid => queued_call.call_log.id
+      })
 
       result[:response] == 'Error' ? raise(result[:message]) : nil
     end
 
-    def sip2sip_address(channel, address)
-      "SIP/verboice_#{channel.id}-0/#{address}"
-    end
-    
-    def callcentric_address(channel, address)
-      "SIP/verboice_#{channel.id}/#{address}"
-    end
+    def create_channel(channel)
+      check_asterisk_available!
 
-    def create_channel(channel_id)
-      raise "PBX is not available" if pbx.error?
-
-      channel = Channel.find channel_id
       send "create_#{channel.kind}_channel", channel
 
       reload!
-    rescue Exception => ex
-      puts "#{ex}, #{ex.backtrace}"
     end
 
-    def delete_channel(channel_id)
-      raise "PBX is not available" if pbx.error?
+    def delete_channel(channel)
+      check_asterisk_available!
 
-      channel = Channel.find_by_id channel_id
       send "delete_#{channel.kind}_channel", channel
 
       reload!
     end
 
+    private
+
+    def sip2sip_address(channel, address)
+      "SIP/verboice_#{channel.id}-0/#{address}"
+    end
+
+    def callcentric_address(channel, address)
+      "SIP/verboice_#{channel.id}/#{address}"
+    end
+
+
     def reload!
-      pbx.command :command => 'sip reload'
+      asterisk_client.command :command => 'sip reload'
     end
 
     def create_sip2sip_channel(channel)
@@ -103,12 +95,12 @@ module Asterisk
         remove_action :general, :register, "#{user}:#{password}@sip2sip.info/#{channel.id}"
       end
     end
-    
+
     def create_callcentric_channel(channel)
       section = "verboice_#{channel.id}"
       user = channel.config['username']
       password = channel.config['password']
-      
+
       Asterisk::Conf.change SipConf do
         add section,
           :type => :friend,
@@ -124,7 +116,7 @@ module Asterisk
         add_action :general, :register, "#{user}:#{password}@callcentric.com/#{channel.id}"
       end
     end
-    
+
     def delete_callcentric_channel(channel)
       section = "verboice_#{channel.id}"
       user = channel.config['username']
@@ -134,6 +126,10 @@ module Asterisk
         remove section
         remove_action :general, :register, "#{user}:#{password}@callcentric.com/#{channel.id}"
       end
+    end
+
+    def check_asterisk_available!
+      raise "Asterisk is not available" if asterisk_client.error?
     end
   end
 end

@@ -1,9 +1,9 @@
 require 'test_helper'
 
-class AmiClientTest < ActiveSupport::TestCase
+class AsteriskClientTest < ActiveSupport::TestCase
   context "receiving events" do
     setup do
-      @ami = Asterisk::AmiClient.new 1
+      @ami = Asterisk::Client.new 1
       @call_log = CallLog.make
     end
 

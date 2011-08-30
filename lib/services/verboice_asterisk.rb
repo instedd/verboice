@@ -5,33 +5,27 @@ $log_path = File.expand_path '../../../log/asterisk.log', __FILE__
 
 require(File.expand_path '../../../config/boot.rb', __FILE__)
 require(File.expand_path '../../../config/environment.rb', __FILE__)
-require(File.expand_path '../../../lib/batphone/lib/fastagi.rb', __FILE__)
+
+BaseBroker.instance = Asterisk::Broker.new
 
 module Globals
   class << self
-    attr_accessor :pbx
-    attr_accessor :pbx_interface
+    attr_accessor :asterisk_client
   end
 end
 
-class MyAmiClient < Asterisk::AmiClient
+class MyAsteriskClient < Asterisk::Client
   def unbind
     EM.add_timer(1) do
-      Globals.pbx = EM::connect '127.0.0.1', Port, MyAmiClient
+      Globals.asterisk_client = EM::connect '127.0.0.1', Port, MyAsteriskClient
     end
     super
   end
 end
 
-class MyPbxInterface < Asterisk::PbxInterface
+class MyBrokerFacade < BrokerFacade
   def post_init
-    self.pbx = Globals.pbx
-  end
-end
-
-class MyFastAGIServer < Asterisk::FastAGIServer
-  def post_init
-    self.pbx_interface = Globals.pbx_interface
+    BaseBroker.instance.asterisk_client = Globals.asterisk_client
   end
 end
 
@@ -42,9 +36,9 @@ end
 
 EM::run do
   EM.schedule do
-    Globals.pbx = EM::connect 'localhost', Asterisk::AmiClient::Port, MyAmiClient
-    Globals.pbx_interface = EM::start_server 'localhost', Asterisk::PbxInterface::Port, MyPbxInterface
-    EM::start_server 'localhost', Asterisk::FastAGIServer::Port, MyFastAGIServer
+    Globals.asterisk_client = EM::connect 'localhost', Asterisk::Client::Port, MyAsteriskClient
+    EM::start_server 'localhost', BrokerFacade::Port, MyBrokerFacade
+    EM::start_server 'localhost', Asterisk::CallManager::Port, Asterisk::CallManager
     puts 'Ready'
   end
 end

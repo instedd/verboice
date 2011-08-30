@@ -22,7 +22,7 @@ class CallLog < ActiveRecord::Base
   def outgoing?
     direction == :outgoing
   end
-  
+
   def start
     self.started_at = Time.now.utc
     self.save!
@@ -49,10 +49,10 @@ class CallLog < ActiveRecord::Base
     str
   end
 
-  [:info, :error, :trace].each do |name|
+  Levels.each do |letter, name|
     class_eval %Q(
       def #{name}(text)
-        log '#{name.to_s[0].upcase}', text
+        log '#{letter}', text
       end
     )
   end

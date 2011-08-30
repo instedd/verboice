@@ -29,3 +29,9 @@ Channel.blueprint do
   account { application.account }
   name
 end
+
+QueuedCall.blueprint do
+  channel
+  call_log
+  address { Sham.password }
+end

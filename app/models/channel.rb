@@ -5,18 +5,19 @@ class Channel < ActiveRecord::Base
   belongs_to :application
 
   has_many :call_logs, :dependent => :destroy
+  has_many :queued_calls
 
   validates_presence_of :account
   validates_presence_of :application
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
-  
-  validates_numericality_of :limit, :only_integer => true, :greater_than => 0, :if => Proc.new { |x| x.has_limit? }
 
-  after_commit :call_pbx_create_channel, :if => :persisted?
-  before_update :call_pbx_delete_channel
-  before_destroy :call_pbx_delete_channel
+  validates_numericality_of :limit, :only_integer => true, :greater_than => 0, :if => :has_limit?
+
+  after_commit :call_broker_create_channel, :if => :persisted?
+  before_update :call_broker_delete_channel
+  before_destroy :call_broker_delete_channel
 
   serialize :config, Hash
 
@@ -31,19 +32,29 @@ class Channel < ActiveRecord::Base
     call_log.info "Initiating call from API to #{address}"
     call_log.save!
 
-    call = CallQueue.enqueue self, call_log, address
+    queued_call = queued_calls.create! :call_log => call_log, :address => address
 
     begin
-      PbxClient.try_call_from_queue self.id
+      BrokerClient.notify_call_queued id
     rescue Exception => ex
       call_log.error ex.message
       call_log.finish :failed
-      call.destroy
+      queued_call.destroy
     end
 
     call_log
   end
-  
+
+  def poll_call
+    return nil unless can_call?
+
+    self.class.transaction do
+      queued_call = queued_calls.order(:created_at).first
+      queued_call.try :destroy
+      queued_call
+    end
+  end
+
   def can_call?
     !has_limit? || call_logs.where('started_at IS NOT NULL AND finished_at IS NULL').count < limit.to_i
   end
@@ -71,22 +82,22 @@ class Channel < ActiveRecord::Base
   def register?
     config['register'] == '1'
   end
-  
+
   def limit
     config['limit']
   end
-  
+
   def has_limit?
     config['limit'].present?
   end
 
   private
 
-  def call_pbx_create_channel
-    PbxClient.create_channel self.id
+  def call_broker_create_channel
+    BrokerClient.create_channel self.id
   end
 
-  def call_pbx_delete_channel
-    PbxClient.delete_channel self.id
+  def call_broker_delete_channel
+    BrokerClient.delete_channel self.id
   end
 end

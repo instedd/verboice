@@ -1,30 +1,33 @@
+class FastAGIProtocol < EventMachine::Protocols::LineAndTextProtocol; end
+
 module Asterisk
-  class Adapter
+  class CallManager < Asterisk::FastAGIProtocol
+    include BaseAdapter
+
+    Port = Rails.configuration.asterisk_configuration[:call_manager_port].to_i
     SoundsDir = Rails.configuration.asterisk_configuration[:sounds_dir]
     SoundsPath = "#{SoundsDir}/verboice/"
     FileUtils.mkdir_p SoundsPath
 
-    include BaseAdapter
+    def agi_post_init
+      @log = Rails.logger
 
-    def initialize(context)
-      @context = context
+      begin
+        run
+      rescue Exception => ex
+        puts "FATAL: #{ex.inspect}, #{ex.backtrace}"
+      ensure
+        close_connection
+      end
     end
 
-    def channel_id; @context['arg_1']; end
-    def call_log_id; @context['arg_2']; end
-    def caller_id; @context['callerid']; end
-    
-    def interface
-      @context.pbx_interface
-    end
-
-    def answer
-      @context.answer
-    end
+    def channel_id; self['arg_1']; end
+    def call_log_id; self['arg_2']; end
+    def caller_id; self['callerid']; end
 
     def hangup
-      @context.hangup
-      @context.close_connection
+      send_command 'HANGUP'
+      close_connection
     end
 
     def sound_path_for(basename)
@@ -33,7 +36,7 @@ module Asterisk
 
     def play(filename, escape_digits = nil)
       filename = filename[SoundsPath.length .. -5] # Remove SoundsPath and .gsm extension
-      line = @context.stream_file("verboice/#{filename}", escape_digits)
+      line = stream_file("verboice/#{filename}", escape_digits)
       if line.result == '-1'
         raise Exception.new 'Error while playing file'
       end
@@ -78,23 +81,23 @@ module Asterisk
     end
 
     def record
-      @context.record_file "#{SoundsPath}/foo", 'wav', '0123456789*#', '5000', 'beep'
+      record_file "#{SoundsPath}/foo", 'wav', '0123456789*#', '5000', 'beep'
     end
 
     def is_answering_machine?
       # TODO: add configuration for this. For now it's kind of annoying when it doesn't work.
       return false
 
-      amd_result = @context.exec('amd').result
+      amd_result = exec('amd').result
       return false if amd_result.to_i == -2
 
-      @context.get_variable('amdstatus').raw =~ /MACHINE/
+      get_variable('amdstatus').raw =~ /MACHINE/
     end
 
     private
 
     def capture_digit(timeout)
-      line = @context.wait_for_digit timeout
+      line = wait_for_digit timeout
       ascii_to_number line.result
     end
 

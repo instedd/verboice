@@ -14,7 +14,7 @@ class Session
       send "#{key}=", value
     end
   end
-  
+
   def id
     @call_log.id
   end
@@ -46,13 +46,12 @@ class Session
 
     run_command until @commands.empty?
   rescue Exception => ex
-    p "#{ex} #{ex.backtrace}"
     error ex.message
     @call_log.finish :failed if @call_log
   else
     @call_log.finish :completed if @call_log
   ensure
-    # @pbx.interface.try_call_from_queue @channel.id
+    # @pbx.interface.notify_call_queued @channel.id
   end
 
   def quit!

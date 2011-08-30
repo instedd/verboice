@@ -1,5 +1,5 @@
 module Asterisk
-  class AmiClient < AmiProtocol
+  class Client < AmiProtocol
     Port = Rails.configuration.asterisk_configuration[:ami_port].to_i
 
     def post_init
