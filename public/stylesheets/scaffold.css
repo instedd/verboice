@@ -203,3 +203,11 @@ table.table {
   margin-right: 10px;
   margin-left: 0px;
 }
+
+.trace {
+  color: #ADADAD;
+}
+
+.error {
+  color: red;
+}

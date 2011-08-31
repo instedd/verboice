@@ -2,7 +2,7 @@ require 'test_helper'
 
 class JsCommandTest < ActiveSupport::TestCase
   setup do
-    @session = Session.new :pbx => mock('pbx')
+    @session = Session.new :pbx => mock('pbx'), :call_log => CallLog.new
   end
 
   test "answer" do

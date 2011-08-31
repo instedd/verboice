@@ -3,7 +3,7 @@ require 'test_helper'
 class SessionTest < ActiveSupport::TestCase
   setup do
     @pbx = mock('pbx')
-    @session = Session.new :pbx => @pbx
+    @session = Session.new :pbx => @pbx, :call_log => CallLog.make
   end
 
   test "run no args command" do
@@ -30,21 +30,8 @@ class SessionTest < ActiveSupport::TestCase
     @session.run
   end
 
-  test "saves log" do
-    @pbx.expects(:answer)
-    @session.call_log = CallLog.make
-    @session.commands = [:answer]
-    @session.run
-
-    logs = CallLog.all
-    assert_equal 1, logs.length
-    assert_match /^I.*?Answer/, logs.first.details
-  end
-
   test "returns id of call log" do
-    call_log = CallLog.make
-    @session.call_log = call_log
-    assert_equal call_log.id, @session.id
+    assert_not_nil @session.id
   end
 
   context "answering machine detection" do
@@ -55,7 +42,6 @@ class SessionTest < ActiveSupport::TestCase
 
     should "run ok if call is incoming" do
       @call_log.expects(:outgoing?).returns(false)
-      @call_log.expects(:finish).with(:completed)
       @session.commands = []
       @session.run
     end
@@ -63,7 +49,6 @@ class SessionTest < ActiveSupport::TestCase
     should "run ok if call is outgoing but not an answeing machine" do
       @pbx.expects(:is_answering_machine?).returns(false)
       @call_log.expects(:outgoing?).returns(true)
-      @call_log.expects(:finish).with(:completed)
       @session.commands = []
       @session.run
     end
@@ -71,10 +56,13 @@ class SessionTest < ActiveSupport::TestCase
     should "fail if call is outgoing and an answeing machine" do
       @pbx.expects(:is_answering_machine?).returns(true)
       @call_log.expects(:outgoing?).returns(true)
-      @call_log.expects(:error).with('Answering machine detected')
-      @call_log.expects(:finish).with(:failed)
       @session.commands = []
-      @session.run
+      begin
+        @session.run
+        fail "Exception expected to be raised"
+      rescue RuntimeError => ex
+        assert_equal "Answering machine detected", ex.message
+      end
     end
   end
 end

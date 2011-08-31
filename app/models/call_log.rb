@@ -23,9 +23,29 @@ class CallLog < ActiveRecord::Base
     direction == :outgoing
   end
 
+  def start_incoming
+    start
+  end
+
+  def start_outgoing(address)
+    self.address = address
+    info "Calling #{address}"
+    start
+  end
+
   def start
+    self.state = :active
     self.started_at = Time.now.utc
     self.save!
+  end
+
+  def finish_with_error(message)
+    error message
+    finish :failed
+  end
+
+  def finish_successfully
+    finish :completed
   end
 
   def finish(state)
@@ -40,7 +60,7 @@ class CallLog < ActiveRecord::Base
     last = nil
     lines.each do |line|
       if line.match /(E|I|T) (\d+(?:\.\d+)) (.*)/
-        last = {:severity => Levels[$1], :time => $2, :text => $3}
+        last = {:severity => Levels[$1], :time => Time.at($2.to_f).utc, :text => $3}
         str << last
       else
         last[:text] << "\n#{line}"
@@ -61,7 +81,7 @@ class CallLog < ActiveRecord::Base
 
   def log(level, text)
     self.details ||= ""
-    self.details += "#{level} #{Time.now.utc - created_at} #{text}\n"
+    self.details += "#{level} #{Time.now.utc.to_f} #{text}\n"
   end
 
   def set_account_to_application_account

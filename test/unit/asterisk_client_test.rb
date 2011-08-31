@@ -4,29 +4,28 @@ class AsteriskClientTest < ActiveSupport::TestCase
   context "receiving events" do
     setup do
       @ami = Asterisk::Client.new 1
-      @call_log = CallLog.make
+      @session = Session.new :call_log => CallLog.make
     end
 
     should "receive event originate response failure fails call log" do
-      @ami.receive_event :event => 'OriginateResponse', :response => 'Failure', :actionid => @call_log.id.to_s
+      BaseBroker.instance = mock 'broker'
+      BaseBroker.instance.expects(:finish_session_with_error).with(@session.id, 'Failed to establish the communication')
 
-      @call_log.reload
-      assert_match /Failed to establish the communication/, @call_log.details
-      assert_equal :failed, @call_log.state
+      @ami.receive_event :event => 'OriginateResponse', :response => 'Failure', :actionid => @session.id.to_s
     end
 
     should "receive originate response without failure ignores it" do
-      @ami.receive_event :event => 'OriginateResponse', :response => 'Success', :actionid => @call_log.id.to_s
+      @ami.receive_event :event => 'OriginateResponse', :response => 'Success', :actionid => @session.id.to_s
 
-      @call_log.reload
-      assert_equal :active, @call_log.state
+      @session.call_log.reload
+      assert_equal :active, @session.call_log.state
     end
 
     should "receive other failure event ignores it" do
-      @ami.receive_event :event => 'SomeOtherEvent', :response => 'Failure', :actionid => @call_log.id.to_s
+      @ami.receive_event :event => 'SomeOtherEvent', :response => 'Failure', :actionid => @session.id.to_s
 
-      @call_log.reload
-      assert_equal :active, @call_log.state
+      @session.call_log.reload
+      assert_equal :active, @session.call_log.state
     end
   end
 end

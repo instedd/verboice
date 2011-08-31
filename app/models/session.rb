@@ -4,11 +4,14 @@ class Session
   attr_accessor :application
   attr_accessor :channel
   attr_accessor :call_log
+  attr_accessor :address
+
+  delegate :finish_successfully, :finish_with_error, :to => :call_log
+  CallLog::Levels.each { |key, name| delegate name, :to => :call_log }
 
   def initialize(options = {})
     @vars = {}
     @log_level = :trace
-    @js = new_v8_context
 
     options.each do |key, value|
       send "#{key}=", value
@@ -16,12 +19,16 @@ class Session
   end
 
   def id
-    @call_log.id
+    @id ||= Guid.new.to_s
+  end
+
+  def js
+    @js ||= new_v8_context
   end
 
   def []=(key, value)
     @vars[key] = value
-    @js[key.to_s] = value
+    js[key.to_s] = value
   end
 
   def [](key)
@@ -30,11 +37,11 @@ class Session
 
   def delete(key)
     @vars.delete key
-    @js[key.to_s] = nil
+    js[key.to_s] = nil
   end
 
   def eval(expr)
-    @js.eval expr.to_s
+    js.eval expr.to_s
   end
 
   def callback_url
@@ -42,16 +49,9 @@ class Session
   end
 
   def run
-    raise "Answering machine detected" if @call_log && @call_log.outgoing? && @pbx.is_answering_machine?
+    raise "Answering machine detected" if call_log.outgoing? && pbx.is_answering_machine?
 
-    run_command until @commands.empty?
-  rescue Exception => ex
-    error ex.message
-    @call_log.finish :failed if @call_log
-  else
-    @call_log.finish :completed if @call_log
-  ensure
-    # @pbx.interface.notify_call_queued @channel.id
+    run_command until commands.empty?
   end
 
   def quit!
@@ -59,31 +59,29 @@ class Session
   end
 
   def push_commands(commands)
-    @commands.unshift *commands
+    self.commands.unshift *commands
   end
 
-  [:info, :error, :trace].each do |name|
+  CallLog::Levels.each do |letter, name|
     class_eval %Q(
       def #{name}(text)
-        @call_log.#{name} text if @call_log
+        call_log.#{name} text
       end
     )
   end
 
   def log(options)
-    return unless @call_log
-
     if @log_level == :trace
-      @call_log.trace options[:trace]
+      call_log.trace options[:trace]
     else
-      @call_log.info options[:info]
+      call_log.info options[:info]
     end
   end
 
   def run_command
     raise "Quit" if @quit
 
-    cmd = @commands.shift
+    cmd = commands.shift
 
     if cmd.is_a? Hash
       cmd, args = cmd.first

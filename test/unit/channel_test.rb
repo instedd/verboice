@@ -21,35 +21,6 @@ class ChannelTest < ActiveSupport::TestCase
     should validate_uniqueness_of(:name).scoped_to(:account_id)
   end
 
-  context "can call" do
-    setup do
-      @channel = Channel.make
-    end
-
-    should "tell true if channel has no limit" do
-      @channel.expects(:has_limit?).returns(false)
-      assert_true @channel.can_call?
-    end
-
-    should "tell true if active calls are inside limit" do
-      @channel.expects(:has_limit?).returns(true)
-      @channel.expects(:limit).returns(5)
-
-      1.upto(4).each{ @channel.call_logs.make :started_at => Time.now, :finished_at => nil }
-
-      assert_true @channel.can_call?
-    end
-
-    should "tell false if limit is exceeded" do
-      @channel.expects(:has_limit?).returns(true)
-      @channel.expects(:limit).returns(5)
-
-      1.upto(5).each{ @channel.call_logs.make :started_at => Time.now, :finished_at => nil }
-
-      assert_false @channel.can_call?
-    end
-  end
-
   context "call" do
     setup do
       @channel = Channel.make
@@ -59,7 +30,7 @@ class ChannelTest < ActiveSupport::TestCase
       BrokerClient.expects(:notify_call_queued).with(@channel.id)
 
       call_log = @channel.call 'foo'
-      assert_equal :active, call_log.state
+      assert_equal :queued, call_log.state
       assert_equal 'foo', call_log.address
 
       queued_calls = @channel.queued_calls
@@ -150,5 +121,15 @@ class ChannelTest < ActiveSupport::TestCase
       assert_equal queued_call, channel.poll_call
       assert_equal 0, QueuedCall.count
     end
+  end
+
+  test "create new session without a call log" do
+    channel = Channel.make
+    session = channel.new_session
+    assert_equal channel.account, session.call_log.account
+    assert_equal channel.application, session.call_log.application
+    assert_equal channel, session.call_log.channel
+    assert_equal :incoming, session.call_log.direction
+    assert_equal :active, session.call_log.state
   end
 end

@@ -7,8 +7,7 @@ class AsteriskCallManagerTest < ActiveSupport::TestCase
   end
 
   [
-    [:channel_id, 'arg_1'],
-    [:call_log_id, 'arg_2'],
+    [:session_id, 'arg_1'],
     [:caller_id, 'callerid']
   ].each do |method, key|
     test "#{method}" do

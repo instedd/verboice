@@ -44,7 +44,7 @@
     <th>Text</th>
   </tr>
   <% @log.structured_details.each do |detail| %>
-    <tr>
+    <tr class="<%= detail[:severity] %>">
       <td><%= detail[:severity] %></td>
       <td><%= detail[:time] %></td>
       <td><%= detail[:text] %></td>

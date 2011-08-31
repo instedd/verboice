@@ -15,4 +15,9 @@ class BrokerFacade < MagicObjectProtocol::Server
     channel = Channel.find channel_id
     BaseBroker.instance.delete_channel channel
   end
+
+  def active_calls_count_for(channel_id)
+    channel = Channel.find channel_id
+    BaseBroker.instance.active_calls_count_for channel
+  end
 end

@@ -9,41 +9,41 @@ class AsteriskBrokerTest < ActiveSupport::TestCase
 
   context "call" do
     setup do
-      @queued_call = @channel.queued_calls.make
+      @session = Session.new :channel => @channel, :address => 'Foo'
     end
 
     should "call ok" do
       @broker.asterisk_client.expects(:error?).returns(false)
       @broker.asterisk_client.expects(:originate).with({
-        :channel => "SIP/verboice_#{@channel.id}-0/#{@queued_call.address}",
+        :channel => "SIP/verboice_#{@channel.id}-0/#{@session.address}",
         :application => 'AGI',
-        :data => "agi://localhost:#{Asterisk::CallManager::Port},#{@channel.id},#{@queued_call.call_log.id}",
+        :data => "agi://localhost:#{Asterisk::CallManager::Port},#{@session.id}",
         :async => true,
-        :actionid => @queued_call.call_log.id
+        :actionid => @session.id
       }).returns(:response => 'OK')
 
-      result = @broker.call @queued_call
+      result = @broker.call @session
       assert_nil result
     end
 
     should "call fails on asterisk_client error" do
       @broker.asterisk_client.expects(:error?).returns(true)
 
-      ex = assert_raise(RuntimeError) { @broker.call @queued_call }
+      ex = assert_raise(RuntimeError) { @broker.call @session }
       assert_match /not available/, ex.message
     end
 
     should "call fails on originate error" do
       @broker.asterisk_client.expects(:error?).returns(false)
       @broker.asterisk_client.expects(:originate).with({
-        :channel => "SIP/verboice_#{@channel.id}-0/#{@queued_call.address}",
+        :channel => "SIP/verboice_#{@channel.id}-0/#{@session.address}",
         :application => 'AGI',
-        :data => "agi://localhost:#{Asterisk::CallManager::Port},#{@channel.id},#{@queued_call.call_log.id}",
+        :data => "agi://localhost:#{Asterisk::CallManager::Port},#{@session.id}",
         :async => true,
-        :actionid => @queued_call.call_log.id
+        :actionid => @session.id
       }).returns(:response => 'Error', :message => 'Oops')
 
-      ex = assert_raise(RuntimeError) { @broker.call @queued_call }
+      ex = assert_raise(RuntimeError) { @broker.call @session }
       assert_equal 'Oops', ex.message
     end
   end

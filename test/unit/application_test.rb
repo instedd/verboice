@@ -47,21 +47,4 @@ class ApplicationTest < ActiveSupport::TestCase
       assert_equal [:answer, {:callback => @app.callback_url}], @app.commands
     end
   end
-
-  context "new session" do
-    setup do
-      @chan = Channel.make
-      @app = @chan.application
-    end
-
-    should "set direction incoming when no call log is given" do
-      session = @app.new_session :pbx, :channel => @chan
-      assert_equal :incoming, session.call_log.direction
-    end
-
-    should "set caller id when given" do
-      session = @app.new_session :pbx, :caller_id => 'foo', :channel => @chan
-      assert_equal 'foo', session.call_log.address
-    end
-  end
 end

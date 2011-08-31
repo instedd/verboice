@@ -15,9 +15,7 @@ module Asterisk
 
     def receive_event(event)
       if event[:event] == 'OriginateResponse' && event[:response] == 'Failure'
-        call_log = CallLog.find(event[:actionid]) or return
-        call_log.error 'Failed to establish the communication'
-        call_log.finish :failed
+        BaseBroker.instance.finish_session_with_error event[:actionid], 'Failed to establish the communication'
       end
     end
   end

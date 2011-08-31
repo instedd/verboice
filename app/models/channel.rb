@@ -21,15 +21,21 @@ class Channel < ActiveRecord::Base
 
   serialize :config, Hash
 
-  delegate :new_session, :to => :application
-
-  def new_session(pbx, options = {})
-    application.new_session pbx, options.merge(:channel => self)
+  def new_session(options = {})
+    session = Session.new options
+    session.application = application
+    session.channel = self
+    unless session.call_log
+      session.call_log = call_logs.new :direction => :incoming, :application => application, :started_at => Time.now.utc
+      session.call_log.start_incoming
+    end
+    session.commands = application.commands.dup
+    session
   end
 
   def call(address)
-    call_log = call_logs.create! :direction => :outgoing, :application_id => application_id, :address => address
-    call_log.info "Initiating call from API to #{address}"
+    call_log = call_logs.new :direction => :outgoing, :application_id => application_id, :address => address, :state => :queued
+    call_log.info "Received via API: call #{address}"
     call_log.save!
 
     queued_call = queued_calls.create! :call_log => call_log, :address => address
@@ -37,17 +43,18 @@ class Channel < ActiveRecord::Base
     begin
       BrokerClient.notify_call_queued id
     rescue Exception => ex
-      call_log.error ex.message
-      call_log.finish :failed
+      call_log.finish_with_error ex.message
       queued_call.destroy
     end
 
     call_log
   end
 
-  def poll_call
-    return nil unless can_call?
+  def active_calls_count
+    BrokerClient.active_calls_count_for id
+  end
 
+  def poll_call
     self.class.transaction do
       queued_call = queued_calls.order(:created_at).first
       queued_call.try :destroy
@@ -55,12 +62,8 @@ class Channel < ActiveRecord::Base
     end
   end
 
-  def can_call?
-    !has_limit? || call_logs.where('started_at IS NOT NULL AND finished_at IS NULL').count < limit.to_i
-  end
-
   def config
-    read_attribute(:config) || {}
+    self[:config] ||= {}
   end
 
   def host_and_port?
@@ -85,6 +88,10 @@ class Channel < ActiveRecord::Base
 
   def limit
     config['limit']
+  end
+
+  def limit=(value)
+    config['limit'] = value
   end
 
   def has_limit?

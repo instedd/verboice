@@ -12,18 +12,32 @@ module Asterisk
     def agi_post_init
       @log = Rails.logger
 
+      session = BaseBroker.instance.find_or_create_session channel_id, session_id
+      session.pbx = self
+      session.call_log.address = caller_id unless session.call_log.address.present?
       begin
-        run
+        session.run
       rescue Exception => ex
-        puts "FATAL: #{ex.inspect}, #{ex.backtrace}"
+        BaseBroker.instance.finish_session_with_error session, ex.message
+      else
+        BaseBroker.instance.finish_session_successfully session
       ensure
         close_connection
       end
     end
 
-    def channel_id; self['arg_1']; end
-    def call_log_id; self['arg_2']; end
-    def caller_id; self['callerid']; end
+    def channel_id
+      self['channel'] =~ %r(^SIP/verboice_(\d+))
+      $1
+    end
+
+    def session_id
+      self['arg_1']
+    end
+
+    def caller_id
+      self['callerid']
+    end
 
     def hangup
       send_command 'HANGUP'

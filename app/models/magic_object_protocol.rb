@@ -41,7 +41,7 @@ module MagicObjectProtocol
 
     def unbind
       @mutex.synchronize do
-        @obj = Exception.new 'Cannot connect to PBX'
+        @obj = Exception.new 'Cannot connect to Broker'
         @cv.signal
       end
     end

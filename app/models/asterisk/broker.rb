@@ -5,19 +5,17 @@ module Asterisk
 
     attr_accessor :asterisk_client
 
-    def call(queued_call)
+    def call(session)
       check_asterisk_available!
 
-      queued_call.call_log.start
-
-      address = send "#{queued_call.channel.kind}_address", queued_call.channel, queued_call.address
+      address = send "#{session.channel.kind}_address", session.channel, session.address
 
       result = asterisk_client.originate({
         :channel => address,
         :application => 'AGI',
-        :data => "agi://localhost:#{Asterisk::CallManager::Port},#{queued_call.channel.id},#{queued_call.call_log.id}",
+        :data => "agi://localhost:#{Asterisk::CallManager::Port},#{session.id}",
         :async => true,
-        :actionid => queued_call.call_log.id
+        :actionid => session.id
       })
 
       result[:response] == 'Error' ? raise(result[:message]) : nil
@@ -48,7 +46,6 @@ module Asterisk
     def callcentric_address(channel, address)
       "SIP/verboice_#{channel.id}/#{address}"
     end
-
 
     def reload!
       asterisk_client.command :command => 'sip reload'

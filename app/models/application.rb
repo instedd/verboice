@@ -9,21 +9,6 @@ class Application < ActiveRecord::Base
 
   serialize :flow, Array
 
-  def run(pbx, options = {})
-    new_session(pbx, options).run
-  end
-
-  def new_session(pbx, options = {})
-    session = Session.new
-    session.pbx = pbx
-    session.application = self
-    session.channel = options[:channel] if options[:channel]
-    session.call_log = options[:call_log] || call_logs.create!(:channel_id => session.channel.try(:id), :direction => :incoming)
-    session.call_log.address = options[:caller_id] unless session.call_log.address.present?
-    session.commands = self.commands.dup
-    session
-  end
-
   def commands
     self.flow || [:answer, {:callback => self.callback_url}]
   end
