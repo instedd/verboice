@@ -4,8 +4,6 @@ module Freeswitch
     SoundsPath = "#{InstallDir}/sounds/verboice/"
     FileUtils.mkdir_p SoundsPath
 
-    include BaseAdapter
-
     def initialize(context)
       @context = context
     end
