@@ -10,7 +10,7 @@ class BaseBroker
     return unless queued_call
 
     session = queued_call.start
-    store_session session, channel
+    store_session session
 
     call session
   end
@@ -31,12 +31,25 @@ class BaseBroker
     @sessions ||= {}
   end
 
-  def find_or_create_session(channel_id, session_id)
-    session = find_session session_id
-    unless session
-      session = Channel.find(channel_id).new_session
-      store_session session, channel
+  def accept_call(pbx)
+    session = find_or_create_session pbx
+    session.call_log.address = pbx.caller_id unless session.call_log.address.present?
+    begin
+      session.run
+    rescue Exception => ex
+      finish_session_with_error session, ex.message
+    else
+      finish_session_successfully session
     end
+  end
+
+  def find_or_create_session(pbx)
+    session = find_session pbx.session_id
+    unless session
+      session = Channel.find(pbx.channel_id).new_session
+      store_session session
+    end
+    session.pbx = pbx
     session
   end
 
@@ -62,9 +75,9 @@ class BaseBroker
 
   private
 
-  def store_session(session, channel)
+  def store_session(session)
     sessions[session.id] = session
-    active_calls[channel.id][session.id] = session
+    active_calls[session.channel.id][session.id] = session
   end
 
   def finish_session(session)

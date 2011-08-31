@@ -9,24 +9,16 @@ module Asterisk
 
     def agi_post_init
       @log = Rails.logger
-
-      session = BaseBroker.instance.find_or_create_session channel_id, session_id
-      session.pbx = self
-      session.call_log.address = caller_id unless session.call_log.address.present?
-      begin
-        session.run
-      rescue Exception => ex
-        BaseBroker.instance.finish_session_with_error session, ex.message
-      else
-        BaseBroker.instance.finish_session_successfully session
-      ensure
-        close_connection
-      end
+      BaseBroker.instance.accept_call self
+    rescue Exception => ex
+      puts ex
+      puts ex.backtrace
+    ensure
+      close_connection
     end
 
     def channel_id
-      self['channel'] =~ %r(^SIP/verboice_(\d+))
-      $1
+      self['extension'].to_i
     end
 
     def session_id

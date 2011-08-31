@@ -16,6 +16,11 @@ class AsteriskCallManagerTest < ActiveSupport::TestCase
     end
   end
 
+  test "channel_id" do
+    @call_manager.expects(:[]).with('extension').returns '123'
+    assert_equal 123, @call_manager.channel_id
+  end
+
   test 'answer' do
     @call_manager.expects(:send_command).with('ANSWER')
     @call_manager.answer

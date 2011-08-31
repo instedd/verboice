@@ -1,4 +1,4 @@
 context verboice {
     h => NoOp();
-    _. => AGI(agi://localhost:19000,${EXTEN});
+    _. => AGI(agi://localhost:19000);
 }

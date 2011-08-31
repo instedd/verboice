@@ -37,7 +37,9 @@ class BaseBrokerTest < ActiveSupport::TestCase
 
       @broker.notify_call_queued @channel
     end
+  end
 
+  context "finish session" do
     should "finish session successfully" do
       queued_call = @channel.queued_calls.make
       the_session = nil
@@ -63,6 +65,49 @@ class BaseBrokerTest < ActiveSupport::TestCase
       assert_equal 0, @broker.active_calls[@channel.id].length
       assert_match /An error/, the_session.call_log.details
       assert_equal :failed, the_session.call_log.state
+    end
+  end
+
+  context "accept call" do
+    should "run when there is already a session" do
+      @channel.application.flow = [:answer, :hangup]
+      @channel.application.save!
+
+      queued_call = @channel.queued_calls.make
+      the_session = nil
+      @broker.expects(:call).with { |session| the_session = session }
+      @broker.notify_call_queued @channel
+
+      pbx = stub 'pbx', :session_id => the_session.id
+      pbx.expects :answer
+      pbx.expects :hangup
+
+      @broker.accept_call pbx
+
+      assert_equal queued_call.address, the_session.call_log.address
+      assert_equal :completed, the_session.call_log.state
+      assert_equal 0, @broker.sessions.length
+      assert_equal 0, @broker.active_calls[@channel.id].length
+    end
+
+    should "run when there is no session" do
+      @channel.application.flow = [:answer, :hangup]
+      @channel.application.save!
+
+      pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
+      pbx.expects :answer
+      pbx.expects :hangup
+
+      @broker.accept_call pbx
+
+      call_logs = CallLog.all
+      assert_equal 1, call_logs.length
+      call_log = call_logs.first
+
+      assert_equal '1234', call_log.address
+      assert_equal :completed, call_log.state
+      assert_equal 0, @broker.sessions.length
+      assert_equal 0, @broker.active_calls[@channel.id].length
     end
   end
 end
