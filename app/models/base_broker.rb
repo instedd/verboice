@@ -40,6 +40,9 @@ class BaseBroker
       finish_session_with_error session, ex.message
     else
       finish_session_successfully session
+    ensure
+      pbx.close_connection
+      notify_call_queued session.channel
     end
   end
 
@@ -58,9 +61,7 @@ class BaseBroker
   end
 
   def finish_session_successfully(session)
-    session_id = session.id if session.is_a? Session
-
-    session = sessions.delete session_id
+    session = find_session session unless session.is_a? Session
     session.finish_successfully
 
     finish_session session
@@ -83,5 +84,6 @@ class BaseBroker
   def finish_session(session)
     sessions.delete session.id
     active_calls[session.channel.id].delete session.id
+    active_calls.delete session.channel.id if active_calls[session.channel.id].empty?
   end
 end

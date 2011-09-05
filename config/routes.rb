@@ -1,5 +1,7 @@
 Verboice::Application.routes.draw do
-  resources :channels
+  resources :channels do
+    resources :queued_calls
+  end
 
   root :to => "applications#index"
 

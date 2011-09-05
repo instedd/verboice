@@ -10,11 +10,6 @@ module Asterisk
     def agi_post_init
       @log = Rails.logger
       BaseBroker.instance.accept_call self
-    rescue Exception => ex
-      puts ex
-      puts ex.backtrace
-    ensure
-      close_connection
     end
 
     def channel_id

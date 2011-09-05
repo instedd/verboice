@@ -87,7 +87,7 @@ class Channel < ActiveRecord::Base
   end
 
   def limit
-    config['limit']
+    config['limit'].to_i
   end
 
   def limit=(value)
