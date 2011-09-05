@@ -80,10 +80,11 @@ class BaseBroker
   def call_rejected(session_id)
     session = find_session session_id
     finish_session_with_error session, 'Failed to establish the communication'
+
+    EM.fiber_sleep 2
+
     notify_call_queued session.channel
   end
-
-
 
   private
 

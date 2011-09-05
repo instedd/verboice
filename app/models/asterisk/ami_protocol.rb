@@ -10,7 +10,7 @@ module Asterisk
           if type == :response
             resume_fiber_with @packet
           else
-            receive_event @packet
+            Fiber.new { receive_event @packet }.resume
           end
           @packet = nil
         else
