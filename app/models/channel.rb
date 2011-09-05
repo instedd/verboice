@@ -1,5 +1,5 @@
 class Channel < ActiveRecord::Base
-  Kinds = %w(sip2sip callcentric)
+  Kinds = %w(generic sip2sip callcentric)
 
   belongs_to :account
   belongs_to :application
@@ -66,6 +66,14 @@ class Channel < ActiveRecord::Base
     self[:config] ||= {}
   end
 
+  config_accessor :username
+  config_accessor :password
+  config_accessor :limit
+
+  config_accessor :host
+  config_accessor :register
+  config_accessor :direction
+
   def host_and_port?
     config['host_and_port'].present?
   end
@@ -74,28 +82,21 @@ class Channel < ActiveRecord::Base
     config['host_and_port'].split ':', 2
   end
 
-  def user
-    config['user']
-  end
-
-  def password
-    config['password']
-  end
-
   def register?
     config['register'] == '1'
   end
 
-  def limit
-    config['limit'].to_i
-  end
-
-  def limit=(value)
-    config['limit'] = value
-  end
-
   def has_limit?
     config['limit'].present?
+  end
+
+  def servers
+    hosts = config['host'] || []
+    servers = []
+    hosts.each_with_index do |host, i|
+      servers << Server.new(host, config['register'][i], config['direction'][i])
+    end
+    servers.length == 0 ? [Server.new] : servers
   end
 
   private

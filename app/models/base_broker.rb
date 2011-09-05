@@ -16,7 +16,7 @@ class BaseBroker
   end
 
   def reached_active_calls_limit?(channel)
-    channel.has_limit? && active_calls_count_for(channel) >= channel.limit
+    channel.has_limit? && active_calls_count_for(channel) >= channel.limit.to_i
   end
 
   def active_calls

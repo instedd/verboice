@@ -22,9 +22,7 @@
 
   <%= f.hidden_field :kind %>
 
-  <%= f.fields_for :config do |c| %>
-    <%= render :partial => "form_#{@channel.kind}", :locals => {:f => c} %>
-  <% end %>
+  <%= render "form_#{@channel.kind}", :f => f %>
 
   <div class="actions">
     <%= f.submit %>
