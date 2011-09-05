@@ -42,6 +42,9 @@ class BaseBroker
       finish_session_successfully session
     ensure
       pbx.close_connection
+
+      EM.fiber_sleep 2
+
       notify_call_queued session.channel
     end
   end
