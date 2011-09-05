@@ -77,6 +77,14 @@ class BaseBroker
     finish_session session
   end
 
+  def call_rejected(session_id)
+    session = find_session session_id
+    finish_session_with_error session, 'Failed to establish the communication'
+    notify_call_queued session.channel
+  end
+
+
+
   private
 
   def store_session(session)

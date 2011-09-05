@@ -9,7 +9,7 @@ class AsteriskClientTest < ActiveSupport::TestCase
 
     should "receive event originate response failure fails call log" do
       BaseBroker.instance = mock 'broker'
-      BaseBroker.instance.expects(:finish_session_with_error).with(@session.id, 'Failed to establish the communication')
+      BaseBroker.instance.expects(:call_rejected).with(@session.id)
 
       @ami.receive_event :event => 'OriginateResponse', :response => 'Failure', :actionid => @session.id.to_s
     end
