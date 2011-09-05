@@ -21,6 +21,10 @@ class Session
   def id
     @id ||= Guid.new.to_s
   end
+  
+  def call_id
+    call_log.id
+  end
 
   def js
     @js ||= new_v8_context
