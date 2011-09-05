@@ -38,7 +38,7 @@
 function add_server() {
   $servers = $('#servers');
   $trs = $('#servers tr');
-  $tr = $($trs[1]).clone();
+  $tr = $($trs[$trs.length - 2]).clone();
   $tr.insertBefore($trs[$trs.length - 1]);
 }
 
