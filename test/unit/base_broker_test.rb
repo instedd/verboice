@@ -83,6 +83,8 @@ class BaseBrokerTest < ActiveSupport::TestCase
       pbx.expects :hangup
       pbx.expects :close_connection
 
+      EM.expects(:fiber_sleep).with 2
+
       @broker.accept_call pbx
 
       assert_equal queued_call.address, the_session.call_log.address
@@ -99,6 +101,8 @@ class BaseBrokerTest < ActiveSupport::TestCase
       pbx.expects :answer
       pbx.expects :hangup
       pbx.expects :close_connection
+
+      EM.expects(:fiber_sleep).with 2
 
       @broker.accept_call pbx
 
