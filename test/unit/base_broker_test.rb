@@ -81,6 +81,7 @@ class BaseBrokerTest < ActiveSupport::TestCase
       pbx = stub 'pbx', :session_id => the_session.id
       pbx.expects :answer
       pbx.expects :hangup
+      pbx.expects :close_connection
 
       @broker.accept_call pbx
 
@@ -97,6 +98,7 @@ class BaseBrokerTest < ActiveSupport::TestCase
       pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
       pbx.expects :answer
       pbx.expects :hangup
+      pbx.expects :close_connection
 
       @broker.accept_call pbx
 
