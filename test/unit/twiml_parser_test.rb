@@ -72,6 +72,14 @@ class TwimlParserTest < ActiveSupport::TestCase
     assert_parse '<Response><Hangup/></Response>', [:hangup]
   end
 
+  test "parse pause" do
+    assert_parse '<Response><Pause /></Response>', [:pause => 1]
+  end
+
+  test "parse pause with length" do
+    assert_parse '<Response><Pause length="3"/></Response>', [:pause => 3]
+  end
+
   def assert_parse(xml, result)
     assert_equal result, XmlParser.parse(xml)
   end

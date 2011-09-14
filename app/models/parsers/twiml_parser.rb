@@ -22,6 +22,8 @@ class TwimlParser < XmlParser
         script << :hangup
       when 'Say'
         script << say(child)
+      when 'Pause'
+        script << pause(child)
       end
     end
     main_script
@@ -39,6 +41,10 @@ class TwimlParser < XmlParser
 
   def self.say(xml)
     {:say => xml.text}
+  end
+
+  def self.pause(xml)
+    {:pause => xml.attributes['length'].try(:value).try(:to_i) || 1}
   end
 
   def self.gather(xml)
