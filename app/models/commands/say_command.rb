@@ -16,7 +16,7 @@ class SayCommand < Command
     wav_file = "#{get_target_path(session)}.wave"
 
     if is_available? command_name
-      say = IO.popen("#{command_prefix} #{wav_file}", 'w')
+      say = IO.popen("#{command_name} -o #{wav_file}", 'w')
       say.write @text
       say.close
       convert_to_8000_hz_gsm wav_file, get_target_path(session)
@@ -34,19 +34,11 @@ class SayCommand < Command
 
   if RUBY_PLATFORM =~ /linux/
     def command_name
-      'espeak'
-    end
-
-    def command_prefix
-      "espeak -w "
+      'text2wave'
     end
   else
     def command_name
       'say'
-    end
-
-    def command_prefix
-      "say -o "
     end
   end
 end
