@@ -16,6 +16,7 @@ class PlayUrlCommand < Command
     target_path = get_target_path(session)
     session.trace "Download #{@url}"
     download_url_to target_path
+    target_path
   end
 
   private

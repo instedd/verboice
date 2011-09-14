@@ -5,13 +5,18 @@ module PlayCommand
   end
 
   def run(session)
+    target_path = download session
+    session.pbx.play target_path
+  end
+
+  def download(session)
     target_path = get_target_path(session)
     if File.exists? target_path
       session.trace "File #{target_path} already exists"
     else
       setup_file(session)
     end
-    session.pbx.play target_path
+    target_path
   end
 
   def get_target_path(session)
