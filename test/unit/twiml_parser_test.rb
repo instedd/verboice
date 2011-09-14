@@ -14,7 +14,7 @@ class TwimlParserTest < ActiveSupport::TestCase
   end
 
   test "parse play" do
-    assert_parse '<Response><Play>http://foo</Play></Response>', [:play => 'http://foo']
+    assert_parse '<Response><Play>http://foo</Play></Response>', [:play_url => 'http://foo']
   end
 
   context "gather" do
@@ -42,7 +42,7 @@ class TwimlParserTest < ActiveSupport::TestCase
     should "parse gather with next commands on timeout/finish_key" do
       assert_parse '<Response><Gather/><Hangup /></Response>', gather_commands({}, [:hangup])
     end
-    
+
     should "parse gather with callback options" do
       assert_parse '<Response><Gather action="http://www.domain.com/controller/action" method="GET"/></Response>',
         gather_commands({}, [], {:url => 'http://www.domain.com/controller/action', :method => 'GET'})
@@ -58,7 +58,7 @@ class TwimlParserTest < ActiveSupport::TestCase
       assert_parse '<Response><Redirect method="get">http://foo</Redirect></Response>', [:callback => {:url => 'http://foo', :method => 'get'}]
     end
   end
-  
+
   test "parse say" do
     assert_parse '<Response><Say>Hello</Say></Response>', [:say => 'Hello']
   end

@@ -7,7 +7,7 @@ class Command
 
   def self.specs
     @@commands.inject({}) do |hash, cmd|
-      hash[cmd.name[0 .. -8].downcase] = cmd.spec
+      hash[cmd.name[0 .. -8].underscore] = cmd.spec
       hash
     end
   end

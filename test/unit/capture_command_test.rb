@@ -111,7 +111,7 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     play = mock('play')
     play.expects(:download).with(@session).returns(:target_path)
-    PlayCommand.expects(:new).with(:url).returns(play)
+    PlayUrlCommand.expects(:new).with(:url).returns(play)
 
     CaptureCommand.new(:play => :url).run @session
 

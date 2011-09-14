@@ -24,11 +24,11 @@ class ApplicationTest < ActiveSupport::TestCase
 
     should "saves flow in json" do
       app = Application.make_unsaved
-      app.flow = [:play => 'foo']
+      app.flow = [:play_url => 'foo']
       app.save!
 
       app.reload
-      assert_equal [:play => 'foo'], app.flow
+      assert_equal [:play_url => 'foo'], app.flow
     end
   end
 

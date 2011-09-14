@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class PlayCommandTest < ActiveSupport::TestCase
+class PlayUrlCommandTest < ActiveSupport::TestCase
   def setup_for_url(url)
     @url = url
     Digest::MD5.expects(:hexdigest).with(@url).returns(:md5)
@@ -16,9 +16,9 @@ class PlayCommandTest < ActiveSupport::TestCase
 
     File.expects(:exists?).with(:target_path).returns(true)
 
-    @session.expects(:trace).with("File #{@url} is already downloaded")
+    @session.expects(:trace).with("File #{:target_path} already exists")
 
-    cmd = PlayCommand.new @url
+    cmd = PlayUrlCommand.new @url
     cmd.expects(:download_url_to).never
     cmd.run @session
   end
@@ -31,7 +31,7 @@ class PlayCommandTest < ActiveSupport::TestCase
 
     @session.expects(:trace).with("Download #{@url}")
 
-    cmd = PlayCommand.new @url
+    cmd = PlayUrlCommand.new @url
     cmd.expects(:download_url_to_temporary_location).yields(:tmp_file)
     cmd.expects(:convert_to_wav).with(:tmp_file)
     cmd.expects(:convert_to_8000_hz_gsm).with(:tmp_file, :target_path)
@@ -45,7 +45,7 @@ class PlayCommandTest < ActiveSupport::TestCase
 
     @session.expects(:trace).with("Download #{@url}")
 
-    cmd = PlayCommand.new @url
+    cmd = PlayUrlCommand.new @url
     cmd.expects(:download_url_to_temporary_location).yields(:tmp_file)
     cmd.expects(:convert_to_wav).never
     cmd.expects(:convert_to_8000_hz_gsm).with(:tmp_file, :target_path)
@@ -60,7 +60,7 @@ class PlayCommandTest < ActiveSupport::TestCase
 
     @session.expects(:trace).with("Download #{@url}")
 
-    cmd = PlayCommand.new @url
+    cmd = PlayUrlCommand.new @url
     cmd.expects(:download_url_to_temporary_location).yields(:tmp_file)
     cmd.expects(:convert_to_wav).never
     cmd.expects(:convert_to_8000_hz_gsm).with(:tmp_file, :target_path)

@@ -30,13 +30,13 @@ class TwimlParser < XmlParser
   private
 
   def self.play(xml)
-    {:play => xml.text}
+    {:play_url => xml.text}
   end
 
   def self.redirect(xml)
     {:callback => {:url => xml.text, :method => (xml.attributes['method'].try(:value) || 'post')}}
   end
-  
+
   def self.say(xml)
     {:say => xml.text}
   end
@@ -46,11 +46,11 @@ class TwimlParser < XmlParser
     options[:timeout] = xml.attributes['timeout'].value.to_i if xml.attributes['timeout']
     options[:finish_on_key] = xml.attributes['finishOnKey'].value if xml.attributes['finishOnKey']
     options[:min] = options[:max] = xml.attributes['numDigits'].value.to_i if xml.attributes['numDigits']
-    
+
     callback_options = {}
     callback_options[:url] = xml.attributes['action'].value if xml.attributes['action']
     callback_options[:method] = xml.attributes['method'].value if xml.attributes['method']
-        
+
     xml.children.each do |child|
       case child.name
       when 'Play'
