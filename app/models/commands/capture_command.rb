@@ -16,7 +16,7 @@ class CaptureCommand < Command
 
     options = @options.dup
     if options[:play].present?
-      options[:play] = PlayUrlCommand.new(options[:play]).download(session)
+      options[:play] = PlayUrlCommand.new(options[:play]).setup_file(session)
     else
       options.delete :play
     end
