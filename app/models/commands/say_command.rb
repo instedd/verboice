@@ -15,13 +15,13 @@ class SayCommand < Command
   def setup_file(session)
     wav_file = "#{get_target_path(session)}.wave"
 
-    if is_available? 'say'
-      say = IO.popen("say -o #{wav_file}", 'w')
+    if is_available? command_name
+      say = IO.popen("#{command_prefix} #{wav_file}", 'w')
       say.write @text
       say.close
       convert_to_8000_hz_gsm wav_file, get_target_path(session)
     else
-      raise "No available TTS engine"
+      raise "No available TTS engine. Can't execute the console command: #{command_name}"
     end
   ensure
     File.delete wav_file rescue nil
@@ -30,5 +30,23 @@ class SayCommand < Command
   def is_available?(cmd)
     `which #{cmd}`
     return $?.success?
+  end
+
+  if RUBY_PLATFORM =~ /linux/
+    def command_name
+      'espeak'
+    end
+
+    def command_prefix
+      "espeak -w "
+    end
+  else
+    def command_name
+      'say'
+    end
+
+    def command_prefix
+      "say -o "
+    end
   end
 end
