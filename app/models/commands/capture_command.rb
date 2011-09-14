@@ -4,6 +4,7 @@ class CaptureCommand < Command
   param :finish_on_key, :string, :default => '#', :ui_length => 1
   param :timeout, :integer, :default => 5, :ui_length => 1
   param :play, :string, :ui_length => 80
+  param :say, :string, :ui_length => 80
 
   def initialize(options = {})
     @options = {:min => 1, :max => 1, :finish_on_key => '#', :timeout => 5}
