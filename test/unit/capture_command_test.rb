@@ -117,4 +117,18 @@ class CaptureCommandTest < ActiveSupport::TestCase
 
     assert_equal @digit, @session[:digits]
   end
+
+  test "capture with say" do
+    @session.expects(:log).with(:info => "Waiting user input", :trace => "Waiting user input: #{@defaults.merge(:say => :url).to_pretty_s}")
+    @session.pbx.expects(:capture).with(@defaults.merge(:play => :target_path)).returns(@digit)
+    @session.expects(:info).with("User pressed: #{@digit}")
+
+    say = mock('say')
+    say.expects(:download).with(@session).returns(:target_path)
+    SayCommand.expects(:new).with(:url).returns(say)
+
+    CaptureCommand.new(:say => :url).run @session
+
+    assert_equal @digit, @session[:digits]
+  end
 end

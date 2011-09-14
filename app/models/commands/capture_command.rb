@@ -17,8 +17,12 @@ class CaptureCommand < Command
     options = @options.dup
     if options[:play].present?
       options[:play] = PlayUrlCommand.new(options[:play]).download(session)
+    elsif options[:say].present?
+      options[:play] = SayCommand.new(options[:say]).download(session)
+      options.delete :say
     else
       options.delete :play
+      options.delete :say
     end
 
     [:digits, :timeout, :finish_key].each { |key| session.delete key }

@@ -55,6 +55,8 @@ class TwimlParser < XmlParser
       case child.name
       when 'Play'
         options[:play] = child.text
+      when 'Say'
+        options[:say] = child.text
       end
     end
 

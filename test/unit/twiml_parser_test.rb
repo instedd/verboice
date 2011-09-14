@@ -39,6 +39,11 @@ class TwimlParserTest < ActiveSupport::TestCase
         gather_commands(:play => 'http://foo')
     end
 
+    should "parse gather with emedded play" do
+      assert_parse '<Response><Gather><Say>hello</Say></Gather></Response>',
+        gather_commands(:say => 'hello')
+    end
+
     should "parse gather with next commands on timeout/finish_key" do
       assert_parse '<Response><Gather/><Hangup /></Response>', gather_commands({}, [:hangup])
     end
