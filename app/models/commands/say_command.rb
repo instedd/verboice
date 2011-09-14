@@ -27,7 +27,7 @@ class SayCommand < Command
     File.delete wav_file rescue nil
   end
 
-  def is_available(cmd)
+  def is_available?(cmd)
     `which #{cmd}`
     return $?.success?
   end
