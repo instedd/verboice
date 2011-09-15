@@ -28,12 +28,19 @@ class CallbackCommand < Command
           raise "Callback failed with status #{http.response_header.status}"
         end
 
+        content_type = http.response_header[EventMachine::HttpClient::CONTENT_TYPE]
         body = http.response
 
-        session.trace "Callback returned: #{body}"
+        session.trace "Callback returned #{content_type}: #{body}"
 
-        commands = XmlParser.parse body
-        session.push_commands commands
+        commands = case content_type
+                   when %r(application/json)
+                     commands = [:js => body]
+                   else
+                     commands = XmlParser.parse body
+                   end
+
+          session.push_commands commands
 
         f.resume
       rescue Exception => e

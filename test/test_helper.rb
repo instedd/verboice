@@ -23,7 +23,12 @@ class ActiveSupport::TestCase
     http.expects(method).with(options[:with]).returns(http2)
 
     headers = stub('headers', :status => 200)
-    http2.expects(:response_header).returns(headers)
+    if options[:content_type]
+      headers.stubs(:[]).with('CONTENT_TYPE').returns(options[:content_type])
+    else
+      headers.stubs(:[]).with('CONTENT_TYPE')
+    end
+    http2.stubs(:response_header).returns(headers)
 
     http2.expects(:response).returns(options[:returns])
     http2.expects(:callback).yields

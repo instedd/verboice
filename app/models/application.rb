@@ -9,6 +9,11 @@ class Application < ActiveRecord::Base
 
   serialize :flow, Array
 
+  before_save :clear_flow, :if => lambda { @mode == 'callback_url' }
+  def clear_flow
+    self.flow = nil
+  end
+
   def commands
     self.flow || [:answer, {:callback => self.callback_url}]
   end
@@ -22,7 +27,7 @@ class Application < ActiveRecord::Base
   end
 
   def mode=(value)
-    # This is just for the UI
+    @mode = value.to_s
   end
 
   def call(address)

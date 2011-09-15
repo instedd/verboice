@@ -47,7 +47,7 @@
     <tr class="<%= detail[:severity] %>">
       <td><%= detail[:severity] %></td>
       <td><%= detail[:time] %></td>
-      <td><%= detail[:text] %></td>
+      <td><%= short_html detail[:text], 40 %></td>
     </tr>
   <% end %>
 </table>
