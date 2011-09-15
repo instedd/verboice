@@ -1,0 +1,23 @@
+<p>Call with <%= @log.address %> from channel <%= @log.channel.name %> (<%= @log.state %>)</p>
+<br />
+
+<table class="table">
+  <tr>
+    <th>Severity</th>
+    <th>When</th>
+    <th>Text</th>
+  </tr>
+  <% @log.structured_details.reverse.each do |detail| %>
+    <tr class="<%= detail[:severity] %>">
+      <td><%= detail[:severity] %></td>
+      <td><%= detail[:time] %></td>
+      <td><%= short_html detail[:text], 40 %></td>
+    </tr>
+  <% end %>
+</table>
+
+<% if @log.state == :completed || @log.state == :failed %>
+  <script type="text/javascript">
+    window.call_finished = true;
+  </script>
+<% end %>

@@ -6,5 +6,7 @@ class QueuedCallsController < ApplicationController
     @per_page = 10
     @channel = current_account.channels.find params[:channel_id]
     @queued_calls = @channel.queued_calls.paginate :page => @page, :per_page => @per_page
+
+    render :layout => false
   end
 end

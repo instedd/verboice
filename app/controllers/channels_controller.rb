@@ -50,4 +50,9 @@ class ChannelsController < ApplicationController
 
     redirect_to(channels_url)
   end
+
+  def call
+    @channel = current_account.channels.find(params[:id])
+    render :layout => false
+  end
 end

@@ -1,37 +1,43 @@
-<p>
-  Queued calls for channel <%= @channel.name %>.
-</p>
-
-<p>
-  <b>Active calls:</b> <%= @channel.active_calls_count %>
-</p>
-
-<% if @queued_calls.empty? %>
-  No queued calls found.
-<% else %>
-  <div><%= page_entries_info @queued_calls, :entry_name => 'queued call' -%></div>
-  <%= will_paginate @queued_calls, :param_name => 'page' -%>
-
-  <br />
-
-  <table class="table">
-    <tr>
-      <th>Queued at</th>
-      <th>Address</th>
-    </tr>
-
-    <% @queued_calls.each do |call| %>
-      <tr>
-        <td><%= raw time_ago call.created_at %></td>
-        <td><%= call.address %></td>
-      </tr>
-    <% end %>
-  </table>
-
-  <br />
-
-  <div><%= page_entries_info @queued_calls, :entry_name => 'queued call' -%></div>
-  <%= will_paginate @queued_calls, :param_name => 'page' -%>
+<% unless params[:exclude_container] %>
+  <div id="queued_calls_container">
 <% end %>
+  <p>Queued calls for channel <%= @channel.name %>. <%= link_to_function 'refresh', 'refresh_queued_calls()', :id => 'refresh_link' %></p>
 
-<br />
+  <p><b>Active calls:</b> <%= @channel.active_calls_count %></p>
+
+  <% if @queued_calls.empty? %>
+    No queued calls found.
+  <% else %>
+    <div><%= page_entries_info @queued_calls, :entry_name => 'queued call' -%></div>
+    <%= will_paginate @queued_calls, :param_name => 'page' -%>
+
+    <br />
+    <table class="table">
+      <tr>
+        <th>Queued at</th>
+        <th>Address</th>
+      </tr>
+      <% @queued_calls.each do |call| %>
+        <tr>
+          <td><%= raw time_ago call.created_at %></td>
+          <td><%= call.address %></td>
+        </tr>
+      <% end %>
+    </table>
+    <br />
+
+    <div><%= page_entries_info @queued_calls, :entry_name => 'queued call' -%></div>
+    <%= will_paginate @queued_calls, :param_name => 'page' -%>
+  <% end %>
+
+  <br />
+
+<% unless params[:exclude_container] %>
+    <script type="text/javascript">
+    function refresh_queued_calls() {
+      $('#refresh_link').text('wait...');
+      $('#queued_calls_container').load('<%= channel_queued_calls_path(@channel, :exclude_container => true) %>');
+    }
+    </script>
+  </div>
+<% end %>

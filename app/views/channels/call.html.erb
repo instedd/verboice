@@ -1,0 +1,29 @@
+<div id="call_progress">
+  <p>Call channel <%= @channel.name %>.</p>
+
+  <form onsubmit="call_channel(); return false">
+    Number: <input type="text" name="number" id="number" />
+
+    <input type="submit" value="Call">
+  </form>
+
+  <script type="text/javascript">
+  window.call_id = null;
+  window.call_finished = false;
+
+  function call_channel() {
+    var path = '<%= api_call_path :channel => @channel.name %>&address=' + $('#number').val();
+    $.get(path, '', function(data) {
+      window.call_id = data.call_id;
+      setInterval(refresh_call_progress, 1000);
+      refresh_call_progress();
+    });
+  }
+
+  function refresh_call_progress() {
+    if (window.call_finished) return;
+
+    $('#call_progress').load('/call_logs/' + window.call_id + '/progress');
+  }
+  </script>
+</div>

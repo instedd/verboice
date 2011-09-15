@@ -11,4 +11,9 @@ class CallLogsController < ApplicationController
   def show
     @log = current_account.call_logs.find params[:id]
   end
+
+  def progress
+    @log = current_account.call_logs.find params[:id]
+    render :layout => false
+  end
 end
