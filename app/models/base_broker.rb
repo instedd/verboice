@@ -10,6 +10,7 @@ class BaseBroker
   end
 
   def notify_call_queued channel
+    return unless pbx_available?
     return if reached_active_calls_limit?(channel)
 
     queued_call = channel.poll_call

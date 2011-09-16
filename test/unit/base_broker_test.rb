@@ -3,6 +3,7 @@ require 'test_helper'
 class BaseBrokerTest < ActiveSupport::TestCase
   setup do
     @broker = BaseBroker.new
+    @broker.stubs(:pbx_available? => true)
     @channel = Channel.make
   end
 
