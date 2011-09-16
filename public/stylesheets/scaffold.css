@@ -217,6 +217,10 @@ table.table {
   color: #ADADAD;
 }
 
+.warn {
+  color: orange;
+}
+
 .error {
   color: red;
 }
