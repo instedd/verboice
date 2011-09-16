@@ -61,7 +61,7 @@ class CallLog < ActiveRecord::Base
     str = []
     last = nil
     lines.each do |line|
-      if line.match /(E|I|T) (\d+(?:\.\d+)) (.*)/
+      if line.match /(E|W|I|T) (\d+(?:\.\d+)) (.*)/
         last = {:severity => Levels[$1], :time => Time.at($2.to_f).utc, :text => $3}
         str << last
       else
