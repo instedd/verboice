@@ -21,9 +21,7 @@ class BaseBroker
     begin
       call session
     rescue PbxUnavailableException => ex
-      queued_call.save!
-
-      finish_session_with_error session, ex.message
+      finish_session_with_requeue session, ex.message, queued_call
     rescue Exception => ex
       finish_session_with_error session, ex.message
     end
@@ -87,6 +85,16 @@ class BaseBroker
   def finish_session_with_error(session, error_message)
     session = find_session session unless session.is_a? Session
     session.finish_with_error error_message
+
+    finish_session session
+  end
+
+  def finish_session_with_requeue(session, error_message, queued_call)
+    queued_call.call_log.warn error_message
+    queued_call.call_log.state = :queued
+    queued_call.call_log.save!
+
+    queued_call.save!
 
     finish_session session
   end

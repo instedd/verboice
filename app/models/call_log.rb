@@ -11,7 +11,7 @@ class CallLog < ActiveRecord::Base
   validates_presence_of :application
   validates_presence_of :channel
 
-  Levels = {'E' => :error, 'I' => :info, 'T' => :trace}
+  Levels = {'E' => :error, 'W' => :warn, 'I' => :info, 'T' => :trace}
 
   def state
     read_attribute(:state).try(:to_sym)

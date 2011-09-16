@@ -45,6 +45,9 @@ class BaseBrokerTest < ActiveSupport::TestCase
 
       assert_equal [queued_call], @channel.queued_calls.all
 
+      queued_call.reload
+      assert_equal :queued, queued_call.call_log.state
+
       assert_equal 0, @broker.sessions.length
       assert_equal 0, @broker.active_calls_count_for(@channel)
     end
