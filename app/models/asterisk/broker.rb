@@ -3,14 +3,12 @@ module Asterisk
     ConfigDir = Rails.configuration.asterisk_configuration[:config_dir]
     SipConf = "#{ConfigDir}/sip.conf"
 
-    attr_accessor :asterisk_client
-
     def call(session)
       check_asterisk_available!
 
       address = send "#{session.channel.kind}_address", session.channel, session.address
 
-      result = asterisk_client.originate({
+      result = $asterisk_client.originate({
         :channel => address,
         :application => 'AGI',
         :data => "agi://localhost:#{Asterisk::CallManager::Port},#{session.id}",
@@ -53,7 +51,7 @@ module Asterisk
     end
 
     def reload!
-      asterisk_client.command :command => 'sip reload'
+      $asterisk_client.command :command => 'sip reload'
     end
 
     def create_sip2sip_channel(channel)
@@ -165,7 +163,7 @@ module Asterisk
     end
 
     def check_asterisk_available!
-      raise "Asterisk is not available" if asterisk_client.error?
+      raise "Asterisk is not available" if $asterisk_client.nil? || $asterisk_client.error?
     end
   end
 end

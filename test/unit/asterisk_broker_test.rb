@@ -3,7 +3,7 @@ require 'test_helper'
 class AsteriskBrokerTest < ActiveSupport::TestCase
   setup do
     @broker = Asterisk::Broker.new
-    @broker.asterisk_client = mock('asterisk_client')
+    $asterisk_client = mock('asterisk_client')
     @channel = Channel.make :kind => 'sip2sip'
   end
 
@@ -13,8 +13,8 @@ class AsteriskBrokerTest < ActiveSupport::TestCase
     end
 
     should "call ok" do
-      @broker.asterisk_client.expects(:error?).returns(false)
-      @broker.asterisk_client.expects(:originate).with({
+      $asterisk_client.expects(:error?).returns(false)
+      $asterisk_client.expects(:originate).with({
         :channel => "SIP/verboice_#{@channel.id}-0/#{@session.address}",
         :application => 'AGI',
         :data => "agi://localhost:#{Asterisk::CallManager::Port},#{@session.id}",
@@ -27,15 +27,15 @@ class AsteriskBrokerTest < ActiveSupport::TestCase
     end
 
     should "call fails on asterisk_client error" do
-      @broker.asterisk_client.expects(:error?).returns(true)
+      $asterisk_client.expects(:error?).returns(true)
 
       ex = assert_raise(RuntimeError) { @broker.call @session }
       assert_match /not available/, ex.message
     end
 
     should "call fails on originate error" do
-      @broker.asterisk_client.expects(:error?).returns(false)
-      @broker.asterisk_client.expects(:originate).with({
+      $asterisk_client.expects(:error?).returns(false)
+      $asterisk_client.expects(:originate).with({
         :channel => "SIP/verboice_#{@channel.id}-0/#{@session.address}",
         :application => 'AGI',
         :data => "agi://localhost:#{Asterisk::CallManager::Port},#{@session.id}",

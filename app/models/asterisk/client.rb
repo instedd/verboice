@@ -7,10 +7,19 @@ module Asterisk
         response = self.login :username => 'verboice', :secret => 'verboice'
         if response[:response] != 'Success'
           puts "Login failed"
+          close_connection
         else
           puts response
+          $asterisk_client = self
         end
       end.resume
+    end
+
+    def unbind
+      EM.add_timer(1) do
+        EM::connect '127.0.0.1', Port, self.class
+      end
+      super
     end
 
     def receive_event(event)
