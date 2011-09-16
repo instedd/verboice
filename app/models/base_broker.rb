@@ -12,7 +12,11 @@ class BaseBroker
     session = queued_call.start
     store_session session
 
-    call session
+    begin
+      call session
+    rescue Exception => ex
+      finish_session_with_error session, ex.message
+    end
   end
 
   def reached_active_calls_limit?(channel)

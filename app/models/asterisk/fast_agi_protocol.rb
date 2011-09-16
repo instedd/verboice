@@ -21,7 +21,7 @@ module Asterisk
       else # @agi_mode == :commands
         @log.debug "<< "+line if not @log.nil?
         if line == "HANGUP"
-          @agi_last_defer.succeed Exception.new 'Communication broken' if @agi_last_defer
+          @agi_last_defer.succeed Exception.new 'User hung up' if @agi_last_defer
           @hangup = true
         else
           return if @agi_last_defer.nil?
@@ -35,6 +35,12 @@ module Asterisk
         @log.error "#{e.class.name}: #{e.message}"
         e.backtrace.each { |line| @log.error "\t#{line}" }
       end
+    end
+
+    def unbind
+      @agi_last_defer.succeed Exception.new 'Communication broken' if @agi_last_defer
+      @hangup = true
+      super
     end
 
     # Send a command, and return a Deferrable for the Response object.

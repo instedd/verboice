@@ -25,6 +25,17 @@ class BaseBrokerTest < ActiveSupport::TestCase
       assert_equal the_session, @broker.active_calls[@channel.id][the_session.id]
     end
 
+    should "close session if call fails" do
+      queued_call = @channel.queued_calls.make
+      the_session = nil
+
+      @broker.expects(:call).with { |session| the_session = session }.raises Exception.new
+      @broker.notify_call_queued @channel
+
+      assert_equal 0, @broker.sessions.length
+      assert_equal 0, @broker.active_calls_count_for(@channel)
+    end
+
     should "not call if limit reached" do
       @channel.limit = 1
 
