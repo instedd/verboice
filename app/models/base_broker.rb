@@ -3,6 +3,12 @@ class BaseBroker
     attr_accessor :instance
   end
 
+  def wake_up_queued_calls
+    Channel.joins(:queued_calls).each do |channel|
+      notify_call_queued channel
+    end
+  end
+
   def notify_call_queued channel
     return if reached_active_calls_limit?(channel)
 

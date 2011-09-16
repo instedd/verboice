@@ -11,6 +11,9 @@ module Asterisk
         else
           puts response
           $asterisk_client = self
+          EM.add_timer(5) do
+            BaseBroker.instance.wake_up_queued_calls
+          end
         end
       end.resume
     end
