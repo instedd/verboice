@@ -29,7 +29,7 @@ class AsteriskBrokerTest < ActiveSupport::TestCase
     should "call fails on asterisk_client error" do
       $asterisk_client.expects(:error?).returns(true)
 
-      ex = assert_raise(RuntimeError) { @broker.call @session }
+      ex = assert_raise(PbxUnavailableException) { @broker.call @session }
       assert_match /not available/, ex.message
     end
 
