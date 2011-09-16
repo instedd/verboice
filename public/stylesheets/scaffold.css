@@ -220,3 +220,7 @@ table.table {
 .error {
   color: red;
 }
+
+input.highlighted {
+  background-color: #FFF1A8;
+}

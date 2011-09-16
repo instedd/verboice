@@ -1,4 +1,6 @@
 class CallLog < ActiveRecord::Base
+  include CallLogSearch
+
   belongs_to :account
   belongs_to :application
   belongs_to :channel

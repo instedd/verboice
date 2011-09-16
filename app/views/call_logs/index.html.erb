@@ -2,47 +2,53 @@
   Here you can see the details of incoming and outgoing calls.
 </p>
 
-<% if @logs.empty? %>
-  No call logs found.
-<% else %>
+<form>
+  <p>
+    Search: <%= text_field_tag :search, @search, :size => 80, :class => (@search.present? ? 'highlighted' : '') %>
+  </p>
+
   <div><%= page_entries_info @logs, :entry_name => 'call log' -%></div>
   <%= will_paginate @logs, :param_name => 'page' -%>
 
-  <br />
+  <% if @logs.present? %>
+    <br />
 
-  <table class="table">
-    <tr>
-      <th>Started</th>
-      <th>Finished</th>
-      <th>Duration</th>
-      <th>Caller ID</th>
-      <th>Direction</th>
-      <th>Channel</th>
-      <th>Application</th>
-      <th>State</th>
-      <th></th>
-    </tr>
-
-    <% @logs.each do |log| %>
+    <table class="table">
       <tr>
-        <td><%= raw time_ago log.created_at %></td>
-        <td><%= raw time_ago log.finished_at %></td>
-        <td><%= distance_of_time_in_words(log.finished_at, log.created_at, true) if log.finished_at %></td>
-        <td><%= log.address %></td>
-        <td><%= log.direction %></td>
-        <td><%= log.channel.try(:name) %></td>
-        <td><%= log.application.try(:name) %></td>
-        <td><%= log.state %></td>
-        <td><%= link_to 'view details', call_log_path(log) %></td>
+        <th>ID</th>
+        <th>Started</th>
+        <th>Finished</th>
+        <th>Duration</th>
+        <th>Caller ID</th>
+        <th>Direction</th>
+        <th>Channel</th>
+        <th>Application</th>
+        <th>State</th>
+        <th></th>
       </tr>
-    <% end %>
-  </table>
 
-  <br />
+      <% @logs.each do |log| %>
+        <tr>
+          <td><%= log.id %></td>
+          <td><%= raw time_ago log.created_at %></td>
+          <td><%= raw time_ago log.finished_at %></td>
+          <td><%= distance_of_time_in_words(log.finished_at, log.created_at, true) if log.finished_at %></td>
+          <td><%= log.address %></td>
+          <td><%= log.direction %></td>
+          <td><%= log.channel.try(:name) %></td>
+          <td><%= log.application.try(:name) %></td>
+          <td><%= log.state %></td>
+          <td><%= link_to 'view details', call_log_path(log) %></td>
+        </tr>
+      <% end %>
+    </table>
 
-  <div><%= page_entries_info @logs, :entry_name => 'call log' -%></div>
-  <%= will_paginate @logs, :param_name => 'page' -%>
-<% end %>
+    <br />
+
+    <div><%= page_entries_info @logs, :entry_name => 'call log' -%></div>
+    <%= will_paginate @logs, :param_name => 'page' -%>
+  <% end %>
+</form>
 
 <br />
 
