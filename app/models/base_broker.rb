@@ -20,6 +20,10 @@ class BaseBroker
 
     begin
       call session
+    rescue PbxUnavailableException => ex
+      queued_call.save!
+
+      finish_session_with_error session, ex.message
     rescue Exception => ex
       finish_session_with_error session, ex.message
     end

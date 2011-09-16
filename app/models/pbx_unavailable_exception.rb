@@ -1,0 +1,2 @@
+class PbxUnavailableException < StandardError
+end

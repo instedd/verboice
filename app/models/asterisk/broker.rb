@@ -163,7 +163,7 @@ module Asterisk
     end
 
     def check_asterisk_available!
-      raise "Asterisk is not available" if $asterisk_client.nil? || $asterisk_client.error?
+      raise PbxUnavailableException.new("Asterisk is not available") if $asterisk_client.nil? || $asterisk_client.error?
     end
   end
 end
