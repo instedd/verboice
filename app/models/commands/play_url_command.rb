@@ -29,7 +29,7 @@ class PlayUrlCommand < Command
   end
 
   def download_url_to_temporary_location
-    tmp_file = File.new "#{Rails.root}/tmp/#{@file_id}", "wb"
+    tmp_file = File.new "#{Rails.root}/tmp/#{@file_id}.#{Random.rand(1000000000)}", "wb"
 
     http = EventMachine::HttpRequest.new(@url).get
     http.stream { |chunk| tmp_file.print chunk }
