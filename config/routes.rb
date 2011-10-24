@@ -16,6 +16,7 @@ Verboice::Application.routes.draw do
   end
 
   match "api/call" => "api#call", :as => :api_call
+  match "api/call/:id/state" => "api#call_state"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

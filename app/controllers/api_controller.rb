@@ -5,4 +5,9 @@ class ApiController < ApplicationController
     call_log = current_account.call params
     render :json => {:call_id => call_log.id, :state => call_log.state}
   end
+  
+  def call_state
+    call_log = current_account.call_logs.where(:id => params[:id]).first
+    render :json => {:call_id => call_log.id, :state => call_log.state}
+  end
 end
