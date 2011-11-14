@@ -13,7 +13,7 @@ module Asterisk
     end
 
     def channel_id
-      self['extension'].to_i
+      (self['arg_2'] || self['extension']).to_i
     end
 
     def session_id

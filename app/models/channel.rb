@@ -1,5 +1,5 @@
 class Channel < ActiveRecord::Base
-  Kinds = %w(generic sip2sip callcentric)
+  Kinds = %w(generic sip2sip callcentric custom)
 
   belongs_to :account
   belongs_to :application
@@ -73,6 +73,8 @@ class Channel < ActiveRecord::Base
   config_accessor :host
   config_accessor :register
   config_accessor :direction
+
+  config_accessor :dial_string
 
   def host_and_port?
     config['host_and_port'].present?

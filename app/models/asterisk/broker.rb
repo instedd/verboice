@@ -50,6 +50,10 @@ module Asterisk
       "SIP/verboice_#{channel.id}-#{index}/#{address}"
     end
 
+    def custom_address(channel, address)
+      channel.dial_string.gsub '{number}', address
+    end
+
     def reload!
       $asterisk_client.command :command => 'sip reload'
     end
@@ -160,6 +164,12 @@ module Asterisk
           remove_action :general, :register, "#{channel.username}:#{channel.password}@#{server.host}/#{channel.id}" if server.register?
         end
       end
+    end
+
+    def create_custom_channel(channel)
+    end
+
+    def delete_custom_channel(channel)
     end
 
     def pbx_available?
