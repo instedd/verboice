@@ -15,7 +15,7 @@ class ApiControllerTest < ActionController::TestCase
     result = JSON.parse(@response.body)
     assert_equal call_log.id, result['call_id']
   end
-  
+
   test "call state" do
     call_log = CallLog.make :account => @controller.current_account
     get :call_state, :id => call_log.id.to_s
