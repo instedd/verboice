@@ -29,6 +29,10 @@ module Asterisk
       close_connection
     end
 
+    def bridge_with(other_session)
+      self.exec 'Bridge', other_session.pbx['channel']
+    end
+
     def sound_path_for(basename)
       "#{SoundsPath}#{basename}.gsm"
     end

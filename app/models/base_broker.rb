@@ -76,6 +76,10 @@ class BaseBroker
     sessions[id]
   end
 
+  def find_session_by_call_log_id(id)
+    sessions.values.select {|x| x.call_log.id == id}.first
+  end
+
   def finish_session_successfully(session)
     session = find_session session unless session.is_a? Session
     session.finish_successfully

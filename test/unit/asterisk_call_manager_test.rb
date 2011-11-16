@@ -17,7 +17,12 @@ class AsteriskCallManagerTest < ActiveSupport::TestCase
   end
 
   test "channel_id" do
-    @call_manager.expects(:[]).with('extension').returns '123'
+    @call_manager.env['extension'] = '123'
+    assert_equal 123, @call_manager.channel_id
+  end
+
+  test "channel_id from argument" do
+    @call_manager.env['arg_2'] = '123'
     assert_equal 123, @call_manager.channel_id
   end
 
@@ -30,6 +35,13 @@ class AsteriskCallManagerTest < ActiveSupport::TestCase
     @call_manager.expects(:send_command).with('HANGUP')
     @call_manager.expects :close_connection
     @call_manager.hangup
+  end
+
+  test 'bridge_with' do
+    @call_manager.expects(:send_command).with(*%w(EXEC Bridge MY/channel))
+    other_call_manager = Asterisk::CallManager.new 2
+    other_call_manager.env['channel'] = 'MY/channel'
+    @call_manager.bridge_with Session.new(pbx: other_call_manager)
   end
 
   context "play" do

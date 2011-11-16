@@ -80,6 +80,10 @@ class TwimlParserTest < ActiveSupport::TestCase
     assert_parse '<Response><Pause length="3"/></Response>', [:pause => 3]
   end
 
+  test "parse bridge" do
+    assert_parse '<Response><Bridge session_id="123"/></Response>', [:bridge => '123']
+  end
+
   def assert_parse(xml, result)
     assert_equal result, XmlParser.parse(xml)
   end

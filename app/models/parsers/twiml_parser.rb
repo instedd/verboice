@@ -24,6 +24,8 @@ class TwimlParser < XmlParser
         script << say(child)
       when 'Pause'
         script << pause(child)
+      when 'Bridge'
+        script << bridge(child)
       end
     end
     main_script
@@ -81,5 +83,9 @@ class TwimlParser < XmlParser
     ]
 
     [all_commands, timeout_or_finish_key_commands]
+  end
+
+  def self.bridge(xml)
+    {:bridge => xml.attributes['session_id'].try(:value)}
   end
 end
