@@ -52,6 +52,14 @@ class ChannelTest < ActiveSupport::TestCase
       call_log = @channel.call 'foo'
       assert_equal :outgoing, call_log.direction
     end
+
+    should "call with custom callback url" do
+      BrokerClient.expects(:notify_call_queued)
+
+      @channel.call 'foo', :callback_url => 'bar'
+      queued_call = @channel.queued_calls.first
+      assert_equal 'bar', queued_call.callback_url
+    end
   end
 
   test "call BrokerClient.create_channel on create" do

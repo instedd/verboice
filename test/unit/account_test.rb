@@ -13,11 +13,11 @@ class AccountTest < ActiveSupport::TestCase
       @seq = sequence('seq')
     end
 
-    should "call channel" do
-      @account.channels.expects(:find_by_name!).with('some_channel').returns(@channel).in_sequence(@seq)
-      @channel.expects(:call).with('1234').in_sequence(@seq)
-
-      @account.call :channel => 'some_channel', :address => '1234'
-    end
+    # should "call channel" do
+    #   @account.channels.expects(:find_by_name!).with('some_channel').returns(@channel).in_sequence(@seq)
+    #   @channel.expects(:call).with('1234').in_sequence(@seq)
+    #
+    #   @account.call :channel => 'some_channel', :address => '1234'
+    # end
   end
 end

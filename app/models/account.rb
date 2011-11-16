@@ -16,6 +16,6 @@ class Account < ActiveRecord::Base
       channel = channels.find_by_name! options[:channel]
     end
 
-    channel.call options[:address]
+    channel.call options[:address], options
   end
 end

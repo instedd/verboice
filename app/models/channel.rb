@@ -33,12 +33,12 @@ class Channel < ActiveRecord::Base
     session
   end
 
-  def call(address)
+  def call(address, options = {})
     call_log = call_logs.new :direction => :outgoing, :application_id => application_id, :address => address, :state => :queued
     call_log.info "Received via API: call #{address}"
     call_log.save!
 
-    queued_call = queued_calls.create! :call_log => call_log, :address => address
+    queued_call = queued_calls.create! :call_log => call_log, :address => address, :callback_url => options[:callback_url]
 
     begin
       BrokerClient.notify_call_queued id
