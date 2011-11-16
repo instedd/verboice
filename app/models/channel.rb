@@ -23,13 +23,13 @@ class Channel < ActiveRecord::Base
 
   def new_session(options = {})
     session = Session.new options
-    session.application = application
+    session.application ||= application
     session.channel = self
     unless session.call_log
       session.call_log = call_logs.new :direction => :incoming, :application => application, :started_at => Time.now.utc
       session.call_log.start_incoming
     end
-    session.commands = application.commands.dup
+    session.commands = session.application.commands.dup
     session
   end
 
