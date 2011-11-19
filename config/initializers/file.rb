@@ -1,6 +1,6 @@
 class File
   def self.mime_type(path)
-    `file --mime-type --brief #{path}`.strip
+    `file --mime --brief #{path}`.strip[/^[^;]*/]
   end
 
   def self.is_mpeg?(path)
