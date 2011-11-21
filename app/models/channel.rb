@@ -1,4 +1,6 @@
 class Channel < ActiveRecord::Base
+  include ChannelSerialization
+
   Kinds = %w(generic sip2sip callcentric custom)
 
   belongs_to :account

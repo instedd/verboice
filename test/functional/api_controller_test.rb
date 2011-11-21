@@ -23,5 +23,4 @@ class ApiControllerTest < ActionController::TestCase
     assert_equal call_log.id, result['call_id']
     assert_equal call_log.state.to_s, result['state']
   end
-
 end
