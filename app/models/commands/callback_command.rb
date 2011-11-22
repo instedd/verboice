@@ -15,7 +15,7 @@ class CallbackCommand < Command
     url = @url || session.callback_url
     method = (@method || 'post').to_s.downcase.to_sym
 
-    body = {:CallSid => session.call_id, :Digits => session[:digits], :From => session.pbx.caller_id}
+    body = {:CallSid => session.call_id, :Digits => session[:digits], :From => session.pbx.caller_id, :Channel => session.channel.name}
     session.log :info => "Callback #{method} #{url}", :trace => "Callback #{method} #{url} with #{body.to_query}"
 
     request = EventMachine::HttpRequest.new(url)
