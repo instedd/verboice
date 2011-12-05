@@ -3,7 +3,7 @@
   height: 406px;
   width: 438px;
 }
-.i96-medicine
+.i96grad-medicine
 {
 	background: url("../images/medicine.png") no-repeat center top;
 	display: inline-block;
@@ -11,6 +11,32 @@
 	height: 96px;
 	width: 96px;
 }
+
+.i96grad-tree
+{
+	background: url("../images/tree.png") no-repeat center top;
+	display: inline-block;
+	vertical-align: middle;
+	height: 96px;
+	width: 96px;
+}
+.i96grad-pieChart
+{
+	background: url("../images/pieChart.png") no-repeat center top;
+	display: inline-block;
+	vertical-align: middle;
+	height: 96px;
+	width: 96px;
+}
+.i96grad-fire
+{
+	background: url("../images/fire.png") no-repeat center top;
+	display: inline-block;
+	vertical-align: middle;
+	height: 96px;
+	width: 96px;
+}
+
 .i96-council
 {
 	background: url("../images/council.png") no-repeat center top;
@@ -26,4 +52,28 @@
 	vertical-align: middle;
 	height: 96px;
 	width: 96px;
+}
+
+.i48grad-scale {
+	background: url("../images/scale.png") no-repeat center top;
+	display: inline-block;
+	vertical-align: middle;
+	height: 48px;
+	width: 48px;
+}
+
+.i48grad-computer {
+	background: url("../images/computer.png") no-repeat center top;
+	display: inline-block;
+	vertical-align: middle;
+	height: 48px;
+	width: 48px;
+}
+
+.i48grad-language {
+	background: url("../images/language.png") no-repeat center top;
+	display: inline-block;
+	vertical-align: middle;
+	height: 48px;
+	width: 48px;
 }
