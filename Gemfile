@@ -5,6 +5,7 @@ gem 'rails', '3.0.3'
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
+gem 'haml-rails'
 gem 'mysql2'
 gem 'librevox'
 gem 'em-http-request'

@@ -6,7 +6,7 @@ Verboice::Application.routes.draw do
     end
   end
 
-  root :to => "applications#index"
+  match '/' => 'home#index',  :as => 'home'
 
   devise_for :accounts
 
@@ -19,4 +19,6 @@ Verboice::Application.routes.draw do
   match "api/call/:id/state" => "api#call_state"
   post  "api/channels" => "api_channels#create"
   delete "api/channels/:name" => "api_channels#destroy"
+  root :to => 'home#index'
+
 end

@@ -22,3 +22,8 @@ module ApplicationHelper
     @@verboice_version
   end
 end
+
+def section title, url, name, active_controllers = [name]
+  active = active_controllers.any?{|controller| controller_name == controller.to_s }
+  raw "<li class=\"#{active ? "active" : ""}\">#{link_to title, url}</li>"
+end

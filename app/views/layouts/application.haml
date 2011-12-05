@@ -1,0 +1,59 @@
+!!!
+%html{"xmlns:ng" => "http://angularjs.org"}
+  %head
+    %title Verboice
+    = yield(:head)
+    = javascript_include_tag 'jquery-1.5.1.min'
+    = javascript_include_tag 'application'
+    = javascript_include_tag 'rails'
+    = javascript_include_tag 'jquery.fancybox-1.3.4.pack'
+    = stylesheet_link_tag :all
+    = javascript_include_tag "application"
+    = stylesheet_link_tag 'http://theme.instedd.org/theme/stylesheets/theme.css'
+    = javascript_include_tag 'http://theme.instedd.org/theme/javascripts/theme.js'
+    = favicon_link_tag '/favicon.ico', :type => 'image/x-icon'
+
+    
+  %body
+    = flash_message
+    #wrapper
+      #toolbar
+        %ul#instedd-pulldown
+        #NavMenu
+          %ul
+            = section "Home", home_path, :home              
+        %ul.RightMenu
+          - if account_signed_in?
+            %li
+              #User
+                = current_account.email
+                %br
+                %br
+                .container
+                  %ul
+                    %li= link_to "Settings", edit_account_registration_path
+                    
+                  %hr
+                  %ul
+                    %li= link_to "Sign Out", destroy_account_session_path
+            %li
+              = link_to '', edit_account_registration_path, :class => 'fsettings'
+          - else
+            %li
+              = link_to "Create account", new_account_registration_path, :class => 'fedit'
+            %li
+              = link_to "Log in", new_account_session_path, :class => 'fuser'
+      #header
+        .left
+          = link_to home_path do
+            %img{:src => "http://theme.instedd.org/theme/images/header/logos/verboice.png"}
+
+        
+        .clear
+              
+      #container
+        = yield(:content).presence or yield
+
+      #footer-span
+        #footer
+          = render :partial => "shared/footer"
