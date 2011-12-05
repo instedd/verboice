@@ -14,7 +14,7 @@ gem 'devise'
 gem "jquery-rails"
 gem "will_paginate", "~> 3.0.pre2"
 gem "daemons"
-gem "therubyracer", "0.8.2.pre2", :require => 'v8'
+gem "therubyracer", :require => 'v8'
 
 group :test do
   gem 'machinist'
