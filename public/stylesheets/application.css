@@ -3,3 +3,27 @@
   height: 406px;
   width: 438px;
 }
+.i96-medicine
+{
+	background: url("../images/medicine.png") no-repeat center top;
+	display: inline-block;
+	vertical-align: middle;
+	height: 96px;
+	width: 96px;
+}
+.i96-council
+{
+	background: url("../images/council.png") no-repeat center top;
+	display: inline-block;
+	vertical-align: middle;
+	height: 96px;
+	width: 96px;
+}
+.i96-cross
+{
+	background: url("../images/cross.png") no-repeat center top;
+	display: inline-block;
+	vertical-align: middle;
+	height: 96px;
+	width: 96px;
+}

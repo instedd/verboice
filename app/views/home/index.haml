@@ -31,27 +31,27 @@
     .benefits
       %ul#benefits-container
         %li
-          %span.i48grad-directions.left
+          %span.i48grad-language.left
           %h3 Overcome
           %p literacy barriers with verbal communication
           %br{:clear => "all"}/
         %li
-          %span.i48grad-dataBase.left
+          %span.i48grad-sound.left
           %h3 Create
           %p voice-based programs without coding
           %br{:clear => "all"}/
         %li
-          %span.i48grad-pie.left
+          %span.i48grad-scale.left
           %h3 Scales
           %p to suite your needs
           %br{:clear => "all"}/
         %li
-          %span.i48grad-internet.left
+          %span.i48grad-computer.left
           %h3 Generate
           %p applications using any computer with Internet access
           %br{:clear => "all"}/
         %li
-          %span.i48grad-mountain.left
+          %span.i48grad-users.left
           %h3 Reach
           %p out to any community, anywhere there's access to basic phones
           %br{:clear => "all"}/
@@ -80,13 +80,13 @@
     .left.w45
       %h2 Healthier Pregnancies and Happier Babies
       .icon-container.left
-        %span.i96grad-health
+        %span.i96grad-medicine
       %p Healthy babies and mothers form the foundation of a thriving community. With Verboice, mother/child health advocates can extend their educational outreach campaigns to communities with previously minimal access to prenatal and maternal health education. From month-by-month updates on what to expect during pregnancy to checkup reminders and newborn care advice, Verboice interactive voice campaigns can make a positive difference that will be felt for generations to come.
     / #left w45
     .right.w45
       %h2 Researching Humatn Rights Conditions
       .icon-container.left
-        %span.i96grad-research
+        %span.i96grad-pieChart
       %p There's no better authority on the state of human rights in a community than community members themselves. Verboice allows human rights investigators to survey anonymous callers and get an accurate picture of the ground-level conditions in a community. When abuses are noted, human rights organizations can use Verboice to point the way toward supportive/protective resources, supply legal information, and give the most oppressed a voice that carries beyond the confines of their communities.
     / #left w45
     .clear
@@ -161,7 +161,7 @@
     .left.w45
       %h2 Saving Lives at Birth
       .icon-container.left
-        %span.i96-baby
+        %span.i96-council
       %p Baby Monitor will take clinical screening directly to women in the critical period before and after birth. This mobile phone application, to be developed with partners at the Pop Council, will use interactive voice response technology to detect complications and take action. Women will listen to screening questions in their local language and respond via pressing a key. Baby Monitor will assess responses and, if necessary, send information, make referrals, and dispatch community health workers. - from http://ow.ly/5QQuT
     / #left w45
     .right.w45
@@ -175,26 +175,24 @@
     
     %br/
     %hr/
-    .box.plain.orange.w45.left
-      %h2 Where do I start?
-      
-      %p 
-        %span Step 1
-        =link_button_to 'Create an account', new_account_registration_path, :class => 'fedit'
-        and log in
-      %hr
-      
-      %p 
-        %span Step 2
-        Create an application and specify the desired sequence based on the caller’s responses.
-      %hr
-      
-      %p 
-        %span Step 3
-        %a.fimport{:target=>'_blank', :style => 'color:black', :href => 'https://bitbucket.org/instedd/local-gateway/downloads'}
-          Download the free Local Gateway 
-        and connect your phone to your account.
-    
+    %div.w45.support
+      %h2
+        How can I help?
+      %span
+      %p
+        Got suggestions or feature requests? Join the discussion.
+        %br
+        %a.button.black.fchat{:href=>"https://groups.google.com/group/instedd-tech"}
+          %span Join our discussion list
+        
+     
+      %p
+        Got a way with code? Help us develop our tools (and make the world a better place at the same time).
+        %br
+        %a.button.black.fbulb{:href=>"https://bitbucket.org/instedd/verboice/issues?status=new"}
+          %span Visit our backlog
+          
+
      
     .clear
     / #clear
