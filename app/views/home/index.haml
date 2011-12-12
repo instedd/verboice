@@ -6,7 +6,7 @@
   %h1.home Listen and respond
   %p.sub to the voice of your community.
   %p Voice is the most universal and inclusive means of communication, and it's an ideal way to expand the reach and impact of health and humanitarian technologies. Verboice is a free and open-source tool that makes it easy for anyone to create and run applications that interact via voice, allowing your users to listen and record messages in their own language and dialect or answer questions with a phone keypad. Verboice applications can start small and scale up, making it possible to improve lives even in communities previously closed off by literacy and technological barriers.
-      
+
   %br/
   %br/
   %br/
@@ -14,16 +14,16 @@
   %br/
   - if current_account
     %p
-      Get started: 
-      =link_button_to 'View your applications', home_path, :class => "orange"
+      Get started:
+      =link_button_to 'View your applications', applications_path, :class => "orange"
     %p
   - else
     %p
-      Get started: 
+      Get started:
       = link_button_to 'Create an account', new_account_registration_path, :class => "orange"
     %p
     %p
-      Already a member? 
+      Already a member?
       = link_to 'Log in', new_account_session_path
   .clear
   / #container
@@ -64,7 +64,7 @@
           %span.i48grad-free.left
           %h3 Free
           %p for anyone to use to help increase their social impact
-          %br{:clear => "all"}/          
+          %br{:clear => "all"}/
         %li
           %span.i48grad-openSource.left
           %h3 Open Source
@@ -108,7 +108,7 @@
     / #clear
     %br/
     .box.plain.grey.features
-      
+
       %h2 Features
       %br
       .left.w45
@@ -157,7 +157,7 @@
     %br/
     #container
     %h1 Who has used it?
- 
+
     .left.w45
       %h2 Saving Lives at Birth
       .icon-container.left
@@ -172,7 +172,7 @@
     / #left w45
     .clear
     / #clear
-    
+
     %br/
     %hr/
     %div.w45.support
@@ -184,15 +184,15 @@
         %br
         %a.button.black.fchat{:href=>"https://groups.google.com/group/instedd-tech"}
           %span Join our discussion list
-        
-     
+
+
       %p
         Got a way with code? Help us develop our tools (and make the world a better place at the same time).
         %br
         %a.button.black.fbulb{:href=>"https://bitbucket.org/instedd/verboice/issues?status=new"}
           %span Visit our backlog
-          
 
-     
+
+
     .clear
     / #clear
