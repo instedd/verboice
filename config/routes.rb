@@ -20,5 +20,6 @@ Verboice::Application.routes.draw do
   post  "api/channels" => "api_channels#create"
   delete "api/channels/:name" => "api_channels#destroy"
   root :to => 'home#index'
+  get 'terms_and_conditions', :to => redirect('/')
 
 end

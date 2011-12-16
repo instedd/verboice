@@ -46,5 +46,8 @@ module Verboice
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+
+    config.google_analytics = ''
+    config.version_name = File.read('VERSION').strip rescue 'Development'
   end
 end

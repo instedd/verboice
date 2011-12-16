@@ -1,0 +1,41 @@
+<% content_for :navigation do %>
+  <%= section "Home", home_path, :home %>
+  <%= section "Applications", applications_path, :applications if account_signed_in? %>
+  <%= section "Channels", channels_path, :channels if account_signed_in? %>
+  <%= section "Call Logs", call_logs_path, :call_logs if account_signed_in? %>
+<% end %>
+<% content_for :right_menu do %>
+  <ul class="RightMenu">
+      <%- if account_signed_in? %>
+        <li>
+        <div id="User">
+          <%=current_account.email%><br><br>
+          <div class="container">
+            <ul>
+              <li><%= link_to 'Settings', edit_account_registration_path %></li>
+            </ul>
+            <hr/>
+            <ul>
+              <li><a href="mailto:support@instedd.org?subject=[<%= application_name.underscore %>-bug]">Report a bug</a></li>
+              <li><%= link_to "Sign Out", destroy_account_session_path %></li>
+            </ul>
+          </div>
+        </div>
+        </li>
+        <li>
+          <%= link_to '', edit_account_registration_path, :class => 'fsettings' %>
+        </li>
+        <% else %>
+        <li>
+          <%= link_to "Create account", new_account_registration_path, :class => 'fedit' %>
+        </li>
+        <li>
+          <%= link_to "Log in", new_account_session_path, :class => 'fuser' %>
+        </li>
+        <% end %>
+      </ul>
+<% end %>
+<% content_for :footer_links do %>
+  <a href="<%= root_path %>">Home</a>
+<% end %>
+<%= render :file => 'layouts/instedd_application' %>

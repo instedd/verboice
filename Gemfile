@@ -14,6 +14,7 @@ gem 'devise'
 gem "will_paginate", "~> 3.0.pre2"
 gem "daemons"
 gem "therubyracer", :require => 'v8'
+gem "instedd-rails"
 
 group :assets do
   gem 'sass-rails',   '~> 3.1.5'
