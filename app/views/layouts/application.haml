@@ -2,17 +2,13 @@
 %html{"xmlns:ng" => "http://angularjs.org"}
   %head
     %title Verboice
-    = yield(:head)
-    = javascript_include_tag 'jquery-1.5.1.min'
+    = stylesheet_link_tag 'application'
     = javascript_include_tag 'application'
-    = javascript_include_tag 'rails'
-    = javascript_include_tag 'jquery.fancybox-1.3.4.pack'
-    = stylesheet_link_tag :all
-    = javascript_include_tag "application"
     = stylesheet_link_tag 'http://theme.instedd.org/theme/stylesheets/theme.css'
     = javascript_include_tag 'http://theme.instedd.org/theme/javascripts/theme.js'
     = favicon_link_tag '/favicon.ico', :type => 'image/x-icon'
-
+    = csrf_meta_tags
+    = yield(:head)
 
   %body
     = flash_message
