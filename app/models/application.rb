@@ -15,15 +15,15 @@ class Application < ActiveRecord::Base
   end
 
   def commands
-    self.flow || [:answer, {:callback => self.callback_url}]
+    self.flow.present? ? self.flow : [:answer, {:callback => self.callback_url}]
   end
 
   def info
-    self.flow ? "custom flow" : "callback #{self.callback_url}"
+    self.flow.present? ? "custom flow" : "callback #{self.callback_url}"
   end
 
   def mode
-    self.flow ? :flow : :callback_url
+    self.flow.present? ? :flow : :callback_url
   end
 
   def mode=(value)

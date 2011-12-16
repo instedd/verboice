@@ -99,7 +99,7 @@ class BaseBroker
     queued_call.call_log.state = :queued
     queued_call.call_log.save!
 
-    queued_call.save!
+    queued_call.dup.save!
 
     finish_session session
   end

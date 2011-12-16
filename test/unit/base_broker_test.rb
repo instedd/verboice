@@ -44,9 +44,9 @@ class BaseBrokerTest < ActiveSupport::TestCase
       @broker.expects(:call).with { |session| the_session = session }.raises PbxUnavailableException.new
       @broker.notify_call_queued @channel
 
-      assert_equal [queued_call], @channel.queued_calls.all
+      assert_equal [queued_call.attributes.except('id', 'created_at', 'updated_at')], @channel.queued_calls.all.map{|x| x.attributes.except('id', 'created_at', 'updated_at')}.to_a
 
-      queued_call.reload
+      queued_call = @channel.queued_calls.first
       assert_equal :queued, queued_call.call_log.state
 
       assert_equal 0, @broker.sessions.length
