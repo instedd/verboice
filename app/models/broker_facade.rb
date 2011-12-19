@@ -20,4 +20,8 @@ class BrokerFacade < MagicObjectProtocol::Server
     channel = Channel.find channel_id
     BaseBroker.instance.active_calls_count_for channel
   end
+
+  def redirect(session_id, options)
+    BaseBroker.instance.redirect session_id, options
+  end
 end

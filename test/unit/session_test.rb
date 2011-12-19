@@ -34,6 +34,32 @@ class SessionTest < ActiveSupport::TestCase
     assert_not_nil @session.id
   end
 
+  test "suspend session" do
+    @session.commands = [:yield, :no_args]
+    f = Fiber.new do
+      @session.run
+    end
+    f.resume
+    @session.suspend
+    f.resume
+
+    assert @session.suspended
+  end
+
+  test "resume session" do
+    @session.commands = [:yield]
+    f = Fiber.new do
+      @session.run
+    end
+    f.resume
+    @session.suspend
+    f.resume
+
+    @session.commands = [:no_args]
+    @pbx.expects(:foo)
+    @session.resume
+  end
+
   context "answering machine detection" do
     setup do
       @call_log = mock('call_log')
@@ -90,5 +116,11 @@ class PushCommand
 
   def run(session)
     session.push_commands [@command]
+  end
+end
+
+class YieldCommand
+  def run(session)
+    Fiber.yield
   end
 end

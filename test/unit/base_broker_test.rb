@@ -143,5 +143,16 @@ class BaseBrokerTest < ActiveSupport::TestCase
       assert_equal 0, @broker.sessions.length
       assert_equal 0, @broker.active_calls[@channel.id].length
     end
+
+    should "resume when there is a suspended session" do
+      session = Session.new
+      session.suspend
+      @broker.sessions['id'] = session
+
+      pbx = stub 'pbx', :session_id => 'id'
+
+      session.expects(:resume)
+      @broker.accept_call pbx
+    end
   end
 end

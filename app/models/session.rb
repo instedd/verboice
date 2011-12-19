@@ -5,6 +5,7 @@ class Session
   attr_accessor :channel
   attr_accessor :call_log
   attr_accessor :address
+  attr_accessor :suspended
 
   delegate :finish_successfully, :finish_with_error, :to => :call_log
   CallLog::Levels.each { |key, name| delegate name, :to => :call_log }
@@ -55,7 +56,26 @@ class Session
   def run
     raise "Answering machine detected" if call_log.outgoing? && pbx.is_answering_machine?
 
-    run_command until commands.empty?
+    loop do
+      begin
+        run_command until commands.empty? || @suspended
+      rescue Exception => ex
+        raise ex unless @suspended
+      end
+
+      break unless @suspended
+      @suspend_fiber = Fiber.current
+      Fiber.yield
+    end
+  end
+
+  def suspend
+    @suspended = true
+  end
+
+  def resume
+    @suspended = false
+    @suspend_fiber.resume
   end
 
   def quit!

@@ -40,12 +40,30 @@ class BaseBroker
     active_calls[channel.id].length
   end
 
+  def redirect(session_id, options = {})
+    session = find_session_by_call_log_id session_id.to_i
+    if session
+
+      application = if options[:application_id]
+        Application.find options[:application_id]
+      else
+        Application.new options
+      end
+
+      session.commands = application.commands
+      session.suspend
+      restart session
+      session.pbx.close_connection
+    end
+  end
+
   def sessions
     @sessions ||= {}
   end
 
   def accept_call(pbx)
     session = find_or_create_session pbx
+    return session.resume if session.suspended
     session.call_log.address = pbx.caller_id unless session.call_log.address.present?
     begin
       session.run

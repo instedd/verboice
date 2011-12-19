@@ -8,6 +8,25 @@ class ApiController < ApplicationController
     render :json => {:call_id => call_log.id, :state => call_log.state}
   end
 
+  def redirect
+    options = {}
+    if request.post?
+      options[:flow] = XmlParser.parse request.body
+    elsif params[:application_id]
+      if not current_account.applications.exists? params[:applications_id]
+        return render :status => 404
+      end
+      options[:applications_id] = params[:applications_id]
+    elsif params[:callback_url]
+      options[:callback_url] = params[:callback_url]
+    else
+      return render :status => 400
+    end
+
+    BrokerClient.redirect params[:session_id], options
+    render :text => 'OK'
+  end
+
   def call_state
     call_log = current_account.call_logs.where(:id => params[:id]).first
     render :json => {:call_id => call_log.id, :state => call_log.state}

@@ -19,6 +19,15 @@ module Asterisk
       result[:response] == 'Error' ? raise(result[:message]) : nil
     end
 
+    def restart(session)
+      $asterisk_client.redirect({
+        :channel => session.pbx['channel'],
+        :context => 'verboice-restart',
+        :exten => session.id,
+        :priority => 1
+      })
+    end
+
     def create_channel(channel)
       check_asterisk_available!
 

@@ -6,6 +6,8 @@ $log_path = File.expand_path '../../../log/asterisk.log', __FILE__
 require(File.expand_path '../../../config/boot.rb', __FILE__)
 require(File.expand_path '../../../config/environment.rb', __FILE__)
 
+Rails.logger = Logger.new(STDOUT) if STDOUT.tty?
+
 BaseBroker.instance = Asterisk::Broker.new
 
 EM.error_handler do |err|
