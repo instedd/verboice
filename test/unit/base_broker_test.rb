@@ -154,5 +154,41 @@ class BaseBrokerTest < ActiveSupport::TestCase
       session.expects(:resume)
       @broker.accept_call pbx
     end
+
+    should "resume and close pbx connection" do
+      @channel.application.flow = [:yield, :hangup]
+      @channel.application.save!
+
+      pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
+
+      f = Fiber.new do
+        @broker.accept_call pbx
+      end
+
+      # This will start the session and yield at the YieldCommand
+      f.resume
+
+      pbx.expects :close_connection
+      session = @broker.sessions.values.first
+      @broker.expects(:restart).with(session)
+      @broker.redirect session.call_log.id, :flow => [:hangup]
+
+      # Resume the session and yields because it is suspended
+      f.resume
+
+      pbx2 = stub 'pbx2', :session_id => session.id, :channel_id => nil, :caller_id => '1234'
+      pbx2.expects :hangup
+      pbx2.expects :close_connection
+      EM.expects(:fiber_sleep).with 2
+
+      @broker.accept_call pbx2
+    end
   end
 end
+
+class YieldCommand
+  def run(session)
+    Fiber.yield
+  end
+end
+
