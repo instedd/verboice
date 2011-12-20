@@ -8,7 +8,7 @@ class ApiController < ApplicationController
     render :json => {:call_id => call_log.id, :state => call_log.state}
   end
 
-  def redirect
+  def call_redirect
     options = {}
     if request.post?
       options[:flow] = XmlParser.parse request.body
@@ -23,7 +23,7 @@ class ApiController < ApplicationController
       return render :status => 400
     end
 
-    BrokerClient.redirect params[:session_id], options
+    BrokerClient.redirect params[:id], options
     render :text => 'OK'
   end
 
