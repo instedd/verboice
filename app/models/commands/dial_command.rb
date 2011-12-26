@@ -8,7 +8,13 @@ class DialCommand < Command
   end
 
   def run(session)
-    address = BaseBroker.instance.get_dial_address session.channel, @number
+    if @channel_name.present?
+      channel = session.channel.account.channels.find_by_name @channel_name
+    else
+      channel = session.channel
+    end
+
+    address = BaseBroker.instance.get_dial_address channel, @number
     session.log :info => "Dialing #{address}"
     session.pbx.dial address
   end

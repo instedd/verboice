@@ -88,6 +88,10 @@ class TwimlParserTest < ActiveSupport::TestCase
     assert_parse '<Response><Dial>1234</Dial></Response>', [:dial => {:number => '1234'}]
   end
 
+  test "parse dial with channel" do
+    assert_parse "<Response><Dial channel='foo'>1234</Dial></Response>", [:dial => {:number => '1234', :channel => 'foo'}]
+  end
+
   def assert_parse(xml, result)
     assert_equal result, XmlParser.parse(xml)
   end

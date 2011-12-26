@@ -93,6 +93,7 @@ class TwimlParser < XmlParser
 
   def self.dial(xml)
     options = { :number => xml.text }
+    options[:channel] = xml.attributes['channel'].value if xml.attributes['channel']
     {:dial => options}
   end
 end
