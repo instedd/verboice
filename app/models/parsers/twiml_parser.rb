@@ -26,6 +26,8 @@ class TwimlParser < XmlParser
         script << pause(child)
       when 'Bridge'
         script << bridge(child)
+      when 'Dial'
+        script << dial(child)
       end
     end
     main_script
@@ -87,5 +89,10 @@ class TwimlParser < XmlParser
 
   def self.bridge(xml)
     {:bridge => xml.attributes['session_id'].try(:value)}
+  end
+
+  def self.dial(xml)
+    options = { :number => xml.text }
+    {:dial => options}
   end
 end

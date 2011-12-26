@@ -6,7 +6,7 @@ module Asterisk
     def call(session)
       check_asterisk_available!
 
-      address = send "#{session.channel.kind}_address", session.channel, session.address
+      address = get_dial_address session.channel, session.address
 
       result = $asterisk_client.originate({
         :channel => address,
@@ -42,6 +42,10 @@ module Asterisk
       send "delete_#{channel.kind}_channel", channel
 
       reload!
+    end
+
+    def get_dial_address(channel, address)
+      send "#{channel.kind}_address", channel, address
     end
 
     private

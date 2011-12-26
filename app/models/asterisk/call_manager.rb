@@ -33,6 +33,10 @@ module Asterisk
       self.exec 'Bridge', other_session.pbx['channel']
     end
 
+    def dial(address)
+      self.exec 'Dial', "#{address},30,m"
+    end
+
     def sound_path_for(basename)
       "#{SoundsPath}#{basename}.gsm"
     end

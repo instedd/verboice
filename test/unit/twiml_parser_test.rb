@@ -84,6 +84,10 @@ class TwimlParserTest < ActiveSupport::TestCase
     assert_parse '<Response><Bridge session_id="123"/></Response>', [:bridge => '123']
   end
 
+  test "parse dial" do
+    assert_parse '<Response><Dial>1234</Dial></Response>', [:dial => {:number => '1234'}]
+  end
+
   def assert_parse(xml, result)
     assert_equal result, XmlParser.parse(xml)
   end
