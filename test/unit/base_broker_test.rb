@@ -107,6 +107,19 @@ class BaseBrokerTest < ActiveSupport::TestCase
       the_session.expects(:notify_status).with('completed')
       @broker.finish_session_successfully the_session
     end
+
+    should "send status callback on failure" do
+      queued_call = @channel.queued_calls.make
+      the_session = nil
+
+      @broker.expects(:call).with { |session| the_session = session }
+      @broker.notify_call_queued @channel
+
+      the_session.application.status_callback_url = 'http://foo'
+      the_session.pbx = mock('pbx')
+      the_session.expects(:notify_status).with('failed')
+      @broker.finish_session_with_error the_session, 'An error'
+    end
   end
 
   context "accept call" do

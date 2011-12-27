@@ -109,6 +109,7 @@ class BaseBroker
 
   def finish_session_with_error(session, error_message)
     session = find_session session unless session.is_a? Session
+    session.notify_status 'failed'
     session.finish_with_error error_message
 
     finish_session session
