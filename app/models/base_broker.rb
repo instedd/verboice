@@ -66,6 +66,7 @@ class BaseBroker
     return session.resume if session.suspended
     session.call_log.address = pbx.caller_id unless session.call_log.address.present?
     begin
+      session.notify_status 'in-progress'
       session.run
     rescue Exception => ex
       finish_session_with_error session, ex.message

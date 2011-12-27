@@ -104,8 +104,7 @@ class BaseBrokerTest < ActiveSupport::TestCase
 
       the_session.application.status_callback_url = 'http://foo'
       the_session.pbx = mock('pbx')
-      the_session.pbx.expects(:caller_id).returns('999')
-      expect_em_http :get, 'http://foo', :with => { :query => { :CallSid => the_session.call_log.id, :From => '999', :CallStatus => 'completed' }}, :callback => false, :errback => false
+      the_session.expects(:notify_status).with('completed')
       @broker.finish_session_successfully the_session
     end
   end
@@ -196,6 +195,28 @@ class BaseBrokerTest < ActiveSupport::TestCase
       EM.expects(:fiber_sleep).with 2
 
       @broker.accept_call pbx2
+    end
+
+    should "send 'in-progress' status notification" do
+      @channel.application.flow = [:answer]
+      @channel.application.save!
+
+      class << @broker
+        def find_or_create_session(pbx)
+          session = super
+          session.expects(:notify_status).with('in-progress')
+          session.expects(:notify_status).with('completed')
+          session
+        end
+      end
+
+      pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
+      pbx.expects :answer
+      pbx.expects :close_connection
+
+      EM.expects(:fiber_sleep).with 2
+
+      @broker.accept_call pbx
     end
   end
 end

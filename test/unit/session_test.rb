@@ -60,6 +60,13 @@ class SessionTest < ActiveSupport::TestCase
     @session.resume
   end
 
+  test "send status notification" do
+    @session.application = Application.new :status_callback_url => 'http://foo'
+    @pbx.expects(:caller_id).returns('999')
+    expect_em_http :get, 'http://foo', :with => { :query => { :CallSid => @session.call_log.id, :From => '999', :CallStatus => 'foo' }}, :callback => false, :errback => false
+    @session.notify_status 'foo'
+  end
+
   context "answering machine detection" do
     setup do
       @call_log = mock('call_log')
