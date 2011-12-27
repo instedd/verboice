@@ -100,6 +100,7 @@ class BaseBroker
 
   def finish_session_successfully(session)
     session = find_session session unless session.is_a? Session
+    session.notify_status 'completed'
     session.finish_successfully
 
     finish_session session

@@ -31,9 +31,9 @@ class ActiveSupport::TestCase
     end
     http2.stubs(:response_header).returns(headers)
 
-    http2.expects(:response).returns(options[:returns])
-    http2.expects(:callback).yields
-    http2.expects(:errback)
+    http2.expects(:response).returns(options[:returns]) if options[:returns]
+    http2.expects(:callback).yields unless options[:callback] == false
+    http2.expects(:errback) unless options[:errback] == false
   end
 
 end

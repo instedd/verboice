@@ -53,6 +53,10 @@ class Session
     application.callback_url
   end
 
+  def status_callback_url
+    application.status_callback_url
+  end
+
   def run
     raise "Answering machine detected" if call_log.outgoing? && pbx.is_answering_machine?
 
@@ -133,5 +137,12 @@ class Session
     end
     ctx['alert'] = lambda { |str| info str }
     ctx
+  end
+
+  def notify_status(status)
+    if status_callback_url.present?
+      request = EventMachine::HttpRequest.new status_callback_url
+      request.get :query => { :CallSid => call_id, :From => pbx.caller_id, :CallStatus => status }
+    end
   end
 end

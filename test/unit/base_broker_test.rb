@@ -94,6 +94,20 @@ class BaseBrokerTest < ActiveSupport::TestCase
       assert_match /An error/, the_session.call_log.details
       assert_equal :failed, the_session.call_log.state
     end
+
+    should "send status callback on successfull" do
+      queued_call = @channel.queued_calls.make
+      the_session = nil
+
+      @broker.expects(:call).with { |session| the_session = session }
+      @broker.notify_call_queued @channel
+
+      the_session.application.status_callback_url = 'http://foo'
+      the_session.pbx = mock('pbx')
+      the_session.pbx.expects(:caller_id).returns('999')
+      expect_em_http :get, 'http://foo', :with => { :query => { :CallSid => the_session.call_log.id, :From => '999', :CallStatus => 'completed' }}, :callback => false, :errback => false
+      @broker.finish_session_successfully the_session
+    end
   end
 
   context "accept call" do
