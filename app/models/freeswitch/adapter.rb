@@ -2,9 +2,9 @@ module Freeswitch
   class Adapter
     InstallDir = '/usr/local/freeswitch'
     SoundsPath = "#{InstallDir}/sounds/verboice/"
-    FileUtils.mkdir_p SoundsPath
 
     def initialize(context)
+      FileUtils.mkdir_p SoundsPath
       @context = context
     end
 

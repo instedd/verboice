@@ -5,9 +5,9 @@ module Asterisk
     Port = Rails.configuration.asterisk_configuration[:call_manager_port].to_i
     SoundsDir = Rails.configuration.asterisk_configuration[:sounds_dir]
     SoundsPath = "#{SoundsDir}/verboice/"
-    FileUtils.mkdir_p SoundsPath
 
     def agi_post_init
+      FileUtils.mkdir_p SoundsPath
       @log = Rails.logger
       BaseBroker.instance.accept_call self
     end
