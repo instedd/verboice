@@ -15,6 +15,11 @@ class QueuedCall < ActiveRecord::Base
     elsif flow.present?
       options[:application] = Application.new :flow => flow
     end
+
+    if status_callback_url.present? && options[:application]
+      options[:application].status_callback_url = status_callback_url
+    end
+
     channel.new_session options
   end
 end

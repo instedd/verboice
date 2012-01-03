@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111227185121) do
+ActiveRecord::Schema.define(:version => 20120103154425) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -74,6 +74,7 @@ ActiveRecord::Schema.define(:version => 20111227185121) do
     t.datetime "updated_at"
     t.string   "callback_url"
     t.text     "flow"
+    t.string   "status_callback_url"
   end
 
 end

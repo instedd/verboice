@@ -40,7 +40,13 @@ class Channel < ActiveRecord::Base
     call_log.info "Received via API: call #{address}"
     call_log.save!
 
-    queued_call = queued_calls.create! :call_log => call_log, :address => address, :callback_url => options[:callback_url], :flow => options[:flow]
+    queued_call = queued_calls.create!(
+      :call_log => call_log,
+      :address => address,
+      :callback_url => options[:callback_url],
+      :status_callback_url => options[:status_callback_url],
+      :flow => options[:flow]
+    )
 
     begin
       BrokerClient.notify_call_queued id

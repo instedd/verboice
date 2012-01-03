@@ -67,6 +67,14 @@ class ChannelTest < ActiveSupport::TestCase
       queued_call = @channel.queued_calls.first
       assert_equal [:answer, :hangup], queued_call.flow
     end
+
+    should "call with custom status callback url" do
+      BrokerClient.expects(:notify_call_queued)
+
+      @channel.call 'foo', :status_callback_url => 'bar'
+      queued_call = @channel.queued_calls.first
+      assert_equal 'bar', queued_call.status_callback_url
+    end
   end
 
   test "call BrokerClient.create_channel on create" do
