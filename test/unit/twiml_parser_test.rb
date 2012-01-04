@@ -19,6 +19,7 @@ class TwimlParserTest < ActiveSupport::TestCase
 
   context "gather" do
     def gather_commands(capture_options = {}, next_commands = [], callback_options = {})
+      callback_options[:params] = {:Digits => :digits}
       [
         {:capture => capture_options},
         {:if => {:condition => 'timeout || finish_key', :then => next_commands, :else => {:callback => callback_options}}}

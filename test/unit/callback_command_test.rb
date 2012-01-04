@@ -14,15 +14,14 @@ class CallbackCommandTest < ActiveSupport::TestCase
     url = 'http://www.example.com'
 
     @session.call_log = CallLog.make
-    @session[:digits] = '123'
     @session.expects(:log).with({
       :info => "Callback post #{url}",
-      :trace => "Callback post #{url} with CallSid=#{@session.call_id}&Channel=foo&Digits=123&From=999"
+      :trace => "Callback post #{url} with CallSid=#{@session.call_id}&Channel=foo&From=999"
     })
     @session.expects(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
     @session.expects(:push_commands).with([:hangup])
 
-    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, :Digits => '123')}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
+    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
 
     CallbackCommand.new(url).run @session
   end
@@ -31,15 +30,14 @@ class CallbackCommandTest < ActiveSupport::TestCase
     url = 'http://www.example.com'
 
     @session.call_log = CallLog.make
-    @session[:digits] = '123'
     @session.expects(:log).with({
       :info => "Callback post #{url}",
-      :trace => "Callback post #{url} with CallSid=#{@session.call_id}&Channel=foo&Digits=123&From=999"
+      :trace => "Callback post #{url} with CallSid=#{@session.call_id}&Channel=foo&From=999"
     })
     @session.expects(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
     @session.expects(:push_commands).with([:hangup])
 
-    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, :Digits => '123')}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
+    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
 
     CallbackCommand.new(:url => url).run @session
   end
@@ -48,15 +46,14 @@ class CallbackCommandTest < ActiveSupport::TestCase
     url = 'http://www.example.com'
 
     @session.call_log = CallLog.make
-    @session[:digits] = '123'
     @session.expects(:log).with({
       :info => "Callback get #{url}",
-      :trace => "Callback get #{url} with CallSid=#{@session.call_id}&Channel=foo&Digits=123&From=999"
+      :trace => "Callback get #{url} with CallSid=#{@session.call_id}&Channel=foo&From=999"
     })
     @session.expects(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
     @session.expects(:push_commands).with([:hangup])
 
-    expect_em_http :get, url, :with => @default_body.merge(:CallSid => @session.call_id, :Digits => '123'), :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
+    expect_em_http :get, url, :with => @default_body.merge(:CallSid => @session.call_id), :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
 
     CallbackCommand.new(:url => url, :method => :get).run @session
   end
@@ -67,6 +64,38 @@ class CallbackCommandTest < ActiveSupport::TestCase
     @session.application = Session.new :application => mock('application')
     @session.call_log = CallLog.make
     @session.expects(:callback_url).returns(url)
+    @session.expects(:log).with({
+      :info => "Callback post #{url}",
+      :trace => "Callback post #{url} with CallSid=#{@session.call_id}&Channel=foo&From=999"
+    })
+    @session.expects(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
+    @session.expects(:push_commands).with([:hangup])
+
+    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
+
+    CallbackCommand.new.run @session
+  end
+
+  test "run receives json in response" do
+    url = 'http://www.example.com'
+
+    @session.call_log = CallLog.make
+    @session.expects(:log).with({
+      :info => "Callback post #{url}",
+      :trace => "Callback post #{url} with CallSid=#{@session.call_id}&Channel=foo&From=999"
+    })
+    @session.expects(:trace).with("Callback returned application/json: hangup();")
+    @session.expects(:push_commands).with([:js => 'hangup();'])
+
+    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => 'hangup();', :content_type => 'application/json'
+
+    CallbackCommand.new(url).run @session
+  end
+
+  test "run with custom parameters" do
+    url = 'http://www.example.com'
+
+    @session.call_log = CallLog.make
     @session[:digits] = '123'
     @session.expects(:log).with({
       :info => "Callback post #{url}",
@@ -77,24 +106,7 @@ class CallbackCommandTest < ActiveSupport::TestCase
 
     expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, :Digits => '123')}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
 
-    CallbackCommand.new.run @session
-  end
-
-  test "run receives json in response" do
-    url = 'http://www.example.com'
-
-    @session.call_log = CallLog.make
-    @session[:digits] = '123'
-    @session.expects(:log).with({
-      :info => "Callback post #{url}",
-      :trace => "Callback post #{url} with CallSid=#{@session.call_id}&Channel=foo&Digits=123&From=999"
-    })
-    @session.expects(:trace).with("Callback returned application/json: hangup();")
-    @session.expects(:push_commands).with([:js => 'hangup();'])
-
-    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, :Digits => '123')}, :returns => 'hangup();', :content_type => 'application/json'
-
-    CallbackCommand.new(url).run @session
+    CallbackCommand.new(:url => url, :params => {:Digits => :digits}).run @session
   end
 
 end

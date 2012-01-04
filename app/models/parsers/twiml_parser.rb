@@ -57,7 +57,7 @@ class TwimlParser < XmlParser
     options[:finish_on_key] = xml.attributes['finishOnKey'].value if xml.attributes['finishOnKey']
     options[:min] = options[:max] = xml.attributes['numDigits'].value.to_i if xml.attributes['numDigits']
 
-    callback_options = {}
+    callback_options = {:params => {:Digits => :digits}}
     callback_options[:url] = xml.attributes['action'].value if xml.attributes['action']
     callback_options[:method] = xml.attributes['method'].value if xml.attributes['method']
 
