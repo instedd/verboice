@@ -26,7 +26,12 @@ module Asterisk
 
     def receive_event(event)
       if event[:event] == 'OriginateResponse' && event[:response] == 'Failure'
-        BaseBroker.instance.call_rejected event[:actionid]
+        reason = case event[:reason]
+        when '3' then :no_answer
+        when '5' then :busy
+        else :failed
+        end
+        BaseBroker.instance.call_rejected event[:actionid], reason
       end
     end
   end

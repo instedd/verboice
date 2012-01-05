@@ -108,9 +108,9 @@ class BaseBroker
     finish_session session
   end
 
-  def finish_session_with_error(session, error_message)
+  def finish_session_with_error(session, error_message, status = 'failed')
     session = find_session session unless session.is_a? Session
-    session.notify_status 'failed'
+    session.notify_status status
     session.finish_with_error error_message
 
     finish_session session
@@ -126,12 +126,17 @@ class BaseBroker
     finish_session session
   end
 
-  def call_rejected(session_id)
+  def call_rejected(session_id, reason)
     session = find_session session_id
-    finish_session_with_error session, 'Failed to establish the communication'
+    message = case reason
+    when :busy then 'Remote end is busy'
+    when :no_answer then 'Remote end do not answer'
+    else 'Failed to establish the communication'
+    end
+
+    finish_session_with_error session, message, reason.to_s.dasherize
 
     EM.fiber_sleep 2
-
     notify_call_queued session.channel
   end
 

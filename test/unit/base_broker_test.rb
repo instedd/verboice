@@ -127,6 +127,51 @@ class BaseBrokerTest < ActiveSupport::TestCase
       the_session.expects(:notify_status).with('failed')
       @broker.finish_session_with_error the_session, 'An error'
     end
+
+    should "send status callback on failure with custom status" do
+      queued_call = @channel.queued_calls.make
+      the_session = nil
+
+      @broker.expects(:call).with { |session| the_session = session }
+      @broker.notify_call_queued @channel
+
+      the_session.application.status_callback_url = 'http://foo'
+      the_session.pbx = mock('pbx')
+      the_session.expects(:notify_status).with('busy')
+      @broker.finish_session_with_error the_session, 'An error', 'busy'
+    end
+  end
+
+  context "reject call" do
+    should "reject with busy status" do
+      session = Session.new
+      @broker.expects(:find_session).with(123).returns(session)
+      @broker.expects(:finish_session_with_error).with(session, 'Remote end is busy', 'busy')
+      EM.expects(:fiber_sleep).with 2
+      @broker.expects(:notify_call_queued)
+
+      @broker.call_rejected 123, :busy
+    end
+
+    should "reject with no answer status" do
+      session = Session.new
+      @broker.expects(:find_session).with(123).returns(session)
+      @broker.expects(:finish_session_with_error).with(session, 'Remote end do not answer', 'no-answer')
+      EM.expects(:fiber_sleep).with 2
+      @broker.expects(:notify_call_queued)
+
+      @broker.call_rejected 123, :no_answer
+    end
+
+    should "reject with unknown reason" do
+      session = Session.new
+      @broker.expects(:find_session).with(123).returns(session)
+      @broker.expects(:finish_session_with_error).with(session, 'Failed to establish the communication', 'failed')
+      EM.expects(:fiber_sleep).with 2
+      @broker.expects(:notify_call_queued)
+
+      @broker.call_rejected 123, :failed
+    end
   end
 
   context "accept call" do
