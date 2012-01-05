@@ -53,7 +53,7 @@ class CallbackCommand < Command
         f.resume e
       end
     end
-    http.errback { f.resume Exception.new(http.error) }
+    http.errback { f.resume Exception.new(http.error.present? ? http.error : "Failed to communicate with #{url}") }
     Fiber.yield
   end
 end
