@@ -85,12 +85,42 @@ class TwimlParserTest < ActiveSupport::TestCase
     assert_parse '<Response><Bridge session_id="123"/></Response>', [:bridge => '123']
   end
 
-  test "parse dial" do
-    assert_parse '<Response><Dial>1234</Dial></Response>', [:dial => {:number => '1234'}]
-  end
+  context "dial" do
+    should "parse basic command" do
+      assert_parse '<Response><Dial>1234</Dial></Response>', [:dial => {:number => '1234'}]
+    end
 
-  test "parse dial with channel" do
-    assert_parse "<Response><Dial channel='foo'>1234</Dial></Response>", [:dial => {:number => '1234', :channel => 'foo'}]
+    should "parse with channel" do
+      assert_parse "<Response><Dial channel='foo'>1234</Dial></Response>", [:dial => {:number => '1234', :channel => 'foo'}]
+    end
+
+    should "parse with action" do
+      assert_parse "<Response><Dial action='http://foo'>1234</Dial></Response>",
+        [
+          {:dial => {:number => '1234'}},
+          {:callback => {:url => 'http://foo', :params => {:DialCallStatus => :dial_status}}}
+        ]
+    end
+
+    should "parse with action and method" do
+      assert_parse "<Response><Dial action='http://foo' method='get'>1234</Dial></Response>",
+        [
+          {:dial => {:number => '1234'}},
+          {:callback => {:url => 'http://foo', :method => 'get', :params => {:DialCallStatus => :dial_status}}}
+        ]
+    end
+
+    should "ignore following commands if action is given" do
+      assert_parse "<Response><Dial action='http://foo'>1234</Dial><Hangup/></Response>",
+        [
+          {:dial => {:number => '1234'}},
+          {:callback => {:url => 'http://foo', :params => {:DialCallStatus => :dial_status}}}
+        ]
+    end
+
+    should "include following commands if action is not given" do
+      assert_parse "<Response><Dial>1234</Dial><Hangup/></Response>", [{:dial => {:number => '1234'}}, :hangup]
+    end
   end
 
   def assert_parse(xml, result)

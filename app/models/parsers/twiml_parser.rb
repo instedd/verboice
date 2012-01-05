@@ -27,7 +27,9 @@ class TwimlParser < XmlParser
       when 'Bridge'
         script << bridge(child)
       when 'Dial'
-        script << dial(child)
+        commands, continue = dial(child)
+        script.concat commands
+        break unless continue
       end
     end
     main_script
@@ -94,6 +96,16 @@ class TwimlParser < XmlParser
   def self.dial(xml)
     options = { :number => xml.text }
     options[:channel] = xml.attributes['channel'].value if xml.attributes['channel']
-    {:dial => options}
+    commands = [{:dial => options}]
+    continue = true
+
+    if xml.attributes['action']
+      continue = false
+      callback_options = {:url => xml.attributes['action'].value, :params => {:DialCallStatus => :dial_status}}
+      callback_options[:method] = xml.attributes['method'].value if xml.attributes['method']
+      commands << {:callback => callback_options}
+    end
+
+    [commands, continue]
   end
 end

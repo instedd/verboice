@@ -40,6 +40,7 @@ module Asterisk
       when 'ANSWER' then :completed
       when 'BUSY' then :busy
       when 'NOANSWER' then :no_answer
+      when 'CANCEL' then raise Exception.new 'User hang up'
       else :failed
       end
     end
