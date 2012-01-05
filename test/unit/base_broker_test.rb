@@ -134,8 +134,7 @@ class BaseBrokerTest < ActiveSupport::TestCase
 
       pbx = stub 'pbx', :session_id => the_session.id
       pbx.expects :answer
-      pbx.expects :hangup
-      pbx.expects :close_connection
+      pbx.expects(:hangup).twice
 
       EM.expects(:fiber_sleep).with 2
 
@@ -153,8 +152,7 @@ class BaseBrokerTest < ActiveSupport::TestCase
 
       pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
       pbx.expects :answer
-      pbx.expects :hangup
-      pbx.expects :close_connection
+      pbx.expects(:hangup).twice
 
       EM.expects(:fiber_sleep).with 2
 
@@ -203,8 +201,7 @@ class BaseBrokerTest < ActiveSupport::TestCase
       f.resume
 
       pbx2 = stub 'pbx2', :session_id => session.id, :channel_id => nil, :caller_id => '1234'
-      pbx2.expects :hangup
-      pbx2.expects :close_connection
+      pbx2.expects(:hangup).twice
       EM.expects(:fiber_sleep).with 2
 
       @broker.accept_call pbx2
@@ -225,7 +222,7 @@ class BaseBrokerTest < ActiveSupport::TestCase
 
       pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
       pbx.expects :answer
-      pbx.expects :close_connection
+      pbx.expects :hangup
 
       EM.expects(:fiber_sleep).with 2
 

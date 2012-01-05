@@ -73,7 +73,7 @@ class BaseBroker
     else
       finish_session_successfully session
     ensure
-      session.pbx.close_connection
+      session.pbx.hangup
 
       EM.fiber_sleep 2
 
