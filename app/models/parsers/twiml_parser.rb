@@ -30,6 +30,8 @@ class TwimlParser < XmlParser
         commands, continue = dial(child)
         script.concat commands
         break unless continue
+      else
+        raise Exception.new "Invalid element '#{child.name}'"
       end
     end
     main_script
