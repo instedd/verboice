@@ -5,6 +5,8 @@ class DialCommand < Command
   def initialize(options = {})
     @number = options[:number]
     @channel_name = options[:channel]
+    @options = {}
+    @options[:caller_id] = options[:caller_id] if options[:caller_id]
   end
 
   def run(session)
@@ -16,6 +18,6 @@ class DialCommand < Command
 
     address = BaseBroker.instance.get_dial_address channel, @number
     session.log :info => "Dialing #{address}"
-    session[:dial_status] = session.pbx.dial address
+    session[:dial_status] = session.pbx.dial address, @options
   end
 end

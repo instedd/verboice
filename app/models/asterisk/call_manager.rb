@@ -33,7 +33,8 @@ module Asterisk
       self.exec 'Bridge', other_session.pbx['channel']
     end
 
-    def dial(address)
+    def dial(address, options = {})
+      self.set_callerid options[:caller_id] if options[:caller_id]
       self.exec 'Dial', "#{address},30,m"
       status = self.get_variable 'DIALSTATUS'
       case status.note

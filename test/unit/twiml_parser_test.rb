@@ -94,6 +94,10 @@ class TwimlParserTest < ActiveSupport::TestCase
       assert_parse "<Response><Dial channel='foo'>1234</Dial></Response>", [:dial => {:number => '1234', :channel => 'foo'}]
     end
 
+    should "parse with caller id" do
+      assert_parse "<Response><Dial callerId='foo'>1234</Dial></Response>", [:dial => {:number => '1234', :caller_id => 'foo'}]
+    end
+
     should "parse with action" do
       assert_parse "<Response><Dial action='http://foo'>1234</Dial></Response>",
         [

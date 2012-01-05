@@ -12,7 +12,7 @@ class DialCommandTest < ActiveSupport::TestCase
     BaseBroker.instance.expects(:get_dial_address).with(session.channel, '1234').returns('SIP/1234')
     session.call_log = CallLog.make
     session.pbx = mock('pbx')
-    session.pbx.expects(:dial).with('SIP/1234').returns(:completed)
+    session.pbx.expects(:dial).with('SIP/1234', {}).returns(:completed)
     dial.run session
     assert_equal :completed, session[:dial_status]
   end
@@ -26,7 +26,18 @@ class DialCommandTest < ActiveSupport::TestCase
     BaseBroker.instance.expects(:get_dial_address).with(channel, '1234').returns('SIP/1234')
     session.call_log = CallLog.make
     session.pbx = mock('pbx')
-    session.pbx.expects(:dial).with('SIP/1234')
+    session.pbx.expects(:dial).with('SIP/1234', {})
+    dial.run session
+  end
+
+  test "run with custom caller id" do
+    dial = DialCommand.new :number => '1234', :caller_id => 'foo'
+    session = Session.new :channel => Channel.make
+
+    BaseBroker.instance.expects(:get_dial_address).with(session.channel, '1234').returns('SIP/1234')
+    session.call_log = CallLog.make
+    session.pbx = mock('pbx')
+    session.pbx.expects(:dial).with('SIP/1234', {:caller_id => 'foo'}).returns(:completed)
     dial.run session
   end
 end

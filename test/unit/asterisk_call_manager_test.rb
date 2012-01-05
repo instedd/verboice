@@ -196,6 +196,13 @@ class AsteriskCallManagerTest < ActiveSupport::TestCase
       assert_raise(Exception) { @call_manager.dial '1234' }
     end
 
+    should "dial with custom caller id" do
+      @call_manager.expects(:set_callerid).with('"foo" <1234>').in_sequence(@seq)
+      @call_manager.expects(:exec).with('Dial', '1234,30,m').in_sequence(@seq)
+      @call_manager.expects(:get_variable).with('DIALSTATUS').returns(asterisk_response('ANSWER')).in_sequence(@seq)
+      @call_manager.dial '1234', :caller_id => '"foo" <1234>'
+    end
+
     def asterisk_response(note)
       Asterisk::AGIMixin::Response.new("200 result=1 (#{note})")
     end
