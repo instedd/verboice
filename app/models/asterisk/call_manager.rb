@@ -35,6 +35,13 @@ module Asterisk
 
     def dial(address)
       self.exec 'Dial', "#{address},30,m"
+      status = self.get_variable 'DIALSTATUS'
+      case status.note
+      when 'ANSWER' then :completed
+      when 'BUSY' then :busy
+      when 'NOANSWER' then :no_answer
+      else :failed
+      end
     end
 
     def sound_path_for(basename)

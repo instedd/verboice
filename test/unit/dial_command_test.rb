@@ -12,8 +12,9 @@ class DialCommandTest < ActiveSupport::TestCase
     BaseBroker.instance.expects(:get_dial_address).with(session.channel, '1234').returns('SIP/1234')
     session.call_log = CallLog.make
     session.pbx = mock('pbx')
-    session.pbx.expects(:dial).with('SIP/1234')
+    session.pbx.expects(:dial).with('SIP/1234').returns(:completed)
     dial.run session
+    assert_equal :completed, session[:dial_status]
   end
 
   test "run with channel" do
