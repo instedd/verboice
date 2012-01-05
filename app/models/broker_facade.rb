@@ -4,6 +4,7 @@ class BrokerFacade < MagicObjectProtocol::Server
   def notify_call_queued(channel_id)
     channel = Channel.find channel_id
     BaseBroker.instance.notify_call_queued channel
+    nil
   end
 
   def create_channel(channel_id)
