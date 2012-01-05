@@ -142,7 +142,9 @@ class Session
   def notify_status(status)
     if status_callback_url.present?
       request = EventMachine::HttpRequest.new status_callback_url
-      request.get :query => { :CallSid => call_id, :From => pbx.caller_id, :CallStatus => status }
+      query = { :CallSid => call_id, :CallStatus => status }
+      query[:From] = pbx.caller_id if pbx
+      request.get :query => query
     end
   end
 end

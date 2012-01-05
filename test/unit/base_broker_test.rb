@@ -26,6 +26,13 @@ class BaseBrokerTest < ActiveSupport::TestCase
       assert_equal the_session, @broker.active_calls[@channel.id][the_session.id]
     end
 
+    should "send ringing notification" do
+      queued_call = @channel.queued_calls.make
+
+      @broker.expects(:call).with { |session| session.expects(:notify_status).with('ringing') }
+      @broker.notify_call_queued @channel
+    end
+
     should "close session if call fails" do
       queued_call = @channel.queued_calls.make
       the_session = nil

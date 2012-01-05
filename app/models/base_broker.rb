@@ -21,6 +21,7 @@ class BaseBroker
 
     begin
       call session
+      session.notify_status 'ringing'
     rescue PbxUnavailableException => ex
       finish_session_with_requeue session, ex.message, queued_call
     rescue Exception => ex
