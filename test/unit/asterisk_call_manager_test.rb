@@ -160,4 +160,44 @@ class AsteriskCallManagerTest < ActiveSupport::TestCase
       stub('line', :result => result)
     end
   end
+
+  context "dial" do
+    should "dial number and return successfully" do
+      @call_manager.expects(:exec).with('Dial', '1234,30,m').in_sequence(@seq)
+      @call_manager.expects(:get_variable).with('DIALSTATUS').returns(asterisk_response('ANSWER')).in_sequence(@seq)
+      value = @call_manager.dial '1234'
+      assert_equal :completed, value
+    end
+
+    should "dial number and return busy" do
+      @call_manager.expects(:exec).with('Dial', '1234,30,m').in_sequence(@seq)
+      @call_manager.expects(:get_variable).with('DIALSTATUS').returns(asterisk_response('BUSY')).in_sequence(@seq)
+      value = @call_manager.dial '1234'
+      assert_equal :busy, value
+    end
+
+    should "dial number and return no answer" do
+      @call_manager.expects(:exec).with('Dial', '1234,30,m').in_sequence(@seq)
+      @call_manager.expects(:get_variable).with('DIALSTATUS').returns(asterisk_response('NOANSWER')).in_sequence(@seq)
+      value = @call_manager.dial '1234'
+      assert_equal :no_answer, value
+    end
+
+    should "dial number and return failed" do
+      @call_manager.expects(:exec).with('Dial', '1234,30,m').in_sequence(@seq)
+      @call_manager.expects(:get_variable).with('DIALSTATUS').returns(asterisk_response('XXXX')).in_sequence(@seq)
+      value = @call_manager.dial '1234'
+      assert_equal :failed, value
+    end
+
+    should "raise exception when user hangs up" do
+      @call_manager.expects(:exec).with('Dial', '1234,30,m').in_sequence(@seq)
+      @call_manager.expects(:get_variable).with('DIALSTATUS').returns(asterisk_response('CANCEL')).in_sequence(@seq)
+      assert_raise(Exception) { @call_manager.dial '1234' }
+    end
+
+    def asterisk_response(note)
+      Asterisk::AGIMixin::Response.new("200 result=1 (#{note})")
+    end
+  end
 end
