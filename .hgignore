@@ -8,3 +8,4 @@ syntax: glob
 .DS_Store
 tmp/*
 test/reports/*
+public/assets
