@@ -5,6 +5,7 @@ module Asterisk
     Port = Rails.configuration.asterisk_configuration[:call_manager_port].to_i
     SoundsDir = Rails.configuration.asterisk_configuration[:sounds_dir]
     SoundsPath = "#{SoundsDir}/verboice/"
+    AgiSeparator = Rails.configuration.asterisk_configuration[:agi_use_pipe_separator] == true ? '|' : ','
 
     def agi_post_init
       FileUtils.mkdir_p SoundsPath
@@ -35,7 +36,7 @@ module Asterisk
 
     def dial(address, options = {})
       self.set_callerid options[:caller_id] if options[:caller_id]
-      self.exec 'Dial', "#{address},30,m"
+      self.exec 'Dial', [address, 30, "m"].join(AgiSeparator)
       status = self.get_variable 'DIALSTATUS'
       case status.note
       when 'ANSWER' then :completed

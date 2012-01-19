@@ -17,7 +17,8 @@ class DialCommand < Command
     end
 
     address = BaseBroker.instance.get_dial_address channel, @number
-    session.log :info => "Dialing #{address}"
+    session.info "Dialing #{address}"
     session[:dial_status] = session.pbx.dial address, @options
+    session.info "Dial completed with status '#{session[:dial_status]}'"
   end
 end
