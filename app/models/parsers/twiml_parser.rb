@@ -59,7 +59,12 @@ class TwimlParser < XmlParser
     options = {}
     options[:timeout] = xml.attributes['timeout'].value.to_i if xml.attributes['timeout']
     options[:finish_on_key] = xml.attributes['finishOnKey'].value if xml.attributes['finishOnKey']
-    options[:min] = options[:max] = xml.attributes['numDigits'].value.to_i if xml.attributes['numDigits']
+    if xml.attributes['numDigits']
+      options[:min] = options[:max] = xml.attributes['numDigits'].value.to_i
+    else
+      options[:min] = 1
+      options[:max] = Float::INFINITY
+    end
 
     callback_options = {:params => {:Digits => :digits}}
     callback_options[:url] = xml.attributes['action'].value if xml.attributes['action']

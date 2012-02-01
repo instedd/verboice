@@ -27,7 +27,7 @@ class TwimlParserTest < ActiveSupport::TestCase
     end
 
     should "parse gather" do
-      assert_parse '<Response><Gather/></Response>', gather_commands
+      assert_parse '<Response><Gather/></Response>', gather_commands({:min => 1, :max => Float::INFINITY})
     end
 
     should "parse gather with attributes" do
@@ -37,21 +37,21 @@ class TwimlParserTest < ActiveSupport::TestCase
 
     should "parse gather with emedded play" do
       assert_parse '<Response><Gather><Play>http://foo</Play></Gather></Response>',
-        gather_commands(:play => 'http://foo')
+        gather_commands(:play => 'http://foo', :min => 1, :max => Float::INFINITY)
     end
 
     should "parse gather with emedded play" do
       assert_parse '<Response><Gather><Say>hello</Say></Gather></Response>',
-        gather_commands(:say => 'hello')
+        gather_commands(:say => 'hello', :min => 1, :max => Float::INFINITY)
     end
 
     should "parse gather with next commands on timeout/finish_key" do
-      assert_parse '<Response><Gather/><Hangup /></Response>', gather_commands({}, [:hangup])
+      assert_parse '<Response><Gather/><Hangup /></Response>', gather_commands({:min => 1, :max => Float::INFINITY}, [:hangup])
     end
 
     should "parse gather with callback options" do
       assert_parse '<Response><Gather action="http://www.domain.com/controller/action" method="GET"/></Response>',
-        gather_commands({}, [], {:url => 'http://www.domain.com/controller/action', :method => 'GET'})
+        gather_commands({:min => 1, :max => Float::INFINITY}, [], {:url => 'http://www.domain.com/controller/action', :method => 'GET'})
     end
   end
 
