@@ -45,7 +45,8 @@ class Channel < ActiveRecord::Base
       :address => address,
       :callback_url => options[:callback_url],
       :status_callback_url => options[:status_callback_url],
-      :flow => options[:flow]
+      :flow => options[:flow],
+      :not_before => options[:not_before]
     )
 
     begin
