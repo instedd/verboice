@@ -72,6 +72,13 @@ class BaseBrokerTest < ActiveSupport::TestCase
 
       @broker.notify_call_queued @channel
     end
+
+    should "not call if scheduled for the future" do
+      @channel.queued_calls.make :not_before => Time.now + 1.hour
+
+      @broker.expects(:call).never
+      @broker.notify_call_queued @channel
+    end
   end
 
   context "finish session" do

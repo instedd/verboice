@@ -64,8 +64,8 @@ class Channel < ActiveRecord::Base
 
   def poll_call
     self.class.transaction do
-      queued_call = queued_calls.order(:created_at).first
-      queued_call.try :destroy
+      queued_call = queued_calls.where('not_before IS NULL OR not_before <= ?', Time.now.utc).order(:created_at).first
+      queued_call.destroy if queued_call
       queued_call
     end
   end

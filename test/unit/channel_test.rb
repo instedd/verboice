@@ -144,6 +144,13 @@ class ChannelTest < ActiveSupport::TestCase
       assert_equal queued_call, channel.poll_call
       assert_equal 0, QueuedCall.count
     end
+
+    should "not return scheduled calls in the future" do
+      channel = Channel.make
+      channel.queued_calls.make :not_before => Time.now + 1.hour
+
+      assert_nil channel.poll_call
+    end
   end
 
   test "create new session without a call log" do
