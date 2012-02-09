@@ -32,8 +32,19 @@ class ActiveSupport::TestCase
     http2.stubs(:response_header).returns(headers)
 
     http2.expects(:response).returns(options[:returns]) if options[:returns]
-    http2.expects(:callback).yields unless options[:callback] == false
+
+    the_block = nil
+    unless options[:callback] == false
+      http2.define_singleton_method(:callback) do |&block|
+        the_block = block
+      end
+    end
     http2.expects(:errback) unless options[:errback] == false
+
+    if block_given?
+      Fiber.new { yield }.resume
+      the_block.call unless options[:callback] == false
+    end
   end
 
 end

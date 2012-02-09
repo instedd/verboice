@@ -21,9 +21,9 @@ class CallbackCommandTest < ActiveSupport::TestCase
     @session.expects(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
     @session.expects(:push_commands).with([:hangup])
 
-    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
-
-    CallbackCommand.new(url).run @session
+    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+      CallbackCommand.new(url).run @session
+    end
   end
 
   test "run with url as option" do
@@ -37,9 +37,9 @@ class CallbackCommandTest < ActiveSupport::TestCase
     @session.expects(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
     @session.expects(:push_commands).with([:hangup])
 
-    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
-
-    CallbackCommand.new(:url => url).run @session
+    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+      CallbackCommand.new(:url => url).run @session
+    end
   end
 
   test "run with url and get method" do
@@ -53,9 +53,9 @@ class CallbackCommandTest < ActiveSupport::TestCase
     @session.expects(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
     @session.expects(:push_commands).with([:hangup])
 
-    expect_em_http :get, url, :with => @default_body.merge(:CallSid => @session.call_id), :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
-
-    CallbackCommand.new(:url => url, :method => :get).run @session
+    expect_em_http :get, url, :with => @default_body.merge(:CallSid => @session.call_id), :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+      CallbackCommand.new(:url => url, :method => :get).run @session
+    end
   end
 
   test "run without url" do
@@ -71,9 +71,9 @@ class CallbackCommandTest < ActiveSupport::TestCase
     @session.expects(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
     @session.expects(:push_commands).with([:hangup])
 
-    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
-
-    CallbackCommand.new.run @session
+    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+      CallbackCommand.new.run @session
+    end
   end
 
   test "run receives json in response" do
@@ -87,9 +87,9 @@ class CallbackCommandTest < ActiveSupport::TestCase
     @session.expects(:trace).with("Callback returned application/json: hangup();")
     @session.expects(:push_commands).with([:js => 'hangup();'])
 
-    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => 'hangup();', :content_type => 'application/json'
-
-    CallbackCommand.new(url).run @session
+    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :returns => 'hangup();', :content_type => 'application/json' do
+      CallbackCommand.new(url).run @session
+    end
   end
 
   test "run with custom parameters" do
@@ -104,9 +104,9 @@ class CallbackCommandTest < ActiveSupport::TestCase
     @session.expects(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
     @session.expects(:push_commands).with([:hangup])
 
-    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, :Digits => '123')}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml'
-
-    CallbackCommand.new(:url => url, :params => {:Digits => :digits}).run @session
+    expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, :Digits => '123')}, :returns => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+      CallbackCommand.new(:url => url, :params => {:Digits => :digits}).run @session
+    end
   end
 
 end
