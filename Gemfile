@@ -22,11 +22,11 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
-group :test do
+group :development, :test do
   gem 'machinist'
   gem 'ffaker'
+  gem 'rspec'
+  gem 'rspec-rails'
   gem "shoulda"
-  gem 'mocha', :require => false
   gem 'ci_reporter'
-  gem 'test-unit'
 end

@@ -31,13 +31,13 @@ module Asterisk
     end
 
     def bridge_with(other_session)
-      self.exec 'Bridge', other_session.pbx['channel']
+      exec 'Bridge', other_session.pbx['channel']
     end
 
     def dial(address, options = {})
-      self.set_callerid options[:caller_id] if options[:caller_id]
-      self.exec 'Dial', [address, 30, "m"].join(AgiSeparator)
-      status = self.get_variable 'DIALSTATUS'
+      set_callerid options[:caller_id] if options[:caller_id]
+      exec 'Dial', [address, 30, "m"].join(AgiSeparator)
+      status = get_variable 'DIALSTATUS'
       case status.note
       when 'ANSWER' then :completed
       when 'BUSY' then :busy
