@@ -1,6 +1,7 @@
 module Asterisk
   class FastAGIProtocol < EventMachine::Protocols::LineAndTextProtocol
     include Asterisk::AGIMixin
+    undef exec
 
     def initialize
       super
