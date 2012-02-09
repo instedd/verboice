@@ -10,12 +10,10 @@ class Account < ActiveRecord::Base
   has_many :applications, :dependent => :destroy
   has_many :channels, :dependent => :destroy
   has_many :call_logs
+  has_many :call_queues
 
   def call(options = {})
-    if options[:channel]
-      channel = channels.find_by_name! options[:channel]
-    end
-
+    channel = channels.find_by_name! options[:channel]
     channel.call options[:address], options
   end
 end

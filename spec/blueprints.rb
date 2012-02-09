@@ -30,6 +30,11 @@ Channel.blueprint do
   name
 end
 
+CallQueue.blueprint do
+  account
+  name
+end
+
 QueuedCall.blueprint do
   channel
   call_log

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120209173652) do
+ActiveRecord::Schema.define(:version => 20120209202505) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -86,7 +86,7 @@ ActiveRecord::Schema.define(:version => 20120209173652) do
     t.string   "callback_url"
     t.text     "flow"
     t.string   "status_callback_url"
-    t.integer  "queue_id"
+    t.integer  "call_queue_id"
     t.datetime "not_before"
     t.integer  "retries",             :default => 0
   end

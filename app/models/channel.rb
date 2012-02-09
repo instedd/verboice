@@ -46,7 +46,8 @@ class Channel < ActiveRecord::Base
       :callback_url => options[:callback_url],
       :status_callback_url => options[:status_callback_url],
       :flow => options[:flow],
-      :not_before => options[:not_before]
+      :not_before => options[:not_before],
+      :call_queue => options.has_key?(:queue) ? account.call_queues.find_by_name!(options[:queue]) : nil
     )
 
     begin

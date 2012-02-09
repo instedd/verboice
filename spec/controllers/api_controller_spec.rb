@@ -3,17 +3,36 @@ require 'spec_helper'
 describe ApiController do
   include Devise::TestHelpers
 
+  let(:account) { Account.make }
+  let(:channel) { account.channels.make }
+  let(:queue) { account.call_queues.make }
+
   before(:each) do
-    @account = Account.make
-    sign_in @account
+    sign_in account
   end
 
-  it "call" do
-    call_log = CallLog.make
-    @controller.current_account.should_receive(:call).and_return(call_log)
-    get :call, :address => 'foo', :callback => 'bar'
-    result = JSON.parse(@response.body)
-    result['call_id'].should == call_log.id
+  context "call" do
+    before(:each) do
+      BrokerClient.should_receive(:notify_call_queued).with(channel.id)
+    end
+
+    it "calls" do
+      get :call, :address => 'foo', :channel => channel.name, :callback => 'bar'
+      call_log = CallLog.last
+      result = JSON.parse(@response.body)
+      result['call_id'].should == call_log.id
+    end
+
+    it "schedule call in the future" do
+      time = Time.now.utc + 1.hour
+      get :call, :address => 'foo', :not_before => time, :channel => channel.name
+      QueuedCall.first.not_before.time.to_i.should == time.to_i
+    end
+
+    it "schedule call in specific queue" do
+      get :call, :address => 'foo', :channel => channel.name, :queue => queue.name
+      QueuedCall.first.call_queue.should == queue
+    end
   end
 
   it "call state" do
@@ -22,13 +41,5 @@ describe ApiController do
     result = JSON.parse(@response.body)
     result['call_id'].should == call_log.id
     result['state'].should == call_log.state.to_s
-  end
-
-  it "schedule call in the future" do
-    channel = @account.channels.make
-    BrokerClient.should_receive(:notify_call_queued).with(channel.id)
-    time = Time.now.utc + 1.hour
-    get :call, :address => 'foo', :not_before => time, :channel => channel.name
-    QueuedCall.first.not_before.time.to_i.should == time.to_i
   end
 end
