@@ -15,6 +15,8 @@ Verboice::Application.routes.draw do
     get :progress, :on => :member
   end
 
+  resources :call_queues
+
   match "api/call" => "api#call", :as => :api_call
   match "api/call/:id/state" => "api#call_state"
   match 'api/call/:id/redirect' => 'api#call_redirect'

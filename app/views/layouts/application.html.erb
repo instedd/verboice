@@ -2,6 +2,7 @@
   <%= section "Home", home_path, :home %>
   <%= section "Applications", applications_path, :applications if account_signed_in? %>
   <%= section "Channels", channels_path, :channels if account_signed_in? %>
+  <%= section "Call Queues", call_queues_path, :call_queues if account_signed_in? %>
   <%= section "Call Logs", call_logs_path, :call_logs if account_signed_in? %>
 <% end %>
 <% content_for :right_menu do %>
