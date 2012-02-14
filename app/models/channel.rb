@@ -51,7 +51,11 @@ class Channel < ActiveRecord::Base
     )
 
     begin
-      BrokerClient.notify_call_queued id
+      if queued_call.not_before?
+        BrokerClient.notify_call_queued id, queued_call.not_before
+      else
+        BrokerClient.notify_call_queued id
+      end
     rescue Exception => ex
       call_log.finish_with_error ex.message
       queued_call.destroy

@@ -75,6 +75,12 @@ describe Channel do
       queued_call = @channel.queued_calls.first
       queued_call.status_callback_url.should == 'bar'
     end
+
+    it "notify with time when scheduling delayed call" do
+      time = Time.now.utc + 1.hour
+      BrokerClient.should_receive(:notify_call_queued).with(@channel.id, time)
+      @channel.call 'foo', :not_before => time
+    end
   end
 
   it "call BrokerClient.create_channel on create" do

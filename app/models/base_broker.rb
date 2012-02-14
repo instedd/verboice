@@ -29,6 +29,18 @@ class BaseBroker
     end
   end
 
+  def schedule_call channel_id, not_before
+    if @scheduled_at.nil? || @scheduled_at > not_before
+      @scheduled_at = not_before
+      EM.cancel_timer(@scheduled_timer) if @scheduled_timer
+      @scheduled_timer = EM.add_timer(not_before - Time.now) do
+        @scheduled_at = nil
+        @scheduled_timer = nil
+        notify_call_queued Channel.find(channel_id)
+      end
+    end
+  end
+
   def reached_active_calls_limit?(channel)
     channel.has_limit? && active_calls_count_for(channel) >= channel.limit.to_i
   end

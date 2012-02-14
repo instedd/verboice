@@ -1,9 +1,13 @@
 class BrokerFacade < MagicObjectProtocol::Server
   Port = Rails.configuration.verboice_configuration[:broker_port].to_i
 
-  def notify_call_queued(channel_id)
-    channel = Channel.find channel_id
-    BaseBroker.instance.notify_call_queued channel
+  def notify_call_queued(channel_id, not_before = nil)
+    if not_before
+      BaseBroker.instance.schedule_call channel_id, not_before
+    else
+      channel = Channel.find channel_id
+      BaseBroker.instance.notify_call_queued channel
+    end
     nil
   end
 

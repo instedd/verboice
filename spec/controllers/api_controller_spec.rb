@@ -13,7 +13,7 @@ describe ApiController do
 
   context "call" do
     before(:each) do
-      BrokerClient.should_receive(:notify_call_queued).with(channel.id)
+      BrokerClient.stub(:notify_call_queued)
     end
 
     it "calls" do
