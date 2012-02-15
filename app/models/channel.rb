@@ -50,15 +50,16 @@ class Channel < ActiveRecord::Base
       :call_queue => options.has_key?(:queue) ? account.call_queues.find_by_name!(options[:queue]) : nil
     )
 
-    if queued_call.not_before? && queued_call.call_queue_id?
-      queued_time = queued_call.not_before - queued_call.not_before.at_beginning_of_day
+    if queued_call.call_queue_id? && queued_call.call_queue.time_from && queued_call.call_queue.time_to
+      not_before = queued_call.not_before || Time.now
+      queued_time = not_before - not_before.at_beginning_of_day
       queue_from = queued_call.call_queue.time_from - queued_call.call_queue.time_from.at_beginning_of_day
       queue_to = queued_call.call_queue.time_to - queued_call.call_queue.time_to.at_beginning_of_day
 
       if queued_time < queue_from
-        queued_call.not_before += queue_from - queued_time
+        queued_call.not_before = not_before + queue_from - queued_time
       elsif queued_time > queue_to
-        queued_call.not_before = (queued_call.not_before + 1.day).at_beginning_of_day + queue_from
+        queued_call.not_before = (not_before + 1.day).at_beginning_of_day + queue_from
       end
     end
 
