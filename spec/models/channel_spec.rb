@@ -6,7 +6,7 @@ describe Channel do
 
   after(:each) do
     BrokerClient.stub(:delete_channel)
-    [Account, Channel, CallLog, QueuedCall].each &:destroy_all
+    [Account, Channel, CallLog, CallQueue, QueuedCall].each &:destroy_all
   end
 
   context "validations" do
@@ -22,64 +22,74 @@ describe Channel do
   end
 
   context "call" do
-    before(:each) do
-      @channel = Channel.make
-    end
+    let (:channel) { Channel.make }
+    let (:queued_call) { channel.queued_calls.first }
 
     it "call ok" do
-      BrokerClient.should_receive(:notify_call_queued).with(@channel.id)
+      BrokerClient.should_receive(:notify_call_queued).with(channel.id)
 
-      call_log = @channel.call 'foo'
+      call_log = channel.call 'foo'
       call_log.state.should == :queued
       call_log.address.should == 'foo'
 
-      queued_calls = @channel.queued_calls
+      queued_calls = channel.queued_calls
       queued_calls.length.should == 1
       queued_calls[0].address.should == 'foo'
       queued_calls[0].call_log_id.should == call_log.id
     end
 
     it "call raises" do
-      BrokerClient.should_receive(:notify_call_queued).with(@channel.id).and_raise("Oh no!")
+      BrokerClient.should_receive(:notify_call_queued).with(channel.id).and_raise("Oh no!")
 
-      call_log = @channel.call 'foo'
+      call_log = channel.call 'foo'
       call_log.state.should == :failed
     end
 
     it "call and set direction outgoing" do
       BrokerClient.should_receive(:notify_call_queued)
 
-      call_log = @channel.call 'foo'
+      call_log = channel.call 'foo'
       call_log.direction.should == :outgoing
     end
 
     it "call with custom callback url" do
       BrokerClient.should_receive(:notify_call_queued)
 
-      @channel.call 'foo', :callback_url => 'bar'
-      queued_call = @channel.queued_calls.first
+      channel.call 'foo', :callback_url => 'bar'
       queued_call.callback_url.should == 'bar'
     end
 
     it "call with custom flow" do
       BrokerClient.should_receive(:notify_call_queued)
-      @channel.call 'foo', :flow => [:answer, :hangup]
-      queued_call = @channel.queued_calls.first
+      channel.call 'foo', :flow => [:answer, :hangup]
       assert_equal [:answer, :hangup], queued_call.flow
     end
 
     it "call with custom status callback url" do
       BrokerClient.should_receive(:notify_call_queued)
 
-      @channel.call 'foo', :status_callback_url => 'bar'
-      queued_call = @channel.queued_calls.first
+      channel.call 'foo', :status_callback_url => 'bar'
       queued_call.status_callback_url.should == 'bar'
     end
 
     it "notify with time when scheduling delayed call" do
       time = Time.now.utc + 1.hour
-      BrokerClient.should_receive(:notify_call_queued).with(@channel.id, time)
-      @channel.call 'foo', :not_before => time
+      BrokerClient.should_receive(:notify_call_queued).with(channel.id, time)
+      channel.call 'foo', :not_before => time
+    end
+
+    it "obey queue lower time bound" do
+      queue = channel.account.call_queues.make :time_from => '10:00', :time_to => '12:00'
+      BrokerClient.should_receive(:notify_call_queued)
+      channel.call 'foo', :not_before => '2012-12-20T08:00:00', :queue => queue.name
+      queued_call.not_before.should == '2012-12-20T10:00:00'
+    end
+
+    it "obey queue upper time bound" do
+      queue = channel.account.call_queues.make :time_from => '10:00', :time_to => '12:00'
+      BrokerClient.should_receive(:notify_call_queued)
+      channel.call 'foo', :not_before => '2012-12-20T13:00:00', :queue => queue.name
+      queued_call.not_before.should == '2012-12-21T10:00:00'
     end
   end
 

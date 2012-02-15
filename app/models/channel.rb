@@ -40,7 +40,7 @@ class Channel < ActiveRecord::Base
     call_log.info "Received via API: call #{address}"
     call_log.save!
 
-    queued_call = queued_calls.create!(
+    queued_call = queued_calls.new(
       :call_log => call_log,
       :address => address,
       :callback_url => options[:callback_url],
@@ -49,6 +49,20 @@ class Channel < ActiveRecord::Base
       :not_before => options[:not_before],
       :call_queue => options.has_key?(:queue) ? account.call_queues.find_by_name!(options[:queue]) : nil
     )
+
+    if queued_call.not_before? && queued_call.call_queue_id?
+      queued_time = queued_call.not_before - queued_call.not_before.at_beginning_of_day
+      queue_from = queued_call.call_queue.time_from - queued_call.call_queue.time_from.at_beginning_of_day
+      queue_to = queued_call.call_queue.time_to - queued_call.call_queue.time_to.at_beginning_of_day
+
+      if queued_time < queue_from
+        queued_call.not_before += queue_from - queued_time
+      elsif queued_time > queue_to
+        queued_call.not_before = (queued_call.not_before + 1.day).at_beginning_of_day + queue_from
+      end
+    end
+
+    queued_call.save!
 
     begin
       if queued_call.not_before?
