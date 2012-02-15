@@ -3,7 +3,7 @@ class BrokerFacade < MagicObjectProtocol::Server
 
   def notify_call_queued(channel_id, not_before = nil)
     if not_before
-      BaseBroker.instance.schedule_call channel_id, not_before
+      BaseBroker.instance.schedule_call not_before
     else
       channel = Channel.find channel_id
       BaseBroker.instance.notify_call_queued channel

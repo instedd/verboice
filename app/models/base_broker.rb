@@ -29,14 +29,22 @@ class BaseBroker
     end
   end
 
-  def schedule_call channel_id, not_before
+  def schedule_call not_before
     if @scheduled_at.nil? || @scheduled_at > not_before
       @scheduled_at = not_before
       EM.cancel_timer(@scheduled_timer) if @scheduled_timer
       @scheduled_timer = EM.add_timer(not_before - Time.now) do
-        @scheduled_at = nil
-        @scheduled_timer = nil
-        notify_call_queued Channel.find(channel_id)
+        Fiber.new do
+          @scheduled_at = nil
+          @scheduled_timer = nil
+
+          QueuedCall.where('not_before <= ?', not_before).order(:not_before).select(:channel_id).includes(:channel).each do |queued_call|
+            notify_call_queued queued_call.channel
+          end
+
+          next_call = QueuedCall.where('not_before > ?', not_before).order(:not_before).first
+          schedule_call next_call.not_before if next_call
+        end.resume
       end
     end
   end

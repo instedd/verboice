@@ -14,7 +14,7 @@ describe BrokerFacade do
 
   it "schedule delayed call" do
     time = Time.now.utc + 2.hours
-    BaseBroker.instance.should_receive(:schedule_call).with channel.id, time
+    BaseBroker.instance.should_receive(:schedule_call).with time
     facade.notify_call_queued channel.id,  time
   end
 end
