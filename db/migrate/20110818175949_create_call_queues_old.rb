@@ -1,4 +1,4 @@
-class CreateCallQueues < ActiveRecord::Migration
+class CreateCallQueuesOld < ActiveRecord::Migration
   def self.up
     create_table :call_queues do |t|
       t.references :channel
