@@ -23,6 +23,21 @@ class CallQueue < ActiveRecord::Base
     self.time_to = value
   end
 
+  def next_available_time(t)
+    return t unless time_to && time_from
+    from = time_from.as_seconds
+    to = time_to.as_seconds
+    time = t.as_seconds
+
+    if time < from && (time > to || to > from)
+      t + (from - time)
+    elsif time > to && to > from
+      t + (from - time) + 1.day
+    else
+      t
+    end
+  end
+
   private
 
   def time_str(time)

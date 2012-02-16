@@ -35,5 +35,55 @@ describe CallQueue do
       subject.time_from.should be_nil
     end
 
+    context "next available time" do
+
+      def t(x)
+        Time.parse x
+      end
+
+      it "returns same value if range is not set" do
+        subject.next_available_time(t '2012-05-05T12:34:56').should == t('2012-05-05T12:34:56')
+      end
+
+      context "with range during same day" do
+        before(:each) do
+          subject.time_from = '10:00'
+          subject.time_to = '14:00'
+        end
+
+        it "returns same value if it falls inside range" do
+          subject.next_available_time(t '2012-05-05T12:00:00Z').should == t('2012-05-05T12:00:00Z')
+        end
+
+        it "moves time forward if it falls behind the beginning" do
+          subject.next_available_time(t '2012-05-05T08:00:00Z').should == t('2012-05-05T10:00:00Z')
+        end
+
+        it "moves time to next day if it falls after the end" do
+          subject.next_available_time(t '2012-05-05T15:00:00Z').should == t('2012-05-06T10:00:00Z')
+        end
+      end
+
+      context "with range ending next day" do
+        before(:each) do
+          subject.time_from = '18:00'
+          subject.time_to = '05:00'
+        end
+
+        it "returns same value if it falls inside range after midnight" do
+          subject.next_available_time(t '2012-05-05T02:00:00Z').should == t('2012-05-05T02:00:00Z')
+        end
+
+        it "returns same value if it falls inside range before midnight" do
+          subject.next_available_time(t '2012-05-05T20:00:00Z').should == t('2012-05-05T20:00:00Z')
+        end
+
+        it "moves time forward if it falls outside the range" do
+          subject.next_available_time(t '2012-05-05T10:00:00Z').should == t('2012-05-05T18:00:00Z')
+        end
+      end
+
+    end
+
   end
 end
