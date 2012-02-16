@@ -26,6 +26,7 @@ class CallQueue < ActiveRecord::Base
   private
 
   def time_str(time)
+    return '' unless time
     "#{time.hour}:#{'%02d' % time.min}"
   end
 end

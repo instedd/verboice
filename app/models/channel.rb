@@ -52,9 +52,9 @@ class Channel < ActiveRecord::Base
 
     if queued_call.call_queue_id? && queued_call.call_queue.time_from && queued_call.call_queue.time_to
       not_before = queued_call.not_before || Time.now
-      queued_time = not_before - not_before.at_beginning_of_day
-      queue_from = queued_call.call_queue.time_from - queued_call.call_queue.time_from.at_beginning_of_day
-      queue_to = queued_call.call_queue.time_to - queued_call.call_queue.time_to.at_beginning_of_day
+      queued_time = not_before.as_seconds
+      queue_from = queued_call.call_queue.time_from.as_seconds
+      queue_to = queued_call.call_queue.time_to.as_seconds
 
       if queued_time < queue_from
         queued_call.not_before = not_before + queue_from - queued_time

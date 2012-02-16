@@ -5,6 +5,10 @@ class Time
     ((to_f - to_f.floor) * 1000).floor
   end
 
+  def as_seconds
+    self - self.at_beginning_of_day
+  end
+
   def self.smart_parse(time)
     if time.include?('ago') ||
       time.include?('year') || time.include?('month') || time.include?('day') ||
