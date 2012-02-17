@@ -37,6 +37,20 @@ class CallQueue < ActiveRecord::Base
       t
     end
   end
+  
+  def self.from_json(json)
+    call_queue = CallQueue.new
+    call_queue.name = json[:name]
+    call_queue.retries = json[:retries]
+    call_queue.time_from_str = json[:time_from_str]
+    call_queue.time_to_str = json[:time_to_str]
+    call_queue.weekdays = json[:weekdays]
+    call_queue
+  end
+  
+  def as_json(options={})
+    super(options.merge({:only => [:name, :retries, :weekdays], :methods => [:time_from_str, :time_to_str]}))
+  end
 
   private
 
