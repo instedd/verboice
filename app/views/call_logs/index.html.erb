@@ -22,6 +22,7 @@
         <th>Caller ID</th>
         <th>Direction</th>
         <th>Channel</th>
+        <th>Queue</th>
         <th>Application</th>
         <th>State</th>
         <th></th>
@@ -40,6 +41,7 @@
           <% end %>
           <td><%= log.direction %></td>
           <td><%= log.channel.try(:name) %></td>
+          <td><%= log.call_queue.try(:name) %></td>
           <td><%= log.application.try(:name) %></td>
           <td><%= log.state %></td>
           <td><%= link_to 'view details', call_log_path(log) %></td>

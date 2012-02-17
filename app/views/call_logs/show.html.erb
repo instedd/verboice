@@ -2,6 +2,10 @@
 
 <table class="GralTable">
   <tr>
+    <td><b>Not Before:</b></td>
+    <td><%= @log.not_before %></td>
+  </tr>
+  <tr>
     <td><b>Started:</b></td>
     <td><%= @log.created_at %></td>
   </tr>
@@ -24,6 +28,10 @@
   <tr>
     <td><b>Channel:</b></td>
     <td><%= @log.channel.try(:name) %></td>
+  </tr>
+  <tr>
+    <td><b>Queue:</b></td>
+    <td><%= @log.call_queue.try(:name) %></td>
   </tr>
   <tr>
     <td><b>Application:</b></td>

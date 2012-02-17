@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120209202505) do
+ActiveRecord::Schema.define(:version => 20120217194935) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -54,6 +54,8 @@ ActiveRecord::Schema.define(:version => 20120209202505) do
     t.datetime "updated_at"
     t.integer  "channel_id"
     t.datetime "started_at"
+    t.integer  "call_queue_id"
+    t.datetime "not_before"
   end
 
   create_table "call_queues", :force => true do |t|

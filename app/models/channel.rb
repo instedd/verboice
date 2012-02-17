@@ -36,7 +36,9 @@ class Channel < ActiveRecord::Base
   end
 
   def call(address, options = {})
-    call_log = call_logs.new :direction => :outgoing, :application_id => application_id, :address => address, :state => :queued
+    call_queue = options.has_key?(:queue) ? account.call_queues.find_by_name!(options[:queue]) : nil
+    
+    call_log = call_logs.new :direction => :outgoing, :application_id => application_id, :address => address, :state => :queued, :call_queue => call_queue, :not_before => options[:not_before]
     call_log.info "Received via API: call #{address}"
     call_log.save!
 
@@ -47,7 +49,7 @@ class Channel < ActiveRecord::Base
       :status_callback_url => options[:status_callback_url],
       :flow => options[:flow],
       :not_before => options[:not_before],
-      :call_queue => options.has_key?(:queue) ? account.call_queues.find_by_name!(options[:queue]) : nil
+      :call_queue => call_queue
     )
 
     if queued_call.call_queue
