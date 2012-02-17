@@ -60,6 +60,35 @@ describe BaseBroker do
       @broker.active_calls_count_for(@channel).should == 0
     end
 
+    it "requeue call if rejected and retries available by queue" do
+      queue = @channel.account.call_queues.make :retries => '1,2,4'
+      queued_call = @channel.queued_calls.make :call_queue => queue, :retries => 1
+      the_session = nil
+
+      @broker.should_receive(:call).with { |session| the_session = session }
+      @broker.notify_call_queued @channel
+
+      EM.should_receive(:fiber_sleep).with 2
+      @broker.call_rejected the_session.id, :busy
+
+      queued_call = QueuedCall.last
+      (queued_call.not_before - (Time.now + 2.hour)).abs.should <= 2.seconds
+    end
+
+    it "do not requeue if all retries has been used" do
+      queue = @channel.account.call_queues.make :retries => '1,2,4'
+      queued_call = @channel.queued_calls.make :call_queue => queue, :retries => 3
+      the_session = nil
+
+      @broker.should_receive(:call).with { |session| the_session = session }
+      @broker.notify_call_queued @channel
+
+      EM.should_receive(:fiber_sleep).with 2
+      @broker.call_rejected the_session.id, :busy
+
+      QueuedCall.last.should be_nil
+    end
+
     it "not call if limit reached" do
       @channel.limit = 1
 

@@ -17,7 +17,7 @@ class BaseBroker
     return unless queued_call
 
     session = queued_call.start
-    store_session session
+    store_session session, queued_call
 
     begin
       call session
@@ -55,6 +55,10 @@ class BaseBroker
 
   def active_calls
     @active_calls ||= Hash.new {|hash, key| hash[key] = {}}
+  end
+
+  def active_queued_calls
+    @active_queued_calls ||= {}
   end
 
   def active_calls_count_for(channel)
@@ -154,7 +158,18 @@ class BaseBroker
     else 'Failed to establish the communication'
     end
 
-    finish_session_with_error session, message, reason.to_s.dasherize
+    queued_call = active_queued_calls[session_id]
+    if queued_call && queued_call.call_queue && queued_call.call_queue.retry_delays.count > queued_call.retries
+      queued_call = queued_call.dup
+      queued_call.retries += 1
+      sleep = queued_call.call_queue.retry_delays[queued_call.retries - 1].to_f * (Rails.env == 'development' ? 1.second : 1.hour)
+      queued_call.not_before = Time.now + sleep
+
+      finish_session_with_requeue session, message, queued_call
+      schedule_call queued_call.not_before
+    else
+      finish_session_with_error session, message, reason.to_s.dasherize
+    end
 
     EM.fiber_sleep 2
     notify_call_queued session.channel
@@ -162,14 +177,18 @@ class BaseBroker
 
   private
 
-  def store_session(session)
+  def store_session(session, queued_call = nil)
     sessions[session.id] = session
     active_calls[session.channel.id][session.id] = session
+    if queued_call
+      active_queued_calls[session.id] = queued_call
+    end
   end
 
   def finish_session(session)
     sessions.delete session.id
     active_calls[session.channel.id].delete session.id
     active_calls.delete session.channel.id if active_calls[session.channel.id].empty?
+    active_queued_calls.delete session.id
   end
 end

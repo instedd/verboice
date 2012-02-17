@@ -52,6 +52,10 @@ class CallQueue < ActiveRecord::Base
     super(options.merge({:only => [:name, :retries, :weekdays], :methods => [:time_from_str, :time_to_str]}))
   end
 
+  def retry_delays
+    retries.split(',').map &:to_f
+  end
+
   private
 
   def time_str(time)
