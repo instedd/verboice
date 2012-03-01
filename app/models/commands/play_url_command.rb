@@ -38,7 +38,7 @@ class PlayUrlCommand < Command
     http.callback do
       begin
         if http.response_header.status.to_i != 200
-          raise "Donwload failed with status #{http.response_header.status}"
+          raise "Download failed with status #{http.response_header.status}"
         end
 
         tmp_file.flush
