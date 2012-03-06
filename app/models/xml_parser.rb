@@ -5,7 +5,7 @@ class XmlParser
   end
 
   def self.parse(xml)
-    xml = Nokogiri.XML xml
+    xml = Nokogiri.XML(xml) { |config| config.options = Nokogiri::XML::ParseOptions::DEFAULT_XML | Nokogiri::XML::ParseOptions::NOBLANKS }
     raise_xml_parse_error xml.errors.first.message if xml.errors.any?
 
     @parsers.each do |parser|
