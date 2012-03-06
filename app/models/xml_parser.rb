@@ -8,6 +8,14 @@ class XmlParser
     xml = Nokogiri.XML xml
     raise_xml_parse_error xml.errors.first.message if xml.errors.any?
 
+    # for all text nodes
+    # if the text node contains any non whitespace characters
+    # keep the node and strip the whitespace otherwise delete the node
+
+    xml.xpath('//text()').each do |node|
+      node.content =~ /\S/ ? node.content = node.content.strip : node.remove
+    end
+
     @parsers.each do |parser|
       if parser.can_parse? xml
         begin
