@@ -1,4 +1,4 @@
-$(function() {
+function unused(){
   $mode = $('#application_mode');
   $callback_url_container = $('#callback_url_container');
   $flow_container = $('#flow_container');
@@ -82,4 +82,4 @@ $(function() {
       }
     }
   }
-})
+}

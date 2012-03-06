@@ -1,0 +1,9 @@
+- content_for :head do
+  :javascript
+    var commands = #{raw Command.specs.to_json};
+    var flow = #{raw @application.flow.to_json};
+    
+
+%ul#workflow{'data-bind' => 'foreach: commands', 'data-commands' => raw(Command.specs.to_json)}
+  %li
+    %span{ko(text: 'name')}

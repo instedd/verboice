@@ -10,7 +10,13 @@ Verboice::Application.routes.draw do
 
   devise_for :accounts
 
-  resources :applications
+  resources :applications do
+    member do
+      get :edit_workflow
+      put :update_workflow
+    end
+  end
+  
   resources :call_logs do
     get :progress, :on => :member
   end
