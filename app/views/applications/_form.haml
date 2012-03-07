@@ -1,4 +1,4 @@
-= form_for(@application, :builder => InsteddFormBuilder.new) do |f|
+= form_for(@application, :builder => InsteddFormBuilder) do |f|
   - if @application.errors.any?
     #error_explanation
       %h2
