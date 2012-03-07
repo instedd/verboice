@@ -1,5 +1,5 @@
-sounds_dir: /usr/local/asterisk/var/lib/asterisk/sounds
-config_dir: /usr/local/asterisk/etc/asterisk
+sounds_dir: /var/lib/asterisk/sounds
+config_dir: /etc/asterisk/
 ami_port: 5038
 call_manager_port: 19000
 agi_use_pipe_separator: false
