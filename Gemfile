@@ -23,11 +23,16 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
-group :development, :test do
+group :test do
   gem 'machinist'
   gem 'ffaker'
   gem 'rspec'
   gem 'rspec-rails'
   gem "shoulda"
   gem 'ci_reporter'
+end
+
+group :development do
+  gem 'hpricot'
+  gem 'ruby_parser'
 end

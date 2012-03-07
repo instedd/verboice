@@ -1,0 +1,23 @@
+= form_for(@application, :builder => InsteddFormBuilder.new) do |f|
+  - if @application.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@application.errors.count, "error")
+        prohibited this application from being saved:
+      %ul
+        - @application.errors.full_messages.each do |msg|
+          %li= msg
+  - if @application.new_record?
+    .field
+      = f.label :name
+      = f.text_field :name
+  .field
+    = f.select :mode, options_for_select([['Use a callback URL', :callback_url], ['Use a custom flow', :flow]], @application.mode)
+  #callback_url_container.field{:style => ('display: none' if @application.mode != :callback_url)}
+    = f.text_field :callback_url
+    = f.label :callback_url
+  .field
+    = f.label :status_callback_url
+    = f.text_field :status_callback_url
+  .actions
+    = f.submit
