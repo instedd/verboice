@@ -4,7 +4,7 @@ development:
   database: verboice_development
   pool: 5
   username: root
-  password:
+  password: ds403145
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -15,7 +15,7 @@ test:
   database: verboice_test
   pool: 5
   username: root
-  password:
+  password: ds403145
 
 production:
   adapter: mysql2
@@ -23,5 +23,5 @@ production:
   reconnect: false
   database: verboice
   pool: 5
-  username: root
+  username: verboice
   password:
