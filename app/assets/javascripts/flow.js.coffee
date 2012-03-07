@@ -1,13 +1,23 @@
 class FlowViewModel
-  constructor: (data) ->
-    @commands = ko.observableArray( for name, some_data of data
-      new CommandViewModel(name, some_data) )
+
+  constructor: ->
+    @commands = ko.observableArray( for name, template of commands
+      new CommandViewModel(name, template))
+    @steps = ko.observableArray( flow )
+
+  command_named: (name) ->
+    (command for command in @commands when command.name == name)[0]
+
+  add_step: (step) ->
+    @steps.push new StepViewModel (@command_named(step))
 
 class StepViewModel
-  constructor: (data) ->
-    @commands = ko.observableArray( for name, some_data of data
-      new CommandViewModel(name, some_data) )
-
+  constructor: (command) ->
+    @command = ko.observable command
+  name: ->
+    @command.name
+  arguments: ->
+    @command.template()
 
 class CommandViewModel
   constructor: (name, data) ->
@@ -15,9 +25,11 @@ class CommandViewModel
     @template = ko.observable data
 
 jQuery ->
-  return unless $('#workflow').length
+  flow_model = new FlowViewModel
+  ko.applyBindings(flow_model)
 
-  # class FlowViewModel
-  ko.applyBindings(new FlowViewModel(flow))
-  
-  
+  $('#command-list li').live 'click', ->
+    flow_model.add_step $(@).text().trim()
+
+  $('#workflow li a').live 'click', ->
+    $(@).parent().remove()
