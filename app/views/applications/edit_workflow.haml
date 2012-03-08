@@ -6,7 +6,6 @@
 %h1 Steps
 %ul#workflow{'data-bind' => 'foreach: steps'}
   %li
-    Un step
     %h3{ko(text: 'name')}
     %div{'data-bind' => 'foreach: arguments'}
       %span
@@ -17,4 +16,4 @@
 
 %h1 Commands
 %ul#command-list{'data-bind' => 'foreach: commands'}
-  %li{ko(text: 'name')}
+  %li{ko(text: 'name', click: 'add_to_steps')}
