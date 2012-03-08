@@ -13,6 +13,9 @@ jQuery ->
     add_step: (command) =>
       @steps.push StepViewModel.from_command(command)
 
+    remove_step: (step) =>
+      @steps.remove(step)
+
   class StepViewModel
     constructor: (command, arguments) ->
       @command = ko.observable command
@@ -24,6 +27,9 @@ jQuery ->
       # ToDo: match args depending on definition name
       for definition in this.command().definitions
         new ArgumentViewModel(definition, single_arg_value)
+
+    remove: =>
+      flow_model.remove_step this
 
     @from_command: (command) =>
       new this(command, null)
@@ -67,9 +73,6 @@ jQuery ->
 
   ko.applyBindings(flow_model, document.getElementById('workflow'))
   ko.applyBindings(commands_model, document.getElementById('command-list'))
-
-  # $('#command-list li').live 'click', ->
-  #   flow_model.add_step $(@).text().trim()
 
   # $('#workflow li a').live 'click', ->
   #   $(@).parent().remove()

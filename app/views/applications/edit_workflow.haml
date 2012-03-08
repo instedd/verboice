@@ -12,7 +12,7 @@
         Un argumento
         / %label{ko(text: "name")}
         / %input{'type' => 'text', 'data-bind' => 'value: value' }
-    %a{href: "javascript:void(0)"} remove
+    %span{'data-bind' => 'click: remove'} remove
 
 %h1 Commands
 %ul#command-list{'data-bind' => 'foreach: commands'}
