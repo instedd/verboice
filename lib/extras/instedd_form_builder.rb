@@ -8,11 +8,8 @@ class InsteddFormBuilder < ActionView::Helpers::FormBuilder
 
   def self.create_labeled_field(method_name)
     define_method(method_name) do |name, *args|
-      options = args.extract_options!
-      content_tag(:div,
-        label(name, options.delete(:label), options.delete(:label_options)) + super(name, *(args << options))
-      , :class => 'field')
-      end
+      options = args.clone.extract_options!
+      content_tag(:div, label(name, options.delete(:label), options.delete(:label_options) || {}) + super(name, *args), :class => 'field')
     end
   end
 
