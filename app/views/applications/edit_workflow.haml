@@ -2,15 +2,20 @@
   :javascript
     var commands = #{raw Command.specs.to_json};
     var flow = #{raw @application.flow.to_json};
+  %script{type: "text/html", id: "string"}
+    %div
+      %label{ko(text: "name()")}
+      %input{:type => 'text', 'data-bind' => 'value: value' }
+  %script{type: "text/html", id: "integer"}
+    %div
+      %label{ko(text: "name()")}
+      %input{:type => 'text', 'data-bind' => 'value: value' }
 
 %h1 Steps
 %ul#workflow{'data-bind' => 'foreach: steps'}
   %li
     %h3{ko(text: 'name')}
-    %div{'data-bind' => 'foreach: arguments'}
-      %span
-        %label{ko(text: "name()")}
-        %input{'data-bind' => 'value: value, type: type' }
+    %div{'data-bind' => 'template: { name: display_template_for, foreach: arguments}' }
     %span{'data-bind' => 'click: remove'} remove
 
 %h1 Commands

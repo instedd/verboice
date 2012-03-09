@@ -26,11 +26,14 @@ jQuery ->
       # There is only one argument due to play_url assumption, and it is a string value
       # ToDo: match args depending on definition name
       args = for definition in this.command().definitions()
-        new ArgumentViewModel(definition, single_arg_value)
+        new ArgumentViewModel(definition, single_arg_value ? definition.default_value)
       args
 
     remove: =>
       flow_model.remove_step this
+
+    display_template_for:(argument) =>
+      argument.data_type()
 
     @from_command: (command) =>
       new this(command, null)
@@ -42,22 +45,24 @@ jQuery ->
       command = commands_model.command_named(name)
       new this(command, args)
 
+
   class ArgumentViewModel
     constructor: (definition, value) ->
       @definition = ko.observable definition
       @value = ko.observable value
 
     name: =>
-      this.definition().name
-    type: =>
-      this.definition().type
+      this.definition().name()
+    data_type: =>
+      this.definition().data_type()
 
   class ArgumentDefinitionViewModel
     constructor: (data) ->
       @name = ko.observable data.name
       @optional = ko.observable data.optional
-      @type = ko.observable data.type
+      @data_type = ko.observable data.type
       @ui_length = data.ui_length
+      @default_value = data.default
 
   class CommandsViewModel
     constructor: () ->
