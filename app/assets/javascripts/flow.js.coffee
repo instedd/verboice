@@ -18,12 +18,21 @@ jQuery ->
 
     # Persist change on the server
     submitChange: =>
+      steps = new Array
+      args = new Object
+      for index, step of this.steps()
+        for arg in step.arguments()
+          args[arg.name()] = arg.value()
+        steps[index]= new Object
+        steps[index][step.name()] = args
+      debugger
+
       $.ajax {
         type: 'POST',
         url: $('#workflow').data('update-url'),
         data: {
           _method: 'PUT',
-          flow: @steps
+          flow: steps
         },
         dataType: 'json'
       }
@@ -56,7 +65,6 @@ jQuery ->
       [name, args] = ([name, args] for name, args of data)[0]
       command = commands_model.command_named(name)
       new this(command, args)
-
 
   class ArgumentViewModel
     constructor: (definition, value) ->
