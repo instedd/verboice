@@ -25,8 +25,9 @@ jQuery ->
     create_arguments: (single_arg_value) =>
       # There is only one argument due to play_url assumption, and it is a string value
       # ToDo: match args depending on definition name
-      for definition in this.command().definitions
+      args = for definition in this.command().definitions()
         new ArgumentViewModel(definition, single_arg_value)
+      args
 
     remove: =>
       flow_model.remove_step this
@@ -45,6 +46,11 @@ jQuery ->
     constructor: (definition, value) ->
       @definition = ko.observable definition
       @value = ko.observable value
+
+    name: =>
+      this.definition().name
+    type: =>
+      this.definition().type
 
   class ArgumentDefinitionViewModel
     constructor: (data) ->
