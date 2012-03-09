@@ -3,7 +3,7 @@
 # var flow = ["hangup",{"play_url":""},{"capture":{"min":"1","max":"1","finish_on_key":"#","timeout":"5","play":"","say":""}},{"play_url":""}];
 
 jQuery ->
-  if not $('ul#workflow').length > 0
+  if not $('#workflow').length > 0
     return
 
   class FlowViewModel
@@ -15,6 +15,18 @@ jQuery ->
 
     remove_step: (step) =>
       @steps.remove(step)
+
+    # Persist change on the server
+    submitChange: =>
+      $.ajax {
+        type: 'POST',
+        url: $('#workflow').data('update-url'),
+        data: {
+          _method: 'PUT',
+          flow: @steps
+        },
+        dataType: 'json'
+      }
 
   class StepViewModel
     constructor: (command, arguments) ->

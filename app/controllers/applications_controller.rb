@@ -1,6 +1,6 @@
 class ApplicationsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update, :destroy]
+  before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update_workflow, :update, :destroy]
 
   # GET /applications
   def index
@@ -19,7 +19,7 @@ class ApplicationsController < ApplicationController
   # GET /applications/1/edit
   def edit
   end
-  
+
   def edit_workflow
   end
 
@@ -46,13 +46,14 @@ class ApplicationsController < ApplicationController
 
   def update_workflow
     @application.flow = params[:flow]
+    p params[:flow]
     if @application.save
       redirect_to(application_path(@application), :notice => "Workflow for application #{@application.name} successfully updated.")
     else
       render :action => "edit_workflow"
     end
   end
-  
+
   # DELETE /applications/1
   def destroy
     @application.destroy
@@ -60,7 +61,7 @@ class ApplicationsController < ApplicationController
   end
 
   private
-  
+
   def load_application
     @application = current_account.applications.find(params[:id])
   end
