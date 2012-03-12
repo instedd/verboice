@@ -18,21 +18,21 @@ jQuery ->
 
     # Persist change on the server
     submitChange: =>
-      steps = new Array
+      output = new Array
       args = new Object
       for index, step of this.steps()
         for arg in step.arguments()
           args[arg.name()] = arg.value()
-        steps[index]= new Object
-        steps[index][step.name()] = args
-      debugger
+        flow_step= new Object
+        flow_step[step.name()] = args
+        output.push(flow_step)
 
       $.ajax {
         type: 'POST',
         url: $('#workflow').data('update-url'),
         data: {
           _method: 'PUT',
-          flow: steps
+          flow: output
         },
         dataType: 'json'
       }
@@ -40,7 +40,9 @@ jQuery ->
   class StepViewModel
     constructor: (command, arguments) ->
       @command = ko.observable command
-      @name = ko.computed(=> this.command().name())
+      @name = ko.computed(=>
+        debugger
+        this.command().name())
       @arguments = ko.observableArray(@create_arguments(arguments))
 
     create_arguments: (single_arg_value) =>

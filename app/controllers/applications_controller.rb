@@ -45,9 +45,12 @@ class ApplicationsController < ApplicationController
   end
 
   def update_workflow
-    @application.flow = params[:flow]
-    p params[:flow]
-    @application.flow= [@application.flow] if @application.flow.is_a Hash
+    if params[:flow].is_a? Hash
+      @application.flow = Array.new
+      params[:flow].each do |key, step|
+        @application.flow << step
+      end
+    end
 
     if @application.save
       redirect_to(application_path(@application), :notice => "Workflow for application #{@application.name} successfully updated.")
