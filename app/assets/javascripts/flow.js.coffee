@@ -67,11 +67,12 @@ jQuery ->
     @from_data: (data) =>
       # Assume data is in the form of {name: single_param}
       # ToDo: Support 'name' and {name: {param1: 'val1', param2: 'val2'}}
-      if data?
-        [name, args] = ([name, args] for name, args of data)[0]
-        # debugger
-        command = commands_model.command_named(name)
-        new this(command, args)
+      # if not data?
+      #   data = {foo: []}
+      [name, args] = ([name, args] for name, args of data)[0]
+      # debugger
+      command = commands_model.command_named(name)
+      new this(command, args)
 
   class ArgumentViewModel
     constructor: (definition, value) ->

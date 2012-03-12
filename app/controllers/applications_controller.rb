@@ -45,16 +45,27 @@ class ApplicationsController < ApplicationController
   end
 
   def update_workflow
+    p '-------------------'
     if params[:flow].is_a? Hash
+      p 1
       @application.flow = Array.new
       params[:flow].each do |key, step|
         @application.flow << step
       end
     elsif params[:flow].is_a? Array
+      p 2
       @application.flow = params[:flow]
-    else
+    elsif params[:flow]
+      p 3
       @application.flow = [params[:flow]]
+    else
+      p 4
+      @application.flow = nil
     end
+    p '-------------------'
+    p params[:flow]
+    p @application.flow
+    p '-------------------'
 
     if @application.save
       respond_to do |format|
