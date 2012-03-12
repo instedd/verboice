@@ -20,7 +20,7 @@ jQuery ->
     submitChange: =>
       output = new Array
       args = new Object
-      for index, step of this.steps()
+      for index, step of @steps()
         for arg in step.arguments()
           args[arg.name()] = arg.value()
         flow_step= new Object
@@ -41,14 +41,17 @@ jQuery ->
     constructor: (command, arguments) ->
       @command = ko.observable command
       @name = ko.computed(=>
-        debugger
-        this.command().name())
+        if jQuery.isFunction( @command().name )
+          @command().name()
+        else
+          @command().name
+      )
       @arguments = ko.observableArray(@create_arguments(arguments))
 
     create_arguments: (single_arg_value) =>
       # There is only one argument due to play_url assumption, and it is a string value
       # ToDo: match args depending on definition name
-      args = for definition in this.command().definitions()
+      args = for definition in (@command().definitions ? [])
         new ArgumentViewModel(definition, single_arg_value ? definition.default_value)
       args
 
@@ -64,9 +67,11 @@ jQuery ->
     @from_data: (data) =>
       # Assume data is in the form of {name: single_param}
       # ToDo: Support 'name' and {name: {param1: 'val1', param2: 'val2'}}
-      [name, args] = ([name, args] for name, args of data)[0]
-      command = commands_model.command_named(name)
-      new this(command, args)
+      if data?
+        [name, args] = ([name, args] for name, args of data)[0]
+        # debugger
+        command = commands_model.command_named(name)
+        new this(command, args)
 
   class ArgumentViewModel
     constructor: (definition, value) ->
@@ -74,9 +79,9 @@ jQuery ->
       @value = ko.observable value
 
     name: =>
-      this.definition().name()
+      @definition().name()
     data_type: =>
-      this.definition().data_type()
+      @definition().data_type()
 
   class ArgumentDefinitionViewModel
     constructor: (data) ->
@@ -91,7 +96,7 @@ jQuery ->
       @commands = ko.observableArray(new CommandViewModel(name, template) for name, template of commands)
 
     command_named: (name) =>
-      command for command in this.commands() when command.name is name
+      command for command in @commands() when command.name() is name
 
   class CommandViewModel
     constructor: (name, data) ->

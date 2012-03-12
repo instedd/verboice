@@ -50,10 +50,17 @@ class ApplicationsController < ApplicationController
       params[:flow].each do |key, step|
         @application.flow << step
       end
+    elsif params[:flow].is_a? Array
+      @application.flow = params[:flow]
+    else
+      @application.flow = [params[:flow]]
     end
 
     if @application.save
-      redirect_to(application_path(@application), :notice => "Workflow for application #{@application.name} successfully updated.")
+      respond_to do |format|
+        format.html {redirect_to(application_path(@application), :notice => "Workflow for application #{@application.name} successfully updated.")}
+        format.json { render(json: @application, status: 200, location: @application)}
+      end
     else
       render :action => "edit_workflow"
     end
