@@ -40,37 +40,25 @@ jQuery ->
   class StepViewModel
     constructor: (command, arguments) ->
       @command = ko.observable command
-      @name = ko.computed(=>
-        if jQuery.isFunction( @command().name )
-          @command().name()
-        else
-          @command().name
-      )
+      @name = ko.computed(=> @command().name())
       @arguments = ko.observableArray(@create_arguments(arguments))
 
-    create_arguments: (single_arg_value) =>
-      # There is only one argument due to play_url assumption, and it is a string value
-      # ToDo: match args depending on definition name
-      args = for definition in (@command().definitions ? [])
-        new ArgumentViewModel(definition, single_arg_value ? definition.default_value)
+    create_arguments: (initial_args) =>
+      args = for definition in (@command().definitions())
+        new ArgumentViewModel(definition, initial_args[definition.name()] ? definition.default_value)
       args
 
-    remove: =>
+    remove: () =>
       flow_model.remove_step this
 
-    display_template_for:(argument) =>
+    display_template_for: (argument) =>
       argument.data_type()
 
     @from_command: (command) =>
       new this(command, null)
 
     @from_data: (data) =>
-      # Assume data is in the form of {name: single_param}
-      # ToDo: Support 'name' and {name: {param1: 'val1', param2: 'val2'}}
-      # if not data?
-      #   data = {foo: []}
       [name, args] = ([name, args] for name, args of data)[0]
-      # debugger
       command = commands_model.command_named(name)
       new this(command, args)
 
@@ -97,7 +85,7 @@ jQuery ->
       @commands = ko.observableArray(new CommandViewModel(name, template) for name, template of commands)
 
     command_named: (name) =>
-      command for command in @commands() when command.name() is name
+      (command for command in @commands() when command.name() is name)[0]
 
   class CommandViewModel
     constructor: (name, data) ->
