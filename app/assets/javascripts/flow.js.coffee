@@ -45,7 +45,11 @@ jQuery ->
 
     create_arguments: (initial_args) =>
       args = for definition in (@command().definitions())
-        new ArgumentViewModel(definition, initial_args[definition.name()] ? definition.default_value)
+        initial_value = if initial_args
+          initial_args[definition.name()]
+        else
+          definition.default_value
+        new ArgumentViewModel(definition, initial_value)
       args
 
     remove: () =>

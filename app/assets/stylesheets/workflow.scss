@@ -1,0 +1,17 @@
+label { color:#555555 }
+label + p.desc { font-size:11px !important; color:#555555; margin:0 !important }
+.lightgrey { background-color:#ebebeb }
+.box.workflow { -webkit-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset; -moz-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset;  box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset }
+.workflow-content-container { overflow:auto }
+.workflow-container { position:relative; white-space:nowrap }
+.workflow-container p { margin:0; padding:0 }
+.workflow-container div { display:inline-block; margin:0 35px 10px 0; vertical-align:top; text-align:center; width:55px; height:80px; position:relative }
+.workflow-container div p { font-size:11px; line-height:12px; margin:3px 0 0 0; padding:0; white-space:normal }
+.workflow-container div.ha span { background:url(http://theme.instedd.org/theme/images/workflow/arrow-hor.png) no-repeat; width:32px; height:8px; position:absolute; left:-34px; top:25px; display:block }
+.workflow-container div.va span { background:url(http://theme.instedd.org/theme/images/workflow/arrow-ver.png) no-repeat; width:18px; height:95px; position:absolute; left:-20px; top:-60px; display:block }
+
+
+.h40 { height:400px }
+.h50 { height:500px }
+.h60 { height:600px }
+.h65 { height:650px }

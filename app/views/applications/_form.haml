@@ -13,5 +13,7 @@
   #callback_url_container{:style => ('display: none' if @application.mode != :callback_url)}
     = f.text_field :callback_url
   = f.text_field :status_callback_url
-  .actions
-    = f.submit
+  %hr
+  .bottom-actions
+    %button.white{:type => "submit"} Save
+    = link_to 'Cancel', application_path(@application), :class => "button white cancel"

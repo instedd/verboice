@@ -10,6 +10,11 @@ $(function() {
       }
     }
   });
+
+  // Handle automatic links
+  $('.link').live('click', function() {
+    window.location = $(this).data('url');
+  });
 });
 
 function create_channel(select) {
