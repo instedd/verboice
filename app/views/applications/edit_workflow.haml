@@ -6,7 +6,9 @@
     var application_path = "#{application_path(@application)}";
   %script{type: "text/html", id: "string"}
     %div
-      %label{ko(text: "name()")}
+      %hr
+      %p.title{ko(text: "name()")}
+      %p.smalltext Additional help for this question.
       %input{ :type => 'text', 'data-bind' => 'value: value' }
   %script{ type: "text/html", id: "integer" }
     %div
@@ -25,9 +27,10 @@
     %h1 Steps
     %ul{ 'data-bind' => 'foreach: steps' }
       %li
-        %h3{ko(text: 'name')}
-        %div{'data-bind' => 'template: { name: display_template_for, foreach: arguments }' }
-        %span{'data-bind' => 'click: remove'} remove
+        .box.w30.feditor-sidebar
+          %p.title{ko(text: 'name')}
+          %div{'data-bind' => 'template: { name: display_template_for, foreach: arguments }' }
+          %span{'data-bind' => 'click: remove'} remove
     %hr
     .bottom-actions
       %button.white{:type => "submit"} Save
