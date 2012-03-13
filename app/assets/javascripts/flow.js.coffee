@@ -29,11 +29,14 @@ jQuery ->
 
       $.ajax {
         type: 'POST',
-        url: $('#workflow').data('update-url'),
+        url: update_url_path,
         data: {
           _method: 'PUT',
           flow: output
         },
+        success: (data) ->
+          window.location = application_path;
+
         dataType: 'json'
       }
 
