@@ -4,18 +4,10 @@
     var flow = #{raw @application.flow.to_json};
     var update_url_path = "#{update_workflow_application_path(@application)}";
     var application_path = "#{application_path(@application)}";
-  %script{type: "text/html", id: "string"}
-    %div
-      %hr
-      %p.title{ko(text: "name()")}
-      %p.smalltext Additional help for this question.
-      %input{ :type => 'text', 'data-bind' => 'value: value' }
-  %script{ type: "text/html", id: "integer" }
-    %div
-      %label{ ko(text: "name()") }
-      %input{ :type => 'text', 'data-bind' => 'value: value' }
+= render 'text_input_template'
+= render 'integer_input_template'
 
-= render partial: 'tabs'
+= render 'tabs'
 
 %h1 Commands
 %ul#command-list{'data-bind' => 'foreach: commands'}
