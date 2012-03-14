@@ -2,45 +2,63 @@
 # "play_url":[{"name":"url","type":"string","ui_length":80}],"record":[],"say":[{"name":"text","type":"string","ui_length":80}]};
 # var flow = ["hangup",{"play_url":""},{"capture":{"min":"1","max":"1","finish_on_key":"#","timeout":"5","play":"","say":""}},{"play_url":""}];
 
+# TODO: Change the array representation to a linked list to support the 'if' command
+
 jQuery ->
   if not $('#workflow').length > 0
     return
 
-  class FlowViewModel
-    constructor: ->
-      @steps = ko.observableArray(StepViewModel.from_data(data) for data in flow)
+  class Workflow
+    constructor: (commands_model)->
+      @steps = ko.observableArray(Step.from_data(data, commands_model) for data in application_flow)
+      @commands = ko.observable(commands_model)
+      @current_step = ko.observable(commands_model)
 
     add_step: (command) =>
-      @steps.push StepViewModel.from_command(command)
+      @steps.push Step.from_command(command)
 
     remove_step: (step) =>
       @steps.remove(step)
+      @reset_current()
+
+    set_as_current: (step) =>
+      @current_step(step)
+
+    reset_current: () =>
+      @set_as_current(@commands())
+
+    display_template_for: (current_flow) =>
+      @current_step().display_template_id()
 
     # Persist change on the server
     submitChange: =>
-      output = new Array
-      args = new Object
-      for index, step of @steps()
-        for arg in step.arguments()
-          args[arg.name()] = arg.value()
-        flow_step= new Object
-        flow_step[step.name()] = args
-        output.push(flow_step)
 
       $.ajax {
         type: 'POST',
-        url: update_url_path,
+        url: update_workflow_application_path,
         data: {
           _method: 'PUT',
-          flow: output
+          flow: @flow_array()
         },
         success: (data) ->
           window.location = application_path;
-
         dataType: 'json'
       }
 
-  class StepViewModel
+    flow_array: () =>
+      output = new Array
+      for step in @steps()
+        args = new Object
+        flow_step= new Object
+
+        for arg in step.arguments()
+          args[arg.name()] = arg.value()
+
+        flow_step[step.name()] = args
+        output.push(flow_step)
+      output
+
+  class Step
     constructor: (command, arguments) ->
       @command = ko.observable command
       @name = ko.computed(=> @command().name())
@@ -52,11 +70,14 @@ jQuery ->
           initial_args[definition.name()]
         else
           definition.default_value
-        new ArgumentViewModel(definition, initial_value)
+        new Argument(definition, initial_value)
       args
 
     remove: () =>
-      flow_model.remove_step this
+      workflow.remove_step @
+
+    set_as_current: () =>
+      workflow.set_as_current @
 
     display_template_for: (argument) =>
       argument.data_type()
@@ -64,12 +85,15 @@ jQuery ->
     @from_command: (command) =>
       new this(command, null)
 
-    @from_data: (data) =>
+    @from_data: (data, commands_model) =>
       [name, args] = ([name, args] for name, args of data)[0]
       command = commands_model.command_named(name)
       new this(command, args)
 
-  class ArgumentViewModel
+    display_template_id: () =>
+      'step_template'
+
+  class Argument
     constructor: (definition, value) ->
       @definition = ko.observable definition
       @value = ko.observable value
@@ -79,7 +103,10 @@ jQuery ->
     data_type: =>
       @definition().data_type()
 
-  class ArgumentDefinitionViewModel
+    display_template_for: () =>
+      alert 'wtf?'
+
+  class ArgumentDefinition
     constructor: (data) ->
       @name = ko.observable data.name
       @optional = ko.observable data.optional
@@ -87,26 +114,32 @@ jQuery ->
       @ui_length = data.ui_length
       @default_value = data.default
 
-  class CommandsViewModel
+    display_template_for: () =>
+      alert 'wtf 3?'
+
+  class Commands
     constructor: () ->
-      @commands = ko.observableArray(new CommandViewModel(name, template) for name, template of commands)
+      @commands = ko.observableArray(new Command(name, template) for name, template of commands)
 
     command_named: (name) =>
       (command for command in @commands() when command.name() is name)[0]
 
-  class CommandViewModel
+    display_template_id: () =>
+      'command_selector_template'
+
+  class Command
     constructor: (name, data) ->
       @name = ko.observable name
-      @definitions = ko.observableArray(new ArgumentDefinitionViewModel(definition) for definition in data)
+      @definitions = ko.observableArray(new ArgumentDefinition(definition) for definition in data)
 
     add_to_steps: () =>
-      flow_model.add_step(@)
+      workflow.add_step(@)
 
-  commands_model = new CommandsViewModel
-  flow_model = new FlowViewModel
+    display_template_for: () =>
+      alert 'wtf 2?'
+    button_class: () =>
+      'lcallback'
 
-  ko.applyBindings(flow_model, document.getElementById('workflow'))
-  ko.applyBindings(commands_model, document.getElementById('command-list'))
+  workflow = new Workflow(new Commands)
 
-  # $('#workflow li a').live 'click', ->
-  #   $(@).parent().remove()
+  ko.applyBindings(workflow)

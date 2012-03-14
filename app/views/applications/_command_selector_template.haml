@@ -1,0 +1,6 @@
+%script{type: "text/html", id: "command_selector_template"}
+  %span{ 'data-bind' => 'with: current_step' }
+    %span{ 'data-bind' => 'foreach: commands' }
+      %span{style: 'display:inline-block'}
+        %p{ 'data-bind' => 'click: add_to_steps, css: { lcallback: true }', :style => 'display:block' }
+        %p{ ko(text: 'name') }

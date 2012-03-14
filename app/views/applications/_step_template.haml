@@ -1,0 +1,6 @@
+%script{type: "text/html", id: "step_template"}
+  %div{ 'data-bind' => 'with: current_step' }
+    %p.title{ ko(text: 'name') }
+    %div{ 'data-bind' => 'template: { name: display_template_for, foreach: arguments }' }
+    %hr
+    %p.title.clickable{ 'data-bind' => 'click: remove' } Remove this step

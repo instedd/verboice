@@ -1,119 +1,138 @@
 - content_for :head do
   :javascript
-    var commands = #{raw Command.specs.to_json};
-    var flow = #{raw @application.flow.to_json};
-    var update_url_path = "#{update_workflow_application_path(@application)}";
-    var application_path = "#{application_path(@application)}";
+    var commands = #{ raw Command.specs.to_json };
+    var application_flow = #{ raw @application.flow.to_json };
+    var update_workflow_application_path = "#{ update_workflow_application_path(@application) }";
+    var application_path = "#{ application_path(@application) }";
 = render 'text_input_template'
 = render 'integer_input_template'
+= render 'step_template'
+= render 'command_selector_template'
 
 = render 'tabs'
 
-%h1 Commands
-%ul#command-list{'data-bind' => 'foreach: commands'}
-  %li
-    %span{ko(text: 'name', click: 'add_to_steps')}
+/ %h1 Commands
+/ %ul#command-list{ 'data-bind' => 'foreach: commands().commands' }
+/   %li
+/     %span{ ko(text: 'name', click: 'add_to_steps') }
 
-#workflow
-  %form{ 'data-bind' => "submit: submitChange" }
-    %h1 Steps
-    %ul{ 'data-bind' => 'foreach: steps' }
-      %li
-        .box.w30.feditor-sidebar
-          %p.title{ko(text: 'name')}
-          %div{'data-bind' => 'template: { name: display_template_for, foreach: arguments }' }
-          %span{'data-bind' => 'click: remove'} remove
-    %hr
-    .bottom-actions
-      %button.white{:type => "submit"} Save
-      = link_to 'Cancel', application_path(@application), :class => "button white cancel"
+%p.title.clickable{ 'data-bind' => 'click: reset_current' } Add new step
 
+%form{ 'data-bind' => "submit: submitChange" }
+  / %h1 Steps
+  / %ul{ 'data-bind' => 'foreach: steps' }
+  /   %li
+  /     .box.w30.feditor-sidebar
+  /       %p.title{ ko(text: 'name') }
+  /       %div{ 'data-bind' => 'template: { name: display_template_for, foreach: arguments }' }
+  /       %hr
+  /       %p.title.clickable{ 'data-bind' => 'click: remove' } Remove this step
 
+  .left
+    .box.lightgrey.workflow#workflow
+      .workflow-content-container.w60.h65
+        .workflow-container
+          %div{ 'data-bind' => 'foreach: steps' }
+            .ha
+              %span
+              %p.lcallback{ 'data-bind' => 'click: set_as_current' }
+              %p{ ko(text: 'name') }
 
-.left
-  .box.lightgrey.workflow
-    .workflow-content-container.w60.h65
-      .workflow-container
-        %p
-          %div
-            %button.lcallback
-            %p Baby diagnostic
-          .ha
-            %span
-            %button.lcallback
-            %p Baby diagnostic
-          .ha
-            %span
-            %button.lcallback
-            %p Baby diagnostic
-          .ha
-            %span
-            %button.lcallback
-            %p Baby diagnostic
-          .ha
-            %span
-            %button.lcallback
-            %p Baby diagnostic
-          .ha
-            %span
-            %button.lcallback
-            %p Baby diagnostic
-          .ha
-            %span
-            %button.lcallback
-            %p Baby diagnostic
-        %p
-          %div
-          .va
-            %span
-            %button.lcallback
-            %p Baby diagnostic
-          .va
-            %span
-            %button.lcallback
-            %p Baby diagnostic
-        %p
-          %div
-          .va
-            %span
-            %button.lcallback
-            %p Baby diagnostic
+  .box.right.w30.feditor-sidebar.h65{ 'data-bind' => 'template: { name: display_template_for, with: current_step }' }
 
-          .va
-            %span
-            %button.lcallback
-            %p Baby diagnostic
-
-.box.right.w30.feditor-sidebar.h65
-  %p.title Field Name
-  %p.smalltext The name of this question as it is presented.
-  %input{:type => "text", :value => "Number of patients per day" }
+  .clear
   %hr
-  %p.title Hint
-  %p.smalltext Additional help for this question.
-  %input{ :value => "Select an option", :type => "text" }
-  %hr
-  %p.title
-    Required
-    %input.right{ :type => "checkbox"}
-    %br.clear
-  %p.smalltext Additional help for this question.
-  %hr
-  %p.title Options
-  %p.smalltext Possible values for this question.
-  %ul.clist.w30
-    %li
-      %input.ux-clist{ :type => "text", :value => "1 to 10" }
-      %button.clist-remove
-    %li
-      %input.ux-text{ :type => "text", :placeholder => "Name" }
-      %button.clist-add
-  %hr
-  %p.title Range
-  %p.smalltext Range of values accepted for this question</p>
-  %input.w13{ :type => "text", :value => "1" }
-  %span.smalltext to
-  %input.w13{ :type => "text", :value => "5" }
   %br
-  %br
-.clear
+  .bottom-actions
+    %button.white{:type => "submit"} Save
+    = link_to 'Cancel', application_path(@application), :class => "button white cancel"
+/ %br
+/ %hr
+/ %br
+/ .left
+/   .box.lightgrey.workflow
+/     .workflow-content-container.w60.h65
+/       .workflow-container
+/         %p
+/           %div
+/             %button.lcallback
+/             %p Foo
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/         %p
+/           %div
+/           .va
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .va
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/         %p
+/           %div
+/           .va
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+
+/           .va
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+
+/ .box.right.w30.feditor-sidebar.h65
+/   %p.title Field Name
+/   %p.smalltext The name of this question as it is presented.
+/   %input{:type => "text", :value => "Number of patients per day" }
+/   %hr
+/   %p.title Hint
+/   %p.smalltext Additional help for this question.
+/   %input{ :value => "Select an option", :type => "text" }
+/   %hr
+/   %p.title
+/     Required
+/     %input.right{ :type => "checkbox"}
+/     %br.clear
+/   %p.smalltext Additional help for this question.
+/   %hr
+/   %p.title Options
+/   %p.smalltext Possible values for this question.
+/   %ul.clist.w30
+/     %li
+/       %input.ux-clist{ :type => "text", :value => "1 to 10" }
+/       %button.clist-remove
+/     %li
+/       %input.ux-text{ :type => "text", :placeholder => "Name" }
+/       %button.clist-add
+/   %hr
+/   %p.title Range
+/   %p.smalltext Range of values accepted for this question</p>
+/   %input.w13{ :type => "text", :value => "1" }
+/   %span.smalltext to
+/   %input.w13{ :type => "text", :value => "5" }
+/   %br
+/   %br
+/ .clear
