@@ -12,5 +12,12 @@ module ApplicationHelper
     return '' if time.nil?
     '<span title="' << time.utc.to_s << '">' << time_ago_in_words(time.utc, true) << ' ago</span>'
   end
-end
 
+  def with_callback_url_fields(type = nil)
+    type = type.to_s << "_" if type
+    [nil, :_user, :_password].each do |field|
+      yield("#{type}callback_url#{field}".to_sym)
+    end
+  end
+
+end

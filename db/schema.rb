@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120217194935) do
+ActiveRecord::Schema.define(:version => 20120314153459) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(:version => 20120217194935) do
     t.datetime "updated_at"
     t.integer  "account_id"
     t.string   "status_callback_url"
+    t.text     "encrypted_config"
   end
 
   create_table "call_logs", :force => true do |t|

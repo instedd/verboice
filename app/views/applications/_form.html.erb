@@ -30,8 +30,10 @@
   </div>
 
   <div id="callback_url_container" class="field" <%= raw 'style="display:none"' if @application.mode != :callback_url %>>
-    <%= f.label :callback_url %>
-    <%= f.text_field :callback_url %>
+    <% with_callback_url_fields do |field| %>
+      <%= f.label field %>
+      <%= f.text_field field %>
+    <% end %>
   </div>
   <div id="flow_container" class="field" <%= raw 'style="display:none"' if @application.mode != :flow %>>
     <%= f.label :flow, "Flow (click on a command to add it)" %><br />
@@ -42,8 +44,10 @@
     </ul>
   </div>
   <div class="field">
-    <%= f.label :status_callback_url %>
-    <%= f.text_field :status_callback_url %>
+    <% with_callback_url_fields(:status) do |field| %>
+      <%= f.label field %>
+      <%= f.text_field field %>
+    <% end %>
   </div>
   <div class="actions">
     <%= f.submit %>
