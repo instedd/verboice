@@ -3,8 +3,8 @@ development:
   encoding: utf8
   database: verboice_development
   pool: 5
-  username: root
-  password: ds403145
+  username: verboice
+  password:
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -14,8 +14,8 @@ test:
   encoding: utf8
   database: verboice_test
   pool: 5
-  username: root
-  password: ds403145
+  username: verboice
+  password:
 
 production:
   adapter: mysql2

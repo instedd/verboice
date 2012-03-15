@@ -2,28 +2,28 @@
 require 'rubygems'
 require 'sinatra'
 
-Numbers = {}
+Users = {}
 
 post '/' do
   session_id = params[:CallSid]
-  number = Numbers[session_id]
-  pressed = params[:Digits].to_i
 
-  if not number
-    Numbers[session_id] = (1..99).to_a.sample
-    return guess request
-  end
+   "<Response><Dial callerId='+855977100860' channel='trysip2sip'>dwilkie@sip2sip.info</Dial></Response>"
 
-  return guess request if pressed <= 0
+#  if not number
+#    Numbers[session_id] = (1..99).to_a.sample
+#    return guess request
+#  end
 
-  if number == pressed
-    Numbers.delete session_id
-    play 'woman.gsm'
-  elsif number > pressed
-    gather_with_file 'larger.mp3', request
-  else
-    gather_with_file 'smaller.mp3', request
-  end
+#  return guess request if pressed <= 0
+
+#  if number == pressed
+#    Numbers.delete session_id
+#    play 'woman.gsm'
+#  elsif number > pressed
+#    gather_with_file 'larger.mp3', request
+#  else
+#    gather_with_file 'smaller.mp3', request
+#  end
 end
 
 def guess(request)
@@ -31,7 +31,7 @@ def guess(request)
 end
 
 def gather_with_file(file, request)
-  %Q(<Response><Gather numDigits="2"><Play>http://localhost:4567/#{file}</Play></Gather><Redirect>#{request.env['REQUEST_URI']}</Redirect></Response>)
+  %Q(<Response><Gather numDigits="1"><Play>http://localhost:4567/#{file}</Play></Gather><Redirect>#{request.env['REQUEST_URI']}</Redirect></Response>)
 end
 
 def play(file)
