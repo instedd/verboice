@@ -16,7 +16,7 @@ module ApplicationHelper
   def with_callback_url_fields(type = nil)
     type = type.to_s << "_" if type
     [nil, :_user, :_password].each do |field|
-      yield("#{type}callback_url#{field}".to_sym)
+      yield("#{type}callback_url#{field}".to_sym, field == :_password ? :password_field : :text_field)
     end
   end
 

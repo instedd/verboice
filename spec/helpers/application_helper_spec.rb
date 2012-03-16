@@ -7,11 +7,13 @@ describe ApplicationHelper do
       it "should return the correct field" do
         type = type.to_s << "_" if type
 
-        helper.with_callback_url_fields(type) do |field|
+        helper.with_callback_url_fields(type) do |field, field_type|
           field.should be_a(Symbol)
           parsed_field = field.to_s
           parsed_field.should =~ /^#{type}callback/
           parsed_field.should =~ /_(url_user|url_password|url)$/
+          field_type_assertion = field =~ /password/ ? :password_field : :text_field
+          field_type.should == field_type_assertion
         end
       end
     end
