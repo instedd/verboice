@@ -25,7 +25,14 @@ class CallbackCommand < Command
     session.log :info => "Callback #{method} #{url}", :trace => "Callback #{method} #{url} with #{body.to_query}"
 
     request = EventMachine::HttpRequest.new(url)
-    http = method == :get ? request.get(body) : request.post(:body => body)
+
+    app = session.application
+    callback_url_user = app.callback_url_user
+    callback_url_password = app.callback_url_password
+
+    authorization = (callback_url_user.present? || callback_url_password.present?) ? {:head => {'authorization' => [callback_url_user, callback_url_password]}} : {}
+
+    http = method == :get ? request.get(body.merge(authorization)) : request.post({:body => body}.merge(authorization))
 
     f = Fiber.current
     http.callback do
