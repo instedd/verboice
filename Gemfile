@@ -25,6 +25,7 @@ group :assets do
 end
 
 group :development, :test do
+  gem 'foreman'
   gem 'machinist'
   gem 'ffaker'
   gem 'rspec'
