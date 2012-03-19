@@ -27,6 +27,13 @@ describe CallbackCommand do
     })
   end
 
+  def authenticated_url(user, password)
+    uri = URI.parse(url)
+    uri.user = user
+    uri.password = password
+    uri.to_s
+  end
+
   def apply_application(user = "", password = "")
     app = @session.call_log.channel.application
     app.callback_url_user = user
@@ -46,13 +53,25 @@ describe CallbackCommand do
     end
   end
 
-  context "running with an app which has http basic authentication for the callback url" do
-    it "should use the apps configured http basic authentication" do
+  context "running with an app which has http basic authentication for the callback url", :focus => true do
+    before do
       assert_log
       apply_application("user", "password")
+    end
 
-      expect_em_http :post, url, :with => {:head => {'authorization' => ['user', 'password']}, :body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
-        CallbackCommand.new(:url => url).run @session
+    context "and the url does not contain any http basic authentication" do
+      it "should use the apps configured http basic authentication" do
+        expect_em_http :post, url, :with => {:head => {'authorization' => ['user', 'password']}, :body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+          CallbackCommand.new(:url => url).run @session
+        end
+      end
+    end
+
+    context "and the url already contains http basic authentication" do
+      it "should use the urls http basic authentication" do
+        expect_em_http :post, url, :with => {:head => {'authorization' => ['url_user', 'url_password']}, :body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+          CallbackCommand.new(:url => authenticated_url("url_user", "url_password")).run @session
+        end
       end
     end
   end
