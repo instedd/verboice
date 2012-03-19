@@ -27,6 +27,9 @@ module Asterisk
 
     def hangup
       send_command 'HANGUP'
+    rescue Exception => ex
+      # Ignore these errors
+    ensure
       close_connection
     end
 
