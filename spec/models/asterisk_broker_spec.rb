@@ -4,7 +4,7 @@ describe Asterisk::Broker do
   before(:each) do
     @broker = Asterisk::Broker.new
     $asterisk_client = mock('asterisk_client')
-    @channel = Channel.make :kind => 'sip2sip'
+    @channel = Channel.make :kind => 'custom', :config => {'dial_string' => 'SIP/{number}'}
   end
 
   context "call" do
@@ -15,7 +15,7 @@ describe Asterisk::Broker do
     it "call ok" do
       $asterisk_client.should_receive(:error?).and_return(false)
       $asterisk_client.should_receive(:originate).with({
-        :channel => "SIP/verboice_#{@channel.id}-0/#{@session.address}",
+        :channel => "SIP/#{@session.address}",
         :application => 'AGI',
         :data => "agi://localhost:#{Asterisk::CallManager::Port},#{@session.id}",
         :async => true,
@@ -36,7 +36,7 @@ describe Asterisk::Broker do
     it "call fails on originate error" do
       $asterisk_client.should_receive(:error?).and_return(false)
       $asterisk_client.should_receive(:originate).with({
-        :channel => "SIP/verboice_#{@channel.id}-0/#{@session.address}",
+        :channel => "SIP/#{@session.address}",
         :application => 'AGI',
         :data => "agi://localhost:#{Asterisk::CallManager::Port},#{@session.id}",
         :async => true,

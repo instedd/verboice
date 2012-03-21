@@ -8,10 +8,10 @@ describe ApiChannelsController do
     sign_in @account
   end
 
-  it "create sip2sip channel" do
+  it "create custom channel" do
     app = @account.applications.make
 
-    data = {kind: "sip2zip", name: "foo", application: app.name, username: 'xyz', password: 'pass'}
+    data = {kind: "custom", name: "foo", application: app.name, username: 'xyz', password: 'pass'}
     @request.env['RAW_POST_DATA'] = data.to_json
     post :create, format: :json
     assert_response :ok
@@ -26,10 +26,10 @@ describe ApiChannelsController do
     channels[0].password.should == data[:password]
   end
 
-  it "create sip2sip channel errors" do
+  it "create custom channel errors" do
     app = @account.applications.make
 
-    data = {kind: "sip2zip", application: app.name, username: 'xyz', password: 'pass'}
+    data = {kind: "custom", application: app.name, username: 'xyz', password: 'pass'}
     @request.env['RAW_POST_DATA'] = data.to_json
     post :create, format: :json
     assert_response :ok

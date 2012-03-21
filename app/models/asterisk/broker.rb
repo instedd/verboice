@@ -30,17 +30,13 @@ module Asterisk
 
     def create_channel(channel)
       check_asterisk_available!
-
-      send "create_#{channel.kind}_channel", channel
-
+      regenerate_config
       reload!
     end
 
     def delete_channel(channel)
       check_asterisk_available!
-
-      send "delete_#{channel.kind}_channel", channel
-
+      regenerate_config :delete => channel
       reload!
     end
 
@@ -49,14 +45,6 @@ module Asterisk
     end
 
     private
-
-    def sip2sip_address(channel, address)
-      "SIP/verboice_#{channel.id}-0/#{address}"
-    end
-
-    def callcentric_address(channel, address)
-      "SIP/verboice_#{channel.id}/#{address}"
-    end
 
     def generic_address(channel, address)
       index = channel.servers.find_index{|x| x.direction == 'outbound' || x.direction == 'both'}
@@ -71,118 +59,37 @@ module Asterisk
       $asterisk_client.command :command => 'sip reload'
     end
 
-    def create_sip2sip_channel(channel)
-      section = "verboice_#{channel.id}"
+    def regenerate_config options = {}
+      File.open("#{ConfigDir}/sip_verboice_registrations.conf", 'w') do |f_reg|
+        File.open("#{ConfigDir}/sip_verboice_channels.conf", 'w') do |f_channels|
+          Channel.where(:kind => 'generic').each do |channel|
+            next if channel == options[:delete]
+            section = "verboice_#{channel.id}"
 
-      Asterisk::Conf.change SipConf do
-        add section, :template => '!',
-          :type => :peer,
-          :canreinvite => :no,
-          :nat => :yes,
-          :qualify => :yes,
-          :domain => 'sip2sip.info',
-          :fromdomain => 'sip2sip.info',
-          :outboundproxy => 'proxy.sipthor.net',
-          :fromuser => channel.username,
-          :defaultuser => channel.username,
-          :secret => channel.password,
-          :insecure => :invite,
-          :context => :verboice
+            f_channels.puts "[#{section}](!)"
+            f_channels.puts "type=peer"
+            f_channels.puts "canreinvite=no"
+            f_channels.puts "nat=yes"
+            f_channels.puts "qualify=yes"
+            f_channels.puts "fromuser=#{channel.username}"
+            f_channels.puts "defaultuser=#{channel.username}"
+            f_channels.puts "secret=#{channel.password}"
+            f_channels.puts "insecure=yes"
+            f_channels.puts "context=verboice"
+            f_channels.puts
 
-        ['sip2sip.info', '81.23.228.129', '81.23.228.150', '85.17.186.7'].each_with_index do |host, i|
-          add "#{section}-#{i}", :template => section, :host => host
-        end
+            channel.servers.each_with_index do |server, i|
+              f_channels.puts "[#{section}-#{i}](#{section})"
+              f_channels.puts "host=#{server.host}"
+              f_channels.puts "domain=#{server.host}"
+              f_channels.puts "fromdomain=#{server.host}"
+              f_channels.puts "type=#{(server.direction == 'inbound' ? 'user' : (server.direction == 'outbound' ? 'peer' : 'friend'))}"
 
-        add_action :general, :register, "#{channel.username}:#{channel.password}@sip2sip.info/#{channel.id}"
-      end
-    end
-
-    def delete_sip2sip_channel(channel)
-      section = "verboice_#{channel.id}"
-
-      Asterisk::Conf.change SipConf do
-        remove section
-
-        4.times { |i| remove "#{section}-#{i}" }
-
-        remove_action :general, :register, "#{channel.username}:#{channel.password}@sip2sip.info/#{channel.id}"
-      end
-    end
-
-    def create_callcentric_channel(channel)
-      section = "verboice_#{channel.id}"
-
-      Asterisk::Conf.change SipConf do
-        add section,
-          :type => :friend,
-          :nat => :yes,
-          :host => 'callcentric.com',
-          :fromdomain => 'callcentric.com',
-          :fromuser => channel.username,
-          :defaultuser => channel.username,
-          :secret => channel.password,
-          :insecure => 'port,invite',
-          :context => :verboice
-
-        add_action :general, :register, "#{channel.username}:#{channel.password}@callcentric.com/#{channel.id}"
-      end
-    end
-
-    def delete_callcentric_channel(channel)
-      section = "verboice_#{channel.id}"
-
-      Asterisk::Conf.change SipConf do
-        remove section
-        remove_action :general, :register, "#{channel.username}:#{channel.password}@callcentric.com/#{channel.id}"
-      end
-    end
-
-    def create_generic_channel(channel)
-      section = "verboice_#{channel.id}"
-
-      Asterisk::Conf.change SipConf do
-        add section, :template => '!',
-          :type => :peer,
-          :canreinvite => :no,
-          :nat => :yes,
-          :qualify => :yes,
-          :fromuser => channel.username,
-          :defaultuser => channel.username,
-          :secret => channel.password,
-          :insecure => :yes,
-          :context => :verboice
-
-        channel.servers.each_with_index do |server, i|
-          add "#{section}-#{i}",
-            :template => section,
-            :host => server.host,
-            :domain => server.host,
-            :fromdomain => server.host,
-            :type => (server.direction == 'inbound' ? 'user' : (server.direction == 'outbound' ? 'peer' : 'friend'))
-
-          add_action :general, :register, "#{channel.username}:#{channel.password}@#{server.host}/#{channel.id}" if server.register?
+              f_reg.puts "register => #{channel.username}:#{channel.password}@#{server.host}/#{channel.id}" if server.register?
+            end
+          end
         end
       end
-    end
-
-    def delete_generic_channel(channel)
-      section = "verboice_#{channel.id}"
-
-      Asterisk::Conf.change SipConf do
-        remove section
-
-        channel.servers.each_with_index do |server, i|
-          remove "#{section}-#{i}"
-
-          remove_action :general, :register, "#{channel.username}:#{channel.password}@#{server.host}/#{channel.id}" if server.register?
-        end
-      end
-    end
-
-    def create_custom_channel(channel)
-    end
-
-    def delete_custom_channel(channel)
     end
 
     def pbx_available?
