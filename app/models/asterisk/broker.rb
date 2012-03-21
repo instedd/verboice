@@ -46,7 +46,7 @@ module Asterisk
 
     private
 
-    def generic_address(channel, address)
+    def sip_address(channel, address)
       index = channel.servers.find_index{|x| x.direction == 'outbound' || x.direction == 'both'}
       "SIP/verboice_#{channel.id}-#{index}/#{address}"
     end
@@ -62,7 +62,7 @@ module Asterisk
     def regenerate_config options = {}
       File.open("#{ConfigDir}/sip_verboice_registrations.conf", 'w') do |f_reg|
         File.open("#{ConfigDir}/sip_verboice_channels.conf", 'w') do |f_channels|
-          Channel.where(:kind => 'generic').each do |channel|
+          Channel.where(:kind => 'sip').each do |channel|
             next if channel == options[:delete]
             section = "verboice_#{channel.id}"
 

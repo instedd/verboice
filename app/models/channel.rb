@@ -1,7 +1,7 @@
 class Channel < ActiveRecord::Base
   include ChannelSerialization
 
-  Kinds = %w(generic custom)
+  Kinds = %w(sip custom)
 
   belongs_to :account
   belongs_to :application
