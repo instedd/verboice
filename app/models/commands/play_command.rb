@@ -45,4 +45,38 @@ module PlayCommand
       raise Exception.new 'Error processing audio file'
     end
   end
+
+  def download_url_to(target_path)
+    download_url_to_temporary_location do |file|
+      convert_to_wav file if File.is_mpeg? file
+      convert_to_8000_hz_gsm file, target_path
+    end
+  end
+
+  def download_url_to_temporary_location
+    tmp_file = File.new "#{Rails.root}/tmp/#{@file_id}.#{Random.rand(1000000000)}", "wb"
+
+    http = EventMachine::HttpRequest.new(@url).get
+    http.stream { |chunk| tmp_file.print chunk }
+
+    f = Fiber.current
+    http.callback do
+      begin
+        if http.response_header.status.to_i != 200
+          raise "Download failed with status #{http.response_header.status}"
+        end
+
+        tmp_file.flush
+
+        yield tmp_file.path
+
+        File.delete tmp_file
+        f.resume
+      rescue Exception => e
+        f.resume e
+      end
+    end
+    http.errback { f.resume Exception.new(http.error) }
+    Fiber.yield
+  end
 end

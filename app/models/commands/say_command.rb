@@ -13,6 +13,23 @@ class SayCommand < Command
   end
 
   def setup_file(session)
+    @config = Rails.configuration.verboice_configuration
+    if config[:tts] == 'ispeech'
+      ispeech session
+    else
+      synth_file session
+    end
+  end
+
+  def ispeech(session)
+    @url = "http://api.ispeech.org/api/rest?apikey=#{@config[:ispeech_api_key]}&action=convert&voice=#{@config[:ispeech_voice]}&text=#{CGI.escape @text}"
+    target_path = get_target_path(session)
+    session.trace "Generating voice file with iSpeech"
+    download_url_to target_path
+    target_path
+  end
+
+  def synth_file(session)
     wav_file = "#{get_target_path(session)}.wave"
 
     if is_available? command_name
