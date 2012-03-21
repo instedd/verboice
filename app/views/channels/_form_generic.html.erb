@@ -4,7 +4,7 @@
 </div>
 <div class="field">
   <%= f.label :password %>
-  <%= f.password_field :password %>
+  <%= f.password_field :password, :value => @channel.config['password'] %>
 </div>
 <div class="field">
   <%= f.label :limit %>
