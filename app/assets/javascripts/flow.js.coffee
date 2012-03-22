@@ -61,7 +61,7 @@ jQuery ->
 
   class CommandSelector
     constructor: ->
-      @commands = ko.observableArray([new WhatShouldBeAClass(Menu)])
+      @commands = ko.observableArray([new ClassBindingHandler(Menu)])
 
     # command_named: (name) =>
     #   (command for command in @commands() when command.name() is name)[0]
@@ -72,7 +72,7 @@ jQuery ->
     add_menu_to_steps: () ->
       workflow.add_step(new Menu)
 
-  class WhatShouldBeAClass
+  class ClassBindingHandler
     constructor: (cmd)->
       @cmd = cmd
     add_to_steps: =>
@@ -94,11 +94,17 @@ jQuery ->
     display_template_id: () =>
       'menu_step_template'
 
+    button_class: () =>
+      'ldial'
+
+    start_recording: () =>
+      Wami.startRecording(save_recording_application_path);
+
+    stop_recording: () =>
+      Wami.stopRecording()
+
     @add_to_steps: () ->
       workflow.add_step(new Menu)
-
-    button_class: () ->
-      'ldial'
 
   ko.bindingHandlers['class'] = {
     'update': (element, valueAccessor) ->
@@ -110,3 +116,8 @@ jQuery ->
   }
   workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)
+
+  Wami.setup {id: 'wami', swfUrl: '/Wami.swf'}
+
+  # Wami.startPlaying(anyWavURL);
+  # Wami.stopPlaying();

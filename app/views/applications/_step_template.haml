@@ -9,13 +9,13 @@
         %th Messages
         %th
         %tr
-          %td Explanations:Instructions</td>
+          %td Start Recording
           %td
-            %button.farrow{ :type => "button" }
+            %button.farrow{ :type => "button", 'data-bind' => 'click: start_recording' }
         %tr
-          %td Options: Select an option
+          %td Stop Recording
           %td
-            %button.farrow{ :type => "button" }
+            %button.farrow{ :type => "button", 'data-bind' => 'click: stop_recording' }
         %tr
           %td Invalid: Invalid
           %td

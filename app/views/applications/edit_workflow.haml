@@ -3,10 +3,13 @@
     var application_flow = #{ raw @application.user_flow.to_json };
     var update_workflow_application_path = "#{ update_workflow_application_path(@application) }";
     var application_path = "#{ application_path(@application) }";
+    var save_recording_application_path = "#{ save_recording_application_path(@application)}"
 = render 'step_template'
 = render 'command_selector_template'
 
 = render 'tabs'
+
+#wami
 
 %p.title.clickable{ 'data-bind' => 'click: initialize_current_step' } Add new step
 

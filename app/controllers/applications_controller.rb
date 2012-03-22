@@ -77,6 +77,10 @@ class ApplicationsController < ApplicationController
     end
   end
 
+  def save_recording
+    p params
+  end
+
   # DELETE /applications/1
   def destroy
     @application.destroy
