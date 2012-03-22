@@ -52,13 +52,13 @@ module Verboice
 
     config.after_initialize do
       Dir.glob("#{Rails.root}/app/models/**/*.rb").sort.each do |file|
-      begin
-        ActiveSupport::Inflector.camelize(
-          file.sub("#{Rails.root}/app/models/",'')[0 .. -4]
-          ).constantize
-      rescue LoadError => ex
-        Rails.logger << ex
-      end
+        begin
+          ActiveSupport::Inflector.camelize(
+            file.sub("#{Rails.root}/app/models/",'')[0 .. -4]
+            ).constantize
+        rescue LoadError => ex
+          Rails.logger.warn ex
+        end
       end
     end
   end
