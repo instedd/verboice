@@ -1,0 +1,3 @@
+class Menu < UserCommand
+
+end

@@ -21,6 +21,6 @@ class Command
   end
 end
 
-Dir["#{Rails.root}/app/models/commands/*"].each do |file|
-  ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]).constantize
-end
+# Dir["#{Rails.root}/app/models/commands/*"].each do |file|
+#   ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]).constantize
+# end

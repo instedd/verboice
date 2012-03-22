@@ -30,6 +30,10 @@ label + p.desc {
     padding:0;
   }
 
+  p.button.active {
+    background-position: 0 -120px !important
+  }
+
   div {
     display:inline-block;
     margin:0 35px 10px 0;
@@ -66,8 +70,106 @@ label + p.desc {
     top:-60px;
     display:block;
   }
+
+  div.va-ext span {
+    background:url(http://theme.instedd.org/theme/images/workflow/arrow-ver-ext.png) no-repeat;
+    width:2px;
+    height:90px;
+    position:absolute;
+    left:-20px;
+    top:-60px;
+    display:block;
+  }
 }
 
+.box.iblock {
+  padding: 10px 0;
+  position: relative;
+
+  hr {
+    width:92%;
+    margin:15px auto 20px auto;
+  }
+
+  .content {
+    padding: 0 5px;
+  }
+}
+
+.iblock {
+  display: inline-block;
+  vertical-align: top;
+  margin-right:15px;
+}
+
+.tableheader {
+  background: url(http://theme.instedd.org/theme/images/interface/backtd.png) repeat-x left 140%;
+  height:65px;
+  padding:0 5px 15px 5px;
+}
+
+.GralTable.NoHead {
+  td {
+    border: none;
+    padding: 0px 6px;
+  }
+
+  tr:nth-child(2) {
+    background-image: none;
+  }
+  td.sub {
+    padding-left:15px;
+  }
+}
+
+.TwoColumn tr td:last-child, .TwoColumn tr th:last-child {
+  width: 30px;
+}
+
+.bottom-actions {
+  position: absolute;
+  bottom: 0px;
+  padding-left: 5px;
+}
+
+ul.oplist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  select {
+    width: 60px;
+  }
+
+  .ux-text {
+    width: 238px !important;
+  }
+}
+
+.ux-oplist {
+  border-color: white !important;
+  @include all-box-shadow(none !important);
+  width: 178px !important;
+}
+
+.ux-oplist:focus {
+  border: 2px solid #dddddd !important;
+  @include all-box-shadow(0px 1px 0px 0px rgba(0, 0, 0, 0.3) inset);
+}
+
+.ux-oplist:disabled {
+  background-color: white !important;
+  color:#999999;
+  border: 1px solid transparent !important;
+  @include all-box-shadow(none);
+}
+
+span.validation {
+  display: inline-block;
+  width: 135px;
+}
+
+.w28 { width:285px }
 .h40 { height:400px }
 .h50 { height:500px }
 .h60 { height:600px }

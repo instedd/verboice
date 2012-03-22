@@ -1,6 +1,109 @@
-%script{type: "text/html", id: "step_template"}
-  %div{ 'data-bind' => 'with: current_step' }
-    %p.title{ ko(text: 'name') }
-    %div{ 'data-bind' => 'template: { name: display_template_for, foreach: arguments }' }
+%script{type: "text/html", id: "menu_step_template"}
+  .box.w30.iblock.feditor-sidebar.right.h65{ 'data-bind' => 'with: current_step' }
+    .tableheader
+      %span.i48grad-dial.left
+      %input.ux-text.w20.right{ 'data-bind' => 'value: name' }
+
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %th Messages
+        %th
+        %tr
+          %td Explanations:Instructions</td>
+          %td
+            %button.farrow{ :type => "button" }
+        %tr
+          %td Options: Select an option
+          %td
+            %button.farrow{ :type => "button" }
+        %tr
+          %td Invalid: Invalid
+          %td
+            %button.farrow{ :type => "button" }
+        %tr
+          %td End call: Good bye
+          %td
+            %button.farrow{ :type => "button" }
     %hr
-    %p.title.clickable{ 'data-bind' => 'click: remove' } Remove this step
+    .bottom-actions
+      %button.fdelete{ 'data-bind' => 'click: remove' } Remove this step
+      / %button.finsert Insert step before
+
+  / <div class="box w28 iblock h65">
+
+  /     <div class="tableheader">
+
+  /         <span class="i48grad-answer left"></span>
+
+  /         <input class="ux-text w20 right" value="My menu">
+
+  /         <br><br>
+
+  /         <select class="w20 right"><option>Menu</option></select>
+
+
+  /         <br clear="all">
+  /     </div>
+
+  /     <table class="GralTable TwoColumn CleanTable NoHead">
+  /         <tr>
+  /             <th>Messages</th>
+  /             <th></th>
+  /         </tr>
+  /         <tr>
+  /             <td>Explanations:Instructions</td>
+  /             <td>
+  /                 <button type="button" class="farrow"></button>
+  /             </td>
+  /         </tr>
+  /         <tr>
+  /             <td>Options: Select an option</td>
+  /             <td>
+  /                 <button type="button" class="farrow"></button>
+  /             </td>
+  /         </tr>
+  /         <tr>
+  /             <td>Invalid: Invalid</td>
+  /             <td>
+  /                 <button type="button" class="farrow"></button>
+  /             </td>
+  /         </tr>
+  /         <tr>
+  /             <td>Enc call: Good bye</td>
+  /             <td>
+  /                 <button type="button" class="farrow"></button>
+  /             </td>
+  /         </tr>
+  /     </table>
+
+  /     <div class="content">
+
+
+  /     <hr>
+
+  /     <label>Time</label><br>
+  /     <div class="ux-nstep w06"><input type="text" size="2" value="10:00"></div> before repeating options <br>
+  /     <div class="ux-nstep w06"><input type="text" size="2" value="10:00"></div> attemps before end call <br>
+
+
+  /     <hr>
+
+  /     <label>Options</label><br>
+
+  /     <ul class="oplist" >
+  /         <li><select><option>1</option></select><input type="text" class="ux-oplist" value="Report Code" /><button class="clist-remove"></button></li>
+  /         <li><select><option>2</option></select><input type="text" class="ux-oplist" value="Leave a message" /><button class="clist-remove"></button></li>
+  /         <li><select><option>3</option></select><input type="text" class="ux-oplist" value="Talk with an agent" /><button class="clist-remove"></button></li>
+  /         <li><select><option>4</option></select><input type="text" class="ux-oplist" value="Back to previous menu" /><button class="clist-remove"></button></li>
+  /         <li><input type="text" class="ux-text" value="" placeholder="Add an option" /><button class="clist-add"></button></li>
+  /     </ul>
+
+
+  /     <hr>
+
+  /     </div>
+
+
+  / <div class="bottom-actions"><button class="finsert">Insert step before</button></div>
+
+  / </div>

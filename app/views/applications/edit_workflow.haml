@@ -1,32 +1,16 @@
 - content_for :head do
   :javascript
-    var commands = #{ raw Command.specs.to_json };
-    var application_flow = #{ raw @application.flow.to_json };
+    var application_flow = #{ raw @application.user_flow.to_json };
     var update_workflow_application_path = "#{ update_workflow_application_path(@application) }";
     var application_path = "#{ application_path(@application) }";
-= render 'text_input_template'
-= render 'integer_input_template'
 = render 'step_template'
 = render 'command_selector_template'
 
 = render 'tabs'
 
-/ %h1 Commands
-/ %ul#command-list{ 'data-bind' => 'foreach: commands().commands' }
-/   %li
-/     %span{ ko(text: 'name', click: 'add_to_steps') }
-
-%p.title.clickable{ 'data-bind' => 'click: reset_current' } Add new step
+%p.title.clickable{ 'data-bind' => 'click: initialize_current_step' } Add new step
 
 %form{ 'data-bind' => "submit: submitChange" }
-  / %h1 Steps
-  / %ul{ 'data-bind' => 'foreach: steps' }
-  /   %li
-  /     .box.w30.feditor-sidebar
-  /       %p.title{ ko(text: 'name') }
-  /       %div{ 'data-bind' => 'template: { name: display_template_for, foreach: arguments }' }
-  /       %hr
-  /       %p.title.clickable{ 'data-bind' => 'click: remove' } Remove this step
 
   .left
     .box.lightgrey.workflow#workflow
@@ -35,12 +19,14 @@
           %div{ 'data-bind' => 'foreach: steps' }
             .ha
               %span
-              %p.lcallback{ 'data-bind' => 'click: set_as_current' }
+              / todo: missing pluggable button class
+              %p.button{ 'data-bind' => 'click: set_as_current, class: button_class, css: {active: $data == $root.current_step()}' }
               %p{ ko(text: 'name') }
 
-  .box.right.w30.feditor-sidebar.h65{ 'data-bind' => 'template: { name: display_template_for, with: current_step }' }
+  %span{ 'data-bind' => 'template: { name: display_template_for, with: current_step }' }
 
   .clear
+  %br
   %hr
   %br
   .bottom-actions
@@ -91,6 +77,15 @@
 /             %span
 /             %button.lcallback
 /             %p Baby diagnostic
+
+/         %p
+/           %div
+/           .va-ext
+/             %span
+/           .va
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
 /         %p
 /           %div
 /           .va
@@ -98,7 +93,16 @@
 /             %button.lcallback
 /             %p Baby diagnostic
 
-/           .va
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+
+/           .ha
 /             %span
 /             %button.lcallback
 /             %p Baby diagnostic

@@ -9,69 +9,81 @@ jQuery ->
     return
 
   class Workflow
-    constructor: (commands_model)->
-      @steps = ko.observableArray(Step.from_data(data, commands_model) for data in application_flow)
-      @commands = ko.observable(commands_model)
-      @current_step = ko.observable(commands_model)
+    constructor: (command_selector)->
+      # @steps = ko.observableArray(Step.from_data(data, commands_model) for data in application_flow)
+      @steps = ko.observableArray([])
+      @command_selector = ko.observable(command_selector)
+      @current_step = ko.observable @command_selector()
 
     add_step: (command) =>
-      @steps.push Step.from_command(command)
+      @steps.push command
+      # @steps.push Step.from_command(command)
 
     remove_step: (step) =>
       @steps.remove(step)
-      @reset_current()
+      @initialize_current_step()
 
     set_as_current: (step) =>
       @current_step(step)
 
-    reset_current: () =>
-      @set_as_current(@commands())
+    initialize_current_step: () =>
+      @set_as_current(@command_selector())
 
-    display_template_for: (current_flow) =>
+    display_template_for: (current_flow_step) =>
       @current_step().display_template_id()
 
     # Persist change on the server
-    submitChange: =>
+    submitChange: () =>
+    #   $.ajax {
+    #     type: 'POST',
+    #     url: update_workflow_application_path,
+    #     data: {
+    #       _method: 'PUT',
+    #       flow: @flow_array()
+    #     },
+    #     success: (data) ->
+    #       window.location = application_path;
+    #     dataType: 'json'
+    #   }
 
-      $.ajax {
-        type: 'POST',
-        url: update_workflow_application_path,
-        data: {
-          _method: 'PUT',
-          flow: @flow_array()
-        },
-        success: (data) ->
-          window.location = application_path;
-        dataType: 'json'
-      }
+    # flow_array: () =>
+    #   output = new Array
+    #   for step in @steps()
+    #     args = new Object
+    #     flow_step= new Object
 
-    flow_array: () =>
-      output = new Array
-      for step in @steps()
-        args = new Object
-        flow_step= new Object
+    #     for arg in step.arguments()
+    #       args[arg.name()] = arg.value()
 
-        for arg in step.arguments()
-          args[arg.name()] = arg.value()
+    #     flow_step[step.name()] = args
+    #     output.push(flow_step)
+    #   output
 
-        flow_step[step.name()] = args
-        output.push(flow_step)
-      output
+  class CommandSelector
+    constructor: ->
+      @commands = ko.observableArray([new WhatShouldBeAClass(Menu)])
 
-  class Step
-    constructor: (command, arguments) ->
-      @command = ko.observable command
-      @name = ko.computed(=> @command().name())
-      @arguments = ko.observableArray(@create_arguments(arguments))
+    # command_named: (name) =>
+    #   (command for command in @commands() when command.name() is name)[0]
 
-    create_arguments: (initial_args) =>
-      args = for definition in (@command().definitions())
-        initial_value = if initial_args
-          initial_args[definition.name()]
-        else
-          definition.default_value
-        new Argument(definition, initial_value)
-      args
+    display_template_id: () ->
+      'command_selector_template'
+
+    add_menu_to_steps: () ->
+      workflow.add_step(new Menu)
+
+  class WhatShouldBeAClass
+    constructor: (cmd)->
+      @cmd = cmd
+    add_to_steps: =>
+      @cmd.add_to_steps()
+
+  class Menu
+    constructor: () ->
+      @name = ko.observable 'My Menu'
+
+    is_current_step: () =>
+      workflow.current_step == @
 
     remove: () =>
       workflow.remove_step @
@@ -79,67 +91,22 @@ jQuery ->
     set_as_current: () =>
       workflow.set_as_current @
 
-    display_template_for: (argument) =>
-      argument.data_type()
-
-    @from_command: (command) =>
-      new this(command, null)
-
-    @from_data: (data, commands_model) =>
-      [name, args] = ([name, args] for name, args of data)[0]
-      command = commands_model.command_named(name)
-      new this(command, args)
-
     display_template_id: () =>
-      'step_template'
+      'menu_step_template'
 
-  class Argument
-    constructor: (definition, value) ->
-      @definition = ko.observable definition
-      @value = ko.observable value
+    @add_to_steps: () ->
+      workflow.add_step(new Menu)
 
-    name: =>
-      @definition().name()
-    data_type: =>
-      @definition().data_type()
+    button_class: () ->
+      'ldial'
 
-    display_template_for: () =>
-      alert 'wtf?'
-
-  class ArgumentDefinition
-    constructor: (data) ->
-      @name = ko.observable data.name
-      @optional = ko.observable data.optional
-      @data_type = ko.observable data.type
-      @ui_length = data.ui_length
-      @default_value = data.default
-
-    display_template_for: () =>
-      alert 'wtf 3?'
-
-  class Commands
-    constructor: () ->
-      @commands = ko.observableArray(new Command(name, template) for name, template of commands)
-
-    command_named: (name) =>
-      (command for command in @commands() when command.name() is name)[0]
-
-    display_template_id: () =>
-      'command_selector_template'
-
-  class Command
-    constructor: (name, data) ->
-      @name = ko.observable name
-      @definitions = ko.observableArray(new ArgumentDefinition(definition) for definition in data)
-
-    add_to_steps: () =>
-      workflow.add_step(@)
-
-    display_template_for: () =>
-      alert 'wtf 2?'
-    button_class: () =>
-      'lcallback'
-
-  workflow = new Workflow(new Commands)
-
+  ko.bindingHandlers['class'] = {
+    'update': (element, valueAccessor) ->
+      if (element['__ko__previousClassValue__'])
+          $(element).removeClass(element['__ko__previousClassValue__'])
+      value = ko.utils.unwrapObservable(valueAccessor())
+      $(element).addClass(value)
+      element['__ko__previousClassValue__'] = value
+  }
+  workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)

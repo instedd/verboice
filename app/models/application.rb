@@ -33,6 +33,10 @@ class Application < ActiveRecord::Base
   def call(address)
   end
 
+  def user_flow
+    []
+  end
+
   private
 
   def set_name_to_callback_url
