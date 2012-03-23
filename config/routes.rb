@@ -14,7 +14,7 @@ Verboice::Application.routes.draw do
     member do
       get :edit_workflow
       put :update_workflow
-      put :save_recording
+      post :save_recording
     end
   end
 

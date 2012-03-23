@@ -78,7 +78,9 @@ class ApplicationsController < ApplicationController
   end
 
   def save_recording
+    p 'foooo'
     p params
+    p 'bar'
   end
 
   # DELETE /applications/1

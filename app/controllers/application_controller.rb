@@ -1,3 +1,4 @@
 class ApplicationController < ActionController::Base
-  protect_from_forgery
+  # TODO: check Wami vs rails security
+  # protect_from_forgery
 end
