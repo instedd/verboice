@@ -26,4 +26,8 @@ describe WhileCommand do
 
     cmd.run @session
   end
+
+  it "should update it's flow when receives a new user flow" do
+    #TODO
+  end
 end

@@ -7,4 +7,8 @@ describe Menu do
     #TODO
   end
 
+
+  it "should be able to build itself from an incomming hash" do
+    Menu.new {id: 27, type: :menu, data: {explanation_text: 'foo',  child: } }
+  end
 end
