@@ -1,4 +1,4 @@
-class XmlParser
+class Parsers::Xml
   @parsers = []
   def self.inherited(subclass)
     @parsers << subclass
@@ -26,8 +26,4 @@ class XmlParser
   def self.raise_xml_parse_error(reason)
     raise Exception.new "Failed to parse the XML: #{reason}"
   end
-end
-
-Dir["#{Rails.root}/app/models/parsers/*"].each do |file|
-  ActiveSupport::Inflector.camelize(file[file.rindex('/') + 1 .. -4]).constantize
 end

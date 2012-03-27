@@ -1,4 +1,4 @@
-class DialCommand < Command
+class Commands::DialCommand < Command
   param :number, :string, :ui_length => 80
   param :channel, :string, :ui_length => 20
 

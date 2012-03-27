@@ -1,4 +1,4 @@
-class CaptureCommand < Command
+class Commands::CaptureCommand < Command
   param :min, :integer, :default => 1, :ui_length => 1
   param :max, :integer, :default => 1, :ui_length => 1
   param :finish_on_key, :string, :default => '#', :ui_length => 1

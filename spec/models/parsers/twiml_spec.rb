@@ -128,6 +128,6 @@ describe TwimlParser do
   end
 
   def assert_parse(xml, result)
-    XmlParser.parse(xml).should == result
+    Parsers::Xml.parse(xml).should == result
   end
 end

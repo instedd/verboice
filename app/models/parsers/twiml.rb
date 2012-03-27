@@ -1,4 +1,4 @@
-class TwimlParser < XmlParser
+class Parsers::Twiml < Parsers::Xml
   def self.can_parse?(xml)
     xml.root.name == 'Response'
   end
