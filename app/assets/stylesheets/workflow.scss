@@ -96,6 +96,12 @@ label + p.desc {
   }
 }
 
+.box.addstep { 
+  background-color:#efefef; 
+  @include all-box-shadow(0px 1px 1px 0px rgba(0, 0, 0, 0.2) inset) !important;
+  white-space:normal  
+}
+
 .iblock {
   display: inline-block;
   vertical-align: top;
@@ -111,15 +117,25 @@ label + p.desc {
 .GralTable.NoHead {
   td {
     border: none;
-    padding: 0px 6px;
+    padding: 2px 6px;
+    
+    &.sub {
+      padding-left:15px;
+    }
+    
+    &.disabled {
+      color: #cccccc;
+    }
+    
+    &.add {
+      color: #1F86C8;
+    }
   }
 
   tr:nth-child(2) {
     background-image: none;
   }
-  td.sub {
-    padding-left:15px;
-  }
+  
 }
 
 .TwoColumn tr td:last-child, .TwoColumn tr th:last-child {
@@ -164,13 +180,25 @@ ul.oplist {
   @include all-box-shadow(none);
 }
 
-span.validation {
-  display: inline-block;
-  width: 135px;
-}
+span.arrow-col { background: url(http://theme.instedd.org/theme/images/icons/misc/grey/arrowRight.png) no-repeat; display:inline-block; height:10px; width:14px }
+span.arrow-exp { background: url(http://theme.instedd.org/theme/images/icons/misc/grey/arrowDown.png) no-repeat; display:inline-block; height:10px; width:16px }
+span.arrow-col.orange { background: url(http://theme.instedd.org/theme/images/icons/misc/orange/arrowRight.png) no-repeat; display:inline-block; height:10px; width:14px }
+span.arrow-exp.orange { background: url(http://theme.instedd.org/theme/images/icons/misc/orange/arrowDown.png) no-repeat; display:inline-block; height:10px; width:16px }
 
-.w28 { width:285px }
-.h40 { height:400px }
-.h50 { height:500px }
-.h60 { height:600px }
-.h65 { height:650px }
+div.player span { color:#cf490c; display:inline-block; vertical-align:middle }
+div.player button { vertical-align:middle }
+
+.content-header { padding:26px 50px; text-align:center }
+.content-header h1 { font-size:16px; color:#000000; margin:0 }
+.content-header span { font-size:12px; color:#555555 }
+
+.content-buttons { margin:0 auto; width:265px }
+.content-buttons div { text-align:center; display:inline-block; vertical-align:top; width:85px; margin-bottom:15px }
+.content-buttons span { font-size:11px; color:#000000; display:block; padding-top:5px }
+.content-buttons div.disabled span { color:#b3b3b3 }
+
+.popupmessage { width:220px; margin:20px auto }
+.box.popupmessage hr { width:220px; margin:9px 0 }
+.popupmessage div { color:#555555; margin:5px 0 }
+.popupmessage div.grey { background:#eeeeee; padding:5px; border-radius:5px; -moz-border-radius:5px; -webkit-border-radius:5px }
+.popupmessage div.grey button { vertical-align:middle }
