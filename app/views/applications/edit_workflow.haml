@@ -22,7 +22,6 @@
           %div{ 'data-bind' => 'foreach: steps' }
             .ha
               %span
-              / todo: missing pluggable button class
               %p.button{ 'data-bind' => 'click: set_as_current, class: button_class, css: {active: $data == $root.current_step()}' }
               %p{ ko(text: 'name') }
 

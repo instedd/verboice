@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe AssignCommand do
+describe Commands::AssignCommand do
   before(:each) do
     @session = Session.new :pbx => mock('pbx')
   end
 
   it "assigns" do
-    cmd = AssignCommand.new :name => 'foo', :expr => '1 + 2'
+    cmd = Commands::AssignCommand.new :name => 'foo', :expr => '1 + 2'
     cmd.run @session
 
     @session['foo'].should == 3
