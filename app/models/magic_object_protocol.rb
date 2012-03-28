@@ -32,6 +32,12 @@ module MagicObjectProtocol
       obj
     end
 
+    def receive_data(data)
+      super
+    rescue Exception => ex
+      receive_object(ex)
+    end
+
     def receive_object(obj)
       @mutex.synchronize do
         @obj = obj

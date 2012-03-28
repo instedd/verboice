@@ -1,3 +1,5 @@
+require_dependency 'pbx_unavailable_exception'
+
 module BrokerClient
   Port = Rails.configuration.verboice_configuration[:broker_port].to_i
 
