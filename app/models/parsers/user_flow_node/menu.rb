@@ -59,7 +59,7 @@ module Parsers
             }
           }
         end
-        unless last_capture_hash.empty?
+        unless if_conditions.empty? || last_capture_hash.empty?
           last_capture_hash[:capture][:timeout] = @timeout
           last_if_condition = if_conditions.pop
           last_if_condition[:if][:else] = [

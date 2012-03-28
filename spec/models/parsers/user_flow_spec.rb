@@ -28,7 +28,6 @@ describe Parsers::UserFlow do
   end
   
   it "should deliver a collection of parser nodes" do
-    p application_flow
     nodes = (Parsers::UserFlow.new application_flow).build_nodes
     nodes.size.should eq(1)
     first_menu = nodes.first
@@ -43,5 +42,9 @@ describe Parsers::UserFlow do
     second_menu.id.should eq(14)
     second_menu.explanation_text.should eq('Second Menu')
     second_menu.options.size.should eq(0)
+  end
+  
+  it "should retrieve an equivalent flow in verboice internal representation" do
+    (Parsers::UserFlow.new application_flow).equivalent_flow.should eq([{:say=>"First Menu"}, {:capture=>{:timeout=>0, :say=>"foobar"}}, {:if=>{:condition=>"digits == 2", :then=>[{:say=>"Second Menu"}], :else=>[{:say=>"invalid key pressed"}, :hangout]}}])
   end
 end

@@ -21,4 +21,20 @@ class Parsers::UserFlow
       a_node.is_root?
     end
   end
+  
+  def equivalent_flow
+    @equivalent_flow ||= build_equivalent_flow
+  end
+  
+  def build_equivalent_flow
+    build_nodes
+    flow = @roots.collect do |a_root_node|
+      a_root_node.equivalent_flow
+    end
+    if flow.size == 1
+      flow.first
+    else
+      flow
+    end
+  end
 end
