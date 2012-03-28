@@ -72,48 +72,6 @@ module Parsers
           end
           @equivalent_flow << last_if_condition
         end
-                # 
-                # [
-                #   {say: 'foobar'},
-                #   {
-                #     capture: {
-                #       timeout: 0,
-                #       say: 'foo'
-                #     }
-                #   },
-                #   {
-                #     capture: {
-                #       timeout: 20,
-                #       say: 'bar'
-                #     }
-                #   },
-                #   {
-                #     :if => {
-                #       :condition => "digits == 10",
-                #       :then => [{say: 'asdf'}],
-                #       :else => [
-                #         {
-                #           :if => {
-                #             :condition => "digits == 14",
-                #             :then => [{say: 'qwer'}],
-                #             :else => [
-                #               {
-                #                 :if => {
-                #                   :condition => "digits == 5",
-                #                   :then => [{say: 'qwer'}],
-                #                   :else => [
-                #                     {say: "invalid key pressed"},
-                #                     :hangout
-                #                   ]
-                #                 }
-                #               }
-                #             ]
-                #           }
-                #         }
-                #       ]
-                #     }
-                #   }
-                # ]
         @equivalent_flow << {say: @end_call_text} if @end_call_text
         @equivalent_flow
       end
