@@ -5,43 +5,96 @@ module Parsers
     describe Menu do
 
       it "should compile to a verboice equivalent flow" do
-        menu = Menu.new id: 27, type: 'menu', data: {explanation_text: 'foo',
+        # todo: Add number of attempts and while cycle.
+        menu = Menu.new id: 27, type: 'menu', data: {
+          explanation_text: 'foobar',
+          timeout: 20,
+          invalid_text: 'invalid key pressed',
+          end_call_text: 'Good Bye',
           options:[
             {
               description: 'foo',
-              number: 1,
+              number: 4,
               next: 10
             },
             {
               description: 'bar',
-              number: 2,
+              number: 6,
               next: 14
+            },
+            {
+              description: 'zzz',
+              number: 2,
+              next: 5
             }
           ]
         }
-        menu_2 = Menu.new id: 10, type: 'menu', data: { explanation_text: 'foo', options:[] }
-        menu_3 = Menu.new id: 14, type: 'menu', data: { explanation_text: 'foo', options:[] }
-        menu.solve_links_with [ menu_2, menu_3 ]
-    
-        menu.equivalent_flow.should eq([
-          {:capture => {:min => 1, :max => Float::INFINITY}},
-          {:if => {:condition => 'timeout || finish_key', :then => [:hangup], :else => {:callback => {:url => 'http://www.domain.com/controller/action', :method => 'GET'}}}}
-        ])
-    
-      end
+        menu_2 = Menu.new id: 10, type: 'menu', data: { explanation_text: 'asdf', options:[] }
+        menu_3 = Menu.new id: 14, type: 'menu', data: { explanation_text: 'qwer', options:[] }
+        menu_4 = Menu.new id: 5, type: 'menu', data: { explanation_text: 'zxcv', options:[] }
+        menu.solve_links_with [ menu_2, menu_3, menu_4 ]
 
+        menu.equivalent_flow.should eq([
+          {say: 'foobar'},
+          {
+            capture: {
+              timeout: 0,
+              say: 'foo'
+            }
+          },
+          {
+            capture: {
+              timeout: 0,
+              say: 'bar'
+            }
+          },
+          {
+            capture: {
+              timeout: 20,
+              say: 'zzz'
+            }
+          },
+          {
+            :if => {
+              :condition => "digits == 4",
+              :then => [{say: 'asdf'}],
+              :else => {
+                :if => {
+                  :condition => "digits == 6",
+                  :then => [{say: 'qwer'}],
+                  :else => {
+                    :if => {
+                      :condition => "digits == 2",
+                      :then => [{say: 'zxcv'}],
+                      :else => [
+                        {say: "invalid key pressed"},
+                        :hangout
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {say: 'Good Bye'}
+        ])
+
+      end
 
       it "should be able to build itself from an incomming hash" do
-        menu = Menu.new id: 27, type: 'menu', data: {explanation_text: 'foo'}
+        menu = Menu.new id: 27, type: 'menu', data: {explanation_text: 'foo', timeout: 20, invalid_text: 'foobar', end_call_text: 'cya'}
         menu.id.should eq(27)
         menu.explanation_text.should eq('foo')
+        menu.timeout.should eq(20)
+        menu.invalid_text.should eq('foobar')
+        menu.end_call_text.should eq('cya')
       end
-  
+
       it "should handle a menu input stream"do
         (Menu.can_handle? id: 27, type: 'menu', data: {}).should be_true
         (Menu.can_handle? id: 27, type: 'answer', data: {}).should be_false
       end
-  
+
       it "should build with a collection of options" do
         menu = Menu.new id: 27, type: 'menu', data: {explanation_text: 'foo',
           options:[
@@ -83,12 +136,12 @@ module Parsers
         }
         menu_2 = Menu.new id: 10, type: 'menu', data: { explanation_text: 'foo', options:[] }
         menu_3 = Menu.new id: 14, type: 'menu', data: { explanation_text: 'foo', options:[] }
-    
+
         menu.solve_links_with [ menu_2, menu_3 ]
         menu.options[0][:next].should eq(menu_2)
         menu.options[1][:next].should eq(menu_3)
       end
-  
+
       it "should respond if it's a root or not" do
         menu_1 = Menu.new id: 10, root: true, type: 'menu', data: { explanation_text: 'foo', options:[] }
         menu_2 = Menu.new id: 14, type: 'menu', data: { explanation_text: 'foo', options:[] }
