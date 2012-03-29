@@ -1,4 +1,4 @@
-class PauseCommand < Command
+class Commands::PauseCommand < Command
   param :length, :integer, :default => 1, :ui_length => 3
 
   def initialize(length = 1)

@@ -1,12 +1,10 @@
 class Command
   def self.inherited(subclass)
-    @@commands ||= []
-    @@commands << subclass
     subclass.instance_eval { @spec = [] }
   end
 
   def self.specs
-    @@commands.inject({}) do |hash, cmd|
+    subclasses.inject({}) do |hash, cmd|
       hash[cmd.name[0 .. -8].underscore] = cmd.spec
       hash
     end

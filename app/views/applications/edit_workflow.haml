@@ -21,7 +21,7 @@
   .left
     .box.lightgrey.workflow#workflow
       .workflow-content-container.w60.h65{ ko(workflow_steps: 'steps') }
-            
+
   %span{ 'data-bind' => 'template: { name: display_template_for, with: current_step }' }
 
   .clear

@@ -1,15 +1,15 @@
 require 'spec_helper'
 
-describe TwimlParser do
+describe Parsers::Twiml do
   context "can parse?" do
     it "parse" do
       xml = Nokogiri.XML '<Response><Say>Hello</Say></Response>'
-      TwimlParser.can_parse?(xml).should_not be_nil
+      Parsers::Twiml.can_parse?(xml).should_not be_nil
     end
 
     it "not parse" do
       xml = Nokogiri.XML '<phoneml></phoneml>'
-      TwimlParser.can_parse?(xml).should be_false
+      Parsers::Twiml.can_parse?(xml).should be_false
     end
   end
 
@@ -128,6 +128,6 @@ describe TwimlParser do
   end
 
   def assert_parse(xml, result)
-    XmlParser.parse(xml).should == result
+    Parsers::Xml.parse(xml).should == result
   end
 end

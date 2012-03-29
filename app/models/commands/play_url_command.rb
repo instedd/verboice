@@ -1,5 +1,5 @@
-class PlayUrlCommand < Command
-  include PlayCommand
+class Commands::PlayUrlCommand < Command
+  include Commands::PlayCommand
   param :url, :string, :ui_length => 80
 
   def initialize(url)

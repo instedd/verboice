@@ -2,6 +2,9 @@ class ApplicationsController < ApplicationController
   before_filter :authenticate_account!
   before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update_workflow, :update, :destroy]
 
+
+  skip_before_filter :verify_authenticity_token, :only => :save_recording
+
   # GET /applications
   def index
     @applications = current_account.applications.all
@@ -45,27 +48,7 @@ class ApplicationsController < ApplicationController
   end
 
   def update_workflow
-    p '-------------------'
-    if params[:flow].is_a? Hash
-      p 1
-      @application.flow = Array.new
-      params[:flow].each do |key, step|
-        @application.flow << step
-      end
-    elsif params[:flow].is_a? Array
-      p 2
-      @application.flow = params[:flow]
-    elsif params[:flow]
-      p 3
-      @application.flow = [params[:flow]]
-    else
-      p 4
-      @application.flow = nil
-    end
-    p '-------------------'
-    p params[:flow]
-    p @application.flow
-    p '-------------------'
+    @application.user_flow = params[:flow]
 
     if @application.save
       respond_to do |format|
@@ -78,7 +61,19 @@ class ApplicationsController < ApplicationController
   end
 
   def save_recording
+    p 'foooo'
     p params
+    p 'bar'
+
+    # wavfile = File.new()
+    # wavfile.binmode
+
+    File.open("recording.wav","wb") do |file|
+      file.write request.body.read
+    end
+
+    # wavfile.close
+
   end
 
   # DELETE /applications/1

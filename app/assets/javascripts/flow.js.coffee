@@ -191,6 +191,7 @@ jQuery ->
 
     stop_recording: () =>
       Wami.stopRecording()
+      Wami.startPlaying()
 
     next_ids: () =>
       (option.next() for option in @options())
@@ -223,7 +224,7 @@ jQuery ->
   workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)
 
-  Wami.setup {id: 'wami', swfUrl: '/Wami.swf'}
+  Wami.setup {id: 'wami', swfUrl: '/Wami.swf', noSecurityCheck: true}
 
   # Wami.startPlaying(anyWavURL);
   # Wami.stopPlaying();

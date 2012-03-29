@@ -1,4 +1,4 @@
-class IfCommand
+class Commands::IfCommand
   def initialize(options = {})
     @condition = options[:condition]
     @then = options[:then]
@@ -8,7 +8,7 @@ class IfCommand
   def run(session)
     commands = session.eval(@condition) ? @then : @else
     if commands
-      commands = [commands] unless commands.is_a? Array
+      commands = [commands] unless commands.is_an? Array
       session.push_commands commands
     end
   end

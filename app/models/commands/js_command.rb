@@ -1,4 +1,4 @@
-class JsCommand
+class Commands::JsCommand
   def initialize(source)
     @source = source
   end
