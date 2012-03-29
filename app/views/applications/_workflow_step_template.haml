@@ -1,0 +1,4 @@
+%script{type: "text/html", id: "workflow_step_template"}
+  %span
+  %p.button{ ko(:click => "set_as_current", :class => "button_class", :css => "{active: $data == $root.current_step()}") }
+  %p{ ko(text: 'name') }

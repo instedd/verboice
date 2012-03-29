@@ -8,12 +8,76 @@ jQuery ->
   if not $('#workflow').length > 0
     return
 
+
+  class WorkflowDrawer
+    constructor: (container) ->
+      @container = $(container)
+      
+    draw_workflow: (steps) =>
+      @matrix_yx = []
+      @container.empty()
+      y = 0
+      roots = (step for step in steps when step.root)
+      for root in roots
+        [_x,y] = @recursive_draw_workflow(root, 0, y)
+      @draw_matrix()
+    
+    recursive_draw_workflow: (step, x, y, klass='ha') =>
+      @set_step(step, x, y, klass)
+      [next_x, next_y] = [x+1, y]
+      klass = 'ha'
+      for child in step.children()
+        [_x, next_y] = @recursive_draw_workflow(child, next_x, next_y, klass)
+        klass = 'va'
+      next_y = y+1 if next_y < y+1
+      return [x, next_y]
+    
+    set_step: (step, x, y, klass) =>
+      @matrix_yx[y] ?= []
+      for x_i in [0..x-1]
+        if not @matrix_yx[y][x_i]?
+          @matrix_yx[y][x_i] = [false, klass]
+      @matrix_yx[y][x] = [step, klass]
+
+    draw_matrix: () =>
+      for row in @matrix_yx
+        @draw_newline()
+        for [elem, klass] in row
+          if elem == false
+            @draw_empty()
+          else
+            @draw_step(elem, klass)
+
+    draw_newline: () =>
+      @container.append('<p> </p>')
+    
+    draw_empty: () =>
+      @container.append('<div> </div>')
+    
+    draw_step: (step, klass="") =>
+      @container.append("<div class=\"#{klass}\" data-bind=\"template: { name: '#{step.item_template_id()}', data: get_step(#{step.id}) }\"> </div>")
+
+  
+  ko.bindingHandlers.workflow_steps =
+    init: (element, valueAccessor, allBindingsAccessor, viewModel) ->
+      container = $("<div class='workflow-container'></div>").appendTo(element)
+      viewModel.workflow_drawer = new WorkflowDrawer(container)
+    update: (element, valueAccessor, allBindingsAccessor, viewModel) ->
+      steps = ko.utils.unwrapObservable(valueAccessor())
+      viewModel.workflow_drawer.draw_workflow(steps)
+
+
+
+
+
   class Workflow
-    constructor: (command_selector)->
-      # @steps = ko.observableArray(Step.from_data(data, commands_model) for data in application_flow)
-      @steps = ko.observableArray([])
+    constructor: (command_selector) ->
+      @steps = ko.observableArray(Step.from_hash(hash) for hash in application_flow)
       @command_selector = ko.observable(command_selector)
       @current_step = ko.observable @command_selector()
+
+    get_step: (id) =>
+      (step for step in @steps() when step.id == id)[0]
 
     add_step: (command) =>
       @steps.push command
@@ -61,7 +125,8 @@ jQuery ->
 
   class CommandSelector
     constructor: ->
-      @commands = ko.observableArray([new ClassBindingHandler(Menu)])
+      handlers = (new ClassBindingHandler(klass) for klass in [Menu])
+      @commands = ko.observableArray(handlers)
 
     # command_named: (name) =>
     #   (command for command in @commands() when command.name() is name)[0]
@@ -78,10 +143,22 @@ jQuery ->
     add_to_steps: =>
       @cmd.add_to_steps()
 
-  class Menu
+  class Step
     constructor: () ->
-      @name = ko.observable 'My Menu'
-
+      @root = false
+    
+    @from_hash: (hash) ->
+      item = null
+      switch hash['type']
+        when 'menu'
+          item = Menu.from_hash(hash)
+        else
+          throw "Command type not recognised #{hash['type']}"
+      
+      item.root = hash['root']
+      item.id = hash['id']
+      return item
+    
     is_current_step: () =>
       workflow.current_step == @
 
@@ -90,6 +167,18 @@ jQuery ->
 
     set_as_current: () =>
       workflow.set_as_current @
+    
+    children: () =>
+      (step for step in workflow.steps() when step.id in @next_ids())
+    
+    item_template_id: () =>
+      'workflow_step_template'
+    
+
+  class Menu extends Step
+    constructor: (name, options) ->
+      @name = ko.observable name || 'Menu'
+      @options = ko.observableArray(options)
 
     display_template_id: () =>
       'menu_step_template'
@@ -103,8 +192,24 @@ jQuery ->
     stop_recording: () =>
       Wami.stopRecording()
 
+    next_ids: () =>
+      (option.next() for option in @options())
+    
     @add_to_steps: () ->
       workflow.add_step(new Menu)
+      
+    @from_hash: (hash) ->
+      options = (new MenuOption(opt.number, opt.description, opt.next) for opt in (hash.options || []))
+      menu = new Menu(hash['name'], options)
+      return menu
+      
+  
+  class MenuOption
+    constructor: (number, description, next) ->
+      @number = ko.observable number
+      @description = ko.observable description
+      @next = ko.observable next
+
 
   ko.bindingHandlers['class'] = {
     'update': (element, valueAccessor) ->
@@ -114,6 +219,7 @@ jQuery ->
       $(element).addClass(value)
       element['__ko__previousClassValue__'] = value
   }
+  
   workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)
 

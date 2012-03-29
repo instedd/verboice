@@ -1,11 +1,15 @@
 - content_for :head do
   :javascript
-    var application_flow = #{ raw @application.user_flow.to_json };
+    //var application_flow = #{ raw @application.user_flow.to_json };
+    var application_flow = [ {id:12, root: true, type: 'menu', name: 'First', explanation_text: 'First Menu', options:[{ description: 'foobar', number: 2, next: 14 }, { description: 'otra', number: 3, next: 15 }] }, {id:14, type: 'menu', name: 'Second', explanation_text: 'Second Menu'}, {id:15, type: 'menu', name: 'Third', explanation_text: 'Third Menu'} ];
     var update_workflow_application_path = "#{ update_workflow_application_path(@application) }";
     var application_path = "#{ application_path(@application) }";
     var save_recording_application_path = "#{ save_recording_application_path(@application)}"
-= render 'step_template'
-= render 'command_selector_template'
+
+  = render 'workflow_step_template'
+  = render 'step_template'
+  = render 'command_selector_template'
+
 
 = render 'tabs'
 
@@ -14,18 +18,10 @@
 %p.title.clickable{ 'data-bind' => 'click: initialize_current_step' } Add new step
 
 %form{ 'data-bind' => "submit: submitChange" }
-
   .left
     .box.lightgrey.workflow#workflow
-      .workflow-content-container.w60.h65
-        .workflow-container
-          %div{ 'data-bind' => 'foreach: steps' }
-            .ha
-              %span
-              / todo: missing pluggable button class
-              %p.button{ 'data-bind' => 'click: set_as_current, class: button_class, css: {active: $data == $root.current_step()}' }
-              %p{ ko(text: 'name') }
-
+      .workflow-content-container.w60.h65{ ko(workflow_steps: 'steps') }
+            
   %span{ 'data-bind' => 'template: { name: display_template_for, with: current_step }' }
 
   .clear
