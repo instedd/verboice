@@ -96,32 +96,12 @@ jQuery ->
     display_template_for: (current_flow_step) =>
       @current_step().display_template_id()
 
-    # Persist change on the server
-    submitChange: () =>
-    #   $.ajax {
-    #     type: 'POST',
-    #     url: update_workflow_application_path,
-    #     data: {
-    #       _method: 'PUT',
-    #       flow: @flow_array()
-    #     },
-    #     success: (data) ->
-    #       window.location = application_path;
-    #     dataType: 'json'
-    #   }
+    serialize_workflow: () =>
+      debugger;
+      serialized = JSON.stringify(step.to_hash() for step in @steps())
+      $('#flow').val(serialized)
+      return true # let the submit handler do its work
 
-    # flow_array: () =>
-    #   output = new Array
-    #   for step in @steps()
-    #     args = new Object
-    #     flow_step= new Object
-
-    #     for arg in step.arguments()
-    #       args[arg.name()] = arg.value()
-
-    #     flow_step[step.name()] = args
-    #     output.push(flow_step)
-    #   output
 
   class CommandSelector
     constructor: ->
@@ -173,8 +153,8 @@ jQuery ->
     
     item_template_id: () =>
       'workflow_step_template'
-    
-
+      
+      
   class Menu extends Step
     constructor: (name, options) ->
       @name = ko.observable name || 'Menu'
@@ -204,12 +184,19 @@ jQuery ->
       menu = new Menu(hash['name'], options)
       return menu
       
+    to_hash: () =>
+      {name: @name(), type: 'menu', root: @root, id: @id, options: (option.to_hash() for option in @options())}
+      
+      
   
   class MenuOption
     constructor: (number, description, next) ->
       @number = ko.observable number
       @description = ko.observable description
       @next = ko.observable next
+    
+    to_hash: () =>
+      {number: @number(), description: @description(), next: @next()}
 
 
   ko.bindingHandlers['class'] = {

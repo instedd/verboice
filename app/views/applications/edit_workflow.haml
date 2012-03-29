@@ -15,9 +15,9 @@
 
 #wami
 
-%p.title.clickable{ 'data-bind' => 'click: initialize_current_step' } Add new step
+#workflow-page
+  %p.title.clickable{ 'data-bind' => 'click: initialize_current_step' } Add new step
 
-%form{ 'data-bind' => "submit: submitChange" }
   .left
     .box.lightgrey.workflow#workflow
       .workflow-content-container.w60.h65{ ko(workflow_steps: 'steps') }
@@ -25,12 +25,17 @@
   %span{ 'data-bind' => 'template: { name: display_template_for, with: current_step }' }
 
   .clear
+
   %br
   %hr
   %br
-  .bottom-actions
-    %button.white{:type => "submit"} Save
-    = link_to 'Cancel', application_path(@application), :class => "button white cancel"
+  
+  = form_tag update_workflow_application_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
+    .bottom-actions
+      = hidden_field_tag 'flow'
+      %button.white{:type => "submit"} Save
+      = link_to 'Cancel', application_path(@application), :class => "button white cancel"
+
 / %br
 / %hr
 / %br
