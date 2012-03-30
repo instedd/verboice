@@ -16,6 +16,7 @@ gem "daemons"
 gem "therubyracer", :require => 'v8'
 gem "instedd-rails"
 gem 'decent_exposure'
+gem 'attr_encrypted'
 
 group :assets do
   gem 'sass-rails',   '~> 3.1.5'
@@ -23,7 +24,8 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
-group :test do
+group :development, :test do
+  gem 'foreman'
   gem 'machinist'
   gem 'ffaker'
   gem 'rspec'
@@ -35,4 +37,8 @@ end
 group :development do
   gem 'hpricot'
   gem 'ruby_parser'
+end
+
+group :test do
+  gem 'capybara'
 end

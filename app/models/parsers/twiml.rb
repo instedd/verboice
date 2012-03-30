@@ -40,7 +40,7 @@ class Parsers::Twiml < Parsers::Xml
   private
 
   def self.play(xml)
-    {:play_url => xml.text}
+    {:play_url => xml.text.try(:strip)}
   end
 
   def self.redirect(xml)
@@ -48,7 +48,7 @@ class Parsers::Twiml < Parsers::Xml
   end
 
   def self.say(xml)
-    {:say => xml.text}
+    {:say => xml.text.try(:strip)}
   end
 
   def self.pause(xml)

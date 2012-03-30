@@ -4,7 +4,7 @@ describe Freeswitch::Broker do
   before(:each) do
     @broker = Freeswitch::Broker.new
     @broker.freeswitch_client = mock 'freeswitch_client'
-    @channel = Channel.make :kind => 'sip2sip'
+    @channel = Channel.make :kind => 'custom'
     @queued_call = @channel.queued_calls.make
   end
 

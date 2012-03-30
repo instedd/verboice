@@ -60,11 +60,43 @@ describe Session do
     @session.resume
   end
 
-  it "send status notification" do
-    @session.application = Application.new :status_callback_url => 'http://foo'
-    @pbx.should_receive(:caller_id).and_return('999')
-    expect_em_http :get, 'http://foo', :with => { :query => { :CallSid => @session.call_log.id, :From => '999', :CallStatus => 'foo' }}, :callback => false, :errback => false
-    @session.notify_status 'foo'
+  context "sending status notification for an application" do
+    let(:application) { Application.make(:status_callback_url => 'http://foo') }
+
+    def apply_authentication_to_application(user = "", password = "")
+      application.status_callback_url_user = user
+      application.status_callback_url_password = password
+      application.save
+    end
+
+    before do
+      @session.application = application
+      @pbx.stub(:caller_id).and_return('999')
+      @pbx.should_receive(:caller_id)
+    end
+
+    context "with status callback url authentication" do
+      before do
+        apply_authentication_to_application("user", "password")
+      end
+
+      it "should send a status notification with authentication" do
+        expect_em_http :get, 'http://foo', :with => { :query => { :CallSid => @session.call_log.id, :From => '999', :CallStatus => 'foo' }, :head => {'authorization' => ['user', 'password']}}, :callback => false, :errback => false
+        @session.notify_status 'foo'
+      end
+    end
+
+    context "without status callback url authentication" do
+
+      before do
+        apply_authentication_to_application
+      end
+
+      it "should send a status notification without authentication" do
+        expect_em_http :get, 'http://foo', :with => { :query => { :CallSid => @session.call_log.id, :From => '999', :CallStatus => 'foo' }}, :callback => false, :errback => false
+        @session.notify_status 'foo'
+      end
+    end
   end
 
   context "answering machine detection" do

@@ -9,6 +9,12 @@ class Application < ActiveRecord::Base
 
   serialize :flow, Array
 
+
+  config_accessor :callback_url_user, :callback_url_password,
+                  :status_callback_url_user, :status_callback_url_password
+
+  attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true
+
   before_save :clear_flow, :if => lambda { @mode == 'callback_url' }
   def clear_flow
     self.flow = nil

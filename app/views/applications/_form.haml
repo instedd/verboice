@@ -11,8 +11,12 @@
     = f.text_field :name
   = f.select :mode, options_for_select([['Use a callback URL', :callback_url], ['Use a custom flow', :flow]], @application.mode)
   #callback_url_container{:style => ('display: none' if @application.mode != :callback_url)}
-    = f.text_field :callback_url
-  = f.text_field :status_callback_url
+    = with_callback_url_fields do |field, field_type|
+      = f.send(field_type, field)
+    
+  = with_callback_url_fields(:status) do |field, field_type|
+    = f.send(field_type, field)
+  
   %hr
   .bottom-actions
-    %button.white{:type => "submit"} Save
+    = f.submit :class => 'white'

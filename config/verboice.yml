@@ -1,1 +1,5 @@
 broker_port: 8787
+tts: system
+ispeech_api_key: developerdemokeydeveloperdemokey
+ispeech_voice: usenglishfemale
+ispeech_format: mp3
