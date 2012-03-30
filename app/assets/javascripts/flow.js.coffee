@@ -12,7 +12,7 @@ jQuery ->
   class WorkflowDrawer
     constructor: (container) ->
       @container = $(container)
-      
+
     draw_workflow: (steps) =>
       @matrix_yx = []
       @container.empty()
@@ -21,22 +21,29 @@ jQuery ->
       for root in roots
         [_x,y] = @recursive_draw_workflow(root, 0, y)
       @draw_matrix()
-    
-    recursive_draw_workflow: (step, x, y, klass='ha') =>
+
+    recursive_draw_workflow: (step, x, y, parent_x, parent_y, klass='ha') =>
       @set_step(step, x, y, klass)
       [next_x, next_y] = [x+1, y]
       klass = 'ha'
       for child in step.children()
-        [_x, next_y] = @recursive_draw_workflow(child, next_x, next_y, klass)
+        @fill_va_ext(next_x, y, next_y) if klass == 'va'
+        [_x, next_y] = @recursive_draw_workflow(child, next_x, next_y, x, y, klass)
         klass = 'va'
       next_y = y+1 if next_y < y+1
       return [x, next_y]
-    
+
+    fill_va_ext: (x, from_y, to_y) =>
+      for y_i in [from_y..to_y]
+        @matrix_yx[y_i] ?= []
+        if not @matrix_yx[y_i][x]? or (@matrix_yx[y_i][x][0] == false and @matrix_yx[y_i][x][1] == '')
+          @matrix_yx[y_i][x] = [false, 'va-ext']
+
     set_step: (step, x, y, klass) =>
       @matrix_yx[y] ?= []
       for x_i in [0..x-1]
         if not @matrix_yx[y][x_i]?
-          @matrix_yx[y][x_i] = [false, klass]
+          @matrix_yx[y][x_i] = [false, '']
       @matrix_yx[y][x] = [step, klass]
 
     draw_matrix: () =>
@@ -44,20 +51,20 @@ jQuery ->
         @draw_newline()
         for [elem, klass] in row
           if elem == false
-            @draw_empty()
+            @draw_empty(klass)
           else
             @draw_step(elem, klass)
 
     draw_newline: () =>
       @container.append('<p> </p>')
-    
-    draw_empty: () =>
-      @container.append('<div> </div>')
-    
+
+    draw_empty: (klass="") =>
+      @container.append("<div class=\"#{klass}\"><span></span></div>")
+
     draw_step: (step, klass="") =>
       @container.append("<div class=\"#{klass}\" data-bind=\"template: { name: '#{step.item_template_id()}', data: get_step(#{step.id}) }\"> </div>")
 
-  
+
   ko.bindingHandlers.workflow_steps =
     init: (element, valueAccessor, allBindingsAccessor, viewModel) ->
       container = $("<div class='workflow-container'></div>").appendTo(element)
@@ -97,7 +104,6 @@ jQuery ->
       @current_step().display_template_id()
 
     serialize_workflow: () =>
-      debugger;
       serialized = JSON.stringify(step.to_hash() for step in @steps())
       $('#flow').val(serialized)
       return true # let the submit handler do its work
@@ -126,7 +132,7 @@ jQuery ->
   class Step
     constructor: () ->
       @root = false
-    
+
     @from_hash: (hash) ->
       item = null
       switch hash['type']
@@ -134,11 +140,11 @@ jQuery ->
           item = Menu.from_hash(hash)
         else
           throw "Command type not recognised #{hash['type']}"
-      
+
       item.root = hash['root']
       item.id = hash['id']
       return item
-    
+
     is_current_step: () =>
       workflow.current_step == @
 
@@ -147,14 +153,14 @@ jQuery ->
 
     set_as_current: () =>
       workflow.set_as_current @
-    
+
     children: () =>
       (step for step in workflow.steps() when step.id in @next_ids())
-    
+
     item_template_id: () =>
       'workflow_step_template'
-      
-      
+
+
   class Menu extends Step
     constructor: (name, options) ->
       @name = ko.observable name || 'Menu'
@@ -175,26 +181,26 @@ jQuery ->
 
     next_ids: () =>
       (option.next() for option in @options())
-    
+
     @add_to_steps: () ->
       workflow.add_step(new Menu)
-      
+
     @from_hash: (hash) ->
       options = (new MenuOption(opt.number, opt.description, opt.next) for opt in (hash.options || []))
       menu = new Menu(hash['name'], options)
       return menu
-      
+
     to_hash: () =>
       {name: @name(), type: 'menu', root: @root, id: @id, options: (option.to_hash() for option in @options())}
-      
-      
-  
+
+
+
   class MenuOption
     constructor: (number, description, next) ->
       @number = ko.observable number
       @description = ko.observable description
       @next = ko.observable next
-    
+
     to_hash: () =>
       {number: @number(), description: @description(), next: @next()}
 
@@ -207,7 +213,7 @@ jQuery ->
       $(element).addClass(value)
       element['__ko__previousClassValue__'] = value
   }
-  
+
   workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)
 
