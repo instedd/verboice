@@ -17,9 +17,9 @@ class Commands::CaptureCommand < Command
 
     options = @options.dup
     if options[:play].present?
-      options[:play] = PlayUrlCommand.new(options[:play]).download(session)
+      options[:play] = Commands::PlayUrlCommand.new(options[:play]).download(session)
     elsif options[:say].present?
-      options[:play] = SayCommand.new(options[:say]).download(session)
+      options[:play] = Commands::SayCommand.new(options[:say]).download(session)
       options.delete :say
     else
       options.delete :play

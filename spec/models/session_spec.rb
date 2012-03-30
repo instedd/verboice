@@ -20,7 +20,7 @@ describe Session do
 
   it "run command with class" do
     @pbx.should_receive(:foo)
-    @session.commands = [NoArgsCommand.new]
+    @session.commands = [Commands::NoArgsCommand.new]
     @session.run
   end
 
@@ -100,34 +100,36 @@ describe Session do
   end
 end
 
-class NoArgsCommand
-  def run(session)
-    session.pbx.foo
-  end
-end
-
-class ArgsCommand
-  def initialize(options)
-    @n = options[:n]
+module Commands
+  class NoArgsCommand
+    def run(session)
+      session.pbx.foo
+    end
   end
 
-  def run(session)
-    session.pbx.bar @n
-  end
-end
+  class ArgsCommand
+    def initialize(options)
+      @n = options[:n]
+    end
 
-class PushCommand
-  def initialize(command)
-    @command = command
+    def run(session)
+      session.pbx.bar @n
+    end
   end
 
-  def run(session)
-    session.push_commands [@command]
-  end
-end
+  class PushCommand
+    def initialize(command)
+      @command = command
+    end
 
-class YieldCommand
-  def run(session)
-    Fiber.yield
+    def run(session)
+      session.push_commands [@command]
+    end
+  end
+
+  class YieldCommand
+    def run(session)
+      Fiber.yield
+    end
   end
 end
