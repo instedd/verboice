@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 describe Application do
+
+  let(:application) { Application.make }
+
   context "validations" do
     before(:each) { Application.make }
 
@@ -45,6 +48,31 @@ describe Application do
     it "commands when callback url is present" do
       @app.callback_url = 'http://example.com'
       @app.commands.should eq([:answer, {:callback => @app.callback_url}])
+    end
+  end
+
+  context "config" do
+    include ApplicationConfigHelpers
+
+    it "should be encrypted" do
+      subject.config = {:some => :config}
+      subject.encrypted_config.should_not == {:some => :config}
+    end
+
+    it "should propertly saved the encrypted config to the db" do
+      app = Application.make
+      with_callback_url_accessors do |accessor|
+        app.send("#{accessor}=", accessor.to_s)
+        app.save
+        subject.class.find(app.id).send(accessor).should == accessor.to_s
+      end
+    end
+
+    it "should have accessors for all configuration" do
+      with_callback_url_accessors do |accessor|
+        subject.send("#{accessor}=", accessor)
+        subject.send(accessor).should == accessor
+      end
     end
   end
 end

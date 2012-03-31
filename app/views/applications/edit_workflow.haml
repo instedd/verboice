@@ -1,7 +1,7 @@
 - content_for :head do
   :javascript
     //var application_flow = #{ raw @application.user_flow.to_json };
-    var application_flow = [ {id:12, root: true, type: 'menu', name: 'First', explanation_text: 'First Menu', options:[{ description: 'foobar', number: 2, next: 14 }, { description: 'otra', number: 3, next: 15 }] }, {id:14, type: 'menu', name: 'Second', explanation_text: 'Second Menu'}, {id:15, type: 'menu', name: 'Third', explanation_text: 'Third Menu'} ];
+    var application_flow = [ {id:12, root: true, type: 'menu', name: 'First', explanation_text: 'First Menu', options:[{ description: 'N2', number: 2, next: 14 }, { description: 'N3', number: 3, next: 15 }, { description: 'N4', number: 4, next: 20 }] }, {id:14, type: 'menu', name: 'Second', explanation_text: 'Second Menu', options:[{ description: 'N2', number: 2, next: 16 }, { description: 'N3', number: 3, next: 17 }]}, {id:15, type: 'menu', name: 'Third', explanation_text: 'Third Menu'}, {id:16, type: 'menu', name: 'Second A', explanation_text: 'Second A Menu'}, {id:17, type: 'menu', name: 'Second B', explanation_text: 'Second B Menu', options:[{ description: 'N2', number: 2, next: 18 }, { description: 'N3', number: 3, next: 19 }]}, {id:18, type: 'menu', name: 'Second B1', explanation_text: 'Second B1 Menu'}, {id:19, type: 'menu', name: 'Second B2', explanation_text: 'Second B2 Menu'}, {id:20, type: 'menu', name: 'Fourth', explanation_text: 'Fourth Menu'} ];
     var update_workflow_application_path = "#{ update_workflow_application_path(@application) }";
     var application_path = "#{ application_path(@application) }";
     var save_recording_application_path = "#{ save_recording_application_path(@application)}"
@@ -29,7 +29,7 @@
   %br
   %hr
   %br
-  
+
   = form_tag update_workflow_application_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
     .bottom-actions
       = hidden_field_tag 'flow'

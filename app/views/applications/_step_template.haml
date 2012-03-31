@@ -2,7 +2,7 @@
   .box.w30.iblock.feditor-sidebar.right.h65{ 'data-bind' => 'with: current_step' }
     .tableheader
       %span.i48grad-dial.left
-      %input.ux-text.w20.right{ 'data-bind' => 'value: name' }
+      %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
 
     %table.GralTable.TwoColumn.CleanTable.NoHead
       %tr

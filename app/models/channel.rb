@@ -1,7 +1,7 @@
 class Channel < ActiveRecord::Base
   include ChannelSerialization
 
-  Kinds = %w(generic sip2sip callcentric custom)
+  Kinds = %w(sip custom)
 
   belongs_to :account
   belongs_to :application
@@ -37,7 +37,7 @@ class Channel < ActiveRecord::Base
 
   def call(address, options = {})
     call_queue = options.has_key?(:queue) ? account.call_queues.find_by_name!(options[:queue]) : nil
-    
+
     call_log = call_logs.new :direction => :outgoing, :application_id => application_id, :address => address, :state => :queued, :call_queue => call_queue, :not_before => options[:not_before]
     call_log.info "Received via API: call #{address}"
     call_log.save!
