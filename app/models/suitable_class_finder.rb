@@ -5,7 +5,11 @@ class SuitableClassFinder
   def initialize a_collection_of_classes , params = {}
   	@classes = a_collection_of_classes
   	@testing_message = params[:sending] || self.class.default_can_handle_message
-  	@collaborators = params[:suitable_for] || {}
+  	@collaborators = if params[:suitable_for].is_an? Array
+  	  params[:suitable_for]
+	  else
+  	  [params[:suitable_for]]
+	  end
   	@if_none_do_block = params[:if_none] || self.class.default_if_none_block
   	@if_multiple_do_block = params[:if_multiple] || self.class.default_if_multiple_block
   end
@@ -18,6 +22,14 @@ class SuitableClassFinder
     find_in an_abstract_class.subclasses, params
   end
 
+  def self.find_leaf_subclass_of an_abstract_class, params
+    find_in an_abstract_class.all_leaf_subclasses, params
+  end
+
+  def self.find_any_subclass_of an_abstract_class, params
+    find_in an_abstract_class.all_subclasses, params
+  end
+  
   def self.find_in a_list_of_classes, params
     self.new a_list_of_classes, params
   end
@@ -39,7 +51,7 @@ class SuitableClassFinder
 	
 	def value
   	suitable_classes = @classes.select do |a_class|
-      a_class.send @testing_message, @collaborators
+      a_class.send @testing_message, *@collaborators
   	end
   	
   	if suitable_classes.size == 1
