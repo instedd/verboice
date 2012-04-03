@@ -8,6 +8,7 @@ class Application < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :account_id
 
   serialize :flow, Array
+  serialize :user_flow, Array
 
   before_update :update_flow_with_user_flow
 
