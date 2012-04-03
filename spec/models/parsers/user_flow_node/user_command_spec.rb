@@ -12,6 +12,7 @@ module Parsers
       it "should deliver the right subclass to parse a given input" do
         (UserCommand.for id: 27, type: 'menu', data: {}).class.should eq(Menu)
       end
+      
     end
   end
 end
