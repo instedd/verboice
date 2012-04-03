@@ -1,7 +1,7 @@
-class FastAGIProtocol < EventMachine::Protocols::LineAndTextProtocol; end
+class FastAgiProtocol < EventMachine::Protocols::LineAndTextProtocol; end
 
 module Asterisk
-  class CallManager < Asterisk::FastAGIProtocol
+  class CallManager < Asterisk::FastAgiProtocol
     Port = Rails.configuration.asterisk_configuration[:call_manager_port].to_i
     SoundsDir = Rails.configuration.asterisk_configuration[:sounds_dir]
     SoundsPath = "#{SoundsDir}/verboice/"

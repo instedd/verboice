@@ -200,7 +200,7 @@ describe Asterisk::CallManager do
   end
 
   def asterisk_response(note)
-    Asterisk::AGIMixin::Response.new("200 result=1 (#{note})")
+    Asterisk::AgiMixin::Response.new("200 result=1 (#{note})")
   end
 
   def line(result)

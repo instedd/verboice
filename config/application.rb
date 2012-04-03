@@ -58,6 +58,7 @@ module Verboice
             ).constantize
         rescue LoadError => ex
           Rails.logger.warn ex
+          p ex
         end
       end
     end
