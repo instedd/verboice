@@ -173,10 +173,17 @@ jQuery ->
       'ldial'
 
     start_recording: () =>
-      Wami.startRecording(save_recording_application_path);
+      Wami.setup
+        id: 'wami'
+        swfUrl: '/Wami.swf'
+        onReady: ->
+          Wami.startRecording(save_recording_application_path);
+      if $('.flash-required').length
+        $('.flash-required').html('')
+        alert "Adobe Flash Player version 10.0.0 or higher is required for recording a message.\nDownload it from https://get.adobe.com/flashplayer/ and reload this page."
 
     stop_recording: () =>
-      Wami.stopRecording()
+      Wami.stopRecording() if Wami.stopRecording
 
     next_ids: () =>
       (option.next() for option in @options())
@@ -216,7 +223,6 @@ jQuery ->
   workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)
 
-  Wami.setup {id: 'wami', swfUrl: '/Wami.swf'}
 
   # Wami.startPlaying(anyWavURL);
   # Wami.stopPlaying();
