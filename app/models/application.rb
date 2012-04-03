@@ -9,6 +9,7 @@ class Application < ActiveRecord::Base
 
   serialize :flow, Array
 
+  before_update :update_flow_with_user_flow
 
   config_accessor :callback_url_user, :callback_url_password,
                   :status_callback_url_user, :status_callback_url_password
@@ -39,8 +40,8 @@ class Application < ActiveRecord::Base
   def call(address)
   end
 
-  def user_flow
-    []
+  def update_flow_with_user_flow
+    flow = (Parsers::UserFlow.new user_flow).equivalent_flow if user_flow_changed?
   end
 
   private
@@ -48,5 +49,6 @@ class Application < ActiveRecord::Base
   def set_name_to_callback_url
     self.name = callback_url
   end
+
 
 end

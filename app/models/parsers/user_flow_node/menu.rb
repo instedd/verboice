@@ -5,27 +5,27 @@ module Parsers
       attr_reader :id, :explanation_text, :options, :timeout, :invalid_text, :end_call_text
 
       def initialize params
-        @id = params[:id]
-        @explanation_text = params[:data][:explanation_text]
-        @options = params[:data][:options] || []
-        @is_root = params[:root] || false
-        @timeout = params[:data][:timeout] || 0
-        @invalid_text = params[:data][:invalid_text]
-        @end_call_text = params[:data][:end_call_text]
+        @id = params['id']
+        @explanation_text = params['explanation_text']
+        @options = params['options'] || []
+        @is_root = params['root'] || false
+        @timeout = params['timeout'] || 0
+        @invalid_text = params['invalid_text']
+        @end_call_text = params['end_call_text']
       end
 
       def solve_links_with nodes
         @options.each do |an_option|
           possible_nodes = nodes.select do |a_node|
-            a_node.id == an_option[:next]
+            a_node.id == an_option['next']
           end
           if possible_nodes.size == 1
-            an_option[:next] = possible_nodes.first
+            an_option['next'] = possible_nodes.first
           else
             if possible_nodes.size == 0
-              raise "There is no command with id #{an_option[:next]}"
+              raise "There is no command with id #{an_option['next']}"
             else
-              raise "There are multiple commands with id #{an_option[:next]}: #{possible_nodes.inspect}."
+              raise "There are multiple commands with id #{an_option['next']}: #{possible_nodes.inspect}."
             end
           end
         end
@@ -48,14 +48,14 @@ module Parsers
           last_capture_hash = {
             capture: {
               timeout: 0,
-              say: "#{an_option[:description]}"
+              say: "#{an_option['description']}"
             }
           }
           @equivalent_flow << last_capture_hash
           if_conditions << {
             :if => {
-              :condition => "digits == #{an_option[:number]}",
-              :then => an_option[:next].equivalent_flow
+              :condition => "digits == #{an_option['number']}",
+              :then => an_option['next'].equivalent_flow
             }
           }
         end

@@ -1,7 +1,7 @@
 class Parsers::UserFlowNode::UserCommand
 
   def self.can_handle? params
-    params[:type] == name.downcase[name.rindex('::') + 2 ... name.size]
+    params['type'] == name.downcase[name.rindex('::') + 2 ... name.size]
   end
 
   def self.for params
