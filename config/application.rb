@@ -50,7 +50,7 @@ module Verboice
     config.google_analytics = ''
     config.version_name = File.read('VERSION').strip rescue 'Development'
 
-    config.after_initialize do
+    config.to_prepare do
       Dir.glob("#{Rails.root}/app/models/**/*.rb").sort.each do |file|
         begin
           ActiveSupport::Inflector.camelize(
