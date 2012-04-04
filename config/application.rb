@@ -16,7 +16,7 @@ module Verboice
     # -- all .rb files in that directory are automatically loaded.
 
     # Custom directories with classes and modules you want to be autoloadable.
-    # config.autoload_paths += %W(#{config.root}/extras)
+    config.autoload_paths += %W(#{Rails.root}/lib/extras)
     config.autoload_paths += Dir["#{Rails.root}/app/models/**/**"]
     config.paths['log'] = $log_path if $log_path
 
@@ -49,5 +49,18 @@ module Verboice
 
     config.google_analytics = ''
     config.version_name = File.read('VERSION').strip rescue 'Development'
+
+    config.to_prepare do
+      Dir.glob("#{Rails.root}/app/models/**/*.rb").sort.each do |file|
+        begin
+          ActiveSupport::Inflector.camelize(
+            file.sub("#{Rails.root}/app/models/",'')[0 .. -4]
+            ).constantize
+        rescue LoadError => ex
+          Rails.logger.warn ex
+          p ex
+        end
+      end
+    end
   end
 end

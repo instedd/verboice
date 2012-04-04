@@ -77,3 +77,33 @@
   height: 48px;
   width: 48px;
 }
+
+span.validation {
+  display: inline-block;
+  width: 135px;
+  margin:6px 0 !important;
+}
+
+span.forwardto { 
+  display:inline-block; 
+  width:66px; 
+  margin:6px 0 !important 
+}
+
+span.alert-orange { 
+  background: url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat right; 
+  padding-right:18px; 
+  color:#ff6600; 
+  display:inline-block 
+}
+
+.w05 { width:50px }
+.w17 { width:172px !important }
+.w28 { width:285px }
+.w64 { width:640px }
+.w100 { width:100% }
+
+.h40 { height:400px }
+.h50 { height:500px }
+.h60 { height:600px }
+.h65 { height:650px }

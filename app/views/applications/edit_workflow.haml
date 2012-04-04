@@ -1,0 +1,146 @@
+- content_for :head do
+  :javascript
+    //var application_flow = #{ raw @application.user_flow.to_json };
+    var application_flow = [ {id:12, root: true, type: 'menu', name: 'First', explanation_text: 'First Menu', options:[{ description: 'N2', number: 2, next: 14 }, { description: 'N3', number: 3, next: 15 }, { description: 'N4', number: 4, next: 20 }] }, {id:14, type: 'menu', name: 'Second', explanation_text: 'Second Menu', options:[{ description: 'N2', number: 2, next: 16 }, { description: 'N3', number: 3, next: 17 }]}, {id:15, type: 'menu', name: 'Third', explanation_text: 'Third Menu'}, {id:16, type: 'menu', name: 'Second A', explanation_text: 'Second A Menu'}, {id:17, type: 'menu', name: 'Second B', explanation_text: 'Second B Menu', options:[{ description: 'N2', number: 2, next: 18 }, { description: 'N3', number: 3, next: 19 }]}, {id:18, type: 'menu', name: 'Second B1', explanation_text: 'Second B1 Menu'}, {id:19, type: 'menu', name: 'Second B2', explanation_text: 'Second B2 Menu'}, {id:20, type: 'menu', name: 'Fourth', explanation_text: 'Fourth Menu'} ];
+    var update_workflow_application_path = "#{ update_workflow_application_path(@application) }";
+    var application_path = "#{ application_path(@application) }";
+    var save_recording_application_path = "#{ save_recording_application_path(@application)}"
+
+  = render 'workflow_step_template'
+  = render 'menu_step_template'
+  = render 'command_selector_template'
+
+
+= render 'tabs'
+
+#wami
+
+#workflow-page
+  %p.title.clickable{ 'data-bind' => 'click: initialize_current_step' } Add new step
+
+  .left
+    .box.lightgrey.workflow#workflow
+      .workflow-content-container.w60.h65{ ko(workflow_steps: 'steps') }
+
+  %span{ 'data-bind' => 'template: { name: display_template_for, with: current_step }' }
+
+  .clear
+
+  %br
+  %hr
+  %br
+
+  = form_tag update_workflow_application_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
+    .bottom-actions
+      = hidden_field_tag 'flow'
+      %button.white{:type => "submit"} Save
+      = link_to 'Cancel', application_path(@application), :class => "button white cancel"
+
+/ %br
+/ %hr
+/ %br
+/ .left
+/   .box.lightgrey.workflow
+/     .workflow-content-container.w60.h65
+/       .workflow-container
+/         %p
+/           %div
+/             %button.lcallback
+/             %p Foo
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/         %p
+/           %div
+/           .va
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .va
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+
+/         %p
+/           %div
+/           .va-ext
+/             %span
+/           .va
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/         %p
+/           %div
+/           .va
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+
+/           .ha
+/             %span
+/             %button.lcallback
+/             %p Baby diagnostic
+
+/ .box.right.w30.feditor-sidebar.h65
+/   %p.title Field Name
+/   %p.smalltext The name of this question as it is presented.
+/   %input{:type => "text", :value => "Number of patients per day" }
+/   %hr
+/   %p.title Hint
+/   %p.smalltext Additional help for this question.
+/   %input{ :value => "Select an option", :type => "text" }
+/   %hr
+/   %p.title
+/     Required
+/     %input.right{ :type => "checkbox"}
+/     %br.clear
+/   %p.smalltext Additional help for this question.
+/   %hr
+/   %p.title Options
+/   %p.smalltext Possible values for this question.
+/   %ul.clist.w30
+/     %li
+/       %input.ux-clist{ :type => "text", :value => "1 to 10" }
+/       %button.clist-remove
+/     %li
+/       %input.ux-text{ :type => "text", :placeholder => "Name" }
+/       %button.clist-add
+/   %hr
+/   %p.title Range
+/   %p.smalltext Range of values accepted for this question</p>
+/   %input.w13{ :type => "text", :value => "1" }
+/   %span.smalltext to
+/   %input.w13{ :type => "text", :value => "5" }
+/   %br
+/   %br
+/ .clear

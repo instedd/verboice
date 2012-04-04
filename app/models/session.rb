@@ -114,10 +114,10 @@ class Session
     if cmd.is_a? Hash
       cmd, args = cmd.first
       args.symbolize_keys! if args.is_a? Hash
-
-      cmd = "#{cmd.to_s.camelcase}Command".constantize.new args
+      #TODO: Replace with SuitableClassFinder
+      cmd = "Commands::#{cmd.to_s.camelcase}Command".constantize.new args
     elsif !cmd.respond_to?(:run)
-      cmd = "#{cmd.to_s.camelcase}Command".constantize.new
+      cmd = "Commands::#{cmd.to_s.camelcase}Command".constantize.new
     end
 
     cmd.run self
@@ -132,7 +132,7 @@ class Session
           options[0] = options[0].to_hash
           options[0].symbolize_keys!
         end
-        "#{func.camelcase}Command".constantize.new(*options).run self
+        "Commands::#{func.camelcase}Command".constantize.new(*options).run self
       end
     end
     ctx['alert'] = lambda { |str| info str }

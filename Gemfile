@@ -34,6 +34,11 @@ group :development, :test do
   gem 'ci_reporter'
 end
 
+group :development do
+  gem 'hpricot'
+  gem 'ruby_parser'
+end
+
 group :test do
   gem 'capybara'
 end

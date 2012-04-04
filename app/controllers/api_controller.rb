@@ -3,7 +3,7 @@ class ApiController < ApplicationController
   skip_before_filter :verify_authenticity_token
 
   def call
-    params[:flow] = XmlParser.parse request.body if request.post?
+    params[:flow] = Parsers::Xml.parse request.body if request.post?
     call_log = current_account.call params
     render :json => {:call_id => call_log.id, :state => call_log.state}
   end
@@ -11,7 +11,7 @@ class ApiController < ApplicationController
   def call_redirect
     options = {}
     if request.post?
-      options[:flow] = XmlParser.parse request.body
+      options[:flow] = Parsers::Xml.parse request.body
     elsif params[:application_id]
       if not current_account.applications.exists? params[:applications_id]
         return render :status => 404

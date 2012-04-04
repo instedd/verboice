@@ -1,4 +1,4 @@
-module PlayCommand
+module Commands::PlayCommand
 
   def initialize(file_id)
     @file_id = file_id

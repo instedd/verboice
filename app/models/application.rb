@@ -8,7 +8,9 @@ class Application < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :account_id
 
   serialize :flow, Array
+  serialize :user_flow, Array
 
+  before_update :update_flow_with_user_flow
 
   config_accessor :callback_url_user, :callback_url_password,
                   :status_callback_url_user, :status_callback_url_password
@@ -39,10 +41,15 @@ class Application < ActiveRecord::Base
   def call(address)
   end
 
+  def update_flow_with_user_flow
+    flow = (Parsers::UserFlow.new user_flow).equivalent_flow if user_flow_changed?
+  end
+
   private
 
   def set_name_to_callback_url
     self.name = callback_url
   end
+
 
 end

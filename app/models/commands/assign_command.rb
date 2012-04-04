@@ -1,4 +1,4 @@
-class AssignCommand
+class Commands::AssignCommand
   def initialize(options = {})
     @name = options[:name]
     @expr = options[:expr]

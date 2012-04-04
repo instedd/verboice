@@ -1,5 +1,11 @@
+require 'JSON'
+
 class ApplicationsController < ApplicationController
   before_filter :authenticate_account!
+  before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update_workflow, :update, :destroy]
+
+
+  skip_before_filter :verify_authenticity_token, :only => :save_recording
 
   # GET /applications
   def index
@@ -8,7 +14,6 @@ class ApplicationsController < ApplicationController
 
   # GET /applications/1
   def show
-    @application = current_account.applications.find(params[:id])
   end
 
   # GET /applications/new
@@ -18,18 +23,18 @@ class ApplicationsController < ApplicationController
 
   # GET /applications/1/edit
   def edit
-    @application = current_account.applications.find(params[:id])
+  end
+
+  def edit_workflow
   end
 
   # POST /applications
   def create
-    params[:application][:flow] = get_flow
-
     @application = Application.new(params[:application])
     @application.account = current_account
 
     if @application.save
-      redirect_to(applications_path, :notice => "Application #{@application.name} successfully created.")
+      redirect_to(edit_workflow_application_path(@application), :notice => "Application #{@application.name} successfully created.")
     else
       render :action => "new"
     end
@@ -37,26 +42,53 @@ class ApplicationsController < ApplicationController
 
   # PUT /applications/1
   def update
-    params[:application][:flow] = get_flow
-
-    @application = current_account.applications.find(params[:id])
-
     if @application.update_attributes(params[:application])
-      redirect_to(applications_path, :notice => "Application #{@application.name} successfully updated.")
+      redirect_to(application_path(@application), :notice => "Application #{@application.name} successfully updated.")
     else
       render :action => "edit"
     end
   end
 
+  def update_workflow
+    @application.user_flow = JSON.parse params[:flow]
+
+    if @application.save
+      respond_to do |format|
+        format.html {redirect_to(application_path(@application), :notice => "Workflow for application #{@application.name} successfully updated.")}
+        format.json { render(json: @application, status: 200, location: @application)}
+      end
+    else
+      render :action => "edit_workflow"
+    end
+  end
+
+  def save_recording
+    p 'foooo'
+    p params
+    p 'bar'
+
+    # wavfile = File.new()
+    # wavfile.binmode
+
+    File.open("recording.wav","wb") do |file|
+      file.write request.body.read
+    end
+
+    # wavfile.close
+
+  end
+
   # DELETE /applications/1
   def destroy
-    @application = current_account.applications.find(params[:id])
     @application.destroy
-
     redirect_to(applications_url, :notice => "Application #{@application.name} successfully deleted.")
   end
 
   private
+
+  def load_application
+    @application = current_account.applications.find(params[:id])
+  end
 
   def get_flow
     return nil unless params[:application][:flow].present?

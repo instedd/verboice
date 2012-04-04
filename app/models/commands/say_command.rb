@@ -1,5 +1,5 @@
-class SayCommand < Command
-  include PlayCommand
+class Commands::SayCommand < Command
+  include Commands::PlayCommand
   param :text, :string, :ui_length => 80
 
   def initialize(text)

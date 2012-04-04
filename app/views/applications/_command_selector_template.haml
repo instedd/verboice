@@ -1,0 +1,7 @@
+%script{type: "text/html", id: "command_selector_template"}
+  .box.w30.right.feditor-sidebar.h65.lightgrey{ 'data-bind' => 'with: current_step' }
+    %span{ 'data-bind' => 'foreach: commands' }
+      %span{style: 'display:inline-block'}
+        / todo: missing pluggable button class
+        %p.ldial{ 'data-bind' => 'click: add_to_steps', :style => 'display:block' }
+        %p Menu

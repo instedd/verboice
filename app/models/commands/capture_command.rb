@@ -1,4 +1,4 @@
-class CaptureCommand < Command
+class Commands::CaptureCommand < Command
   param :min, :integer, :default => 1, :ui_length => 1
   param :max, :integer, :default => 1, :ui_length => 1
   param :finish_on_key, :string, :default => '#', :ui_length => 1
@@ -17,9 +17,9 @@ class CaptureCommand < Command
 
     options = @options.dup
     if options[:play].present?
-      options[:play] = PlayUrlCommand.new(options[:play]).download(session)
+      options[:play] = Commands::PlayUrlCommand.new(options[:play]).download(session)
     elsif options[:say].present?
-      options[:play] = SayCommand.new(options[:say]).download(session)
+      options[:play] = Commands::SayCommand.new(options[:say]).download(session)
       options.delete :say
     else
       options.delete :play

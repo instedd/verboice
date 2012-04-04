@@ -82,6 +82,7 @@ GEM
       haml (~> 3.0)
       railties (~> 3.0)
     hike (1.2.1)
+    hpricot (0.8.6)
     i18n (0.6.0)
     instedd-rails (0.0.5)
       rails (>= 3.0)
@@ -143,6 +144,8 @@ GEM
       activesupport (>= 3.0)
       railties (>= 3.0)
       rspec (~> 2.8.0)
+    ruby_parser (2.3.1)
+      sexp_processor (~> 3.0)
     rubyzip (0.9.6.1)
     sass (3.1.11)
     sass-rails (3.1.5)
@@ -155,6 +158,7 @@ GEM
       ffi (~> 1.0)
       multi_json (~> 1.0)
       rubyzip
+    sexp_processor (3.1.0)
     shoulda (2.11.3)
     sprockets (2.0.3)
       hike (~> 1.2)
@@ -193,6 +197,7 @@ DEPENDENCIES
   foreman
   guid
   haml-rails
+  hpricot
   instedd-rails
   jquery-rails
   librevox
@@ -202,6 +207,7 @@ DEPENDENCIES
   rails (= 3.1.3)
   rspec
   rspec-rails
+  ruby_parser
   sass-rails (~> 3.1.5)
   shoulda
   therubyracer

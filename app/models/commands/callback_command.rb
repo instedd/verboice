@@ -1,4 +1,4 @@
-class CallbackCommand < Command
+class Commands::CallbackCommand < Command
   param :url, :string, :optional => true
   param :method, :string, :optional => true, :default => 'post'
 
@@ -44,7 +44,7 @@ class CallbackCommand < Command
                    when %r(application/json)
                      commands = [:js => body]
                    else
-                     commands = XmlParser.parse body
+                     commands = Parsers::Xml.parse body
                    end
 
           session.push_commands commands

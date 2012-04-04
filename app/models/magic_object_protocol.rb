@@ -27,7 +27,7 @@ module MagicObjectProtocol
       @mutex.synchronize do
         @cv.wait @mutex unless @obj
       end
-      raise @obj if @obj.is_a? Exception
+      raise @obj if @obj.is_an? Exception
       obj, @obj = @obj, nil
       obj
     end

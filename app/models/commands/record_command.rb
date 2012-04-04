@@ -1,4 +1,4 @@
-class RecordCommand < Command
+class Commands::RecordCommand < Command
   def run(session)
     session.info "Record user voice"
     session.pbx.record

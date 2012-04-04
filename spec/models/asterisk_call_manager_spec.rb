@@ -144,7 +144,7 @@ describe Asterisk::CallManager do
     end
 
     def expect_digits(digits)
-      if digits.is_a? Array
+      if digits.is_an? Array
         digits.each { |digit| expect_digit digit }
       else
         digits.each_char { |c| expect_digit c.ord.to_s }
@@ -200,7 +200,7 @@ describe Asterisk::CallManager do
   end
 
   def asterisk_response(note)
-    Asterisk::AGIMixin::Response.new("200 result=1 (#{note})")
+    Asterisk::AgiMixin::Response.new("200 result=1 (#{note})")
   end
 
   def line(result)
