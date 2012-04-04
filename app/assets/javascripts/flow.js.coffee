@@ -162,8 +162,9 @@ jQuery ->
 
 
   class Menu extends Step
-    constructor: (name, options) ->
-      @name = ko.observable name || 'Menu'
+    constructor: (attrs, options) ->
+      @name = ko.observable attrs['name'] || 'Menu'
+      @explanation = ko.observable
       @options = ko.observableArray(options)
 
     display_template_id: () =>
@@ -193,7 +194,7 @@ jQuery ->
 
     @from_hash: (hash) ->
       options = (new MenuOption(opt.number, opt.description, opt.next) for opt in (hash.options || []))
-      menu = new Menu(hash['name'], options)
+      menu = new Menu(hash, options)
       return menu
 
     to_hash: () =>
