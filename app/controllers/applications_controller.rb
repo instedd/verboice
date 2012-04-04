@@ -1,3 +1,5 @@
+require 'JSON'
+
 class ApplicationsController < ApplicationController
   before_filter :authenticate_account!
   before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update_workflow, :update, :destroy]
@@ -48,7 +50,7 @@ class ApplicationsController < ApplicationController
   end
 
   def update_workflow
-    @application.user_flow = params[:flow]
+    @application.user_flow = JSON.parse params[:flow]
 
     if @application.save
       respond_to do |format|

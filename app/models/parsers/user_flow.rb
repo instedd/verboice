@@ -5,7 +5,7 @@ class Parsers::UserFlow
     @roots = []
     @nodes = []
   end
-  
+
   def build_nodes
     @nodes = []
 
@@ -16,16 +16,16 @@ class Parsers::UserFlow
     @nodes.each do | a_command_parser |
       a_command_parser.solve_links_with @nodes
     end
-    
+
     @roots = @nodes.select do |a_node|
       a_node.is_root?
     end
   end
-  
+
   def equivalent_flow
     @equivalent_flow ||= build_equivalent_flow
   end
-  
+
   def build_equivalent_flow
     build_nodes
     flow = @roots.collect do |a_root_node|

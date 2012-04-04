@@ -1,5 +1,5 @@
 module Asterisk
-  module AGIMixin
+  module AgiMixin
     # Logger object, defaults to <tt>Logger.new(STDERR)</tt>. By default nothing
     # is logged, but if you turn up the log level to +DEBUG+ you'll see the
     # behind-the-scenes communication.
@@ -97,7 +97,7 @@ module Asterisk
   end
 
   class AGI
-    include AGIMixin
+    include AgiMixin
 
     # Create a new AGI object and parse the Asterisk environment. Usually you
     # will call this without arguments, but you might have your bat-reasons to

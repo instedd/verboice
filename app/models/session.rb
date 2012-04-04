@@ -114,7 +114,7 @@ class Session
     if cmd.is_a? Hash
       cmd, args = cmd.first
       args.symbolize_keys! if args.is_a? Hash
-
+      #TODO: Replace with SuitableClassFinder
       cmd = "Commands::#{cmd.to_s.camelcase}Command".constantize.new args
     elsif !cmd.respond_to?(:run)
       cmd = "Commands::#{cmd.to_s.camelcase}Command".constantize.new
