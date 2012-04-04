@@ -43,6 +43,6 @@ describe Parsers::UserFlow do
   end
 
   it "should retrieve an equivalent flow in verboice internal representation" do
-    (Parsers::UserFlow.new application_flow).equivalent_flow.should eq([{:say=>"First Menu"}, {:capture=>{:timeout=>0, :say=>"foobar"}}, {:if=>{:condition=>"digits == 2", :then=>[{:say=>"Second Menu"}], :else=>[{:say=>"invalid key pressed"}, :hangout]}}])
+    (Parsers::UserFlow.new application_flow).equivalent_flow.should eq([{:say=>"First Menu"}, {:capture=>{:timeout=>5}}, {:if=>{:condition=>"digits == 2", :then=>[{:say=>"Second Menu"}], :else=>[:hangout]}}])
   end
 end

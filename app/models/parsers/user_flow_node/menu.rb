@@ -7,9 +7,10 @@ module Parsers
       def initialize params
         @id = params['id']
         @explanation_text = params['explanation_text']
+        @options_text = params['options_text']
         @options = params['options'] || []
         @is_root = params['root'] || false
-        @timeout = params['timeout'] || 0
+        @timeout = params['timeout'] || 5
         @invalid_text = params['invalid_text']
         @end_call_text = params['end_call_text']
       end
@@ -41,17 +42,9 @@ module Parsers
 
       def build_equivalent_flow
         @equivalent_flow = []
-        @equivalent_flow << {say: @explanation_text}
+        @equivalent_flow << {say: @explanation_text} if @explanation_text
         if_conditions = []
-        last_capture_hash = {}
         @options.each do |an_option|
-          last_capture_hash = {
-            capture: {
-              timeout: 0,
-              say: "#{an_option['description']}"
-            }
-          }
-          @equivalent_flow << last_capture_hash
           if_conditions << {
             :if => {
               :condition => "digits == #{an_option['number']}",
@@ -59,18 +52,39 @@ module Parsers
             }
           }
         end
-        unless if_conditions.empty? || last_capture_hash.empty?
-          last_capture_hash[:capture][:timeout] = @timeout
+        unless if_conditions.empty?
+          @equivalent_flow << if @options_text
+            {
+              capture: {
+                timeout: @timeout,
+                say: @options_text
+              }
+            }
+          else
+            {
+              capture: {
+                timeout: @timeout
+              }
+            }
+          end
           last_if_condition = if_conditions.pop
-          last_if_condition[:if][:else] = [
-            {say: "invalid key pressed"},
-            :hangout
-          ]
+          last_if_condition[:if][:else] = if @invalid_text
+            [
+              {say: @invalid_text},
+              :hangout
+            ]
+          else
+            [
+              :hangout
+            ]
+          end
           if_conditions.reverse.each do |an_if_condition_hash|
             an_if_condition_hash[:if][:else] = last_if_condition
             last_if_condition = an_if_condition_hash
           end
           @equivalent_flow << last_if_condition
+        else
+           @equivalent_flow << { say: @options_text } if @options_text
         end
         @equivalent_flow << {say: @end_call_text} if @end_call_text
         @equivalent_flow

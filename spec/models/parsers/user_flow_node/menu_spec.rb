@@ -8,6 +8,7 @@ module Parsers
         # todo: Add number of attempts and while cycle.
         menu = Menu.new 'id' => 27, 'type' => 'menu',
           'explanation_text' => 'foobar',
+          'options_text' => 'asdasdasd',
           'timeout'=> 20,
           'invalid_text' => 'invalid key pressed',
           'end_call_text' => 'Good Bye',
@@ -34,23 +35,11 @@ module Parsers
         menu.solve_links_with [ menu_2, menu_3, menu_4 ]
 
         menu.equivalent_flow.should eq([
-          {say: 'foobar'},
-          {
-            capture: {
-              timeout: 0,
-              say: 'foo'
-            }
-          },
-          {
-            capture: {
-              timeout: 0,
-              say: 'bar'
-            }
-          },
+          { say: 'foobar' },
           {
             capture: {
               timeout: 20,
-              say: 'zzz'
+              say: 'asdasdasd'
             }
           },
           {
@@ -78,6 +67,58 @@ module Parsers
           {say: 'Good Bye'}
         ])
 
+      end
+
+      it "should compile to a minimum verboice equivalent flow" do
+        menu_1 = Menu.new 'id' => 27, 'type' => 'menu'
+        menu_1.equivalent_flow.should eq([])
+
+        menu_2 = Menu.new 'id' => 27, 'type' => 'menu',
+          'explanation_text' => 'foobar',
+          'options_text' => 'asdasdasd',
+          'end_call_text' => 'Good Bye'
+
+        menu_2.equivalent_flow.should eq([
+          { say: 'foobar' },
+          {
+            say: 'asdasdasd'
+          },
+          {say: 'Good Bye'}
+        ])
+
+        menu_3 = Menu.new 'id' => 27, 'type' => 'menu',
+          'explanation_text' => 'foobar',
+          'invalid_text' => 'invalid key pressed',
+          'end_call_text' => 'Good Bye',
+          'options' => [
+            {
+              'description' => 'foo',
+              'number' => 4,
+              'next' => 10
+            }
+          ]
+        menu_4 = Menu.new 'id' => 10, 'type' => 'menu', 'explanation_text' => 'asdf'
+        menu_3.solve_links_with [ menu_4 ]
+
+        menu_3.equivalent_flow.should eq([
+          { say: 'foobar' },
+          {
+            capture: {
+              timeout: 5
+            }
+          },
+          {
+            :if => {
+              :condition => "digits == 4",
+              :then => [{say: 'asdf'}],
+              :else => [
+                {say: "invalid key pressed"},
+                :hangout
+              ]
+            }
+          },
+          {say: 'Good Bye'}
+        ])
       end
 
       it "should be able to build itself from an incomming hash" do
