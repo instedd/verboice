@@ -28,6 +28,7 @@ Verboice::Application.routes.draw do
   match "api/call/:id/state" => "api#call_state"
   match 'api/call/:id/redirect' => 'api#call_redirect'
 
+  get "api/channels" => "api_channels#list"
   post  "api/channels" => "api_channels#create"
   delete "api/channels/:name" => "api_channels#destroy"
 
