@@ -4,10 +4,13 @@
 
 # TODO: Change the array representation to a linked list to support the 'if' command
 
+# TODO: Split this into multiple files. One file per class
+
 jQuery ->
   if not $('#workflow').length > 0
     return
 
+  # ---------------------------------------------------------------------------
 
   class WorkflowDrawer
     constructor: (container) ->
@@ -64,6 +67,7 @@ jQuery ->
     draw_step: (step, klass="") =>
       @container.append("<div class=\"#{klass}\" data-bind=\"template: { name: '#{step.item_template_id()}', data: get_step(#{step.id}) }\"> </div>")
 
+  # ---------------------------------------------------------------------------
 
   ko.bindingHandlers.workflow_steps =
     init: (element, valueAccessor, allBindingsAccessor, viewModel) ->
@@ -73,9 +77,17 @@ jQuery ->
       steps = ko.utils.unwrapObservable(valueAccessor())
       viewModel.workflow_drawer.draw_workflow(steps)
 
+  # ---------------------------------------------------------------------------
 
+  ko.bindingHandlers.class =
+    update: (element, valueAccessor) ->
+      if (element['__ko__previousClassValue__'])
+          $(element).removeClass(element['__ko__previousClassValue__'])
+      value = ko.utils.unwrapObservable(valueAccessor())
+      $(element).addClass(value)
+      element['__ko__previousClassValue__'] = value
 
-
+  # ---------------------------------------------------------------------------
 
   class Workflow
     constructor: (command_selector) ->
@@ -88,7 +100,6 @@ jQuery ->
 
     add_step: (command) =>
       @steps.push command
-      # @steps.push Step.from_command(command)
 
     remove_step: (step) =>
       @steps.remove(step)
@@ -108,6 +119,10 @@ jQuery ->
       $('#flow').val(serialized)
       return true # let the submit handler do its work
 
+    commands: () =>
+      @command_selector().commands()
+
+  # ---------------------------------------------------------------------------
 
   class CommandSelector
     constructor: ->
@@ -123,11 +138,15 @@ jQuery ->
     add_menu_to_steps: () ->
       workflow.add_step(new Menu)
 
+  # ---------------------------------------------------------------------------
+
   class ClassBindingHandler
     constructor: (cmd)->
       @cmd = cmd
     add_to_steps: =>
       @cmd.add_to_steps()
+
+  # ---------------------------------------------------------------------------
 
   class Step
     constructor: () ->
@@ -160,6 +179,7 @@ jQuery ->
     item_template_id: () =>
       'workflow_step_template'
 
+  # ---------------------------------------------------------------------------
 
   class Menu extends Step
     constructor: (name, options) ->
@@ -199,7 +219,16 @@ jQuery ->
     to_hash: () =>
       {name: @name(), type: 'menu', root: @root, id: @id, options: (option.to_hash() for option in @options())}
 
+    remove_option: (option) =>
+      @options.remove option
 
+    add_option: () =>
+      @options.add new MenuOption()
+
+    commands: () =>
+      workflow.commands()
+
+  # ---------------------------------------------------------------------------
 
   class MenuOption
     constructor: (number, description, next) ->
@@ -210,15 +239,7 @@ jQuery ->
     to_hash: () =>
       {number: @number(), description: @description(), next: @next()}
 
-
-  ko.bindingHandlers['class'] = {
-    'update': (element, valueAccessor) ->
-      if (element['__ko__previousClassValue__'])
-          $(element).removeClass(element['__ko__previousClassValue__'])
-      value = ko.utils.unwrapObservable(valueAccessor())
-      $(element).addClass(value)
-      element['__ko__previousClassValue__'] = value
-  }
+  # ---------------------------------------------------------------------------
 
   workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)
