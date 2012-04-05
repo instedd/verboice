@@ -57,6 +57,7 @@ jQuery ->
             @draw_empty(klass)
           else
             @draw_step(elem, klass)
+      ko.applyBindings
 
     draw_newline: () =>
       @container.append('<p> </p>')
@@ -65,7 +66,11 @@ jQuery ->
       @container.append("<div class=\"#{klass}\"><span></span></div>")
 
     draw_step: (step, klass="") =>
-      @container.append("<div class=\"#{klass}\" data-bind=\"template: { name: '#{step.item_template_id()}', data: get_step(#{step.id}) }\"> </div>")
+      # TODO: Check if render template is more efficient, or apply binding directly to the step to avoid the get_step call
+      # ko.renderTemplate(step.item_template_id(), step, {}, step_node[0]) ?
+      step_node = $("<div class=\"#{klass}\" data-bind=\"template: { name: '#{step.item_template_id()}', data: get_step(#{step.id}) }\"> </div>").appendTo(@container)
+      ko.applyBindings(workflow, step_node[0])
+
 
   # ---------------------------------------------------------------------------
 
@@ -221,6 +226,7 @@ jQuery ->
       {name: @name(), type: 'menu', root: @root, id: @id, options: (option.to_hash() for option in @options())}
 
     remove_option: (option) =>
+      option.remove_next()
       @options.remove option
 
     add_option: () =>
@@ -228,6 +234,14 @@ jQuery ->
 
     commands: () =>
       workflow.commands()
+
+    remove: () =>
+      console.log('Removing step id ' + @id)
+      for option in @options()
+        console.log('Removing option ' + option)
+        option.remove_next()
+      super
+      console.log('Removed step id ' + @id)
 
   # ---------------------------------------------------------------------------
 
@@ -240,11 +254,15 @@ jQuery ->
     to_hash: () =>
       {number: @number(), description: @description(), next: @next()}
 
+    remove_next: () =>
+      console.log('Removing next with id ' + @next())
+      workflow.get_step(@next()).remove()
+
   # ---------------------------------------------------------------------------
 
   workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)
-
+  window.workflow = workflow
 
   # Wami.startPlaying(anyWavURL);
   # Wami.stopPlaying();
