@@ -1,5 +1,3 @@
-require 'JSON'
-
 class ApplicationsController < ApplicationController
   before_filter :authenticate_account!
   before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update_workflow, :update, :destroy]
