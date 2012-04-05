@@ -103,8 +103,16 @@ jQuery ->
     get_step: (id) =>
       (step for step in @steps() when step.id == id)[0]
 
+    get_parent: (step) =>
+      (parent for parent in @steps() when step.id in parent.next_ids())[0]
+
     add_step: (command) =>
       @steps.push command
+
+    create_step: (command_type) =>
+      new_step = Step.from_hash(type: command_type, id: @generate_id())
+      @steps.push new_step
+      new_step
 
     remove_step: (step) =>
       @steps.remove(step)
@@ -127,6 +135,14 @@ jQuery ->
     commands: () =>
       @command_selector().commands()
 
+    # private
+
+    generate_id: () =>
+      id = 1
+      while id in (step.id for step in @steps())
+        id = Math.ceil(Math.random() * 1000)
+      return id
+
   # ---------------------------------------------------------------------------
 
   class CommandSelector
@@ -141,7 +157,8 @@ jQuery ->
       'command_selector_template'
 
     add_menu_to_steps: () ->
-      workflow.add_step(new Menu)
+      throw 'unimplemented'
+      #workflow.add_step(new Menu)
 
   # ---------------------------------------------------------------------------
 
@@ -150,29 +167,35 @@ jQuery ->
       @cmd = cmd
     add_to_steps: =>
       @cmd.add_to_steps()
+    name: =>
+      @cmd.name
 
   # ---------------------------------------------------------------------------
 
   class Step
-    constructor: () ->
+    constructor: (attrs) ->
       @root = false
+      @id = attrs['id']
+      @root = attrs['root']
 
     @from_hash: (hash) ->
       item = null
-      switch hash['type']
+      switch hash['type'].toLowerCase()
         when 'menu'
           item = Menu.from_hash(hash)
         else
           throw "Command type not recognised #{hash['type']}"
 
-      item.root = hash['root']
-      item.id = hash['id']
       return item
+
+    parent: () =>
+      workflow.get_parent(@)
 
     is_current_step: () =>
       workflow.current_step == @
 
-    remove: () =>
+    remove: (notify=true) =>
+      @parent().child_removed @ if notify
       workflow.remove_step @
 
     set_as_current: () =>
@@ -184,13 +207,22 @@ jQuery ->
     item_template_id: () =>
       'workflow_step_template'
 
+    child_removed: (child) =>
+      null
+
   # ---------------------------------------------------------------------------
 
   class Menu extends Step
-    constructor: (attrs, options) ->
+    constructor: (attrs) ->
+      super(attrs)
       @name = ko.observable attrs['name'] || 'Menu'
       @explanation = ko.observable
-      @options = ko.observableArray(options)
+      @options = ko.observableArray([])
+      @new_option_command = ko.observable
+
+      @available_numbers = ko.computed () =>
+        used_numbers = (opt.number() for opt in @options())
+        (number for number in [1,2,3,4,5,6,7,8,9,0] when number not in used_numbers)
 
     display_template_id: () =>
       'menu_step_template'
@@ -212,57 +244,65 @@ jQuery ->
       Wami.stopRecording() if Wami.stopRecording
 
     next_ids: () =>
-      (option.next() for option in @options())
+      (option.next_id for option in @options())
+
+    commands: () =>
+      (command.name() for command in workflow.commands())
 
     @add_to_steps: () ->
       workflow.add_step(new Menu)
 
     @from_hash: (hash) ->
-      options = (new MenuOption(opt.number, opt.description, opt.next) for opt in (hash.options || []))
-      menu = new Menu(hash, options)
+      menu = new Menu(hash)
+      menu.options(new MenuOption(opt.number, opt.next, menu) for opt in (hash.options || []))
       return menu
 
     to_hash: () =>
       {name: @name(), type: 'menu', root: @root, id: @id, options: (option.to_hash() for option in @options())}
 
-    remove_option: (option) =>
-      option.remove_next()
-      @options.remove option
-
     add_option: () =>
-      @options.add new MenuOption()
+      new_step = workflow.create_step(@new_option_command, @)
+      @options.push(new MenuOption(@available_numbers()[0], new_step.id, @))
 
-    commands: () =>
-      workflow.commands()
+    remove_option: (option) =>
+      @options.remove option
+      option.remove_next()
 
-    remove: () =>
-      console.log('Removing step id ' + @id)
+    child_removed: (child) =>
       for option in @options()
-        console.log('Removing option ' + option)
+        if option.next_id == child.id
+          @options.remove option
+          break
+
+    remove: (notify=true) =>
+      for option in @options()
         option.remove_next()
-      super
-      console.log('Removed step id ' + @id)
+      super(notify)
 
   # ---------------------------------------------------------------------------
 
   class MenuOption
-    constructor: (number, description, next) ->
-      @number = ko.observable number
-      @description = ko.observable description
-      @next = ko.observable next
+    constructor: (num, next_id, menu) ->
+      @number = ko.observable num
+      @next_id = next_id
+      @menu = menu
+      @available_numbers = ko.computed () =>
+        @menu.available_numbers().concat([@number()]).sort()
+
+    next: () =>
+      workflow.get_step @next_id
+
+    next_name: () =>
+      @next().name() if @next()?
 
     to_hash: () =>
-      {number: @number(), description: @description(), next: @next()}
+      {number: @number(), next: @next_id}
 
     remove_next: () =>
-      console.log('Removing next with id ' + @next())
-      workflow.get_step(@next()).remove()
+      @next().remove(false)
 
   # ---------------------------------------------------------------------------
 
   workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)
   window.workflow = workflow
-
-  # Wami.startPlaying(anyWavURL);
-  # Wami.stopPlaying();

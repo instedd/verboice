@@ -32,23 +32,14 @@
       %ul.oplist
         %span{ 'data-bind' => 'foreach: options' }
           %li
-            %select{ 'data-bind' => 'value: number'}
-              %option 1
-              %option 2
-              %option 3
-              %option 4
-              %option 5
-              %option 6
-              %option 7
-              %option 8
-              %option 9
-              %option 0
-            %input.ux-oplist{ :type => "text", 'data-bind' => 'value: description'}
+            %select{ko(options: 'available_numbers', value: 'number')}
+            %span{ko(text: "next_name()")}
+            /%input.ux-oplist{ :type => "text", 'data-bind' => 'value: description'}
             %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option' }
         %li
-          %select{ 'data-bind' => 'options: commands'}
-          / %input.ux-text{ :type => "text", :placeholder => "Add an option" }
-          %button.clist-add{ 'data-bind' => 'click: $parent.add_option'}
+          Add an option:
+          %select{ko(options: 'commands()', value: 'new_option_command')}
+          %button.clist-add{ 'data-bind' => 'click: add_option'}
     .bottom-actions
       %button.fdelete{ 'data-bind' => 'click: remove' } Remove this step
 
