@@ -17,6 +17,7 @@ gem "therubyracer", :require => 'v8'
 gem "instedd-rails"
 gem 'decent_exposure'
 gem 'attr_encrypted'
+gem 'foreman'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
@@ -25,7 +26,6 @@ group :assets do
 end
 
 group :development, :test do
-  gem 'foreman'
   gem 'machinist'
   gem 'ffaker'
   gem 'rspec'
@@ -37,6 +37,9 @@ end
 group :development do
   gem 'hpricot'
   gem 'ruby_parser'
+  gem 'capistrano'
+  gem 'rvm'
+  gem 'rvm-capistrano'
 end
 
 group :test do
