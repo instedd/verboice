@@ -21,7 +21,9 @@
           %td
             %button.farrow{ :type => "button" }
         %tr
-          %td End call: Good bye
+          %td
+            End call
+            %span{ko(text: 'end_call_message().name()')}
           %td
             %button.farrow{ :type => "button" }
     %hr
@@ -33,7 +35,7 @@
         %span{ 'data-bind' => 'foreach: options' }
           %li
             %select{ko(options: 'available_numbers', value: 'number')}
-            %span{ko(text: "next_name()")}
+            %span{ko(text: "next_name()", click: 'select_step')}
             /%input.ux-oplist{ :type => "text", 'data-bind' => 'value: description'}
             %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option' }
         %li
@@ -42,82 +44,3 @@
           %button.clist-add{ 'data-bind' => 'click: add_option'}
     .bottom-actions
       %button.fdelete{ 'data-bind' => 'click: remove' } Remove this step
-
-  / <div class="box w28 iblock h65">
-
-  /     <div class="tableheader">
-
-  /         <span class="i48grad-answer left"></span>
-
-  /         <input class="ux-text w20 right" value="My menu">
-
-  /         <br><br>
-
-  /         <select class="w20 right"><option>Menu</option></select>
-
-
-  /         <br clear="all">
-  /     </div>
-
-  /     <table class="GralTable TwoColumn CleanTable NoHead">
-  /         <tr>
-  /             <th>Messages</th>
-  /             <th></th>
-  /         </tr>
-  /         <tr>
-  /             <td>Explanations:Instructions</td>
-  /             <td>
-  /                 <button type="button" class="farrow"></button>
-  /             </td>
-  /         </tr>
-  /         <tr>
-  /             <td>Options: Select an option</td>
-  /             <td>
-  /                 <button type="button" class="farrow"></button>
-  /             </td>
-  /         </tr>
-  /         <tr>
-  /             <td>Invalid: Invalid</td>
-  /             <td>
-  /                 <button type="button" class="farrow"></button>
-  /             </td>
-  /         </tr>
-  /         <tr>
-  /             <td>Enc call: Good bye</td>
-  /             <td>
-  /                 <button type="button" class="farrow"></button>
-  /             </td>
-  /         </tr>
-  /     </table>
-
-  /     <div class="content">
-
-
-  /     <hr>
-
-  /     <label>Time</label><br>
-  /     <div class="ux-nstep w06"><input type="text" size="2" value="10:00"></div> before repeating options <br>
-  /     <div class="ux-nstep w06"><input type="text" size="2" value="10:00"></div> attemps before end call <br>
-
-
-  /     <hr>
-
-  /     <label>Options</label><br>
-
-  /     <ul class="oplist" >
-  /         <li><select><option>1</option></select><input type="text" class="ux-oplist" value="Report Code" /><button class="clist-remove"></button></li>
-  /         <li><select><option>2</option></select><input type="text" class="ux-oplist" value="Leave a message" /><button class="clist-remove"></button></li>
-  /         <li><select><option>3</option></select><input type="text" class="ux-oplist" value="Talk with an agent" /><button class="clist-remove"></button></li>
-  /         <li><select><option>4</option></select><input type="text" class="ux-oplist" value="Back to previous menu" /><button class="clist-remove"></button></li>
-  /         <li><input type="text" class="ux-text" value="" placeholder="Add an option" /><button class="clist-add"></button></li>
-  /     </ul>
-
-
-  /     <hr>
-
-  /     </div>
-
-
-  / <div class="bottom-actions"><button class="finsert">Insert step before</button></div>
-
-  / </div>

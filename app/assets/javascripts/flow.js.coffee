@@ -216,7 +216,7 @@ jQuery ->
     constructor: (attrs) ->
       super(attrs)
       @name = ko.observable attrs['name'] || 'Menu'
-      @explanation = ko.observable
+      @end_call_message = ko.observable(Message.from_hash(attrs.end_call_message) || new Message)
       @options = ko.observableArray([])
       @new_option_command = ko.observable
 
@@ -281,6 +281,25 @@ jQuery ->
 
   # ---------------------------------------------------------------------------
 
+  class Message
+    constructor: (hash={}) ->
+      @name = ko.observable hash.name
+
+    @from_hash: (hash) ->
+      return null if not hash?
+      switch hash.type.toLowerCase()
+        when 'record'
+          new RecordedMessage(hash)
+        else
+          throw "Message type not recognised #{hash['type']}"
+
+  class RecordedMessage extends Message
+    constructor: (hash={}) ->
+      super(hash)
+      @file = ko.observable hash.file
+
+  # ---------------------------------------------------------------------------
+
   class MenuOption
     constructor: (num, next_id, menu) ->
       @number = ko.observable num
@@ -300,6 +319,10 @@ jQuery ->
 
     remove_next: () =>
       @next().remove(false)
+
+    select_step: () =>
+      return if not @next()?
+      @next().set_as_current()
 
   # ---------------------------------------------------------------------------
 
