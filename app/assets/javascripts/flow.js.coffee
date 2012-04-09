@@ -116,7 +116,7 @@ jQuery ->
 
     remove_step: (step) =>
       @steps.remove(step)
-      @initialize_current_step()
+      @initialize_current_step() if @current_step() == step
 
     set_as_current: (step) =>
       @current_step(step)
@@ -215,10 +215,21 @@ jQuery ->
   class Menu extends Step
     constructor: (attrs) ->
       super(attrs)
+
       @name = ko.observable attrs['name'] || 'Menu'
-      @end_call_message = ko.observable(Message.from_hash(attrs.end_call_message) || new Message)
       @options = ko.observableArray([])
-      @new_option_command = ko.observable
+
+      @new_option_command = ko.observable null
+      @current_editing_message = ko.observable null
+
+      @messages =
+        end_call: Message.from_hash(attrs.end_call_message).with_title('End call').with_parent(@)
+        invalid:  Message.from_hash(attrs.invalid_message).with_title('Invalid').with_parent(@)
+        explanation: Message.from_hash(attrs.explanation_message).with_title('Explanation').with_parent(@)
+        options:  Message.from_hash(attrs.options_message).with_title('Options').with_parent(@)
+
+      @is_editing_message = ko.computed () =>
+        @current_editing_message() != null
 
       @available_numbers = ko.computed () =>
         used_numbers = (opt.number() for opt in @options())
@@ -229,19 +240,6 @@ jQuery ->
 
     button_class: () =>
       'ldial'
-
-    start_recording: () =>
-      Wami.setup
-        id: 'wami'
-        swfUrl: '/Wami.swf'
-        onReady: ->
-          Wami.startRecording(save_recording_application_path);
-      if $('.flash-required').length
-        $('.flash-required').html('')
-        alert "Adobe Flash Player version 10.0.0 or higher is required for recording a message.\nDownload it from https://get.adobe.com/flashplayer/ and reload this page."
-
-    stop_recording: () =>
-      Wami.stopRecording() if Wami.stopRecording
 
     next_ids: () =>
       (option.next_id for option in @options())
@@ -258,10 +256,18 @@ jQuery ->
       return menu
 
     to_hash: () =>
-      {name: @name(), type: 'menu', root: @root, id: @id, options: (option.to_hash() for option in @options())}
+      id: @id
+      name: @name()
+      type: 'menu'
+      root: @root
+      options: (option.to_hash() for option in @options())
+      end_call_message: @messages['end_call'].to_hash()
+      invalid_message: @messages['invalid'].to_hash()
+      explanation_message: @messages['explanation'].to_hash()
+      options_message: @messages['options'].to_hash()
 
     add_option: () =>
-      new_step = workflow.create_step(@new_option_command, @)
+      new_step = workflow.create_step(@new_option_command(), @)
       @options.push(new MenuOption(@available_numbers()[0], new_step.id, @))
 
     remove_option: (option) =>
@@ -279,24 +285,99 @@ jQuery ->
         option.remove_next()
       super(notify)
 
+    message: (msg) =>
+      @messages[msg]
+
+    show_message: (msg) =>
+      msg = @messages[msg]
+      @current_editing_message(msg)
+
+    show_end_call_message: () =>
+      @show_message('end_call')
+
+    show_invalid_message: () =>
+      @show_message('invalid')
+
+    show_options_message: () =>
+      @show_message('options')
+
+    show_explanation_message: () =>
+      @show_message('explanation')
+
+
   # ---------------------------------------------------------------------------
 
   class Message
     constructor: (hash={}) ->
       @name = ko.observable hash.name
+      @title = ko.observable ""
+      @type = ''
+      @parent = null
+
+    to_hash: () =>
+      name: @name()
+      type: @type
 
     @from_hash: (hash) ->
-      return null if not hash?
+      #HACK: Handle null case with a base class message
+      return new RecordedMessage if not hash? || not hash.type?
       switch hash.type.toLowerCase()
         when 'record'
           new RecordedMessage(hash)
         else
           throw "Message type not recognised #{hash['type']}"
 
+    with_title: (new_title) =>
+      @title(new_title)
+      return @
+
+    with_parent: (new_parent) =>
+      @parent = new_parent
+      return @
+
+    back: () =>
+      @parent.current_editing_message(null)
+
+
+  # ---------------------------------------------------------------------------
+
   class RecordedMessage extends Message
     constructor: (hash={}) ->
       super(hash)
       @file = ko.observable hash.file
+      @recording = ko.observable false
+      @playing = ko.observable false
+      @duration = ko.observable 0
+      @type = 'record'
+
+    record: () =>
+      @recording(true)
+      @playing(false)
+      Wami.setup
+        id: 'wami'
+        swfUrl: '/Wami.swf'
+        onReady: ->
+          Wami.startRecording(save_recording_application_path);
+      if $('.flash-required').length
+        $('.flash-required').html('')
+        alert "Adobe Flash Player version 10.0.0 or higher is required for recording a message.\nDownload it from https://get.adobe.com/flashplayer/ and reload this page."
+
+    stop: () =>
+      if Wami.stopRecording # check if Wami is loaded
+        Wami.stopRecording() if @recording()
+        Wami.stopPlaying() if @playing()
+      @recording(false)
+      @playing(false)
+
+    play: () =>
+      @recording(false)
+      @playing(true)
+      Wami.startPlaying(save_recording_application_path) # TODO: Use a play path
+
+    to_hash: () =>
+      $.extend(super,
+        file: @file()
+      )
 
   # ---------------------------------------------------------------------------
 

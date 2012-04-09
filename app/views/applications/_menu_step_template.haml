@@ -4,30 +4,38 @@
       %span.i48grad-dial.left
       %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
 
-    %table.GralTable.TwoColumn.CleanTable.NoHead
-      %tr
-        %th Messages
-        %th
+    %div{ko(:if => "is_editing_message()")}
+      %div{ko(:template => "{name: 'menu_message_template', data: current_editing_message}")}
+
+    %div{ko(:if => "!is_editing_message()")}
+      %table.GralTable.TwoColumn.CleanTable.NoHead
         %tr
-          %td Start Recording
-          %td
-            %button.farrow{ :type => "button", 'data-bind' => 'click: start_recording' }
-        %tr
-          %td Stop Recording
-          %td
-            %button.farrow{ :type => "button", 'data-bind' => 'click: stop_recording' }
-        %tr
-          %td Invalid: Invalid
-          %td
-            %button.farrow{ :type => "button" }
-        %tr
-          %td
-            End call
-            %span{ko(text: 'end_call_message().name()')}
-          %td
-            %button.farrow{ :type => "button" }
-    %hr
-    .content
+          %th Messages
+          %th
+          %tr
+            %td
+              Explanation
+              %span{ko(text: "message('explanation').name()")}
+            %td
+              %button.farrow{ :type => "button", 'data-bind' => 'click: show_explanation_message' }
+          %tr
+            %td
+              Options
+              %span{ko(text: "message('options').name()")}
+            %td
+              %button.farrow{ :type => "button", 'data-bind' => 'click: show_options_message' }
+          %tr
+            %td
+              Invalid
+              %span{ko(text: "message('invalid').name()")}
+            %td
+              %button.farrow{ :type => "button", 'data-bind' => "click: show_invalid_message" }
+          %tr
+            %td
+              End call
+              %span{ko(text: "message('end_call').name()")}
+            %td
+              %button.farrow{ :type => "button", 'data-bind' => "click: show_end_call_message" }
       %hr
       %label Options
       %br
@@ -35,12 +43,12 @@
         %span{ 'data-bind' => 'foreach: options' }
           %li
             %select{ko(options: 'available_numbers', value: 'number')}
-            %span{ko(text: "next_name()", click: 'select_step')}
+            %span.oplist{ko(text: "next_name()", click: 'select_step')}
             /%input.ux-oplist{ :type => "text", 'data-bind' => 'value: description'}
             %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option' }
         %li
           Add an option:
           %select{ko(options: 'commands()', value: 'new_option_command')}
           %button.clist-add{ 'data-bind' => 'click: add_option'}
-    .bottom-actions
-      %button.fdelete{ 'data-bind' => 'click: remove' } Remove this step
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove' } Remove this step

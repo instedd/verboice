@@ -100,10 +100,10 @@ label + p.desc {
   }
 }
 
-.box.addstep { 
-  background-color:#efefef; 
+.box.addstep {
+  background-color:#efefef;
   @include all-box-shadow(0px 1px 1px 0px rgba(0, 0, 0, 0.2) inset);
-  white-space:normal  
+  white-space:normal
 }
 
 .iblock {
@@ -122,15 +122,15 @@ label + p.desc {
   td {
     border: none;
     padding: 2px 6px;
-    
+
     &.sub {
       padding-left:15px;
     }
-    
+
     &.disabled {
       color: #cccccc;
     }
-    
+
     &.add {
       color: #1F86C8;
     }
@@ -139,11 +139,11 @@ label + p.desc {
   tr:nth-child(2) {
     background-image: none;
   }
-  
+
 }
 
 .TwoColumn tr td:last-child, .TwoColumn tr th:last-child {
-  width: 30px;
+  width: 30px !important;
 }
 
 .bottom-actions {
@@ -164,6 +164,11 @@ ul.oplist {
   .ux-text {
     width: 238px !important;
   }
+}
+
+span.oplist {
+  width: 200px !important;
+  display: inline-block !important;
 }
 
 .ux-oplist {

@@ -1,2 +1,14 @@
 %script{type: "text/html", id: "menu_message_template"}
-  %input{ko(value: 'name')}
+  .w22
+    %label{ko(text: 'title')}
+    %br/
+  .w22
+    %input{ko(value: 'name')}
+    %br
+  .player
+    %span{ko(text: 'duration')}
+    %button.fplay{ko(click: 'play')}
+    %button.fstop{ko(click: 'stop')}
+    %button.frecord{ko(click: 'record')}
+  .bottom-actions
+    %button.fclose{ 'data-bind' => 'click: back' } Back
