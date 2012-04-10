@@ -2,8 +2,8 @@ require 'fiber'
 
 class Fiber
   class << self
-    def yield_with_exception
-      result = yield_without_exception
+    def yield_with_exception *args
+      result = yield_without_exception *args
       raise result if result.is_an? Exception
       result
     end
