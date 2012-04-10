@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
+$log_path = File.expand_path '../../../log/voxeo.log', __FILE__
+
+require(File.expand_path '../../../config/boot.rb', __FILE__)
+require(File.expand_path '../../../config/environment.rb', __FILE__)
+
+Rails.logger = Logger.new(STDOUT) if STDOUT.tty?
+
+BaseBroker.instance = Voxeo::Broker.new
+
+EM.error_handler do |err|
+  p err
+  p err.backtrace
+end
+
+EM::run do
+  EM.schedule do
+    EM::start_server 'localhost', BrokerFacade::Port, BrokerFacade
+    EM.start_server '0.0.0.0', 8080, Voxeo::Server
+    puts 'Ready'
+  end
+end
+EM.reactor_thread.join

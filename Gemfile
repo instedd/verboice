@@ -8,6 +8,7 @@ gem "jquery-rails"
 gem 'mysql2'
 gem 'librevox'
 gem 'em-http-request'
+gem 'eventmachine_httpserver', :require => 'evma_httpserver'
 gem 'nokogiri'
 gem 'guid'
 gem 'devise'
@@ -32,6 +33,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem "shoulda"
   gem 'ci_reporter'
+  gem 'equivalent-xml'
 end
 
 group :development do
