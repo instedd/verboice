@@ -8,7 +8,7 @@ module Parsers
         @id = params['id']
         @explanation_message = params['explanation_message']['name']
         @options_message = params['options_message']['name']
-        @options = params['options'] || []
+        @options = params['options'].deep_clone || []
         @is_root = params['root'] || false
         @timeout = params['timeout'] || 5
         @number_of_attempts = params['number_of_attempts'] || 3
