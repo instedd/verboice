@@ -1,6 +1,7 @@
 class Application < ActiveRecord::Base
   belongs_to :account
   has_many :call_logs, :dependent => :destroy
+  has_many :traces, :dependent => :destroy
 
   before_validation :set_name_to_callback_url, :unless => :name?
 

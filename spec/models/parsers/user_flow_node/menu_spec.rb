@@ -10,6 +10,7 @@ module Parsers
           'explanation_text' => 'foobar',
           'options_text' => 'asdasdasd',
           'timeout'=> 20,
+          'number_of_attempts' => 3,
           'invalid_text' => 'invalid key pressed',
           'end_call_text' => 'Good Bye',
           'options' => [
@@ -36,35 +37,55 @@ module Parsers
 
         menu.equivalent_flow.should eq([
           { say: 'foobar' },
-          {
-            capture: {
-              timeout: 20,
-              say: 'asdasdasd'
-            }
-          },
-          {
-            :if => {
-              :condition => "digits == 4",
-              :then => [{say: 'asdf'}],
-              :else => {
-                :if => {
-                  :condition => "digits == 6",
-                  :then => [{say: 'qwer'}],
-                  :else => {
-                    :if => {
-                      :condition => "digits == 2",
-                      :then => [{say: 'zxcv'}],
-                      :else => [
-                        {say: "invalid key pressed"},
-                        :hangout
-                      ]
+          { assign: { name: 'attempt_number', expr: '1' }},
+          { assign: { name: 'end', expr: 'false' }},
+          { :while => { :condition => 'attempt_number <= 3 && !end', :do => [
+            {
+              capture: {
+                timeout: 20,
+                say: 'asdasdasd'
+              }
+            },
+            {
+              :if => {
+                :condition => "digits == 4",
+                :then => [{ say: 'asdf' },
+                  { assign: { name: 'end', expr: 'true' }}
+                  ],
+                :else => {
+                  :if => {
+                    :condition => "digits == 6",
+                    :then => [
+                      { say: 'qwer' },
+                      { assign: { name: 'end', expr: 'true' }}
+                    ],
+                    :else => {
+                      :if => {
+                        :condition => "digits == 2",
+                        :then => [
+                          { say: 'zxcv' },
+                          { assign: { name: 'end', expr: 'true' }}
+                        ],
+                        :else => {
+                          :if => {
+                            :condition => "digits != null",
+                            :then => [{ say: "invalid key pressed" }]
+                          }
+                        }
+                      }
                     }
                   }
                 }
               }
+            },
+            { assign: { name: 'attempt_number', expr: 'attempt_number + 1' }}
+          ]}},
+          {
+            :if => {
+              :condition => 'attempt_number > 3 && !end',
+              :then => [{ say: 'Good Bye' }]
             }
-          },
-          {say: 'Good Bye'}
+          }
         ])
 
       end
@@ -102,22 +123,33 @@ module Parsers
 
         menu_3.equivalent_flow.should eq([
           { say: 'foobar' },
+          {:assign=>{:name=>"attempt_number", :expr=>"1"}},
+          {:assign=>{:name=>"end", :expr=>"false"}},
+          {:while=> {
+            :condition=>"attempt_number <= 3 && !end",
+            :do=> [
+              {:capture=>{:timeout=>5}},
+              {
+                :if=> {
+                  :condition=>"digits == 4",
+                  :then=>[{:say=>"asdf"}, {:assign=>{:name=>"end", :expr=>"true"}}],
+                  :else=> {
+                    :if=> {
+                      :condition=>"digits != null",
+                      :then=> [{:say=>"invalid key pressed"}]
+                    }
+                  }
+                }
+              },
+              {:assign=>{:name=>"attempt_number", :expr=>"attempt_number + 1"}}
+            ]
+          }},
           {
-            capture: {
-              timeout: 5
+            :if=> {
+              :condition => "attempt_number > 3 && !end",
+              :then => [{:say=>"Good Bye"}]
             }
-          },
-          {
-            :if => {
-              :condition => "digits == 4",
-              :then => [{say: 'asdf'}],
-              :else => [
-                {say: "invalid key pressed"},
-                :hangout
-              ]
-            }
-          },
-          {say: 'Good Bye'}
+          }
         ])
       end
 
