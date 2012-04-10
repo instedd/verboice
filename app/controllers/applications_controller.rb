@@ -61,19 +61,9 @@ class ApplicationsController < ApplicationController
   end
 
   def save_recording
-    p 'foooo'
-    p params
-    p 'bar'
-
-    # wavfile = File.new()
-    # wavfile.binmode
-
-    File.open("recording.wav","wb") do |file|
+    File.open("public/recording.wav","wb") do |file|
       file.write request.body.read
     end
-
-    # wavfile.close
-
   end
 
   # DELETE /applications/1

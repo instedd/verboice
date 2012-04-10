@@ -8,7 +8,10 @@ describe Parsers::UserFlow do
         'id' => 12,
         'root' => true,
         'type' => 'menu',
-        'explanation_text' => 'First Menu',
+        'explanation_message' => {"name" => 'First Menu'},
+        'options_message' => {},
+        'end_call_message' => {},
+        'invalid_message' => {},
         'options' =>[
           {
             'description' => 'foobar',
@@ -20,7 +23,10 @@ describe Parsers::UserFlow do
       {
         'id' => 14,
         'type' => 'menu',
-        'explanation_text' => 'Second Menu'
+        'explanation_message' => {"name" => 'Second Menu'},
+        'options_message' => {},
+        'end_call_message' => {},
+        'invalid_message' => {}
       }
     ]
   end
@@ -31,18 +37,33 @@ describe Parsers::UserFlow do
     first_menu = nodes.first
     first_menu.class.should eq(Parsers::UserFlowNode::Menu)
     first_menu.id.should eq(12)
-    first_menu.explanation_text.should eq('First Menu')
+    first_menu.explanation_message.should eq('First Menu')
     first_menu.options.size.should eq(1)
     first_menu.options.first['number'].should eq(2)
     first_menu.options.first['description'].should eq('foobar')
     second_menu = first_menu.options.first['next']
     second_menu.class.should eq(Parsers::UserFlowNode::Menu)
     second_menu.id.should eq(14)
-    second_menu.explanation_text.should eq('Second Menu')
+    second_menu.explanation_message.should eq('Second Menu')
     second_menu.options.size.should eq(0)
   end
 
   it "should retrieve an equivalent flow in verboice internal representation" do
-    (Parsers::UserFlow.new application_flow).equivalent_flow.should eq([{:say=>"First Menu"}, {:capture=>{:timeout=>5}}, {:if=>{:condition=>"digits == 2", :then=>[{:say=>"Second Menu"}], :else=>[:hangout]}}])
+    (Parsers::UserFlow.new application_flow).equivalent_flow.should eq([
+      {:say=>"First Menu"},
+      {:assign=>{:name=>"attempt_number", :expr=>"1"}},
+      {:assign=>{:name=>"end", :expr=>"false"}},
+      {:while=>
+        {:condition=>"attempt_number <= 3 && !end",
+         :do=>
+          [{:capture=>{:timeout=>5}},
+           {:if=>
+             {:condition=>"digits == 2",
+              :then=> [
+                {:say=>"Second Menu"},
+                {:assign=>{:name=>"end", :expr=>"true"}}
+              ]}},
+           {:assign=>{:name=>"attempt_number", :expr=>"attempt_number + 1"}}]}}
+    ])
   end
 end

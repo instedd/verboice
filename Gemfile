@@ -31,7 +31,7 @@ group :development, :test do
   gem 'ffaker'
   gem 'rspec'
   gem 'rspec-rails'
-  gem "shoulda"
+  gem "shoulda-matchers"
   gem 'ci_reporter'
   gem 'equivalent-xml'
 end
