@@ -109,8 +109,8 @@ jQuery ->
     add_step: (command) =>
       @steps.push command
 
-    create_step: (command_type) =>
-      new_step = Step.from_hash(type: command_type, id: @generate_id())
+    create_step: (command_type, parent) =>
+      new_step = Step.from_hash(type: command_type, id: @generate_id(), root: not parent?)
       @steps.push new_step
       new_step
 
@@ -156,9 +156,8 @@ jQuery ->
     display_template_id: () ->
       'command_selector_template'
 
-    add_menu_to_steps: () ->
-      throw 'unimplemented'
-      #workflow.add_step(new Menu)
+    # add_menu_to_steps: () ->
+    #   workflow.create_step('menu')
 
   # ---------------------------------------------------------------------------
 
@@ -166,7 +165,7 @@ jQuery ->
     constructor: (cmd)->
       @cmd = cmd
     add_to_steps: =>
-      @cmd.add_to_steps()
+      workflow.create_step(@cmd.name, null)
     name: =>
       @cmd.name
 
