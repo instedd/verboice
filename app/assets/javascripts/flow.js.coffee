@@ -347,17 +347,23 @@ jQuery ->
       @file = ko.observable hash.file
       @recording = ko.observable false
       @playing = ko.observable false
-      @duration = ko.observable 0
+      @duration = ko.observable (new Date).clearTime().toString('mm:ss')
       @type = 'record'
+      @recording_start = null
+      @update_duration_interval = null
 
     record: () =>
-      @recording(true)
-      @playing(false)
+      @recording true
+      @playing false
+      @duration (new Date).clearTime().toString('mm:ss')
       Wami.setup
         id: 'wami'
         swfUrl: '/Wami.swf'
-        onReady: ->
+        onReady: =>
           Wami.startRecording(save_recording_application_path);
+          @recording_start = Math.round(+new Date()/1000)
+          @update_duration_interval = window.setInterval((() =>
+            @duration((new Date).clearTime().addSeconds(Math.round(+new Date()/1000) - @recording_start).toString('mm:ss'))), 100)
       if $('.flash-required').length
         $('.flash-required').html('')
         alert "Adobe Flash Player version 10.0.0 or higher is required for recording a message.\nDownload it from https://get.adobe.com/flashplayer/ and reload this page."
@@ -368,16 +374,25 @@ jQuery ->
         Wami.stopPlaying() if @playing()
       @recording(false)
       @playing(false)
+      window.clearInterval(@update_duration_interval)
 
     play: () =>
       @recording(false)
       @playing(true)
-      Wami.startPlaying(save_recording_application_path) # TODO: Use a play path
+      Wami.setup
+        id: 'wami'
+        swfUrl: '/Wami.swf'
+        onReady: =>
+          Wami.startPlaying(play_recording_application_path) # TODO: Use a play path
 
     to_hash: () =>
-      $.extend(super,
-        file: @file()
-      )
+      if @file()?
+        $.extend(super,
+          file: @file()
+          duration: @duration()
+        )
+      else
+        {}
 
   # ---------------------------------------------------------------------------
 
