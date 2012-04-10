@@ -7,6 +7,7 @@ Sham.define do
   email { Faker::Internet.email }
   username { Faker::Internet.user_name }
   password { Faker::Name.name[0..10] }
+  guid { Guid.new.to_s }
 end
 
 Account.blueprint do
@@ -28,6 +29,11 @@ Channel.blueprint do
   application
   account { application.account }
   name
+end
+
+Channel.blueprint(:voxeo) do
+  kind { "voxeo" }
+  token { Sham.guid }
 end
 
 CallQueue.blueprint do

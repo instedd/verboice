@@ -1,7 +1,7 @@
 class Channel < ActiveRecord::Base
   include ChannelSerialization
 
-  Kinds = %w(sip custom)
+  Kinds = %w(sip custom voxeo)
 
   belongs_to :account
   belongs_to :application
@@ -97,6 +97,8 @@ class Channel < ActiveRecord::Base
   config_accessor :direction
 
   config_accessor :dial_string
+  
+  config_accessor :token
 
   def host_and_port?
     config['host_and_port'].present?
