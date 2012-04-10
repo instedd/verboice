@@ -2,18 +2,18 @@ module Parsers
   module UserFlowNode
     class Menu < UserCommand
 
-      attr_reader :id, :explanation_text, :options, :timeout, :invalid_text, :end_call_text
+      attr_reader :id, :explanation_message, :options, :timeout, :invalid_message, :end_call_message
 
       def initialize params
         @id = params['id']
-        @explanation_text = params['explanation_text']
-        @options_text = params['options_text']
+        @explanation_message = params['explanation_message']['name']
+        @options_message = params['options_message']['name']
         @options = params['options'] || []
         @is_root = params['root'] || false
         @timeout = params['timeout'] || 5
         @number_of_attempts = params['number_of_attempts'] || 3
-        @invalid_text = params['invalid_text']
-        @end_call_text = params['end_call_text']
+        @invalid_message = params['invalid_message']['name']
+        @end_call_message = params['end_call_message']['name']
       end
 
       def solve_links_with nodes
@@ -43,9 +43,9 @@ module Parsers
 
       def build_equivalent_flow
         @equivalent_flow = []
-        @equivalent_flow << {say: @explanation_text} if @explanation_text
+        @equivalent_flow << {say: @explanation_message} if @explanation_message
         if @options.empty?
-          @equivalent_flow << { say: @options_text } if @options_text
+          @equivalent_flow << { say: @options_message } if @options_message
         else
           build_while do
             [build_capture,
@@ -53,16 +53,16 @@ module Parsers
           end
         end
 
-        if @end_call_text
+        if @end_call_message
           @equivalent_flow << if @number_of_attempts > 1 && !@options.empty?
             {
               :if => {
                 :condition => "attempt_number > #{@number_of_attempts} && !end",
-                :then => [{ say: @end_call_text }]
+                :then => [{ say: @end_call_message }]
               }
             }
           else
-            { say: @end_call_text }
+            { say: @end_call_message }
           end
         end
 
@@ -86,9 +86,9 @@ module Parsers
          {
            :if => {
               :condition => "digits != null",
-              :then => [{ say: @invalid_text }]
+              :then => [{ say: @invalid_message }]
             }
-          } if @invalid_text
+          } if @invalid_message
         if_conditions.reverse.each do |an_if_condition_hash|
           an_if_condition_hash[:if][:else] = last_if_condition
           last_if_condition = an_if_condition_hash
@@ -105,11 +105,11 @@ module Parsers
       end
 
       def build_capture
-        if @options_text
+        if @options_message
           {
             capture: {
               timeout: @timeout,
-              say: @options_text
+              say: @options_message
             }
           }
         else
