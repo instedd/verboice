@@ -386,8 +386,13 @@ jQuery ->
         onReady: =>
           window.currentMessage = @
           window.playFinished = () ->
-            window.currentMessage.playing(false)
+            window.setTimeout((() ->
+              window.currentMessage.playing(false)), 100)
           Wami.startPlaying(play_recording_application_path, null, 'window.playFinished') # TODO: Use a play path
+
+    back: () =>
+      @stop()
+      super
 
     to_hash: () =>
       if @file() or @name()?
