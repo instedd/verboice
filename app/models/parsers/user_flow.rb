@@ -1,16 +1,19 @@
 class Parsers::UserFlow
 
-  def initialize application_flow
+  attr_reader :application
+
+  def initialize application, application_flow
     @application_flow = application_flow
     @roots = []
     @nodes = []
+    @application = application
   end
 
   def build_nodes
     @nodes = []
 
     @application_flow.each do | an_ui_command |
-      @nodes << (Parsers::UserFlowNode::UserCommand.for an_ui_command)
+      @nodes << (Parsers::UserFlowNode::UserCommand.for application, an_ui_command)
     end
 
     @nodes.each do | a_command_parser |

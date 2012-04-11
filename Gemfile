@@ -29,6 +29,7 @@ end
 group :development, :test do
   gem 'machinist'
   gem 'ffaker'
+  gem 'mocha', :require => false
   gem 'rspec'
   gem 'rspec-rails'
   gem "shoulda-matchers"

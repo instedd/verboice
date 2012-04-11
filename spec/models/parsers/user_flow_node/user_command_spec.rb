@@ -10,7 +10,7 @@ module Parsers
       end
 
       it "should deliver the right subclass to parse a given input" do
-        (UserCommand.for 'id' => 27, 'type' => 'menu',
+        (UserCommand.for self, 'id' => 27, 'type' => 'menu',
           'explanation_message' => {},
           'options_message' => {},
           'end_call_message' => {},

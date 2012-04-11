@@ -2,10 +2,11 @@ module Parsers
   module UserFlowNode
     class Menu < UserCommand
 
-      attr_reader :id, :explanation_message, :options, :timeout, :invalid_message, :end_call_message
+      attr_reader :id, :explanation_message, :options, :timeout, :invalid_message, :end_call_message, :name, :application
 
-      def initialize params
+      def initialize application, params
         @id = params['id']
+        @name = params['name']
         @explanation_message = params['explanation_message']['name']
         @options_message = params['options_message']['name']
         @options = params['options'].deep_clone || []
@@ -14,6 +15,7 @@ module Parsers
         @number_of_attempts = params['number_of_attempts'] || 3
         @invalid_message = params['invalid_message']['name']
         @end_call_message = params['end_call_message']['name']
+        @application = application
       end
 
       def solve_links_with nodes
@@ -48,8 +50,10 @@ module Parsers
           @equivalent_flow << { say: @options_message } if @options_message
         else
           build_while do
-            [build_capture,
-            build_if_conditions]
+            [
+              build_capture,
+              build_if_conditions
+            ]
           end
         end
 
@@ -58,7 +62,7 @@ module Parsers
             {
               :if => {
                 :condition => "attempt_number > #{@number_of_attempts} && !end",
-                :then => [{ say: @end_call_message }]
+                :then => [{ say: @end_call_message }, trace("\"Missed input for #{@number_of_attempts} times.\"")]
               }
             }
           else
@@ -77,18 +81,28 @@ module Parsers
           if_conditions << {
             :if => {
               :condition => "digits == #{an_option['number']}",
-              :then => if_must_add_exit_condition_to(an_option['next'].equivalent_flow)
+              :then => [trace('"User pressed: " + digits')] + if_must_add_exit_condition_to(an_option['next'].equivalent_flow)
             }
           }
         end
         last_if_condition = if_conditions.pop
-        last_if_condition[:if][:else] =
+        last_if_condition[:if][:else] = if @invalid_message
          {
            :if => {
               :condition => "digits != null",
-              :then => [{ say: @invalid_message }]
+              :then => [{ say: @invalid_message }, trace('"Invalid key pressed"')],
+              :else => [trace('"No key was pressed. Timeout."')]
             }
-          } if @invalid_message
+          }
+        else
+          {
+            :if => {
+              :condition => "digits != null",
+              :then => [trace('"Invalid key pressed"')],
+              :else => [trace('"No key was pressed. Timeout."')]
+            }
+          }
+        end
         if_conditions.reverse.each do |an_if_condition_hash|
           an_if_condition_hash[:if][:else] = last_if_condition
           last_if_condition = an_if_condition_hash
@@ -125,14 +139,22 @@ module Parsers
         if @number_of_attempts > 1
           @equivalent_flow << { assign: { name: 'attempt_number', expr: '1' }}
           @equivalent_flow << { assign: { name: 'end', expr: 'false' }}
-          @equivalent_flow << { :while => { :condition => "attempt_number <= #{@number_of_attempts} && !end", :do => [
-            yield,
-            { assign: { name: 'attempt_number', expr: 'attempt_number + 1' }}
-          ].flatten}}
+          @equivalent_flow << { :while => { :condition => "attempt_number <= #{@number_of_attempts} && !end", :do =>
+            yield << { assign: { name: 'attempt_number', expr: 'attempt_number + 1' }}
+          }}
         else
-          @equivalent_flow << yield
-          @equivalent_flow.flatten!
+          @equivalent_flow + yield
         end
+      end
+
+      def trace expression
+        {
+          trace: {
+            :application_id => @application.id,
+            :step_id => @id,
+            :store => expression
+          }
+        }
       end
     end
   end
