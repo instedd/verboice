@@ -25,6 +25,7 @@ label + p.desc {
 .workflow-content-container {
   overflow:auto;
 }
+
 .workflow-container {
   position:relative;
   white-space:nowrap;
@@ -196,6 +197,8 @@ span.arrow-exp.orange { background: url(http://theme.instedd.org/theme/images/ic
 
 div.player span { color:#cf490c; display:inline-block; vertical-align:middle }
 div.player button { vertical-align:middle }
+div.player .disabled { background-position: 0 -90px ! important;}
+div.player .active { background-position: 0 -60px ! important;}
 
 .content-header { padding:26px 50px; text-align:center }
 .content-header h1 { font-size:16px; color:#000000; margin:0 }

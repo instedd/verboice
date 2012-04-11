@@ -352,6 +352,7 @@ jQuery ->
       @update_duration_interval = null
 
     record: () =>
+      return if @playing() or @recording()
       @recording true
       @playing false
       @duration (new Date).clearTime().toString('mm:ss')
@@ -376,13 +377,17 @@ jQuery ->
       window.clearInterval(@update_duration_interval)
 
     play: () =>
+      return if @playing() or @recording()
       @recording(false)
       @playing(true)
       Wami.setup
         id: 'wami'
         swfUrl: '/Wami.swf'
         onReady: =>
-          Wami.startPlaying(play_recording_application_path) # TODO: Use a play path
+          window.currentMessage = @
+          window.playFinished = () ->
+            window.currentMessage.playing(false)
+          Wami.startPlaying(play_recording_application_path, null, 'window.playFinished') # TODO: Use a play path
 
     to_hash: () =>
       if @file()?

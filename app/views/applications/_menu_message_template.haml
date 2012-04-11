@@ -7,8 +7,9 @@
     %br
   .player
     %span{ko(text: 'duration')}
-    %button.fplay{ko(click: 'play')}
-    %button.fstop{ko(click: 'stop')}
-    %button.frecord{ko(click: 'record')}
+    %button.fplay{ko(click: 'play', visible: '!playing()', css: "{disabled: recording()}")}
+    %button.fstop{ko(click: 'stop', visible: 'playing()')}
+    %button.frecording{ko(click: 'record', visible: '!recording()', css: "{disabled: playing()}")}
+    %button.fstopped{ko(click: 'stop', visible: 'recording()', css: "{active: recording(), disabled: playing()}")}
   .bottom-actions
-    %button.fclose{ 'data-bind' => 'click: back' } Back
+    %button.fleft{ 'data-bind' => 'click: back' } Back
