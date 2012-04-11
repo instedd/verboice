@@ -8,6 +8,7 @@ Sham.define do
   username { Faker::Internet.user_name }
   password { Faker::Name.name[0..10] }
   guid { Guid.new.to_s }
+  url { "http://" + Faker::Internet.domain_name }
 end
 
 Account.blueprint do
@@ -34,6 +35,7 @@ end
 Channel.blueprint(:voxeo) do
   kind { "voxeo" }
   token { Sham.guid }
+  url
 end
 
 CallQueue.blueprint do

@@ -99,6 +99,7 @@ class Channel < ActiveRecord::Base
   config_accessor :dial_string
   
   config_accessor :token
+  config_accessor :url
 
   def host_and_port?
     config['host_and_port'].present?

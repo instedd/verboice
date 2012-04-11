@@ -1,10 +1,8 @@
 module Voxeo
   class Broker < BaseBroker
-    # TODO AR: see if this is fixed or depends on something else
-    Url = 'http://api.voxeo.net/SessionControl/4.5.41/VoiceXML.start'
     
     def call session      
-      http = EventMachine::HttpRequest.new(Url) 
+      http = EventMachine::HttpRequest.new(session.channel.url) 
       http = http.get :query => {:tokenid => session.channel.token, :callsid => session.id, :numbertodial => session.address} #TODO AR: we can add a callerid param here
       
       http.callback do
