@@ -75,4 +75,23 @@ describe Application do
       end
     end
   end
+
+  it "should update the flow when it's user flow get's updated" do
+    application.flow.should eq []
+    application.user_flow = [
+      {
+        'id' => 1,
+        'root' => true,
+        'type' => 'menu',
+        'name' => 'Menu number one',
+        'explanation_message' => {"name" => 'First Menu'},
+        'options_message' => {},
+        'end_call_message' => {},
+        'invalid_message' => {}
+      }
+    ]
+
+    application.save!
+    application.reload.flow.should eq([{say: 'First Menu'}])
+  end
 end
