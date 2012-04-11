@@ -6,7 +6,7 @@ module Parsers
 
       def initialize application, params
         @id = params['id']
-        @name = params['name']
+        @name = params['name'] || ''
         @explanation_message = params['explanation_message']['name']
         @options_message = params['options_message']['name']
         @options = params['options'].deep_clone || []
@@ -152,6 +152,7 @@ module Parsers
           trace: {
             :application_id => @application.id,
             :step_id => @id,
+            :step_name => @name,
             :store => expression
           }
         }

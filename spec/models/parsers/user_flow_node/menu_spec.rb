@@ -95,6 +95,7 @@ module Parsers
                   { trace: {
                     :application_id => 1,
                     :step_id => 27,
+                    :step_name => 'Menu number one',
                     :store => '"User pressed: " + digits'
                   }},
                   { say: 'Second explanation message' },
@@ -107,6 +108,7 @@ module Parsers
                       { trace: {
                         :application_id => 1,
                         :step_id => 27,
+                        :step_name => 'Menu number one',
                         :store => '"User pressed: " + digits'
                       }},
                       { say: 'Third explanation message' },
@@ -119,6 +121,7 @@ module Parsers
                           { trace: {
                             :application_id => 1,
                             :step_id => 27,
+                            :step_name => 'Menu number one',
                             :store => '"User pressed: " + digits'
                           }},
                           { say: 'Fourth explanation message' },
@@ -132,6 +135,7 @@ module Parsers
                               { trace: {
                                 :application_id => 1,
                                 :step_id => 27,
+                                :step_name => 'Menu number one',
                                 :store => '"Invalid key pressed"'
                               }}
                             ],
@@ -139,6 +143,7 @@ module Parsers
                               { trace: {
                                 :application_id => 1,
                                 :step_id => 27,
+                                :step_name => 'Menu number one',
                                 :store => '"No key was pressed. Timeout."'
                               }}
                             ]
@@ -160,6 +165,7 @@ module Parsers
                 { trace: {
                   :application_id => 1,
                   :step_id => 27,
+                  :step_name => 'Menu number one',
                   :store => '"Missed input for 3 times."'
                 }}
               ]
@@ -174,6 +180,7 @@ module Parsers
         menu_1.equivalent_flow.should eq([])
 
         menu_3 = Menu.new app, 'id' => 27, 'type' => 'menu',
+          'name' => 'Menu',
           'explanation_message' => {'name' => 'foobar'},
           'invalid_message' => {'name' => 'invalid key pressed'},
           'end_call_message' => {'name' => 'Good Bye'},
@@ -203,6 +210,7 @@ module Parsers
                     { :trace=> {
                       :application_id=>1,
                       :step_id=>27,
+                      :step_name => 'Menu',
                       :store=>"\"User pressed: \" + digits"
                     }},
                     { :say=>"asdf" },
@@ -216,6 +224,7 @@ module Parsers
                         { trace: {
                           :application_id => 1,
                           :step_id => 27,
+                          :step_name => 'Menu',
                           :store => '"Invalid key pressed"'
                         }}
                       ],
@@ -223,6 +232,7 @@ module Parsers
                         { trace: {
                           :application_id => 1,
                           :step_id => 27,
+                          :step_name => 'Menu',
                           :store => '"No key was pressed. Timeout."'
                         }}
                       ]
@@ -240,6 +250,7 @@ module Parsers
                 { trace: {
                   :application_id => 1,
                   :step_id => 27,
+                  :step_name => 'Menu',
                   :store => '"Missed input for 3 times."'}}]
             }
           }

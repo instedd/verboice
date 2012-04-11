@@ -1,3 +1,5 @@
+require 'csv'
+
 class ApplicationsController < ApplicationController
   before_filter :authenticate_account!
   before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update_workflow, :update, :destroy]
@@ -12,6 +14,25 @@ class ApplicationsController < ApplicationController
 
   # GET /applications/1
   def show
+    respond_to do |format|
+      format.html
+      format.csv do
+        csv = CSV.generate({ :col_sep => ','}) do |csv|
+          csv << ['Call ID', 'Address', 'Step', 'TimeStamp', 'Description']
+          # Trace.create! application_id: @application_id, step_id: @step_id, call_id: session.call_id, result: session.eval(@expression)
+          @application.traces.includes(:call_log).each do |trace|
+            csv << [
+              trace.call_id,
+              trace.call_log.address,
+              trace.step_id,
+              trace.created_at,
+              trace.result
+            ]
+          end
+        end
+        render :text =>  csv
+      end
+    end
   end
 
   # GET /applications/new

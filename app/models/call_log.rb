@@ -5,6 +5,7 @@ class CallLog < ActiveRecord::Base
   belongs_to :application
   belongs_to :channel
   belongs_to :call_queue
+  has_many :traces, :foreign_key => "call_id"
 
   before_validation :set_account_to_application_account, :if => :application_id?
 

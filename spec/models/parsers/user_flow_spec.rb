@@ -13,6 +13,7 @@ describe Parsers::UserFlow do
         'id' => 12,
         'root' => true,
         'type' => 'menu',
+        'name' => 'Menu number one',
         'explanation_message' => {"name" => 'First Menu'},
         'options_message' => {},
         'end_call_message' => {},
@@ -28,6 +29,7 @@ describe Parsers::UserFlow do
       {
         'id' => 14,
         'type' => 'menu',
+        'name' => 'Menu number two',
         'explanation_message' => {"name" => 'Second Menu'},
         'options_message' => {},
         'end_call_message' => {},
@@ -70,6 +72,7 @@ describe Parsers::UserFlow do
               { :trace => {
                 :application_id => 1,
                 :step_id => 12,
+                :step_name => 'Menu number one',
                 :store => "\"User pressed: \" + digits"
               }},
               { :say => "Second Menu" },
@@ -82,6 +85,7 @@ describe Parsers::UserFlow do
                   { :trace => {
                     :application_id => 1,
                     :step_id => 12,
+                    :step_name => 'Menu number one',
                     :store => "\"Invalid key pressed\""
                   }}
                 ],
@@ -89,6 +93,7 @@ describe Parsers::UserFlow do
                   { :trace => {
                     :application_id => 1,
                     :step_id => 12,
+                    :step_name => 'Menu number one',
                     :store => "\"No key was pressed. Timeout.\""
                   }}
                 ]
