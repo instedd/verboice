@@ -270,8 +270,9 @@ jQuery ->
       @options.push(new MenuOption(@available_numbers()[0], new_step.id, @))
 
     remove_option: (option) =>
-      @options.remove option
-      option.remove_next()
+      if confirm("Are you sure you want to remove option #{option.next().name()} and all steps after it?")
+        @options.remove option
+        option.remove_next()
 
     child_removed: (child) =>
       for option in @options()
