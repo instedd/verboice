@@ -390,7 +390,7 @@ jQuery ->
           Wami.startPlaying(play_recording_application_path, null, 'window.playFinished') # TODO: Use a play path
 
     to_hash: () =>
-      if @file()?
+      if @file() or @name()?
         $.extend(super,
           file: @file()
           duration: @duration()

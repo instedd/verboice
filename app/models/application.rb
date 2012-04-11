@@ -12,15 +12,17 @@ class Application < ActiveRecord::Base
   serialize :user_flow, Array
 
   before_update :update_flow_with_user_flow
+  before_save :clear_flow, :if => lambda { @mode == 'callback_url' }
 
   config_accessor :callback_url_user, :callback_url_password,
                   :status_callback_url_user, :status_callback_url_password
 
   attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true
 
-  before_save :clear_flow, :if => lambda { @mode == 'callback_url' }
+
   def clear_flow
     self.flow = nil
+    true
   end
 
   def commands
@@ -43,7 +45,10 @@ class Application < ActiveRecord::Base
   end
 
   def update_flow_with_user_flow
-    flow = (Parsers::UserFlow.new user_flow).equivalent_flow if user_flow_changed?
+    if user_flow_changed?
+      self.flow = (Parsers::UserFlow.new self, user_flow).equivalent_flow
+    end
+    true
   end
 
   private
