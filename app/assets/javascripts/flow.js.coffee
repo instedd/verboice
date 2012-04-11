@@ -140,7 +140,7 @@ jQuery ->
     generate_id: () =>
       id = 1
       while id in (step.id for step in @steps())
-        id = Math.ceil(Math.random() * 1000)
+        id += 1
       return id
 
   # ---------------------------------------------------------------------------
