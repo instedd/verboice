@@ -1,53 +1,56 @@
 %script{type: "text/html", id: "menu_step_template"}
-  .box.w30.iblock.feditor-sidebar.right.h65{ 'data-bind' => 'with: current_step' }
-    .tableheader
-      %span.i48grad-dial.left
-      %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
-
+  %span{ 'data-bind' => 'with: current_step' }
     %div{ko(:if => "is_editing_message()")}
       %div{ko(:template => "{name: 'menu_message_template', data: current_editing_message}")}
 
     %div{ko(:if => "!is_editing_message()")}
-      %table.GralTable.TwoColumn.CleanTable.NoHead
-        %tr
-          %th Messages
-          %th
+      .feditor-sidebar.right.box.w28.iblock.h65
+        .tableheader
+          %span.i48grad-dial.left
+          %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+
+        %table.GralTable.TwoColumn.CleanTable.NoHead
           %tr
-            %td
-              Explanation
-              %span{ko(text: "message('explanation').name()")}
-            %td
-              %button.farrow{ :type => "button", 'data-bind' => 'click: show_explanation_message' }
-          %tr
-            %td
-              Options
-              %span{ko(text: "message('options').name()")}
-            %td
-              %button.farrow{ :type => "button", 'data-bind' => 'click: show_options_message' }
-          %tr
-            %td
-              Invalid
-              %span{ko(text: "message('invalid').name()")}
-            %td
-              %button.farrow{ :type => "button", 'data-bind' => "click: show_invalid_message" }
-          %tr
-            %td
-              End call
-              %span{ko(text: "message('end_call').name()")}
-            %td
-              %button.farrow{ :type => "button", 'data-bind' => "click: show_end_call_message" }
-      %hr
-      %label Options
-      %br
-      %ul.oplist
-        %span{ 'data-bind' => 'foreach: options' }
-          %li
-            %select{ko(options: 'available_numbers', value: 'number')}
-            %span.oplist{ko(text: "next_name()", click: 'select_step')}
-            %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option' }
-        %li
-          Add an option:
-          %select{ko(options: 'commands()', value: 'new_option_command')}
-          %button.clist-add{ 'data-bind' => 'click: add_option'}
-      .bottom-actions
-        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+            %th Messages
+            %th
+            %tr
+              %td
+                Explanation:
+                %span{ko(text: "message('explanation').name()")}
+              %td
+                %button.farrow{ :type => "button", 'data-bind' => 'click: show_explanation_message' }
+            %tr
+              %td
+                Options:
+                %span{ko(text: "message('options').name()")}
+              %td
+                %button.farrow{ :type => "button", 'data-bind' => 'click: show_options_message' }
+            %tr
+              %td
+                Invalid:
+                %span{ko(text: "message('invalid').name()")}
+              %td
+                %button.farrow{ :type => "button", 'data-bind' => "click: show_invalid_message" }
+            %tr
+              %td
+                End call:
+                %span{ko(text: "message('end_call').name()")}
+              %td
+                %button.farrow{ :type => "button", 'data-bind' => "click: show_end_call_message" }
+        .content
+          %hr
+          %label Options
+          %br
+          %ul.oplist
+            %span{ 'data-bind' => 'foreach: options' }
+              %li
+                %select{ko(options: 'available_numbers', value: 'number')}
+                %span.ux-oplist{ko(text: "next_name()", click: 'select_step')}
+                %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option' }
+            %li
+              %span.ux-text
+                Add an option:
+                %select{ko(options: 'commands()', value: 'new_option_command')}
+              %button.clist-add{ 'data-bind' => 'click: add_option'}
+          .bottom-actions
+            %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

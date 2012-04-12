@@ -163,7 +163,8 @@ ul.oplist {
   }
 
   .ux-text {
-    width: 238px !important;
+    width: 242px !important;
+    display: inline-block;
   }
 }
 
@@ -173,9 +174,10 @@ span.oplist {
 }
 
 .ux-oplist {
-  border-color: white !important;
-  @include all-box-shadow(none !important);
+/*  border-color: white !important;*/
+/*  @include all-box-shadow(none !important);*/
   width: 178px !important;
+  display: inline-block;
 }
 
 .ux-oplist:focus {
@@ -206,7 +208,7 @@ div.player .active { background-position: 0 -60px ! important;}
 .content-header span { font-size:12px; color:#555555 }
 
 .content-buttons { margin:0 auto; width:265px }
-.content-buttons div { text-align:center; display:inline-block; vertical-align:top; width:85px; margin-bottom:15px }
+.content-buttons div { text-align:center; display:inline-block; vertical-align:top; margin-bottom:15px }
 .content-buttons span { font-size:11px; color:#000000; display:block; padding-top:5px }
 .content-buttons div.disabled span { color:#b3b3b3 }
 

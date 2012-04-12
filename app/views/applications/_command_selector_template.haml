@@ -1,7 +1,10 @@
 %script{type: "text/html", id: "command_selector_template"}
-  .box.w30.right.feditor-sidebar.h65.lightgrey{ 'data-bind' => 'with: current_step' }
-    %span{ 'data-bind' => 'foreach: commands' }
-      %span{style: 'display:inline-block'}
+  .feditor-sidebar.box.w28.iblock.h65.addstep.right{ 'data-bind' => 'with: current_step' }
+    .content-header
+      %h1 Add step
+      %span Choose one of the options below to insert a new stop in the app
+    .content-buttons{ 'data-bind' => 'foreach: commands' }
+      %div
         / todo: missing pluggable button class
-        %p.ldial{ 'data-bind' => 'click: add_to_steps', :style => 'display:block' }
-        %p Menu
+        %button.ldial{ 'data-bind' => 'click: add_to_steps', :style => 'display:block' }
+        %span Menu
