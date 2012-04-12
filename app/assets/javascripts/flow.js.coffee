@@ -352,7 +352,7 @@ jQuery ->
       @file = ko.observable hash.file
       @recording = ko.observable false
       @playing = ko.observable false
-      @duration = ko.observable (new Date).clearTime().toString('mm:ss')
+      @duration = ko.observable(hash.duration || (new Date).clearTime().toString('mm:ss'))
       @type = 'record'
       @recording_start = null
       @update_duration_interval = null
@@ -366,7 +366,7 @@ jQuery ->
         id: 'wami'
         swfUrl: '/Wami.swf'
         onReady: =>
-          Wami.startRecording("#{save_recording_application_path}?step_id=#{@id}");
+          Wami.startRecording("#{save_recording_application_path}?step_id=#{@parent.id}&message=#{@title()}");
           @recording_start = @now_seconds()
           @update_duration_interval = window.setInterval((() =>
             @update_duration(@now_seconds() - @recording_start)), 100)
@@ -376,12 +376,13 @@ jQuery ->
       if Wami.stopRecording # check if Wami is loaded
         Wami.stopRecording() if @recording()
         Wami.stopPlaying() if @playing()
+        @file(true)
       @recording(false)
       @playing(false)
       window.clearInterval(@update_duration_interval)
 
     play: () =>
-      return if @playing() or @recording()
+      return if @playing() or @recording() or not @file()
       @recording(false)
       @playing(true)
       Wami.setup
@@ -389,7 +390,8 @@ jQuery ->
         swfUrl: '/Wami.swf'
         onReady: =>
           window.playFinished = () => @playing(false)
-          Wami.startPlaying(play_recording_application_path, null, Wami.nameCallback(window.playFinished)) # TODO: Use a play path
+          url = "#{play_recording_application_path}?step_id=#{@parent.id}&message=#{@title()}"
+          Wami.startPlaying(url, null, Wami.nameCallback(window.playFinished))
       @alert_flash_required('playing')
 
     back: () =>

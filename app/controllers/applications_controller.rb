@@ -2,8 +2,8 @@ require 'csv'
 
 class ApplicationsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update_workflow, :update, :destroy]
-
+  before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording]
+  before_filter :load_recording_data, :only => [:play_recording, :save_recording]
 
   skip_before_filter :verify_authenticity_token, :only => :save_recording
 
@@ -81,9 +81,13 @@ class ApplicationsController < ApplicationController
     end
   end
 
+  def play_recording
+    send_file @recording_manager.get_recording_path_for(@step_id, @message)
+  end
+
   def save_recording
-    File.open("public/recording.wav","wb") do |file|
-      file.write request.body.read
+    @recording_manager.save_recording_for(@step_id, @message) do |out|
+      out.write request.body.read
     end
   end
 
@@ -94,6 +98,12 @@ class ApplicationsController < ApplicationController
   end
 
   private
+
+  def load_recording_data
+    @step_id = params[:step_id]
+    @message = params[:message]
+    @recording_manager = RecordingManager.for(@application)
+  end
 
   def load_application
     @application = current_account.applications.find(params[:id])

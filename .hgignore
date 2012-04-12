@@ -10,3 +10,4 @@ syntax: glob
 tmp/*
 spec/reports/*
 public/assets
+public/applications

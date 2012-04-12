@@ -5,7 +5,7 @@
     var update_workflow_application_path = "#{ update_workflow_application_path(@application) }";
     var application_path = "#{ application_path(@application) }";
     var save_recording_application_path = "#{ save_recording_application_path(@application)}";
-    var play_recording_application_path = "/recording.wav";
+    var play_recording_application_path = "#{ play_recording_application_path(@application)}";
 
   - %W(workflow_step menu_step menu_message command_selector).each do |template|
     = render "#{template}_template"
