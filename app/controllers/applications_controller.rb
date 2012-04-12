@@ -73,7 +73,7 @@ class ApplicationsController < ApplicationController
 
     if @application.save
       respond_to do |format|
-        format.html {redirect_to(application_path(@application), :notice => "Workflow for application #{@application.name} successfully updated.")}
+        format.html { redirect_to(edit_workflow_application_path(@application), :notice => "Workflow for application #{@application.name} successfully updated.")}
         format.json { render(json: @application, status: 200, location: @application)}
       end
     else
