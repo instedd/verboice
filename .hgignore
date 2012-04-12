@@ -11,3 +11,4 @@ tmp/*
 spec/reports/*
 public/assets
 public/applications
+data

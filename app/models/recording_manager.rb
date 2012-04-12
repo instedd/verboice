@@ -21,7 +21,7 @@ class RecordingManager
 
   def folder_for_app
     raise "Cannot create recording manager for non saved application" unless @application.id
-    path = "public/applications/#{@application.id}/recordings/"
+    path = File.join Rails.root, "data/applications/#{@application.id}/recordings/"
     FileUtils.makedirs(path)
     path
   end
