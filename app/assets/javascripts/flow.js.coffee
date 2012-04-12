@@ -361,15 +361,15 @@ jQuery ->
       return if @playing() or @recording()
       @recording true
       @playing false
-      @duration (new Date).clearTime().toString('mm:ss')
+      @update_duration 0
       Wami.setup
         id: 'wami'
         swfUrl: '/Wami.swf'
         onReady: =>
-          Wami.startRecording(save_recording_application_path);
-          @recording_start = Math.round(+new Date()/1000)
+          Wami.startRecording("#{save_recording_application_path}?step_id=#{@id}");
+          @recording_start = @now_seconds()
           @update_duration_interval = window.setInterval((() =>
-            @duration((new Date).clearTime().addSeconds(Math.round(+new Date()/1000) - @recording_start).toString('mm:ss'))), 100)
+            @update_duration(@now_seconds() - @recording_start)), 100)
       @alert_flash_required('recording')
 
     stop: () =>
@@ -406,6 +406,12 @@ jQuery ->
         {}
 
     # private
+
+    now_seconds: () =>
+      Math.round(+new Date()/1000)
+
+    update_duration: (seconds) =>
+      @duration((new Date).clearTime().addSeconds(seconds).toString('mm:ss'))
 
     alert_flash_required: (action) =>
       if $('.flash-required').length

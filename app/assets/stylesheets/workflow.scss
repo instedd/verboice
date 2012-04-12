@@ -195,7 +195,8 @@ span.arrow-exp { background: url(http://theme.instedd.org/theme/images/icons/mis
 span.arrow-col.orange { background: url(http://theme.instedd.org/theme/images/icons/misc/orange/arrowRight.png) no-repeat; display:inline-block; height:10px; width:14px }
 span.arrow-exp.orange { background: url(http://theme.instedd.org/theme/images/icons/misc/orange/arrowDown.png) no-repeat; display:inline-block; height:10px; width:16px }
 
-div.player span { color:#cf490c; display:inline-block; vertical-align:middle }
+div.player span { display:inline-block; vertical-align:middle }
+div.player span.recording {color:#cf490c;}
 div.player button { vertical-align:middle }
 div.player .disabled { background-position: 0 -90px ! important;}
 div.player .active { background-position: 0 -60px ! important;}

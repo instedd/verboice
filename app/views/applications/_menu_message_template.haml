@@ -6,7 +6,7 @@
     %input{ko(value: 'name')}
     %br
   .player
-    %span{ko(text: 'duration')}
+    %span{ko(text: 'duration', css: "{recording: recording()}")}
     %button.fplay{ko(click: 'play', visible: '!playing()', css: "{disabled: recording()}")}
     %button.fstop{ko(click: 'stop', visible: 'playing()')}
     %button.frecording{ko(click: 'record', visible: '!recording()', css: "{disabled: playing()}")}
