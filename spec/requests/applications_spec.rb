@@ -56,7 +56,7 @@ describe "Applications" do
       context "and I create a new application with a callback url" do
         before do
           fill_in "application_name", :with => "Test"
-          select "Use a callback URL", :from => "application_mode"
+          select "Use an external application", :from => "application_mode"
         end
 
         context "I fill in the user and password fields" do
