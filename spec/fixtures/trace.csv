@@ -1,0 +1,7 @@
+Call ID,Address,Menu inicial,Menu Foo,Menu Bar,Menu Ok,Menu not ok,Menu Ok,Menu Not ok
+3,1000,User pressed: 2
+4,1000,User pressed: 1,User pressed: 1
+5,1000
+6,1000,User pressed: 1,User pressed: 2
+7,1000,User pressed: 2,,No key was pressed. Timeout.
+8,1000,User pressed: 2,,User pressed: 2

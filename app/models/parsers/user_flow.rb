@@ -7,6 +7,7 @@ class Parsers::UserFlow
     @roots = []
     @nodes = []
     @application = application
+    build_nodes
   end
 
   def build_nodes
@@ -30,7 +31,6 @@ class Parsers::UserFlow
   end
 
   def build_equivalent_flow
-    build_nodes
     flow = @roots.collect do |a_root_node|
       a_root_node.equivalent_flow
     end
@@ -39,5 +39,10 @@ class Parsers::UserFlow
     else
       flow
     end
+  end
+  def step_names
+    Hash[@nodes.collect do |node|
+      [node.id, node.name]
+    end]
   end
 end

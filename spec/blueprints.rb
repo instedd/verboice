@@ -9,6 +9,7 @@ Sham.define do
   password { Faker::Name.name[0..10] }
   guid { Guid.new.to_s }
   url { "http://" + Faker::Internet.domain_name }
+  result { Faker::Lorem.sentence}
 end
 
 Account.blueprint do
@@ -19,6 +20,13 @@ end
 Application.blueprint do
   account
   name
+end
+
+Trace.blueprint do
+  application
+  step_id {1}
+  call_log
+  result
 end
 
 CallLog.blueprint do

@@ -13,24 +13,28 @@ class ApplicationsController < ApplicationController
   end
 
   # GET /applications/1
+  # Trace.create! application_id: @application_id, step_id: @step_id, step_name: @step_name, call_id: session.call_id, result: session.eval(@expression)
   def show
     respond_to do |format|
       format.html
       format.csv do
         csv = CSV.generate({ :col_sep => ','}) do |csv|
-          csv << ['Call ID', 'Address', 'Step', 'TimeStamp', 'Description']
-          # Trace.create! application_id: @application_id, step_id: @step_id, call_id: session.call_id, result: session.eval(@expression)
-          @application.traces.includes(:call_log).each do |trace|
-            csv << [
-              trace.call_id,
-              trace.call_log.address,
-              trace.step_id,
-              trace.created_at,
-              trace.result
-            ]
+
+          steps = @application.step_names
+          ids = steps.keys
+          header = ['Call ID', 'Address']
+          csv << header + steps.values
+          @application.call_logs.includes(:traces).each do |call_log|
+            line = []
+            line << call_log.id
+            line << call_log.address
+            call_log.traces.each do |trace|
+              line[ids.index(trace.step_id) + header.size] = trace.result
+            end
+            csv << line
           end
         end
-        render :text =>  csv
+        render :text => csv
       end
     end
   end

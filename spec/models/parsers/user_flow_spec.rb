@@ -106,4 +106,8 @@ describe Parsers::UserFlow do
     ])
   end
 
+  it "should provide a hash of step names and IDs" do
+    (Parsers::UserFlow.new application, application_flow).step_names.should eq({ 12 => 'Menu number one', 14 => 'Menu number two' })
+  end
+
 end

@@ -51,6 +51,10 @@ class Application < ActiveRecord::Base
     true
   end
 
+  def step_names
+    (Parsers::UserFlow.new self, user_flow).step_names
+  end
+
   private
 
   def set_name_to_callback_url
