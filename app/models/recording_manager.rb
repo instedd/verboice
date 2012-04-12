@@ -16,7 +16,7 @@ class RecordingManager
   end
 
   def get_recording_path_for(step_id, action)
-    File.join(folder_for_app, "#{step_id}-#{action.parameterize}.wav")
+    File.join(folder_for_app, "#{step_id}-#{action.to_s.parameterize}.wav")
   end
 
   def folder_for_app
