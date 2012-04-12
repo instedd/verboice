@@ -193,6 +193,11 @@ jQuery ->
     is_current_step: () =>
       workflow.current_step == @
 
+    remove_with_confirm: () =>
+      name = @name?() || "this step"
+      if confirm("Are you sure you want to remove #{name} and all steps after it?")
+        @remove()
+
     remove: (notify=true) =>
       @parent().child_removed @ if notify
       workflow.remove_step @

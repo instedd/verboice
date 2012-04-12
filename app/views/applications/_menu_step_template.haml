@@ -50,4 +50,4 @@
           %select{ko(options: 'commands()', value: 'new_option_command')}
           %button.clist-add{ 'data-bind' => 'click: add_option'}
       .bottom-actions
-        %button.fdelete{ 'data-bind' => 'click: remove' } Remove this step
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
