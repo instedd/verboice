@@ -388,11 +388,8 @@ jQuery ->
         id: 'wami'
         swfUrl: '/Wami.swf'
         onReady: =>
-          window.currentMessage = @
-          window.playFinished = () ->
-            window.setTimeout((() ->
-              window.currentMessage.playing(false)), 100)
-          Wami.startPlaying(play_recording_application_path, null, 'window.playFinished') # TODO: Use a play path
+          window.playFinished = () => @playing(false)
+          Wami.startPlaying(play_recording_application_path, null, Wami.nameCallback(window.playFinished)) # TODO: Use a play path
       @alert_flash_required('playing')
 
     back: () =>
