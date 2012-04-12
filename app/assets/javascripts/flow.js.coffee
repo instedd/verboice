@@ -138,7 +138,7 @@ jQuery ->
     # private
 
     generate_id: () =>
-      id = 1
+      id = new Date().getTime()
       while id in (step.id for step in @steps())
         id += 1
       return id
@@ -365,9 +365,7 @@ jQuery ->
           @recording_start = Math.round(+new Date()/1000)
           @update_duration_interval = window.setInterval((() =>
             @duration((new Date).clearTime().addSeconds(Math.round(+new Date()/1000) - @recording_start).toString('mm:ss'))), 100)
-      if $('.flash-required').length
-        $('.flash-required').html('')
-        alert "Adobe Flash Player version 10.0.0 or higher is required for recording a message.\nDownload it from https://get.adobe.com/flashplayer/ and reload this page."
+      @alert_flash_required('recording')
 
     stop: () =>
       if Wami.stopRecording # check if Wami is loaded
@@ -390,6 +388,7 @@ jQuery ->
             window.setTimeout((() ->
               window.currentMessage.playing(false)), 100)
           Wami.startPlaying(play_recording_application_path, null, 'window.playFinished') # TODO: Use a play path
+      @alert_flash_required('playing')
 
     back: () =>
       @stop()
@@ -403,6 +402,13 @@ jQuery ->
         )
       else
         {}
+
+    # private
+
+    alert_flash_required: (action) =>
+      if $('.flash-required').length
+        $('.flash-required').html('')
+        alert "Adobe Flash Player version 10.0.0 or higher is required for #{action} a message.\nDownload it from https://get.adobe.com/flashplayer/ and reload this page."
 
   # ---------------------------------------------------------------------------
 
