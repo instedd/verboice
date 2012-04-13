@@ -6,6 +6,6 @@ class Commands::PauseCommand < Command
   end
 
   def run(session)
-    EM.fiber_sleep @length
+    session.pbx.pause @length
   end
 end

@@ -28,6 +28,11 @@ describe Freeswitch::Adapter do
     @context.should_receive(:playback).with(:url)
     @adapter.play :url
   end
+  
+  it 'pauses' do
+    EM.should_receive(:fiber_sleep).with(13)
+    @adapter.pause(13)
+  end
 
   context "capture" do
     it "capture one digit" do

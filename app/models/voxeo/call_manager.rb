@@ -24,6 +24,11 @@ module Voxeo
       @builder.say text
     end
     
+    def pause(length)
+      return if @hangup
+      @builder.pause length
+    end
+    
     def capture(options)
       return if @hangup
       

@@ -38,6 +38,11 @@ describe Voxeo::CallManager do
     call_manager.say("some text")
   end
   
+  it "should build xml for pause" do
+    builder.should_receive(:pause).with(13)
+    call_manager.pause(13)
+  end
+  
   context "capture" do
     
     let(:options) { {:foo => "bar"} }
@@ -103,6 +108,11 @@ describe Voxeo::CallManager do
     it "should not hangup" do
       builder.should_not_receive(:hangup)
       call_manager.hangup
+    end
+    
+    it "should not pause" do
+      builder.should_not_receive(:pause)
+      call_manager.pause(5)
     end
     
   end
