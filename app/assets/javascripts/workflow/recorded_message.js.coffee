@@ -1,0 +1,74 @@
+onWorkflow ->
+  class window.RecordedMessage extends Message
+    constructor: (hash={}) ->
+      super(hash)
+      @file = ko.observable hash.file
+      @recording = ko.observable false
+      @playing = ko.observable false
+      @duration = ko.observable(hash.duration || (new Date).clearTime().toString('mm:ss'))
+      @type = 'recording'
+      @recording_start = null
+      @update_duration_interval = null
+
+    record: () =>
+      return if @playing() or @recording()
+      @recording true
+      @playing false
+      @update_duration 0
+      Wami.setup
+        id: 'wami'
+        swfUrl: '/Wami.swf'
+        onReady: =>
+          Wami.startRecording("#{save_recording_application_path}?step_id=#{@parent.id}&message=#{@title()}");
+          @recording_start = @now_seconds()
+          @update_duration_interval = window.setInterval((() =>
+            @update_duration(@now_seconds() - @recording_start)), 100)
+      @alert_flash_required('recording')
+
+    stop: () =>
+      if Wami.stopRecording # check if Wami is loaded
+        Wami.stopRecording() if @recording()
+        Wami.stopPlaying() if @playing()
+        @file(true)
+      @recording(false)
+      @playing(false)
+      window.clearInterval(@update_duration_interval)
+
+    play: () =>
+      return if @playing() or @recording() or not @file()
+      @recording(false)
+      @playing(true)
+      Wami.setup
+        id: 'wami'
+        swfUrl: '/Wami.swf'
+        onReady: =>
+          window.playFinished = () => @playing(false)
+          url = "#{play_recording_application_path}?step_id=#{@parent.id}&message=#{@title()}"
+          Wami.startPlaying(url, null, Wami.nameCallback(window.playFinished))
+      @alert_flash_required('playing')
+
+    back: () =>
+      @stop()
+      super
+
+    to_hash: () =>
+      if @file() or @name()?
+        $.extend(super,
+          file: @file()
+          duration: @duration()
+        )
+      else
+        {}
+
+    # private
+
+    now_seconds: () =>
+      Math.round(+new Date()/1000)
+
+    update_duration: (seconds) =>
+      @duration((new Date).clearTime().addSeconds(seconds).toString('mm:ss'))
+
+    alert_flash_required: (action) =>
+      if $('.flash-required').length
+        $('.flash-required').html('')
+        alert "Adobe Flash Player version 10.0.0 or higher is required for #{action} a message.\nDownload it from https://get.adobe.com/flashplayer/ and reload this page."

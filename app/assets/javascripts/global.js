@@ -21,4 +21,12 @@ function create_channel(select) {
   if (!select.value) return;
   window.location = '/channels/new?kind=' + select.value;
   select.value = '';
-}
+};
+
+function onWorkflow(callback) {
+  $(function() {
+    if($('#workflow').length > 0) {
+      callback();
+    }
+  });
+};
