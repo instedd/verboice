@@ -327,7 +327,7 @@ jQuery ->
       #HACK: Handle null case with a base class message
       return new RecordedMessage if not hash? || not hash.type?
       switch hash.type.toLowerCase()
-        when 'record'
+        when 'record', 'recording'
           new RecordedMessage(hash)
         else
           throw "Message type not recognised #{hash['type']}"
@@ -353,7 +353,7 @@ jQuery ->
       @recording = ko.observable false
       @playing = ko.observable false
       @duration = ko.observable(hash.duration || (new Date).clearTime().toString('mm:ss'))
-      @type = 'record'
+      @type = 'recording'
       @recording_start = null
       @update_duration_interval = null
 
