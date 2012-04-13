@@ -11,13 +11,13 @@ module Parsers
           'name' => 'Menu number one',
           'explanation_message' => {
             "name" => "Some explanation message",
-            "type" => "record",
+            "type" => "recording",
             "file" => "file.wav",
             "duration" => 5
           },
           'options_message' => {
             "name" => "Some options message",
-            "type" => "record",
+            "type" => "recording",
             "file" => "file.wav",
             "duration" => 5
           },
@@ -25,13 +25,13 @@ module Parsers
           'number_of_attempts' => 3,
           'invalid_message' => {
             "name" => "An invalid key was pressed",
-            "type" => "record",
+            "type" => "recording",
             "file" => "file.wav",
             "duration" => 5
           },
           'end_call_message' => {
             "name" => "This call will end now",
-            "type" => "record",
+            "type" => "recording",
             "file" => "file.wav",
             "duration" => 5
           },
@@ -56,21 +56,21 @@ module Parsers
           'name' => 'Menu number two',
           'explanation_message' => {
             "name" => "Second explanation message",
-            "type" => "record",
+            "type" => "recording",
             "file" => "file.wav",
             "duration" => 5
           }, 'options_message' => {}, 'end_call_message' => {}, 'invalid_message' => {}
         menu_3 = Menu.new app, 'id' => 14, 'type' => 'menu',
           'explanation_message' => {
             "name" => "Third explanation message",
-            "type" => "record",
+            "type" => "recording",
             "file" => "file.wav",
             "duration" => 5
           }, 'options_message' => {}, 'end_call_message' => {}, 'invalid_message' => {}
         menu_4 = Menu.new app, 'id' => 5, 'type' => 'menu',
           'explanation_message' => {
             "name" => "Fourth explanation message",
-            "type" => "record",
+            "type" => "recording",
             "file" => "file.wav",
             "duration" => 5
           }, 'options_message' => {}, 'end_call_message' => {}, 'invalid_message' => {}
@@ -78,13 +78,13 @@ module Parsers
         menu.solve_links_with [ menu_2, menu_3, menu_4 ]
 
         menu.equivalent_flow.should eq([
-          { play_file: File.join(Rails.root, "data","applications","1","recordings", "27-explanation_message.wav")},
+          { play_file: File.join(Rails.root, "data","applications","1","recordings", "27-explanation.wav")},
           { assign: { name: 'attempt_number', expr: '1' }},
           { assign: { name: 'end', expr: 'false' }},
           { :while => { :condition => 'attempt_number <= 3 && !end', :do => [
             {
               capture: {
-                play: File.join(Rails.root, "data","applications","1","recordings", "27-options_message.wav"),
+                play_file: File.join(Rails.root, "data","applications","1","recordings", "27-options.wav"),
                 timeout: 20
               }
             },
@@ -98,7 +98,7 @@ module Parsers
                     :step_name => 'Menu number one',
                     :store => '"User pressed: " + digits'
                   }},
-                  { play_file: File.join(Rails.root, "data","applications","1","recordings", "10-explanation_message.wav")},
+                  { play_file: File.join(Rails.root, "data","applications","1","recordings", "10-explanation.wav")},
                   {
                     :trace=> {
                       :application_id => 1,
@@ -119,7 +119,7 @@ module Parsers
                         :step_name => 'Menu number one',
                         :store => '"User pressed: " + digits'
                       }},
-                      { play_file: File.join(Rails.root, "data","applications","1","recordings", "14-explanation_message.wav")},
+                      { play_file: File.join(Rails.root, "data","applications","1","recordings", "14-explanation.wav")},
                       {
                         :trace=> {
                           :application_id => 1,
@@ -140,7 +140,7 @@ module Parsers
                             :step_name => 'Menu number one',
                             :store => '"User pressed: " + digits'
                           }},
-                          { play_file: File.join(Rails.root, "data","applications","1","recordings", "5-explanation_message.wav")},
+                          { play_file: File.join(Rails.root, "data","applications","1","recordings", "5-explanation.wav")},
                           {
                             :trace=> {
                               :application_id => 1,
@@ -155,7 +155,7 @@ module Parsers
                           :if => {
                             :condition => "digits != null",
                             :then => [
-                              { play_file: File.join(Rails.root, "data","applications","1","recordings", "27-invalid_message.wav")},
+                              { play_file: File.join(Rails.root, "data","applications","1","recordings", "27-invalid.wav")},
                               { trace: {
                                 :application_id => 1,
                                 :step_id => 27,
@@ -185,7 +185,7 @@ module Parsers
             :if => {
               :condition => 'attempt_number > 3 && !end',
               :then => [
-                { play_file: File.join(Rails.root, "data","applications","1","recordings", "27-end_call_message.wav")},
+                { play_file: File.join(Rails.root, "data","applications","1","recordings", "27-end_call.wav")},
                 { trace: {
                   :application_id => 1,
                   :step_id => 27,
