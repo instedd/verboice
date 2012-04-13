@@ -16,7 +16,11 @@ module Parsers
       end
 
       def equivalent_flow
-        { say: @name }
+        { play_file: @file_name }
+      end
+
+      def capture_flow
+        { play: @file_name }
       end
 
     end

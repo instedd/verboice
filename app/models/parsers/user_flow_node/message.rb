@@ -19,4 +19,12 @@ class Parsers::UserFlowNode::Message
   def name
     raise "Subclasses must define this message"
   end
+
+  def equivalent_flow
+    raise "Subclasses must define this message"
+  end
+
+  def capture_flow
+    equivalent_flow
+  end
 end

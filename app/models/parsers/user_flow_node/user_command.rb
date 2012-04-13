@@ -8,4 +8,7 @@ class Parsers::UserFlowNode::UserCommand
     (SuitableClassFinder.find_direct_subclass_of self, suitable_for: params).new application, params
   end
 
+  def equivalent_flow
+    raise "Subclasses must define this message"
+  end
 end

@@ -1,7 +1,6 @@
 module Parsers
   module UserFlowNode
     class Menu < UserCommand
-
       attr_reader :id, :explanation_message, :options, :timeout, :invalid_message, :end_call_message, :name, :application
 
       def initialize application, params
@@ -120,7 +119,7 @@ module Parsers
 
       def build_capture
         if @options_message
-          capture = @options_message.equivalent_flow
+          capture = @options_message.capture_flow
           capture[:timeout] = @timeout
           {
             capture: capture
