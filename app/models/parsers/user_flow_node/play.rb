@@ -13,9 +13,7 @@ module Parsers
       end
 
       def equivalent_flow
-        [
-          @message.equivalent_flow
-        ]
+        @equivalent_flow || build_equivalent_flow
       end
 
       def solve_links_with nodes
@@ -37,6 +35,13 @@ module Parsers
 
       def is_root?
         @is_root
+      end
+
+      def build_equivalent_flow
+        @equivalent_flow = []
+        @equivalent_flow << @message.equivalent_flow if @message
+
+        @equivalent_flow
       end
 
     end
