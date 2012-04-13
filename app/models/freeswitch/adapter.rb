@@ -43,6 +43,10 @@ module Freeswitch
     def record
       @context.record "#{SoundsPath}/foo.wav"
     end
+    
+    def pause(length)
+      EM.fiber_sleep length
+    end
 
     def is_answering_machine?
       false

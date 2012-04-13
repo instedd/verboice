@@ -42,6 +42,11 @@ describe Asterisk::CallManager do
     other_call_manager.env['channel'] = 'MY/channel'
     @call_manager.bridge_with Session.new(pbx: other_call_manager)
   end
+  
+  it 'pauses' do
+    EM.should_receive(:fiber_sleep).with(13)
+    @call_manager.pause(13)
+  end
 
   context "play" do
     before(:each) do
