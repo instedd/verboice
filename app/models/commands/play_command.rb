@@ -39,6 +39,7 @@ module Commands::PlayCommand
   def convert_to_8000_hz_gsm(input, output)
     new_input = File.is_wav?(input) ? "#{input}.wav" : "#{input}.gsm"
     FileUtils.mv input, new_input
+    FileUtils.makedirs File.dirname(output)
     `sox #{new_input} -r 8000 -c1 #{output}`
     FileUtils.mv new_input, input
     if $?.exitstatus == 2

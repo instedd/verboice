@@ -20,7 +20,7 @@ module Parsers
       end
 
       def capture_flow
-        { play: @file_name }
+        { play_file: @file_name }
       end
 
     end

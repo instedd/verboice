@@ -6,14 +6,14 @@ module Parsers
       def initialize application, params
         @id = params['id']
         @name = params['name'] || ''
-        @explanation_message = Message.for application, self, :explanation_message, params['explanation_message']
-        @options_message = Message.for application, self, :options_message, params['options_message']
+        @explanation_message = Message.for application, self, :explanation, params['explanation_message']
+        @options_message = Message.for application, self, :options, params['options_message']
         @options = params['options'].deep_clone || []
         @is_root = params['root'] || false
         @timeout = params['timeout'] || 5
         @number_of_attempts = params['number_of_attempts'] || 3
-        @invalid_message = Message.for application, self, :invalid_message, params['invalid_message']
-        @end_call_message = Message.for application, self, :end_call_message, params['end_call_message']
+        @invalid_message = Message.for application, self, :invalid, params['invalid_message']
+        @end_call_message = Message.for application, self, :end_call, params['end_call_message']
         @application = application
       end
 
