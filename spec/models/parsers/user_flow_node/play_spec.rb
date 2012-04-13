@@ -19,6 +19,18 @@ module Parsers
         play.equivalent_flow.should eq([
           { play_file: File.join(Rails.root, "data","applications","1","recordings", "27-message.wav")}
         ])
+
+        play2 = Play.new app, 'id' => 27,
+          'type' => 'play',
+          'name' => 'Play number one',
+          'message' => {
+            "name" => "Some explanation message",
+            "type" => "text"
+          }
+
+        play2.equivalent_flow.should eq([
+          { say: "Some explanation message"}
+        ])
       end
 
       def id
