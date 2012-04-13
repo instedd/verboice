@@ -5,7 +5,7 @@ module Parsers
       attr_reader :name
 
       def self.can_handle? params
-        params['type'] == 'record'
+        params['type'] == 'recording'
       end
 
       def initialize application, parent_step, action, params
