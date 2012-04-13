@@ -6,7 +6,7 @@ onWorkflow ->
       super(attrs)
 
       @next_id = attrs.next
-      @message = Message.from_hash(attrs.end_call_message).with_title('Message').with_parent(@)
+      @message = Message.from_hash(attrs.message).with_title('Message').with_parent(@)
       @current_editing_message = ko.observable(null)
 
       @is_editing_message = ko.computed () =>
