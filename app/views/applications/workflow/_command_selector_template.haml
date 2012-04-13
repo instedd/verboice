@@ -6,5 +6,5 @@
     .content-buttons{ 'data-bind' => 'foreach: commands' }
       %div
         / todo: missing pluggable button class
-        %button.ldial{ 'data-bind' => 'click: add_to_steps', :style => 'display:block' }
-        %span Menu
+        %button{'data-bind' => 'click: add_to_steps, class: button_class', :style => 'display:block' }
+        %span{ko(text: 'name()')}

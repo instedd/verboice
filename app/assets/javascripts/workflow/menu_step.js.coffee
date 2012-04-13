@@ -5,9 +5,7 @@ onWorkflow ->
     constructor: (attrs) ->
       super(attrs)
 
-      @name = ko.observable attrs['name'] || 'Menu'
       @options = ko.observableArray([])
-
       @new_option_command = ko.observable null
       @current_editing_message = ko.observable null
 
@@ -34,7 +32,7 @@ onWorkflow ->
       (option.next_id for option in @options())
 
     commands: () =>
-      (command.name() for command in workflow.commands())
+      step_types
 
     @add_to_steps: () ->
       workflow.add_step(new Menu)
@@ -45,15 +43,13 @@ onWorkflow ->
       return menu
 
     to_hash: () =>
-      id: @id
-      name: @name()
-      type: 'menu'
-      root: @root
-      options: (option.to_hash() for option in @options())
-      end_call_message: @messages['end_call'].to_hash()
-      invalid_message: @messages['invalid'].to_hash()
-      explanation_message: @messages['explanation'].to_hash()
-      options_message: @messages['options'].to_hash()
+      $.extend(super,
+        options: (option.to_hash() for option in @options())
+        end_call_message: @messages['end_call'].to_hash()
+        invalid_message: @messages['invalid'].to_hash()
+        explanation_message: @messages['explanation'].to_hash()
+        options_message: @messages['options'].to_hash()
+      )
 
     add_option: () =>
       new_step = workflow.create_step(@new_option_command(), @)

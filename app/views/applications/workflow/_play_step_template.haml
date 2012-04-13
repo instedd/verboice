@@ -1,0 +1,22 @@
+%script{type: "text/html", id: "play_step_template"}
+  %span{ 'data-bind' => 'with: current_step' }
+    %div{ko(:if => "is_editing_message()")}
+      %div{ko(:template => "{name: 'message_template', data: current_editing_message}")}
+
+    %div{ko(:if => "!is_editing_message()")}
+      .feditor-sidebar.right.box.w28.iblock.h65
+        .tableheader
+          %span.i48grad-dial.left
+          %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+
+        %table.GralTable.TwoColumn.CleanTable.NoHead
+          %tr
+            %tr
+              %td
+                Message:
+                %span{ko(text: "message.name()")}
+              %td
+                %button.farrow{ :type => "button", 'data-bind' => 'click: show_message' }
+        .content
+          .bottom-actions
+            %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
