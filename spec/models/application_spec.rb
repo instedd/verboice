@@ -2,8 +2,6 @@ require 'spec_helper'
 
 describe Application do
 
-  let(:application) { Application.make }
-
   context "validations" do
     before(:each) { Application.make }
 
@@ -77,6 +75,7 @@ describe Application do
   end
 
   it "should update the flow when it's user flow get's updated" do
+    application = Application.make id: 4
     application.flow.should eq []
     application.user_flow = [
       {
@@ -84,7 +83,7 @@ describe Application do
         'root' => true,
         'type' => 'menu',
         'name' => 'Menu number one',
-        'explanation_message' => {"name" => 'First Menu'},
+        'explanation_message' => {"name" => 'First Menu', 'type' => 'text'},
         'options_message' => {},
         'end_call_message' => {},
         'invalid_message' => {}
@@ -92,6 +91,14 @@ describe Application do
     ]
 
     application.save!
-    application.reload.flow.should eq([{say: 'First Menu'}])
+    application.reload.flow.should eq([
+      {say: 'First Menu'},
+      { :trace=> {
+        :application_id=>4,
+        :step_id=>1,
+        :step_name=>"Menu number one",
+        :store=>"\"Call ended.\""
+      }}
+    ])
   end
 end

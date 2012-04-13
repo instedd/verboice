@@ -14,7 +14,7 @@ describe Parsers::UserFlow do
         'root' => true,
         'type' => 'menu',
         'name' => 'Menu number one',
-        'explanation_message' => {"name" => 'First Menu'},
+        'explanation_message' => { "name" => 'First Menu', 'type' => 'text' },
         'options_message' => {},
         'end_call_message' => {},
         'invalid_message' => {},
@@ -30,7 +30,7 @@ describe Parsers::UserFlow do
         'id' => 14,
         'type' => 'menu',
         'name' => 'Menu number two',
-        'explanation_message' => {"name" => 'Second Menu'},
+        'explanation_message' => {"name" => 'Second Menu', 'type' => 'text'},
         'options_message' => {},
         'end_call_message' => {},
         'invalid_message' => {}
@@ -44,7 +44,7 @@ describe Parsers::UserFlow do
     first_menu = nodes.first
     first_menu.class.should eq(Parsers::UserFlowNode::Menu)
     first_menu.id.should eq(12)
-    first_menu.explanation_message.should eq('First Menu')
+    first_menu.explanation_message.name.should eq('First Menu')
     first_menu.options.size.should eq(1)
     first_menu.options.first['number'].should eq(2)
     first_menu.options.first['description'].should eq('foobar')
@@ -52,7 +52,7 @@ describe Parsers::UserFlow do
     second_menu = first_menu.options.first['next']
     second_menu.class.should eq(Parsers::UserFlowNode::Menu)
     second_menu.id.should eq(14)
-    second_menu.explanation_message.should eq('Second Menu')
+    second_menu.explanation_message.name.should eq('Second Menu')
     second_menu.options.size.should eq(0)
     second_menu.application.should eq(application)
   end
@@ -76,6 +76,14 @@ describe Parsers::UserFlow do
                 :store => "\"User pressed: \" + digits"
               }},
               { :say => "Second Menu" },
+              {
+                :trace => {
+                  :application_id=>1,
+                  :step_id=>14,
+                  :step_name=>"Menu number two",
+                  :store=>"\"Call ended.\""
+                }
+              },
               { :assign => { :name=>"end", :expr=>"true" }}
             ],
             :else => {
@@ -102,7 +110,15 @@ describe Parsers::UserFlow do
           }},
           { :assign => { :name => "attempt_number", :expr => "attempt_number + 1" }}
         ]
-      }}
+      }},
+      {
+        :trace => {
+          :application_id=>1,
+          :step_id=>12,
+          :step_name=>"Menu number one",
+          :store=>"\"Call ended.\""
+        }
+      }
     ])
   end
 

@@ -5,7 +5,7 @@ class Parsers::UserFlowNode::UserCommand
   end
 
   def self.for application, params
-    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: params).value.new application, params
+    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: params).new application, params
   end
 
 end

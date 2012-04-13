@@ -84,8 +84,8 @@ module Parsers
           { :while => { :condition => 'attempt_number <= 3 && !end', :do => [
             {
               capture: {
-                timeout: 20,
-                say: 'Some options message'
+                say: 'Some options message',
+                timeout: 20
               }
             },
             {
@@ -99,6 +99,14 @@ module Parsers
                     :store => '"User pressed: " + digits'
                   }},
                   { say: 'Second explanation message' },
+                  {
+                    :trace=> {
+                      :application_id => 1,
+                      :step_id => 10,
+                      :step_name => "Menu number two",
+                      :store => "\"Call ended.\""
+                    }
+                  },
                   { assign: { name: 'end', expr: 'true' }}
                 ],
                 :else => {
@@ -112,6 +120,14 @@ module Parsers
                         :store => '"User pressed: " + digits'
                       }},
                       { say: 'Third explanation message' },
+                      {
+                        :trace=> {
+                          :application_id => 1,
+                          :step_id => 14,
+                          :step_name => "",
+                          :store => "\"Call ended.\""
+                        }
+                      },
                       { assign: { name: 'end', expr: 'true' }}
                     ],
                     :else => {
@@ -125,6 +141,14 @@ module Parsers
                             :store => '"User pressed: " + digits'
                           }},
                           { say: 'Fourth explanation message' },
+                          {
+                            :trace=> {
+                              :application_id => 1,
+                              :step_id => 5,
+                              :step_name => "",
+                              :store => "\"Call ended.\""
+                            }
+                          },
                           { assign: { name: 'end', expr: 'true' }}
                         ],
                         :else => {
@@ -170,6 +194,14 @@ module Parsers
                 }}
               ]
             }
+          },
+          {
+            :trace=> {
+              :application_id => 1,
+              :step_id => 27,
+              :step_name => "Menu number one",
+              :store => "\"Call ended.\""
+            }
           }
         ])
 
@@ -177,13 +209,20 @@ module Parsers
 
       it "should compile to a minimum verboice equivalent flow" do
         menu_1 = Menu.new app, 'id' => 27, 'type' => 'menu', 'explanation_message' => {}, 'options_message' => {}, 'end_call_message' => {}, 'invalid_message' => {}
-        menu_1.equivalent_flow.should eq([])
+        menu_1.equivalent_flow.should eq([{
+          :trace=> {
+            :application_id => 1,
+            :step_id => 27,
+            :step_name => "",
+            :store => "\"Call ended.\""
+          }
+        }])
 
         menu_3 = Menu.new app, 'id' => 27, 'type' => 'menu',
           'name' => 'Menu',
-          'explanation_message' => {'name' => 'foobar'},
-          'invalid_message' => {'name' => 'invalid key pressed'},
-          'end_call_message' => {'name' => 'Good Bye'},
+          'explanation_message' => {'name' => 'foobar', 'type' => 'text'},
+          'invalid_message' => {'name' => 'invalid key pressed', 'type' => 'text'},
+          'end_call_message' => {'name' => 'Good Bye', 'type' => 'text'},
           'options_message' => {},
           'options' => [
             {
@@ -192,7 +231,7 @@ module Parsers
               'next' => 10
             }
           ]
-        menu_4 = Menu.new app, 'id' => 10, 'type' => 'menu', 'explanation_message' => {'name' => 'asdf'}, 'options_message' => {}, 'end_call_message' => {}, 'invalid_message' => {}
+        menu_4 = Menu.new app, 'id' => 10, 'type' => 'menu', 'explanation_message' => {'name' => 'asdf', 'type' => 'text'}, 'options_message' => {}, 'end_call_message' => {}, 'invalid_message' => {}
         menu_3.solve_links_with [ menu_4 ]
 
         menu_3.equivalent_flow.should eq([
@@ -214,6 +253,14 @@ module Parsers
                       :store=>"\"User pressed: \" + digits"
                     }},
                     { :say=>"asdf" },
+                    {
+                      :trace=> {
+                        :application_id => 1,
+                        :step_id => 10,
+                        :step_name => "",
+                        :store => "\"Call ended.\""
+                      }
+                    },
                     { :assign=> { :name=>"end", :expr=>"true" }}
                   ],
                   :else => {
@@ -253,17 +300,25 @@ module Parsers
                   :step_name => 'Menu',
                   :store => '"Missed input for 3 times."'}}]
             }
+          },
+          {
+            :trace=> {
+              :application_id => 1,
+              :step_id => 27,
+              :step_name => "Menu",
+              :store => "\"Call ended.\""
+            }
           }
         ])
       end
 
       it "should be able to build itself from an incomming hash" do
-        menu = Menu.new app, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo'}, 'timeout' => 20, 'invalid_message' => {'name' => 'foobar'} , 'end_call_message' => {'name' => 'cya'}, 'options_message' => {}
+        menu = Menu.new app, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo', 'type' => 'text'}, 'timeout' => 20, 'invalid_message' => {'name' => 'foobar', 'type' => 'text'} , 'end_call_message' => {'name' => 'cya', 'type' => 'text'}, 'options_message' => {}
         menu.id.should eq(27)
-        menu.explanation_message.should eq('foo')
+        menu.explanation_message.name.should eq('foo')
         menu.timeout.should eq(20)
-        menu.invalid_message.should eq('foobar')
-        menu.end_call_message.should eq('cya')
+        menu.invalid_message.name.should eq('foobar')
+        menu.end_call_message.name.should eq('cya')
       end
 
       it "should handle a menu input stream"do
@@ -272,7 +327,7 @@ module Parsers
       end
 
       it "should build with a collection of options" do
-        menu = Menu.new app, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo'},
+        menu = Menu.new app, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo', 'type' => 'text'},
           'options' => [
             {
               'description' => 'foo',
@@ -299,7 +354,7 @@ module Parsers
 
       it "should resolve it's next links from a given list of commands" do
         menu = Menu.new app, 'id' => 27, 'type' => 'menu',
-          'explanation_message' => {"name" => 'foo'},
+          'explanation_message' => {"name" => 'foo', 'type' => 'text'},
           'options' =>[
             {
               'description' => 'foo',
@@ -317,13 +372,13 @@ module Parsers
           'invalid_message' => {}
         menu_2 = Menu.new app, 'id' => 10,
           'type' => 'menu',
-          'explanation_message' => {"name"=>'foo'},
+          'explanation_message' => {"name"=>'foo', 'type' => 'text'},
           'options_message' => {},
           'end_call_message' => {},
           'invalid_message' => {}
         menu_3 = Menu.new app, 'id' => 14,
           'type' => 'menu',
-          'explanation_message' => {"name"=>'foo'},
+          'explanation_message' => {"name"=>'foo', 'type' => 'text'},
           'options_message' => {},
           'end_call_message' => {},
           'invalid_message' => {}
@@ -337,13 +392,13 @@ module Parsers
         menu_1 = Menu.new app, 'id' => 10,
           'root' => true,
           'type' => 'menu',
-          'explanation_message' => {"name"=>'foo'},
+          'explanation_message' => {"name"=>'foo', 'type' => 'text'},
           'options_message' => {},
           'end_call_message' => {},
           'invalid_message' => {}
         menu_2 = Menu.new app, 'id' => 14,
           'type' => 'menu',
-          'explanation_message' => {"name"=>'foo'},
+          'explanation_message' => {"name"=>'foo', 'type' => 'text'},
           'options_message' => {},
           'end_call_message' => {},
           'invalid_message' => {}

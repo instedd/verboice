@@ -7,14 +7,14 @@ module Parsers
       def initialize application, params
         @id = params['id']
         @name = params['name'] || ''
-        @explanation_message = params['explanation_message']['name']
-        @options_message = params['options_message']['name']
+        @explanation_message = Message.for application, self, :explanation_message, params['explanation_message']
+        @options_message = Message.for application, self, :options_message, params['options_message']
         @options = params['options'].deep_clone || []
         @is_root = params['root'] || false
         @timeout = params['timeout'] || 5
         @number_of_attempts = params['number_of_attempts'] || 3
-        @invalid_message = params['invalid_message']['name']
-        @end_call_message = params['end_call_message']['name']
+        @invalid_message = Message.for application, self, :invalid_message, params['invalid_message']
+        @end_call_message = Message.for application, self, :end_call_message, params['end_call_message']
         @application = application
       end
 
@@ -40,14 +40,14 @@ module Parsers
       end
 
       def equivalent_flow
-         @equivalent_flow ||= build_equivalent_flow
+         @equivalent_flow || build_equivalent_flow
       end
 
       def build_equivalent_flow
         @equivalent_flow = []
-        @equivalent_flow << {say: @explanation_message} if @explanation_message
+        @equivalent_flow << @explanation_message.equivalent_flow if @explanation_message
         if @options.empty?
-          @equivalent_flow << { say: @options_message } if @options_message
+          @equivalent_flow << @options_message.equivalent_flow if @options_message
         else
           build_while do
             [
@@ -62,14 +62,14 @@ module Parsers
             {
               :if => {
                 :condition => "attempt_number > #{@number_of_attempts} && !end",
-                :then => [{ say: @end_call_message }, trace("\"Missed input for #{@number_of_attempts} times.\"")]
+                :then => [@end_call_message.equivalent_flow, trace("\"Missed input for #{@number_of_attempts} times.\"")]
               }
             }
           else
-            { say: @end_call_message }
+            @end_call_message.equivalent_flow
           end
         end
-
+        @equivalent_flow << trace("\"Call ended.\"")
         @equivalent_flow
       end
 
@@ -90,7 +90,7 @@ module Parsers
          {
            :if => {
               :condition => "digits != null",
-              :then => [{ say: @invalid_message }, trace('"Invalid key pressed"')],
+              :then => [@invalid_message.equivalent_flow, trace('"Invalid key pressed"')],
               :else => [trace('"No key was pressed. Timeout."')]
             }
           }
@@ -120,11 +120,10 @@ module Parsers
 
       def build_capture
         if @options_message
+          capture = @options_message.equivalent_flow
+          capture[:timeout] = @timeout
           {
-            capture: {
-              timeout: @timeout,
-              say: @options_message
-            }
+            capture: capture
           }
         else
           {
