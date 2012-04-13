@@ -1,47 +1,59 @@
 module Voxeo
   class CallManager
+    
+    attr_reader :session_id, :channel_id, :caller_id
 
-    def initialize session_id
-      p "Creating call manager with session id #{session_id}"
+    def initialize channel_id, session_id = nil, caller_id = nil
+      @channel_id = channel_id
       @session_id = session_id
+      @caller_id = caller_id
       @builder = Builders::Vxml.new
       @hangup = false
     end
 
-    def session_id
-      @session_id
-    end
-
-    def channel_id
-      Channel.first.id
-    end
-
-    def caller_id
-      @params && @params['session.callerid']
-    end
-
     def answer
-      p "Call manager received answer command"
     end
 
     def play(filename, escape_digits = nil)
-      p "Call manager received play command"
+      return if @hangup
+      @builder.play filename
+    end
+    
+    def say(text)
+      return if @hangup
+      @builder.say text
+    end
+    
+    def capture(options)
+      return if @hangup
+      
+      @builder.capture(options)
+      @builder.callback("http://staging.instedd.org:7000/")
+      
+      flush
+      @params[:digits]
     end
 
     def hangup
-      p "Call manager received hangup command"
       return if @hangup
+      
+      @builder.hangup
 
-      @builder.say ("Hello World " * 20)
-
-      # Set hangup to true, defer the operation to resume the fiber so the session can end
+      # Set hangup to true, defer the operation to resume 
+      # the fiber so the session can end
       @hangup = true
-      EM.defer { Fiber.current.resume }
+      current_fiber = Fiber.current
+      EM.next_tick { current_fiber.resume }
 
       flush
     end
-
-    def capture(options)
+    
+    def bridge_with(other_session)
+      # TODO
+    end
+    
+    def dial(address, options = {})
+      # TODO
     end
 
     def is_answering_machine?
@@ -49,8 +61,10 @@ module Voxeo
     end
 
     def sound_path_for(basename)
-      Rails.root.join "public", "sounds", basename
+      Rails.root.join "public", "sounds", "#{basename}.gsm"
     end
+    
+    private
 
     def flush
       @params = Fiber.yield @builder.build

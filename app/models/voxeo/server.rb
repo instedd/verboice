@@ -14,35 +14,29 @@ module Voxeo
       p "Is disconnect? #{params.has_key?(:disconnect)}"
       response = EM::DelegatedHttpResponse.new(self)
       
-      operation = proc do
-        if is_new?
-          p "Session is new, creating new call manager"
-          f = Fiber.new do
-            p "Executing new fiber"
-            BaseBroker.instance.accept_call Voxeo::CallManager.new(params[:callsid])
-          end
-          store_fiber f
-        else
-          p "Session is old, using stored fiber"
-          f = stored_fiber
+      if is_new?
+        p "Session is new, creating new call manager"
+        f = Fiber.new do
+          p "Executing new fiber"
+          BaseBroker.instance.accept_call Voxeo::CallManager.new(Channel.first.id, params[:callsid], params['session.callerid'])
         end
+        store_fiber f
+      else
+        p "Session is old, using stored fiber"
+        f = stored_fiber
+      end
 
-        xml = f.resume params
+      xml = f.resume params
+      
+      p "XML is : #{xml}"
+      
+      response.status = 200
+      response.content_type 'text/xml'
+      response.content = xml
+      
+      p "Sending response back to Voxeo"
+      response.send_response
         
-        p "XML is : #{xml}"
-        
-        response.status = 200
-        response.content_type 'text/xml'
-        response.content = xml
-      end
-      
-      callback = proc do
-        p "Sending response back to Voxeo"
-        response.send_response
-      end
-      
-      EM.defer(operation, callback)
-      
       # TODO AR how do we delete the fiber? memory leak
       # delete_fiber unless data[:continue]
     end
