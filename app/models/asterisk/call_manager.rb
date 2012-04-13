@@ -113,7 +113,7 @@ module Asterisk
 
       get_variable('amdstatus').raw =~ /MACHINE/
     end
-    
+
     def pause(length)
       EM.fiber_sleep length
     end
