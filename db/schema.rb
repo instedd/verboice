@@ -11,12 +11,11 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120411195812) do
+ActiveRecord::Schema.define(:version => 20120416195546) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
     t.string   "encrypted_password",   :limit => 128, :default => "", :null => false
-    t.string   "password_salt",                       :default => "", :null => false
     t.string   "reset_password_token"
     t.string   "remember_token"
     t.datetime "remember_created_at"
@@ -97,12 +96,12 @@ ActiveRecord::Schema.define(:version => 20120411195812) do
 
   create_table "traces", :force => true do |t|
     t.integer  "application_id"
-    t.integer  "step_id"
     t.integer  "call_id"
     t.string   "result"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "step_name"
+    t.string   "step_id"
   end
 
   add_index "traces", ["application_id"], :name => "index_traces_on_application_id"

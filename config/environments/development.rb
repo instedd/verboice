@@ -29,7 +29,7 @@ Verboice::Application.configure do
   config.assets.debug = true
 end
 
-class_reloader = ActiveSupport::FileUpdateChecker.new(Dir.glob("#{Rails.root}/app/models/**/*.rb")) do
+class_reloader = ActiveSupport::FileUpdateChecker.new(Dir.glob("#{Rails.root}/app/**/*.rb")) do
   Rails.application.eager_load!
 end
 

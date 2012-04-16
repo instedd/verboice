@@ -109,7 +109,7 @@ describe Parsers::UserFlow do
   it "should retrieve an equivalent flow in verboice internal representation" do
     (Parsers::UserFlow.new application, application_flow).equivalent_flow.should eq([
       [
-        { :play_file=> "/Users/nekron/Projects/verboice/verboice/data/applications/1/recordings/1-message.wav" },
+        { :play_file=> File.join(Rails.root, "data","applications","1","recordings", "1-message.wav")},
         { assign: { name: 'attempt_number2', expr: '1' }},
         { assign: { name: 'end2', expr: 'false' }},
         { :while => { :condition => 'attempt_number2 <= 3 && !end2', :do => [
@@ -249,7 +249,7 @@ describe Parsers::UserFlow do
         }
       ],
       [
-        { :play_file=> "/Users/nekron/Projects/verboice/verboice/data/applications/1/recordings/27-message.wav" }
+        { :play_file=> File.join(Rails.root, "data","applications","1","recordings", "27-message.wav")}
       ]
     ])
   end

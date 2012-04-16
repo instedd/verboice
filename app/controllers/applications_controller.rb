@@ -29,7 +29,7 @@ class ApplicationsController < ApplicationController
             line << call_log.id
             line << call_log.address
             call_log.traces.each do |trace|
-              line[ids.index(trace.step_id) + header.size] = trace.result
+              line[ids.index(trace.step_id.to_i) + header.size] = trace.result
             end
             csv << line
           end
