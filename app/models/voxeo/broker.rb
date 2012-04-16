@@ -1,9 +1,13 @@
 module Voxeo
   class Broker < BaseBroker
     
-    def call session      
-      http = EventMachine::HttpRequest.new(session.channel.url) 
-      http = http.get :query => {:tokenid => session.channel.token, :callsid => session.id, :numbertodial => session.address} #TODO AR: we can add a callerid param here
+    # Voxeo calls up to 3 times and waits the user to pick up 
+    # the call before sending the response, set a large timeout
+    TIMEOUT = 120
+    
+    def call session
+      http = EventMachine::HttpRequest.new(session.channel.url)
+      http = http.get :timeout => TIMEOUT, :query => {:tokenid => session.channel.token, :callsid => session.id, :numbertodial => session.address} #TODO AR: we can add a callerid param here
       
       http.callback do
         begin
