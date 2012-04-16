@@ -14,7 +14,7 @@ describe Voxeo::Broker do
     let(:session) { Session.new :channel => channel, :address => 'foo' }
     
     it "should make a call request" do
-      expect_em_http :get, channel.url, :with => {:query => {:tokenid => channel.token, :callsid => session.id, :numbertodial => session.address}}
+      expect_em_http :get, channel.url, :with => {:timeout => Voxeo::Broker::TIMEOUT,:query => {:tokenid => channel.token, :callsid => session.id, :numbertodial => session.address}}
       broker.call session
     end
     

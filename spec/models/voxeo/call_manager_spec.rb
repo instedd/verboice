@@ -3,10 +3,11 @@ require 'spec_helper'
 describe Voxeo::CallManager do
   
   let(:channel_id) { 123 }
+  let(:voxeo_session_id) { 'abcd1234' }
   let(:session_id) { 345 }
   let(:caller_id) { 678 }
   let(:builder) { double('builder') }
-  let(:call_manager) { Voxeo::CallManager.new channel_id, session_id, caller_id }
+  let(:call_manager) { Voxeo::CallManager.new channel_id, voxeo_session_id, session_id, caller_id }
   
   before(:each) do
     Builders::Vxml.should_receive(:new).and_return(builder)
@@ -14,6 +15,10 @@ describe Voxeo::CallManager do
   
   it "should tell session id" do
     call_manager.session_id.should eq(session_id)
+  end
+  
+  it "should tell voxeo session id" do
+    call_manager.voxeo_session_id.should eq(voxeo_session_id)
   end
   
   it "should tell channel id" do
@@ -49,7 +54,7 @@ describe Voxeo::CallManager do
     
     it "should build capture and callback xml" do
       builder.should_receive(:capture).with(options)
-      builder.should_receive(:callback).with("http://staging.instedd.org:7000/")
+      builder.should_receive(:callback).with("http://staging.instedd.org:7000/?session.sessionid=#{voxeo_session_id}")
       expect_flush({:digits => "123"})
       
       call_manager.capture(options).should eq("123")

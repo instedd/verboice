@@ -1,12 +1,13 @@
 module Voxeo
   class CallManager
     
-    attr_reader :session_id, :channel_id, :caller_id
+    attr_reader :session_id, :voxeo_session_id, :channel_id, :caller_id
 
-    def initialize channel_id, session_id = nil, caller_id = nil
+    def initialize channel_id, voxeo_session_id, session_id = nil, caller_id = nil
       @channel_id = channel_id
       @session_id = session_id
       @caller_id = caller_id
+      @voxeo_session_id = voxeo_session_id
       @builder = Builders::Vxml.new
       @hangup = false
     end
@@ -33,7 +34,7 @@ module Voxeo
       return if @hangup
       
       @builder.capture(options)
-      @builder.callback("http://staging.instedd.org:7000/")
+      @builder.callback("http://staging.instedd.org:7000/?session.sessionid=#{@voxeo_session_id}")
       
       flush
       @params[:digits]
