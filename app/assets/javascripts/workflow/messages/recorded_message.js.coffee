@@ -1,3 +1,5 @@
+#= require workflow/messages/message
+
 onWorkflow ->
   class window.RecordedMessage extends Message
     constructor: (hash={}) ->

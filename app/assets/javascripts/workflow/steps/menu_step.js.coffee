@@ -1,4 +1,5 @@
-#= require workflow/step
+#= require workflow/steps/step
+#= require workflow/steps/menu_option
 
 onWorkflow ->
   class window.Menu extends Step

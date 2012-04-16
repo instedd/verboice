@@ -1,4 +1,4 @@
-#= require workflow/step
+#= require workflow/steps/step
 
 onWorkflow ->
   class window.Play extends Step
