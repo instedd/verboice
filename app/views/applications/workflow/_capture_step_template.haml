@@ -1,0 +1,43 @@
+%script{type: "text/html", id: "capture_step_template"}
+  %span{ 'data-bind' => 'with: current_step' }
+    %div{ko(:if => "is_editing_message()")}
+      %div{ko(:template => "{name: 'message_template', data: current_editing_message}")}
+
+    %div{ko(:if => "!is_editing_message()")}
+      .feditor-sidebar.right.box.w28.iblock.h65
+        .tableheader
+          %span.i48grad-dial.left
+          %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+
+        %table.GralTable.TwoColumn.CleanTable.NoHead
+          %tr
+            %th Messages
+            %th
+            %tr
+              %td
+                Instructions:
+                %span{ko(text: "message('instructions').name()")}
+              %td
+                %button.farrow{ :type => "button", 'data-bind' => 'click: show_instructions_message' }
+            %tr
+              %td
+                Invalid:
+                %span{ko(text: "message('invalid').name()")}
+              %td
+                %button.farrow{ :type => "button", 'data-bind' => "click: show_invalid_message" }
+            %tr
+              %td
+                End call:
+                %span{ko(text: "message('end_call').name()")}
+              %td
+                %button.farrow{ :type => "button", 'data-bind' => "click: show_end_call_message" }
+        .content
+          %hr
+          %label Validation
+          %br/
+          %span.validation
+            Min input length
+          %input.w10{'type' => 'text', 'data-bind' => 'value: min_input_length'}
+          %hr
+          .bottom-actions
+            %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

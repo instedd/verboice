@@ -23,9 +23,6 @@ onWorkflow ->
         used_numbers = (opt.number() for opt in @options())
         (number for number in [1,2,3,4,5,6,7,8,9,0] when number not in used_numbers)
 
-    display_template_id: () =>
-      'menu_step_template'
-
     button_class: () =>
       'ldial'
 

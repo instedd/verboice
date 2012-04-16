@@ -28,7 +28,7 @@ onWorkflow ->
     button_class: =>
       (new @cmd({})).button_class
 
-  window.step_types = ['Play', 'Menu']
+  window.step_types = ['Play', 'Menu', 'Capture']
   window.workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)
 
