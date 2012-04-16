@@ -6,8 +6,9 @@ describe Commands::AssignCommand do
   end
 
   it "assigns" do
-    cmd = Commands::AssignCommand.new :name => 'foo', :expr => '1 + 2'
-    cmd.run @session
+    cmd = Commands::AssignCommand.new 'foo', '1 + 2'
+    cmd.next = :next
+    cmd.run(@session).should == :next
 
     @session['foo'].should == 3
   end

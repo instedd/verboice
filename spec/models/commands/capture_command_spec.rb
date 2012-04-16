@@ -25,6 +25,14 @@ module Commands
       end
     end
 
+    it "capture returns next command" do
+      expect_capture
+
+      cmd = CaptureCommand.new
+      cmd.next = :next
+      cmd.run(@session).should == :next
+    end
+
     it "capture one key" do
       expect_capture
 

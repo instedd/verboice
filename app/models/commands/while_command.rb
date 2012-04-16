@@ -1,21 +1,18 @@
-class Commands::WhileCommand
-  def initialize(options = {})
-    @condition = options[:condition]
-    @do = options[:do]
+class Commands::WhileCommand < Command
+  attr_accessor :condition
+  attr_accessor :block
+
+  def initialize(condition, block)
+    @condition = condition
+    @block = block
+    block.last.next = self if block
   end
 
   def run(session)
     if session.eval @condition
-      commands = []
-      if @do.is_an? Array
-        @do.each { |cmd| commands << cmd }
-      else
-        commands << @do
-      end
-
-      commands << self
-
-      session.push_commands commands
+      @block
+    else
+      super
     end
   end
 end

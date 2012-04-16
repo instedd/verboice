@@ -1,6 +1,6 @@
 class Commands::SayCommand < Command
   include Commands::PlayCommand
-  param :text, :string, :ui_length => 80
+  attr_accessor :text
 
   def initialize(text)
     @text = text

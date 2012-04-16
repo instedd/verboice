@@ -10,7 +10,9 @@ module Commands
 
     it "should create a trace entrance for a given command" do
 
-      TraceCommand.new(:application_id => 1, :step_id => 20, :step_name => 'bar', :store => '"foo"').run session
+      cmd = TraceCommand.new(:application_id => 1, :step_id => 20, :step_name => 'bar', :store => '"foo"')
+      cmd.next = :next
+      cmd.run(session).should == :next
 
       Trace.all.size.should eq(1)
       Trace.first.result.should eq('foo')

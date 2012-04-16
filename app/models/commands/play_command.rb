@@ -7,6 +7,7 @@ module Commands::PlayCommand
   def run(session)
     target_path = download session
     session.pbx.play target_path
+    super
   end
 
   def download(session)

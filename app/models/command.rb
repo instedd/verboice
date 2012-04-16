@@ -1,4 +1,6 @@
 class Command
+  attr_accessor :next
+
   def self.inherited(subclass)
     subclass.instance_eval { @spec = [] }
   end
@@ -12,6 +14,16 @@ class Command
 
   def self.spec
     @spec
+  end
+
+  def last
+    n = self
+    n = n.next while n.next
+    n
+  end
+
+  def run(session)
+    @next
   end
 
   def self.param(name, type, options = {})

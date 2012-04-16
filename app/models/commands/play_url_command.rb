@@ -1,6 +1,6 @@
 class Commands::PlayUrlCommand < Command
   include Commands::PlayCommand
-  param :url, :string, :ui_length => 80
+  attr_accessor :url
 
   def initialize(url)
     @url = url

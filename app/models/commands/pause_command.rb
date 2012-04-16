@@ -1,5 +1,5 @@
 class Commands::PauseCommand < Command
-  param :length, :integer, :default => 1, :ui_length => 3
+  attr_accessor :length
 
   def initialize(length = 1)
     @length = length

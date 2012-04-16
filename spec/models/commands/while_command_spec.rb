@@ -9,23 +9,18 @@ module Commands
     it "while when true" do
       @session['i'] = 0
 
-      do_commands = {:assign => {:name => :i, :expr => 'i + 1'}}
-      cmd = WhileCommand.new :condition => 'i == 0', :do => do_commands
-
-      @session.should_receive(:push_commands).with([do_commands, cmd])
-
-      cmd.run @session
+      cmd = WhileCommand.new 'i == 0', AssignCommand.new(:i, 'i + 1')
+      result = cmd.run(@session)
+      result.should be_instance_of(Commands::AssignCommand)
+      result.next.should be(cmd)
     end
 
     it "while when false" do
       @session['i'] = 0
 
-      do_commands = {:assign => {:name => :i, :expr => 'i + 1'}}
-      cmd = WhileCommand.new :condition => 'i != 0', :do => do_commands
-
-      @session.should_receive(:push_commands).never
-
-      cmd.run @session
+      cmd = WhileCommand.new 'i != 0', AssignCommand.new(:i, 'i + 1')
+      cmd.next = :next
+      cmd.run(@session).should == :next
     end
   end
 end

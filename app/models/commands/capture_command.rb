@@ -46,5 +46,7 @@ class Commands::CaptureCommand < Command
       session.info("User pressed: #{digits}")
       session[:digits] = digits
     end
+
+    super
   end
 end

@@ -63,7 +63,7 @@ module Commands
       context "and the url does not contain any http basic authentication" do
         it "should use the apps configured http basic authentication" do
           expect_em_http :post, url, :with => {:head => {'authorization' => ['user', 'password']}, :body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
-            CallbackCommand.new(:url => url).run @session
+            CallbackCommand.new(url).run @session
           end
         end
       end
@@ -71,20 +71,9 @@ module Commands
       context "and the url already contains http basic authentication" do
         it "should use the urls http basic authentication" do
           expect_em_http :post, url, :with => {:head => {'authorization' => ['url_user', 'url_password']}, :body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
-            CallbackCommand.new(:url => authenticated_url("url_user", "url_password")).run @session
+            CallbackCommand.new(authenticated_url("url_user", "url_password")).run @session
           end
         end
-      end
-    end
-
-    it "run with url as option" do
-      assert_log
-
-      @session.should_receive(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
-      @session.should_receive(:push_commands).with([:hangup])
-
-      expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
-        CallbackCommand.new(:url => url).run @session
       end
     end
 
@@ -95,7 +84,7 @@ module Commands
       @session.should_receive(:push_commands).with([:hangup])
 
       expect_em_http :get, url, :with => @default_body.merge(:CallSid => @session.call_id), :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
-        CallbackCommand.new(:url => url, :method => :get).run @session
+        CallbackCommand.new(url, :method => :get).run @session
       end
     end
 
@@ -129,7 +118,7 @@ module Commands
       @session.should_receive(:push_commands).with([:hangup])
 
       expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, :Digits => '123')}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
-        CallbackCommand.new(:url => url, :params => {:Digits => :digits}).run @session
+        CallbackCommand.new(url, :params => {:Digits => :digits}).run @session
       end
     end
   end

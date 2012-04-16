@@ -1,15 +1,12 @@
 class Commands::CallbackCommand < Command
-  param :url, :string, :optional => true
-  param :method, :string, :optional => true, :default => 'post'
+  attr_accessor :url
+  attr_accessor :method
+  attr_accessor :params
 
-  def initialize(options = {})
-    if options.is_a? String
-      @url = options
-    else
-      @url = options[:url]
-      @method = options[:method]
-      @params = options[:params]
-    end
+  def initialize(url = nil, options = {})
+    @url = url
+    @method = options[:method] || 'post'
+    @params = options[:params]
   end
 
   def run(session)
