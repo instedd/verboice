@@ -35,9 +35,27 @@
           %hr
           %label Validation
           %br/
+
           %span.validation
             Min input length
           %input.w10{'type' => 'text', 'data-bind' => 'value: min_input_length'}
+          %br/
+
+          %span.validation
+            Max input length
+          %input.w10{'type' => 'text', 'data-bind' => 'value: max_input_length'}
+          %br/
+
+          %span.validation
+            Valid values
+          %input.w10{'type' => 'text', 'data-bind' => 'value: valid_values'}
+          %br/
+
+          %span.validation
+            Finish on key
+          %input.w10{'type' => 'text', 'data-bind' => 'value: finish_on_key'}
+          %br/
+
           %hr
           .bottom-actions
             %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
