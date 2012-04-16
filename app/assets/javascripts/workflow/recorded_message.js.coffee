@@ -7,6 +7,7 @@ onWorkflow ->
       @playing = ko.observable false
       @duration = ko.observable(hash.duration || (new Date).clearTime().toString('mm:ss'))
       @type = 'recording'
+      @label = 'Record message'
       @recording_start = null
       @update_duration_interval = null
 
@@ -19,7 +20,7 @@ onWorkflow ->
         id: 'wami'
         swfUrl: '/Wami.swf'
         onReady: =>
-          Wami.startRecording("#{save_recording_application_path}?step_id=#{@parent.id}&message=#{@title()}");
+          Wami.startRecording("#{save_recording_application_path}?#{@message_query_identifier()}");
           @recording_start = @now_seconds()
           @update_duration_interval = window.setInterval((() =>
             @update_duration(@now_seconds() - @recording_start)), 100)
@@ -43,11 +44,11 @@ onWorkflow ->
         swfUrl: '/Wami.swf'
         onReady: =>
           window.playFinished = () => @playing(false)
-          url = "#{play_recording_application_path}?step_id=#{@parent.id}&message=#{@title()}"
+          url = "#{play_recording_application_path}?#{@message_query_identifier()}"
           Wami.startPlaying(url, null, Wami.nameCallback(window.playFinished))
       @alert_flash_required('playing')
 
-    back: () =>
+    exit: () =>
       @stop()
       super
 
@@ -57,10 +58,11 @@ onWorkflow ->
           file: @file()
           duration: @duration()
         )
-      else
-        {}
 
     # private
+
+    message_query_identifier: () =>
+      return "step_id=#{@parent.id}&message=#{@title}"
 
     now_seconds: () =>
       Math.round(+new Date()/1000)

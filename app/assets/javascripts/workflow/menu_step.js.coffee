@@ -9,11 +9,11 @@ onWorkflow ->
       @new_option_command = ko.observable null
       @current_editing_message = ko.observable null
 
-      @messages =
-        end_call: Message.from_hash(attrs.end_call_message).with_title('End call').with_parent(@)
-        invalid:  Message.from_hash(attrs.invalid_message).with_title('Invalid').with_parent(@)
-        explanation: Message.from_hash(attrs.explanation_message).with_title('Explanation').with_parent(@)
-        options:  Message.from_hash(attrs.options_message).with_title('Options').with_parent(@)
+      @message_selectors =
+        end_call:    MessageSelector.from_hash(attrs.end_call_message).with_title('End call').with_parent(@)
+        invalid:     MessageSelector.from_hash(attrs.invalid_message).with_title('Invalid').with_parent(@)
+        explanation: MessageSelector.from_hash(attrs.explanation_message).with_title('Explanation').with_parent(@)
+        options:     MessageSelector.from_hash(attrs.options_message).with_title('Options').with_parent(@)
 
       @is_editing_message = ko.computed () =>
         @current_editing_message() != null
@@ -45,10 +45,10 @@ onWorkflow ->
     to_hash: () =>
       $.extend(super,
         options: (option.to_hash() for option in @options())
-        end_call_message: @messages['end_call'].to_hash()
-        invalid_message: @messages['invalid'].to_hash()
-        explanation_message: @messages['explanation'].to_hash()
-        options_message: @messages['options'].to_hash()
+        end_call_message: @message_selectors['end_call'].to_hash()
+        invalid_message: @message_selectors['invalid'].to_hash()
+        explanation_message: @message_selectors['explanation'].to_hash()
+        options_message: @message_selectors['options'].to_hash()
       )
 
     add_option: () =>
@@ -72,10 +72,10 @@ onWorkflow ->
       super(notify)
 
     message: (msg) =>
-      @messages[msg]
+      @message_selectors[msg]
 
     show_message: (msg) =>
-      msg = @messages[msg]
+      msg = @message_selectors[msg]
       @current_editing_message(msg)
 
     show_end_call_message: () =>

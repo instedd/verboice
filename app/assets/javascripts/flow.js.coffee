@@ -1,4 +1,4 @@
-#= require_directory ./workflow
+#= require_tree ./workflow
 
 onWorkflow ->
 

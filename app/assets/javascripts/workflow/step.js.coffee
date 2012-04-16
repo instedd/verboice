@@ -30,7 +30,7 @@ onWorkflow ->
         @remove()
 
     remove: (notify=true) =>
-      @parent().child_removed @ if notify
+      @parent()?.child_removed @ if notify
       workflow.remove_step @
 
     set_as_current: () =>
