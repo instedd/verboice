@@ -79,9 +79,9 @@ module Parsers
 
         menu.equivalent_flow.should eq([
           { play_file: File.join(Rails.root, "data","applications","1","recordings", "27-explanation.wav")},
-          { assign: { name: 'attempt_number', expr: '1' }},
-          { assign: { name: 'end', expr: 'false' }},
-          { :while => { :condition => 'attempt_number <= 3 && !end', :do => [
+          { assign: { name: 'attempt_number27', expr: '1' }},
+          { assign: { name: 'end27', expr: 'false' }},
+          { :while => { :condition => 'attempt_number27 <= 3 && !end27', :do => [
             {
               capture: {
                 play_file: File.join(Rails.root, "data","applications","1","recordings", "27-options.wav"),
@@ -107,7 +107,7 @@ module Parsers
                       :store => "\"Call ended.\""
                     }
                   },
-                  { assign: { name: 'end', expr: 'true' }}
+                  { assign: { name: 'end27', expr: 'true' }}
                 ],
                 :else => {
                   :if => {
@@ -125,10 +125,10 @@ module Parsers
                           :application_id => 1,
                           :step_id => 14,
                           :step_name => "",
-                          :store => "\"Call ended.\""
+                          :store => '"Call ended."'
                         }
                       },
-                      { assign: { name: 'end', expr: 'true' }}
+                      { assign: { name: 'end27', expr: 'true' }}
                     ],
                     :else => {
                       :if => {
@@ -146,10 +146,10 @@ module Parsers
                               :application_id => 1,
                               :step_id => 5,
                               :step_name => "",
-                              :store => "\"Call ended.\""
+                              :store => '"Call ended."'
                             }
                           },
-                          { assign: { name: 'end', expr: 'true' }}
+                          { assign: { name: 'end27', expr: 'true' }}
                         ],
                         :else => {
                           :if => {
@@ -179,11 +179,11 @@ module Parsers
                 }
               }
             },
-            { assign: { name: 'attempt_number', expr: 'attempt_number + 1' }}
+            { assign: { name: 'attempt_number27', expr: 'attempt_number27 + 1' }}
           ]}},
           {
             :if => {
-              :condition => 'attempt_number > 3 && !end',
+              :condition => 'attempt_number27 > 3 && !end27',
               :then => [
                 { play_file: File.join(Rails.root, "data","applications","1","recordings", "27-end_call.wav")},
                 { trace: {
@@ -200,7 +200,7 @@ module Parsers
               :application_id => 1,
               :step_id => 27,
               :step_name => "Menu number one",
-              :store => "\"Call ended.\""
+              :store => '"Call ended."'
             }
           }
         ])
@@ -236,10 +236,10 @@ module Parsers
 
         menu_3.equivalent_flow.should eq([
           { say: 'foobar' },
-          {:assign=>{:name=>"attempt_number", :expr=>"1"}},
-          {:assign=>{:name=>"end", :expr=>"false"}},
+          {:assign=>{:name=>"attempt_number27", :expr=>"1"}},
+          {:assign=>{:name=>"end27", :expr=>"false"}},
           {:while=> {
-            :condition=>"attempt_number <= 3 && !end",
+            :condition=>"attempt_number27 <= 3 && !end27",
             :do=> [
               {:capture=>{:timeout=>5}},
               {
@@ -261,7 +261,7 @@ module Parsers
                         :store => "\"Call ended.\""
                       }
                     },
-                    { :assign=> { :name=>"end", :expr=>"true" }}
+                    { :assign=> { :name=>"end27", :expr=>"true" }}
                   ],
                   :else => {
                     :if => {
@@ -287,12 +287,12 @@ module Parsers
                   }
                 }
               },
-              {:assign=>{:name=>"attempt_number", :expr=>"attempt_number + 1"}}
+              {:assign=>{:name=>"attempt_number27", :expr=>"attempt_number27 + 1"}}
             ]
           }},
           {
             :if=> {
-              :condition => "attempt_number > 3 && !end",
+              :condition => "attempt_number27 > 3 && !end27",
               :then => [{:say=>"Good Bye"},
                 { trace: {
                   :application_id => 1,

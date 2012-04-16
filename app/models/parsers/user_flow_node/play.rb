@@ -1,7 +1,7 @@
 module Parsers
   module UserFlowNode
     class Play < UserCommand
-      attr_reader :id, :message, :name, :application
+      attr_reader :id, :message, :name, :application, :next
 
       def initialize application, params
         @id = params['id']
@@ -17,7 +17,8 @@ module Parsers
       end
 
       def solve_links_with nodes
-        if @next
+        # TODO: Test This!!!! A command link mustn't be resolved twice
+        if @next && !@next.is_a?(UserCommand)
           possible_nodes = nodes.select do |a_node|
             a_node.id == @next
           end
@@ -25,9 +26,9 @@ module Parsers
             @next = possible_nodes.first
           else
             if possible_nodes.size == 0
-              raise "There is no command with id #{an_option['next']}"
+              raise "There is no command with id #{@next}"
             else
-              raise "There are multiple commands with id #{an_option['next']}: #{possible_nodes.inspect}."
+              raise "There are multiple commands with id #{@next}: #{possible_nodes.inspect}."
             end
           end
         end
@@ -40,7 +41,7 @@ module Parsers
       def build_equivalent_flow
         @equivalent_flow = []
         @equivalent_flow << @message.equivalent_flow if @message
-
+        @equivalent_flow = @equivalent_flow + @next.equivalent_flow if @next
         @equivalent_flow
       end
 
