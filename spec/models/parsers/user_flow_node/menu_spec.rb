@@ -85,6 +85,9 @@ module Parsers
             {
               capture: {
                 play_file: File.join(Rails.root, "data","applications","1","recordings", "27-options.wav"),
+                :min => 1,
+                :max => 1,
+                :finish_on_key => '#',
                 timeout: 20
               }
             },
@@ -241,7 +244,12 @@ module Parsers
           {:while=> {
             :condition=>"attempt_number27 <= 3 && !end27",
             :do=> [
-              {:capture=>{:timeout=>5}},
+              {:capture=>{
+                :timeout=>5,
+                :min => 1,
+                :max => 1,
+                :finish_on_key => '#'
+              }},
               {
                 :if=> {
                   :condition=>"digits == 4",

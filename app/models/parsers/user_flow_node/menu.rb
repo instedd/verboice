@@ -11,6 +11,9 @@ module Parsers
         @options = params['options'].deep_clone || []
         @is_root = params['root'] || false
         @timeout = params['timeout'] || 5
+        @finish_on_key = params['finish_on_key'] || '#'
+        @min_input_length = params['min_input_length'] || 1
+        @max_input_length = params['max_input_length'] || 1
         @number_of_attempts = params['number_of_attempts'] || 3
         @invalid_message = Message.for application, self, :invalid, params['invalid_message']
         @end_call_message = Message.for application, self, :end_call, params['end_call_message']
@@ -118,19 +121,18 @@ module Parsers
       end
 
       def build_capture
-        if @options_message
-          capture = @options_message.capture_flow
-          capture[:timeout] = @timeout
-          {
-            capture: capture
-          }
+        capture = if @options_message
+          @options_message.capture_flow
         else
-          {
-            capture: {
-              timeout: @timeout
-            }
-          }
+          {}
         end
+        capture[:timeout] = @timeout
+        capture[:min] = @min_input_length
+        capture [:max] = @max_input_length
+        capture [:finish_on_key] = @finish_on_key
+        {
+          capture: capture
+        }
       end
 
       def build_while

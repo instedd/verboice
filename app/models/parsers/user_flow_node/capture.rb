@@ -1,7 +1,7 @@
 module Parsers
   module UserFlowNode
     class Capture < UserCommand
-      attr_reader :id, :name, :instructions_message, :invalid_message, :end_call_message, :valid_values, :finish_on_key, :min_input_value, :max_input_value, :timeout, :number_of_attempts, :application, :next
+      attr_reader :id, :name, :next
 
       def initialize application, params
         @id = params['id']
@@ -10,8 +10,8 @@ module Parsers
         @instructions_message = Message.for application, self, :instructions, params['instructions_message']
         @valid_values = params['valid_values']
         @finish_on_key = params['finish_on_key'] || '#'
-        @min_input_value = params['min_input_value'] || 1
-        @max_input_value = params['max_input_value'] || 99
+        @min_input_length = params['min_input_length'] || 1
+        @max_input_length = params['max_input_length'] || 1
         @timeout = params['timeout'] || 5
         @number_of_attempts = params['number_of_attempts'] || 3
         @invalid_message = Message.for application, self, :invalid, params['invalid_message']
@@ -113,19 +113,18 @@ module Parsers
       end
 
       def build_capture
-        if @instructions_message
-          capture = @instructions_message.capture_flow
-          capture[:timeout] = @timeout
-          {
-            capture: capture
-          }
+        capture = if @instructions_message
+          @instructions_message.capture_flow
         else
-          {
-            capture: {
-              timeout: @timeout
-            }
-          }
+          []
         end
+        capture[:timeout] = @timeout
+        capture[:min] = @min_input_length
+        capture [:max] = @max_input_length
+        capture [:finish_on_key] = @finish_on_key
+        {
+          capture: capture
+        }
       end
 
       def build_while

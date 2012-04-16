@@ -27,8 +27,8 @@ module Parsers
           },
           'valid_values' => '1,2-4,10-20',
           'finish_on_key' => '#',
-          'min_input_value' => 1,
-          'max_input_value' => 10,
+          'min_input_length' => 1,
+          'max_input_length' => 2,
           'timeout' => 10
 
         capture.equivalent_flow.should eq([
@@ -38,6 +38,9 @@ module Parsers
             {
               capture: {
                 say: "First Capture",
+                :min => 1,
+                :max => 2,
+                :finish_on_key => '#',
                 timeout: 10
               }
             },

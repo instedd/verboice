@@ -116,7 +116,10 @@ describe Parsers::UserFlow do
           {
             capture: {
               say: "First Capture",
-              timeout: 10
+              timeout: 10,
+              min: 1,
+              max: 1,
+              finish_on_key: '#'
             }
           },
           {
@@ -135,7 +138,12 @@ describe Parsers::UserFlow do
                 { :while => {
                   :condition => "attempt_number3 <= 3 && !end3",
                   :do=> [
-                    { :capture => { :timeout=>5 }},
+                    { :capture => {
+                      min: 1,
+                      max: 1,
+                      finish_on_key: '#',
+                      timeout: 5
+                    }},
                     { :if => {
                       :condition => "digits == 2",
                       :then => [
