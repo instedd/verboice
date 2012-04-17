@@ -10,6 +10,7 @@ module Asterisk
     def agi_post_init
       FileUtils.mkdir_p SoundsPath
       @log = Rails.logger
+      @synthesizer = Synthesizer.new self
       BaseBroker.instance.accept_call self
     end
 
@@ -49,6 +50,11 @@ module Asterisk
       else :failed
       end
     end
+    
+    def say(text)
+      filename = @synthesizer.synth text
+      play filename
+    end
 
     def sound_path_for(basename)
       "#{SoundsPath}#{basename}.gsm"
@@ -65,7 +71,8 @@ module Asterisk
 
     def capture(options)
       [:min, :max, :timeout].each { |key| options[key] = options[key].to_i rescue nil }
-
+      options[:play] = @synthesizer.synth(options[:say]) if options[:say]
+      
       digits = ''
 
       if options[:play]
