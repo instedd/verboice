@@ -8,7 +8,7 @@ class Application < ActiveRecord::Base
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
 
-  serialize :flow, Array
+  serialize :flow
   serialize :user_flow, Array
 
   before_update :update_flow_with_user_flow
@@ -26,7 +26,7 @@ class Application < ActiveRecord::Base
   end
 
   def commands
-    self.flow.present? ? self.flow : [:answer, {:callback => self.callback_url}]
+    self.flow.present? ? self.flow : Compiler.new.Answer().Callback(self.callback_url).make
   end
 
   def info

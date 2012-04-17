@@ -62,7 +62,7 @@ class Session
 
     loop do
       begin
-        run_command until commands.empty? || @suspended
+        run_command until commands.nil? || @suspended
       rescue Exception => ex
         raise ex unless @suspended
       end
@@ -86,10 +86,6 @@ class Session
     @quit = true
   end
 
-  def push_commands(commands)
-    self.commands.unshift *commands
-  end
-
   CallLog::Levels.each do |letter, name|
     class_eval %Q(
       def #{name}(text)
@@ -108,19 +104,7 @@ class Session
 
   def run_command
     raise "Quit" if @quit
-
-    cmd = commands.shift
-
-    if cmd.is_a? Hash
-      cmd, args = cmd.first
-      args.symbolize_keys! if args.is_a? Hash
-      #TODO: Replace with SuitableClassFinder
-      cmd = "Commands::#{cmd.to_s.camelcase}Command".constantize.new args
-    elsif !cmd.respond_to?(:run)
-      cmd = "Commands::#{cmd.to_s.camelcase}Command".constantize.new
-    end
-
-    cmd.run self
+    @commands = @commands.run(self)
   end
 
   def new_v8_context

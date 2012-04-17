@@ -2,7 +2,7 @@ class QueuedCall < ActiveRecord::Base
   belongs_to :channel
   belongs_to :call_log
   belongs_to :call_queue
-  serialize :flow, Array
+  serialize :flow
 
   def start
     call_log.start_outgoing address
