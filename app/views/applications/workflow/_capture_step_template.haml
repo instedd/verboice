@@ -31,19 +31,21 @@
                 %span{ko(text: "message('end_call').name()")}
               %td
                 %button.farrow{ :type => "button", 'data-bind' => "click: show_end_call_message" }
-        .content
+        .content{ko('instedd_init' => true)}
           %hr
           %label Validation
           %br/
 
           %span.validation
             Min input length
-          %input.w10{'type' => 'text', 'data-bind' => 'value: min_input_length'}
+          .ux-nstep.w06
+            %input{'type' => 'text', 'size' => 2, 'data-min' => 1, 'data-bind' => 'value: min_input_length'}
           %br/
 
           %span.validation
             Max input length
-          %input.w10{'type' => 'text', 'data-bind' => 'value: max_input_length'}
+          .ux-nstep.w06
+            %input{'type' => 'text', 'size' => 2, 'data-min' => 1, 'data-bind' => 'value: max_input_length'}
           %br/
 
           %span.validation
@@ -53,7 +55,7 @@
 
           %span.validation
             Finish on key
-          %input.w10{'type' => 'text', 'data-bind' => 'value: finish_on_key'}
+          %input.w06{'type' => 'text', 'size' => 1, 'data-bind' => 'value: finish_on_key'}
           %br/
 
           %hr
