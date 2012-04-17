@@ -5,8 +5,8 @@ class Commands::IfCommand < Command
 
   def initialize(condition, if_true, if_false = nil)
     @condition = condition
-    @then = if_true
-    @else = if_false
+    @then = if_true if if_true
+    @else = if_false if if_false
   end
 
   def next=(cmd)
