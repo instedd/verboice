@@ -81,6 +81,20 @@ describe Voxeo::CallManager do
       Fiber.should_receive(:current).and_return(fiber)
       fiber.should_receive(:resume)
       
+      EM.should_receive(:next_tick) do |&block|
+        block.call
+        true
+      end
+      
+      call_manager.hangup
+    end
+    
+    it 'should delete the fiber from the store' do
+      EM.stub(:next_tick)
+      store = double('store')
+      store.should_receive(:delete_fiber_for).with(voxeo_session_id)
+      Voxeo::FiberStore.should_receive(:instance).and_return(store)
+      
       call_manager.hangup
     end
     
