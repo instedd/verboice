@@ -29,4 +29,28 @@ class Command
   def self.param(name, type, options = {})
     @spec << {:name => name, :type => type}.merge(options)
   end
+
+  def ==(other)
+    self.compare_to other
+  end
+
+  def compare_to(other, visited = Set.new)
+    return false unless self.class == other.class
+    return false if self.instance_variables.sort != other.instance_variables.sort
+    visited.add self
+
+    instance_variables.each do |var|
+      next if var == :@next
+      val = instance_variable_get var
+      other_val = other.instance_variable_get var
+      if val.is_a? Command
+        next if visited.include? val
+        return false unless val.compare_to(other_val, visited)
+      else
+        return false if val != other_val
+      end
+    end
+
+    true
+  end
 end
