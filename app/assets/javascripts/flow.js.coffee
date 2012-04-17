@@ -36,3 +36,8 @@ onWorkflow ->
   window.workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)
 
+  window.workflow.serialize_workflow()
+  $(window).bind 'beforeunload', () ->
+    if window.workflow.has_changed()
+      "There are unsaved changes in the workflow."
+

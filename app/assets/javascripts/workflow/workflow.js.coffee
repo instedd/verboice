@@ -32,10 +32,16 @@ onWorkflow ->
     display_template_for: (current_flow_step) =>
       @current_step().display_template_id()
 
+    serialize: () =>
+      JSON.stringify(step.to_hash() for step in @steps())
+
     serialize_workflow: () =>
-      serialized = JSON.stringify(step.to_hash() for step in @steps())
+      serialized = @serialize()
       $('#flow').val(serialized)
       return true # let the submit handler do its work
+
+    has_changed: () =>
+      $('#flow').val() != @serialize()
 
     commands: () =>
       @command_selector().commands()
