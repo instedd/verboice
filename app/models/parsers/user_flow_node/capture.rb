@@ -75,7 +75,7 @@ module Parsers
       def build_if_conditions
         {
           :if => {
-            :condition => "digits >= 1 && digits <= 10",
+            :condition => valid_digits_condition,
             :then => if_must_add_exit_condition_to([trace('"User pressed: " + digits')] +
               if @next
                 @next.equivalent_flow
@@ -149,6 +149,18 @@ module Parsers
           }
         }
       end
+
+      def valid_digits_condition
+        @valid_values.split(/\s*[,;]\s*/).map do |clause|
+          items = clause.split(/\s*-\s*/)
+          if items.length == 1
+            "(digits == #{items.first})"
+          else
+            "(digits >= #{items.first} && digits <= #{items.last})"
+          end
+        end.join(' || ')
+      end
+
     end
   end
 end

@@ -38,15 +38,15 @@ module Parsers
             {
               capture: {
                 say: "First Capture",
-                :min => 1,
-                :max => 2,
-                :finish_on_key => '#',
-                timeout: 10
+                timeout: 10,
+                min: 1,
+                max: 2,
+                finish_on_key: '#'
               }
             },
             {
               :if => {
-                :condition => "digits >= 1 && digits <= 10",
+                :condition => "(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20)",
                 :then => [
                   { trace: {
                     :application_id => 1,
