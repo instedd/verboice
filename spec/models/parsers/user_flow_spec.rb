@@ -65,7 +65,7 @@ describe Parsers::UserFlow do
           "file" => "file.wav",
           "duration" => 5
         },
-        'valid_values' => '1,2-4,10-20',
+        'valid_values' => '1-10',
         'finish_on_key' => '#',
         'min_input_value' => 1,
         'max_input_value' => 10,
@@ -124,7 +124,7 @@ describe Parsers::UserFlow do
           },
           {
             :if => {
-              :condition => "digits >= 1 && digits <= 10",
+              :condition => "(digits >= 1 && digits <= 10)",
               :then => [
                 { trace: {
                   :application_id => 1,
