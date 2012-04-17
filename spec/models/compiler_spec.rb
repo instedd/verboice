@@ -228,6 +228,18 @@ describe Compiler do
       result.then.should be(result.next.next)
     end
 
+    it "can jump from if block to the next command" do
+      result = subject.make do
+        If ('a > b') { Goto 'foo' }
+        Label 'foo'
+        Hangup()
+      end
+      result.should be_instance_of(Commands::IfCommand)
+      result.next.should be_instance_of(Commands::HangupCommand)
+      result.then.should be(result.next)
+      result.next.next.should be_nil
+    end
+
     it "can jump from else block" do
       result = subject.make do
         Label('foo')

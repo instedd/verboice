@@ -1,4 +1,4 @@
-class Commands::BridgeCommand
+class Commands::BridgeCommand < Command
   attr_accessor :session_id
 
   def initialize(session_id)

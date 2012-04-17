@@ -39,14 +39,13 @@ class Commands::CallbackCommand < Command
 
         commands = case content_type
                    when %r(application/json)
-                     commands = [:js => body]
+                     commands = Commands::JsCommand.new body
                    else
                      commands = Parsers::Xml.parse body
                    end
 
-          session.push_commands commands
-
-        f.resume
+        commands.last.next = self.next
+        f.resume commands
       rescue Exception => e
         f.resume e
       end

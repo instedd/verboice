@@ -110,6 +110,8 @@ class Compiler
     @pending_gotos[@label].each do |goto|
       goto.next = nil
     end
+
+    self
   end
 
   def Goto(label)
@@ -130,6 +132,10 @@ class Compiler
   end
 
   def append(cmd)
+    @first ||= cmd
+    @last.next = cmd if @last
+    @last = cmd
+
     if @label
       @labels[@label] = cmd
 
@@ -140,9 +146,6 @@ class Compiler
       @label = nil
     end
 
-    @first ||= cmd
-    @last.next = cmd if @last
-    @last = cmd
     self
   end
 

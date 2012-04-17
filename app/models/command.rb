@@ -36,11 +36,9 @@ class Command
 
   def compare_to(other, visited = Set.new)
     return false unless self.class == other.class
-    return false if self.instance_variables.sort != other.instance_variables.sort
     visited.add self
 
-    instance_variables.each do |var|
-      next if var == :@next
+    (instance_variables | other.instance_variables).each do |var|
       val = instance_variable_get var
       other_val = other.instance_variable_get var
       if val.is_a? Command

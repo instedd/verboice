@@ -13,7 +13,6 @@ module Commands
       @session.application = mock(
         'application', :callback_url_user => nil, :callback_url_password => nil
       ).as_null_object
-      @session.stub(:push_commands).with([:hangup])
       @default_body = {:From => '999', :Channel => 'foo'}
       @session.call_log = CallLog.make
       apply_application
@@ -47,11 +46,11 @@ module Commands
       assert_log
 
       @session.should_receive(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
-      @session.should_receive(:push_commands).with([:hangup])
 
-      expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+      result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
         CallbackCommand.new(url).run @session
       end
+      result.should == Commands::HangupCommand.new
     end
 
     context "running with an app which has http basic authentication for the callback url", :focus => true do
@@ -81,11 +80,11 @@ module Commands
       assert_log(:method => :get)
 
       @session.should_receive(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
-      @session.should_receive(:push_commands).with([:hangup])
 
-      expect_em_http :get, url, :with => @default_body.merge(:CallSid => @session.call_id), :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
-        CallbackCommand.new(url, :method => :get).run @session
+      result = expect_em_http :get, url, :with => @default_body.merge(:CallSid => @session.call_id), :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+        CallbackCommand.new(url, :method => :get).run(@session)
       end
+      result.should == Commands::HangupCommand.new
     end
 
     it "run without url" do
@@ -93,33 +92,48 @@ module Commands
 
       @session.should_receive(:callback_url).and_return(url)
       @session.should_receive(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
-      @session.should_receive(:push_commands).with([:hangup])
 
-      expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+      result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
         CallbackCommand.new.run @session
       end
+      result.should == Commands::HangupCommand.new
     end
 
     it "run receives json in response" do
       assert_log
 
       @session.should_receive(:trace).with("Callback returned application/json: hangup();")
-      @session.should_receive(:push_commands).with([:js => 'hangup();'])
 
-      expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => 'hangup();', :content_type => 'application/json' do
+      result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => 'hangup();', :content_type => 'application/json' do
         CallbackCommand.new(url).run @session
       end
+      result.should == Commands::JsCommand.new('hangup();')
     end
 
     it "run with custom parameters" do
       assert_log(:trace_params => "CallSid=#{@session.call_id}&Channel=foo&Digits=123&From=999")
       @session[:digits] = '123'
       @session.should_receive(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
-      @session.should_receive(:push_commands).with([:hangup])
 
-      expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, :Digits => '123')}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+      result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, :Digits => '123')}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
         CallbackCommand.new(url, :params => {:Digits => :digits}).run @session
       end
+      result.should == Commands::HangupCommand.new
+    end
+
+    it "continues with following commands after callback result" do
+      assert_log
+
+      @session.should_receive(:callback_url).and_return(url)
+      @session.should_receive(:trace).with("Callback returned application/xml: <Response><Pause/></Response>")
+
+      result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Pause/></Response>', :content_type => 'application/xml' do
+        Compiler.make do
+          Callback()
+          Hangup()
+        end.run @session
+      end
+      result.should == Compiler.make { Pause(); Hangup() }
     end
   end
 end
