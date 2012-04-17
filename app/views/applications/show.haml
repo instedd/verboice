@@ -8,18 +8,8 @@
   %b Mode:
   = @application.info
 - if @application.mode == :flow
-  %ul
-    - @application.commands.each do |cmd|
-      %li
-        - if cmd.is_a? Hash
-          - name, args = cmd.first
-          %b= name
-          - if args.is_a? Hash
-            = args.to_pretty_s
-          - else
-            = args
-        - else
-          %b= cmd
+  %pre
+    = @application.commands.to_yaml
 
 %hr
 = link_to 'Edit', edit_application_path(@application), :class => "button grey"
