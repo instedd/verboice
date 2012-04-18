@@ -42,112 +42,36 @@ module Parsers
       end
 
       def equivalent_flow
-         @equivalent_flow || build_equivalent_flow
+         @equivalent_flow ||= build_equivalent_flow
       end
 
       def build_equivalent_flow
-        @equivalent_flow = []
-        build_while do
-          [
-            build_capture,
-            build_if_conditions
-          ]
-        end
-
-        if @end_call_message
-          @equivalent_flow << if @number_of_attempts > 1
-            {
-              :if => {
-                :condition => "attempt_number#{@id} > #{@number_of_attempts} && !end#{@id}",
-                :then => [@end_call_message.equivalent_flow, trace("\"Missed input for #{@number_of_attempts} times.\"")]
-              }
-            }
-          else
-            @end_call_message.equivalent_flow
-          end
-        end
-        @equivalent_flow << trace("\"Call ended.\"")
-        @equivalent_flow
-      end
-
-      private
-
-      def build_if_conditions
-        {
-          :if => {
-            :condition => "digits >= 1 && digits <= 10",
-            :then => if_must_add_exit_condition_to([trace('"User pressed: " + digits')] +
-              if @next
-                @next.equivalent_flow
-              else
-                []
-              end
-            ),
-            :else =>  if @invalid_message
-              {
-                :if => {
-                  :condition => "digits != null",
-                  :then => [@invalid_message.equivalent_flow, trace('"Invalid key pressed"')],
-                  :else => [trace('"No key was pressed. Timeout."')]
-                }
-              }
-            else
-              {
-                :if => {
-                  :condition => "digits != null",
-                  :then => [trace('"Invalid key pressed"')],
-                  :else => [trace('"No key was pressed. Timeout."')]
-                }
-              }
+        Compiler.make do |compiler|
+          compiler.Assign("attempt_number#{@id}", '1')
+            .While "attempt_number#{@id} <= #{@number_of_attempts}" do |compiler|
+              compiler.Capture({
+                min: @min_input_length, max: @max_input_length, finish_on_key: @finish_on_key, timeout: @timeout
+              }.merge(@instructions_message.capture_flow))
+                .If("digits >= 1 && digits <= 10") do |compiler| # TODO: Change for Palla's Implementation
+                  compiler.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits')
+                    .Goto "end#{@id}"
+                end
+                .If("digits != null") do |compiler|
+                  compiler.append(@invalid_message.equivalent_flow)
+                  .Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"Invalid key pressed"'
+                end
+                .Else do |compiler|
+                  compiler.Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"No key was pressed. Timeout."'
+                end
+                .Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"
             end
-          }
-        }
-      end
-
-      def if_must_add_exit_condition_to a_branch
-        if @number_of_attempts > 1
-          a_branch << { assign: { name: "end#{@id}", expr: 'true' }}
-        else
-          a_branch
+            .Trace(application_id: @application.id, step_id: @id, step_name: @name, store: %("Missed input for #{@number_of_attempts} times."))
+            .append(@end_call_message.equivalent_flow)
+          compiler.Goto("hangup#{@id}")
+          compiler.Label("end#{@id}")
+          compiler.append(@next.equivalent_flow) if @next
+          compiler.Label("hangup#{@id}")
         end
-      end
-
-      def build_capture
-        capture = if @instructions_message
-          @instructions_message.capture_flow
-        else
-          []
-        end
-        capture[:timeout] = @timeout
-        capture[:min] = @min_input_length
-        capture [:max] = @max_input_length
-        capture [:finish_on_key] = @finish_on_key
-        {
-          capture: capture
-        }
-      end
-
-      def build_while
-        if @number_of_attempts > 1
-          @equivalent_flow << { assign: { name: "attempt_number#{@id}", expr: '1' }}
-          @equivalent_flow << { assign: { name: "end#{@id}", expr: 'false' }}
-          @equivalent_flow << { :while => { :condition => "attempt_number#{@id} <= #{@number_of_attempts} && !end#{@id}", :do =>
-            yield << { assign: { name: "attempt_number#{@id}", expr: "attempt_number#{@id} + 1" }}
-          }}
-        else
-          @equivalent_flow + yield
-        end
-      end
-
-      def trace expression
-        {
-          trace: {
-            :application_id => @application.id,
-            :step_id => @id,
-            :step_name => @name,
-            :store => expression
-          }
-        }
       end
     end
   end

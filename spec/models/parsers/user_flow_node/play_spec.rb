@@ -5,6 +5,7 @@ module Parsers
     describe Play do
 
       let(:app) { self }
+
       it "should compile to a verboice equivalent flow" do
         play = Play.new app, 'id' => 27,
           'type' => 'play',
@@ -16,11 +17,12 @@ module Parsers
             "duration" => 5
           }
 
-        play.equivalent_flow.should eq([
-          { play_file: File.join(Rails.root, "data","applications","1","recordings", "27-message.wav")}
-        ])
+        play.equivalent_flow.should eq(
+        Commands::PlayFileCommand.new File.join(Rails.root, "data","applications","1","recordings", "27-message.wav"))
+      end
+      it "should compile a tts message as well" do
 
-        play2 = Play.new app, 'id' => 27,
+        play = Play.new app, 'id' => 27,
           'type' => 'play',
           'name' => 'Play number one',
           'message' => {
@@ -28,9 +30,7 @@ module Parsers
             "type" => "text"
           }
 
-        play2.equivalent_flow.should eq([
-          { say: "Some explanation message"}
-        ])
+        play.equivalent_flow.should eq( Commands::SayCommand.new "Some explanation message" )
       end
 
       def id

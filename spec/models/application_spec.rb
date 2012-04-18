@@ -81,24 +81,16 @@ describe Application do
       {
         'id' => 1,
         'root' => true,
-        'type' => 'menu',
-        'name' => 'Menu number one',
-        'explanation_message' => {"name" => 'First Menu', 'type' => 'text'},
-        'options_message' => {},
-        'end_call_message' => {},
-        'invalid_message' => {}
+        'type' => 'play',
+        'name' => 'Play number one',
+        'message' => {
+          "name" => "Some explanation message",
+          "type" => "text"
+        }
       }
     ]
 
     application.save!
-    application.reload.flow.should eq([
-      {say: 'First Menu'},
-      { :trace=> {
-        :application_id=>4,
-        :step_id=>1,
-        :step_name=>"Menu number one",
-        :store=>"\"Call ended.\""
-      }}
-    ])
+    application.reload.flow.should eq(Commands::SayCommand.new "Some explanation message")
   end
 end

@@ -31,80 +31,29 @@ module Parsers
           'max_input_length' => 2,
           'timeout' => 10
 
-        capture.equivalent_flow.should eq([
-          { assign: { name: 'attempt_number1', expr: '1' }},
-          { assign: { name: 'end1', expr: 'false' }},
-          { :while => { :condition => 'attempt_number1 <= 3 && !end1', :do => [
-            {
-              capture: {
-                say: "First Capture",
-                :min => 1,
-                :max => 2,
-                :finish_on_key => '#',
-                timeout: 10
-              }
-            },
-            {
-              :if => {
-                :condition => "digits >= 1 && digits <= 10",
-                :then => [
-                  { trace: {
-                    :application_id => 1,
-                    :step_id => 1,
-                    :step_name => 'Capture number one',
-                    :store => '"User pressed: " + digits'
-                  }},
-                  { assign: { name: 'end1', expr: 'true' }}
-                ],
-                :else => {
-                  :if => {
-                    :condition => "digits != null",
-                    :then => [
-                      { play_file: File.join(Rails.root, "data","applications","1","recordings", "1-invalid.wav")},
-                      { trace: {
-                        :application_id => 1,
-                        :step_id => 1,
-                        :step_name => 'Capture number one',
-                        :store => '"Invalid key pressed"'
-                      }}
-                    ],
-                    :else => [
-                      { trace: {
-                        :application_id => 1,
-                        :step_id => 1,
-                        :step_name => 'Capture number one',
-                        :store => '"No key was pressed. Timeout."'
-                      }}
-                    ]
-                  }
-                }
-              }
-            },
-            { assign: { name: 'attempt_number1', expr: 'attempt_number1 + 1' }}
-          ]}},
-          {
-            :if => {
-              :condition => 'attempt_number1 > 3 && !end1',
-              :then => [
-                { play_file: File.join(Rails.root, "data","applications","1","recordings", "1-end_call.wav")},
-                { trace: {
-                  :application_id => 1,
-                  :step_id => 1,
-                  :step_name => 'Capture number one',
-                  :store => '"Missed input for 3 times."'
-                }}
-              ]
-            }
-          },
-          {
-            :trace=> {
-              :application_id => 1,
-              :step_id => 1,
-              :step_name => "Capture number one",
-              :store => '"Call ended."'
-            }
-          }
-        ])
+        capture.equivalent_flow.should eq(
+          Compiler.make do
+            Assign 'attempt_number1', '1'
+            While 'attempt_number1 <= 3' do
+              Capture say: "First Capture", min: 1, max: 2, finish_on_key: '#', timeout: 10
+              If "digits >= 1 && digits <= 10" do
+                Trace application_id: 1, step_id: 1, step_name: 'Capture number one', store: '"User pressed: " + digits'
+                Goto "end1"
+              end
+              If "digits != null" do
+                PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-invalid.wav")
+                Trace application_id: 1, step_id: 1, step_name: 'Capture number one', store: '"Invalid key pressed"'
+              end
+              Else do
+                Trace application_id: 1, step_id: 1, step_name: 'Capture number one', store: '"No key was pressed. Timeout."'
+              end
+              Assign 'attempt_number1', 'attempt_number1 + 1'
+            end
+            Trace application_id: 1, step_id: 1, step_name: 'Capture number one', store: '"Missed input for 3 times."'
+            PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-end_call.wav")
+            Label "end1"
+          end
+        )
       end
 
       def id
