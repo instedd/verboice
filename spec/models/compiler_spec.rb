@@ -437,5 +437,23 @@ describe Compiler do
       result.should be_instance_of(Commands::HangupCommand)
       result.next.should be_nil
     end
+
+    it "should accept end command" do
+      result = subject.make do
+        Answer()
+        End()
+        Hangup()
+      end
+      result.should be_instance_of(Commands::AnswerCommand)
+      result.next.should be_nil
+    end
+
+    it "should check for invalid Goto labels" do
+      lambda {
+        subject.make do
+          Goto 'foo'
+        end
+      }.should raise_error Exception
+    end
   end
 end

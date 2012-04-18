@@ -54,6 +54,10 @@ class Compiler
     append Goto.new(label)
   end
 
+  def End
+    Goto nil
+  end
+
   def method_missing(method, *args)
     cmd_class = "Commands::#{method.to_s}Command".constantize
     append cmd_class.new *args
@@ -80,7 +84,17 @@ class Compiler
       parent.instance_variable_set var, node.next
       return resolve_gotos parent, var, visited
     elsif node.is_a? Goto
-      parent.instance_variable_set var, @labels[node.label].next
+      next_node = if node.label
+        label_node = @labels[node.label]
+        if label_node
+          label_node.next
+        else
+          raise "Unmatched Goto label #{node.label}"
+        end
+      else
+        nil
+      end
+      parent.instance_variable_set var, next_node
       return resolve_gotos parent, var, visited
     end
 
