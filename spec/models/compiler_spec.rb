@@ -112,10 +112,39 @@ describe Compiler do
       result.then.should be_instance_of(Commands::PauseCommand)
     end
 
+    it "with other builder" do
+      result = subject
+        .If('a > b', Compiler.new.Pause)
+        .make
+      result.should be_instance_of(Commands::IfCommand)
+      result.next.should be_nil
+      result.then.should be_instance_of(Commands::PauseCommand)
+    end
+
+    it "with other command" do
+      result = subject
+        .If('a > b', Compiler.make { Pause() })
+        .make
+        result.should be_instance_of(Commands::IfCommand)
+        result.next.should be_nil
+        result.then.should be_instance_of(Commands::PauseCommand)
+    end
+
     it "with else block" do
       result = subject
         .If('a > b') { Pause() }
         .Else { Say('foo') }
+        .make
+      result.should be_instance_of(Commands::IfCommand)
+      result.next.should be_nil
+      result.then.should be_instance_of(Commands::PauseCommand)
+      result.else.should be_instance_of(Commands::SayCommand)
+    end
+
+    it "with else block from other builder" do
+      result = subject
+        .If('a > b') { Pause() }
+        .Else(Compiler.new.Say('foo'))
         .make
       result.should be_instance_of(Commands::IfCommand)
       result.next.should be_nil
@@ -139,6 +168,17 @@ describe Compiler do
     it "with block" do
       result = subject.make do
         While('a > b') { Pause() }
+        Hangup()
+      end
+      result.should be_instance_of(Commands::WhileCommand)
+      result.next.should be_instance_of(Commands::HangupCommand)
+      result.block.should be_instance_of(Commands::PauseCommand)
+      result.block.next.should be(result)
+    end
+
+    it "with other builder" do
+      result = subject.make do
+        While('a > b', Compiler.new.Pause)
         Hangup()
       end
       result.should be_instance_of(Commands::WhileCommand)

@@ -31,17 +31,17 @@ class Compiler
     Compiler.new.make &blk
   end
 
-  def If(condition, &blk)
-    append Commands::IfCommand.new(condition, inner_block(&blk))
+  def If(condition, if_true = nil, &blk)
+    append Commands::IfCommand.new(condition, inner_block(if_true, &blk))
   end
 
-  def Else(&blk)
-    @last.else = inner_block(&blk)
+  def Else(block = nil, &blk)
+    @last.else = inner_block(block, &blk)
     self
   end
 
-  def While(condition, &blk)
-    append Commands::WhileCommand.new(condition, inner_block(&blk))
+  def While(condition, block = nil, &blk)
+    append Commands::WhileCommand.new(condition, inner_block(block, &blk))
   end
 
   def Label(name)
@@ -96,10 +96,14 @@ class Compiler
     end
   end
 
-  def inner_block(compiler = nil, &blk)
-    compiler ||= Compiler.parse(&blk)
-    @labels.merge! compiler.labels
-    compiler.first
+  def inner_block(block = nil, &blk)
+    block ||= Compiler.parse(&blk)
+    if block.is_a? Compiler
+      @labels.merge! block.labels
+      block.first
+    else
+      block
+    end
   end
 
   class CompilerCommand < Command
