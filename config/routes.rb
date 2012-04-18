@@ -19,11 +19,11 @@ Verboice::Application.routes.draw do
     end
   end
 
-  resources :call_logs do
+  resources :call_logs, path: :calls do
     get :progress, :on => :member
   end
 
-  resources :call_queues
+  resources :call_queues, path: :queues
 
   match "api/call" => "api#call", :as => :api_call
   match "api/call/:id/state" => "api#call_state"
