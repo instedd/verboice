@@ -9,6 +9,7 @@ describe Commands::JsCommand do
     @session.pbx.should_receive(:answer)
 
     cmd = Commands::JsCommand.new 'answer();'
-    cmd.run @session
+    cmd.next = :next
+    cmd.run(@session).should == :next
   end
 end

@@ -212,7 +212,7 @@ describe BaseBroker do
 
   context "accept call" do
     it "run when there is already a session" do
-      @channel.application.flow = [:answer, :hangup]
+      @channel.application.flow = Compiler.make { Answer(); Hangup() }
       @channel.application.save!
 
       queued_call = @channel.queued_calls.make
@@ -235,7 +235,7 @@ describe BaseBroker do
     end
 
     it "run when there is no session" do
-      @channel.application.flow = [:answer, :hangup]
+      @channel.application.flow = Compiler.make { Answer(); Hangup() }
       @channel.application.save!
 
       pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
@@ -268,7 +268,7 @@ describe BaseBroker do
     end
 
     it "resume and close pbx connection" do
-      @channel.application.flow = [:yield, :hangup]
+      @channel.application.flow = Compiler.make { Yield(); Hangup() }
       @channel.application.save!
 
       pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
@@ -283,7 +283,7 @@ describe BaseBroker do
       pbx.should_receive :close_connection
       session = @broker.sessions.values.first
       @broker.should_receive(:restart).with(session)
-      @broker.redirect session.call_log.id, :flow => [:hangup]
+      @broker.redirect session.call_log.id, :flow => Compiler.make { Hangup() }
 
       # Resume the session and yields because it is suspended
       f.resume
@@ -296,7 +296,7 @@ describe BaseBroker do
     end
 
     it "send 'in-progress' status notification" do
-      @channel.application.flow = [:answer]
+      @channel.application.flow = Compiler.make { Answer() }
       @channel.application.save!
 
       class << @broker
@@ -319,9 +319,10 @@ describe BaseBroker do
   end
 end
 
-class YieldCommand
+class Commands::YieldCommand < Command
   def run(session)
     Fiber.yield
+    super
   end
 end
 

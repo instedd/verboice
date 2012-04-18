@@ -15,6 +15,10 @@ module Parsers
       end
 
       def equivalent_flow
+        Commands::SayCommand.new @name
+      end
+
+      def capture_flow
         { say: @name }
       end
     end

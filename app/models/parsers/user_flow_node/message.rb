@@ -5,15 +5,7 @@ class Parsers::UserFlowNode::Message
   end
 
   def self.for application, parent_step, action, params
-    (SuitableClassFinder.find_direct_subclass_of self,
-      suitable_for: params,
-      if_found: lambda{ | message_class |
-        message_class.new application, parent_step, action, params
-      },
-      if_none: lambda{ | finder |
-        nil
-      }
-    )
+    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: params).new application, parent_step, action, params
   end
 
   def name
@@ -25,6 +17,6 @@ class Parsers::UserFlowNode::Message
   end
 
   def capture_flow
-    equivalent_flow
+    raise "Subclasses must define this message"
   end
 end

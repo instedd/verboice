@@ -39,9 +39,8 @@ module Parsers
       end
 
       def build_equivalent_flow
-        @equivalent_flow = []
-        @equivalent_flow << @message.equivalent_flow if @message
-        @equivalent_flow = @equivalent_flow + @next.equivalent_flow if @next
+        @equivalent_flow = @message.equivalent_flow if @message
+        @equivalent_flow.next = @next.equivalent_flow if @next
         @equivalent_flow
       end
 

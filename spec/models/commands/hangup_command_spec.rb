@@ -5,6 +5,8 @@ describe Commands::HangupCommand do
     session = Session.new :pbx => mock('pbx')
     session.pbx.should_receive(:hangup)
     session.should_receive(:info).with('Hangup')
-    Commands::HangupCommand.new.run session
+    cmd = Commands::HangupCommand.new
+    cmd.next = :next
+    cmd.run(session).should == :next
   end
 end

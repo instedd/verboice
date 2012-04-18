@@ -1,4 +1,5 @@
-class Commands::BridgeCommand
+class Commands::BridgeCommand < Command
+  attr_accessor :session_id
 
   def initialize(session_id)
     @session_id = session_id.to_i

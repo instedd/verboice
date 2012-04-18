@@ -21,7 +21,8 @@ module Commands
 
       cmd = PlayUrlCommand.new @url
       cmd.should_receive(:download_url_to).never
-      cmd.run @session
+      cmd.next = :next
+      cmd.run(@session).should == :next
     end
 
     it "download mp3 converts first to wav then to gsm" do

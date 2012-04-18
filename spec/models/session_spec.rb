@@ -8,25 +8,13 @@ describe Session do
 
   it "run no args command" do
     @pbx.should_receive(:foo)
-    @session.commands = [:no_args]
+    @session.commands = Commands::NoArgsCommand.new
     @session.run
   end
 
-  it "run args command" do
-    @pbx.should_receive(:bar).with(1)
-    @session.commands = [:args => {:n => 1}]
-    @session.run
-  end
-
-  it "run command with class" do
+  it "run many commands" do
     @pbx.should_receive(:foo)
-    @session.commands = [Commands::NoArgsCommand.new]
-    @session.run
-  end
-
-  it "run and push commands" do
-    @pbx.should_receive(:foo)
-    @session.commands = [:push => :no_args]
+    @session.commands = Commands::NextCommand.new(Commands::NoArgsCommand.new)
     @session.run
   end
 
@@ -35,7 +23,7 @@ describe Session do
   end
 
   it "suspend session" do
-    @session.commands = [:yield, :no_args]
+    @session.commands = Compiler.make { Yield(); NoArgs() }
     f = Fiber.new do
       @session.run
     end
@@ -47,7 +35,7 @@ describe Session do
   end
 
   it "resume session" do
-    @session.commands = [:yield]
+    @session.commands = Commands::YieldCommand.new
     f = Fiber.new do
       @session.run
     end
@@ -55,7 +43,7 @@ describe Session do
     @session.suspend
     f.resume
 
-    @session.commands = [:no_args]
+    @session.commands = Commands::NoArgsCommand.new
     @pbx.should_receive(:foo)
     @session.resume
   end
@@ -107,21 +95,21 @@ describe Session do
 
     it "run ok if call is incoming" do
       @call_log.should_receive(:outgoing?).and_return(false)
-      @session.commands = []
+      @session.commands = nil
       @session.run
     end
 
     it "run ok if call is outgoing but not an answeing machine" do
       @pbx.should_receive(:is_answering_machine?).and_return(false)
       @call_log.should_receive(:outgoing?).and_return(true)
-      @session.commands = []
+      @session.commands = nil
       @session.run
     end
 
     it "fail if call is outgoing and an answeing machine" do
       @pbx.should_receive(:is_answering_machine?).and_return(true)
       @call_log.should_receive(:outgoing?).and_return(true)
-      @session.commands = []
+      @session.commands = nil
       begin
         @session.run
         fail "Exception expected to be raised"
@@ -133,35 +121,38 @@ describe Session do
 end
 
 module Commands
-  class NoArgsCommand
+  class NoArgsCommand < Command
     def run(session)
       session.pbx.foo
+      super
     end
   end
 
-  class ArgsCommand
+  class ArgsCommand < Command
     def initialize(options)
       @n = options[:n]
     end
 
     def run(session)
       session.pbx.bar @n
+      super
     end
   end
 
-  class PushCommand
+  class NextCommand < Command
     def initialize(command)
-      @command = command
+      self.next = command
     end
 
     def run(session)
-      session.push_commands [@command]
+      super
     end
   end
 
-  class YieldCommand
+  class YieldCommand < Command
     def run(session)
       Fiber.yield
+      super
     end
   end
 end

@@ -4,58 +4,54 @@ class Parsers::Twiml < Parsers::Xml
   end
 
   def self.parse(xml)
-    script = []
-    main_script = script
+    compiler = Compiler.new
 
     xml.root.children.each do |child|
       case child.name
       when 'Play'
-        script << play(child)
+        play(child, compiler)
       when 'Gather'
-        commands, timeout_or_finish_key_commands = gather(child)
-        commands.each { |cmd| script << cmd }
-
-        script = timeout_or_finish_key_commands
+        gather(child, compiler)
       when 'Redirect'
-        script << redirect(child)
+        redirect(child, compiler)
       when 'Hangup'
-        script << :hangup
+        compiler.Hangup()
       when 'Say'
-        script << say(child)
+        say(child, compiler)
       when 'Pause'
-        script << pause(child)
+        pause(child, compiler)
       when 'Bridge'
-        script << bridge(child)
+        bridge(child, compiler)
       when 'Dial'
-        commands, continue = dial(child)
-        script.concat commands
+        continue = dial(child, compiler)
         break unless continue
       else
         raise Exception.new "Invalid element '#{child.name}'"
       end
     end
-    main_script
+
+    compiler.Label('end').make
   end
 
   private
 
-  def self.play(xml)
-    {:play_url => xml.text.try(:strip)}
+  def self.play(xml, compiler)
+    compiler.PlayUrl(xml.text.try(:strip))
   end
 
-  def self.redirect(xml)
-    {:callback => {:url => xml.text, :method => (xml.attributes['method'].try(:value) || 'post')}}
+  def self.redirect(xml, compiler)
+    compiler.Callback xml.text, :method => (xml.attributes['method'].try(:value) || 'post')
   end
 
-  def self.say(xml)
-    {:say => xml.text.try(:strip)}
+  def self.say(xml, compiler)
+    compiler.Say(xml.text.try(:strip))
   end
 
-  def self.pause(xml)
-    {:pause => xml.attributes['length'].try(:value).try(:to_i) || 1}
+  def self.pause(xml, compiler)
+    compiler.Pause(xml.attributes['length'].try(:value).try(:to_i) || 1)
   end
 
-  def self.gather(xml)
+  def self.gather(xml, compiler)
     options = {}
     options[:timeout] = xml.attributes['timeout'].value.to_i if xml.attributes['timeout']
     options[:finish_on_key] = xml.attributes['finishOnKey'].value if xml.attributes['finishOnKey']
@@ -66,8 +62,8 @@ class Parsers::Twiml < Parsers::Xml
       options[:max] = Float::INFINITY
     end
 
+    callback_url = xml.attributes['action'].value if xml.attributes['action']
     callback_options = {:params => {:Digits => :digits}}
-    callback_options[:url] = xml.attributes['action'].value if xml.attributes['action']
     callback_options[:method] = xml.attributes['method'].value if xml.attributes['method']
 
     xml.children.each do |child|
@@ -79,41 +75,45 @@ class Parsers::Twiml < Parsers::Xml
       end
     end
 
-    timeout_or_finish_key_commands = []
-
     # See: http://www.twilio.com/docs/api/twiml/gather
     #   1. Capture
     #   2. If timeout or finish_key => continue with next verbs
     #   3. Otherwise => callback
-    all_commands = [
-      {:capture => options},
-      {:if => {:condition => 'timeout || finish_key',
-               :then => timeout_or_finish_key_commands,
-               :else => {:callback => callback_options}}
+    compiler
+      .Capture(options)
+      .If('timeout || finish_key') { Goto "label#{xml.object_id}" }
+      .Else {
+        Callback(callback_url, callback_options)
+        Goto 'end'
       }
-    ]
-
-    [all_commands, timeout_or_finish_key_commands]
+      .Label("label#{xml.object_id}")
+    # all_commands = [
+    #   {:capture => options},
+    #   {:if => {:condition => 'timeout || finish_key',
+    #            :then => timeout_or_finish_key_commands,
+    #            :else => {:callback => callback_options}}
+    #   }
+    # ]
   end
 
-  def self.bridge(xml)
-    {:bridge => xml.attributes['session_id'].try(:value)}
+  def self.bridge(xml, compiler)
+    compiler.Bridge(xml.attributes['session_id'].try(:value))
   end
 
-  def self.dial(xml)
-    options = { :number => xml.text }
+  def self.dial(xml, compiler)
+    options = {}
     options[:channel] = xml.attributes['channel'].value if xml.attributes['channel']
     options[:caller_id] = xml.attributes['callerId'].value if xml.attributes['callerId']
-    commands = [{:dial => options}]
+    compiler.Dial(xml.text, options)
     continue = true
 
     if xml.attributes['action']
       continue = false
-      callback_options = {:url => xml.attributes['action'].value, :params => {:DialCallStatus => :dial_status}}
+      callback_options = {:params => {:DialCallStatus => :dial_status}}
       callback_options[:method] = xml.attributes['method'].value if xml.attributes['method']
-      commands << {:callback => callback_options}
+      compiler.Callback xml.attributes['action'].value, callback_options
     end
 
-    [commands, continue]
+    continue
   end
 end

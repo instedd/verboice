@@ -61,8 +61,8 @@ describe Channel do
 
     it "call with custom flow" do
       BrokerClient.should_receive(:notify_call_queued)
-      channel.call 'foo', :flow => [:answer, :hangup]
-      assert_equal [:answer, :hangup], queued_call.flow
+      channel.call 'foo', :flow => Compiler.make { Answer(); Hangup() }
+      queued_call.flow.should == Compiler.make { Answer(); Hangup() }
     end
 
     it "call with custom status callback url" do

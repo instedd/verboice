@@ -35,6 +35,7 @@ group :development, :test do
   gem "shoulda-matchers"
   gem 'ci_reporter'
   gem 'equivalent-xml'
+  gem 'debugger'
 end
 
 group :development do

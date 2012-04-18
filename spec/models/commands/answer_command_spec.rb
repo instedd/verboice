@@ -5,6 +5,8 @@ describe Commands::AnswerCommand do
     session = Session.new :pbx => mock('pbx')
     session.pbx.should_receive(:answer)
     session.should_receive(:info).with('Answer')
-    Commands::AnswerCommand.new.run session
+    cmd = Commands::AnswerCommand.new
+    cmd.next = :next
+    cmd.run(session).should == :next
   end
 end
