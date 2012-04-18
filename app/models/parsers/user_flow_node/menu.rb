@@ -88,10 +88,9 @@ module Parsers
             end
             .Trace(application_id: @application.id, step_id: @id, step_name: @name, store: %("Missed input for #{@number_of_attempts} times."))
             .append(@end_call_message.equivalent_flow)
-          compiler.Goto("hangup#{@id}")
+          compiler.End
           compiler.Label("end#{@id}")
           compiler.append(@next.equivalent_flow) if @next
-          compiler.Label("hangup#{@id}")
         end
       end
     end

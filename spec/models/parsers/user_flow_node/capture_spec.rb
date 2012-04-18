@@ -51,6 +51,7 @@ module Parsers
             end
             Trace application_id: 1, step_id: 1, step_name: 'Capture number one', store: '"Missed input for 3 times."'
             PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-end_call.wav")
+            End()
             Label "end1"
           end
         )
