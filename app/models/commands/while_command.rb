@@ -5,7 +5,11 @@ class Commands::WhileCommand < Command
   def initialize(condition, block)
     @condition = condition
     @block = block
-    block.last.next = self if block
+    if block
+      block.last.next = self
+    else
+      @block = self
+    end
   end
 
   def run(session)

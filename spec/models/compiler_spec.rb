@@ -137,12 +137,30 @@ describe Compiler do
         While ('a > b') { }
       end
       result.should be_instance_of(Commands::WhileCommand)
-      result.block.should be_nil
+      result.block.should be(result)
       result.next.should be_nil
     end
   end
 
   context "label and goto" do
+
+    it "can produce empty flow" do
+      result = subject.make do
+        Goto 'foo'
+        Label 'foo'
+      end
+      result.should be_nil
+    end
+
+    it "can produce empty flow with unused labels at end" do
+      result = subject.make do
+        Goto 'foo'
+        Label 'foo'
+        Label 'bar'
+      end
+      result.should be_nil
+    end
+
     it "can jump to beginning" do
       result = subject.make do
         Label('foo')
@@ -199,7 +217,7 @@ describe Compiler do
       result.next.should be_nil
     end
 
-    it "can reordef commands" do
+    it "can reorder commands" do
       result = subject.make do
         Goto('1')
         Label('2')
@@ -238,6 +256,17 @@ describe Compiler do
       result.next.should be_instance_of(Commands::HangupCommand)
       result.then.should be(result.next)
       result.next.next.should be_nil
+    end
+
+    it "can jump from if block with unused labels" do
+      result = subject.make do
+        If ('a > b') { Goto 'foo' }
+        Label 'foo'
+        Label 'bar'
+      end
+      result.should be_instance_of(Commands::IfCommand)
+      result.next.should be_nil
+      result.then.should be_nil
     end
 
     it "can jump from else block" do
@@ -322,7 +351,7 @@ describe Compiler do
       end
       result.should be_instance_of(Commands::WhileCommand)
       result.next.should be_instance_of(Commands::HangupCommand)
-      result.block.should be_nil
+      result.block.should be(result)
     end
 
     it "can jump to end of if" do

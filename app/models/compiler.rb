@@ -1,10 +1,9 @@
 class Compiler
-  attr_accessor :pending_gotos
+  attr_accessor :first
   attr_accessor :labels
 
   def initialize
     @labels = {}
-    @pending_gotos = Hash.new { |h,k| h[k] = [] }
   end
 
   def parse &blk
@@ -15,20 +14,12 @@ class Compiler
         instance_eval &blk
       end
     end
-
-    if @label
-      if @last
-        @labels[@label] = @last.next
-      else
-        @labels[@label] = nil
-      end
-    end
-
     self
   end
 
   def make &blk
     parse &blk
+    resolve_gotos
     @first
   end
 
@@ -40,86 +31,27 @@ class Compiler
     Compiler.new.make &blk
   end
 
-  def adopt owner, builder
-    # Take the 'goto' statements that jump out of the block.
-    # Those pointing from the builder itself are at the beginning
-    # of the block and will be replaced by the 'owner'
-    builder.pending_gotos.each do |label, targets|
-      targets.map! { |x| x == builder ? owner : x }
-      if @labels[label]
-        targets.each do |target|
-          target.next = @labels[label]
-        end
-      else
-        @pending_gotos[label].concat targets
-      end
-    end
-
-    # Adopt the block labels. If the label is defined as 'nil
-    # is assumed it is at the end of the block. In that case
-    # the label is redefined.
-    builder.labels.each do |label, cmd|
-      if cmd.nil?
-        Label(label)
-      else
-        (@pending_gotos.delete(label) || []).each do |goto|
-          goto.next = cmd
-        end
-      end
-    end
-  end
-
-  class NextFaker
-    def initialize(target, method)
-      @target = target
-      @method = method
-    end
-
-    def next=(n)
-      @target.send(@method, n)
-    end
-  end
-
   def If(condition, &blk)
-    if_true = Compiler.parse &blk
-    cmd = Commands::IfCommand.new(condition, if_true.make)
-    append cmd
-    adopt NextFaker.new(cmd, :then=), if_true
-    self
+    append Commands::IfCommand.new(condition, inner_block(&blk))
   end
 
   def Else(&blk)
-    if_false = Compiler.parse &blk
-    @last.else = if_false.make
-    adopt NextFaker.new(@last, :else=), if_false
+    @last.else = inner_block(&blk)
     self
   end
 
   def While(condition, &blk)
-    block = Compiler.parse &blk
-    cmd = Commands::WhileCommand.new(condition, block.make)
-
-    # Adopt before appending so redefined labels go before the 'while'
-    adopt NextFaker.new(cmd, :block=), block
-    append cmd
+    append Commands::WhileCommand.new(condition, inner_block(&blk))
   end
 
   def Label(name)
-    @label = name
-
-    @pending_gotos[@label].each do |goto|
-      goto.next = nil
-    end
-
-    self
+    label = Label.new(name)
+    @labels[name] = label
+    append label
   end
 
   def Goto(label)
-    if @labels[label]
-      @last.next = @labels[label]
-    else
-      @pending_gotos[label] << (@last || self)
-    end
+    append Goto.new(label)
   end
 
   def method_missing(method, *args)
@@ -127,26 +59,65 @@ class Compiler
     append cmd_class.new *args
   end
 
-  def next=(cmd)
-    @first = cmd
-  end
-
   def append(cmd)
     @first ||= cmd
     @last.next = cmd if @last
     @last = cmd
+    self
+  end
 
-    if @label
-      @labels[@label] = cmd
+  private
 
-      (@pending_gotos.delete(@label) || []).each do |goto|
-        goto.next = cmd
-      end
+  def resolve_gotos(parent = self, var = :@first, visited = Set.new)
+    node = parent.instance_variable_get var
+    return unless node
 
-      @label = nil
+    if node.is_a? Label
+      parent.instance_variable_set var, node.next
+      return resolve_gotos parent, var, visited
+    elsif node.is_a? Goto
+      parent.instance_variable_set var, @labels[node.label].next
+      return resolve_gotos parent, var, visited
     end
 
-    self
+    # Avoid infinite loops
+    return if visited.include? node
+    visited.add node
+
+    node.instance_variables.each do |var|
+      val = node.instance_variable_get var
+      if val.is_a? Command
+        resolve_gotos node, var, visited
+      end
+    end
+  end
+
+  def inner_block(&blk)
+    compiler = Compiler.parse(&blk)
+    @labels.merge! compiler.labels
+    compiler.first
+  end
+
+  class CompilerCommand < Command
+    def run(session)
+      raise "Unexpected command. This command (#{self}) should not be in the flow. Did you forget to call the 'make' method?"
+    end
+  end
+
+  class Goto < CompilerCommand
+    attr_accessor :label
+
+    def initialize(label)
+      @label = label
+    end
+  end
+
+  class Label < CompilerCommand
+    attr_accessor :name
+
+    def initialize(name)
+      @name = name
+    end
   end
 
 end
