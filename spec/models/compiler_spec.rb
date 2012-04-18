@@ -77,6 +77,21 @@ describe Compiler do
     result.next.should be_instance_of(Commands::SayCommand)
   end
 
+  it "can append other builder" do
+    result = subject
+      .append(Compiler.parse { Answer(); Pause() })
+      .make { Hangup() }
+    result.should be_instance_of(Commands::AnswerCommand)
+    result.next.should be_instance_of(Commands::PauseCommand)
+    result.next.next.should be_instance_of(Commands::HangupCommand)
+  end
+
+  it "can append nil" do
+    result = subject.parse { Hangup() }.append(nil).make
+    result.should be_instance_of(Commands::HangupCommand)
+    result.next.should be_nil
+  end
+
   context "makes if command" do
     it "with block" do
       result = subject.make do

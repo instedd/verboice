@@ -60,9 +60,13 @@ class Compiler
   end
 
   def append(cmd)
-    @first ||= cmd
-    @last.next = cmd if @last
-    @last = cmd
+    if cmd
+      cmd = inner_block(cmd) if cmd.is_a? Compiler
+
+      @first ||= cmd
+      @last.next = cmd if @last
+      @last = cmd.last
+    end
     self
   end
 
@@ -92,8 +96,8 @@ class Compiler
     end
   end
 
-  def inner_block(&blk)
-    compiler = Compiler.parse(&blk)
+  def inner_block(compiler = nil, &blk)
+    compiler ||= Compiler.parse(&blk)
     @labels.merge! compiler.labels
     compiler.first
   end
