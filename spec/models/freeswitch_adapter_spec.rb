@@ -3,6 +3,8 @@ require 'spec_helper'
 describe Freeswitch::Adapter do
   before(:each) do
     @context = mock('context')
+    @synthesizer = double('synthesizer')
+    Synthesizer.should_receive(:new).and_return(@synthesizer)
     @adapter = Freeswitch::Adapter.new @context
   end
 
@@ -32,6 +34,13 @@ describe Freeswitch::Adapter do
   it 'pauses' do
     EM.should_receive(:fiber_sleep).with(13)
     @adapter.pause(13)
+  end
+  
+  it 'say' do
+    @synthesizer.should_receive(:synth).with('some text').and_return(:filename)
+    @adapter.should_receive(:play).with(:filename)
+    
+    @adapter.say 'some text'
   end
 
   context "capture" do

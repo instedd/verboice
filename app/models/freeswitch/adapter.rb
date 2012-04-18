@@ -6,6 +6,7 @@ module Freeswitch
     def initialize(context)
       FileUtils.mkdir_p SoundsPath
       @context = context
+      @synthesizer = Synthesizer.new self
     end
 
     def channel_id; @context.session[:variable_verboice_channel_id]; end
@@ -23,12 +24,18 @@ module Freeswitch
     def sound_path_for(basename)
       "#{SoundsPath}#{basename}.gsm"
     end
+    
+    def say(text)
+      filename = @synthesizer.synth text
+      play filename
+    end
 
     def play(filename)
       @context.playback filename
     end
 
     def capture(options)
+      options[:play] = @synthesizer.synth(options[:say]) if options[:say]
       file = options[:play] || 'silence_stream://1'
       freeswitch_options = {
         :min => options[:min],

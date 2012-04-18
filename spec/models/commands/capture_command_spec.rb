@@ -128,15 +128,11 @@ module Commands
     end
 
     it "capture with say" do
-      @session.should_receive(:log).with(:info => "Waiting user input", :trace => "Waiting user input: #{@defaults.merge(:say => :url).to_pretty_s}")
-      @session.pbx.should_receive(:capture).with(@defaults.merge(:play => :target_path)).and_return(@digit)
+      @session.should_receive(:log).with(:info => "Waiting user input", :trace => "Waiting user input: #{@defaults.merge(:say => "some text").to_pretty_s}")
+      @session.pbx.should_receive(:capture).with(@defaults.merge(:say => "some text")).and_return(@digit)
       @session.should_receive(:info).with("User pressed: #{@digit}")
 
-      say = mock('say')
-      say.should_receive(:download).with(@session).and_return(:target_path)
-      SayCommand.should_receive(:new).with(:url).and_return(say)
-
-      CaptureCommand.new(:say => :url).run @session
+      CaptureCommand.new(:say => "some text").run @session
 
       @session[:digits].should == @digit
     end

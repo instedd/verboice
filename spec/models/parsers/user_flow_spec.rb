@@ -72,7 +72,7 @@ describe Parsers::UserFlow do
           "file" => "file.wav",
           "duration" => 5
         },
-        'valid_values' => '1,2-4,10-20',
+        'valid_values' => '1-10',
         'finish_on_key' => '#',
         'min_input_length' => 1,
         'max_input_length' => 10,
@@ -120,7 +120,7 @@ describe Parsers::UserFlow do
         Assign 'attempt_number2', '1'
         While 'attempt_number2 <= 3' do
           Capture say: "First Capture", min: 1, max: 10, finish_on_key: '#', timeout: 10
-          If "digits >= 1 && digits <= 10" do
+          If "(digits >= 1 && digits <= 10)" do
             Trace application_id: 1, step_id: 2, step_name: 'Capture number one', store: '"User pressed: " + digits'
             Goto "end2"
           end

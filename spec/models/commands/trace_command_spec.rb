@@ -17,7 +17,7 @@ module Commands
       Trace.all.size.should eq(1)
       Trace.first.result.should eq('foo')
       Trace.first.application_id.should eq(1)
-      Trace.first.step_id.should eq(20)
+      Trace.first.step_id.to_i.should eq(20)
       Trace.first.call_id.should eq(333)
       Trace.first.step_name.should eq('bar')
     end

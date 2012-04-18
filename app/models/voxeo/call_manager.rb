@@ -44,14 +44,8 @@ module Voxeo
       return if @hangup
       
       @builder.hangup
-
-      # Set hangup to true, defer the operation to resume 
-      # the fiber so the session can end
-      @hangup = true
-      current_fiber = Fiber.current
-      EM.next_tick { current_fiber.resume }
-
-      flush
+      
+      end_session
     end
     
     def bridge_with(other_session)
@@ -74,6 +68,19 @@ module Voxeo
 
     def flush
       @params = Fiber.yield @builder.build
+    end
+    
+    def end_session
+      @hangup = true
+      
+      # Remove the fiber from the store
+      Voxeo::FiberStore.instance.delete_fiber_for @voxeo_session_id
+      
+      # Enqueue operation to resume the fiber so the session can end
+      current_fiber = Fiber.current
+      EM.next_tick { current_fiber.resume }
+      
+      flush
     end
 
   end

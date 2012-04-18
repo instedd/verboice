@@ -36,7 +36,7 @@ module Parsers
             Assign 'attempt_number1', '1'
             While 'attempt_number1 <= 3' do
               Capture say: "First Capture", min: 1, max: 2, finish_on_key: '#', timeout: 10
-              If "digits >= 1 && digits <= 10" do
+              If "(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20)" do
                 Trace application_id: 1, step_id: 1, step_name: 'Capture number one', store: '"User pressed: " + digits'
                 Goto "end1"
               end

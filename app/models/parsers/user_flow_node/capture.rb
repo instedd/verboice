@@ -52,7 +52,7 @@ module Parsers
               compiler.Capture({
                 min: @min_input_length, max: @max_input_length, finish_on_key: @finish_on_key, timeout: @timeout
               }.merge(@instructions_message.capture_flow))
-                .If("digits >= 1 && digits <= 10") do |compiler| # TODO: Change for Palla's Implementation
+                .If(valid_digits_condition) do |compiler|
                   compiler.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits')
                     .Goto "end#{@id}"
                 end
@@ -73,6 +73,18 @@ module Parsers
           compiler.Label("hangup#{@id}")
         end
       end
+
+      def valid_digits_condition
+        @valid_values.split(/\s*[,;]\s*/).map do |clause|
+          items = clause.split(/\s*-\s*/)
+          if items.length == 1
+            "(digits == #{items.first})"
+          else
+            "(digits >= #{items.first} && digits <= #{items.last})"
+          end
+        end.join(' || ')
+      end
+
     end
   end
 end

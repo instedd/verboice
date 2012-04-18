@@ -10,6 +10,10 @@ onWorkflow ->
       steps = ko.utils.unwrapObservable(valueAccessor())
       viewModel.workflow_drawer.draw_workflow(steps)
 
+  ko.bindingHandlers.instedd_init =
+    init: (element, valueAccessor, allBindingsAccessor, viewModel) ->
+      $.instedd.init_components($(element))
+
   ko.bindingHandlers.class =
     update: (element, valueAccessor) ->
       if (element['__ko__previousClassValue__'])
