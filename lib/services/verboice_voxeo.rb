@@ -18,7 +18,7 @@ end
 EM::run do
   EM.schedule do
     EM::start_server 'localhost', BrokerFacade::Port, BrokerFacade
-    EM.start_server '0.0.0.0', 8080, Voxeo::Server
+    EM.start_server '0.0.0.0', Voxeo::Server::Port, Voxeo::Server
     puts 'Ready'
   end
 end

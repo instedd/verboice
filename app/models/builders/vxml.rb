@@ -1,7 +1,8 @@
 module Builders
   class Vxml
     
-    def initialize
+    def initialize(vars = {})
+      @vars = vars
       init_xml_builder
     end
     
@@ -56,7 +57,7 @@ module Builders
     def callback(url, method = :get)
       append_to_form do |xml|
         xml.block do
-          xml.submit_(:next => url, :method => method.to_s.upcase)
+          xml.submit_(:next => url, :method => method.to_s.upcase, :namelist => @vars.keys.push('digits').join(' '))
         end
       end
       
@@ -107,6 +108,9 @@ module Builders
           #   xml.submit_(:next => "http://staging.instedd.org:7000/?disconnect=true")
           #   xml.exit
           # end
+          @vars.each do |k, v|
+            xml.var(:name => k, :expr => "'#{v}'")
+          end
           xml.form do
             @form = xml.parent
             # xml.block do

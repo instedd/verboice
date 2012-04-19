@@ -3,13 +3,15 @@ module Voxeo
     
     attr_reader :session_id, :voxeo_session_id, :channel_id, :caller_id
 
-    def initialize channel_id, voxeo_session_id, session_id = nil, caller_id = nil
+    def initialize channel_id, voxeo_session_id, opts = {} #session_id = nil, caller_id = nil, context = nil
       @channel_id = channel_id
-      @session_id = session_id
-      @caller_id = caller_id
       @voxeo_session_id = voxeo_session_id
-      @builder = Builders::Vxml.new
+      @session_id = opts[:session_id]
+      @caller_id = opts[:caller_id]
+      @context = opts[:context]
+      @builder = Builders::Vxml.new "sessionid" => voxeo_session_id
       @hangup = false
+      @config = Rails.configuration.voxeo_configuration
     end
 
     def answer
@@ -17,7 +19,7 @@ module Voxeo
 
     def play(filename, escape_digits = nil)
       return if @hangup
-      @builder.play filename
+      @builder.play sounds_url_for(filename)
     end
     
     def say(text)
@@ -33,11 +35,13 @@ module Voxeo
     def capture(options)
       return if @hangup
       
-      @builder.capture(options)
-      @builder.callback("http://staging.instedd.org:7000/?session.sessionid=#{@voxeo_session_id}")
+      options[:play] = sounds_url_for(options[:play]) if options[:play]
+      
+      @builder.capture options
+      @builder.callback callback_url
       
       flush
-      @params[:digits]
+      @context.params[:digits]
     end
 
     def hangup
@@ -61,13 +65,13 @@ module Voxeo
     end
 
     def sound_path_for(basename)
-      Rails.root.join "public", "sounds", "#{basename}.gsm"
+      File.join sounds_path, "#{basename}.gsm"
     end
     
     private
 
     def flush
-      @params = Fiber.yield @builder.build
+      @context = Fiber.yield @builder.build
     end
     
     def end_session
@@ -81,6 +85,26 @@ module Voxeo
       EM.next_tick { current_fiber.resume }
       
       flush
+    end
+    
+    def callback_url
+      host = @config[:http_url_options][:host]
+      port = @config[:http_url_options][:port]
+      
+      if host.present? && port.present?
+        "http://#{host}:#{port}/"
+      else
+        "http://#{@context.headers[:Host]}/"
+      end
+    end
+    
+    def sounds_url_for(filename)
+      basename = filename[sounds_path.size..-1]
+      "#{@config[:sounds_url]}#{basename}"
+    end
+    
+    def sounds_path
+      File.join(Rails.public_path, "sounds")
     end
 
   end

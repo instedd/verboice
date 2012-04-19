@@ -7,7 +7,8 @@ describe Voxeo::CallManager do
   let(:session_id) { 345 }
   let(:caller_id) { 678 }
   let(:builder) { double('builder') }
-  let(:call_manager) { Voxeo::CallManager.new channel_id, voxeo_session_id, session_id, caller_id }
+  let(:context) { double('context') }
+  let(:call_manager) { Voxeo::CallManager.new channel_id, voxeo_session_id, {:session_id => session_id, :caller_id => caller_id, :context => context} }
   
   before(:each) do
     Builders::Vxml.should_receive(:new).and_return(builder)
@@ -34,8 +35,10 @@ describe Voxeo::CallManager do
   end
   
   it "should build xml for play" do
-    builder.should_receive(:play).with("foo filename").and_return(builder)
-    call_manager.play("foo filename")
+    Rails.configuration.voxeo_configuration[:sounds_url] = "http://www.foo.com/bar"
+    
+    builder.should_receive(:play).with("http://www.foo.com/bar/sound.gsm").and_return(builder)
+    call_manager.play(call_manager.sound_path_for("sound"))
   end
   
   it "should build xml for say" do
@@ -48,16 +51,44 @@ describe Voxeo::CallManager do
     call_manager.pause(13)
   end
   
+  it "should tell sound path using rails public folder" do
+    basename = "some/path/foo"
+    call_manager.sound_path_for(basename).should eq(File.join(Rails.public_path, "sounds", "#{basename}.gsm"))
+  end
+  
   context "capture" do
     
     let(:options) { {:foo => "bar"} }
     
+    before :each do
+      Rails.configuration.voxeo_configuration[:http_url_options] = {:host => "serverhost.com", :port => 1234}
+      Rails.configuration.voxeo_configuration[:sounds_url] = "http://www.foo.com/bar"
+      expect_flush({:digits => "123"})
+    end
+    
     it "should build capture and callback xml" do
       builder.should_receive(:capture).with(options)
-      builder.should_receive(:callback).with("http://staging.instedd.org:7000/?session.sessionid=#{voxeo_session_id}")
-      expect_flush({:digits => "123"})
+      builder.should_receive(:callback).with("http://serverhost.com:1234/")
       
       call_manager.capture(options).should eq("123")
+    end
+    
+    it 'should use host from request when url options is undefined' do
+      Rails.configuration.voxeo_configuration[:http_url_options] = {}
+      builder.should_receive(:capture).with(options)
+      context.should_receive(:headers).and_return({:Host => "hostfromrequest.com:5678"})
+      builder.should_receive(:callback).with("http://hostfromrequest.com:5678/")
+      
+      call_manager.capture(options)
+    end
+    
+    it 'should use sound url when options has play' do
+      options = {:play => call_manager.sound_path_for('sound')}
+      expected_options = {:play => 'http://www.foo.com/bar/sound.gsm'}
+      builder.should_receive(:capture).with(expected_options)
+      builder.should_receive(:callback).with("http://serverhost.com:1234/")
+      
+      call_manager.capture(options)
     end
     
   end
@@ -137,8 +168,9 @@ describe Voxeo::CallManager do
   end
   
   def expect_flush(response = {})
+    context = double('context', :params => response)
     builder.should_receive(:build).and_return("xml")
-    Fiber.should_receive(:yield).with("xml").and_return(response)
+    Fiber.should_receive(:yield).with("xml").and_return(context)
   end
 
 end

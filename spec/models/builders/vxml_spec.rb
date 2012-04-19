@@ -81,7 +81,7 @@ describe Builders::Vxml do
       <vxml version="2.1">
         <form>
           <block>
-            <submit next="http://www.foo.com/bar" method="GET"/>
+            <submit next="http://www.foo.com/bar" method="GET" namelist="digits"/>
           </block>
         </form>
       </vxml>
@@ -96,13 +96,26 @@ describe Builders::Vxml do
       <vxml version="2.1">
         <form>
           <block>
-            <submit next="http://www.foo.com/bar" method="POST"/>
+            <submit next="http://www.foo.com/bar" method="POST" namelist="digits"/>
           </block>
         </form>
       </vxml>
     XML
     
     vxml.callback("http://www.foo.com/bar", :post).build.should be_equivalent_to(xml)
+  end
+  
+  it 'builds var for default variables' do
+    xml = <<-XML
+      <?xml version="1.0" encoding="UTF-8"?>
+      <vxml version="2.1">
+        <var name="key1" expr="'value1'"/>
+        <var name="key2" expr="'value2'"/>
+        <form/>
+      </vxml>
+    XML
+    
+    Builders::Vxml.new(:key1 => "value1", :key2 => "value2").build.should be_equivalent_to(xml)
   end
   
   context "capture" do
