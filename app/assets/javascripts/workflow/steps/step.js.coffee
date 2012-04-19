@@ -35,6 +35,9 @@ onWorkflow ->
     can_add_next: () =>
       not @next_id?
 
+    is_serializable: () =>
+      true
+
     is_current_step: () =>
       workflow.current_step == @
 

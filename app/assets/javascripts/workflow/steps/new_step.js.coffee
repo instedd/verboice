@@ -18,3 +18,10 @@ onWorkflow ->
     can_add_next: () =>
       false
 
+    to_hash: () =>
+      null
+
+    is_serializable: () =>
+      false
+
+

@@ -48,7 +48,7 @@ onWorkflow ->
       @sidebar_content().display_template_id()
 
     serialize: () =>
-      JSON.stringify(step.to_hash() for step in @steps())
+      JSON.stringify(step.to_hash() for step in @steps() when step.is_serializable())
 
     serialize_workflow: () =>
       serialized = @serialize()

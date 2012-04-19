@@ -28,6 +28,9 @@ onWorkflow ->
     button_class: () =>
       'ldial'
 
+    can_add_next: () =>
+      false
+
     commands: () =>
       (step_type.type for step_type in step_types)
 
@@ -63,7 +66,7 @@ onWorkflow ->
       super(notify)
 
     children: () =>
-      (step for step in workflow.steps() when step.id in @next_ids())
+      (step for step in workflow.steps() when step.id in @children_ids())
 
     children_ids: () =>
       (option.next_id for option in @options())
