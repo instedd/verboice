@@ -31,6 +31,10 @@ RSpec.configure do |config|
   # rspec-rails.
   config.infer_base_class_for_anonymous_controllers = false
 
+  config.before(:each) do
+    Timecop.return
+  end
+
   def expect_em_http(method, url, options = {})
     http = mock('http')
     EventMachine::HttpRequest.should_receive(:new).with(url).and_return(http)
