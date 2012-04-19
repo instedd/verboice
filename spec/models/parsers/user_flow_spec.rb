@@ -116,6 +116,7 @@ describe Parsers::UserFlow do
   it "should retrieve an equivalent flow in verboice internal representation" do
     (Parsers::UserFlow.new application, application_flow).equivalent_flow.should eq([
       Compiler.make do
+        Trace application_id: 1, step_id: 1, step_name: 'Play number one', store: '"Message played."'
         PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-message.wav")
         Assign 'attempt_number2', '1'
         While 'attempt_number2 <= 3' do
@@ -143,11 +144,13 @@ describe Parsers::UserFlow do
           Capture min: 1, max: 1, finish_on_key: '#', timeout: 20
           If "digits == 2" do
             Trace application_id: 1, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
+            Trace application_id: 1, step_id: 4, step_name: 'Say number 4', store: '"Message played."'
             Say "Say 4"
             Goto "end3"
           end
           If "digits == 1" do
             Trace application_id: 1, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
+            Trace application_id: 1, step_id: 6, step_name: 'Say number 6', store: '"Message played."'
             Say "Say 6"
             Goto "end3"
           end
@@ -162,9 +165,13 @@ describe Parsers::UserFlow do
         Trace application_id: 1, step_id: 3, step_name: 'Menu number one', store: '"Missed input for 3 times."'
         End()
         Label "end3"
+        Trace application_id: 1, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
         Say "Say 5"
       end,
-      Commands::PlayFileCommand.new(File.join(Rails.root, "data","applications","1","recordings", "27-message.wav"))
+      Compiler.make do
+        Trace application_id: 1, step_id: 27, step_name: 'Play number 27', store: '"Message played."'
+        PlayFile File.join(Rails.root, "data","applications","1","recordings", "27-message.wav")
+      end
     ])
   end
 

@@ -91,6 +91,11 @@ describe Application do
     ]
 
     application.save!
-    application.reload.flow.should eq(Commands::SayCommand.new "Some explanation message")
+    application.reload.flow.should eq(
+      Compiler.make do
+        Trace application_id: 4, step_id: 1, step_name: 'Play number one', store: '"Message played."'
+        Say "Some explanation message"
+      end
+    )
   end
 end

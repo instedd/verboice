@@ -54,21 +54,21 @@ module Parsers
           ]
         play1 = Play.new app, 'id' => 10,
           'type' => 'play',
-          'name' => 'Play number one',
+          'name' => 'Play 1',
           'message' => {
             "name" => "Second explanation message",
             "type" => "text"
           }
         play2 = Play.new app, 'id' => 14,
           'type' => 'play',
-          'name' => 'Play number one',
+          'name' => 'Play 2',
           'message' => {
             "name" => "Third explanation message",
             "type" => "text"
           }
         play3 = Play.new app, 'id' => 5,
           'type' => 'play',
-          'name' => 'Play number one',
+          'name' => 'Play 3',
           'message' => {
             "name" => "Fourth explanation message",
             "type" => "text"
@@ -84,16 +84,19 @@ module Parsers
               Capture play_file: File.join(Rails.root, "data","applications","1","recordings", "1-options.wav"), min: 1, max: 1, finish_on_key: '#', timeout: 20
               If "digits == 4" do
                 Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                Trace application_id: 1, step_id: 10, step_name: 'Play 1', store: '"Message played."'
                 Say "Second explanation message"
                 Goto "end1"
               end
               If "digits == 6" do
                 Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                Trace application_id: 1, step_id: 14, step_name: 'Play 2', store: '"Message played."'
                 Say "Third explanation message"
                 Goto "end1"
               end
               If "digits == 2" do
                 Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                Trace application_id: 1, step_id: 5, step_name: 'Play 3', store: '"Message played."'
                 Say "Fourth explanation message"
                 Goto "end1"
               end
@@ -108,6 +111,7 @@ module Parsers
             end
             Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"Missed input for 3 times."'
             PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-end_call.wav")
+            End()
             Label "end1"
           end
         )

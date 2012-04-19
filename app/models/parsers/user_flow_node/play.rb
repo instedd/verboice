@@ -39,11 +39,12 @@ module Parsers
       end
 
       def build_equivalent_flow
-        @equivalent_flow = @message.equivalent_flow if @message
-        @equivalent_flow.next = @next.equivalent_flow if @next
-        @equivalent_flow
+        Compiler.make do |compiler|
+          compiler.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"Message played."')
+          compiler.append @message.equivalent_flow if @message
+          compiler.append @next.equivalent_flow if @next
+        end
       end
-
     end
   end
 end
