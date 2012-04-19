@@ -3,6 +3,8 @@
 
 onWorkflow ->
   class window.Menu extends Step
+    @type = 'menu'
+
     constructor: (attrs) ->
       super(attrs)
 
@@ -27,7 +29,7 @@ onWorkflow ->
       'ldial'
 
     commands: () =>
-      step_types
+      (step_type.type for step_type in step_types)
 
     @add_to_steps: () ->
       workflow.add_step(new Menu)

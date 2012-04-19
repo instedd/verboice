@@ -4,14 +4,14 @@ onWorkflow ->
       @root = false
       @id = attrs.id || workflow.generate_id()
       @root = attrs.root
-      @name = ko.observable(attrs['name'] || @default_name())
+      @name = ko.observable(attrs.name || @default_name())
       @next_id = attrs.next
 
     @from_hash: (hash) ->
       if typeof(hash.type) == "string"
         for step_type in step_types
-          if hash.type.toLowerCase() == step_type.toLowerCase()
-            return window[step_type].initialize(hash)
+          if hash.type == step_type.type
+            return window[step_type.type].initialize(hash)
         throw "Command type not recognised #{hash['type']}"
       else
         return hash.type.initialize(hash)
@@ -22,7 +22,7 @@ onWorkflow ->
     to_hash: () =>
       id: @id
       name: @name()
-      type: @.name.toLowerCase()
+      type: @type()
       root: @root
       next: (if @next_id > 0 then @next_id else null)
 
@@ -54,8 +54,11 @@ onWorkflow ->
       'workflow_step_template'
 
     display_template_id: () =>
-      "#{@default_name().toLowerCase()}_step_template"
+      "#{@type()}_step_template"
 
     default_name: () =>
-      @.name
+      "#{@type()[0].toUpperCase()}#{@type()[1..-1]}"
+
+    type: () =>
+      @.constructor.type
 

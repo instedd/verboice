@@ -2,6 +2,8 @@
 
 onWorkflow ->
   class window.Play extends Step
+    @type = 'play'
+
     constructor: (attrs) ->
       super(attrs)
 

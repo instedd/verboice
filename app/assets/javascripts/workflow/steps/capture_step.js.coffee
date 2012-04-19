@@ -2,6 +2,8 @@
 
 onWorkflow ->
   class window.Capture extends Step
+    @type = 'capture'
+
     constructor: (attrs) ->
       super(attrs)
 
