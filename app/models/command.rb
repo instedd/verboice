@@ -1,6 +1,15 @@
 class Command
   attr_accessor :next
 
+  def self.dump(cmd)
+    Zlib.deflate(Marshal.dump(cmd), 9)
+  end
+
+  def self.load(x)
+    return nil if x.nil?
+    Marshal.load(Zlib.inflate(x)) rescue nil
+  end
+
   def self.inherited(subclass)
     subclass.instance_eval { @spec = [] }
   end
