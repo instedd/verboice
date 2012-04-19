@@ -8,5 +8,6 @@ class Commands::SayCommand < Command
   def run(session)
     session.info "Say '#{@text}'"
     session.pbx.say @text
+    super
   end
 end
