@@ -118,7 +118,7 @@ module Parsers
       end
 
       it "should compile to a minimum verboice equivalent flow" do
-        menu = Menu.new app, 'id' => 27, 'type' => 'menu', 'explanation_message' => {}, 'options_message' => {}, 'end_call_message' => {}, 'invalid_message' => {}
+        menu = Menu.new app, 'id' => 27, 'type' => 'menu'
         menu.equivalent_flow.should eq(
           Compiler.make do
             Assign 'attempt_number27', '1'
@@ -165,10 +165,7 @@ module Parsers
               'number' => 2,
               'next' => 14
             }
-          ],
-          'options_message' => {},
-          'end_call_message' => {},
-          'invalid_message' => {}
+          ]
         menu.options.size.should eq(2)
         menu.options.first['number'].should eq(1)
         menu.options.first['description'].should eq('foo')
@@ -192,22 +189,13 @@ module Parsers
               'number' => 2,
               'next' => 14
             }
-          ],
-          'options_message' => {},
-          'end_call_message' => {},
-          'invalid_message' => {}
+          ]
         menu_2 = Menu.new app, 'id' => 10,
           'type' => 'menu',
-          'explanation_message' => {"name"=>'foo', 'type' => 'text'},
-          'options_message' => {},
-          'end_call_message' => {},
-          'invalid_message' => {}
+          'explanation_message' => {"name"=>'foo', 'type' => 'text'}
         menu_3 = Menu.new app, 'id' => 14,
           'type' => 'menu',
-          'explanation_message' => {"name"=>'foo', 'type' => 'text'},
-          'options_message' => {},
-          'end_call_message' => {},
-          'invalid_message' => {}
+          'explanation_message' => {"name"=>'foo', 'type' => 'text'}
 
         menu.solve_links_with [ menu_2, menu_3 ]
         menu.options[0]['next'].should eq(menu_2)
@@ -218,16 +206,10 @@ module Parsers
         menu_1 = Menu.new app, 'id' => 10,
           'root' => true,
           'type' => 'menu',
-          'explanation_message' => {"name"=>'foo', 'type' => 'text'},
-          'options_message' => {},
-          'end_call_message' => {},
-          'invalid_message' => {}
+          'explanation_message' => {"name"=>'foo', 'type' => 'text'}
         menu_2 = Menu.new app, 'id' => 14,
           'type' => 'menu',
-          'explanation_message' => {"name"=>'foo', 'type' => 'text'},
-          'options_message' => {},
-          'end_call_message' => {},
-          'invalid_message' => {}
+          'explanation_message' => {"name"=>'foo', 'type' => 'text'}
         menu_1.is_root?.should be_true
         menu_2.is_root?.should be_false
       end

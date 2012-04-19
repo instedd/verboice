@@ -50,17 +50,22 @@ module Parsers
           compiler.Assign("attempt_number#{@id}", '1')
             .While "attempt_number#{@id} <= #{@number_of_attempts}" do |compiler|
               compiler.Capture({
-                min: @min_input_length, max: @max_input_length, finish_on_key: @finish_on_key, timeout: @timeout
-              }.merge(@instructions_message.capture_flow))
+                  min: @min_input_length,
+                  max: @max_input_length,
+                  finish_on_key: @finish_on_key,
+                  timeout: @timeout
+                }.merge(@instructions_message.capture_flow))
                 .If(valid_digits_condition) do |compiler|
                   compiler.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits')
                     .Goto "end#{@id}"
                 end
-                .If("digits != null") do |compiler|
+              if @valid_values && !@valid_values.blank?
+                compiler.If("digits != null") do |compiler|
                   compiler.append(@invalid_message.equivalent_flow)
                   .Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"Invalid key pressed"'
                 end
-                .Else do |compiler|
+              end
+              compiler.Else do |compiler|
                   compiler.Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"No key was pressed. Timeout."'
                 end
                 .Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"
@@ -74,14 +79,18 @@ module Parsers
       end
 
       def valid_digits_condition
-        @valid_values.split(/\s*[,;]\s*/).map do |clause|
-          items = clause.split(/\s*-\s*/)
-          if items.length == 1
-            "(digits == #{items.first})"
-          else
-            "(digits >= #{items.first} && digits <= #{items.last})"
-          end
-        end.join(' || ')
+        if @valid_values && !@valid_values.blank?
+          @valid_values.split(/\s*[,;]\s*/).map do |clause|
+            items = clause.split(/\s*-\s*/)
+            if items.length == 1
+              "(digits == #{items.first})"
+            else
+              "(digits >= #{items.first} && digits <= #{items.last})"
+            end
+          end.join(' || ')
+        else
+          'true'
+        end
       end
 
     end

@@ -5,7 +5,7 @@ class Parsers::UserFlowNode::Message
   end
 
   def self.for application, parent_step, action, params
-    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: params).new application, parent_step, action, params
+    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: (params || {})).new application, parent_step, action, (params || {})
   end
 
   def name

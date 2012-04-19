@@ -11,4 +11,12 @@ class Parsers::UserFlowNode::UserCommand
   def equivalent_flow
     raise "Subclasses must define this message"
   end
+
+  def is_root?
+    raise "Subclasses must define this message"
+  end
+
+  def solve_links_with
+    raise "Subclasses must define this message"
+  end
 end

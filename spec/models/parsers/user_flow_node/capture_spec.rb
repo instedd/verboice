@@ -57,6 +57,53 @@ module Parsers
         )
       end
 
+      it "should accept an empty 'valid_values string and use it as 'all values are valid'" do
+
+        capture_flow = Compiler.make do
+            Assign 'attempt_number4', '1'
+            While 'attempt_number4 <= 3' do
+              Capture min: 1, max: 1, finish_on_key: '#', timeout: 5
+              If 'true' do
+                Trace application_id: 1, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
+                Goto "end4"
+              end
+              Else do
+                Trace application_id: 1, step_id: 4, step_name: 'Capture', store: '"No key was pressed. Timeout."'
+              end
+              Assign 'attempt_number4', 'attempt_number4 + 1'
+            end
+            Trace application_id: 1, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
+            End()
+            Label "end4"
+          end
+
+        capture = Capture.new app,
+          'id' => 4,
+          'root' => true,
+          'type' => 'capture',
+          'name' => 'Capture'
+
+        capture.equivalent_flow.should eq(capture_flow)
+
+        capture = Capture.new app,
+          'id' => 4,
+          'root' => true,
+          'type' => 'capture',
+          'name' => 'Capture',
+          'valid_values' => ''
+
+        capture.equivalent_flow.should eq(capture_flow)
+
+        capture = Capture.new app,
+          'id' => 4,
+          'root' => true,
+          'type' => 'capture',
+          'name' => 'Capture',
+          'valid_values' => '   '
+
+        capture.equivalent_flow.should eq(capture_flow)
+      end
+
       def id
         1
       end
