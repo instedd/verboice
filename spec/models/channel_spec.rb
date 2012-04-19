@@ -177,4 +177,11 @@ describe Channel do
     session.call_log.direction.should == :incoming
     session.call_log.state.should == :active
   end
+  
+  it "should assign a guid" do
+    channel = Channel.make_unsaved
+    channel.guid.should be_nil
+    channel.save!
+    channel.guid.should_not be_nil
+  end
 end

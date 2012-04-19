@@ -45,7 +45,8 @@ module Voxeo
     end
     
     def channel_id
-      Channel.first.id
+      @channel ||= Channel.find_by_guid params[:channel_guid]
+      @channel.id
     end
     
     def voxeo_session_id

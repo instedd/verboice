@@ -1,0 +1,5 @@
+- config = Rails.configuration.voxeo_configuration[:http_url_options]
+%p
+  Use this URL as the "Voice URL" in your Voxeo settings:
+  %br
+  = "http://#{config[:host]}:#{config[:port]}/?channel_guid=#{channel.guid}"

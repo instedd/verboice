@@ -20,6 +20,7 @@
   <%= @channel.active_calls_count %>
 </p>
 
+<%= render "show_#{@channel.kind}", :channel => @channel rescue '' %>
 
 <%= link_to 'Edit', edit_channel_path(@channel) %> |
 <%= link_to 'Back', channels_path %>

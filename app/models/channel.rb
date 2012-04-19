@@ -2,6 +2,8 @@ class Channel < ActiveRecord::Base
   include ChannelSerialization
 
   Kinds = %w(sip custom voxeo)
+  
+  attr_protected :guid
 
   belongs_to :account
   belongs_to :application
@@ -20,6 +22,7 @@ class Channel < ActiveRecord::Base
   after_commit :call_broker_create_channel, :if => :persisted?
   before_update :call_broker_delete_channel
   before_destroy :call_broker_delete_channel
+  before_create :create_guid
 
   serialize :config, Hash
 
@@ -134,5 +137,9 @@ class Channel < ActiveRecord::Base
 
   def call_broker_delete_channel
     BrokerClient.delete_channel self.id
+  end
+  
+  def create_guid
+    self.guid ||= Guid.new.to_s
   end
 end
