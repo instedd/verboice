@@ -59,10 +59,6 @@ module Parsers
       end
 
       def equivalent_flow
-         @equivalent_flow ||= build_equivalent_flow
-      end
-
-      def build_equivalent_flow
         Compiler.make do |compiler|
           compiler.append(@explanation_message.equivalent_flow)
             .Assign("attempt_number#{@id}", '1')

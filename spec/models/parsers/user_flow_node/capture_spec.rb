@@ -104,6 +104,46 @@ module Parsers
         capture.equivalent_flow.should eq(capture_flow)
       end
 
+      it "should accept an empty input" do
+         capture_flow = Compiler.make do
+              Assign 'attempt_number4', '1'
+              While 'attempt_number4 <= 3' do
+                Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
+                If '(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20) || (digits == null)' do
+                  Trace application_id: 1, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
+                  Goto "end4"
+                end
+                Else do
+                  PlayFile File.join(Rails.root, "data","applications","1","recordings", "4-invalid.wav")
+                  Trace application_id: 1, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
+                end
+                Assign 'attempt_number4', 'attempt_number4 + 1'
+              end
+              Trace application_id: 1, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
+              End()
+              Label "end4"
+            end
+
+          capture = Capture.new app,
+            'id' => 4,
+            'root' => true,
+            'type' => 'capture',
+            'name' => 'Capture',
+            'valid_values' => '1,2-4,10-20',
+            'finish_on_key' => '#',
+            'min_input_length' => 0,
+            'max_input_length' => 2,
+            'invalid_message' => {
+              "name" => "An invalid key was pressed",
+              "type" => "recording",
+              "file" => "file.wav",
+              "duration" => 5
+            }
+
+          capture.equivalent_flow.should eq(capture_flow)
+
+      end
+
       def id
         1
       end

@@ -42,52 +42,58 @@ module Parsers
       end
 
       def equivalent_flow
-         @equivalent_flow ||= build_equivalent_flow
-      end
+        Compiler.make do |c|
+          c.Assign "attempt_number#{@id}", '1'
+          c.While "attempt_number#{@id} <= #{@number_of_attempts}" do |c|
+            c.Capture({
+                min: @min_input_length,
+                max: @max_input_length,
+                finish_on_key: @finish_on_key,
+                timeout: @timeout
+              }.merge( @instructions_message.capture_flow ))
 
-      def build_equivalent_flow
-        Compiler.make do |compiler|
-          compiler.Assign("attempt_number#{@id}", '1')
-            .While "attempt_number#{@id} <= #{@number_of_attempts}" do |compiler|
-              compiler.Capture({
-                  min: @min_input_length,
-                  max: @max_input_length,
-                  finish_on_key: @finish_on_key,
-                  timeout: @timeout
-                }.merge(@instructions_message.capture_flow))
-                .If(valid_digits_condition) do |compiler|
-                  compiler.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits')
-                    .Goto "end#{@id}"
-                end
-              if @valid_values && !@valid_values.blank?
-                compiler.If("digits != null") do |compiler|
-                  compiler.append(@invalid_message.equivalent_flow)
-                  .Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"Invalid key pressed"'
-                end
-              end
-              compiler.Else do |compiler|
-                  compiler.Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"No key was pressed. Timeout."'
-                end
-                .Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"
+            c.If valid_digits_condition do |c|
+              c.Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits'
+              c.Goto "end#{@id}"
             end
-            .Trace(application_id: @application.id, step_id: @id, step_name: @name, store: %("Missed input for #{@number_of_attempts} times."))
-            .append(@end_call_message.equivalent_flow)
-          compiler.End
-          compiler.Label("end#{@id}")
-          compiler.append(@next.equivalent_flow) if @next
+
+            invalid_message_block = lambda { |c|
+              c.append @invalid_message.equivalent_flow
+              c.Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"Invalid key pressed"'
+            }
+
+            if @min_input_length == 0
+              c.Else &invalid_message_block
+            else
+              unless @valid_values.blank?
+                c.If "digits != null", &invalid_message_block
+              end
+              c.Else do |c|
+                c.Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"No key was pressed. Timeout."'
+              end
+            end
+            c.Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"
+          end
+          c.Trace application_id: @application.id, step_id: @id, step_name: @name, store: %("Missed input for #{@number_of_attempts} times.")
+          c.append @end_call_message.equivalent_flow
+          c.End
+          c.Label "end#{@id}"
+          c.append @next.equivalent_flow if @next
         end
       end
 
       def valid_digits_condition
         if @valid_values && !@valid_values.blank?
-          @valid_values.split(/\s*[,;]\s*/).map do |clause|
+          conditions = @valid_values.split(/\s*[,;]\s*/).map do |clause|
             items = clause.split(/\s*-\s*/)
             if items.length == 1
               "(digits == #{items.first})"
             else
               "(digits >= #{items.first} && digits <= #{items.last})"
             end
-          end.join(' || ')
+          end
+          conditions << '(digits == null)' if @min_input_length == 0
+          conditions.join(' || ')
         else
           'true'
         end

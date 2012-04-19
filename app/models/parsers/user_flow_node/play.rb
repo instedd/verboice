@@ -12,10 +12,6 @@ module Parsers
         @is_root = params['root'] || false
       end
 
-      def equivalent_flow
-        @equivalent_flow || build_equivalent_flow
-      end
-
       def solve_links_with nodes
         # TODO: Test This!!!! A command link mustn't be resolved twice
         if @next && !@next.is_a?(UserCommand)
@@ -38,8 +34,8 @@ module Parsers
         @is_root
       end
 
-      def build_equivalent_flow
-        Compiler.make do |compiler|
+      def equivalent_flow
+          Compiler.make do |compiler|
           compiler.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"Message played."')
           compiler.append @message.equivalent_flow if @message
           compiler.append @next.equivalent_flow if @next
