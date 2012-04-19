@@ -21,7 +21,7 @@ onWorkflow ->
     @add_to_steps: () ->
       workflow.add_step(new Play)
 
-    @from_hash: (hash) ->
+    @initialize: (hash) ->
       step = new Play(hash)
       return step
 
@@ -29,8 +29,6 @@ onWorkflow ->
       $.extend(super,
         message: @message.to_hash()
       )
-
-    child_removed: (child) =>
 
     show_message: () =>
       @current_editing_message(@message)

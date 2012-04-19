@@ -1,5 +1,5 @@
 %script{type: "text/html", id: "capture_step_template"}
-  %span{ 'data-bind' => 'with: current_step' }
+  %span
     %div{ko(:if => "is_editing_message()")}
       %div{ko(:template => "{name: 'message_template', data: current_editing_message}")}
 

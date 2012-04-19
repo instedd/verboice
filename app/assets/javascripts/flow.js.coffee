@@ -22,16 +22,6 @@ onWorkflow ->
       $(element).addClass(value)
       element['__ko__previousClassValue__'] = value
 
-  class window.ClassBindingHandler
-    constructor: (cmd)->
-      @cmd = cmd
-    add_to_steps: =>
-      workflow.create_step(@cmd.name, null)
-    name: =>
-      @cmd.name
-    button_class: =>
-      (new @cmd({})).button_class
-
   window.step_types = ['Play', 'Menu', 'Capture']
   window.workflow = new Workflow(new CommandSelector)
   ko.applyBindings(workflow)

@@ -2,24 +2,38 @@ onWorkflow ->
   class window.Step
     constructor: (attrs) ->
       @root = false
-      @id = attrs['id']
-      @root = attrs['root']
+      @id = attrs.id || workflow.generate_id()
+      @root = attrs.root
       @name = ko.observable(attrs['name'] || @default_name())
+      @next_id = attrs.next
 
     @from_hash: (hash) ->
-      for step_type in step_types
-        if hash.type.toLowerCase() == step_type.toLowerCase()
-          return window[step_type].from_hash(hash)
-      throw "Command type not recognised #{hash['type']}"
+      if typeof(hash.type) == "string"
+        for step_type in step_types
+          if hash.type.toLowerCase() == step_type.toLowerCase()
+            return window[step_type].initialize(hash)
+        throw "Command type not recognised #{hash['type']}"
+      else
+        return hash.type.initialize(hash)
+
+    @initialize: (hash) ->
+      return new @(hash)
 
     to_hash: () =>
       id: @id
       name: @name()
-      type: @.constructor.name.toLowerCase()
+      type: @.name.toLowerCase()
       root: @root
+      next: (if @next_id > 0 then @next_id else null)
 
     parent: () =>
       workflow.get_parent(@)
+
+    next: () =>
+      workflow.get_step(@next_id)
+
+    can_add_next: () =>
+      not @next_id?
 
     is_current_step: () =>
       workflow.current_step == @
@@ -36,12 +50,6 @@ onWorkflow ->
     set_as_current: () =>
       workflow.set_as_current @
 
-    children: () =>
-      (step for step in workflow.steps() when step.id in @next_ids())
-
-    child_removed: (child) =>
-      null
-
     item_template_id: () =>
       'workflow_step_template'
 
@@ -49,5 +57,5 @@ onWorkflow ->
       "#{@default_name().toLowerCase()}_step_template"
 
     default_name: () =>
-      @.constructor.name
+      @.name
 

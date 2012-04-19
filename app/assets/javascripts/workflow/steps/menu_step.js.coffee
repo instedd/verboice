@@ -26,16 +26,13 @@ onWorkflow ->
     button_class: () =>
       'ldial'
 
-    next_ids: () =>
-      (option.next_id for option in @options())
-
     commands: () =>
       step_types
 
     @add_to_steps: () ->
       workflow.add_step(new Menu)
 
-    @from_hash: (hash) ->
+    @initialize: (hash) ->
       menu = new Menu(hash)
       menu.options(new MenuOption(opt.number, opt.next, menu) for opt in (hash.options || []))
       return menu
@@ -58,16 +55,22 @@ onWorkflow ->
         @options.remove option
         option.remove_next()
 
+    remove: (notify=true) =>
+      for option in @options()
+        option.remove_next()
+      super(notify)
+
+    children: () =>
+      (step for step in workflow.steps() when step.id in @next_ids())
+
+    children_ids: () =>
+      (option.next_id for option in @options())
+
     child_removed: (child) =>
       for option in @options()
         if option.next_id == child.id
           @options.remove option
           break
-
-    remove: (notify=true) =>
-      for option in @options()
-        option.remove_next()
-      super(notify)
 
     message: (msg) =>
       @message_selectors[msg]

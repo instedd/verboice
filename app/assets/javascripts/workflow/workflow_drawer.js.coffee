@@ -16,10 +16,11 @@ onWorkflow ->
       @set_step(step, x, y, klass)
       [next_x, next_y] = [x+1, y]
       klass = 'ha'
-      for child in step.children()
-        @fill_va_ext(next_x, y, next_y) if klass == 'va'
-        [_x, next_y] = @recursive_draw_workflow(child, next_x, next_y, x, y, klass)
-        klass = 'va'
+      if step.next()?
+        for child in [step.next()] # TODO: Only considers next step, support also children
+          @fill_va_ext(next_x, y, next_y) if klass == 'va'
+          [_x, next_y] = @recursive_draw_workflow(child, next_x, next_y, x, y, klass)
+          klass = 'va'
       next_y = y+1 if next_y < y+1
       return [x, next_y]
 

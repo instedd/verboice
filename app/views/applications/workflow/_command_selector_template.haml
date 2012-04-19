@@ -1,10 +1,9 @@
 %script{type: "text/html", id: "command_selector_template"}
-  .feditor-sidebar.box.w28.iblock.h65.addstep.right{ 'data-bind' => 'with: current_step' }
+  .feditor-sidebar.box.w28.iblock.h65.addstep.right
     .content-header
       %h1 Add step
       %span Choose one of the options below to insert a new step in the app
     .content-buttons{ 'data-bind' => 'foreach: commands' }
       %div
-        / todo: missing pluggable button class
         %button{'data-bind' => 'click: add_to_steps, class: button_class', :style => 'display:block' }
         %span{ko(text: 'name()')}

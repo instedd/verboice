@@ -29,7 +29,7 @@ onWorkflow ->
     @add_to_steps: () ->
       workflow.add_step(new Capture)
 
-    @from_hash: (hash) ->
+    @initialize: (hash) ->
       capture = new Capture(hash)
       return capture
 

@@ -15,13 +15,13 @@
 #wami
 
 #workflow-page
-  %p.title.clickable{ 'data-bind' => 'click: initialize_current_step' } Add new step
+  %p.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Add new step
 
   .left
     .box.lightgrey.workflow#workflow
       .workflow-content-container.w60.h65{ ko(workflow_steps: 'steps') }
 
-  %span{ 'data-bind' => 'template: { name: display_template_for, with: current_step }' }
+  %span{ko(template: '{name: display_template_for, data: sidebar_content}')}
 
   .clear
 
