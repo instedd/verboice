@@ -25,9 +25,6 @@ onWorkflow ->
     button_class: () =>
       'lnumeral'
 
-    next_ids: () =>
-      [@next_id]
-
     @add_to_steps: () ->
       workflow.add_step(new Capture)
 

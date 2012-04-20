@@ -28,8 +28,8 @@ onWorkflow ->
     button_class: () =>
       'ldial'
 
-    can_add_next: () =>
-      false
+    # can_add_next: () =>
+    #   true
 
     commands: () =>
       (step_type.type for step_type in step_types)
@@ -52,7 +52,7 @@ onWorkflow ->
       )
 
     add_option: () =>
-      new_step = workflow.create_step(@new_option_command(), @)
+      new_step = workflow.create_step(@new_option_command(), false)
       @options.push(new MenuOption(@available_numbers()[0], new_step.id, @))
 
     remove_option: (option) =>

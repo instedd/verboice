@@ -4,54 +4,76 @@ onWorkflow ->
       @container = $(container)
 
     draw_workflow: (steps) =>
-      @matrix_yx = []
+      @matrix_ij = []
       @container.empty()
-      y = 0
+      i = 0
       roots = (step for step in steps when step.root)
       for root in roots
-        [_x,y] = @recursive_draw_workflow(root, 0, y)
+        [i,_j] = @recursive_draw_workflow(root, i, 0)
       @draw_matrix()
 
-    recursive_draw_workflow: (step, x, y, parent_x, parent_y, klass='ha') =>
-      @set_step(step, x, y, klass)
-      [next_x, next_y] = [x+1, y]
-      klass = 'ha'
+    recursive_draw_workflow: (step, i, j, parent_i, parent_j, klass='ha') =>
+      @set_step(step, i, j, klass)
+      [next_i, next_j] = [i,j+1]
 
+      klass = 'ha'
       if step.children?
         for child in step.children()
-          @fill_va_ext(next_x, y, next_y) if klass == 'va'
-          [_x, next_y] = @recursive_draw_workflow(child, next_x, next_y, x, y, klass)
+          last_child_i = next_i
+          [next_i, child_next_j] = @recursive_draw_workflow(child, next_i, j+1, i, j, klass)
           klass = 'va'
-      else if step.next()?
-        @fill_va_ext(next_x, y, next_y) if klass == 'va'
-        [_x, next_y] = @recursive_draw_workflow(step.next(), next_x, next_y, x, y, klass)
-        klass = 'va'
+          next_j = child_next_j if next_j < child_next_j
+        @fill_vertical(j+1, i, last_child_i) if klass == 'va'
 
+      if step.next()?
+        [next_step_i, next_step_j] = [i, next_j]
+        [child_next_i, child_next_j] = @recursive_draw_workflow(step.next(), next_step_i, next_step_j, i, j, 'ha')
+        next_j = child_next_j if next_j < child_next_j
+        next_i = child_next_i if next_i < child_next_i
 
-      next_y = y+1 if next_y < y+1
-      return [x, next_y]
+        if step.children? and step.children().length > 0
+          max_child_i = 0
+          for child in step.children()
+            for leaf in child.leaves()
+              @fill_horizontal(leaf.position[0], leaf.position[1], next_step_j-1)
+              @set_step(null, leaf.position[0], next_step_j, 'va3')
+              max_child_i = leaf.position[0] if leaf.position[0] > max_child_i
+          @fill_vertical(next_step_j, next_step_i, max_child_i-1)
 
-    fill_va_ext: (x, from_y, to_y) =>
-      for y_i in [from_y..to_y]
-        @matrix_yx[y_i] ?= []
-        if not @matrix_yx[y_i][x]? or (@matrix_yx[y_i][x][0] == false and @matrix_yx[y_i][x][1] == '')
-          @matrix_yx[y_i][x] = [false, 'va-ext']
+      next_i = i+1 if next_i < i+1
+      return [next_i, next_j]
 
-    set_step: (step, x, y, klass) =>
-      @matrix_yx[y] ?= []
-      for x_i in [0..x-1]
-        if not @matrix_yx[y][x_i]?
-          @matrix_yx[y][x_i] = [false, '']
-      @matrix_yx[y][x] = [step, klass]
+    fill_horizontal: (i, from_j, to_j) =>
+      for j_k in [from_j..to_j]
+        @set_step(null, i, j_k, 'ha-ext')
+
+    fill_vertical: (j, from_i, to_i) =>
+      for i_k in [from_i..to_i]
+        @set_step(null, i_k, j, 'va-ext')
+
+    set_step: (step, i, j, klass) =>
+      for i_k in [0..i]
+        @matrix_ij[i_k] ?= []
+      for j_k in [0..j-1]
+        if not @matrix_ij[i][j_k]?
+          @matrix_ij[i][j_k] = [null, '']
+
+      if step?
+        @matrix_ij[i][j] = [step, klass]
+        step.position = [i,j]
+      else if (not @matrix_ij[i][j]?) or (@matrix_ij[i][j][0] == null and @matrix_ij[i][j][1] == '')
+        @matrix_ij[i][j] = [null, klass]
 
     draw_matrix: () =>
-      for row in @matrix_yx
+      for row in @matrix_ij
         @draw_newline()
-        for [elem, klass] in row
-          if elem == false
-            @draw_empty(klass)
-          else
-            @draw_step(elem, klass)
+        for pair in row
+          if pair?
+            [elem, klass] = pair
+            if not elem?
+              @draw_empty(klass)
+            else
+              @draw_step(elem, klass)
       ko.applyBindings
 
     draw_newline: () =>
@@ -61,7 +83,7 @@ onWorkflow ->
       @container.append("<div class=\"#{klass}\"><span></span></div>")
 
     draw_step: (step, klass="") =>
-      # TODO: Check if render template is more efficient, or apply binding directly to the step to avoid the get_step call
+      # TODO: Check if render template is more efficient, or apply binding directli to the step to avoid the get_step call
       # ko.renderTemplate(step.item_template_id(), step, {}, step_node[0]) ?
       step_node = $("<div class=\"#{klass}\" data-bind=\"template: { name: '#{step.item_template_id()}', data: get_step(#{step.id}) }\"> </div>").appendTo(@container)
       ko.applyBindings(workflow, step_node[0])

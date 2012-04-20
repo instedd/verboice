@@ -17,9 +17,6 @@ onWorkflow ->
     button_class: () =>
       'lsound'
 
-    next_ids: () =>
-      [@next_id]
-
     @add_to_steps: () ->
       workflow.add_step(new Play)
 

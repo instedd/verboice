@@ -57,34 +57,14 @@ label + p.desc {
     }
   }
 
-  div.ha span {
-    background:url(http://theme.instedd.org/theme/images/workflow/arrow-hor.png) no-repeat;
-    width:32px;
-    height:8px;
-    position:absolute;
-    left:-34px;
-    top:25px;
-    display:block;
-  }
-  div.va span {
-    background:url(http://theme.instedd.org/theme/images/workflow/arrow-ver.png) no-repeat;
-    width:18px;
-    height:95px;
-    position:absolute;
-    left:-20px;
-    top:-60px;
-    display:block;
-  }
+  div.ha span { background:url(http://theme.instedd.org/theme/images/workflow/arrow-hor.png) no-repeat; width:32px; height:8px; position:absolute; left:-34px; top:25px; display:block }
+  div.ha2 span { background:image-url("arrow-hor2.png") no-repeat; width:32px; height:8px; position:absolute; left:-34px; top:25px; display:block }
+  div.ha-ext span { background:image-url("arrow-hor-ext.png") no-repeat; width:95px; height:8px; position:absolute; left:-34px; top:27px; display:block }
+  div.va span { background:url(http://theme.instedd.org/theme/images/workflow/arrow-ver.png) no-repeat; width:18px; height:95px; position:absolute; left:-20px; top:-60px; display:block }
+  div.va2 span { background:image-url("arrow-ver2.png") no-repeat; width:32px; height:95px; position:absolute; left:-34px; top:-60px; display:block }
+  div.va3 span { background:image-url("arrow-ver3.png") no-repeat; width:32px; height:95px; position:absolute; left:-34px; top:-60px; display:block }
 
-  div.va-ext span {
-    background:image-url('arrow-ver-ext.png') no-repeat;
-    width:2px;
-    height:90px;
-    position:absolute;
-    left:-20px;
-    top:-60px;
-    display:block;
-  }
+  div.va-ext span { background:image-url("arrow-ver-ext.png") no-repeat; width:2px; height:90px; position:absolute; left:-20px; top:-60px; display:block }
 }
 
 .box.iblock {

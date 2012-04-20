@@ -65,3 +65,10 @@ onWorkflow ->
     type: () =>
       @.constructor.type
 
+    leaves: () =>
+      if @next?()?
+        @next().leaves()
+      else if @children?()? && @children().length > 0
+        [].concat.apply([], (child.leaves() for child in @children()))
+      else
+        [@]

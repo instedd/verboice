@@ -29,17 +29,10 @@ onWorkflow ->
       @show_new_step_selector() if @current_step() == step
 
     set_as_current: (step) =>
-      if @current_step()?.next_id == @add_new_step.id
-        @current_step().next_id = null
-        @steps.remove(@add_new_step)
-
+      @add_new_step.clear()
       @sidebar_content(step || @command_selector())
       @current_step(step)
-
-      if step and step.can_add_next()
-        step.next_id = @add_new_step.id
-        @add_new_step.parent = step
-        @steps.push(@add_new_step)
+      @add_new_step.current_step(step)
 
     show_new_step_selector: () =>
       @set_as_current(null)
