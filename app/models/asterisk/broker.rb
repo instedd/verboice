@@ -74,7 +74,7 @@ module Asterisk
             f_channels.puts "fromuser=#{channel.username}"
             f_channels.puts "defaultuser=#{channel.username}"
             f_channels.puts "secret=#{channel.password}"
-            f_channels.puts "insecure=yes"
+            f_channels.puts "insecure=invite,port"
             f_channels.puts "context=verboice"
             f_channels.puts
 
@@ -84,6 +84,7 @@ module Asterisk
               f_channels.puts "domain=#{server.host}"
               f_channels.puts "fromdomain=#{server.host}"
               f_channels.puts "type=#{(server.direction == 'inbound' ? 'user' : (server.direction == 'outbound' ? 'peer' : 'friend'))}"
+              f_channels.puts
 
               f_reg.puts "register => #{channel.username}:#{channel.password}@#{server.host}/#{channel.id}" if server.register?
             end
