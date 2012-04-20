@@ -106,7 +106,13 @@ describe Parsers::UserFlow do
         'message' => {
           "name" => "Say 5",
           "type" => "text"
-        }
+        },
+        'next' => 7
+      },
+      {
+        'id' => 7,
+        'type' => 'goto',
+        'next' => 33
       },
       {
         'id' => 33,
@@ -190,6 +196,8 @@ describe Parsers::UserFlow do
         Label "end3"
         Trace application_id: 1, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
         Say "Say 5"
+        Trace application_id: 1, step_id: 33, step_name: 'Play number 33', store: '"Message played."'
+        PlayFile File.join(Rails.root, "data","applications","1","recordings", "33-message.wav")
       end)
   end
 

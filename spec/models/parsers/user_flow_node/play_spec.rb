@@ -17,11 +17,12 @@ module Parsers
             "duration" => 5
           }
 
-        play.equivalent_flow.should eq(
-          Compiler.make do
+        play.equivalent_flow.first.should eq(
+          Compiler.parse do
+            Label 1
             Trace application_id: 1, step_id: 1, step_name: 'Play', store: '"Message played."'
             PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-message.wav")
-          end
+          end.first
         )
       end
       it "should compile a tts message as well" do
@@ -34,11 +35,12 @@ module Parsers
             "type" => "text"
           }
 
-        play.equivalent_flow.should eq(
-          Compiler.make do
+        play.equivalent_flow.first.should eq(
+          Compiler.parse do
+            Label 27
             Trace application_id: 1, step_id: 27, step_name: 'Play number one', store: '"Message played."'
             Say "Some explanation message"
-          end
+          end.first
         )
       end
 

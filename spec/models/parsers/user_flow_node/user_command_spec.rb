@@ -5,10 +5,11 @@ module Parsers
     describe UserCommand do
 
       it "should list all available user commands" do
-        UserCommand.subclasses.size.should eq(3)
+        UserCommand.subclasses.size.should eq(4)
         UserCommand.subclasses.should include(Menu)
         UserCommand.subclasses.should include(Play)
         UserCommand.subclasses.should include(Capture)
+        UserCommand.subclasses.should include(Goto)
       end
 
       it "should deliver the right subclass to parse a given input" do

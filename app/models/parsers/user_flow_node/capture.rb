@@ -46,7 +46,8 @@ module Parsers
       end
 
       def equivalent_flow
-        Compiler.make do |c|
+        Compiler.parse do |c|
+          c.Label @id
           c.Assign "attempt_number#{@id}", '1'
           c.While "attempt_number#{@id} <= #{@number_of_attempts}" do |c|
             c.Capture({

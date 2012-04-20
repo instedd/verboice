@@ -39,8 +39,9 @@ module Parsers
       end
 
       def equivalent_flow
-          Compiler.make do |compiler|
-          compiler.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"Message played."')
+        Compiler.parse do |compiler|
+          compiler.Label @id
+          compiler.Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"Message played."'
           compiler.append @message.equivalent_flow if @message
           compiler.append @next.equivalent_flow if @next
         end

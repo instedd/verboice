@@ -63,7 +63,8 @@ module Parsers
       end
 
       def equivalent_flow
-        Compiler.make do |compiler|
+        Compiler.parse do |compiler|
+          compiler.Label @id
           compiler.append(@explanation_message.equivalent_flow)
             .Assign("attempt_number#{@id}", '1')
             .While("attempt_number#{@id} <= #{@number_of_attempts}") do |compiler|

@@ -86,6 +86,15 @@ describe Compiler do
     result.next.next.should be_instance_of(Commands::HangupCommand)
   end
 
+  it "can append other builder and take it's gotos and labels" do
+    result = subject
+      .append(Compiler.parse { Answer(); Goto(2); Label('1'); Pause() })
+      .make { Label(2); Say('a'); Goto('1'); Hangup() }
+    result.should be_instance_of( Commands::AnswerCommand )
+    result.next.should be_instance_of( Commands::SayCommand )
+    result.next.next.should be_instance_of( Commands::PauseCommand )
+  end
+
   it "can append nil" do
     result = subject.parse { Hangup() }.append(nil).make
     result.should be_instance_of(Commands::HangupCommand)
