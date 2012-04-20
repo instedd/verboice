@@ -126,10 +126,9 @@ describe Builders::Vxml do
         <vxml version="2.1">
           <form>
             <field name="digits" type="digits?minlength=1;maxlength=1">
-              <grammar type="text/gsl">[dtmf-1 dtmf-2 dtmf-3 dtmf-4 dtmf-5 dtmf-6 dtmf-7 dtmf-8 dtmf-9 dtmf-0]</grammar>
               <property name="timeout" value="10s"/>
-              <noinput/>
-              <nomatch/>
+              <noinput><assign name="digits" expr="''"/></noinput>
+              <nomatch><assign name="digits" expr="''"/></nomatch>
               <prompt>This is a capture</prompt>
             </field>
           </form>
@@ -145,10 +144,9 @@ describe Builders::Vxml do
         <vxml version="2.1">
           <form>
             <field name="digits" type="digits?minlength=1;maxlength=1">
-              <grammar type="text/gsl">[dtmf-1 dtmf-2 dtmf-3 dtmf-4 dtmf-5 dtmf-6 dtmf-7 dtmf-8 dtmf-9 dtmf-0]</grammar>
               <property name="timeout" value="10s"/>
-              <noinput/>
-              <nomatch/>
+              <noinput><assign name="digits" expr="''"/></noinput>
+              <nomatch><assign name="digits" expr="''"/></nomatch>
               <audio src="capture.wav"/>
             </field>
           </form>
@@ -164,10 +162,9 @@ describe Builders::Vxml do
         <vxml version="2.1">
           <form>
             <field name="digits" type="digits?minlength=5;maxlength=10">
-              <grammar type="text/gsl">[dtmf-1 dtmf-2 dtmf-3 dtmf-4 dtmf-5 dtmf-6 dtmf-7 dtmf-8 dtmf-9 dtmf-0]</grammar>
               <property name="timeout" value="20s"/>
-              <noinput/>
-              <nomatch/>
+              <noinput><assign name="digits" expr="''"/></noinput>
+              <nomatch><assign name="digits" expr="''"/></nomatch>
               <prompt>This is a capture</prompt
             </field>
           </form>

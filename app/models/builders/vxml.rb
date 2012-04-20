@@ -71,10 +71,13 @@ module Builders
       
       append_to_form do |xml|
         xml.field(:name => "digits", :type => "digits?minlength=#{min_digits};maxlength=#{max_digits}") do
-          xml.grammar "[dtmf-1 dtmf-2 dtmf-3 dtmf-4 dtmf-5 dtmf-6 dtmf-7 dtmf-8 dtmf-9 dtmf-0]", :type => "text/gsl"
           xml.property(:name => "timeout", :value => "#{timeout}s")
-          xml.noinput
-          xml.nomatch
+          xml.noinput do
+            xml.assign(:name => 'digits', :expr => "''")
+          end
+          xml.nomatch do
+            xml.assign(:name => 'digits', :expr => "''")
+          end
           if options[:say]
             xml.prompt options[:say]
           elsif options[:play]
