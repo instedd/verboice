@@ -6,7 +6,7 @@ module Parsers
       def initialize application, params
         @id = params['id']
         @name = params['name'] || ''
-        @is_root = params['root'] || false
+        @root_index = params['root']
         @instructions_message = Message.for application, self, :instructions, params['instructions_message']
         @valid_values = params['valid_values']
         @finish_on_key = params['finish_on_key'] || '#'
@@ -38,7 +38,11 @@ module Parsers
       end
 
       def is_root?
-        @is_root
+        @root_index.present?
+      end
+
+      def root_index
+        @root_index
       end
 
       def equivalent_flow

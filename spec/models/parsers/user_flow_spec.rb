@@ -10,6 +10,18 @@ describe Parsers::UserFlow do
   let (:application_flow) do
     [
       {
+        'id' => 27,
+        'root' => 2,
+        'type' => 'play',
+        'name' => 'Play number 27',
+        'message' => {
+          "name" => "Some explanation message",
+          "type" => "recording",
+          "file" => "file.wav",
+          "duration" => 5
+        }
+      },
+      {
         'id' => 3,
         'type' => 'menu',
         'name' => 'Menu number one',
@@ -43,10 +55,9 @@ describe Parsers::UserFlow do
       },
       {
         'id' => 1,
-        'root' => true,
+        'root' => 1,
         'type' => 'play',
         'name' => 'Play number one',
-        'root' => 'true',
         'message' => {
           "name" => "Some explanation message",
           "type" => "recording",
@@ -98,11 +109,22 @@ describe Parsers::UserFlow do
         }
       },
       {
-        'id' => 27,
-        'root' => true,
+        'id' => 33,
+        'root' => 3,
         'type' => 'play',
-        'name' => 'Play number 27',
-        'root' => 'true',
+        'name' => 'Play number 33',
+        'message' => {
+          "name" => "Some explanation message",
+          "type" => "recording",
+          "file" => "file.wav",
+          "duration" => 5
+        }
+      },
+      {
+        'id' => 44,
+        'root' => 4,
+        'type' => 'play',
+        'name' => 'Play number 44',
         'message' => {
           "name" => "Some explanation message",
           "type" => "recording",
@@ -114,8 +136,9 @@ describe Parsers::UserFlow do
   end
 
   it "should retrieve an equivalent flow in verboice internal representation" do
-    (Parsers::UserFlow.new application, application_flow).equivalent_flow.should eq([
+    (Parsers::UserFlow.new application, application_flow).equivalent_flow.should eq(
       Compiler.make do
+        Answer()
         Trace application_id: 1, step_id: 1, step_name: 'Play number one', store: '"Message played."'
         PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-message.wav")
         Assign 'attempt_number2', '1'
@@ -167,23 +190,20 @@ describe Parsers::UserFlow do
         Label "end3"
         Trace application_id: 1, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
         Say "Say 5"
-      end,
-      Compiler.make do
-        Trace application_id: 1, step_id: 27, step_name: 'Play number 27', store: '"Message played."'
-        PlayFile File.join(Rails.root, "data","applications","1","recordings", "27-message.wav")
-      end
-    ])
+      end)
   end
 
   it "should provide a hash of step names and IDs" do
     (Parsers::UserFlow.new application, application_flow).step_names.should eq({
+      27 => "Play number 27",
       3  => 'Menu number one',
       4  => 'Say number 4',
       1  => "Play number one",
       2  => "Capture number one",
       6  => "Say number 6",
       5  => "Say number 5",
-      27 => "Play number 27"
+      33 => "Play number 33",
+      44 => "Play number 44",
     })
   end
 

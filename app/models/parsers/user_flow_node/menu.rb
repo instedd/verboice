@@ -9,7 +9,7 @@ module Parsers
         @explanation_message = Message.for application, self, :explanation, params['explanation_message']
         @options_message = Message.for application, self, :options, params['options_message']
         @options = params['options'].deep_clone || []
-        @is_root = params['root'] || false
+        @root_index = params['root']
         @timeout = params['timeout'] || 5
         @finish_on_key = params['finish_on_key'] || '#'
         @min_input_length = params['min_input_length'] || 1
@@ -55,7 +55,11 @@ module Parsers
       end
 
       def is_root?
-        @is_root
+        @root_index.present?
+      end
+
+      def root_index
+        @root_index
       end
 
       def equivalent_flow

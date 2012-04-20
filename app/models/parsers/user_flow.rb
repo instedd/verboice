@@ -21,9 +21,7 @@ class Parsers::UserFlow
       a_command_parser.solve_links_with @nodes
     end
 
-    @roots = @nodes.select do |a_node|
-      a_node.is_root?
-    end
+    @roots = @nodes.select(&:is_root?).sort { |a, b| a.root_index <=> b.root_index }
   end
 
   def equivalent_flow
@@ -31,15 +29,15 @@ class Parsers::UserFlow
   end
 
   def build_equivalent_flow
-    flow = @roots.collect do |a_root_node|
-      a_root_node.equivalent_flow
-    end
-    if flow.size == 1
-      flow.first
-    else
-      flow
+    Compiler.make do |compiler|
+      compiler.Answer
+      @roots.collect do |a_root_node|
+        compiler.append a_root_node.equivalent_flow
+        compiler.End
+      end
     end
   end
+
   def step_names
     Hash[@nodes.collect do |node|
       [node.id, node.name]

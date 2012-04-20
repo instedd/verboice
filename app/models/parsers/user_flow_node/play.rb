@@ -9,7 +9,7 @@ module Parsers
         @message = Message.for application, self, :message, params['message']
         @application = application
         @next = params['next']
-        @is_root = params['root'] || false
+        @root_index = params['root']
       end
 
       def solve_links_with nodes
@@ -31,7 +31,11 @@ module Parsers
       end
 
       def is_root?
-        @is_root
+        @root_index.present?
+      end
+
+      def root_index
+        @root_index
       end
 
       def equivalent_flow
