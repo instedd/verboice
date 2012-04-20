@@ -102,40 +102,21 @@ module Builders
       @xml_builder = Nokogiri::XML::Builder.new do |xml|
         xml.vxml(:version => "2.1") do
           # xml.catch_(:event => "connection.disconnect.hangup") do
-          #   xml.log(:expr => "'*** CATCH EVENT DISCONNECTED ***'")
           #   xml.submit_(:next => "http://staging.instedd.org:7000/?disconnect=true")
           #   xml.exit
           # end
-          # xml.error do
-          #   xml.log(:expr => "'*** CATCH ERROR ***'")
-          #   xml.submit_(:next => "http://staging.instedd.org:7000/?disconnect=true")
-          #   xml.exit
-          # end
+          xml.error do
+            xml.var(:name => "error", :expr => "true")
+            xml.var(:name => "message", :expr => "_message")
+            xml.var(:name => "event", :expr => "_event")
+            xml.submit_(:next => "http://staging.instedd.org:7000/", :namelist => @vars.keys.concat(%w(error message event)).join(' '))
+            xml.exit
+          end
           @vars.each do |k, v|
             xml.var(:name => k, :expr => "'#{v}'")
           end
           xml.form do
             @form = xml.parent
-            # xml.block do
-            #   xml.throw_(:event => "error.foo")
-            # end
-            # xml.block do
-            #   xml.prompt "Before disconnect"
-            # end
-            # xml.block do
-            #   xml.disconnect
-            # end
-            # xml.field do
-            #   # xml.property(:name => "timeout", :value => "1s")
-            #   xml.grammar "[(kathy bates is really hot)]"
-            #   xml.nomatch do
-            #     xml.exit
-            #   end
-            #   xml.noinput do
-            #     xml.exit
-            #   end
-            #   # xml.exit
-            # end
           end
         end
       end

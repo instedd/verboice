@@ -71,7 +71,26 @@ module Voxeo
     private
 
     def flush
-      @context = Fiber.yield @builder.build
+      # begin
+        @context = Fiber.yield @builder.build
+      # rescue Exception => e
+      #   handle_error e
+      # end
+    end
+    
+    def handle_error(e)
+      @hangup = true
+      
+      @builder.say "An unexpected error ocurred"
+      
+      # Remove the fiber from the store
+      Voxeo::FiberStore.instance.delete_fiber_for @voxeo_session_id
+      
+      # Enqueue operation to resume the fiber so the session can end
+      current_fiber = Fiber.current
+      EM.next_tick { current_fiber.resume e }
+      
+      Fiber.yield @builder.build
     end
     
     def end_session

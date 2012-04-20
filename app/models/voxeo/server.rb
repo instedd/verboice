@@ -10,6 +10,8 @@ module Voxeo
     end
 
     def process_http_request
+      p "New request, params: #{params.inspect}"
+      
       response = EM::DelegatedHttpResponse.new(self)
       
       fiber = store.get_fiber_for voxeo_session_id
@@ -21,8 +23,17 @@ module Voxeo
         end
         store.store_fiber voxeo_session_id, fiber
       end
-
-      xml = fiber.resume context
+      
+      if params[:error]
+        xml = fiber.resume Exception.new("Voxeo returned error. Event: #{params[:event]}. Message: #{params[:message]}.")
+        p "Error! sending xml: #{xml}"
+      elsif params[:disconnect]
+        xml = fiber.resume Exception.new("User hung up.")
+        p "Disconnect! sending xml: #{xml}"
+      else
+        xml = fiber.resume context
+        p "Sending xml: #{xml}"  
+      end
       
       response.status = 200
       response.content_type 'text/xml'

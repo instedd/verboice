@@ -24,4 +24,10 @@ describe Voxeo::HttpContext do
     context.params.empty?.should be_true
   end
   
+  it "should unescape query string" do
+    value = "a value that & needs to be escaped"
+    context = Voxeo::HttpContext.new nil, "key=#{CGI.escape(value)}"
+    context.params[:key].should eq(value)
+  end
+  
 end

@@ -18,7 +18,7 @@ module Voxeo
   
     def init_params
       if @http_query_string
-        @http_query_string.split('&').map{|x|x.split('=')}.inject(HashWithIndifferentAccess.new){|r,x|r[x.first]=x.second;r}
+        @http_query_string.split('&').map{|x|x.split('=')}.inject(HashWithIndifferentAccess.new){|r,x|r[x.first]=CGI.unescape(x.second);r}
       else
         HashWithIndifferentAccess.new
       end
