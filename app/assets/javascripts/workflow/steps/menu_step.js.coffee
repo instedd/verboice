@@ -28,9 +28,6 @@ onWorkflow ->
     button_class: () =>
       'ldial'
 
-    # can_add_next: () =>
-    #   true
-
     commands: () =>
       (step_type.type for step_type in step_types)
 
@@ -55,27 +52,35 @@ onWorkflow ->
       new_step = workflow.create_step(@new_option_command(), false)
       @options.push(new MenuOption(@available_numbers()[0], new_step.id, @))
 
-    remove_option: (option) =>
-      if confirm("Are you sure you want to remove option #{option.next().name()} and all steps after it?")
-        @options.remove option
-        option.remove_next()
+    option_for: (step) =>
+      for option in @options()
+        if option.next_id == step.id
+          return option
 
-    remove: (notify=true) =>
+    remove_option_with_confirm: (option) =>
+      if confirm("Are you sure you want to remove option #{option.number()} and all its steps?")
+        @remove_option(option)
+
+    remove_option: (option) =>
+      @options.remove option
+      option.remove_next()
+
+    remove_with_confirm: () =>
+      name = @name?() || "this step"
+      if confirm("Are you sure you want to remove #{name}?")
+        @remove()
+
+    remove: () =>
       for option in @options()
         option.remove_next()
-      super(notify)
+      super()
 
     children: () =>
       (step for step in workflow.steps() when step.id in @children_ids())
 
     children_ids: () =>
-      (option.next_id for option in @options())
-
-    child_removed: (child) =>
-      for option in @options()
-        if option.next_id == child.id
-          @options.remove option
-          break
+      options = @options().sort((opt1, opt2) => opt1.number() - opt2.number())
+      (option.next_id for option in options)
 
     message: (msg) =>
       @message_selectors[msg]

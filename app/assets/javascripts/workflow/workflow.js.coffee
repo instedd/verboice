@@ -13,13 +13,13 @@ onWorkflow ->
       (step for step in @steps() when step.id == id)[0]
 
     get_parent: (step) =>
-      (parent for parent in @steps() when step.id in parent.next_ids())[0]
+      (parent for parent in @steps() when (step.id == parent.next_id))[0] or (parent.option_for(step) for parent in @steps() when parent.children_ids? and step.id in parent.children_ids())[0]
 
     add_step: (command) =>
       @steps.push command
 
     create_step: (command_type, parent) =>
-      new_step = Step.from_hash(type: command_type, id: @generate_id(), root: not parent?)
+      new_step = Step.from_hash(type: command_type, root: not parent?)
       parent.next_id = new_step.id if parent?
       @steps.push new_step
       new_step

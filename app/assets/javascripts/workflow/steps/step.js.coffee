@@ -43,12 +43,28 @@ onWorkflow ->
 
     remove_with_confirm: () =>
       name = @name?() || "this step"
-      if confirm("Are you sure you want to remove #{name} and all steps after it?")
+      if confirm("Are you sure you want to remove #{name}?")
         @remove()
 
-    remove: (notify=true) =>
-      @parent()?.child_removed @ if notify
+    remove_recursive: () =>
+      @remove()
+      @next()?.remove_recursive()
+      parent = @parent()
+      parent.child_removed(@) if parent?
+
+    remove: () =>
+      parent = @parent()
+      if parent?
+        if @next_id? and @next_id > 0
+          parent.next_id = @next_id
+        else
+          parent.child_removed(@)
+      else
+        @next()?.root = @root
       workflow.remove_step @
+
+    child_removed: () =>
+      null
 
     set_as_current: () =>
       workflow.set_as_current @

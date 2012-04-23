@@ -46,7 +46,7 @@
               %li
                 %select{ko(options: 'available_numbers', value: 'number')}
                 %span.ux-oplist{ko(text: "next_name()", click: 'select_step')}
-                %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option' }
+                %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option_with_confirm' }
             %li
               %span.ux-text
                 Add an option:
