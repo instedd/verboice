@@ -29,7 +29,6 @@ onWorkflow ->
       @show_new_step_selector() if @current_step() == step
 
     set_as_current: (step) =>
-      @add_new_step.clear()
       @sidebar_content(step || @command_selector())
       @current_step(step)
       @add_new_step.current_step(step)

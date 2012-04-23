@@ -4,6 +4,7 @@ onWorkflow ->
       @container = $(container)
 
     draw_workflow: (steps) =>
+      #console.log 'Redrawing workflow'
       @matrix_ij = []
       @container.empty()
       i = 0
@@ -38,7 +39,7 @@ onWorkflow ->
               @fill_horizontal(leaf.position[0], leaf.position[1], next_step_j-1)
               @set_step(null, leaf.position[0], next_step_j, 'va3')
               max_child_i = leaf.position[0] if leaf.position[0] > max_child_i
-          @fill_vertical(next_step_j, next_step_i, max_child_i-1)
+          @fill_vertical(next_step_j, next_step_i+1, max_child_i-1)
 
       next_i = i+1 if next_i < i+1
       return [next_i, next_j]
@@ -48,8 +49,9 @@ onWorkflow ->
         @set_step(null, i, j_k, 'ha-ext')
 
     fill_vertical: (j, from_i, to_i) =>
-      for i_k in [from_i..to_i]
-        @set_step(null, i_k, j, 'va-ext')
+      if from_i <= to_i
+        for i_k in [from_i..to_i]
+          @set_step(null, i_k, j, 'va-ext')
 
     set_step: (step, i, j, klass) =>
       for i_k in [0..i]
@@ -83,7 +85,7 @@ onWorkflow ->
       @container.append("<div class=\"#{klass}\"><span></span></div>")
 
     draw_step: (step, klass="") =>
-      # TODO: Check if render template is more efficient, or apply binding directli to the step to avoid the get_step call
+      # TODO: Check if render template is more efficient, or apply binding directly to the step to avoid the get_step call
       # ko.renderTemplate(step.item_template_id(), step, {}, step_node[0]) ?
       step_node = $("<div class=\"#{klass}\" data-bind=\"template: { name: '#{step.item_template_id()}', data: get_step(#{step.id}) }\"> </div>").appendTo(@container)
       ko.applyBindings(workflow, step_node[0])
