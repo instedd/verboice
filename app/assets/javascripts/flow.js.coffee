@@ -22,7 +22,7 @@ onWorkflow ->
       $(element).addClass(value)
       element['__ko__previousClassValue__'] = value
 
-  window.step_types = [Play, Menu, Capture]
+  window.step_types = [Play, Menu, Capture, Transfer]
   for step_type in window.step_types
     window[step_type.type] = step_type
 

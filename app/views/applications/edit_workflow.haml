@@ -7,7 +7,7 @@
     var save_recording_application_path = "#{ save_recording_application_path(@application)}";
     var play_recording_application_path = "#{ play_recording_application_path(@application)}";
 
-  - %W(workflow_step capture_step menu_step play_step message recording_message text_message command_selector).each do |template|
+  - %W(workflow_step capture_step menu_step play_step transfer_step message recording_message text_message command_selector).each do |template|
     = render "applications/workflow/#{template}_template"
 
 = render 'tabs'

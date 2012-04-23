@@ -1,0 +1,26 @@
+%script{type: "text/html", id: "transfer_step_template"}
+  .feditor-sidebar.right.box.w28.iblock.h65
+    .tableheader
+      %span.i48grad-dial.left
+      %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+
+    .content
+      %label Forward to
+      %br
+
+      %span.forwardto
+        Address:
+      %input.ux-text.w20{ko(value: 'address')}
+      %br
+
+      %span.forwardto
+        Channel:
+      %select{ko(value: 'channel')}
+        %option{:value => nil} Use current channel
+        = options_from_collection_for_select(current_account.channels, 'name', 'name')
+      %br
+
+      %hr
+
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
