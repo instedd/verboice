@@ -84,6 +84,7 @@ module Parsers
             Assign 'attempt_number1', '1'
             While 'attempt_number1 <= 3' do
               Capture play_file: File.join(Rails.root, "data","applications","1","recordings", "1-options.wav"), min: 1, max: 1, finish_on_key: '#', timeout: 20
+              Assign 'value_1', 'digits'
               If "digits == 4" do
                 Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
                 Label 10
@@ -133,6 +134,7 @@ module Parsers
             Assign 'attempt_number27', '1'
             While 'attempt_number27 <= 3' do
               Capture min: 1, max: 1, finish_on_key: '#', timeout: 5
+              Assign 'value_27', 'digits'
               If "digits != null" do
                 Trace application_id: 1, step_id: 27, step_name: '', store: '"Invalid key pressed"'
               end

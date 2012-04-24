@@ -152,6 +152,7 @@ describe Parsers::UserFlow do
         Assign 'attempt_number2', '1'
         While 'attempt_number2 <= 3' do
           Capture say: "First Capture", min: 1, max: 10, finish_on_key: '#', timeout: 10
+          Assign 'value_2', 'digits'
           If "(digits >= 1 && digits <= 10)" do
             Trace application_id: 1, step_id: 2, step_name: 'Capture number one', store: '"User pressed: " + digits'
             Goto "end2"
@@ -174,6 +175,7 @@ describe Parsers::UserFlow do
         Assign 'attempt_number3', '1'
         While 'attempt_number3 <= 3' do
           Capture min: 1, max: 1, finish_on_key: '#', timeout: 20
+          Assign 'value_3', 'digits'
           If "digits == 2" do
             Trace application_id: 1, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
             Assign "current_step", 4

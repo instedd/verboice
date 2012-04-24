@@ -57,7 +57,7 @@ module Parsers
                 finish_on_key: @finish_on_key,
                 timeout: @timeout
               }.merge( @instructions_message.capture_flow ))
-
+            c.Assign "value_#{@id}", 'digits'
             c.If valid_digits_condition do |c|
               c.Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits'
               c.Goto "end#{@id}"

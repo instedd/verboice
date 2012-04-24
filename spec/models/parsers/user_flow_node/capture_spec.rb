@@ -38,6 +38,7 @@ module Parsers
             Assign 'attempt_number1', '1'
             While 'attempt_number1 <= 3' do
               Capture say: "First Capture", min: 1, max: 2, finish_on_key: '#', timeout: 10
+              Assign 'value_1', 'digits'
               If "(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20)" do
                 Trace application_id: 1, step_id: 1, step_name: 'Capture number one', store: '"User pressed: " + digits'
                 Goto "end1"
@@ -67,6 +68,7 @@ module Parsers
           Assign 'attempt_number4', '1'
           While 'attempt_number4 <= 3' do
             Capture min: 1, max: 1, finish_on_key: '#', timeout: 5
+            Assign 'value_4', 'digits'
             If 'true' do
               Trace application_id: 1, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
               Goto "end4"
@@ -115,6 +117,7 @@ module Parsers
             Assign 'attempt_number4', '1'
             While 'attempt_number4 <= 3' do
               Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
+              Assign 'value_4', 'digits'
               If '(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20) || (digits == null)' do
                 Trace application_id: 1, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
                 Goto "end4"

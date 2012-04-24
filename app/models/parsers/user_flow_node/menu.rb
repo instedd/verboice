@@ -72,6 +72,7 @@ module Parsers
             c.Capture({
               min: @min_input_length, max: @max_input_length, finish_on_key: @finish_on_key, timeout: @timeout
             }.merge(@options_message.capture_flow))
+            c.Assign "value_#{@id}", 'digits'
             @options.each do |an_option|
               c.If("digits == #{an_option['number']}") do |c|
                 c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits')
