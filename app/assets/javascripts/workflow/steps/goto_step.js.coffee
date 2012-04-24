@@ -10,7 +10,7 @@ onWorkflow ->
       @jump_id = ko.observable attrs.jump
 
     available_steps: () =>
-      (step for step in workflow.steps() when step.type() != 'goto')
+      (step for step in workflow.steps() when step.type() != this.type())
 
     button_class: () =>
       'lbookmark'
