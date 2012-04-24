@@ -39,7 +39,7 @@ describe "Applications" do
       context "and I update the application supplying a username and password" do
         before do
           fill_in_callback_fields
-          click_button "Update Application"
+          click_button "Update"
         end
 
         it_should_behave_like "saving the configuration" do
@@ -62,7 +62,7 @@ describe "Applications" do
         context "I fill in the user and password fields" do
           before do
             fill_in_callback_fields
-            click_button "Create Application"
+            click_button "Save"
           end
 
           it_should_behave_like "saving the configuration" do

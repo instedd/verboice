@@ -7,7 +7,7 @@ class Session
   attr_accessor :address
   attr_accessor :suspended
 
-  delegate :finish_successfully, :finish_with_error, :to => :call_log
+  delegate :finish_successfully, :to => :call_log
   CallLog::Levels.each { |key, name| delegate name, :to => :call_log }
 
   def initialize(options = {})
@@ -128,12 +128,22 @@ class Session
       status_callback_url_user = application.status_callback_url_user
       status_callback_url_password = application.status_callback_url_password
 
-      authentication = (status_callback_url_user.present? || status_callback_url_password.present?) ? {:head => {'authorization' => [status_callback_url_user, status_callback_url_password]}} : {}
+      authentication = if (status_callback_url_user.present? || status_callback_url_password.present?)
+        {:head => {'authorization' => [status_callback_url_user, status_callback_url_password]}}
+      else
+        {}
+      end
 
       request = EventMachine::HttpRequest.new status_callback_url
       query = { :CallSid => call_id, :CallStatus => status }
       query[:From] = pbx.caller_id if pbx
       request.get({:query => query}.merge(authentication))
     end
+  end
+
+  def finish_with_error message
+    @commands = application.error_flow
+    run
+    call_log.finish_with_error message
   end
 end

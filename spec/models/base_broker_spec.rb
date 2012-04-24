@@ -176,6 +176,49 @@ describe BaseBroker do
       the_session.should_receive(:notify_status).with('busy')
       @broker.finish_session_with_error the_session, 'An error', 'busy'
     end
+
+    it "should create a Trace logging that the call has ended" do
+
+      @channel.application.user_flow = [
+        {
+          'id' => 1,
+          'root' => 1,
+          'type' => 'play',
+          'name' => 'Play number one',
+          'message' => {
+            "name" => "Some explanation message",
+            "type" => "text"
+          }
+        }
+      ]
+      @channel.application.save!
+      @channel.application.reload
+
+      queued_call = @channel.queued_calls.make
+      the_session = nil
+
+      @broker.should_receive(:call).with { |session| the_session = session }
+      @broker.notify_call_queued @channel
+
+      pbx = stub 'pbx', :session_id => the_session.id
+      pbx.should_receive :answer
+      pbx.should_receive :hangup
+
+      EM.should_receive(:fiber_sleep).with 2
+
+      @broker.accept_call pbx
+
+      Trace.all.size.should eq(2)
+      Trace.first.result.should eq('Message played.')
+      Trace.first.application_id.should eq(@channel.application.id)
+      Trace.first.step_id.to_i.should eq(1)
+      Trace.first.step_name.should eq('Play number one')
+
+      Trace.last.result.should eq('User hanged up.')
+      Trace.last.application_id.should eq(@channel.application.id)
+      Trace.last.step_id.to_i.should eq(1)
+      Trace.last.step_name.should eq('')
+    end
   end
 
   context "reject call" do
@@ -325,4 +368,3 @@ class Commands::YieldCommand < Command
     super
   end
 end
-

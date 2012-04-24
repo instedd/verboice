@@ -8,7 +8,12 @@ class Commands::TraceCommand < Command
   end
 
   def run(session)
-    Trace.create! application_id: @application_id, step_id: @step_id, step_name: @step_name, call_id: session.call_id, result: session.eval(@expression)
+    Trace.create!\
+      application_id: @application_id,
+      step_id: session.eval(@step_id),
+      step_name: @step_name,
+      call_id: session.call_id,
+      result: session.eval(@expression)
     super
   end
 end

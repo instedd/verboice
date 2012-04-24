@@ -94,8 +94,15 @@ describe Application do
     application.reload.flow.should eq(
       Compiler.make do
         Answer()
+        Assign "current_step", 1
         Trace application_id: 4, step_id: 1, step_name: 'Play number one', store: '"Message played."'
         Say "Some explanation message"
+      end
+    )
+
+    application.error_flow.should eq(
+      Compiler.make do
+        Trace application_id: 4, step_id: 'current_step', step_name: '', store: '"User hanged up."'
       end
     )
   end

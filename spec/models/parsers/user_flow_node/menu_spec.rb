@@ -79,6 +79,7 @@ module Parsers
         menu.equivalent_flow.first.should eq(
           Compiler.parse do
             Label 1
+            Assign "current_step", 1
             PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-explanation.wav")
             Assign 'attempt_number1', '1'
             While 'attempt_number1 <= 3' do
@@ -86,6 +87,7 @@ module Parsers
               If "digits == 4" do
                 Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
                 Label 10
+                Assign "current_step", 10
                 Trace application_id: 1, step_id: 10, step_name: 'Play 1', store: '"Message played."'
                 Say "Second explanation message"
                 Goto "end1"
@@ -93,6 +95,7 @@ module Parsers
               If "digits == 6" do
                 Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
                 Label 14
+                Assign "current_step", 14
                 Trace application_id: 1, step_id: 14, step_name: 'Play 2', store: '"Message played."'
                 Say "Third explanation message"
                 Goto "end1"
@@ -100,6 +103,7 @@ module Parsers
               If "digits == 2" do
                 Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
                 Label 5
+                Assign "current_step", 5
                 Trace application_id: 1, step_id: 5, step_name: 'Play 3', store: '"Message played."'
                 Say "Fourth explanation message"
                 Goto "end1"
@@ -125,6 +129,7 @@ module Parsers
         menu = Menu.new app, 'id' => 27, 'type' => 'menu'
         menu.equivalent_flow.make.should eq(
           Compiler.make do
+            Assign "current_step", 27
             Assign 'attempt_number27', '1'
             While 'attempt_number27 <= 3' do
               Capture min: 1, max: 1, finish_on_key: '#', timeout: 5

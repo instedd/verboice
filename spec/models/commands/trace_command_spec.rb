@@ -21,5 +21,20 @@ module Commands
       Trace.first.call_id.should eq(333)
       Trace.first.step_name.should eq('bar')
     end
+
+    it "should take the step id from a given expression" do
+      cmd = Compiler.make do |c|
+        c.Assign "current_step", 3
+        c.Trace :application_id => 2, :step_id => 'current_step', :step_name => '', :store => '"zzz"'
+      end
+      cmd.run(session).run(session)
+
+      Trace.all.size.should eq(1)
+      Trace.first.result.should eq('zzz')
+      Trace.first.application_id.should eq(2)
+      Trace.first.step_id.to_i.should eq(3)
+      Trace.first.call_id.should eq(333)
+      Trace.first.step_name.should eq('')
+    end
   end
 end

@@ -9,6 +9,7 @@ class Application < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :account_id
 
   serialize :flow, Command
+  serialize :error_flow, Command
   serialize :user_flow, Array
 
   before_update :update_flow_with_user_flow
@@ -18,7 +19,6 @@ class Application < ActiveRecord::Base
                   :status_callback_url_user, :status_callback_url_password
 
   attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true
-
 
   def clear_flow
     self.flow = nil
@@ -46,7 +46,9 @@ class Application < ActiveRecord::Base
 
   def update_flow_with_user_flow
     if user_flow_changed?
-      self.flow = (Parsers::UserFlow.new self, user_flow).equivalent_flow
+      parser  = Parsers::UserFlow.new self, user_flow
+      self.flow = parser.equivalent_flow
+      self.error_flow = parser.error_flow
     end
     true
   end

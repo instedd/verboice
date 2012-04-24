@@ -63,35 +63,36 @@ module Parsers
       end
 
       def equivalent_flow
-        Compiler.parse do |compiler|
-          compiler.Label @id
-          compiler.append(@explanation_message.equivalent_flow)
-            .Assign("attempt_number#{@id}", '1')
-            .While("attempt_number#{@id} <= #{@number_of_attempts}") do |compiler|
-              compiler.Capture({
-                min: @min_input_length, max: @max_input_length, finish_on_key: @finish_on_key, timeout: @timeout
-              }.merge(@options_message.capture_flow))
-              @options.each do |an_option|
-                compiler.If("digits == #{an_option['number']}") do |compiler|
-                  compiler.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits')
-                  compiler.append(an_option['next'].equivalent_flow)
-                  compiler.Goto("end#{@id}")
-                end
+        Compiler.parse do |c|
+          c.Label @id
+          c.Assign "current_step", @id
+          c.append(@explanation_message.equivalent_flow)
+          c.Assign("attempt_number#{@id}", '1')
+          c.While("attempt_number#{@id} <= #{@number_of_attempts}") do |c|
+            c.Capture({
+              min: @min_input_length, max: @max_input_length, finish_on_key: @finish_on_key, timeout: @timeout
+            }.merge(@options_message.capture_flow))
+            @options.each do |an_option|
+              c.If("digits == #{an_option['number']}") do |c|
+                c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits')
+                c.append(an_option['next'].equivalent_flow)
+                c.Goto("end#{@id}")
               end
-              compiler.If("digits != null") do |compiler|
-                compiler.append(@invalid_message.equivalent_flow)
-                  .Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"Invalid key pressed"')
-              end
-                .Else do |compiler|
-                  compiler.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"No key was pressed. Timeout."')
-                end
-                .Assign("attempt_number#{@id}", "attempt_number#{@id} + 1")
             end
-            .Trace(application_id: @application.id, step_id: @id, step_name: @name, store: %("Missed input for #{@number_of_attempts} times."))
-            .append(@end_call_message.equivalent_flow)
-          compiler.End
-          compiler.Label("end#{@id}")
-          compiler.append(@next.equivalent_flow) if @next
+            c.If("digits != null") do |c|
+              c.append(@invalid_message.equivalent_flow)
+              c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"Invalid key pressed"')
+            end
+            c.Else do |c|
+              c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"No key was pressed. Timeout."')
+            end
+            c.Assign("attempt_number#{@id}", "attempt_number#{@id} + 1")
+          end
+          c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: %("Missed input for #{@number_of_attempts} times."))
+          c.append(@end_call_message.equivalent_flow)
+          c.End
+          c.Label("end#{@id}")
+          c.append(@next.equivalent_flow) if @next
         end
       end
     end

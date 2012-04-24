@@ -27,13 +27,12 @@
 
   %br
   %hr
-  %br
 
   = form_tag update_workflow_application_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
-    .bottom-actions
+    %div
       = hidden_field_tag 'flow'
-      %button.white{:type => "submit"} Save
-      = link_to 'Cancel', application_path(@application), :class => "button white cancel"
+      %button.grey{:type => "submit"} Save
+      = link_to 'Cancel', application_path(@application), :class => "button white cancel", :style => 'top: 2px;'
 
 / %br
 / %hr

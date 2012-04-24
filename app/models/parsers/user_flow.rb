@@ -29,6 +29,10 @@ module Parsers
       @equivalent_flow ||= build_equivalent_flow
     end
 
+    def error_flow
+      Commands::TraceCommand.new application_id: @application.id, step_id: 'current_step', step_name: '', store: '"User hanged up."'
+    end
+
     def build_equivalent_flow
       Compiler.make do |compiler|
         compiler.Answer

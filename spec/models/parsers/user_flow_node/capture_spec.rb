@@ -34,6 +34,7 @@ module Parsers
         capture.equivalent_flow.first.should eq(
           Compiler.parse do
             Label 1
+            Assign "current_step", 1
             Assign 'attempt_number1', '1'
             While 'attempt_number1 <= 3' do
               Capture say: "First Capture", min: 1, max: 2, finish_on_key: '#', timeout: 10
@@ -62,6 +63,7 @@ module Parsers
 
         capture_flow = Compiler.parse do
           Label 4
+          Assign "current_step", 4
           Assign 'attempt_number4', '1'
           While 'attempt_number4 <= 3' do
             Capture min: 1, max: 1, finish_on_key: '#', timeout: 5
@@ -109,6 +111,7 @@ module Parsers
       it "should accept an empty input" do
          capture_flow = Compiler.parse do
             Label 4
+            Assign "current_step", 4
             Assign 'attempt_number4', '1'
             While 'attempt_number4 <= 3' do
               Capture min: 0, max: 2, finish_on_key: '#', timeout: 5

@@ -145,8 +145,10 @@ describe Parsers::UserFlow do
     (Parsers::UserFlow.new application, application_flow).equivalent_flow.should eq(
       Compiler.make do
         Answer()
+        Assign "current_step", 1
         Trace application_id: 1, step_id: 1, step_name: 'Play number one', store: '"Message played."'
         PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-message.wav")
+        Assign "current_step", 2
         Assign 'attempt_number2', '1'
         While 'attempt_number2 <= 3' do
           Capture say: "First Capture", min: 1, max: 10, finish_on_key: '#', timeout: 10
@@ -167,18 +169,21 @@ describe Parsers::UserFlow do
         PlayFile File.join(Rails.root, "data","applications","1","recordings", "2-end_call.wav")
         End()
         Label "end2"
+        Assign "current_step", 3
         Say 'First Menu'
         Assign 'attempt_number3', '1'
         While 'attempt_number3 <= 3' do
           Capture min: 1, max: 1, finish_on_key: '#', timeout: 20
           If "digits == 2" do
             Trace application_id: 1, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
+            Assign "current_step", 4
             Trace application_id: 1, step_id: 4, step_name: 'Say number 4', store: '"Message played."'
             Say "Say 4"
             Goto "end3"
           end
           If "digits == 1" do
             Trace application_id: 1, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
+            Assign "current_step", 6
             Trace application_id: 1, step_id: 6, step_name: 'Say number 6', store: '"Message played."'
             Say "Say 6"
             Goto "end3"
@@ -194,11 +199,14 @@ describe Parsers::UserFlow do
         Trace application_id: 1, step_id: 3, step_name: 'Menu number one', store: '"Missed input for 3 times."'
         End()
         Label "end3"
+        Assign "current_step", 5
         Trace application_id: 1, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
         Say "Say 5"
+        Assign "current_step", 33
         Trace application_id: 1, step_id: 33, step_name: 'Play number 33', store: '"Message played."'
         PlayFile File.join(Rails.root, "data","applications","1","recordings", "33-message.wav")
-      end)
+      end
+    )
   end
 
   it "should provide a hash of step names and IDs" do
@@ -213,6 +221,14 @@ describe Parsers::UserFlow do
       33 => "Play number 33",
       44 => "Play number 44",
     })
+  end
+
+  it "should provide an error flow to append to a given application" do
+    (Parsers::UserFlow.new application, application_flow).error_flow.should eq(
+      Compiler.make do
+        Trace application_id: 1, step_id: 'current_step', step_name: '', store: '"User hanged up."'
+      end
+    )
   end
 
 end

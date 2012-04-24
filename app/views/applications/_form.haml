@@ -18,4 +18,10 @@
     = f.send(field_type, field)
 
   %hr
-  = f.submit :class => 'white'
+
+  - if @application.new_record?
+    %button.grey{:type => "submit"} Save
+    = link_to "Cancel", applications_path, :class => "button white cancel", :style => 'top: 1px;'
+  - else
+    %button.grey{:type => "submit"} Update
+    = link_to "Cancel", application_path(@application), :class => "button white cancel", :style => 'top: 1px;'
