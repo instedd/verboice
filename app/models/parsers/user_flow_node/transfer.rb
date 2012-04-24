@@ -43,6 +43,7 @@ module Parsers
         channel_name = @channel.present? ? @channel : 'current channel'
         Compiler.parse do |compiler|
           compiler.Label @id
+          compiler.Assign "current_step", @id
           compiler.Trace application_id: @application.id, step_id: @id, step_name: @name, store: %("Transfer to #{@address} in channel #{channel_name}.")
           compiler.Dial @address, {:channel => @channel}
           compiler.append @next.equivalent_flow if @next
