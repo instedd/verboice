@@ -1,7 +1,9 @@
 class CallLogsController < ApplicationController
   before_filter :authenticate_account!
+  include ActionView::Helpers::TextHelper
 
-  # GET /applications
+  ENQUEUE_CALLS_ENABLED = false
+
   def index
     @page = params[:page] || 1
     @search = params[:search]
@@ -19,4 +21,27 @@ class CallLogsController < ApplicationController
     @log = current_account.call_logs.find params[:id]
     render :layout => false
   end
+
+  def queued
+    @page = params[:page] || 1
+    @per_page = 10
+    @calls = current_account.queued_calls.includes(:channel).includes(:call_log).includes(:call_queue).order('id DESC')
+    @calls = @calls.paginate :page => @page, :per_page => @per_page
+
+    @channels = current_account.channels
+    @queues = current_account.call_queues
+  end
+
+
+if ENQUEUE_CALLS_ENABLED
+  def enqueue
+    @channel = current_account.channels.find(params[:channel_id])
+    addresses = params[:addresses].split(/\n/).map(&:strip).select(&:presence)
+    addresses.each do |address|
+      @channel.call(address.strip, {queue_id: params[:queue_id]})
+    end
+    redirect_to({:action => 'queued'}, {:notice => "Enqueued calls to #{pluralize(addresses.count, 'address')} on channel #{@channel.name}"})
+  end
+end
+
 end

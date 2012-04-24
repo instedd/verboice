@@ -1,0 +1,44 @@
+= render :partial => 'call_logs/tabs'
+
+%p
+  Here you can see the details of incoming and outgoing calls.
+%form
+  %p
+    Search: #{text_field_tag :search, @search, :size => 80, :class => (@search.present? ? 'highlighted' : '')}
+  %div= page_entries_info @logs, :entry_name => 'call log'
+  = will_paginate @logs, :param_name => 'page'
+  - if @logs.present?
+    %br/
+    %table.GralTable
+      %tr
+        %th ID
+        %th Started
+        %th Finished
+        %th Duration
+        %th Caller ID
+        %th Direction
+        %th Channel
+        %th Queue
+        %th Application
+        %th State
+        %th
+      - @logs.each do |log|
+        %tr
+          %td= log.id
+          %td= raw time_ago log.created_at
+          %td= raw time_ago log.finished_at
+          %td= distance_of_time_in_words(log.finished_at, log.created_at, true) if log.finished_at
+          - if log.address.present?
+            %td= link_to log.address, call_logs_path(:search => "caller:#{log.address}")
+          - else
+            %td= log.address
+          %td= log.direction
+          %td= log.channel.try(:name)
+          %td= log.call_queue.try(:name)
+          %td= log.application.try(:name)
+          %td= log.state
+          %td= link_to 'view details', call_log_path(log)
+    %br/
+    %div= page_entries_info @logs, :entry_name => 'call log'
+    = will_paginate @logs, :param_name => 'page'
+%br/

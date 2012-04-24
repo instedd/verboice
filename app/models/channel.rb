@@ -2,7 +2,7 @@ class Channel < ActiveRecord::Base
   include ChannelSerialization
 
   Kinds = %w(sip custom voxeo)
-  
+
   attr_protected :guid
 
   belongs_to :account
@@ -39,10 +39,13 @@ class Channel < ActiveRecord::Base
   end
 
   def call(address, options = {})
-    call_queue = options.has_key?(:queue) ? account.call_queues.find_by_name!(options[:queue]) : nil
+    call_queue = options.has_key?(:queue_id) ? account.call_queues.find(options[:queue_id]) : nil
+    call_queue ||= options.has_key?(:queue) ? account.call_queues.find_by_name!(options[:queue]) : nil
+
+    via = options.fetch(:via, 'API')
 
     call_log = call_logs.new :direction => :outgoing, :application_id => application_id, :address => address, :state => :queued, :call_queue => call_queue, :not_before => options[:not_before]
-    call_log.info "Received via API: call #{address}"
+    call_log.info "Received via #{via}: call #{address}"
     call_log.save!
 
     queued_call = queued_calls.new(
@@ -100,7 +103,7 @@ class Channel < ActiveRecord::Base
   config_accessor :direction
 
   config_accessor :dial_string
-  
+
   config_accessor :token
   config_accessor :url
 
@@ -138,7 +141,7 @@ class Channel < ActiveRecord::Base
   def call_broker_delete_channel
     BrokerClient.delete_channel self.id
   end
-  
+
   def create_guid
     self.guid ||= Guid.new.to_s
   end

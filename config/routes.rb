@@ -20,7 +20,13 @@ Verboice::Application.routes.draw do
   end
 
   resources :call_logs, path: :calls do
-    get :progress, :on => :member
+    member do
+      get :progress
+    end
+    collection do
+      get :queued
+      post :enqueue
+    end
   end
 
   resources :call_queues, path: :queues

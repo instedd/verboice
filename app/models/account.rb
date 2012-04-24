@@ -12,6 +12,8 @@ class Account < ActiveRecord::Base
   has_many :call_logs
   has_many :call_queues
 
+  has_many :queued_calls, :through => :channels
+
   def call(options = {})
     channel = channels.find_by_name! options[:channel]
     channel.call options[:address], options
