@@ -1,13 +1,13 @@
 module Parsers
   module UserFlowNode
     class Goto < UserCommand
-      attr_reader :id, :message, :name, :application, :next
+      attr_reader :id, :name, :application
 
       def initialize application, params
         @id = params['id']
         @name = params['name'] || ''
+        @jump = params['jump']
         @application = application
-        @next = params['next']
         @root_index = params['root']
       end
 
@@ -25,7 +25,7 @@ module Parsers
 
       def equivalent_flow
         Compiler.parse do |compiler|
-          compiler.Goto @next
+          compiler.Goto @jump
         end
       end
     end

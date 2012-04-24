@@ -112,7 +112,7 @@ describe Parsers::UserFlow do
       {
         'id' => 7,
         'type' => 'goto',
-        'next' => 33
+        'jump' => 33
       },
       {
         'id' => 33,

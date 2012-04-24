@@ -1,0 +1,16 @@
+%script{type: "text/html", id: "goto_step_template"}
+  .feditor-sidebar.right.box.w28.iblock.h65
+    .tableheader
+      %span.i48grad-dial.left
+      %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %th Go to step
+        %th
+      %tr
+        %td{:colspan => 2}
+          %select.w100{'data-bind' => "value: jump_id, options: available_steps(), optionsText: 'name', optionsValue: 'id'"}
+    .content
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

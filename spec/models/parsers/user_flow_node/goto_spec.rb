@@ -9,7 +9,7 @@ module Parsers
       it "should compile to a verboice equivalent flow" do
         play = Goto.new app, 'id' => 1,
           'type' => 'goto',
-          'next' => 3
+          'jump' => 3
 
 
         play.equivalent_flow.first.should eq(
