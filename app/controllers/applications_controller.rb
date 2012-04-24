@@ -25,22 +25,21 @@ class ApplicationsController < ApplicationController
           header = ['Call ID', 'Address', 'Start Time', 'End Time']
           csv << header + steps.values
           @application.call_logs.includes(:traces).each do |call_log|
-            begin
-              line = []
-              line << call_log.id
-              line << call_log.address
-              line << call_log.started_at
-              line << call_log.finished_at
-              call_log.traces.each do |trace|
+            line = []
+            line << call_log.id
+            line << call_log.address
+            line << call_log.started_at
+            line << call_log.finished_at
+            call_log.traces.each do |trace|
+              begin
                 line[ids.index(trace.step_id.to_i) + header.size] = trace.result
+              rescue Exception => e
+                # If the Trace belongs to a deleted step, there is no way to represent it.
+                # This should be fixed when the application stores it's different flow versions.
+                # For now, the entire line is ignored
               end
-              csv << line
-            rescue Exception => e
-              # If the Trace belongs to a deleted step, there is no way to represent it.
-              # The error is produced in line ids.index(trace.step_id.to_i) which returns nil.
-              # This should be fixed when the application stores it's different flow versions.
-              # For now, the entire line is ignored
             end
+            csv << line
           end
         end
         render :text => csv
