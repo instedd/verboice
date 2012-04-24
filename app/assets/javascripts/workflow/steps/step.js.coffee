@@ -61,7 +61,8 @@ onWorkflow ->
           parent.child_removed(@)
           parent.next_id = null
       else
-        @next()?.root = @root
+        if @next_id? and @next_id > 0
+          @next()?.root = @root
       workflow.remove_step @
 
     child_removed: () =>
