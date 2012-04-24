@@ -31,6 +31,7 @@ describe ApplicationsController do
     Trace.make application: app, call_log: call_log5, step_id: 737, result: "No key was pressed. Timeout.", step_name: "Menu Bar"
     Trace.make application: app, call_log: call_log6, step_id: 1, result: "User pressed: 2", step_name: "Menu inicial"
     Trace.make application: app, call_log: call_log6, step_id: 737, result: "User pressed: 2", step_name: "Menu Bar"
+    Trace.make application: app, call_log: call_log5, step_id: 43212345678, result: "User pressed: 2"
 
     response = get :show, :format => :csv, id: app.id
     response.body.should eq File.read(File.join(Rails.root, 'spec/fixtures/trace.csv'))
