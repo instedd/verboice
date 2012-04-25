@@ -1,6 +1,6 @@
 %ul.tabs.top
-  %li{ :class =>"#{"active" if params[:controller] == "call_logs" && (params[:action] == 'show' || params[:action] == 'index')}"}
+  %li{ :class =>"#{"active" if params[:controller] == "call_logs" && (params[:action] == 'show' || params[:action] == 'index' || params[:action] == 'progress')}"}
     = link_to "Calls log", call_logs_path
-  %li{ :class =>"#{"active" if params[:controller] == "call_logs" && (params[:action] == 'schedule' || params[:action] == 'scheduled')}"}
+  %li{ :class =>"#{"active" if params[:controller] == "call_logs" && (params[:action] == 'queued' || params[:action] == 'enqueue')}"}
     = link_to "Queued calls", queued_call_logs_path
 .tabsline
