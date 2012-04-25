@@ -23,7 +23,7 @@ module Parsers
 
       def solve_links_with nodes
         @options.each do |an_option|
-          unless @next.is_a?(UserCommand)
+          if an_option['next'] && !an_option['next'].is_a?(UserCommand)
             possible_nodes = nodes.select do |a_node|
               a_node.id == an_option['next']
             end
@@ -76,7 +76,7 @@ module Parsers
             @options.each do |an_option|
               c.If("digits == #{an_option['number']}") do |c|
                 c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits')
-                c.append(an_option['next'].equivalent_flow)
+                c.append(an_option['next'].equivalent_flow) if an_option['next']
                 c.Goto("end#{@id}")
               end
             end
