@@ -23,7 +23,6 @@ describe CallLogsController do
     assigns(:calls).should eq(calls.sort_by(&:id).reverse)
   end
 
-if CallLogsController::ENQUEUE_CALLS_ENABLED
   it 'should enqueue a call' do
     expect {
       post :enqueue, :addresses => "1", :channel_id => channel.id, :queue_id => queue.id
@@ -42,6 +41,4 @@ if CallLogsController::ENQUEUE_CALLS_ENABLED
       actual[num].address.should eq(num.to_s)
     end
   end
-end
-
 end

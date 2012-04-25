@@ -2,8 +2,6 @@ class CallLogsController < ApplicationController
   before_filter :authenticate_account!
   include ActionView::Helpers::TextHelper
 
-  ENQUEUE_CALLS_ENABLED = false
-
   def index
     @page = params[:page] || 1
     @search = params[:search]
@@ -32,8 +30,6 @@ class CallLogsController < ApplicationController
     @queues = current_account.call_queues
   end
 
-
-if ENQUEUE_CALLS_ENABLED
   def enqueue
     @channel = current_account.channels.find(params[:channel_id])
     addresses = params[:addresses].split(/\n/).map(&:strip).select(&:presence)
@@ -42,6 +38,5 @@ if ENQUEUE_CALLS_ENABLED
     end
     redirect_to({:action => 'queued'}, {:notice => "Enqueued calls to #{pluralize(addresses.count, 'address')} on channel #{@channel.name}"})
   end
-end
 
 end

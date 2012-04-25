@@ -33,20 +33,19 @@
 
 %hr/
 
-- if CallLogsController::ENQUEUE_CALLS_ENABLED
-  %h2 Enqueue new calls
+%h2 Enqueue new calls
 
-  = form_tag enqueue_call_logs_path, :method => 'POST' do
+= form_tag enqueue_call_logs_path, :method => 'POST' do
+  %p
+    = label_tag :channel_id, 'Channel'
+    = select_tag :channel_id, options_from_collection_for_select(@channels, 'id', 'name'), :include_blank => true
+  %p
+    = label_tag :queue_id, 'Call queue'
+    = select_tag :queue_id, options_from_collection_for_select(@queues, 'id', 'name'), :include_blank => true
+  %p
+    = label_tag :addresses
+    %p Enter each address in a separate line
     %p
-      = label_tag :channel_id, 'Channel'
-      = select_tag :channel_id, options_from_collection_for_select(@channels, 'id', 'name'), :include_blank => true
-    %p
-      = label_tag :queue_id, 'Call queue'
-      = select_tag :queue_id, options_from_collection_for_select(@queues, 'id', 'name'), :include_blank => true
-    %p
-      = label_tag :addresses
-      %p Enter each address in a separate line
-      %p
-        = text_area_tag :addresses, nil, :placeholder => "555-1000", :rows => 10
-    %p
-      = submit_tag "Enqueue calls"
+      = text_area_tag :addresses, nil, :placeholder => "555-1000", :rows => 10
+  %p
+    = submit_tag "Enqueue calls"
