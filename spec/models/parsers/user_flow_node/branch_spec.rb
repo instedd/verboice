@@ -71,7 +71,7 @@ module Parsers
             Label 1
             Assign "current_step", 1
             If "(value_3 == 6) && (value_5 >= 5)" do
-              Trace application_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 1 selected."'
+              Trace application_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
               Label 10
               Assign "current_step", 10
               Trace application_id: 1, step_id: 10, step_name: 'Play 1', store: '"Message played."'
@@ -79,7 +79,7 @@ module Parsers
               Goto "end1"
             end
             If "(value_1 <= 2)" do
-              Trace application_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 2 selected."'
+              Trace application_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
               Label 14
               Assign "current_step", 14
               Trace application_id: 1, step_id: 14, step_name: 'Play 2', store: '"Message played."'
@@ -87,7 +87,7 @@ module Parsers
               Goto "end1"
             end
             If "true" do
-              Trace application_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 3 selected."'
+              Trace application_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 3 selected: \'zzz\'"'
               Label 5
               Assign "current_step", 5
               Trace application_id: 1, step_id: 5, step_name: 'Play 3', store: '"Message played."'

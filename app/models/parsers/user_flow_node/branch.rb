@@ -59,7 +59,7 @@ module Parsers
           c.Assign "current_step", @id
           @options.each_with_index do |an_option, index|
             c.If(merge_conditions_from(an_option['conditions'])) do |c|
-              c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: "\"Branch number #{index + 1} selected.\"")
+              c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: "\"Branch number #{index + 1} selected: '#{an_option['description']}'\"")
               c.append(an_option['next'].equivalent_flow) if an_option['next']
               c.Goto("end#{@id}")
             end
