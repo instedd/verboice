@@ -75,22 +75,19 @@ onWorkflow ->
         option.remove_next()
       super()
 
-    branches: () =>
+    children: () =>
       (option.next() or option.skip() for option in @sorted_options())
 
-    branches_ids: () =>
+    children_ids: () =>
       (option.next_id for option in @sorted_options())
 
     leaves: () =>
       if @next()?
         @next().leaves()
-      else if @branches()? && @branches().length > 0
-        [].concat.apply([], (child.leaves() for child in @branches()))
+      else if @children()? && @children().length > 0
+        [].concat.apply([], (child.leaves() for child in @children()))
       else
         [@]
-
-    get_null_branch: () =>
-      new Skip
 
     sorted_options: () =>
       @options().sort((opt1, opt2) => opt1.number().charCodeAt(0) - opt2.number().charCodeAt(0))

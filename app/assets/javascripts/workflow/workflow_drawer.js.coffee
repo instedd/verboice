@@ -17,10 +17,10 @@ onWorkflow ->
       @set_step(step, i, j, klass)
       [next_i, next_j] = [i,j+1]
 
-      if step.branches?
+      if step.children?
         child_index = 0
         klass = 'ha'
-        for child in step.branches()
+        for child in step.children()
           last_child_i = next_i
           [next_i, child_next_j] = @recursive_draw_workflow(child, next_i, j+1, i, j, klass)
           next_j = child_next_j if next_j < child_next_j
@@ -33,9 +33,9 @@ onWorkflow ->
         next_j = child_next_j if next_j < child_next_j
         next_i = child_next_i if next_i < child_next_i
 
-        if step.branches? and step.branches().length > 0
+        if step.children? and step.children().length > 0
           max_child_i = 0
-          for child in step.branches()
+          for child in step.children()
             for leaf in child.leaves()
               unless leaf.type() == 'goto'
                 @fill_horizontal(leaf.position[0], leaf.position[1]+1, next_step_j-1)
