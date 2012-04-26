@@ -1,7 +1,8 @@
 onWorkflow ->
   class window.MenuOption
     constructor: (num, next_id, menu) ->
-      @number = ko.observable num
+      @skip_step = null
+      @number = ko.observable((num || "").toString())
       @next_id = next_id
       @menu = menu
       @available_numbers = ko.computed () =>
@@ -11,7 +12,10 @@ onWorkflow ->
       workflow.get_step @next_id
 
     next_name: () =>
-      @next()?.name()
+      if @next()? then @next().name() else "Skip to #{if @menu.next_id > 0 then @menu.next().name() else 'next step'}"
+
+    skip: () =>
+      @skip_step ?= new Skip
 
     to_hash: () =>
       {number: @number(), next: @next_id}

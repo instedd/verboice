@@ -17,41 +17,47 @@ onWorkflow ->
       @set_step(step, i, j, klass)
       [next_i, next_j] = [i,j+1]
 
-      klass = 'ha'
-      if step.children?
-        for child in step.children()
+      if step.branches?
+        child_index = 0
+        klass = 'ha'
+        for child in step.branches()
           last_child_i = next_i
           [next_i, child_next_j] = @recursive_draw_workflow(child, next_i, j+1, i, j, klass)
-          klass = 'va'
           next_j = child_next_j if next_j < child_next_j
-        @fill_vertical(j+1, i, last_child_i) if klass == 'va'
+          klass = if klass == 'ha' and next_i == i+1 then 'va va-merge' else 'va'
+        @fill_vertical(j+1, i+1, last_child_i) unless klass == 'ha'
 
-      if step.next()?
+      if step.next?()?
         [next_step_i, next_step_j] = [i, next_j]
         [child_next_i, child_next_j] = @recursive_draw_workflow(step.next(), next_step_i, next_step_j, i, j, 'ha')
         next_j = child_next_j if next_j < child_next_j
         next_i = child_next_i if next_i < child_next_i
 
-        if step.children? and step.children().length > 0
+        if step.branches? and step.branches().length > 0
           max_child_i = 0
-          for child in step.children()
+          for child in step.branches()
             for leaf in child.leaves()
-              @fill_horizontal(leaf.position[0], leaf.position[1], next_step_j-1)
-              @set_step(null, leaf.position[0], next_step_j, 'va3')
-              max_child_i = leaf.position[0] if leaf.position[0] > max_child_i
+              unless leaf.type() == 'goto'
+                @fill_horizontal(leaf.position[0], leaf.position[1]+1, next_step_j-1)
+                va_merge = if leaf.position[0] == i+1 then 'va-merge' else ''
+                @set_step(null, leaf.position[0], next_step_j, "va3 #{va_merge}")
+                max_child_i = leaf.position[0] if leaf.position[0] > max_child_i
           @fill_vertical(next_step_j, next_step_i+1, max_child_i-1)
 
       next_i = i+1 if next_i < i+1
       return [next_i, next_j]
 
     fill_horizontal: (i, from_j, to_j) =>
-      for j_k in [from_j..to_j]
-        @set_step(null, i, j_k, 'ha-ext')
+      if from_j <= to_j
+        for j_k in [from_j..to_j]
+          klass = if j_k == from_j then 'ha-ext' else 'ha-ext-nodot'
+          @set_step(null, i, j_k, klass)
 
     fill_vertical: (j, from_i, to_i) =>
       if from_i <= to_i
         for i_k in [from_i..to_i]
-          @set_step(null, i_k, j, 'va-ext')
+          va_merge = if i_k == from_i then 'va-merge' else ''
+          @set_step(null, i_k, j, "va-ext #{va_merge}")
 
     set_step: (step, i, j, klass) =>
       for i_k in [0..i]
@@ -74,6 +80,8 @@ onWorkflow ->
             [elem, klass] = pair
             if not elem?
               @draw_empty(klass)
+            else if elem.type() == 'skip'
+              @draw_skip(elem, klass)
             else
               @draw_step(elem, klass)
       ko.applyBindings
@@ -82,6 +90,10 @@ onWorkflow ->
       @container.append('<p> </p>')
 
     draw_empty: (klass="") =>
+      @container.append("<div class=\"#{klass}\"><span></span></div>")
+
+    draw_skip: (step, klass="") =>
+      klass = if klass == 'va' then 'va-skip' else 'ha-ext'
       @container.append("<div class=\"#{klass}\"><span></span></div>")
 
     draw_step: (step, klass="") =>

@@ -23,13 +23,13 @@ onWorkflow ->
 
       @available_numbers = ko.computed () =>
         used_numbers = (opt.number() for opt in @options())
-        (number for number in [1,2,3,4,5,6,7,8,9,0] when number not in used_numbers)
+        (number for number in ['1','2','3','4','5','6','7','8','9','0','#','*'] when number not in used_numbers)
 
     button_class: () =>
       'ldial'
 
     commands: () =>
-      (step_type.type for step_type in step_types)
+      (step_type.type for step_type in step_types).concat(['skip'])
 
     @add_to_steps: () ->
       workflow.add_step(new Menu)
@@ -49,8 +49,8 @@ onWorkflow ->
       )
 
     add_option: () =>
-      new_step = workflow.create_step(@new_option_command(), false)
-      @options.push(new MenuOption(@available_numbers()[0], new_step.id, @))
+      new_step_id = if (@new_option_command() == 'skip') then null else workflow.create_step(@new_option_command(), false).id
+      @options.push(new MenuOption(@available_numbers()[0], new_step_id, @))
 
     option_for: (step) =>
       for option in @options()
@@ -75,12 +75,25 @@ onWorkflow ->
         option.remove_next()
       super()
 
-    children: () =>
-      (step for step in workflow.steps() when step.id in @children_ids())
+    branches: () =>
+      (option.next() or option.skip() for option in @sorted_options())
 
-    children_ids: () =>
-      options = @options().sort((opt1, opt2) => opt1.number() - opt2.number())
-      (option.next_id for option in options)
+    branches_ids: () =>
+      (option.next_id for option in @sorted_options())
+
+    leaves: () =>
+      if @next()?
+        @next().leaves()
+      else if @branches()? && @branches().length > 0
+        [].concat.apply([], (child.leaves() for child in @branches()))
+      else
+        [@]
+
+    get_null_branch: () =>
+      new Skip
+
+    sorted_options: () =>
+      @options().sort((opt1, opt2) => opt1.number().charCodeAt(0) - opt2.number().charCodeAt(0))
 
     message: (msg) =>
       @message_selectors[msg]
@@ -100,3 +113,17 @@ onWorkflow ->
 
     show_explanation_message: () =>
       @show_message('explanation')
+
+
+  class window.Skip extends Step
+    @type = 'skip'
+
+    constructor: () ->
+      super({})
+      @id = null
+
+    leaves: () =>
+      [@]
+
+    next: () =>
+      null

@@ -7,7 +7,7 @@ onWorkflow ->
       @parent = null
 
     button_class: () =>
-      'ltext'
+      'addnew'
 
     default_name: () =>
       "Add new step"
