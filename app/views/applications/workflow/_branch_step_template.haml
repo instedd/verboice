@@ -1,0 +1,47 @@
+%script{type: "text/html", id: "branch_step_template"}
+  .feditor-sidebar.right.box.w28.iblock.h65
+    .tableheader
+      %span.i48grad-dial.left
+      %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+
+    / %table.GralTable.TwoColumn.CleanTable.NoHead
+    /   %tr
+    /     %th Go to step
+    /     %th
+    /   %tr
+    /     %td{:colspan => 2}
+    /       %select.w100{'data-bind' => "value: jump_id, options: available_steps(), optionsText: 'name', optionsValue: 'id'"}
+    .content
+      %label Branches
+
+      %ul.oplist
+        %span{ 'data-bind' => 'foreach: options' }
+          %li
+            Order
+            %input{ 'data-bind' => 'value: order'}
+            %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option_with_confirm' }
+            %a{:href => '#', 'data-bind' => 'click: $parent.move_option_up'} Up
+            %a{:href => '#', 'data-bind' => 'click: $parent.move_option_down'} Down
+            %a{:href => '#', 'data-bind' => 'click: add_condition'} Add condition
+            %span{ 'data-bind' => 'foreach: conditions' }
+              %span Condition
+              %select{'data-bind' => "value: step_id, options: available_steps(), optionsText: 'name', optionsValue: 'id'"}
+              %select{'data-bind' => 'value: operator'}
+                %option{:value => '=='} is equal to
+                %option{:value => '>='} greater or equal to
+                %option{:value => '<='} less or equal to
+                %option{:value => '>'} greater than
+                %option{:value => '<'} less than
+              %input{'data-bind' => 'value: value'}
+              / %input{ 'data-bind' => 'value: expression' }
+            / %select{ko(options: 'available_numbers', value: 'number')}
+            / %span.ux-oplist{ko(text: "next_name()", click: 'select_step')}
+            / %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option_with_confirm' }
+        %li
+          %span.ux-text
+            Add an option:
+            %select.w10{ko(options: 'commands()', value: 'new_option_command')}
+          %button.clist-add{ 'data-bind' => 'click: add_option'}
+
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
