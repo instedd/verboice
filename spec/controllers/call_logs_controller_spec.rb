@@ -4,6 +4,7 @@ describe CallLogsController do
   include Devise::TestHelpers
 
   before(:each) do
+    BrokerClient.stub(:notify_call_queued)
     @account = Account.make
     sign_in @account
   end
