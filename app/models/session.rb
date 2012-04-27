@@ -143,7 +143,8 @@ class Session
 
   def finish_with_error message
     @commands = application.error_flow
-    run
+    run rescue nil
+
     call_log.finish_with_error message
   end
 end
