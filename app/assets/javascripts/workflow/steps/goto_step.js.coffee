@@ -32,3 +32,6 @@ onWorkflow ->
 
     can_add_next: () =>
       false
+
+    can_continue: () =>
+      false

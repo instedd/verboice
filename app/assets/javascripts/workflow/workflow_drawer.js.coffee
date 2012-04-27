@@ -13,24 +13,27 @@ onWorkflow ->
         [i,_j] = @recursive_draw_workflow(root, i, 0)
       @draw_matrix()
 
-    recursive_draw_workflow: (step, i, j, parent_i, parent_j, klass='ha') =>
-      @set_step(step, i, j, klass)
+    recursive_draw_workflow: (step, i, j, klass='ha', merge=false, has_closure=false) =>
+      @set_step(step, i, j, klass, merge)
       [next_i, next_j] = [i,j+1]
 
       if step.children?
         child_index = 0
         klass = 'ha'
+        next_merge = false
+        has_closure = has_closure or (step.children().length > 0 and step.next()?)
         for child in step.children()
-          unless child.type() == 'skip' and not step.next?()?
+          unless child.type() == 'skip' and not has_closure
             last_child_i = next_i
-            [next_i, child_next_j] = @recursive_draw_workflow(child, next_i, j+1, i, j, klass)
+            [next_i, child_next_j] = @recursive_draw_workflow(child, next_i, j+1, klass, next_merge, has_closure)
             next_j = child_next_j if next_j < child_next_j
-            klass = if klass == 'ha' and next_i == i+1 then 'va va-merge' else 'va'
+            next_merge = (klass == 'ha' and next_i == i+1)
+            klass = 'va'
         @fill_vertical(j+1, i+1, last_child_i) unless klass == 'ha'
 
-      if step.next?()?
+      if step.next()?
         [next_step_i, next_step_j] = [i, next_j]
-        [child_next_i, child_next_j] = @recursive_draw_workflow(step.next(), next_step_i, next_step_j, i, j, 'ha')
+        [child_next_i, child_next_j] = @recursive_draw_workflow(step.next(), next_step_i, next_step_j, 'ha')
         next_j = child_next_j if next_j < child_next_j
         next_i = child_next_i if next_i < child_next_i
 
@@ -38,10 +41,10 @@ onWorkflow ->
           max_child_i = 0
           for child in step.children()
             for leaf in child.leaves()
-              unless leaf.type() == 'goto'
+              if leaf.can_continue() and leaf.position?
                 @fill_horizontal(leaf.position[0], leaf.position[1]+1, next_step_j-1)
-                va_merge = if leaf.position[0] == i+1 then 'va-merge' else ''
-                @set_step(null, leaf.position[0], next_step_j, "va3 #{va_merge}")
+                va_merge = (leaf.position[0] == i+1)
+                @set_step(null, leaf.position[0], next_step_j, "va3", va_merge)
                 max_child_i = leaf.position[0] if leaf.position[0] > max_child_i
           @fill_vertical(next_step_j, next_step_i+1, max_child_i-1)
 
@@ -57,15 +60,18 @@ onWorkflow ->
     fill_vertical: (j, from_i, to_i) =>
       if from_i <= to_i
         for i_k in [from_i..to_i]
-          va_merge = if i_k == from_i then 'va-merge' else ''
-          @set_step(null, i_k, j, "va-ext #{va_merge}")
+          va_merge = (i_k == from_i)
+          @set_step(null, i_k, j, 'va-ext', va_merge)
 
-    set_step: (step, i, j, klass) =>
+    set_step: (step, i, j, klass, merge=false) =>
       for i_k in [0..i]
         @matrix_ij[i_k] ?= []
       for j_k in [0..j-1]
         if not @matrix_ij[i][j_k]?
           @matrix_ij[i][j_k] = [null, '']
+
+      klass = (if klass == 'va' then 'va-skip' else 'ha-ext') if step?.type() == 'skip'
+      klass = "#{klass} va-merge" if merge
 
       if step?
         @matrix_ij[i][j] = [step, klass]
@@ -94,7 +100,6 @@ onWorkflow ->
       @container.append("<div class=\"#{klass}\"><span></span></div>")
 
     draw_skip: (step, klass="") =>
-      klass = if klass == 'va' then 'va-skip' else 'ha-ext'
       @container.append("<div class=\"#{klass}\"><span></span></div>")
 
     draw_step: (step, klass="") =>

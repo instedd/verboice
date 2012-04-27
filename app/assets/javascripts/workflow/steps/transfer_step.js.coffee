@@ -28,4 +28,4 @@ onWorkflow ->
       )
 
     default_name: () =>
-      'Forward call'
+      'Forward Call'

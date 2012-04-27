@@ -1,0 +1,14 @@
+%script{type: "text/html", id: "hang_up_step_template"}
+  .feditor-sidebar.right.box.w28.iblock.h65
+    .tableheader
+      %span.i48grad-dial.left
+      %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %th End call
+        %th
+
+    .content
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
