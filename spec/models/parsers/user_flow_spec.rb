@@ -184,7 +184,13 @@ describe Parsers::UserFlow do
         'message' => {
           "name" => "Say 14",
           "type" => "text"
-        }
+        },
+        'next' => 15
+      },
+      {
+        'id' => 15,
+        'name' => 'Hanged up!',
+        'type' => 'hang_up'
       },
       {
         'id' => 44,
@@ -282,6 +288,10 @@ describe Parsers::UserFlow do
           Assign "current_step", 14
           Trace application_id: 5, step_id: 14, step_name: 'Say 14', store: '"Message played."'
           Say "Say 14"
+          Label 15
+          Assign "current_step", 15
+          Trace application_id: 5, step_id: 15, step_name: 'Hanged up!', store: '"Application ended call."'
+          End()
           Goto "end34"
         end
         Trace(application_id: 5, step_id: 34, step_name: 'Branch number one', store: '"No branch was selected."')
@@ -303,6 +313,7 @@ describe Parsers::UserFlow do
       34 => "Branch number one",
       10 => "Play number 10",
       14 => "Say 14",
+      15 => "Hanged up!",
       44 => "Play number 44"
     })
   end
