@@ -19,8 +19,7 @@ onWorkflow ->
 
     @initialize: (hash) ->
       branch = new Branch(hash)
-      order = 0
-      branch.options(new BranchOption(opt.conditions, order++, opt.next, branch) for opt in (hash.options || []))
+      branch.options(new BranchOption(opt.conditions, opt.next, branch) for opt in (hash.options || []))
       return branch
 
     to_hash: () =>
@@ -36,7 +35,7 @@ onWorkflow ->
 
     add_option: () =>
       new_step = workflow.create_step(@new_option_command(), false)
-      @options.push(new BranchOption([], 1, new_step.id, @))
+      @options.push(new BranchOption([], new_step.id, @))
 
     option_for: (step) =>
       for option in @options()
@@ -65,18 +64,17 @@ onWorkflow ->
       (step for step in workflow.steps() when step.id in @children_ids())
 
     children_ids: () =>
-      options = @options().sort((opt1, opt2) => opt1.order() - opt2.order())
-      (option.next_id for option in options)
+      (option.next_id for option in @options())
 
     move_option_up: (option) =>
       index = @options.indexOf option
       if index > 0
-        @options()[index] = @options()[index-1]
-        @options()[index-1] = option
+        before = @options()[index - 1]
+        @options.splice(index - 1, 2, option, before)
 
     move_option_down: (option) =>
       index = @options.indexOf option
       last = @options().length - 1
       if index < last
-        @options()[index] = @options()[last]
-        @options()[last] = option
+        after = @options()[index + 1]
+        @options.splice(index, 2, after, option)

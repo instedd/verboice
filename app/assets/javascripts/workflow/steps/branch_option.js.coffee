@@ -1,10 +1,9 @@
 onWorkflow ->
   class window.BranchOption
-    constructor: (conditions, order, next_id, branch) ->
+    constructor: (conditions, next_id, branch) ->
       conditions = (new BranchCondition(cond.step, cond.operator, cond.value) for cond in (conditions || []))
 
       @conditions = ko.observableArray(conditions)
-      @order = ko.observable(order)
       @next_id = next_id
       @branch = branch
 
