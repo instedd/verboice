@@ -9,6 +9,7 @@ onWorkflow ->
 
       @next_id = attrs.next
       @options = ko.observableArray([])
+      @else_option = ko.observable null
       @new_option_command = ko.observable null
 
     button_class: () =>
@@ -31,11 +32,11 @@ onWorkflow ->
       'Branches'
 
     commands: () =>
-      (step_type.type for step_type in step_types)
+      (step_type.type for step_type in step_types).concat(['skip'])
 
     add_option: () =>
-      new_step = workflow.create_step(@new_option_command(), false)
-      @options.push(new BranchOption([], new_step.id, @))
+      new_step_id = if (@new_option_command() == 'skip') then null else workflow.create_step(@new_option_command(), false).id
+      @options.push(new BranchOption([], new_step_id, @))
 
     option_for: (step) =>
       for option in @options()
@@ -61,10 +62,18 @@ onWorkflow ->
       super()
 
     children: () =>
-      (step for step in workflow.steps() when step.id in @children_ids())
+      (option.next() or option.skip() for option in @options())
 
     children_ids: () =>
       (option.next_id for option in @options())
+
+    leaves: () =>
+      if @next()?
+        @next().leaves()
+      else if @children()? && @children().length > 0
+        [].concat.apply([], (child.leaves() for child in @children()))
+      else
+        [@]
 
     move_option_up: (option) =>
       index = @options.indexOf option

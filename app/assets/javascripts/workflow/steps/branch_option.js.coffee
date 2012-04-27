@@ -4,6 +4,7 @@ onWorkflow ->
       conditions = (new BranchCondition(cond.step, cond.operator, cond.value) for cond in (conditions || []))
 
       @conditions = ko.observableArray(conditions)
+      @skip_step = null
       @next_id = next_id
       @branch = branch
 
@@ -11,7 +12,10 @@ onWorkflow ->
       workflow.get_step @next_id
 
     next_name: () =>
-      @next()?.name()
+      if @next()? then @next().name() else "Skip to #{if @menu.next_id > 0 then @menu.next().name() else 'next step'}"
+      
+    skip: () =>
+      @skip_step ?= new Skip
 
     to_hash: () =>
       conditions: (condition.to_hash() for condition in @conditions())
