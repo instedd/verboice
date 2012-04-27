@@ -3,6 +3,12 @@ onWorkflow ->
     constructor: (container) ->
       @container = $(container)
 
+    # Arrows classes:
+    #  ha ->        Horizontal arrow, short
+    #  ha-ext ->    Horizontal arrow, extended
+    #  ha-ext-nodot -> Horizontal arrow, extended, without initial dot
+    #  va-bl-t ->   Vertical arrow, from Bottom Left to Top
+    #  va-bl-tr ->  Vertical arrow, from Bottom Left to Top Right
     draw_workflow: (steps) =>
       #console.log 'Redrawing workflow'
       @matrix_ij = []
@@ -10,30 +16,36 @@ onWorkflow ->
       i = 0
       roots = (step for step in steps when step.root)
       for root in roots
-        [i,_j] = @recursive_draw_workflow(root, i, 0)
+        [i,_j] = @recursive_draw_workflow(root, null, i, 0)
       @draw_matrix()
 
-    recursive_draw_workflow: (step, i, j, klass='ha', merge=false, has_closure=false) =>
+    # Recursively draws the workflow by placing 'step' in position 'i', 'j' with class 'klass'
+    #  Merge optional parameter indicates if a va-merge class should be added, which corresponds to either a branch or merge back from/to normal flow
+    #  Has closure indicates if there is later any step which does a closure
+    recursive_draw_workflow: (step, parent, i, j, klass='ha', merge=false, has_closure=false) =>
       @set_step(step, i, j, klass, merge)
       [next_i, next_j] = [i,j+1]
 
       if step.children?
-        child_index = 0
         klass = 'ha'
         next_merge = false
         has_closure = has_closure or (step.children().length > 0 and step.next()?)
         for child in step.children()
           unless child.type() == 'skip' and not has_closure
             last_child_i = next_i
-            [next_i, child_next_j] = @recursive_draw_workflow(child, next_i, j+1, klass, next_merge, has_closure)
+            [next_i, child_next_j] = @recursive_draw_workflow(child, step, next_i, j+1, klass, next_merge, has_closure)
             next_j = child_next_j if next_j < child_next_j
             next_merge = (klass == 'ha' and next_i == i+1)
             klass = 'va'
-        @fill_vertical(j+1, i+1, last_child_i) unless klass == 'ha'
+        @fill_vertical(j+1, i+1, last_child_i)
 
       if step.next()?
+        parents_first_child_cannot_continue = step.children? and step.children()[0]? and not step.children()[0].can_continue()
+
+        next_step_klass = if parents_first_child_cannot_continue then '' else 'ha'
         [next_step_i, next_step_j] = [i, next_j]
-        [child_next_i, child_next_j] = @recursive_draw_workflow(step.next(), next_step_i, next_step_j, 'ha')
+        [child_next_i, child_next_j] = @recursive_draw_workflow(step.next(), step, next_step_i, next_step_j, next_step_klass)
+
         next_j = child_next_j if next_j < child_next_j
         next_i = child_next_i if next_i < child_next_i
 
@@ -43,8 +55,9 @@ onWorkflow ->
             for leaf in child.leaves()
               if leaf.can_continue() and leaf.position?
                 @fill_horizontal(leaf.position[0], leaf.position[1]+1, next_step_j-1)
-                va_merge = (leaf.position[0] == i+1)
-                @set_step(null, leaf.position[0], next_step_j, "va3", va_merge)
+                next_merge = (leaf.position[0] == i+1)
+                next_klass = if next_merge and parents_first_child_cannot_continue then next_merge = false; 'va-bl-tr' else 'va-bl-t'
+                @set_step(null, leaf.position[0], next_step_j, next_klass, next_merge)
                 max_child_i = leaf.position[0] if leaf.position[0] > max_child_i
           @fill_vertical(next_step_j, next_step_i+1, max_child_i-1)
 
@@ -60,8 +73,8 @@ onWorkflow ->
     fill_vertical: (j, from_i, to_i) =>
       if from_i <= to_i
         for i_k in [from_i..to_i]
-          va_merge = (i_k == from_i)
-          @set_step(null, i_k, j, 'va-ext', va_merge)
+          merge = (i_k == from_i)
+          @set_step(null, i_k, j, 'va-ext', merge)
 
     set_step: (step, i, j, klass, merge=false) =>
       for i_k in [0..i]
