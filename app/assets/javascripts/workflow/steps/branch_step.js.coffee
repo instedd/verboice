@@ -71,7 +71,6 @@ onWorkflow ->
     move_option_up: (option) =>
       index = @options.indexOf option
       if index > 0
-        debugger
         @options()[index] = @options()[index-1]
         @options()[index-1] = option
 
@@ -79,6 +78,5 @@ onWorkflow ->
       index = @options.indexOf option
       last = @options().length - 1
       if index < last
-        debugger
         @options()[index] = @options()[last]
         @options()[last] = option

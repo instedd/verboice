@@ -31,5 +31,4 @@ onWorkflow ->
       @next().set_as_current()
 
     child_removed: () =>
-      console.log ("Child removed")
       @menu.remove_option(@)
