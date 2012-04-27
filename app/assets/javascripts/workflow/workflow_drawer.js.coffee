@@ -21,10 +21,11 @@ onWorkflow ->
         child_index = 0
         klass = 'ha'
         for child in step.children()
-          last_child_i = next_i
-          [next_i, child_next_j] = @recursive_draw_workflow(child, next_i, j+1, i, j, klass)
-          next_j = child_next_j if next_j < child_next_j
-          klass = if klass == 'ha' and next_i == i+1 then 'va va-merge' else 'va'
+          unless child.type() == 'skip' and not step.next?()?
+            last_child_i = next_i
+            [next_i, child_next_j] = @recursive_draw_workflow(child, next_i, j+1, i, j, klass)
+            next_j = child_next_j if next_j < child_next_j
+            klass = if klass == 'ha' and next_i == i+1 then 'va va-merge' else 'va'
         @fill_vertical(j+1, i+1, last_child_i) unless klass == 'ha'
 
       if step.next?()?
