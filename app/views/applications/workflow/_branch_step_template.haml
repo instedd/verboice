@@ -10,6 +10,7 @@
       %ul.oplist
         %span{ 'data-bind' => 'foreach: options' }
           %li
+            %span{'data-bind' => 'text: next_name()'}
             %span{'data-bind' => 'visible: is_empty'} Empty option!
             %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option_with_confirm' }
             %a{:href => '#', 'data-bind' => 'click: $parent.move_option_up'} Up
@@ -40,7 +41,7 @@
         %li{'data-bind' => "if: has_else"}
           / ko with: else_option
           %span.ux-text If none of the above options match
-          %span{'data-bind' => 'text: name'}
+          %span{'data-bind' => 'text: next_name()'}
           %button.clist-remove{ 'data-bind' => 'click: $parent.remove_else_option_with_confirm' }
           / /ko
 
