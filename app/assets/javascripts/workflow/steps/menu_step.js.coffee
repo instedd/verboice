@@ -124,3 +124,6 @@ onWorkflow ->
 
     next: () =>
       null
+
+  window['skip'] = Skip
+
