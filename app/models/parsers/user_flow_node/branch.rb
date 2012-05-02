@@ -2,6 +2,7 @@ module Parsers
   module UserFlowNode
     class Branch < UserCommand
       attr_reader :id, :options, :name, :application
+      attr_accessor :next
 
       def initialize application, params
         @id = params['id']
@@ -29,20 +30,7 @@ module Parsers
             end
           end
         end
-        if @next && !@next.is_a?(UserCommand)
-          possible_nodes = nodes.select do |a_node|
-            a_node.id == @next
-          end
-          if possible_nodes.size == 1
-            @next = possible_nodes.first
-          else
-            if possible_nodes.size == 0
-              raise "There is no command with id #{@next}"
-            else
-              raise "There are multiple commands with id #{@next}: #{possible_nodes.inspect}."
-            end
-          end
-        end
+        super
       end
 
       def is_root?
@@ -59,12 +47,12 @@ module Parsers
           c.Assign "current_step", @id
           @options.each_with_index do |an_option, index|
             c.If(merge_conditions_from(an_option['conditions'])) do |c|
-              c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: "\"Branch number #{index + 1} selected: '#{an_option['description']}'\"")
+              c.Trace context_for "\"Branch number #{index + 1} selected: '#{an_option['description']}'\""
               c.append(an_option['next'].equivalent_flow) if an_option['next']
               c.Goto("end#{@id}")
             end
           end
-          c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"No branch was selected."')
+          c.Trace context_for '"No branch was selected."'
           c.Label("end#{@id}")
           c.append(@next.equivalent_flow) if @next
         end

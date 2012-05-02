@@ -1,7 +1,8 @@
 module Parsers
   module UserFlowNode
     class Capture < UserCommand
-      attr_reader :id, :name, :next
+      attr_reader :id, :name, :application
+      attr_accessor :next
 
       def initialize application, params
         @id = params['id']
@@ -18,23 +19,6 @@ module Parsers
         @end_call_message = Message.for application, self, :end_call, params['end_call_message']
         @application = application
         @next = params['next']
-      end
-
-      def solve_links_with nodes
-        if @next && !@next.is_a?(UserCommand)
-          possible_nodes = nodes.select do |a_node|
-            a_node.id == @next
-          end
-          if possible_nodes.size == 1
-            @next = possible_nodes.first
-          else
-            if possible_nodes.size == 0
-              raise "There is no command with id #{@next}"
-            else
-              raise "There are multiple commands with id #{@next}: #{possible_nodes.inspect}."
-            end
-          end
-        end
       end
 
       def is_root?
@@ -59,13 +43,13 @@ module Parsers
               }.merge( @instructions_message.capture_flow ))
             c.Assign "value_#{@id}", 'digits'
             c.If valid_digits_condition do |c|
-              c.Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits'
+              c.Trace context_for '"User pressed: " + digits'
               c.Goto "end#{@id}"
             end
 
             invalid_message_block = lambda { |c|
               c.append @invalid_message.equivalent_flow
-              c.Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"Invalid key pressed"'
+              c.Trace context_for '"Invalid key pressed"'
             }
 
             if @min_input_length == 0
@@ -75,12 +59,12 @@ module Parsers
                 c.If "digits != null", &invalid_message_block
               end
               c.Else do |c|
-                c.Trace application_id: @application.id, step_id: @id, step_name: @name, store: '"No key was pressed. Timeout."'
+                c.Trace context_for '"No key was pressed. Timeout."'
               end
             end
             c.Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"
           end
-          c.Trace application_id: @application.id, step_id: @id, step_name: @name, store: %("Missed input for #{@number_of_attempts} times.")
+          c.Trace context_for %("Missed input for #{@number_of_attempts} times.")
           c.append @end_call_message.equivalent_flow
           c.End
           c.Label "end#{@id}"

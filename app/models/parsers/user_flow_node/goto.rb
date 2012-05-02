@@ -2,6 +2,7 @@ module Parsers
   module UserFlowNode
     class Goto < UserCommand
       attr_reader :id, :name, :application
+      attr_accessor :next
 
       def initialize application, params
         @id = params['id']
@@ -12,7 +13,7 @@ module Parsers
       end
 
       def solve_links_with nodes
-        # There is no need to link to the actual node.
+        # There is no need to link to the real node.
       end
 
       def is_root?

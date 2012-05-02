@@ -2,6 +2,7 @@ module Parsers
   module UserFlowNode
     class Menu < UserCommand
       attr_reader :id, :explanation_message, :options, :timeout, :invalid_message, :end_call_message, :name, :application
+      attr_accessor :next
 
       def initialize application, params
         @id = params['id']
@@ -35,20 +36,7 @@ module Parsers
             end
           end
         end
-        if @next && !@next.is_a?(UserCommand)
-          possible_nodes = nodes.select do |a_node|
-            a_node.id == @next
-          end
-          if possible_nodes.size == 1
-            @next = possible_nodes.first
-          else
-            if possible_nodes.size == 0
-              raise "There is no command with id #{@next}"
-            else
-              raise "There are multiple commands with id #{@next}: #{possible_nodes.inspect}."
-            end
-          end
-        end
+        super
       end
 
       def is_root?
@@ -63,32 +51,32 @@ module Parsers
         Compiler.parse do |c|
           c.Label @id
           c.Assign "current_step", @id
-          c.append(@explanation_message.equivalent_flow)
-          c.Assign("attempt_number#{@id}", '1')
-          c.While("attempt_number#{@id} <= #{@number_of_attempts}") do |c|
+          c.append @explanation_message.equivalent_flow
+          c.Assign "attempt_number#{@id}", '1'
+          c.While "attempt_number#{@id} <= #{@number_of_attempts}" do |c|
             c.Capture({finish_on_key: '', timeout: @timeout}.merge(@options_message.capture_flow))
             c.Assign "value_#{@id}", 'digits'
             @options.each do |an_option|
-              c.If("digits == '#{an_option['number']}'") do |c|
-                c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits')
-                c.append(an_option['next'].equivalent_flow) if an_option['next']
-                c.Goto("end#{@id}")
+              c.If "digits == '#{an_option['number']}'" do |c|
+                c.Trace context_for '"User pressed: " + digits'
+                c.append an_option['next'].equivalent_flow if an_option['next']
+                c.Goto "end#{@id}"
               end
             end
-            c.If("digits != null") do |c|
-              c.append(@invalid_message.equivalent_flow)
-              c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"Invalid key pressed"')
+            c.If "digits != null" do |c|
+              c.append @invalid_message.equivalent_flow
+              c.Trace context_for '"Invalid key pressed"'
             end
             c.Else do |c|
-              c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"No key was pressed. Timeout."')
+              c.Trace context_for '"No key was pressed. Timeout."'
             end
-            c.Assign("attempt_number#{@id}", "attempt_number#{@id} + 1")
+            c.Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"
           end
-          c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: %("Missed input for #{@number_of_attempts} times."))
-          c.append(@end_call_message.equivalent_flow)
+          c.Trace context_for %("Missed input for #{@number_of_attempts} times.")
+          c.append @end_call_message.equivalent_flow
           c.End
-          c.Label("end#{@id}")
-          c.append(@next.equivalent_flow) if @next
+          c.Label "end#{@id}"
+          c.append @next.equivalent_flow if @next
         end
       end
     end
