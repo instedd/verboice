@@ -10,6 +10,7 @@
       %ul.oplist
         %span{ 'data-bind' => 'foreach: options' }
           %li
+            %span{'data-bind' => 'visible: is_empty'} Empty option!
             %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option_with_confirm' }
             %a{:href => '#', 'data-bind' => 'click: $parent.move_option_up'} Up
             %a{:href => '#', 'data-bind' => 'click: $parent.move_option_down'} Down
@@ -29,6 +30,19 @@
             Add an option:
             %select.w10{ko(options: 'commands()', value: 'new_option_command')}
           %button.clist-add{ 'data-bind' => 'click: add_option'}
+
+        %li{'data-bind' => "ifnot: has_else"}
+          %span.ux-text
+            Add an default option:
+            %select.w10{ko(options: 'commands()', value: 'new_else_option_command')}
+          %button.clist-add{ 'data-bind' => 'click: add_else_option'}
+
+        %li{'data-bind' => "if: has_else"}
+          / ko with: else_option
+          %span.ux-text If none of the above options match
+          %span{'data-bind' => 'text: name'}
+          %button.clist-remove{ 'data-bind' => 'click: $parent.remove_else_option_with_confirm' }
+          / /ko
 
       .bottom-actions
         %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
