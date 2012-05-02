@@ -3,18 +3,14 @@ require 'spec_helper'
 describe CallLogsController do
   include Devise::TestHelpers
 
+  let(:account) { Account.make }
+  let(:application) {Application.make :account => account}
+  let(:channel) { account.channels.make :application => application, :account => account}
+  let(:queue) { account.call_queues.make }
+
   before(:each) do
     BrokerClient.stub(:notify_call_queued)
-    @account = Account.make
-    sign_in @account
-  end
-
-  let(:channel) do
-    Channel.make :account => @account
-  end
-
-  let(:queue) do
-    CallQueue.make :account => @account
+    sign_in account
   end
 
   it 'should get queued calls' do

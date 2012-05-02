@@ -2,6 +2,8 @@ class QueuedCall < ActiveRecord::Base
   belongs_to :channel
   belongs_to :call_log
   belongs_to :call_queue
+  belongs_to :application
+
   serialize :flow, Command
 
   def start

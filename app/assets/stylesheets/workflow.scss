@@ -68,13 +68,12 @@ label + p.desc {
   div.ha-ext span { background:image-url("arrow-hor-ext.png") no-repeat; width:95px; height:8px; position:absolute; left:-31px; top:30px; display:block }
   div.ha-ext-nodot span { background:image-url("arrow-hor-ext2.png") no-repeat; width:95px; height:8px; position:absolute; left:-31px; top:30px; display:block }
   div.va span { background:image-url("arrow-ver.png") no-repeat; width:18px; height:95px; position:absolute; left:-17px; top:-60px; display:block }
-  div.va2 span { background:image-url("arrow-ver2.png") no-repeat; width:32px; height:95px; position:absolute; left:-31px; top:-60px; display:block }
-  div.va3 span { background:image-url("arrow-ver3.png") no-repeat 0 -2px; width:32px; height:95px; position:absolute; left:-31px; top:-60px; display:block }
+  div.va-bl-t span { background:image-url("arrow-ver3.png") no-repeat 0 -2px; width:32px; height:95px; position:absolute; left:-31px; top:-60px; display:block }
+  div.va-bl-tr span { background:image-url("arrow-ver7.png") no-repeat 0 1px; width:32px; height:95px; position:absolute; left:-31px; top:-60px; display:block }
   div.va-ext span { background:image-url("arrow-ver-ext.png") no-repeat; width:2px; height:90px; position:absolute; left:-17px; top:-60px; display:block }
   div.va-skip span { background:image-url("arrow-l.png") no-repeat; width:76px; height:95px; position:absolute; left:-17px; top:-60px; display:block }
   div.va-merge span { background-position: 0 -2px !important; top: -58px !important }
-  div.va3.va-merge span { background-position: 0 -3px !important; top: -59px !important }
-
+  div.va-bl-t.va-merge span { background-position: 0 -3px !important; top: -59px !important }
 }
 
 .box.iblock {

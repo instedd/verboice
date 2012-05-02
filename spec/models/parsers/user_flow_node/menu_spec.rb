@@ -83,9 +83,9 @@ module Parsers
             PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-explanation.wav")
             Assign 'attempt_number1', '1'
             While 'attempt_number1 <= 3' do
-              Capture play_file: File.join(Rails.root, "data","applications","1","recordings", "1-options.wav"), min: 1, max: 1, finish_on_key: '#', timeout: 20
+              Capture play_file: File.join(Rails.root, "data","applications","1","recordings", "1-options.wav"), finish_on_key: '', timeout: 20
               Assign 'value_1', 'digits'
-              If "digits == 4" do
+              If "digits == '4'" do
                 Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
                 Label 10
                 Assign "current_step", 10
@@ -93,7 +93,7 @@ module Parsers
                 Say "Second explanation message"
                 Goto "end1"
               end
-              If "digits == 6" do
+              If "digits == '6'" do
                 Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
                 Label 14
                 Assign "current_step", 14
@@ -101,7 +101,7 @@ module Parsers
                 Say "Third explanation message"
                 Goto "end1"
               end
-              If "digits == 2" do
+              If "digits == '2'" do
                 Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
                 Label 5
                 Assign "current_step", 5
@@ -133,7 +133,7 @@ module Parsers
             Assign "current_step", 27
             Assign 'attempt_number27', '1'
             While 'attempt_number27 <= 3' do
-              Capture min: 1, max: 1, finish_on_key: '#', timeout: 5
+              Capture finish_on_key: '', timeout: 5
               Assign 'value_27', 'digits'
               If "digits != null" do
                 Trace application_id: 1, step_id: 27, step_name: '', store: '"Invalid key pressed"'

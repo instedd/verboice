@@ -36,7 +36,7 @@ onWorkflow ->
       not @next_id?
 
     can_continue: () =>
-      not @next_id?
+      true
 
     is_serializable: () =>
       true

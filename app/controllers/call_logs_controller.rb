@@ -28,13 +28,14 @@ class CallLogsController < ApplicationController
 
     @channels = current_account.channels
     @queues = current_account.call_queues
+    @applications = current_account.applications
   end
 
   def enqueue
     @channel = current_account.channels.find(params[:channel_id])
     addresses = params[:addresses].split(/\n/).map(&:strip).select(&:presence)
     addresses.each do |address|
-      @channel.call(address.strip, {queue_id: params[:queue_id]})
+      @channel.call(address.strip, {queue_id: params[:queue_id], application_id: params[:application_id]})
     end
     redirect_to({:action => 'queued'}, {:notice => "Enqueued calls to #{pluralize(addresses.count, 'address')} on channel #{@channel.name}"})
   end

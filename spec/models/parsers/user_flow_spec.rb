@@ -240,16 +240,16 @@ describe Parsers::UserFlow do
         Say 'First Menu'
         Assign 'attempt_number3', '1'
         While 'attempt_number3 <= 3' do
-          Capture min: 1, max: 1, finish_on_key: '#', timeout: 20
+          Capture finish_on_key: '', timeout: 20
           Assign 'value_3', 'digits'
-          If "digits == 2" do
+          If "digits == '2'" do
             Trace application_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
             Assign "current_step", 4
             Trace application_id: 5, step_id: 4, step_name: 'Say number 4', store: '"Message played."'
             Say "Say 4"
             Goto "end3"
           end
-          If "digits == 1" do
+          If "digits == '1'" do
             Trace application_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
             Assign "current_step", 6
             Trace application_id: 5, step_id: 6, step_name: 'Say number 6', store: '"Message played."'

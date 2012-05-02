@@ -4,7 +4,8 @@ describe ApiController do
   include Devise::TestHelpers
 
   let(:account) { Account.make }
-  let(:channel) { account.channels.make }
+  let(:application) {Application.make :account => account}
+  let(:channel) { account.channels.make :application => application, :account => account}
   let(:queue) { account.call_queues.make }
 
   before(:each) do

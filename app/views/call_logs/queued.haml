@@ -15,6 +15,7 @@
         %th Date
         %th Address
         %th Queue
+        %th Application
         %th State
         %th
       - @calls.each do |call|
@@ -24,6 +25,7 @@
           %td= call.not_before
           %td= call.address
           %td= call.call_queue.try(:name)
+          %td= call.application.try(:name)
           %td= call.call_log.try(:state)
           %td= link_to 'view log details', call_log_path(call.call_log)
     %br/
@@ -42,6 +44,9 @@
   %p
     = label_tag :queue_id, 'Call queue'
     = select_tag :queue_id, options_from_collection_for_select(@queues, 'id', 'name'), :include_blank => true
+  %p
+    = label_tag :application_id, 'Application'
+    = select_tag :application_id, options_from_collection_for_select(@applications, 'id', 'name'), :include_blank => true
   %p
     = label_tag :addresses
     %p Enter each address in a separate line

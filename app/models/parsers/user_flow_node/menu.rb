@@ -11,9 +11,6 @@ module Parsers
         @options = params['options'].deep_clone || []
         @root_index = params['root']
         @timeout = params['timeout'] || 5
-        @finish_on_key = params['finish_on_key'] || '#'
-        @min_input_length = params['min_input_length'] || 1
-        @max_input_length = params['max_input_length'] || 1
         @number_of_attempts = params['number_of_attempts'] || 3
         @invalid_message = Message.for application, self, :invalid, params['invalid_message']
         @end_call_message = Message.for application, self, :end_call, params['end_call_message']
@@ -69,12 +66,10 @@ module Parsers
           c.append(@explanation_message.equivalent_flow)
           c.Assign("attempt_number#{@id}", '1')
           c.While("attempt_number#{@id} <= #{@number_of_attempts}") do |c|
-            c.Capture({
-              min: @min_input_length, max: @max_input_length, finish_on_key: @finish_on_key, timeout: @timeout
-            }.merge(@options_message.capture_flow))
+            c.Capture({finish_on_key: '', timeout: @timeout}.merge(@options_message.capture_flow))
             c.Assign "value_#{@id}", 'digits'
             @options.each do |an_option|
-              c.If("digits == #{an_option['number']}") do |c|
+              c.If("digits == '#{an_option['number']}'") do |c|
                 c.Trace(application_id: @application.id, step_id: @id, step_name: @name, store: '"User pressed: " + digits')
                 c.append(an_option['next'].equivalent_flow) if an_option['next']
                 c.Goto("end#{@id}")

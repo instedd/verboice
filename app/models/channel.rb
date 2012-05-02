@@ -43,19 +43,21 @@ class Channel < ActiveRecord::Base
     call_queue ||= options.has_key?(:queue) ? account.call_queues.find_by_name!(options[:queue]) : nil
 
     via = options.fetch(:via, 'API')
-
-    call_log = call_logs.new :direction => :outgoing, :application_id => application_id, :address => address, :state => :queued, :call_queue => call_queue, :not_before => options[:not_before]
+    app_id = options[:application_id].presence || application_id
+    call_log = call_logs.new :direction => :outgoing, :application_id => app_id, :address => address, :state => :queued, :call_queue => call_queue, :not_before => options[:not_before]
     call_log.info "Received via #{via}: call #{address}"
     call_log.save!
 
+    flow = options[:flow] || account.applications.find(app_id).flow
     queued_call = queued_calls.new(
       :call_log => call_log,
       :address => address,
       :callback_url => options[:callback_url],
       :status_callback_url => options[:status_callback_url],
-      :flow => options[:flow],
+      :flow => flow,
       :not_before => options[:not_before],
-      :call_queue => call_queue
+      :call_queue => call_queue,
+      :application_id => app_id
     )
 
     if queued_call.call_queue
