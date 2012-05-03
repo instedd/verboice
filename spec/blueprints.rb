@@ -56,3 +56,12 @@ QueuedCall.blueprint do
   call_log
   address { Sham.password }
 end
+
+PersistedVariable.blueprint do
+  account
+  address { Sham.password }
+  name
+  value { rand(9999) }
+end
+
+

@@ -1,4 +1,6 @@
 Verboice::Application.routes.draw do
+  resources :persisted_variables
+
   resources :channels do
     resources :queued_calls
     member do

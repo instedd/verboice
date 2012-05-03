@@ -1,0 +1,23 @@
+%h1 Listing persisted_variables
+
+%table
+  %tr
+    %th Address
+    %th Name
+    %th Value
+    %th
+    %th
+    %th
+
+  - @persisted_variables.each do |persisted_variable|
+    %tr
+      %td= persisted_variable.address
+      %td= persisted_variable.name
+      %td= persisted_variable.value
+      %td= link_to 'Show', persisted_variable
+      %td= link_to 'Edit', edit_persisted_variable_path(persisted_variable)
+      %td= link_to 'Destroy', persisted_variable, :confirm => 'Are you sure?', :method => :delete
+
+%br
+
+= link_to 'New Persisted variable', new_persisted_variable_path

@@ -11,6 +11,7 @@ class Account < ActiveRecord::Base
   has_many :channels, :dependent => :destroy
   has_many :call_logs
   has_many :call_queues
+  has_many :persisted_variables, :dependent => :destroy
 
   has_many :queued_calls, :through => :channels
 

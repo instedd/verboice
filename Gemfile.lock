@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/tbuehl/machinist.git
+  revision: 2b6ea4c2e876d4e9b3b22cc975057268788c7ff5
+  branch: 1.0-maintenance
+  specs:
+    machinist (1.0.6)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -113,7 +120,6 @@ GEM
     librevox (0.3)
       eventmachine (~> 0.12.10)
     libv8 (3.3.10.4)
-    machinist (1.0.6)
     mail (2.4.4)
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
@@ -236,7 +242,7 @@ DEPENDENCIES
   instedd-rails
   jquery-rails
   librevox
-  machinist
+  machinist!
   mocha
   mysql2
   nokogiri

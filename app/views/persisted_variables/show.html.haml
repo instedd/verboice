@@ -1,0 +1,15 @@
+%p#notice= notice
+
+%p
+  %b Address:
+  = @persisted_variable.address
+%p
+  %b Name:
+  = @persisted_variable.name
+%p
+  %b Value:
+  = @persisted_variable.value
+
+= link_to 'Edit', edit_persisted_variable_path(@persisted_variable)
+\|
+= link_to 'Back', persisted_variables_path

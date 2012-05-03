@@ -4,6 +4,7 @@
   <%= section "Channels", channels_path, :channels if account_signed_in? %>
   <%= section "Queues", call_queues_path, :call_queues if account_signed_in? %>
   <%= section "Calls", call_logs_path, :call_logs if account_signed_in? %>
+  <%= section "Variables", persisted_variables_path, :persisted_variables if account_signed_in? %>
 <% end %>
 <% content_for :right_menu do %>
   <ul class="RightMenu">
