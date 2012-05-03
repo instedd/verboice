@@ -4,6 +4,13 @@ onWorkflow ->
   class window.StepWithChildren extends Step
     constructor: (attrs) ->
       super(attrs)
+      @store = ko.observable attrs.store
+      @defines_store = ko.observable !!attrs.store
+
+    to_hash: () =>
+      $.extend(super,
+        store: (if @defines_store() then @store() else null)
+      )
 
     commands: () =>
       (step_type.type for step_type in step_types).concat(['skip'])
