@@ -53,9 +53,7 @@
                 %select.w10{ko(options: 'commands()', optionsText: "function(item) { return (new window[item]({})).default_name() }", value: 'new_option_command')}
               %button.clist-add{ 'data-bind' => 'click: add_option'}
           %hr
-          %input{:type => 'checkbox', 'data-bind' => 'checked: defines_store'}
-          %span Store this result as:
-          %input{:type => 'text', 'data-bind' => 'value: store, enable: defines_store', :style => "width: 110px"}
+          = store_value_tags
           %br
           .bottom-actions
             %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
