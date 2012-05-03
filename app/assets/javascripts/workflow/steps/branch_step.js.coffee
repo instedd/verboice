@@ -1,4 +1,5 @@
 #= require workflow/steps/step
+#= require workflow/steps/branch_option
 
 onWorkflow ->
   class window.Branch extends Step

@@ -1,3 +1,5 @@
+#= require workflow/steps/step
+
 onWorkflow ->
   class window.Skip extends Step
     @type = 'skip'
