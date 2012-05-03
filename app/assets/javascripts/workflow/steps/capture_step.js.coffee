@@ -7,6 +7,9 @@ onWorkflow ->
     constructor: (attrs) ->
       super(attrs)
 
+      @store = ko.observable attrs.store
+      @defines_store = ko.observable !!attrs.store
+
       @valid_values = ko.observable attrs.valid_values
       @finish_on_key = ko.observable attrs.finish_on_key
       @min_input_length = ko.observable attrs.min_input_length
@@ -34,6 +37,7 @@ onWorkflow ->
 
     to_hash: () =>
       $.extend(super,
+        store: (if @defines_store() then @store() else null)
         end_call_message: @message_selectors['end_call'].to_hash()
         invalid_message: @message_selectors['invalid'].to_hash()
         instructions_message: @message_selectors['instructions'].to_hash()
