@@ -1,8 +1,8 @@
-#= require workflow/steps/step
+#= require workflow/steps/step_with_children
 #= require workflow/steps/menu_option
 
 onWorkflow ->
-  class window.Menu extends Step
+  class window.Menu extends StepWithChildren
     @type = 'menu'
 
     constructor: (attrs) ->
@@ -28,9 +28,6 @@ onWorkflow ->
     button_class: () =>
       'ldial'
 
-    commands: () =>
-      (step_type.type for step_type in step_types).concat(['skip'])
-
     @add_to_steps: () ->
       workflow.add_step(new Menu)
 
@@ -49,47 +46,18 @@ onWorkflow ->
       )
 
     add_option: () =>
-      new_step_id = if (@new_option_command() == 'skip') then null else workflow.create_step(@new_option_command(), false).id
+      new_step_id = @new_child_step_for @new_option_command()
       @options.push(new MenuOption(@available_numbers()[0], new_step_id, @))
-
-    option_for: (step) =>
-      for option in @options()
-        if option.next_id == step.id
-          return option
 
     remove_option_with_confirm: (option) =>
       if confirm("Are you sure you want to remove option #{option.number()} and all its steps?")
-        @remove_option(option)
+        @remove_child_step(option)
 
-    remove_option: (option) =>
-      @options.remove option
-      option.remove_next()
+    remove_child_step: (child_step) =>
+      super(child_step)
+      @options.remove child_step
 
-    remove_with_confirm: () =>
-      name = @name?() || "this step"
-      if confirm("Are you sure you want to remove #{name}?")
-        @remove()
-
-    remove: () =>
-      for option in @options()
-        option.remove_next()
-      super()
-
-    children: () =>
-      (option.next() or option.skip() for option in @sorted_options())
-
-    children_ids: () =>
-      (option.next_id for option in @sorted_options())
-
-    leaves: () =>
-      if @next()?
-        @next().leaves()
-      else if @children()? && @children().length > 0
-        [].concat.apply([], (child.leaves() for child in @children()))
-      else
-        [@]
-
-    sorted_options: () =>
+    child_steps: () =>
       @options().sort((opt1, opt2) => opt1.number().charCodeAt(0) - opt2.number().charCodeAt(0))
 
     message: (msg) =>

@@ -13,7 +13,7 @@ onWorkflow ->
       (step for step in @steps() when step.id == id)[0]
 
     get_parent: (step) =>
-      (parent for parent in @steps() when (step.id == parent.next_id))[0] or (parent.option_for(step) for parent in @steps() when parent.children_ids? and step.id in parent.children_ids())[0]
+      (parent for parent in @steps() when (step.id == parent.next_id))[0] or (parent.child_step_for(step) for parent in @steps() when parent.children_ids? and step.id in parent.children_ids())[0]
 
     add_step: (command) =>
       @steps.push command

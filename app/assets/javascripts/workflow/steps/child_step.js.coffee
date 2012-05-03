@@ -28,4 +28,4 @@ onWorkflow ->
       @next().set_as_current()
 
     child_removed: () =>
-      @parent.remove_option(@)
+      @parent.remove_child_step(@)

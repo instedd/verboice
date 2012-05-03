@@ -29,20 +29,20 @@
         %li
           %span.ux-text
             Add an option:
-            %select.w10{ko(options: 'commands()', value: 'new_option_command')}
+            %select.w10{ko(options: 'commands()', optionsText: "function(item) { return (new window[item]({})).default_name() }", value: 'new_option_command')}
           %button.clist-add{ 'data-bind' => 'click: add_option'}
 
         %li{'data-bind' => "ifnot: has_else"}
           %span.ux-text
             Add an default option:
-            %select.w10{ko(options: 'commands()', value: 'new_else_option_command')}
+            %select.w10{ko(options: 'commands()', optionsText: "function(item) { return (new window[item]({})).default_name() }", value: 'new_else_option_command')}
           %button.clist-add{ 'data-bind' => 'click: add_else_option'}
 
         %li{'data-bind' => "if: has_else"}
           / ko with: else_option
           %span.ux-text If none of the above options match
           %span{'data-bind' => 'text: next_name()'}
-          %button.clist-remove{ 'data-bind' => 'click: $parent.remove_else_option_with_confirm' }
+          %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option_with_confirm' }
           / /ko
 
       .bottom-actions
