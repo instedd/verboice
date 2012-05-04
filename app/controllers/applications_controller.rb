@@ -2,8 +2,8 @@ require 'csv'
 
 class ApplicationsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording]
-  before_filter :load_recording_data, :only => [:play_recording, :save_recording]
+  before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result]
+  before_filter :load_recording_data, :only => [:play_recording, :save_recording, :play_result]
 
   skip_before_filter :verify_authenticity_token, :only => :save_recording
 
@@ -101,6 +101,10 @@ class ApplicationsController < ApplicationController
     @recording_manager.save_recording_for(@step_id, @message) do |out|
       out.write request.body.read
     end
+  end
+
+  def play_result
+    send_file @recording_manager.get_result_path_for(@step_id), :x_sendfile => true
   end
 
   # DELETE /applications/1

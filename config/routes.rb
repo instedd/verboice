@@ -21,6 +21,7 @@ Verboice::Application.routes.draw do
       put :update_workflow
       get :play_recording
       post :save_recording
+      get 'results/:step_id', :action => :play_result, :as => 'result'
     end
   end
 
