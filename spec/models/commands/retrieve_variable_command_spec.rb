@@ -30,8 +30,7 @@ module Commands
       cmd = RetrieveVariableCommand.new 'foo'
       cmd.next = :next
       cmd.run(session).should == :next
-      lambda { session.eval('var_foo') }.should raise_error(Exception)
-
+      session.eval('var_foo').should eq(nil)
     end
 
     it "should do nothing if the variable doesn't exist" do
@@ -46,7 +45,7 @@ module Commands
       cmd = RetrieveVariableCommand.new 'foo'
       cmd.next = :next
       cmd.run(session).should == :next
-      lambda { session.eval('var_foo') }.should raise_error(Exception)
+      session.eval('var_foo').should eq(nil)
     end
   end
 end
