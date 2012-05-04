@@ -20,7 +20,7 @@ module Commands
       PersistedVariable.first.contact.should eq(contact)
     end
 
-    it "should create a Contact if it doesn't exists" do
+    it "should create a Contact if it doesn't exist" do
       call_log = CallLog.make
       session = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => '1234xxx'
@@ -28,8 +28,9 @@ module Commands
       cmd = PersistVariableCommand.new 'foo', 2
       cmd.next = :next
       cmd.run(session).should == :next
-      Contact.last.address.should eq('1234xxx')
-      PersistedVariable.first.contact.should eq(Contact.last)
+      Contact.all.size.should eq(1)
+      Contact.first.address.should eq('1234xxx')
+      PersistedVariable.first.contact.should eq(Contact.first)
     end
   end
 end
