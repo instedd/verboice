@@ -56,10 +56,6 @@ class ApplicationsController < ApplicationController
   def edit
   end
 
-  def edit_workflow
-    @variables = current_account.distinct_variables
-  end
-
   # POST /applications
   def create
     @application = Application.new(params[:application])
@@ -81,7 +77,12 @@ class ApplicationsController < ApplicationController
     end
   end
 
+  def edit_workflow
+    @variables = current_account.distinct_variables
+  end
+
   def update_workflow
+    @variables = current_account.distinct_variables
     @application.user_flow = JSON.parse params[:flow]
 
     if @application.save

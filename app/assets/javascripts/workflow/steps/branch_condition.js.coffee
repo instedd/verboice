@@ -2,32 +2,34 @@ onWorkflow ->
   class window.BranchCondition
     constructor: (attrs) ->
       @variable = attrs.variable
-      @step_id = attrs.step_id
+      @step_id = attrs.step
 
       @operator = ko.observable attrs.operator
       @value = ko.observable attrs.value
 
       @subject = ko.computed
         read: () =>
-          if @variable?
+          if @variable
             "var-#{@variable}"
-          else if @step_id?
+          else if @step_id
             "stp-#{@step_id}"
           else
             null
         write: (val) =>
-          kind = val[0..2]
-          val = val[4..-1]
-          if kind == 'var'
-            @variable = val
+          if !val
             @step_id = null
-          else if kind == 'stp'
-            @step_id = parseInt(val)
             @variable = null
-          else if kind == ''
-            @step_id = @variable = null
           else
-            throw "Invalid option kind #{kind}"
+            kind = val[0..2]
+            val = val[4..-1]
+            if kind == 'var'
+              @variable = val
+              @step_id = null
+            else if kind == 'stp'
+              @step_id = val
+              @variable = null
+            else
+              throw "Invalid option kind #{kind}"
 
     to_hash: () =>
       step: @step_id
