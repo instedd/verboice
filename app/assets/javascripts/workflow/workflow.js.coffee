@@ -8,6 +8,7 @@ onWorkflow ->
       @current_step = ko.observable(null)
       @sidebar_content = ko.observable(command_selector)
 
+
     get_step: (id) =>
       return null if not id?
       (step for step in @steps() when step.id == id)[0]
@@ -52,6 +53,9 @@ onWorkflow ->
 
     commands: () =>
       @command_selector.commands()
+
+    variables: () =>
+      (step.store() for step in @steps() when step.defines_store?())
 
     generate_id: () =>
       id = new Date().getTime()

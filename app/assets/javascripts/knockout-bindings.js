@@ -1,37 +1,28 @@
 ko.bindingHandlers["groupedOptions"] = {
-    update: function (element, valueAccessor, allBindingsAccessor) {
+    init: function (element, valueAccessor, allBindingsAccessor)
+    {
         if (element.tagName != "SELECT")
-            throw new Error("groupedOptions binding applies only to SELECT elements");
+            throw new Error("options binding applies only to SELECT elements");
 
-        var previousSelectedValues = [];
-        for (var i = 0; i < element.childNodes.length; i++) {
-            var node = element.childNodes[i];
-            if (node.tagName == "OPTGROUP") {
-                if (node.childNodes != undefined) {
-                    for (var k = 0; k < node.childNodes.length; k++) {
-                        var childNode = node.childNodes[k];
-                        if (childNode.tagName && childNode.tagName && node.childNode == "OPTION" && node.selected) {
-                            selected.push(ko.selectExtensions.readValue(childNode));
-                        }
-                    }
-                }
-            } else if (node.tagName && node.tagName == "OPTION" && node.selected) {
-                selected.push(ko.selectExtensions.readValue(node));
-            }
-        }
-
+        var previousSelectedValues = ko.utils.arrayMap(ko.utils.arrayFilter(element.childNodes, function (node)
+        {
+            return node.tagName && node.tagName == "OPTION" && node.selected;
+        }), function (node)
+        {
+            return ko.selectExtensions.readValue(node) || node.innerText || node.textContent;
+        });
         var previousScrollTop = element.scrollTop;
 
         var value = ko.utils.unwrapObservable(valueAccessor());
+        var selectedValue = element.value;
 
-        // Clear existing elements
-        element.innerHTML = "";
-
-        if (value) {
+        if (value)
+        {
             var allBindings = allBindingsAccessor();
             if (typeof value.length != "number")
                 value = [value];
-            if (allBindings['optionsCaption']) {
+            if (allBindings['optionsCaption'])
+            {
                 var option = document.createElement("OPTION");
                 option.innerHTML = allBindings['optionsCaption'];
                 ko.selectExtensions.writeValue(option, undefined);
@@ -43,7 +34,8 @@ ko.bindingHandlers["groupedOptions"] = {
             // Group values into optgroups
             var groupedOptions = [];
             var optionsGroupValue = allBindings['optionsGroup']; // undefined if not given
-            for (var i = 0, j = value.length; i < j; i++) {
+            for (var i = 0, j = value.length; i < j; i++)
+            {
                 var optionsGroup = null;
                 if (typeof optionsGroupValue == "function")
                     optionsGroup = optionsGroupValue(value[i]);
@@ -53,22 +45,24 @@ ko.bindingHandlers["groupedOptions"] = {
                     optionsGroup = "";
                 if (typeof groupedOptions[optionsGroup] == "undefined")
                     groupedOptions[optionsGroup] = [];
-
                 groupedOptions[optionsGroup].push(value[i]);
             }
 
             // Create HTML elements
-            for (var groupName in groupedOptions) {
+            for (var groupName in groupedOptions)
+            {
                 var optgroup = null;
                 // Add an OPTGROUP for all groups except for ""
-                if (groupName != "") {
+                if (groupName != "")
+                {
                     optgroup = document.createElement("OPTGROUP");
                     optgroup.label = groupName;
                     element.appendChild(optgroup);
                 }
 
                 // Create HTML elements for options within this group
-                for (var i = 0, j = groupedOptions[groupName].length; i < j; i++) {
+                for (var i = 0, j = groupedOptions[groupName].length; i < j; i++)
+                {
                     var valueGroup = groupedOptions[groupName];
                     var option = document.createElement("OPTION");
                     var optionValue = typeof allBindings['optionsValue'] == "string" ? valueGroup[i][allBindings['optionsValue']] : valueGroup[groupName][i];
@@ -99,10 +93,11 @@ ko.bindingHandlers["groupedOptions"] = {
             // That's why we first added them without selection. Now it's time to set the selection.
             var newOptions = element.getElementsByTagName("OPTION");
             var countSelectionsRetained = 0;
-
-            for (var i = 0, j = newOptions.length; i < j; i++) {
-                if (ko.utils.arrayIndexOf(previousSelectedValues, ko.selectExtensions.readValue(newOptions[i])) >= 0) {
-                    ko.utils.La(newOptions[i], true);
+            for (var i = 0, j = newOptions.length; i < j; i++)
+            {
+                if (ko.utils.arrayIndexOf(previousSelectedValues, ko.selectExtensions.readValue(newOptions[i])) >= 0)
+                {
+                    ko.utils.setOptionNodeSelectionState(newOptions[i], true);
                     countSelectionsRetained++;
                 }
             }
@@ -115,59 +110,69 @@ ko.bindingHandlers["groupedOptions"] = {
 
 
 ko.bindingHandlers['selectedOptions'] = {
-    getSelectedValuesFromSelectNode: function (selectNode) {
+    getSelectedValuesFromSelectNode: function (selectNode)
+    {
         var result = [];
         var nodes = selectNode.childNodes;
-        for (var i = 0, j = nodes.length; i < j; i++) {
+        for (var i = 0, j = nodes.length; i < j; i++)
+        {
             var node = nodes[i];
-            if ((node.tagName == "OPTGROUP") && node.childNodes != null) {
+            if ((node.tagName == "OPTGROUP") && node.childNodes != null)
+            {
                 var subResult = this.getSelectedValuesFromSelectNode(node);
-                for (var k = 0; k < subResult.length; k++) {
+                for (var k = 0; k < subResult.length; k++)
+                {
                     result.push(subResult[k]);
                 }
             }
-            else {
+            else
+            {
                 if ((node.tagName == "OPTION") && node.selected)
                     result.push(ko.selectExtensions.readValue(node));
             }
         }
         return result;
     },
-    setSelectedValuesFromSelectNode: function (selectNode, newValue) {
+    setSelectedValuesFromSelectNode: function (selectNode, newValue)
+    {
         var nodes = selectNode.childNodes;
-        for (var i = 0; i < nodes.length; i++) {
+        for (var i = 0, j = nodes.length; i < j; i++)
+        {
             var node = nodes[i];
-            if (node.tagName == "OPTION") {
-                ko.utils.La(node, ko.utils.arrayIndexOf(newValue, ko.selectExtensions.readValue(node)) >= 0);
+            if (node.tagName == "OPTGROUP" && node.childNodes != null)
+            {
+                ko.bindingHandlers['selectedOptions'].setSelectedValuesFromSelectNode(node, newValue);
             }
-            else if (node.tagName == "OPTGROUP") {
-                for (var k = 0; k < node.childNodes.length; k++) {
-                    var childNode = node.childNodes[k];
-                    if (childNode.tagName && childNode.tagName == "OPTION") {
-                        ko.utils.La(childNode, ko.utils.arrayIndexOf(newValue, ko.selectExtensions.readValue(childNode)) >= 0);
-                    }
-                }
+            else
+            {
+                if (node.tagName == "OPTION")
+                    ko.utils.setOptionNodeSelectionState(node, ko.utils.arrayIndexOf(newValue, ko.selectExtensions.readValue(node)) >= 0);
             }
         }
     },
-    'init': function (element, valueAccessor, allBindingsAccessor) {
-        ko.utils.registerEventHandler(element, "change", function () {
+    'init': function (element, valueAccessor, allBindingsAccessor)
+    {
+        ko.utils.registerEventHandler(element, "change", function ()
+        {
             var value = valueAccessor();
             if (ko.isWriteableObservable(value))
                 value(ko.bindingHandlers['selectedOptions'].getSelectedValuesFromSelectNode(this));
-            else {
+            else
+            {
                 var allBindings = allBindingsAccessor();
                 if (allBindings['_ko_property_writers'] && allBindings['_ko_property_writers']['value'])
                     allBindings['_ko_property_writers']['value'](ko.bindingHandlers['selectedOptions'].getSelectedValuesFromSelectNode(this));
             }
         });
     },
-    'update': function (element, valueAccessor) {
+    'update': function (element, valueAccessor)
+    {
         if (element.tagName != "SELECT")
             throw new Error("values binding applies only to SELECT elements");
 
         var newValue = ko.utils.unwrapObservable(valueAccessor());
-        if (newValue && typeof newValue.length == "number") {
+        if (newValue && typeof newValue.length == "number")
+        {
             ko.bindingHandlers['selectedOptions'].setSelectedValuesFromSelectNode(element, newValue);
         }
     }
