@@ -57,6 +57,11 @@ onWorkflow ->
     variables: () =>
       (step.store() for step in @steps() when step.defines_store?())
 
+    all_variables: () =>
+      (step.store() for step in @steps() when step.defines_store?()).sort().concat(
+        variable for variable in distinct_variables.sort() when variable not in workflow.variables()
+      )
+
     generate_id: () =>
       id = new Date().getTime()
       while id in (step.id for step in @steps())
