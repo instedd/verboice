@@ -4,6 +4,4 @@ class Contact < ActiveRecord::Base
 
   attr_accessible :address
   validates_presence_of :account, :address
-
-  attr_accessible :address
 end

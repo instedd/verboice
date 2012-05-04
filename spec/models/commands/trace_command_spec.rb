@@ -9,7 +9,6 @@ module Commands
     end
 
     it "should create a trace entrance for a given command" do
-
       cmd = TraceCommand.new(:application_id => 1, :step_id => 20, :step_name => 'bar', :store => '"foo"')
       cmd.next = :next
       cmd.run(session).should == :next
