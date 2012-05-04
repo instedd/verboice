@@ -1,6 +1,8 @@
 class PersistedVariable < ActiveRecord::Base
-  belongs_to :account
-  attr_accessible :address, :name, :value
-  validates_presence_of :account, :address, :name, :value
+  has_one :account, :through => :contact
+  belongs_to :contact
 
+  attr_accessible :name, :value
+  validates_presence_of :account, :contact, :name, :value
+  attr_accessible :contact, :name, :value
 end

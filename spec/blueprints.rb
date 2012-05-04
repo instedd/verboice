@@ -58,10 +58,12 @@ QueuedCall.blueprint do
 end
 
 PersistedVariable.blueprint do
-  account
-  address { Sham.password }
+  contact
   name
   value { rand(9999) }
 end
 
-
+Contact.blueprint do
+  account
+  address { Sham.password }
+end

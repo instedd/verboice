@@ -1,0 +1,9 @@
+%h1 Editing contact
+
+= render 'form'
+
+= link_to 'Edit Variables', contact_persisted_variables_path(@contact)
+\|
+= link_to 'Show', @contact
+\|
+= link_to 'Back', contacts_path

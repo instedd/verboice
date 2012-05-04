@@ -1,0 +1,11 @@
+%p#notice= notice
+
+%p
+  %b Address:
+  = @contact.address
+
+= link_to 'Edit Variables', contact_persisted_variables_path(@contact)
+\|
+= link_to 'Edit', edit_contact_path(@contact)
+\|
+= link_to 'Back', contacts_path

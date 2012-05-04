@@ -8,11 +8,11 @@ class Account < ActiveRecord::Base
   attr_accessible :email, :password, :password_confirmation, :remember_me
 
   has_many :applications, :dependent => :destroy
-  has_many :channels, :dependent => :destroy
   has_many :call_logs
   has_many :call_queues
-  has_many :persisted_variables, :dependent => :destroy
-
+  has_many :channels, :dependent => :destroy
+  has_many :contacts, :dependent => :destroy
+  has_many :persisted_variables, :through => :contacts
   has_many :queued_calls, :through => :channels
 
   def call(options = {})

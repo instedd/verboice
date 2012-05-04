@@ -1,5 +1,8 @@
 Verboice::Application.routes.draw do
-  resources :persisted_variables
+
+  resources :contacts do
+    resources :persisted_variables
+  end
 
   resources :channels do
     resources :queued_calls

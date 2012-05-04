@@ -1,5 +1,5 @@
-= form_for @persisted_variable do |f|
-  -if @persisted_variable.errors.any?
+= form_for [@persisted_variable.contact, @persisted_variable] do |f|
+  - if @persisted_variable.errors.any?
     #error_explanation
       %h2= "#{pluralize(@persisted_variable.errors.count, "error")} prohibited this persisted_variable from being saved:"
       %ul
@@ -7,16 +7,12 @@
           %li= msg
 
   .field
-    = f.label :address
-    = f.text_field :address
-
-  .field
     = f.label :name
     = f.text_field :name
 
   .field
     = f.label :value
-    = f.number_field :value
+    = f.text_field :value
 
   .actions
     = f.submit 'Save'

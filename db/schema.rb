@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120503155217) do
+ActiveRecord::Schema.define(:version => 20120503182255) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -83,16 +83,22 @@ ActiveRecord::Schema.define(:version => 20120503155217) do
     t.string   "guid"
   end
 
-  create_table "persisted_variables", :force => true do |t|
-    t.integer  "account_id"
-    t.integer  "value"
-    t.string   "name"
+  create_table "contacts", :force => true do |t|
     t.string   "address"
+    t.integer  "account_id"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
 
-  add_index "persisted_variables", ["account_id"], :name => "index_persisted_variables_on_account_id"
+  create_table "persisted_variables", :force => true do |t|
+    t.string   "value"
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+    t.integer  "contact_id"
+  end
+
+  add_index "persisted_variables", ["contact_id"], :name => "index_persisted_variables_on_contact_id"
 
   create_table "queued_calls", :force => true do |t|
     t.integer  "channel_id"
