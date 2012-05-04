@@ -1,0 +1,46 @@
+%script{type: "text/html", id: "record_step_template"}
+  %span
+    %div{ko(:if => "is_editing_message()")}
+      %div{ko(:template => "{name: 'message_template', data: current_editing_message}")}
+
+    %div{ko(:if => "!is_editing_message()")}
+      .feditor-sidebar.right.box.w28.iblock.h65
+
+        .tableheader
+          %span.left.i48grad-microphone
+          %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+
+        %table.GralTable.TwoColumn.CleanTable.NoHead
+          %tr
+            %th Messages
+            %th
+          %tr
+            %td
+              Explanation:
+              %span{ko(text: "message('explanation').name()")}
+            %td
+              %button.farrow{:type => "button", 'data-bind' => 'click: show_explanation_message'}
+          %tr
+            %td
+              Confirmation:
+              %span{ko(text: "message('confirmation').name()")}
+            %td
+              %button.farrow{:type => "button", 'data-bind' => 'click: show_confirmation_message'}
+
+        .content
+          %hr
+          %label Time
+          %br
+          .ux-nstep.w06
+            %input{:type => 'text', :size => '2', 'data-bind' => 'value: timeout'}
+          before repeating options
+          %br
+          %hr
+          %label Properties
+          %br
+          Stop recording audio with key:
+          %select{'data-bind' => 'value: stop_key, options: available_keys()'}
+          %hr
+
+        .bottom-actions
+          %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

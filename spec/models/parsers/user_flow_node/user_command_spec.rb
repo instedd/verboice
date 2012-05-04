@@ -5,7 +5,7 @@ module Parsers
     describe UserCommand do
 
       it "should list all available user commands" do
-        UserCommand.subclasses.size.should eq(7)
+        UserCommand.subclasses.size.should eq(8)
         UserCommand.subclasses.should include(Menu)
         UserCommand.subclasses.should include(Play)
         UserCommand.subclasses.should include(Capture)
@@ -13,6 +13,7 @@ module Parsers
         UserCommand.subclasses.should include(Transfer)
         UserCommand.subclasses.should include(Branch)
         UserCommand.subclasses.should include(HangUp)
+        UserCommand.subclasses.should include(Record)
       end
 
       it "should deliver the right subclass to parse a given input" do
@@ -29,6 +30,8 @@ module Parsers
         (UserCommand.for self, 'id' => 27, 'type' => 'branch').class.should eq(Branch)
 
         (UserCommand.for self, 'id' => 27, 'type' => 'hang_up').class.should eq(HangUp)
+
+        (UserCommand.for self, 'id' => 27, 'type' => 'record').class.should eq(Record)
       end
     end
   end

@@ -50,7 +50,7 @@ module Asterisk
       else :failed
       end
     end
-    
+
     def say(text)
       filename = @synthesizer.synth text
       play filename
@@ -72,7 +72,7 @@ module Asterisk
     def capture(options)
       [:min, :max, :timeout].each { |key| options[key] = options[key].to_i rescue nil }
       options[:play] = @synthesizer.synth(options[:say]) if options[:say]
-      
+
       digits = ''
 
       if options[:play]
@@ -107,8 +107,15 @@ module Asterisk
       digits.length < options[:min] ? nil : digits
     end
 
-    def record
-      record_file "#{SoundsPath}/foo", 'wav', '0123456789*#', '5000', 'beep'
+    def record filename, stop_keys, timeout
+      # Ensure file exists so asterisk can write
+      FileUtils.touch(filename) unless File.exists?(filename)
+
+      timeout = (timeout * 1000).to_s
+      ext = File.extname(filename).sub('.','')
+      filename = filename.chomp(File.extname(filename))
+
+      record_file filename, ext, stop_keys, timeout, 'beep'
     end
 
     def is_answering_machine?
