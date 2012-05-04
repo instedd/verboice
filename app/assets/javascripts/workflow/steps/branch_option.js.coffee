@@ -5,8 +5,7 @@ onWorkflow ->
     constructor: (conditions, next_id, branch) ->
       super(next_id, branch)
 
-      conditions = (new BranchCondition(cond.step, cond.operator, cond.value) for cond in (conditions || []))
-      @conditions = ko.observableArray(conditions)
+      @conditions = ko.observableArray(new BranchCondition(cond) for cond in (conditions || []))
       @is_else = false
       @is_empty = ko.computed () =>
         @conditions().length == 0
@@ -18,7 +17,7 @@ onWorkflow ->
       )
 
     add_condition: () =>
-      @conditions.push(new BranchCondition(null, null, null))
+      @conditions.push(new BranchCondition({}))
 
   class window.BranchElseOption extends BranchOption
     constructor: (next_id, branch) ->

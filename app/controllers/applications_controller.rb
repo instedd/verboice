@@ -57,6 +57,7 @@ class ApplicationsController < ApplicationController
   end
 
   def edit_workflow
+    @variables = current_account.distinct_variables
   end
 
   # POST /applications

@@ -18,7 +18,7 @@
             %a{:href => '#', 'data-bind' => 'click: add_condition'} Add condition
             %span{ 'data-bind' => 'foreach: conditions' }
               %span Condition
-              %select{'data-bind' => "value: step_id, options: available_steps(), optionsText: 'name', optionsValue: 'id'"}
+              %select{'data-bind' => "value: subject, groupedOptions: available_conditions(), optionsText: 'name', optionsValue: 'value', optionsGroup: 'group', optionsCaption: 'Select one...'"}
               %select{'data-bind' => 'value: operator'}
                 %option{:value => '=='} is equal to
                 %option{:value => '>='} greater or equal to

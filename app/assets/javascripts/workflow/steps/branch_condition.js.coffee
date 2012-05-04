@@ -1,14 +1,42 @@
 onWorkflow ->
   class window.BranchCondition
-    constructor: (step_id, operator, value) ->
-      @step_id = ko.observable step_id
-      @operator = ko.observable operator
-      @value = ko.observable value
+    constructor: (attrs) ->
+      @variable = attrs.variable
+      @step_id = attrs.step_id
+
+      @operator = ko.observable attrs.operator
+      @value = ko.observable attrs.value
+
+      @subject = ko.computed
+        read: () =>
+          if @variable?
+            "var-#{@variable}"
+          else if @step_id?
+            "stp-#{@step_id}"
+          else
+            null
+        write: (val) =>
+          kind = val[0..2]
+          val = val[4..-1]
+          if kind == 'var'
+            @variable = val
+            @step_id = null
+          else if kind == 'stp'
+            @step_id = parseInt(val)
+            @variable = null
+          else if kind == ''
+            @step_id = @variable = null
+          else
+            throw "Invalid option kind #{kind}"
 
     to_hash: () =>
-      step: @step_id()
+      step: @step_id
+      variable: @variable
       operator: @operator()
       value: @value()
 
-    available_steps: () =>
-      (step for step in workflow.steps() when (step.type() == 'capture') || (step.type() == 'menu'))
+    available_conditions: () =>
+      ({name: variable, group: 'Variables', value: "var-#{variable}"} for variable in distinct_variables).concat(
+        {name: step.name(), group: step.default_name(), value: "stp-#{step.id}"} for step in workflow.steps() when (step.type() == 'capture') || (step.type() == 'menu')
+      )
+
