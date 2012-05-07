@@ -62,3 +62,6 @@ onWorkflow ->
 
     show_instructions_message: () =>
       @show_message('instructions')
+
+    default_name: () =>
+      'Input'
