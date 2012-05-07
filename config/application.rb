@@ -46,6 +46,9 @@ module Verboice
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
+    # Default URL options
+    config.default_url_options = {:host => 'domain.com', :protocol => 'http'}
+
     config.google_analytics = ''
     config.version_name = File.read('REVISION').strip rescue 'Development'
 

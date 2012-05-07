@@ -28,7 +28,7 @@ module Parsers
         Compiler.parse do |compiler|
           compiler.Label @id
           compiler.Assign "current_step", @id
-          compiler.Trace context_for '"Record message."'
+          compiler.Trace context_for %("Record message. Download link: #{record_url}")
           compiler.append @explanation_message.equivalent_flow if @explanation_message
           compiler.Record filename, {:stop_keys => @stop_key, :timeout => @timeout}
           compiler.append @confirmation_message.equivalent_flow if @confirmation_message
@@ -38,6 +38,10 @@ module Parsers
 
       def filename
         RecordingManager.for(@application).get_result_path_for(@id)
+      end
+
+      def record_url
+        NamedRoutes.result_application_url(@application.id, :step_id => @id)
       end
     end
   end
