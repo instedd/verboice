@@ -32,5 +32,32 @@ module Commands
       Contact.first.address.should eq('1234xxx')
       PersistedVariable.first.contact.should eq(Contact.first)
     end
+
+    it "should replace the value of an existing variable" do
+      contact = Contact.make
+      application = Application.make account: contact.account
+      call_log = CallLog.make application: application
+
+      session = Session.new :pbx => mock('pbx'), :call_log => call_log
+      session.stub :address => contact.address
+
+      cmd = PersistVariableCommand.new 'foo', 2
+      cmd.next = :next
+      cmd.run(session).should == :next
+
+      PersistedVariable.all.size.should eq(1)
+      PersistedVariable.first.value.should eq('2')
+      PersistedVariable.first.name.should eq('foo')
+      PersistedVariable.first.contact.should eq(contact)
+
+      cmd = PersistVariableCommand.new 'foo', 1
+      cmd.next = :next
+      cmd.run(session).should == :next
+
+      PersistedVariable.all.size.should eq(1)
+      PersistedVariable.first.value.should eq('1')
+      PersistedVariable.first.name.should eq('foo')
+      PersistedVariable.first.contact.should eq(contact)
+    end
   end
 end
