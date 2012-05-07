@@ -7,6 +7,7 @@ ko.bindingHandlers.initAutocomplete = {
   },
 };
 
+
 /*
   Jquery Autocomplete Binding Handler (not-tested)
   http://stackoverflow.com/questions/7537002/autocomplete-combobox-with-knockout-js-template-jquery

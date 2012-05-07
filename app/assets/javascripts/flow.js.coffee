@@ -34,3 +34,8 @@ onWorkflow ->
     if window.workflow.has_changed()
       "There are unsaved changes in the workflow."
 
+  $(window).resize () ->
+    container_width = $('#container').width()
+    $('.workflow-content-container').width(container_width - 364)
+  .resize()
+
