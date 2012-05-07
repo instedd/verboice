@@ -84,17 +84,17 @@ span.validation {
   margin:6px 0 !important;
 }
 
-span.forwardto { 
-  display:inline-block; 
-  width:66px; 
-  margin:6px 0 !important 
+span.forwardto {
+  display:inline-block;
+  width:66px;
+  margin:6px 0 !important
 }
 
-span.alert-orange { 
-  background: url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat right; 
-  padding-right:18px; 
-  color:#ff6600; 
-  display:inline-block 
+span.alert-orange {
+  background: url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat right;
+  padding-right:18px;
+  color:#ff6600;
+  display:inline-block
 }
 
 .w05 { width:50px }
@@ -107,3 +107,11 @@ span.alert-orange {
 .h50 { height:500px }
 .h60 { height:600px }
 .h65 { height:650px }
+
+body.full-width {
+  #toolbar, #header, #container, #footer-container { margin:auto; width:98%; min-width:1000px }
+  #header { position:relative; height:auto; margin-bottom:0; padding-bottom:35px }
+  #header .logo { position:absolute; top:-20px }
+  #header .BreadCrumb { margin:24px 0 0 170px; width:auto; float:none }
+  #instedd-footer .jcarousel-container, #instedd-footer .jcarousel-clip { /*width:auto*/ }
+}
