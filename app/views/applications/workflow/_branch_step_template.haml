@@ -26,6 +26,7 @@
                 %option{:value => '>'} greater than
                 %option{:value => '<'} less than
               %input{'data-bind' => 'value: value'}
+              %button.clist-remove{ 'data-bind' => 'click: $parent.remove_condition' }
         %li
           %span.ux-text
             Add an option:

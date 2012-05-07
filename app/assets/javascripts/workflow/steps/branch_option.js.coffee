@@ -19,6 +19,9 @@ onWorkflow ->
     add_condition: () =>
       @conditions.push(new BranchCondition({}))
 
+    remove_condition: (condition) =>
+      @conditions.remove condition
+
   class window.BranchElseOption extends BranchOption
     constructor: (next_id, branch) ->
       super([], next_id, branch)
