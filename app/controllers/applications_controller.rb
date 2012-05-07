@@ -22,7 +22,7 @@ class ApplicationsController < ApplicationController
 
           steps = @application.step_names
           ids = steps.keys
-          header = ['Call ID', 'Address', 'Start Time', 'End Time']
+          header = ['Call ID', 'Phone Number', 'Start Time', 'End Time']
           csv << header + steps.values
           @application.call_logs.includes(:traces).each do |call_log|
             line = []

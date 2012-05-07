@@ -13,7 +13,7 @@
         %th ID
         %th Channel
         %th Date
-        %th Address
+        %th Phone number
         %th Queue
         %th Application
         %th State
@@ -48,8 +48,8 @@
     = label_tag :application_id, 'Application'
     = select_tag :application_id, options_from_collection_for_select(@applications, 'id', 'name'), :include_blank => true
   %p
-    = label_tag :addresses
-    %p Enter each address in a separate line
+    = label_tag :addresses, 'Phone numbers'
+    %p Enter each phone number in a separate line
     %p
       = text_area_tag :addresses, nil, :placeholder => "555-1000", :rows => 10
   %p
