@@ -2,7 +2,6 @@ module Parsers
   module UserFlowNode
     class HangUp < UserCommand
       attr_reader :id, :name, :application
-      attr_accessor :next
 
       def self.can_handle? params
         params['type'] == 'hang_up'
@@ -15,8 +14,13 @@ module Parsers
         @root_index = params['root']
       end
 
-      def solve_links_with nodes
-        # There is no need next after a hang up
+      def next
+        # There is no next after hang up
+        nil
+      end
+
+      def next= command
+        # There is no next after hang up
       end
 
       def is_root?

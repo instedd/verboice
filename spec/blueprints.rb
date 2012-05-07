@@ -63,6 +63,13 @@ PersistedVariable.blueprint do
   value { rand(9999) }
 end
 
+RecordedAudio.blueprint do
+  call_log
+  contact
+  description { Faker::Name.name }
+  key { Sham.guid }
+end
+
 Contact.blueprint do
   account
   address { Sham.password }

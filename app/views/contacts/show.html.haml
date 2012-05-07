@@ -5,7 +5,9 @@
   = @contact.address
 
 = link_to 'Edit Variables', contact_persisted_variables_path(@contact)
-\|
+%br
+= link_to 'View Recorded Audios', contact_recorded_audios_path(@contact)
+%br
 = link_to 'Edit', edit_contact_path(@contact)
 \|
 = link_to 'Back', contacts_path

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120503182255) do
+ActiveRecord::Schema.define(:version => 20120507215138) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -116,6 +116,18 @@ ActiveRecord::Schema.define(:version => 20120503182255) do
   end
 
   add_index "queued_calls", ["application_id"], :name => "index_queued_calls_on_application_id"
+
+  create_table "recorded_audios", :force => true do |t|
+    t.integer  "contact_id"
+    t.integer  "call_log_id"
+    t.string   "key"
+    t.string   "description"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  add_index "recorded_audios", ["call_log_id"], :name => "index_recorded_audios_on_call_log_id"
+  add_index "recorded_audios", ["contact_id"], :name => "index_recorded_audios_on_contact_id"
 
   create_table "traces", :force => true do |t|
     t.integer  "application_id"

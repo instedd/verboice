@@ -1,0 +1,13 @@
+%p#notice= notice
+
+%p
+  %b Contact:
+  = @recorded_audio.contact.address
+%p
+  %b Call ID:
+  = @recorded_audio.call_log.id
+%p
+  %b Description:
+  = @recorded_audio.description
+
+= link_to 'Back', contact_recorded_audios_path_path(@contact)

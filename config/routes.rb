@@ -2,6 +2,7 @@ Verboice::Application.routes.draw do
 
   resources :contacts do
     resources :persisted_variables
+    resources :recorded_audios, only: [:index, :show, :delete]
   end
 
   resources :channels do
