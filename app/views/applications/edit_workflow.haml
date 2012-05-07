@@ -15,7 +15,13 @@
 #wami
 
 #workflow-page
-  %p.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Add new step
+  %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Add new step
+  = form_tag update_workflow_application_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
+    %div.right
+      = hidden_field_tag 'flow'
+      %button.grey{:type => "submit"} Save
+      = link_to 'Cancel', application_path(@application), :class => "button white cancel", :style => 'top: 2px;'
+  .clear
 
   .left
     .box.lightgrey.workflow#workflow
@@ -24,121 +30,3 @@
   %span{ko(template: '{name: display_template_for, data: sidebar_content}')}
 
   .clear
-
-  %br
-  %hr
-
-  = form_tag update_workflow_application_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
-    %div
-      = hidden_field_tag 'flow'
-      %button.grey{:type => "submit"} Save
-      = link_to 'Cancel', application_path(@application), :class => "button white cancel", :style => 'top: 2px;'
-
-/ %br
-/ %hr
-/ %br
-/ .left
-/   .box.lightgrey.workflow
-/     .workflow-content-container.w60.h65
-/       .workflow-container
-/         %p
-/           %div
-/             %button.lcallback
-/             %p Foo
-/           .ha
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-/           .ha
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-/           .ha
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-/           .ha
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-/           .ha
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-/           .ha
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-/         %p
-/           %div
-/           .va
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-/           .va
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-
-/         %p
-/           %div
-/           .va-ext
-/             %span
-/           .va
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-/         %p
-/           %div
-/           .va
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-
-/           .ha
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-/           .ha
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-
-/           .ha
-/             %span
-/             %button.lcallback
-/             %p Baby diagnostic
-
-/ .box.right.w30.feditor-sidebar.h65
-/   %p.title Field Name
-/   %p.smalltext The name of this question as it is presented.
-/   %input{:type => "text", :value => "Number of patients per day" }
-/   %hr
-/   %p.title Hint
-/   %p.smalltext Additional help for this question.
-/   %input{ :value => "Select an option", :type => "text" }
-/   %hr
-/   %p.title
-/     Required
-/     %input.right{ :type => "checkbox"}
-/     %br.clear
-/   %p.smalltext Additional help for this question.
-/   %hr
-/   %p.title Options
-/   %p.smalltext Possible values for this question.
-/   %ul.clist.w30
-/     %li
-/       %input.ux-clist{ :type => "text", :value => "1 to 10" }
-/       %button.clist-remove
-/     %li
-/       %input.ux-text{ :type => "text", :placeholder => "Name" }
-/       %button.clist-add
-/   %hr
-/   %p.title Range
-/   %p.smalltext Range of values accepted for this question</p>
-/   %input.w13{ :type => "text", :value => "1" }
-/   %span.smalltext to
-/   %input.w13{ :type => "text", :value => "5" }
-/   %br
-/   %br
-/ .clear
