@@ -4,7 +4,7 @@
   %li{ :class =>"#{"active" if params[:controller] == "call_logs"}"}
     = link_to "Logs", call_logs_path
   %li{ :class =>"#{"active" if params[:controller] == "applications" && params[:action] == 'edit'}"}
-    = link_to "Configuration", edit_application_path(@application)
+    = link_to "Settings", edit_application_path(@application)
   %li{ :class =>"#{"active" if params[:controller] == "applications" && params[:action] == 'edit_workflow'}"}
     = link_to "Workflow", edit_workflow_application_path(@application)
 .tabsline
