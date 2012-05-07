@@ -21,7 +21,7 @@ module Commands
       session.eval('var_foo').should eq(persisted_variable.value.to_i)
     end
 
-    it "should do nothing if the contact doesn't exist" do
+    it "should set to nil if the contact doesn't exist" do
       call_log = CallLog.make
 
       session = Session.new :pbx => mock('pbx'), :call_log => call_log
@@ -33,7 +33,7 @@ module Commands
       session.eval('var_foo').should eq(nil)
     end
 
-    it "should do nothing if the variable doesn't exist" do
+    it "should set to nil if the variable doesn't exist" do
 
       contact = Contact.make
       application = Application.make account: contact.account

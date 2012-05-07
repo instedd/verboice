@@ -46,6 +46,7 @@ module Parsers
           c.Label @id
           c.Assign "current_step", @id
           @options.each_with_index do |an_option, index|
+            retrieve_variables c, an_option['conditions']
             c.If(merge_conditions_from(an_option['conditions'])) do |c|
               c.Trace context_for "\"Branch number #{index + 1} selected: '#{an_option['description']}'\""
               c.append(an_option['next'].equivalent_flow) if an_option['next']
@@ -63,8 +64,16 @@ module Parsers
           'true'
         else
           conditions.collect do |condition|
-            "(value_#{condition['step']} #{condition['operator']} #{condition['value']})"
+            "(#{condition['step'].presence ? "value_#{condition['step']}" : "var_#{condition['variable']}"} #{condition['operator']} #{condition['value']})"
           end.join(' && ')
+        end
+      end
+
+      def retrieve_variables compiler, conditions
+        unless conditions.nil?
+          conditions.collect do |condition|
+            compiler.RetrieveVariable condition['variable'] if condition['variable'].presence
+          end
         end
       end
 

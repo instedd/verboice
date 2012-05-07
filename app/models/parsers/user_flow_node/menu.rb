@@ -17,6 +17,7 @@ module Parsers
         @end_call_message = Message.for application, self, :end_call, params['end_call_message']
         @application = application
         @next = params['next']
+        @persisted_variable_name = params['store']
       end
 
       def solve_links_with nodes
@@ -56,6 +57,7 @@ module Parsers
           c.While "attempt_number#{@id} <= #{@number_of_attempts}" do |c|
             c.Capture({finish_on_key: '', timeout: @timeout}.merge(@options_message.capture_flow))
             c.Assign "value_#{@id}", 'digits'
+            c.PersistVariable @persisted_variable_name, "value_#{@id}" if @persisted_variable_name
             @options.each do |an_option|
               c.If "digits == '#{an_option['number']}'" do |c|
                 c.Trace context_for '"User pressed: " + digits'

@@ -12,6 +12,7 @@ module Parsers
           'root' => true,
           'type' => 'capture',
           'name' => 'Capture number one',
+          'store' => 'some_variable',
           'instructions_message' => { "name" => 'First Capture', 'type' => 'text' },
           'invalid_message' => {
             "name" => "An invalid key was pressed",
@@ -39,6 +40,7 @@ module Parsers
             While 'attempt_number1 <= 3' do
               Capture say: "First Capture", min: 1, max: 2, finish_on_key: '#', timeout: 10
               Assign 'value_1', 'digits'
+              PersistVariable 'some_variable', 'value_1'
               If "(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20)" do
                 Trace application_id: 1, step_id: 1, step_name: 'Capture number one', store: '"User pressed: " + digits'
                 Goto "end1"

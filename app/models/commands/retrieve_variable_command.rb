@@ -1,5 +1,7 @@
 class Commands::RetrieveVariableCommand < Command
 
+  attr_accessor :variable_name
+
   def initialize variable_name
     @variable_name = variable_name
   end

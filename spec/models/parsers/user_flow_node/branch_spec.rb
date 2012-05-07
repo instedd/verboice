@@ -19,7 +19,7 @@ module Parsers
                   'value' => 6
                 },
                 {
-                  'step' => 5,
+                  'variable' => 'some_var_name',
                   'operator' => '>=',
                   'value' => 5
                 }
@@ -70,7 +70,8 @@ module Parsers
           Compiler.parse do
             Label 1
             Assign "current_step", 1
-            If "(value_3 == 6) && (value_5 >= 5)" do
+            RetrieveVariable 'some_var_name'
+            If "(value_3 == 6) && (var_some_var_name >= 5)" do
               Trace application_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
               Label 10
               Assign "current_step", 10

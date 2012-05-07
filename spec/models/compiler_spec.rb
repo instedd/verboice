@@ -68,6 +68,19 @@ describe Compiler do
     result.should be_instance_of(Commands::TraceCommand)
   end
 
+  it "makes persist variable command" do
+    result = subject.PersistVariable('hello', 1).make
+    result.should be_instance_of(Commands::PersistVariableCommand)
+    result.variable_name.should == 'hello'
+    result.expression.should == 1
+  end
+
+  it "makes retrieve variable command" do
+    result = subject.RetrieveVariable('hello').make
+    result.should be_instance_of(Commands::RetrieveVariableCommand)
+    result.variable_name.should == 'hello'
+  end
+
   it "concatenates commands" do
     result = subject
       .Pause

@@ -9,6 +9,7 @@ module Parsers
         menu = Menu.new app, 'id' => 1,
           'type' => 'menu',
           'name' => 'Menu number one',
+          'store' => 'some_variable',
           'explanation_message' => {
             "name" => "Some explanation message",
             "type" => "recording",
@@ -85,6 +86,7 @@ module Parsers
             While 'attempt_number1 <= 3' do
               Capture play_file: File.join(Rails.root, "data","applications","1","recordings", "1-options.wav"), finish_on_key: '', timeout: 20
               Assign 'value_1', 'digits'
+              PersistVariable 'some_variable', 'value_1'
               If "digits == '4'" do
                 Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
                 Label 10

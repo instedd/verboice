@@ -1,5 +1,7 @@
 class Commands::PersistVariableCommand < Command
 
+  attr_accessor :variable_name, :expression
+
   def initialize variable_name, expression
     @variable_name = variable_name
     @expression = expression
