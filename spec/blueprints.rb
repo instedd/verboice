@@ -15,6 +15,7 @@ end
 Account.blueprint do
   email
   password
+  confirmed_at { 2.days.ago }
 end
 
 Application.blueprint do
