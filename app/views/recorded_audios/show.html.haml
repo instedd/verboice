@@ -12,6 +12,6 @@
 
 %p
   %b Download audio:
-  = link_to 'Download', result_call_log_path(recorded_audio.call_log, {:key => recorded_audio.key})
+  = link_to 'Download', result_call_log_path(@recorded_audio.call_log, {:key => @recorded_audio.key})
 
 = link_to 'Back', contact_recorded_audios_path(@contact)
