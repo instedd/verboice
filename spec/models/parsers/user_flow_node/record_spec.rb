@@ -27,7 +27,7 @@ module Parsers
             Assign "current_step", 1
             Trace application_id: 5, step_id: 1, step_name: 'Record Step', store: %("Record message. Download link: " + record_url(1))
             Say "Explanation message"
-            Record 1, {:stop_keys => '#', :timeout => 7}
+            Record 1, 'Record Step', {:stop_keys => '#', :timeout => 7}
             Say "Confirmation message"
           end.first
         )

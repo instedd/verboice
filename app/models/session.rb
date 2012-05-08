@@ -150,9 +150,6 @@ class Session
   end
 
   def record_url(key)
-    # TODO see why this is broken in this context (maybe the rails env is missing something?)
-    # NamedRoutes.result_application_url(application.id, :key => key.to_i, :call_log_id => call_log.id)
-    # "http://#{Rails.application.config.default_url_options[:host]}/applications/#{call_log.application_id}/results/#{key.to_i}/#{call_log.id}"
-    NamedRoutes.result_call_log_url(call_log, :key => key)
+    NamedRoutes.result_call_log_url(call_log, :key => key.to_i)
   end
 end

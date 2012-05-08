@@ -30,7 +30,7 @@ module Parsers
           compiler.Assign "current_step", @id
           compiler.Trace context_for %("Record message. Download link: " + record_url(#{@id}))
           compiler.append @explanation_message.equivalent_flow
-          compiler.Record @id, {:stop_keys => @stop_key, :timeout => @timeout}
+          compiler.Record @id, @name, {:stop_keys => @stop_key, :timeout => @timeout}
           compiler.append @confirmation_message.equivalent_flow
           compiler.append @next.equivalent_flow if @next
         end
