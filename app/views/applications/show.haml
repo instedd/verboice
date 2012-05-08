@@ -7,9 +7,9 @@
 %p
   %b Mode:
   = @application.info
-- if @application.mode == :flow
-  %pre
-    = @application.commands.to_yaml
+/ - if @application.mode == :flow
+/   %pre
+/     = @application.commands.to_yaml
 
 %hr
 = link_to 'Edit', edit_application_path(@application), :class => "button grey"
