@@ -115,6 +115,7 @@ body.full-width #header .logo { position:absolute; top:-20px }
 body.full-width #header .BreadCrumb { margin:24px 0 0 170px; width:auto; float:none }
 body.full-width .apps.right { max-width:700px }
 body.full-width #instedd-footer { display:inline-block }
+body.full-width.fixed-width-content #container { width: 960px; margin-left: auto; margin-right: auto; }
 
 /*
 body.full-width #instedd-footer .jcarousel-container,body.full-width  #instedd-footer .jcarousel-clip { width:auto; display:inline-block  }
