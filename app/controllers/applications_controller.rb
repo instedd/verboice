@@ -44,6 +44,9 @@ class ApplicationsController < ApplicationController
         end
         render :text => csv
       end
+      format.vrb do
+        render :text => @application.commands.to_yaml
+      end
     end
   end
 
