@@ -114,12 +114,14 @@ body.full-width #header { position:relative; height:auto; margin-bottom:0; paddi
 body.full-width #header .logo { position:absolute; top:-20px }
 body.full-width #header .BreadCrumb { margin:24px 0 0 170px; width:auto; float:none }
 body.full-width .apps.right { max-width:700px }
-body.full-width #instedd-footer .jcarousel-container,body.full-width  #instedd-footer .jcarousel-clip { width:auto; display:inline-block  }
-body.full-width .jcarousel-list-horizontal { width:auto !important }
 body.full-width #instedd-footer { display:inline-block }
 
+/*
+body.full-width #instedd-footer .jcarousel-container,body.full-width  #instedd-footer .jcarousel-clip { width:auto; display:inline-block  }
+body.full-width .jcarousel-list-horizontal { width:auto !important }
 table.apps-footer { width:100% }
 table.apps-footer td.platform { padding:28px 15px 10px 0 }
+*/
 
 /* Footer */
 #instedd-footer .jcarousel-container { background-color:#ffffff; background-image:none; border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; border: 1px solid #dddddd; -webkit-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset; -moz-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset;  box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset }
