@@ -64,9 +64,17 @@ module Parsers
           'true'
         else
           conditions.collect do |condition|
-            "(#{condition['step'].presence ? "value_#{condition['step']}" : "var_#{condition['variable']}"} #{condition['operator']} #{condition['value']})"
+            "(#{first_comparison_term_from condition} #{condition['operator']} #{second_comparison_term_from condition})"
           end.join(' && ')
         end
+      end
+
+      def first_comparison_term_from condition
+        condition['step'].presence ? "value_#{condition['step']}" : "var_#{condition['variable']}"
+      end
+
+      def second_comparison_term_from condition
+        condition['value'].presence ? "#{condition['value']}" : "var_#{condition['variable']}"
       end
 
       def retrieve_variables compiler, conditions
@@ -76,7 +84,6 @@ module Parsers
           end
         end
       end
-
     end
   end
 end

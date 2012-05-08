@@ -19,7 +19,7 @@ module Parsers
                   'value' => 6
                 },
                 {
-                  'variable' => 'some_var_name',
+                  'variable' => 'some_name',
                   'operator' => '>=',
                   'value' => 5
                 }
@@ -32,7 +32,7 @@ module Parsers
                 {
                   'step' => 1,
                   'operator' => '<=',
-                  'value' => 2
+                  'variable' => 'another_name',
                 }
               ],
               'next' => 14
@@ -70,8 +70,8 @@ module Parsers
           Compiler.parse do
             Label 1
             Assign "current_step", 1
-            RetrieveVariable 'some_var_name'
-            If "(value_3 == 6) && (var_some_var_name >= 5)" do
+            RetrieveVariable 'some_name'
+            If "(value_3 == 6) && (var_some_name >= 5)" do
               Trace application_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
               Label 10
               Assign "current_step", 10
@@ -79,7 +79,8 @@ module Parsers
               Say "Second explanation message"
               Goto "end1"
             end
-            If "(value_1 <= 2)" do
+            RetrieveVariable 'another_name'
+            If "(value_1 <= var_another_name)" do
               Trace application_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
               Label 14
               Assign "current_step", 14
