@@ -20,6 +20,10 @@ Verboice::Application.configure do
   # Generate digests for assets URLs
   config.assets.digest = true
 
+  # Default url for action mailer
+  config.action_mailer.default_url_options = { :host => 'verboice.instedd.org' }
+  config.action_mailer.asset_host = 'http://verboice.instedd.org'
+
   # Defaults to Rails.root.join("public/assets")
   # config.assets.manifest = YOUR_PATH
 
