@@ -22,13 +22,13 @@ Verboice::Application.routes.draw do
       put :update_workflow
       get :play_recording
       post :save_recording
-      get 'results/:step_id', :action => :play_result, :as => 'result'
     end
   end
 
   resources :call_logs, path: :calls do
     member do
       get :progress
+      get 'results/:key', :action => :play_result, :as => 'result'
     end
     collection do
       get :queued

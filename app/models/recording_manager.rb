@@ -33,7 +33,7 @@ class RecordingManager
 
   def path_for(folder)
     raise "Cannot create recording manager for non saved object" unless @object.id
-    path = File.join Rails.root, "data/#{@object.class.name.underscore.pluralize}/#{@object.id}/#{folder}/"
+    path = File.join Rails.root, "data", "#{@object.class.name.underscore.pluralize}", "#{@object.id}", "#{folder}"
     FileUtils.makedirs(path)
     path
   end

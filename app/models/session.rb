@@ -120,6 +120,7 @@ class Session
       end
     end
     ctx['alert'] = lambda { |str| info str }
+    ctx['record_url'] = lambda { |key| record_url(key) }
     ctx
   end
 
@@ -146,5 +147,12 @@ class Session
     run rescue nil
 
     call_log.finish_with_error message
+  end
+
+  def record_url(key)
+    # TODO see why this is broken in this context (maybe the rails env is missing something?)
+    # NamedRoutes.result_application_url(application.id, :key => key.to_i, :call_log_id => call_log.id)
+    # "http://#{Rails.application.config.default_url_options[:host]}/applications/#{call_log.application_id}/results/#{key.to_i}/#{call_log.id}"
+    NamedRoutes.result_call_log_url(call_log, :key => key)
   end
 end

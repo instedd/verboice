@@ -40,4 +40,9 @@ class CallLogsController < ApplicationController
     redirect_to({:action => 'queued'}, {:notice => "Enqueued calls to #{pluralize(addresses.count, 'address')} on channel #{@channel.name}"})
   end
 
+  def play_result
+    log = current_account.call_logs.find params[:id]
+    send_file RecordingManager.for(log).result_path_for(params[:key]), :x_sendfile => true
+  end
+
 end

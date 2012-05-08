@@ -105,10 +105,6 @@ class ApplicationsController < ApplicationController
     end
   end
 
-  def play_result
-    send_file @recording_manager.result_path_for(@step_id), :x_sendfile => true
-  end
-
   # DELETE /applications/1
   def destroy
     @application.destroy
