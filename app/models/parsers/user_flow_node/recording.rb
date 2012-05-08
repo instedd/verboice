@@ -12,7 +12,7 @@ module Parsers
         @application = application
         @parent = parent_step
         @name = params['name']
-        @file_name = (RecordingManager.new application).get_recording_path_for(parent_step.id, action)
+        @file_name = (RecordingManager.new application).recording_path_for(parent_step.id, action)
       end
 
       def equivalent_flow

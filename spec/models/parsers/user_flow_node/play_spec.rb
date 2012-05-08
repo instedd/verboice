@@ -4,7 +4,7 @@ module Parsers
   module UserFlowNode
     describe Play do
 
-      let(:app) { self }
+      let(:app) { Application.make }
 
       it "should compile to a verboice equivalent flow" do
         play = Play.new app, 'id' => 1,
@@ -18,11 +18,11 @@ module Parsers
           }
 
         play.equivalent_flow.first.should eq(
-          Compiler.parse do
-            Label 1
-            Assign "current_step", 1
-            Trace application_id: 1, step_id: 1, step_name: 'Play', store: '"Message played."'
-            PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-message.wav")
+          Compiler.parse do |c|
+            c.Label 1
+            c.Assign "current_step", 1
+            c.Trace application_id: app.id, step_id: 1, step_name: 'Play', store: '"Message played."'
+            c.PlayFile File.join(Rails.root, "data","applications","#{app.id}","recordings", "1-message.wav")
           end.first
         )
       end
@@ -37,17 +37,13 @@ module Parsers
           }
 
         play.equivalent_flow.first.should eq(
-          Compiler.parse do
-            Label 27
-            Assign "current_step", 27
-            Trace application_id: 1, step_id: 27, step_name: 'Play number one', store: '"Message played."'
-            Say "Some explanation message"
+          Compiler.parse do |c|
+            c.Label 27
+            c.Assign "current_step", 27
+            c.Trace application_id: app.id, step_id: 27, step_name: 'Play number one', store: '"Message played."'
+            c.Say "Some explanation message"
           end.first
         )
-      end
-
-      def id
-        1
       end
     end
   end

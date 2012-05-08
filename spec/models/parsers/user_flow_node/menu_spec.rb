@@ -4,7 +4,7 @@ module Parsers
   module UserFlowNode
     describe Menu do
 
-      let(:app) { self }
+      let(:app) { Application.make }
       it "should compile to a verboice equivalent flow" do
         menu = Menu.new app, 'id' => 1,
           'type' => 'menu',
@@ -78,52 +78,52 @@ module Parsers
         menu.solve_links_with [ play1, play2, play3 ]
 
         menu.equivalent_flow.first.should eq(
-          Compiler.parse do
-            Label 1
-            Assign "current_step", 1
-            PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-explanation.wav")
-            Assign 'attempt_number1', '1'
-            While 'attempt_number1 <= 3' do
-              Capture play_file: File.join(Rails.root, "data","applications","1","recordings", "1-options.wav"), finish_on_key: '', timeout: 20
-              Assign 'value_1', 'digits'
-              PersistVariable 'some_variable', 'value_1'
-              If "digits == '4'" do
-                Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
-                Label 10
-                Assign "current_step", 10
-                Trace application_id: 1, step_id: 10, step_name: 'Play 1', store: '"Message played."'
-                Say "Second explanation message"
-                Goto "end1"
+          Compiler.parse do |c|
+            c.Label 1
+            c.Assign "current_step", 1
+            c.PlayFile File.join(Rails.root, "data","applications","#{app.id}","recordings", "1-explanation.wav")
+            c.Assign 'attempt_number1', '1'
+            c.While 'attempt_number1 <= 3' do |c|
+              c.Capture play_file: File.join(Rails.root, "data","applications","#{app.id}","recordings", "1-options.wav"), finish_on_key: '', timeout: 20
+              c.Assign 'value_1', 'digits'
+              c.PersistVariable 'some_variable', 'value_1'
+              c.If "digits == '4'" do |c|
+                c.Trace application_id: app.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.Label 10
+                c.Assign "current_step", 10
+                c.Trace application_id: app.id, step_id: 10, step_name: 'Play 1', store: '"Message played."'
+                c.Say "Second explanation message"
+                c.Goto "end1"
               end
-              If "digits == '6'" do
-                Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
-                Label 14
-                Assign "current_step", 14
-                Trace application_id: 1, step_id: 14, step_name: 'Play 2', store: '"Message played."'
-                Say "Third explanation message"
-                Goto "end1"
+              c.If "digits == '6'" do |c|
+                c.Trace application_id: app.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.Label 14
+                c.Assign "current_step", 14
+                c.Trace application_id: app.id, step_id: 14, step_name: 'Play 2', store: '"Message played."'
+                c.Say "Third explanation message"
+                c.Goto "end1"
               end
-              If "digits == '2'" do
-                Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
-                Label 5
-                Assign "current_step", 5
-                Trace application_id: 1, step_id: 5, step_name: 'Play 3', store: '"Message played."'
-                Say "Fourth explanation message"
-                Goto "end1"
+              c.If "digits == '2'" do |c|
+                c.Trace application_id: app.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.Label 5
+                c.Assign "current_step", 5
+                c.Trace application_id: app.id, step_id: 5, step_name: 'Play 3', store: '"Message played."'
+                c.Say "Fourth explanation message"
+                c.Goto "end1"
               end
-              If "digits != null" do
-                PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-invalid.wav")
-                Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"Invalid key pressed"'
+              c.If "digits != null" do |c|
+                c.PlayFile File.join(Rails.root, "data","applications","#{app.id}","recordings", "1-invalid.wav")
+                c.Trace application_id: app.id, step_id: 1, step_name: 'Menu number one', store: '"Invalid key pressed"'
               end
-              Else do
-                Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"No key was pressed. Timeout."'
+              c.Else do |c|
+                c.Trace application_id: app.id, step_id: 1, step_name: 'Menu number one', store: '"No key was pressed. Timeout."'
               end
-              Assign 'attempt_number1', 'attempt_number1 + 1'
+              c.Assign 'attempt_number1', 'attempt_number1 + 1'
             end
-            Trace application_id: 1, step_id: 1, step_name: 'Menu number one', store: '"Missed input for 3 times."'
-            PlayFile File.join(Rails.root, "data","applications","1","recordings", "1-end_call.wav")
-            End()
-            Label "end1"
+            c.Trace application_id: app.id, step_id: 1, step_name: 'Menu number one', store: '"Missed input for 3 times."'
+            c.PlayFile File.join(Rails.root, "data","applications","#{app.id}","recordings", "1-end_call.wav")
+            c.End()
+            c.Label "end1"
           end.first
         )
       end
@@ -131,22 +131,22 @@ module Parsers
       it "should compile to a minimum verboice equivalent flow" do
         menu = Menu.new app, 'id' => 27, 'type' => 'menu'
         menu.equivalent_flow.make.should eq(
-          Compiler.make do
-            Assign "current_step", 27
-            Assign 'attempt_number27', '1'
-            While 'attempt_number27 <= 3' do
-              Capture finish_on_key: '', timeout: 5
-              Assign 'value_27', 'digits'
-              If "digits != null" do
-                Trace application_id: 1, step_id: 27, step_name: '', store: '"Invalid key pressed"'
+          Compiler.make do |c|
+            c.Assign "current_step", 27
+            c.Assign 'attempt_number27', '1'
+            c.While 'attempt_number27 <= 3' do |c|
+              c.Capture finish_on_key: '', timeout: 5
+              c.Assign 'value_27', 'digits'
+              c.If "digits != null" do |c|
+                c.Trace application_id: app.id, step_id: 27, step_name: '', store: '"Invalid key pressed"'
               end
-              Else do
-                Trace application_id: 1, step_id: 27, step_name: '', store: '"No key was pressed. Timeout."'
+              c.Else do |c|
+                c.Trace application_id: app.id, step_id: 27, step_name: '', store: '"No key was pressed. Timeout."'
               end
-              Assign 'attempt_number27', 'attempt_number27 + 1'
+              c.Assign 'attempt_number27', 'attempt_number27 + 1'
             end
-            Trace application_id: 1, step_id: 27, step_name: '', store: '"Missed input for 3 times."'
-            Label 'end27'
+            c.Trace application_id: app.id, step_id: 27, step_name: '', store: '"Missed input for 3 times."'
+            c.Label 'end27'
           end
         )
       end
@@ -225,10 +225,6 @@ module Parsers
           'explanation_message' => {"name"=>'foo', 'type' => 'text'}
         menu_1.is_root?.should be_true
         menu_2.is_root?.should be_false
-      end
-
-      def id
-        1
       end
     end
   end

@@ -36,7 +36,7 @@ class ApplicationsController < ApplicationController
               rescue Exception => e
                 # If the Trace belongs to a deleted step, there is no way to represent it.
                 # This should be fixed when the application stores it's different flow versions.
-                # For now, the entire line is ignored
+                # For now, the trace is ignored
               end
             end
             csv << line
@@ -96,7 +96,7 @@ class ApplicationsController < ApplicationController
   end
 
   def play_recording
-    send_file @recording_manager.get_recording_path_for(@step_id, @message), :x_sendfile=>true
+    send_file @recording_manager.recording_path_for(@step_id, @message), :x_sendfile=>true
   end
 
   def save_recording
@@ -106,7 +106,7 @@ class ApplicationsController < ApplicationController
   end
 
   def play_result
-    send_file @recording_manager.get_result_path_for(@step_id), :x_sendfile => true
+    send_file @recording_manager.result_path_for(@step_id), :x_sendfile => true
   end
 
   # DELETE /applications/1

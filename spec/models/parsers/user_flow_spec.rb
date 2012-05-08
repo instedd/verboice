@@ -213,7 +213,7 @@ describe Parsers::UserFlow do
         Answer()
         Assign "current_step", 1
         Trace application_id: 5, step_id: 1, step_name: 'Play number one', store: '"Message played."'
-        PlayFile File.join(Rails.root, "data","applications","5","recordings", "1-message.wav")
+        PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "1-message.wav")
         Assign "current_step", 2
         Assign 'attempt_number2', '1'
         While 'attempt_number2 <= 3' do
@@ -224,7 +224,7 @@ describe Parsers::UserFlow do
             Goto "end2"
           end
           If "digits != null" do
-            PlayFile File.join(Rails.root, "data","applications","5","recordings", "2-invalid.wav")
+            PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "2-invalid.wav")
             Trace application_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Invalid key pressed"'
           end
           Else do
@@ -233,7 +233,7 @@ describe Parsers::UserFlow do
           Assign 'attempt_number2', 'attempt_number2 + 1'
         end
         Trace application_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Missed input for 3 times."'
-        PlayFile File.join(Rails.root, "data","applications","5","recordings", "2-end_call.wav")
+        PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks", "5","recordings", "2-end_call.wav")
         End()
         Label "end2"
         Assign "current_step", 3
@@ -272,14 +272,14 @@ describe Parsers::UserFlow do
         Say "Say 5"
         Assign "current_step", 33
         Trace application_id: 5, step_id: 33, step_name: 'Play number 33', store: '"Message played."'
-        PlayFile File.join(Rails.root, "data","applications","5","recordings", "33-message.wav")
+        PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "33-message.wav")
         Assign "current_step", 34
         If "(value_3 == 6) && (value_2 < 30) && (value_2 >= 5)" do
           Trace application_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
           Label 10
           Assign "current_step", 10
           Trace application_id: 5, step_id: 10, step_name: 'Play number 10', store: '"Message played."'
-          PlayFile File.join(Rails.root, "data","applications","5","recordings", "10-message.wav")
+          PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "10-message.wav")
           Goto "end34"
         end
         If "(value_3 <= 5)" do

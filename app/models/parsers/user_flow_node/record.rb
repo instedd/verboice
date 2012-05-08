@@ -37,7 +37,7 @@ module Parsers
       end
 
       def filename
-        RecordingManager.for(@application).get_result_path_for(@id)
+        RecordingManager.for(@application).result_path_for(@id)
       end
 
       def record_url
