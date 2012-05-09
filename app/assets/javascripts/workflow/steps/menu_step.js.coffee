@@ -11,6 +11,8 @@ onWorkflow ->
       @options = ko.observableArray([])
       @new_option_command = ko.observable null
       @current_editing_message = ko.observable null
+      @timeout = ko.observable attrs['timeout'] ? menu_default_time_out_in_seconds
+      @number_of_attempts = ko.observable attrs['number_of_attempts'] ? menu_default_number_of_attempts
 
       @store = ko.observable attrs.store
       @defines_store = ko.observable !!attrs.store
@@ -47,6 +49,8 @@ onWorkflow ->
         invalid_message: @message_selectors['invalid'].to_hash()
         explanation_message: @message_selectors['explanation'].to_hash()
         options_message: @message_selectors['options'].to_hash()
+        timeout: @timeout()
+        number_of_attempts: @number_of_attempts()
       )
 
     add_option: () =>

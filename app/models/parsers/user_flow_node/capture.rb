@@ -10,11 +10,11 @@ module Parsers
         @root_index = params['root']
         @instructions_message = Message.for application, self, :instructions, params['instructions_message']
         @valid_values = params['valid_values']
-        @finish_on_key = params['finish_on_key'] || '#'
-        @min_input_length = params['min_input_length'] || 1
-        @max_input_length = params['max_input_length'] || 1
-        @timeout = params['timeout'] || 5
-        @number_of_attempts = params['number_of_attempts'] || 3
+        @finish_on_key = params['finish_on_key'] || self.class.default_finish_key
+        @min_input_length = params['min_input_length'] || self.class.default_minimum_input_lenght
+        @max_input_length = params['max_input_length'] || self.class.default_maximum_input_lenght
+        @timeout = params['timeout'] || self.class.default_time_out_in_seconds
+        @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
         @invalid_message = Message.for application, self, :invalid, params['invalid_message']
         @end_call_message = Message.for application, self, :end_call, params['end_call_message']
         @application = application
@@ -91,6 +91,25 @@ module Parsers
         end
       end
 
+      def self.default_number_of_attempts
+        3
+      end
+
+      def self.default_time_out_in_seconds
+        Commands::CaptureCommand.default_time_out_in_seconds
+      end
+
+      def self.default_minimum_input_lenght
+        Commands::CaptureCommand.default_minimum_input_lenght
+      end
+
+      def self.default_maximum_input_lenght
+        Commands::CaptureCommand.default_maximum_input_lenght
+      end
+
+      def self.default_finish_key
+        Commands::CaptureCommand.default_finish_key
+      end
     end
   end
 end

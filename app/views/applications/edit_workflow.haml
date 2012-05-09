@@ -6,6 +6,8 @@
     var application_path = "#{ application_path(@application) }";
     var save_recording_application_path = "#{ save_recording_application_path(@application)}";
     var play_recording_application_path = "#{ play_recording_application_path(@application)}";
+    var menu_default_time_out_in_seconds = #{Parsers::UserFlowNode::Menu.default_time_out_in_seconds};
+    var menu_default_number_of_attempts = #{Parsers::UserFlowNode::Menu.default_number_of_attempts};
 
   - %W(hang_up_step workflow_step capture_step menu_step play_step transfer_step goto_step branch_step record_step message recording_message text_message command_selector).each do |template|
     = render "applications/workflow/#{template}_template"

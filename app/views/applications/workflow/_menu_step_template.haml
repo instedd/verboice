@@ -37,7 +37,21 @@
                 %span{ko(text: "message('end_call').name()")}
               %td
                 %button.farrow{ :type => "button", 'data-bind' => "click: show_end_call_message" }
-        .content
+        .content{ko('instedd_init' => true)}
+          %hr
+          %label Time
+          %br
+          .ux-nstep.w06
+            %input{ko(value: "timeout"),:type => 'text'}
+            %button{:type => 'button', :class => 'kdown'}
+            %button{:type => 'button', :class => 'kup'}
+          before repeating options
+          %br
+          .ux-nstep.w06
+            %input{ko(value: "number_of_attempts"),:type => 'text'}
+            %button{:type => 'button', :class => 'kdown'}
+            %button{:type => 'button', :class => 'kup'}
+          attemps
           %hr
           %label Options
           %br

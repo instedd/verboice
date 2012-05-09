@@ -11,8 +11,8 @@ module Parsers
         @options_message = Message.for application, self, :options, params['options_message']
         @options = params['options'].deep_clone || []
         @root_index = params['root']
-        @timeout = params['timeout'] || 5
-        @number_of_attempts = params['number_of_attempts'] || 3
+        @timeout = params['timeout'] || self.class.default_time_out_in_seconds
+        @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
         @invalid_message = Message.for application, self, :invalid, params['invalid_message']
         @end_call_message = Message.for application, self, :end_call, params['end_call_message']
         @application = application
@@ -80,6 +80,14 @@ module Parsers
           c.Label "end#{@id}"
           c.append @next.equivalent_flow if @next
         end
+      end
+
+      def self.default_number_of_attempts
+        3
+      end
+
+      def self.default_time_out_in_seconds
+        Commands::CaptureCommand.default_time_out_in_seconds
       end
     end
   end

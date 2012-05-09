@@ -7,7 +7,11 @@ class Commands::CaptureCommand < Command
   param :say, :string, :ui_length => 40
 
   def initialize(options = {})
-    @options = {:min => 1, :max => 1, :finish_on_key => '#', :timeout => 5}
+    @options = {
+      :min => self.class.default_minimum_input_lenght,
+      :max => self.class.default_maximum_input_lenght,
+      :finish_on_key => self.class.default_finish_key,
+      :timeout => self.class.default_time_out_in_seconds}
     @options.merge! options
     @options[:max] = Float::INFINITY if @options[:max] < @options[:min]
   end
@@ -48,5 +52,21 @@ class Commands::CaptureCommand < Command
     end
 
     super
+  end
+
+  def self.default_time_out_in_seconds
+    5
+  end
+
+  def self.default_minimum_input_lenght
+    1
+  end
+
+  def self.default_maximum_input_lenght
+    1
+  end
+
+  def self.default_finish_key
+    '#'
   end
 end
