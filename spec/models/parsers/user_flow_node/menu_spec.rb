@@ -46,7 +46,9 @@ module Parsers
               'number' => 2,
               'next' => 5
             }
-          ]
+          ],
+          'default' => 45
+
         play1 = Play.new app, 'id' => 10,
           'type' => 'play',
           'name' => 'Play 1',
@@ -68,8 +70,15 @@ module Parsers
             "name" => "Fourth explanation message",
             "type" => "text"
           }
+        play4 = Play.new app, 'id' => 45,
+            'type' => 'play',
+            'name' => 'Play 45',
+            'message' => {
+              "name" => "Fifth explanation message",
+              "type" => "text"
+            }
 
-        menu.solve_links_with [ play1, play2, play3 ]
+        menu.solve_links_with [ play1, play2, play3, play4 ]
 
         menu.equivalent_flow.first.should eq(
           Compiler.parse do |c|
@@ -115,7 +124,10 @@ module Parsers
               c.Assign 'attempt_number1', 'attempt_number1 + 1'
             end
             c.Trace application_id: app.id, step_id: 1, step_name: 'Menu number one', store: '"Missed input for 3 times."'
-            c.End()
+            c.Label 45
+            c.Assign "current_step", 45
+            c.Trace application_id: app.id, step_id: 45, step_name: 'Play 45', store: '"Message played."'
+            c.Say "Fifth explanation message"
             c.Label "end1"
           end.first
         )

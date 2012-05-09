@@ -14,6 +14,7 @@ module Parsers
         @timeout = params['timeout'] || self.class.default_time_out_in_seconds
         @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
         @invalid_message = Message.for application, self, :invalid, params['invalid_message']
+        @default = params['default']
         @application = application
         @next = params['next']
         @persisted_variable_name = params['store']
@@ -33,6 +34,20 @@ module Parsers
               else
                 raise "There are multiple commands with id #{an_option['next']}: #{possible_nodes.inspect}."
               end
+            end
+          end
+        end
+        if @default && !@default.is_a?(Parsers::UserFlowNode::UserCommand)
+          possible_nodes = nodes.select do |a_node|
+            a_node.id == @default
+          end
+          if possible_nodes.size == 1
+            @default = possible_nodes.first
+          else
+            if possible_nodes.size == 0
+              raise "There is no command with id #{@default}"
+            else
+              raise "There are multiple commands with id #{@default}: #{possible_nodes.inspect}."
             end
           end
         end
@@ -74,7 +89,7 @@ module Parsers
             c.Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"
           end
           c.Trace context_for %("Missed input for #{@number_of_attempts} times.")
-          c.End
+          c.append @default.equivalent_flow if @default
           c.Label "end#{@id}"
           c.append @next.equivalent_flow if @next
         end
