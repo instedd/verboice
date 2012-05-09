@@ -30,12 +30,6 @@ module Parsers
             "file" => "file.wav",
             "duration" => 5
           },
-          'end_call_message' => {
-            "name" => "This call will end now",
-            "type" => "recording",
-            "file" => "file.wav",
-            "duration" => 5
-          },
           'options' => [
             {
               'description' => 'foo',
@@ -121,7 +115,6 @@ module Parsers
               c.Assign 'attempt_number1', 'attempt_number1 + 1'
             end
             c.Trace application_id: app.id, step_id: 1, step_name: 'Menu number one', store: '"Missed input for 3 times."'
-            c.PlayFile File.join(Rails.root, "data","applications","#{app.id}","recordings", "1-end_call.wav")
             c.End()
             c.Label "end1"
           end.first
@@ -152,12 +145,11 @@ module Parsers
       end
 
       it "should be able to build itself from an incomming hash" do
-        menu = Menu.new app, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo', 'type' => 'text'}, 'timeout' => 20, 'invalid_message' => {'name' => 'foobar', 'type' => 'text'} , 'end_call_message' => {'name' => 'cya', 'type' => 'text'}, 'options_message' => {}
+        menu = Menu.new app, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo', 'type' => 'text'}, 'timeout' => 20, 'invalid_message' => {'name' => 'foobar', 'type' => 'text'}, 'options_message' => {}
         menu.id.should eq(27)
         menu.explanation_message.name.should eq('foo')
         menu.timeout.should eq(20)
         menu.invalid_message.name.should eq('foobar')
-        menu.end_call_message.name.should eq('cya')
       end
 
       it "should handle a menu input stream"do

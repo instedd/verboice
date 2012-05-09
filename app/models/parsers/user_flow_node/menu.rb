@@ -14,7 +14,6 @@ module Parsers
         @timeout = params['timeout'] || self.class.default_time_out_in_seconds
         @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
         @invalid_message = Message.for application, self, :invalid, params['invalid_message']
-        @end_call_message = Message.for application, self, :end_call, params['end_call_message']
         @application = application
         @next = params['next']
         @persisted_variable_name = params['store']
@@ -75,7 +74,6 @@ module Parsers
             c.Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"
           end
           c.Trace context_for %("Missed input for #{@number_of_attempts} times.")
-          c.append @end_call_message.equivalent_flow
           c.End
           c.Label "end#{@id}"
           c.append @next.equivalent_flow if @next

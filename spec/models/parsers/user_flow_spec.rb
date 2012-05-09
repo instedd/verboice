@@ -27,7 +27,6 @@ describe Parsers::UserFlow do
         'name' => 'Menu number one',
         'explanation_message' => { "name" => 'First Menu', 'type' => 'text' },
         'options_message' => {},
-        'end_call_message' => {},
         'invalid_message' => {},
         'timeout' => 20,
         'options' =>[

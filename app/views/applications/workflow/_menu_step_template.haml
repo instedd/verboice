@@ -31,12 +31,6 @@
                 %span{ko(text: "message('invalid').name()")}
               %td
                 %button.farrow{ :type => "button", 'data-bind' => "click: show_invalid_message" }
-            %tr
-              %td
-                End call:
-                %span{ko(text: "message('end_call').name()")}
-              %td
-                %button.farrow{ :type => "button", 'data-bind' => "click: show_end_call_message" }
         .content{ko('instedd_init' => true)}
           %hr
           %label Time

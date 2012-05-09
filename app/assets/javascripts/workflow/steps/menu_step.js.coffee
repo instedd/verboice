@@ -18,7 +18,6 @@ onWorkflow ->
       @defines_store = ko.observable !!attrs.store
 
       @message_selectors =
-        end_call:    MessageSelector.from_hash(attrs.end_call_message).with_title('End call').with_parent(@)
         invalid:     MessageSelector.from_hash(attrs.invalid_message).with_title('Invalid').with_parent(@)
         explanation: MessageSelector.from_hash(attrs.explanation_message).with_title('Explanation').with_parent(@)
         options:     MessageSelector.from_hash(attrs.options_message).with_title('Options').with_parent(@)
@@ -45,7 +44,6 @@ onWorkflow ->
       $.extend(super,
         store: (if @defines_store() then @store() else null)
         options: (option.to_hash() for option in @options())
-        end_call_message: @message_selectors['end_call'].to_hash()
         invalid_message: @message_selectors['invalid'].to_hash()
         explanation_message: @message_selectors['explanation'].to_hash()
         options_message: @message_selectors['options'].to_hash()
@@ -74,9 +72,6 @@ onWorkflow ->
     show_message: (msg) =>
       msg = @message_selectors[msg]
       @current_editing_message(msg)
-
-    show_end_call_message: () =>
-      @show_message('end_call')
 
     show_invalid_message: () =>
       @show_message('invalid')
