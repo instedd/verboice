@@ -11,11 +11,17 @@
 = link_to 'Download call results as CSV', application_path(:format => :csv), :class => "button fimport"
 %br
 = link_to 'Export call Flow', application_path(:format => :vrb), :class => "button fimport"
-/ - if @application.mode == :flow
-/   %pre
-/     = @application.commands.to_yaml
+%p
+  %b Import Call Flow:
+  = form_tag({:action => :import_call_flow}, :multipart => true) do
+    = file_field_tag 'vrb', :label => 'Browse'
+    = submit_tag 'Upload', :class => 'grey-button shadow'
 
 %hr
 = link_to 'Edit', edit_application_path(@application), :class => "button grey"
 = link_to 'Back', applications_path, :class => "button white cancel"
 = link_to 'Delete', @application, :confirm => "Are you sure you want to delete the application #{@application.name}?", :method => :delete, :class => "button white cancel"
+
+/ - if @application.mode == :flow
+/   %pre
+/     = @application.commands.to_yaml

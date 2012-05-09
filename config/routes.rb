@@ -22,6 +22,7 @@ Verboice::Application.routes.draw do
       put :update_workflow
       get :play_recording
       post :save_recording
+      post :import_call_flow
     end
   end
 

@@ -2,7 +2,9 @@ require 'csv'
 
 class ApplicationsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_application, :only => [:show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result]
+  before_filter :load_application, :only => [
+    :show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import_call_flow
+  ]
   before_filter :load_recording_data, :only => [:play_recording, :save_recording, :play_result]
 
   skip_before_filter :verify_authenticity_token, :only => :save_recording
@@ -45,7 +47,7 @@ class ApplicationsController < ApplicationController
         render :text => csv
       end
       format.vrb do
-        render :text => @application.commands.to_yaml
+        render :text => @application.user_flow.to_yaml
       end
     end
   end
@@ -95,6 +97,20 @@ class ApplicationsController < ApplicationController
       end
     else
       render :action => "edit_workflow"
+    end
+  end
+
+  def import_call_flow
+    if params[:vrb].blank?
+      redirect_to({ :action => :show }, { :notice => 'No file found' })
+    else
+      begin
+        @application.user_flow = YAML::load File.read(params[:vrb].tempfile.path)
+        @application.save!
+        redirect_to({ :action => :show }, {:notice => "Application #{@application.name} successfully updated."})
+      rescue Exception => ex
+        redirect_to({:action => :show}, {:notice => 'Invalid file'})
+      end
     end
   end
 
