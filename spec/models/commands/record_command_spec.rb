@@ -9,8 +9,6 @@ module Commands
       pbx.stub :record
     end
 
-    it "should send pbx the record command"
-
     it "should create a recorded audio linking the saved audio file to the call log and contact" do
       contact = Contact.make
       application = Application.make account: contact.account
@@ -46,5 +44,28 @@ module Commands
       Contact.first.address.should eq('1234xxx')
       RecordedAudio.first.contact.should eq(Contact.first)
     end
+
+    describe 'pbx' do
+
+      let(:call_log) { CallLog.make }
+      let(:session) { Session.new(:pbx => pbx, :call_log => call_log, :address => '1234') }
+      let(:filename) { RecordingManager.for(call_log).result_path_for('key') }
+
+      it "should send pbx the record command with params" do
+        pbx.should_receive(:record).with(filename, '25#', 5)
+
+        cmd = RecordCommand.new 'key', 'desc', {:stop_keys => '25#', :timeout => 5}
+        cmd.run(session)
+      end
+
+      it "should send pbx the record command with defaults" do
+        pbx.should_receive(:record).with(filename, '01234567890*#', 10)
+
+        cmd = RecordCommand.new 'key', 'desc'
+        cmd.run(session)
+      end
+
+    end
+
   end
 end

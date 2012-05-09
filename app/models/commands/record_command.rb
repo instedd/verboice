@@ -24,8 +24,7 @@ class Commands::RecordCommand < Command
 
   def create_recorded_audio(session)
     account = session.call_log.account
-    contact = account.contacts.find_by_address(session.address)
-    contact = account.contacts.create! address: session.address unless contact
+    contact = account.contacts.where(:address => session.address).first_or_create!
     contact.recorded_audios.create! :call_log => session.call_log, :key => @key, :description => @description
   end
 end
