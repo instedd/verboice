@@ -91,3 +91,6 @@ onWorkflow ->
         @next().leaves()
       else
         [@]
+
+    after_initialize: () =>
+      null

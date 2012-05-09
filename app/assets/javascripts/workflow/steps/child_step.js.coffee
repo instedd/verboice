@@ -29,3 +29,6 @@ onWorkflow ->
 
     child_removed: () =>
       @parent.remove_child_step(@)
+
+    type: () =>
+      if @next()? then @next().type() else Skip.type

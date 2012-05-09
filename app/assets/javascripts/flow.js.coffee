@@ -27,6 +27,7 @@ onWorkflow ->
     window[step_type.type] = step_type
 
   window.workflow = new Workflow(new CommandSelector)
+  window.workflow.after_initialize()
   ko.applyBindings(workflow)
 
   window.workflow.serialize_workflow()

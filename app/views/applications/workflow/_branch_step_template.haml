@@ -33,18 +33,10 @@
             %select.w10{ko(options: 'commands()', optionsText: "function(item) { return (new window[item]({})).default_name() }", value: 'new_option_command')}
           %button.clist-add{ 'data-bind' => 'click: add_option'}
 
-        %li{'data-bind' => "ifnot: has_else"}
+        %li
           %span.ux-text
-            Add an default option:
-            %select.w10{ko(options: 'commands()', optionsText: "function(item) { return (new window[item]({})).default_name() }", value: 'new_else_option_command')}
-          %button.clist-add{ 'data-bind' => 'click: add_else_option'}
-
-        %li{'data-bind' => "if: has_else"}
-          / ko with: else_option
-          %span.ux-text If none of the above options match
-          %span{'data-bind' => 'text: next_name()'}
-          %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option_with_confirm' }
-          / /ko
+            Select default option:
+            %select.w10{ko(options: 'commands()', optionsText: "function(item) { return (new window[item]({})).default_name() }", value: 'else_option_command')}
 
       .bottom-actions
         %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

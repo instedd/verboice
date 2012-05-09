@@ -23,6 +23,7 @@ onWorkflow ->
       new_step = Step.from_hash(type: command_type, root: not parent?)
       parent.next_id = new_step.id if parent?
       @steps.push new_step
+      new_step.after_initialize()
       new_step
 
     remove_step: (step) =>
@@ -67,3 +68,7 @@ onWorkflow ->
       while id in (step.id for step in @steps())
         id += 1
       return id
+
+    after_initialize: () =>
+      for step in @steps()
+        step.after_initialize()
