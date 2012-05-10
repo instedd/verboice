@@ -43,5 +43,3 @@ onWorkflow ->
           workflow.steps.push(@)
       else
         workflow.steps.remove(@)
-
-

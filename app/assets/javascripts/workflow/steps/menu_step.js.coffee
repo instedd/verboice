@@ -10,9 +10,11 @@ onWorkflow ->
 
       @options = ko.observableArray([])
       @new_option_command = ko.observable null
+      @default_command_selected = ko.observable 'skip'
+
       @current_editing_message = ko.observable null
-      @timeout = ko.observable attrs['timeout'] ? menu_default_time_out_in_seconds
-      @number_of_attempts = ko.observable attrs['number_of_attempts'] ? menu_default_number_of_attempts
+      @timeout = ko.observable attrs.timeout ? menu_default_time_out_in_seconds
+      @number_of_attempts = ko.observable attrs.number_of_attempts ? menu_default_number_of_attempts
 
       @store = ko.observable attrs.store
       @defines_store = ko.observable !!attrs.store
@@ -28,6 +30,11 @@ onWorkflow ->
       @available_numbers = ko.computed () =>
         used_numbers = (opt.number() for opt in @options())
         (number for number in ['1','2','3','4','5','6','7','8','9','0','#','*'] when number not in used_numbers)
+
+      @default_id = attrs.default
+
+    default: () =>
+      workflow.get_step(@default_id)
 
     button_class: () =>
       'ldial'
@@ -49,6 +56,7 @@ onWorkflow ->
         options_message: @message_selectors['options'].to_hash()
         timeout: @timeout()
         number_of_attempts: @number_of_attempts()
+        default: @default_id
       )
 
     add_option: () =>
@@ -64,7 +72,13 @@ onWorkflow ->
       @options.remove child_step
 
     child_steps: () =>
-      @options().sort((opt1, opt2) => opt1.number().charCodeAt(0) - opt2.number().charCodeAt(0))
+      child = @options().sort((opt1, opt2) => opt1.number().charCodeAt(0) - opt2.number().charCodeAt(0))
+
+    children: () =>
+      if @default_id
+        super.concat(@default())
+      else
+        super
 
     message: (msg) =>
       @message_selectors[msg]
@@ -72,6 +86,20 @@ onWorkflow ->
     show_message: (msg) =>
       msg = @message_selectors[msg]
       @current_editing_message(msg)
+
+
+    add_default_step: () =>
+      if (@default_command_selected() == 'skip')
+        @default_id = null
+        workflow.steps.valueHasMutated()
+      else
+        step = workflow.create_step(@default_command_selected(), false)
+        @default_id = step.id
+        step.parent = @
+        if step in workflow.steps()
+          workflow.steps.valueHasMutated()
+        else
+          workflow.steps.push(step)
 
     show_invalid_message: () =>
       @show_message('invalid')
@@ -81,3 +109,7 @@ onWorkflow ->
 
     show_explanation_message: () =>
       @show_message('explanation')
+
+    after_initialize: () =>
+      if @default_id
+        @default_command_selected(@default().type())
