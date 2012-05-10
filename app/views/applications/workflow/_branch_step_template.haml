@@ -1,42 +1,40 @@
 %script{type: "text/html", id: "branch_step_template"}
   .feditor-sidebar.right.box.w28.iblock.h65
+
+    / %div{ko(:if => "is_editing_option()")}
+    / ko if: is_editing_option()
+    %div{ko(:template => "{name: 'branch_option_template', data: current_editing_option}")}
+    / /ko
+
     .tableheader
       %span.left.i48grad-directions
       %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
 
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %th Branches
+        %th
+      / ko foreach: options
+      %tr
+        %td{'data-bind' => 'text: next_name(), click: $parent.show_option'}
+        %td
+          .btupdn
+            %button.fmoveup{'data-bind' => 'click: $parent.move_option_up'}
+            %button.fmovedown{'data-bind' => 'click: $parent.move_option_down'}
+          %button.fremove{'data-bind' => 'click: $parent.remove_option_with_confirm'}
+      / /ko
+      %tr
+        %td{:colspan => '2'}
+          Add branch
+          %select{:style => 'width:165px', 'data-bind' => "options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: new_option_command"}
+          %button.fadd{'data-bind' => 'click: add_option'}
+
     .content
-      %label Branches
+      %hr
+      %label If none of the above conditions match
+      %br
+      %span{:style => 'display:inline-block; width:73px;'} Default
+      %select{:style => 'width:165px', 'data-bind' => 'options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: else_option_command'}
 
-      %ul.oplist
-        %span{ 'data-bind' => 'foreach: options' }
-          %li
-            %span{'data-bind' => 'text: next_name()'}
-            %span{'data-bind' => 'visible: is_empty'} Empty option!
-            %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option_with_confirm' }
-            %a{:href => '#', 'data-bind' => 'click: $parent.move_option_up'} Up
-            %a{:href => '#', 'data-bind' => 'click: $parent.move_option_down'} Down
-            %a{:href => '#', 'data-bind' => 'click: add_condition'} Add condition
-            %span{ 'data-bind' => 'foreach: conditions' }
-              %span Condition
-              %select{'data-bind' => "value: subject, groupedOptions: available_conditions(), optionsText: 'name', optionsValue: 'value', optionsGroup: 'group', optionsCaption: 'Select one...'"}
-              %select{'data-bind' => 'value: operator'}
-                %option{:value => '=='} is equal to
-                %option{:value => '>='} greater or equal to
-                %option{:value => '<='} less or equal to
-                %option{:value => '>'} greater than
-                %option{:value => '<'} less than
-              %input{'data-bind' => 'value: value'}
-              %button.clist-remove{ 'data-bind' => 'click: $parent.remove_condition' }
-        %li
-          %span.ux-text
-            Add an option:
-            %select.w10{ko(options: 'commands()', optionsText: "function(item) { return (new window[item]({})).default_name() }", value: 'new_option_command')}
-          %button.clist-add{ 'data-bind' => 'click: add_option'}
-
-        %li
-          %span.ux-text
-            Select default option:
-            %select.w10{ko(options: 'commands()', optionsText: "function(item) { return (new window[item]({})).default_name() }", value: 'else_option_command')}
-
-      .bottom-actions
-        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+    .bottom-actions
+      %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

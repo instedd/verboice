@@ -126,3 +126,24 @@ table.apps-footer td.platform { padding:28px 15px 10px 0 }
 
 /* Footer */
 #instedd-footer .jcarousel-container { background-color:#ffffff; background-image:none; border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; border: 1px solid #dddddd; -webkit-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset; -moz-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset;  box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset }
+
+/* ------------ Buttons Up/Down ------------------- */
+.btupdn { display: inline-block; vertical-align:middle; width:24px; height:24px; position:relative }
+.fmoveup, .fmovedown {
+    background-color: transparent;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    border: medium none;
+    cursor: pointer;
+    display: inline-block;
+    height: 12px;
+    min-width: 24px;
+}
+.fmoveup:hover, .fmovedown:hover {
+    background-position: 0 -30px;
+}
+.fmoveup:active, .fmovedown:active {
+    background-position: 0 -60px;
+}
+.fmovedown { background:url(http://resmap-stg.instedd.org/assets/moveDown.png) no-repeat; position:absolute; bottom:1px }
+.fmoveup { background:url(http://resmap-stg.instedd.org/assets/moveUp.png) no-repeat; position:absolute; top:0 }

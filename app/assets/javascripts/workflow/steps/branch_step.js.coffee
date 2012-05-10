@@ -14,6 +14,10 @@ onWorkflow ->
       @else_option = ko.observable null
       @else_option_command = ko.observable null
 
+      @current_editing_option = ko.observable null
+      @is_editing_option = ko.computed () =>
+        @current_editing_option() != null
+
     button_class: () =>
       'ldirections'
 
@@ -82,3 +86,7 @@ onWorkflow ->
       @else_option_command(@else_option().type())
       # Subscribe to else_option_command changes
       @else_option_command.subscribe @change_else_option
+
+    show_option: (option) =>
+      option.begin_edition()
+      @current_editing_option(option)

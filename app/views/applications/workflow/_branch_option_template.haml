@@ -1,0 +1,37 @@
+%script{type: "text/html", id: "branch_option_template"}
+  .popup
+    .courtain
+    .box.popupmessage
+      %div{'data-bind' => 'text: next_name()'}
+      %hr
+      %div{'data-bind' => 'if: is_editing_condition'}
+        .box.grey.noshadow
+          / ko with: current_editing_condition
+          %div
+            %select.w20{'data-bind' => "value: subject, groupedOptions: available_conditions(), optionsText: 'name', optionsValue: 'value', optionsGroup: 'group', optionsCaption: 'Select one...'"}
+          %div
+            %select.w20{'data-bind' => 'value: operator'}
+              %option{:value => '=='} is equal to
+              %option{:value => '>='} greater or equal to
+              %option{:value => '<='} less or equal to
+              %option{:value => '>'} greater than
+              %option{:value => '<'} less than
+          .w20
+            %input.ux-text{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown"'}
+            %button.faccept{'data-bind' => 'click: $parent.close_condition_edition'}
+          / /ko
+      %table.GralTable.TwoColumn.CleanTable.NoHead
+        %tbody
+          / ko foreach: conditions
+          %tr
+            %td{'data-bind' => 'text: value, click: $parent.show_condition'}
+            %td
+              %button.clist-remove{'data-bind' => 'click: $parent.remove_condition'}
+          / /ko
+          %tr
+            %td Add condition
+            %td
+              %button.clist-add{'data-bind' => 'click: add_condition'}
+      %hr
+      %button.white{'data-bind' => 'click: save'} Save
+      %button.white.cancel{'data-bind' => 'click: cancel'} Cancel

@@ -48,4 +48,3 @@ onWorkflow ->
       ).concat(
         {name: step.name(), group: "#{step.default_name()}s", value: "stp-#{step.id}"} for step in workflow.steps() when (step.type() == 'capture') || (step.type() == 'menu')
       )
-
