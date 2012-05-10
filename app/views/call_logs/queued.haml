@@ -48,6 +48,9 @@
     = label_tag :application_id, 'Application'
     = select_tag :application_id, options_from_collection_for_select(@applications, 'id', 'name'), :include_blank => true
   %p
+    = label_tag :not_before, 'Make calls'
+    = text_field_tag :not_before, '', :class => "ux-datetimepicker"
+  %p
     = label_tag :addresses, 'Phone numbers'
     %p Enter each phone number in a separate line
     %p
