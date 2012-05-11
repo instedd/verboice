@@ -43,9 +43,9 @@ onWorkflow ->
 
     children: () =>
       if @default_id
-        super.concat(@get_default_skip_step()).concat(@default())
+        [@get_default_skip_step(), @default()]
       else
-        super
+        new Array()
 
     add_default_step: () =>
       if (@default_command_selected() == 'skip')
@@ -59,10 +59,10 @@ onWorkflow ->
           workflow.steps.valueHasMutated()
         else
           workflow.steps.push(step)
+
     after_initialize: () =>
       if @default_id
         @default_command_selected(@default().type())
-
 
     button_class: () =>
       'lnumeral'
