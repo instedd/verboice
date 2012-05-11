@@ -37,6 +37,7 @@ table.workflow-table {
 .workflow-container {
   position:relative;
   white-space:nowrap;
+  padding-left: 20px;
 
   p {
     margin:0;
@@ -45,6 +46,22 @@ table.workflow-table {
 
   p.button.active {
     background-position: 0 -120px !important
+  }
+
+  a.insertBefore, a.insertAfter {
+    cursor: pointer;
+    z-index: 20;
+    &.active { background-position: 0 -30px !important}
+    &:active { background-position: 0 -30px !important}
+    &:hover  { background-position: 0 -60px !important}
+  }
+
+  a.insertBefore {
+    background:image-url("insertBefore.png") no-repeat; width:19px; height:19px; position:absolute; left:-20px; top:37px; display: block;
+  }
+
+  a.insertAfter {
+    background:image-url("insertAfter.png") no-repeat; width:19px; height:19px; position:absolute; left:60px; top:37px; display: block;
   }
 
   div {

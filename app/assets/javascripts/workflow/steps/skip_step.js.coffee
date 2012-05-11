@@ -14,4 +14,10 @@ onWorkflow ->
     next: () =>
       null
 
+    can_insert_before: () =>
+      false
+
+    can_insert_after: () =>
+      false
+
   window['skip'] = Skip

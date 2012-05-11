@@ -30,6 +30,9 @@ onWorkflow ->
     default_name: () =>
       'Link'
 
+    can_insert_after: () =>
+      false
+
     can_add_next: () =>
       false
 

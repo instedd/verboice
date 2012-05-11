@@ -19,6 +19,9 @@ onWorkflow ->
     default_name: () =>
       'Hang Up'
 
+    can_insert_after: () =>
+      false
+
     can_add_next: () =>
       false
 

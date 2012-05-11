@@ -39,6 +39,9 @@ onWorkflow ->
     button_class: () =>
       'ldial'
 
+    can_insert_after: () =>
+      false
+
     @add_to_steps: () ->
       workflow.add_step(new Menu)
 

@@ -22,7 +22,7 @@ onWorkflow ->
           step: root
           i: i
           j: 0
-          klass: 'ha'
+          klass: 'root'
 
       @draw_matrix()
 
@@ -56,7 +56,7 @@ onWorkflow ->
               has_closure: has_closure
 
             next_j = child_next_j if next_j < child_next_j
-            next_merge = (klass == 'ha' and next_i == i+1)
+            next_merge = ((klass == 'ha' or klass == 'root') and next_i == i+1)
             klass = 'va'
 
         @fill_vertical(j+1, i+1, last_child_i)

@@ -13,10 +13,16 @@ onWorkflow ->
       "Add new step"
 
     set_as_current: () =>
-      workflow.sidebar_content(workflow.command_selector())
+      workflow.show_command_selector(new AddNextRequestor(@parent)) #sidebar_content(workflow.command_selector)
       workflow.current_step(@)
 
     can_add_next: () =>
+      false
+
+    can_insert_before: () =>
+      false
+
+    can_insert_after: () =>
       false
 
     to_hash: () =>

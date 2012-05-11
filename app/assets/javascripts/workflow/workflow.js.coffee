@@ -1,13 +1,12 @@
 onWorkflow ->
   class window.Workflow
-    constructor: (command_selector) ->
+    constructor: () ->
       @steps = ko.observableArray(Step.from_hash(hash) for hash in application_flow)
-      @command_selector = ko.observable(command_selector)
+      @command_selector = new CommandSelector(new AddRootRequestor)
       @add_new_step = new window.New({id: -1})
 
       @current_step = ko.observable(null)
-      @sidebar_content = ko.observable(command_selector)
-
+      @sidebar_content = ko.observable(@command_selector)
 
     get_step: (id) =>
       return null if not id?
@@ -19,9 +18,10 @@ onWorkflow ->
     add_step: (command) =>
       @steps.push command
 
-    create_step: (command_type, parent) =>
+    create_step: (command_type, parent, callback) =>
       new_step = Step.from_hash(type: command_type, root: not parent?)
       parent.next_id = new_step.id if parent?
+      callback(new_step) if callback?
       @steps.push new_step
       new_step.after_initialize()
       new_step
@@ -30,15 +30,18 @@ onWorkflow ->
       for step in @steps()
         step.on_step_removed(step_to_remove) if step.on_step_removed
       @steps.remove(step_to_remove)
-      @show_new_step_selector() if @current_step() == step_to_remove
+      @set_as_current(null) if @current_step() == step_to_remove
 
     set_as_current: (step) =>
-      @sidebar_content(step || @command_selector())
+      @sidebar_content(step || @command_selector.with_requestor(new AddRootRequestor))
       @current_step(step)
       @add_new_step.current_step(step)
 
     show_new_step_selector: () =>
       @set_as_current(null)
+
+    show_command_selector: (requestor) =>
+      @sidebar_content(@command_selector.with_requestor(requestor or new AddRootRequestor))
 
     display_template_for: () =>
       @sidebar_content().display_template_id()

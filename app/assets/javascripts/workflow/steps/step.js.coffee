@@ -19,6 +19,18 @@ onWorkflow ->
     @initialize: (hash) ->
       return new @(hash)
 
+    insert_before: () =>
+      workflow.show_command_selector(new InsertBeforeRequestor(@))
+
+    insert_after: () =>
+      workflow.show_command_selector(new InsertAfterRequestor(@))
+
+    can_insert_before: () =>
+      true
+
+    can_insert_after: () =>
+      @next_id? and @next_id > 0
+
     to_hash: () =>
       id: @id
       name: @name()
@@ -40,9 +52,6 @@ onWorkflow ->
 
     is_serializable: () =>
       true
-
-    is_current_step: () =>
-      workflow.current_step == @
 
     remove_with_confirm: () =>
       name = @name?() || "this step"
