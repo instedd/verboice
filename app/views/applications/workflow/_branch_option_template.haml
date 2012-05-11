@@ -10,12 +10,7 @@
           %div
             %select.w20{'data-bind' => "value: subject, groupedOptions: available_conditions(), optionsText: 'name', optionsValue: 'value', optionsGroup: 'group', optionsCaption: 'Select one...'"}
           %div
-            %select.w20{'data-bind' => 'value: operator'}
-              %option{:value => '=='} is equal to
-              %option{:value => '>='} greater or equal to
-              %option{:value => '<='} less or equal to
-              %option{:value => '>'} greater than
-              %option{:value => '<'} less than
+            %select.w20{'data-bind' => "value: operator, options: operators, optionsText: 'text', optionsValue: 'value'"}
           .w20
             %input.ux-text{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown"'}
             %button.faccept{'data-bind' => 'click: $parent.close_condition_edition'}
@@ -24,7 +19,7 @@
         %tbody
           / ko foreach: conditions
           %tr
-            %td{'data-bind' => 'text: value, click: $parent.show_condition'}
+            %td{'data-bind' => 'text: description, click: $parent.show_condition'}
             %td
               %button.clist-remove{'data-bind' => 'click: $parent.remove_condition'}
           / /ko

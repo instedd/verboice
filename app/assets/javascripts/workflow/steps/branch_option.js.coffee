@@ -22,6 +22,7 @@ onWorkflow ->
 
     add_condition: () =>
       condition = new BranchCondition({})
+      condition.after_initialize()
       @conditions.push(condition)
       @current_editing_condition(condition)
 
@@ -49,6 +50,12 @@ onWorkflow ->
     exit: () =>
       @close_condition_edition()
       @parent.current_editing_option(null)
+
+    after_initialize: () =>
+      condition.after_initialize() for condition in @conditions()
+
+    on_step_removed: (step) =>
+      condition.on_step_removed(step) for condition in @conditions()
 
   class window.BranchElseOption extends BranchOption
     constructor: (next_id, branch) ->

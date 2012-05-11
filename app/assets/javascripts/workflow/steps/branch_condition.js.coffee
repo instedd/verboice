@@ -26,6 +26,14 @@ onWorkflow ->
             else
               throw "Invalid option kind #{kind}"
 
+      @operators = [
+        {text: 'is equal to', value: '=='},
+        {text: 'greater or equal to', value: '>='},
+        {text: 'less or equal to', value: '<='},
+        {text: 'greater than', value: '>'},
+        {text: 'less than', value: '<'}
+      ]
+
     subject_value: () =>
       if @variable()?
         "var-#{@variable()}"
@@ -40,6 +48,20 @@ onWorkflow ->
       operator: @operator()
       value: @value()
 
+    variable_or_step_name: () =>
+      if @variable()
+        @variable()
+      else if @step_id()
+        workflow.get_step(parseInt(@step_id())).name()
+      else
+        ''
+
+    operator_text_for: (operator_value) =>
+      if operator_value
+        (operator.text for operator in @operators when operator.value == operator_value)[0]
+      else
+        ''
+
     available_conditions: () =>
       (
         {name: variable, group: 'Variables', value: "var-#{variable}"} for variable in workflow.variables().sort()
@@ -48,3 +70,10 @@ onWorkflow ->
       ).concat(
         {name: step.name(), group: "#{step.default_name()}s", value: "stp-#{step.id}"} for step in workflow.steps() when (step.type() == 'capture') || (step.type() == 'menu')
       )
+
+    after_initialize: () =>
+      @description = ko.computed () =>
+        "#{@variable_or_step_name()} #{@operator_text_for(@operator())} #{@value() || ''}"
+
+    on_step_removed: (step) =>
+      @step_id(null) if step.id == parseInt(@step_id())

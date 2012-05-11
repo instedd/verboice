@@ -26,9 +26,11 @@ onWorkflow ->
       new_step.after_initialize()
       new_step
 
-    remove_step: (step) =>
-      @steps.remove(step)
-      @show_new_step_selector() if @current_step() == step
+    remove_step: (step_to_remove) =>
+      for step in @steps()
+        step.on_step_removed(step_to_remove) if step.on_step_removed
+      @steps.remove(step_to_remove)
+      @show_new_step_selector() if @current_step() == step_to_remove
 
     set_as_current: (step) =>
       @sidebar_content(step || @command_selector())

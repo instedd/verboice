@@ -87,6 +87,12 @@ onWorkflow ->
       # Subscribe to else_option_command changes
       @else_option_command.subscribe @change_else_option
 
+      option.after_initialize() for option in @options()
+
     show_option: (option) =>
       option.begin_edition()
       @current_editing_option(option)
+
+    on_step_removed: (step) =>
+      debugger
+      option.on_step_removed(step) for option in @options()
