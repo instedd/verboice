@@ -35,3 +35,6 @@ onWorkflow ->
 
     can_continue: () =>
       false
+
+    on_step_removed: (step) =>
+      @jump_id(null) if step.id == parseInt(@jump_id())
