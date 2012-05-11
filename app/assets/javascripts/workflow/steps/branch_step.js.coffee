@@ -94,5 +94,4 @@ onWorkflow ->
       @current_editing_option(option)
 
     on_step_removed: (step) =>
-      debugger
       option.on_step_removed(step) for option in @options()
