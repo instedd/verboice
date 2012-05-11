@@ -78,7 +78,6 @@ onWorkflow ->
 
         if step.children? and step.children().length > 0
           max_child_i = 0
-
           for child in step.children()
             for leaf in child.leaves()
               if leaf.can_continue() and leaf.position?

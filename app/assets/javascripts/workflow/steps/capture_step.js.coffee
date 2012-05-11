@@ -1,4 +1,6 @@
 #= require workflow/steps/step
+#= require workflow/steps/step_with_children
+#= require workflow/steps/skip_step
 
 onWorkflow ->
   class window.Capture extends StepWithChildren
@@ -19,6 +21,7 @@ onWorkflow ->
 
       @default_command_selected = ko.observable 'skip'
       @default_id = attrs.default
+      @default_skip_step = null
 
       @current_editing_message = ko.observable null
 
@@ -29,6 +32,8 @@ onWorkflow ->
       @is_editing_message = ko.computed () =>
         @current_editing_message() != null
 
+    get_default_skip_step: () =>
+      @default_skip_step ?= new Skip()
 
     default: () =>
       workflow.get_step(@default_id)
@@ -38,7 +43,7 @@ onWorkflow ->
 
     children: () =>
       if @default_id
-        super.concat(new Skip()).concat(@default())
+        super.concat(@get_default_skip_step()).concat(@default())
       else
         super
 
