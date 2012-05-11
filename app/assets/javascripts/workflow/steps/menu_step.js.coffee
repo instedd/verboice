@@ -13,8 +13,8 @@ onWorkflow ->
       @default_command_selected = ko.observable 'skip'
 
       @current_editing_message = ko.observable null
-      @timeout = ko.observable attrs.timeout ? menu_default_time_out_in_seconds
-      @number_of_attempts = ko.observable attrs.number_of_attempts ? menu_default_number_of_attempts
+      @timeout = ko.observable(attrs.timeout ? menu_default_time_out_in_seconds)
+      @number_of_attempts = ko.observable(attrs.number_of_attempts ? menu_default_number_of_attempts)
 
       @store = ko.observable attrs.store
       @defines_store = ko.observable !!attrs.store

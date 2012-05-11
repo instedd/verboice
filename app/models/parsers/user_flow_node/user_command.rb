@@ -54,19 +54,25 @@ class Parsers::UserFlowNode::UserCommand
   end
 
   def solve_links_with nodes
-    if self.next && !self.next.is_a?(Parsers::UserFlowNode::UserCommand)
+    self.next = node_linked_by self.next, nodes
+  end
+
+  def node_linked_by id, nodes
+    if id && !id.is_a?(Parsers::UserFlowNode::UserCommand)
       possible_nodes = nodes.select do |a_node|
-        a_node.id == self.next
+        a_node.id == id
       end
       if possible_nodes.size == 1
-        self.next = possible_nodes.first
+        possible_nodes.first
       else
         if possible_nodes.size == 0
-          raise "There is no command with id #{self.next}"
+          raise "There is no command with id #{id}"
         else
-          raise "There are multiple commands with id #{self.next}: #{possible_nodes.inspect}."
+          raise "There are multiple commands with id #{id}: #{possible_nodes.inspect}."
         end
       end
+    else
+      id
     end
   end
 end

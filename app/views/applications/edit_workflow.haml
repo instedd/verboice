@@ -8,6 +8,11 @@
     var play_recording_application_path = "#{ play_recording_application_path(@application)}";
     var menu_default_time_out_in_seconds = #{Parsers::UserFlowNode::Menu.default_time_out_in_seconds};
     var menu_default_number_of_attempts = #{Parsers::UserFlowNode::Menu.default_number_of_attempts};
+    var capture_default_time_out_in_seconds = #{Parsers::UserFlowNode::Capture.default_time_out_in_seconds};
+    var capture_default_number_of_attempts = #{Parsers::UserFlowNode::Capture.default_number_of_attempts};
+    var capture_default_finish_key = "#{Parsers::UserFlowNode::Capture.default_finish_key}";
+    var capture_default_minimum_input_lenght = #{Parsers::UserFlowNode::Capture.default_minimum_input_lenght};
+    var capture_default_maximum_input_lenght = #{Parsers::UserFlowNode::Capture.default_maximum_input_lenght};
 
   - %W(hang_up_step workflow_step capture_step menu_step play_step transfer_step goto_step branch_step record_step message recording_message text_message command_selector branch_option).each do |template|
     = render "applications/workflow/#{template}_template"
@@ -17,7 +22,7 @@
 #wami
 
 #workflow-page
-  %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Add new step
+  %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
   = form_tag update_workflow_application_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
     %div.right
       = hidden_field_tag 'flow'

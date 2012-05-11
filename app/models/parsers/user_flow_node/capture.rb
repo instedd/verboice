@@ -11,15 +11,20 @@ module Parsers
         @instructions_message = Message.for application, self, :instructions, params['instructions_message']
         @valid_values = params['valid_values']
         @finish_on_key = params['finish_on_key'] || self.class.default_finish_key
-        @min_input_length = params['min_input_length'] || self.class.default_minimum_input_lenght
-        @max_input_length = params['max_input_length'] || self.class.default_maximum_input_lenght
+        @min_input_length = params['min_input_length'].try(:to_i) || self.class.default_minimum_input_lenght
+        @max_input_length = params['max_input_length'].try(:to_i) || self.class.default_maximum_input_lenght
         @timeout = params['timeout'] || self.class.default_time_out_in_seconds
         @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
         @invalid_message = Message.for application, self, :invalid, params['invalid_message']
-        @end_call_message = Message.for application, self, :end_call, params['end_call_message']
         @application = application
         @next = params['next']
         @persisted_variable_name = params['store']
+        @default = params['default']
+      end
+
+      def solve_links_with nodes
+        @default = node_linked_by @default, nodes
+        super
       end
 
       def is_root?
@@ -67,8 +72,7 @@ module Parsers
             c.Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"
           end
           c.Trace context_for %("Missed input for #{@number_of_attempts} times.")
-          c.append @end_call_message.equivalent_flow
-          c.End
+          c.append @default.equivalent_flow if @default
           c.Label "end#{@id}"
           c.append @next.equivalent_flow if @next
         end
@@ -92,7 +96,7 @@ module Parsers
       end
 
       def self.default_number_of_attempts
-        3
+        Menu.default_number_of_attempts
       end
 
       def self.default_time_out_in_seconds

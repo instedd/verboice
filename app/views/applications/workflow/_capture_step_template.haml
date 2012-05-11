@@ -25,32 +25,40 @@
                 %span{ko(text: "message('invalid').name()")}
               %td
                 %button.farrow{ :type => "button", 'data-bind' => "click: show_invalid_message" }
-            %tr
-              %td
-                End call:
-                %span{ko(text: "message('end_call').name()")}
-              %td
-                %button.farrow{ :type => "button", 'data-bind' => "click: show_end_call_message" }
         .content{ko('instedd_init' => true)}
+          %hr
+          %label Attempts
+          %br
+          .ux-nstep.w06
+            %input{ko(value: "timeout"),:type => 'text'}
+            %button{:type => 'button', :class => 'kdown'}
+            %button{:type => 'button', :class => 'kup'}
+          secs. before repeating options
+          %br/
+          .ux-nstep.w06
+            %input{ko(value: "number_of_attempts"),:type => 'text'}
+            %button{:type => 'button', :class => 'kdown'}
+            %button{:type => 'button', :class => 'kup'}
+          attemps
+          %br/
+          %br/
+          After final attempt fails:
+          %select.w10{'data-bind' => 'options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: default_command_selected, event: { change: add_default_step }'}
           %hr
           %label Validation
           %br/
 
-          %span.validation
-            Min input length
+          Input length from
           .ux-nstep.w06
             %input{'type' => 'text', 'size' => 2, 'data-min' => 1, 'data-bind' => 'value: min_input_length'}
-          %br/
-
-          %span.validation
-            Max input length
+          to
           .ux-nstep.w06
             %input{'type' => 'text', 'size' => 2, 'data-min' => 1, 'data-bind' => 'value: max_input_length'}
           %br/
 
-          %span.validation
-            Valid values
-          %input.w10{'type' => 'text', 'data-bind' => 'value: valid_values'}
+          Valid values
+          %br/
+          %input.w25{'type' => 'text', 'data-bind' => 'value: valid_values'}
           %br/
 
           %span.validation

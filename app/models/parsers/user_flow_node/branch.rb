@@ -15,20 +15,7 @@ module Parsers
 
       def solve_links_with nodes
         @options.each do |an_option|
-          if an_option['next'] && !an_option['next'].is_a?(UserCommand)
-            possible_nodes = nodes.select do |a_node|
-              a_node.id == an_option['next']
-            end
-            if possible_nodes.size == 1
-              an_option['next'] = possible_nodes.first
-            else
-              if possible_nodes.size == 0
-                raise "There is no command with id #{an_option['next']}"
-              else
-                raise "There are multiple commands with id #{an_option['next']}: #{possible_nodes.inspect}."
-              end
-            end
-          end
+          an_option['next'] = node_linked_by an_option['next'], nodes
         end
         super
       end

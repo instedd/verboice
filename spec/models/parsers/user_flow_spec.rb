@@ -232,8 +232,6 @@ describe Parsers::UserFlow do
           Assign 'attempt_number2', 'attempt_number2 + 1'
         end
         Trace application_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Missed input for 3 times."'
-        PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks", "5","recordings", "2-end_call.wav")
-        End()
         Label "end2"
         Assign "current_step", 3
         Say 'First Menu'
@@ -264,7 +262,6 @@ describe Parsers::UserFlow do
           Assign 'attempt_number3', 'attempt_number3 + 1'
         end
         Trace application_id: 5, step_id: 3, step_name: 'Menu number one', store: '"Missed input for 3 times."'
-        End()
         Label "end3"
         Assign "current_step", 5
         Trace application_id: 5, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
