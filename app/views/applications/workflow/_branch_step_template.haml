@@ -6,7 +6,7 @@
     / /ko
 
     .tableheader
-      %span.left.i48grad-directions
+      %span.left.i48grad-directions{'data-bind' => "css: { orange: is_invalid }"}
       %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
 
     %table.GralTable.TwoColumn.CleanTable.NoHead

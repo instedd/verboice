@@ -92,6 +92,3 @@ onWorkflow ->
 
     show_explanation_message: () =>
       @show_message('explanation')
-
-    validates: () =>
-      @presence 'name'

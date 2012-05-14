@@ -20,20 +20,20 @@
 = render 'tabs'
 
 #wami
+#workflow
+  #workflow-page
+    %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
+    = form_tag update_workflow_application_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
+      %div.right
+        = hidden_field_tag 'flow'
+        %button.grey{:type => "submit", 'data-bind' => "enable: workflow.is_valid()"} Save
+        = link_to 'Cancel', application_path(@application), :class => "button white cancel", :style => 'top: 1px; margin-right: 15px'
+    .clear
 
-#workflow-page
-  %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
-  = form_tag update_workflow_application_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
-    %div.right
-      = hidden_field_tag 'flow'
-      %button.grey{:type => "submit"} Save
-      = link_to 'Cancel', application_path(@application), :class => "button white cancel", :style => 'top: 1px; margin-right: 15px'
-  .clear
+    .left
+      .box.lightgrey.workflow
+        .workflow-content-container.h65{ ko(workflow_steps: 'steps') }
 
-  .left
-    .box.lightgrey.workflow#workflow
-      .workflow-content-container.h65{ ko(workflow_steps: 'steps') }
+    %span{ko(template: '{name: display_template_for, data: sidebar_content}')}
 
-  %span{ko(template: '{name: display_template_for, data: sidebar_content}')}
-
-  .clear
+    .clear

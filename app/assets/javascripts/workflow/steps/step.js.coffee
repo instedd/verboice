@@ -6,6 +6,12 @@ onWorkflow ->
       @root = attrs.root
       @name = ko.observable(attrs.name || @default_name())
       @next_id = attrs.next
+      @is_valid = ko.computed( =>
+        @name()
+        )
+      @is_invalid = ko.computed( =>
+        not @is_valid()
+        )
 
     @from_hash: (hash) ->
       if typeof(hash.type) == "string"
@@ -80,7 +86,7 @@ onWorkflow ->
 
     child_removed: () =>
       null
-      
+
     child_updated: (previous_step, new_step) =>
       null
 

@@ -7,7 +7,7 @@
       .feditor-sidebar.right.box.w28.iblock.h65
 
         .tableheader
-          %span.left.i48grad-microphone
+          %span.left.i48grad-microphone{'data-bind' => "css: { orange: is_invalid }"}
           %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
 
         %table.GralTable.TwoColumn.CleanTable.NoHead

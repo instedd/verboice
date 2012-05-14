@@ -1,7 +1,7 @@
 %script{type: "text/html", id: "goto_step_template"}
   .feditor-sidebar.right.box.w28.iblock.h65
     .tableheader
-      %span.left.i48grad-bookmark
+      %span.left.i48grad-bookmark{'data-bind' => "css: { orange: is_invalid }"}
       %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
 
     %table.GralTable.TwoColumn.CleanTable.NoHead
