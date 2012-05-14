@@ -11,7 +11,7 @@
             %select.w20{'data-bind' => "value: subject, groupedOptions: available_conditions(), optionsText: 'name', optionsValue: 'value', optionsGroup: 'group', optionsCaption: 'Select one...'"}
           %div
             %select.w20{'data-bind' => "value: operator, options: operators, optionsText: 'text', optionsValue: 'value'"}
-          .w20
+          .w20.nowrap
             %input.ux-text{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown"'}
             %button.faccept{'data-bind' => 'click: $parent.close_condition_edition'}
           / /ko
@@ -19,7 +19,7 @@
         %tbody
           / ko foreach: conditions
           %tr
-            %td{'data-bind' => 'text: description, click: $parent.show_condition'}
+            %td.clickable{'data-bind' => 'text: description, click: $parent.show_condition'}
             %td
               %button.clist-remove{'data-bind' => 'click: $parent.remove_condition'}
           / /ko

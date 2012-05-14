@@ -1,7 +1,6 @@
 %script{type: "text/html", id: "branch_step_template"}
   .feditor-sidebar.right.box.w28.iblock.h65
 
-    / %div{ko(:if => "is_editing_option()")}
     / ko if: is_editing_option()
     %div{ko(:template => "{name: 'branch_option_template', data: current_editing_option}")}
     / /ko
@@ -16,15 +15,15 @@
         %th
       / ko foreach: options
       %tr
-        %td{'data-bind' => 'text: next_name(), click: $parent.show_option'}
-        %td
+        %td.clickable{'data-bind' => 'text: next_name(), click: $parent.show_option'}
+        %td.nowrap
           .btupdn
             %button.fmoveup{'data-bind' => 'click: $parent.move_option_up'}
             %button.fmovedown{'data-bind' => 'click: $parent.move_option_down'}
           %button.fremove{'data-bind' => 'click: $parent.remove_option_with_confirm'}
       / /ko
       %tr
-        %td{:colspan => '2'}
+        %td.nowrap{:colspan => '2'}
           Add branch
           %select{:style => 'width:165px', 'data-bind' => "options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: new_option_command"}
           %button.fadd{'data-bind' => 'click: add_option'}
