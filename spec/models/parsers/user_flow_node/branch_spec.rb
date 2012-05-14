@@ -32,7 +32,12 @@ module Parsers
                 {
                   'step' => 1,
                   'operator' => '<=',
-                  'variable' => 'another_name',
+                  'rhs_variable' => 'another_name',
+                },
+                {
+                  'variable' => 'some_name',
+                  'operator' => '<=',
+                  'rhs_variable' => 'another_name',
                 }
               ],
               'next' => 14
@@ -80,7 +85,8 @@ module Parsers
               Goto "end1"
             end
             RetrieveVariable 'another_name'
-            If "(value_1 <= var_another_name)" do
+            RetrieveVariable 'some_name'
+            If "(value_1 <= var_another_name) && (var_some_name <= var_another_name)" do
               Trace application_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
               Label 14
               Assign "current_step", 14

@@ -12,7 +12,11 @@
           %div
             %select.w20{'data-bind' => "value: operator, options: operators, optionsText: 'text', optionsValue: 'value'"}
           .w20.nowrap
-            %input.ux-text{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown"'}
+            %select.w8{'data-bind' => "value: rhs_kind"}
+              %option{value: "variable"} Variable
+              %option{value: "value"} Value
+            %input.ux-text.branch-condition-rhs{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: rhs_kind() == "value"'}
+            %select.branch-condition-rhs{'data-bind' => 'value: rhs_variable, visible: rhs_kind() == "variable", options: available_variables()'}
             %button.faccept{'data-bind' => 'click: $parent.close_condition_edition'}
           / /ko
       %table.GralTable.TwoColumn.CleanTable.NoHead

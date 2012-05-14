@@ -61,14 +61,17 @@ module Parsers
       end
 
       def second_comparison_term_from condition
-        condition['value'].presence ? "#{condition['value']}" : "var_#{condition['variable']}"
+        condition['rhs_variable'].presence ? "var_#{condition['rhs_variable']}" : "#{condition['value']}"
       end
 
       def retrieve_variables compiler, conditions
-        unless conditions.nil?
-          conditions.collect do |condition|
-            compiler.RetrieveVariable condition['variable'] if condition['variable'].presence
+        return if conditions.nil?
+        conditions.collect do |condition|
+          ['variable', 'rhs_variable'].collect do |var_name|
+            condition[var_name].presence
           end
+        end.flatten.compact.uniq.each do |variable|
+          compiler.RetrieveVariable variable
         end
       end
     end

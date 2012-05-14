@@ -1,12 +1,10 @@
 onWorkflow ->
   class window.BranchCondition
     constructor: (attrs) ->
+
+      # Left hand side
       @variable = ko.observable attrs.variable
       @step_id = ko.observable attrs.step
-
-      @operator = ko.observable attrs.operator
-      @value = ko.observable attrs.value
-
       @subject = ko.computed
         read: () =>
           @subject_value()
@@ -26,6 +24,8 @@ onWorkflow ->
             else
               throw "Invalid option kind #{kind}"
 
+      # Operator
+      @operator = ko.observable attrs.operator
       @operators = [
         {text: 'is equal to', value: '=='},
         {text: 'greater or equal to', value: '>='},
@@ -33,6 +33,13 @@ onWorkflow ->
         {text: 'greater than', value: '>'},
         {text: 'less than', value: '<'}
       ]
+
+
+      # Right hand side
+      @value = ko.observable attrs.value
+      @rhs_variable = ko.observable attrs.rhs_variable
+      @rhs_kind = ko.observable (if attrs.rhs_variable? and attrs.rhs_variable != '' then 'variable' else 'value')
+
 
     subject_value: () =>
       if @variable()?
@@ -46,7 +53,8 @@ onWorkflow ->
       step: @step_id()
       variable: @variable()
       operator: @operator()
-      value: @value()
+      value: if @rhs_kind() == 'value' then @value() else null
+      rhs_variable: if @rhs_kind() == 'variable' then @rhs_variable() else null
 
     variable_or_step_name: () =>
       if @variable()
@@ -62,6 +70,9 @@ onWorkflow ->
       else
         ''
 
+    available_variables: () =>
+      workflow.all_variables().sort()
+
     available_conditions: () =>
       (
         {name: variable, group: 'Variables', value: "var-#{variable}"} for variable in workflow.variables().sort()
@@ -73,7 +84,10 @@ onWorkflow ->
 
     after_initialize: () =>
       @description = ko.computed () =>
-        "#{@variable_or_step_name()} #{@operator_text_for(@operator())} #{@value() || ''}"
+        "#{@variable_or_step_name()} #{@operator_text_for(@operator())} #{@rhs()}"
+
+    rhs: () =>
+      (if @rhs_kind() == 'value' then @value() else @rhs_variable()) or ''
 
     on_step_removed: (step) =>
       @step_id(null) if step.id == parseInt(@step_id())
