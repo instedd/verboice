@@ -4,6 +4,7 @@ onWorkflow ->
       @skip_step = null
       @next_id = next_id
       @parent = parent
+      @is_default = false
 
     next: () =>
       workflow.get_step @next_id
@@ -15,7 +16,10 @@ onWorkflow ->
       @skip_step ?= new Skip
 
     to_hash: () =>
-      {next: @next_id}
+      {
+        next: @next_id,
+        is_default: @is_default
+      }
 
     remove_next: () =>
       next = @next()
@@ -26,6 +30,9 @@ onWorkflow ->
     select_step: () =>
       return if not @next()?
       @next().set_as_current()
+
+    child_updated: (step, new_step) =>
+      @parent.child_updated(step, new_step)
 
     child_removed: () =>
       @parent.remove_child_step(@)

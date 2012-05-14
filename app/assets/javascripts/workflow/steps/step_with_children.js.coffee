@@ -4,6 +4,7 @@ onWorkflow ->
   class window.StepWithChildren extends Step
     constructor: (attrs) ->
       super(attrs)
+      @default_command_selected = ko.observable 'skip'
 
     commands: () =>
       (step_type.type for step_type in step_types).concat(['skip'])
@@ -42,3 +43,12 @@ onWorkflow ->
         [].concat.apply([], (child.leaves() for child in @children()))
       else
         [@]
+
+    child_updated: (previous_step, new_step) =>
+      @default_command_selected(new_step.type())
+
+    change_default_option: (command) =>
+      @default(new DefaultOption(@new_child_step_for(@default_command_selected()), @))
+
+    after_initialize: () =>
+      @default_command_selected(@default().type())

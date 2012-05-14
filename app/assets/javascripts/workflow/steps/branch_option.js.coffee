@@ -6,7 +6,6 @@ onWorkflow ->
       super(next_id, branch)
 
       @conditions = ko.observableArray(new BranchCondition(cond) for cond in (conditions || []))
-      @is_else = false
       @is_empty = ko.computed () =>
         @conditions().length == 0
 
@@ -17,7 +16,6 @@ onWorkflow ->
     to_hash: () =>
       $.extend(super,
         conditions: (condition.to_hash() for condition in @conditions())
-        is_else: @is_else
       )
 
     add_condition: () =>
@@ -56,8 +54,3 @@ onWorkflow ->
 
     on_step_removed: (step) =>
       condition.on_step_removed(step) for condition in @conditions()
-
-  class window.BranchElseOption extends BranchOption
-    constructor: (next_id, branch) ->
-      super([], next_id, branch)
-      @is_else = true

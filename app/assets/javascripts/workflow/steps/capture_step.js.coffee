@@ -1,6 +1,7 @@
 #= require workflow/steps/step
 #= require workflow/steps/step_with_children
 #= require workflow/steps/skip_step
+#= require workflow/steps/default_option
 
 onWorkflow ->
   class window.Capture extends StepWithChildren
@@ -19,50 +20,29 @@ onWorkflow ->
       @timeout = ko.observable(attrs.timeout ? capture_default_time_out_in_seconds)
       @number_of_attempts = ko.observable(attrs.number_of_attempts ? capture_default_number_of_attempts)
 
-      @default_command_selected = ko.observable 'skip'
-      @default_id = attrs.default
       @default_skip_step = null
-
+      @default = ko.observable( new DefaultOption(attrs.default, @))
       @current_editing_message = ko.observable null
 
       @message_selectors =
-        invalid:     MessageSelector.from_hash(attrs.invalid_message).with_title('Invalid').with_parent(@)
+        invalid:      MessageSelector.from_hash(attrs.invalid_message).with_title('Invalid').with_parent(@)
         instructions: MessageSelector.from_hash(attrs.instructions_message).with_title('Instructions').with_parent(@)
 
       @is_editing_message = ko.computed () =>
         @current_editing_message() != null
 
     get_default_skip_step: () =>
-      @default_skip_step ?= new Skip()
-
-    default: () =>
-      workflow.get_step(@default_id)
+      @default_skip_step ?= new DefaultOption(null, @)
 
     child_steps: () =>
-      new Array()
-
-    children: () =>
-      if @default_id
-        [@get_default_skip_step(), @default()]
-      else
+      if @default().type() == Skip.type
         new Array()
-
-    add_default_step: () =>
-      if (@default_command_selected() == 'skip')
-        @default_id = null
-        workflow.steps.valueHasMutated()
       else
-        step = workflow.create_step(@default_command_selected(), false)
-        @default_id = step.id
-        step.parent = @
-        if step in workflow.steps()
-          workflow.steps.valueHasMutated()
-        else
-          workflow.steps.push(step)
+        [@get_default_skip_step(), @default()]
 
-    after_initialize: () =>
-      if @default_id
-        @default_command_selected(@default().type())
+    remove_child_step: (child_step) =>
+      super(child_step)
+      @default_command_selected('skip')
 
     button_class: () =>
       'lnumeral'
@@ -83,7 +63,7 @@ onWorkflow ->
         max_input_length: @max_input_length()
         valid_values: @valid_values()
         finish_on_key: @finish_on_key()
-        default: @default_id
+        default: @default().next_id
       )
 
     message: (msg) =>

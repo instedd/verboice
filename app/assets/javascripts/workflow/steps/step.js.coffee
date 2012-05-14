@@ -69,6 +69,7 @@ onWorkflow ->
       if parent?
         if @next_id? and @next_id > 0
           parent.next_id = @next_id
+          parent.child_updated(@, @next())
         else
           parent.child_removed(@)
           parent.next_id = null
@@ -78,6 +79,9 @@ onWorkflow ->
       workflow.remove_step @
 
     child_removed: () =>
+      null
+      
+    child_updated: (previous_step, new_step) =>
       null
 
     set_as_current: () =>

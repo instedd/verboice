@@ -33,7 +33,7 @@
       %label If none of the above conditions match
       %br
       %span{:style => 'display:inline-block; width:73px;'} Default
-      %select{:style => 'width:165px', 'data-bind' => 'options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: else_option_command'}
+      %select{:style => 'width:165px', 'data-bind' => 'options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: default_command_selected, event: { change: change_default_option }'}
 
     .bottom-actions
       %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

@@ -11,8 +11,7 @@ onWorkflow ->
       @options = ko.observableArray([])
       @new_option_command = ko.observable null
 
-      @else_option = ko.observable null
-      @else_option_command = ko.observable null
+      @default = ko.observable( new DefaultOption(null, @))
 
       @current_editing_option = ko.observable null
       @is_editing_option = ko.computed () =>
@@ -31,8 +30,8 @@ onWorkflow ->
       branch = new Branch(hash)
 
       for opt in (hash.options || [])
-        if opt.is_else
-          branch.else_option(new BranchElseOption(opt.next, branch))
+        if opt.is_default
+          branch.default(new DefaultOption(opt.next, branch))
         else
           branch.options.push(new BranchOption(opt.conditions, opt.next, branch))
 
@@ -56,13 +55,13 @@ onWorkflow ->
 
     remove_child_step: (child_step) =>
       super(child_step)
-      unless child_step.is_else
+      if child_step.is_default
+        @default_command_selected('skip')
+      else
         @options.remove child_step
 
     child_steps: () =>
-      opts_copy = @options.slice(0)
-      opts_copy.push(@else_option()) if @else_option()
-      opts_copy
+      @options().concat(@default())
 
     move_option_up: (option) =>
       index = @options.indexOf option
@@ -77,19 +76,8 @@ onWorkflow ->
         after = @options()[index + 1]
         @options.splice(index, 2, after, option)
 
-    change_else_option: (command) =>
-      @remove_child_step(@else_option()) if @else_option()
-      new_step_id = @new_child_step_for command
-      @else_option(new BranchElseOption(new_step_id, @))
-
     after_initialize: () =>
-      # Create Skip step if there isn't an else_option
-      @change_else_option(Skip.type) unless @else_option()
-      # Fill else_option_command with the type of the step
-      @else_option_command(@else_option().type())
-      # Subscribe to else_option_command changes
-      @else_option_command.subscribe @change_else_option
-
+      super
       option.after_initialize() for option in @options()
 
     show_option: (option) =>

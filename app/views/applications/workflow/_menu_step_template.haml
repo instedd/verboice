@@ -7,7 +7,7 @@
       .feditor-sidebar.right.box.w28.iblock.h65
         .tableheader
           %span.left.i48grad-dial
-          %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+          %input.ux-text.w20.right.required{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
 
         %table.GralTable.TwoColumn.CleanTable.NoHead
           %tr
@@ -49,7 +49,7 @@
           %br
           %br
           After final attempt fails:
-          %select.w10{'data-bind' => 'options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: default_command_selected, event: { change: add_default_step }'}
+          %select.w10{'data-bind' => 'options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: default_command_selected, event: { change: change_default_option }'}
           %hr
           %label Options
           %br
