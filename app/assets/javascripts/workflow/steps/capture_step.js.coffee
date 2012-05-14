@@ -81,3 +81,6 @@ onWorkflow ->
 
     default_name: () =>
       'Input'
+
+    can_insert_after: () =>
+      super and (@default_command_selected() == Skip.type)
