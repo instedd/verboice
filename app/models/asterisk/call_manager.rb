@@ -5,10 +5,12 @@ module Asterisk
     Port = Rails.configuration.asterisk_configuration[:call_manager_port].to_i
     SoundsDir = Rails.configuration.asterisk_configuration[:sounds_dir]
     SoundsPath = "#{SoundsDir}/verboice/"
+    RecordingsPath = "#{SoundsDir}/recordings/"
     AgiSeparator = Rails.configuration.asterisk_configuration[:agi_use_pipe_separator] == true ? '|' : ','
 
     def agi_post_init
       FileUtils.mkdir_p SoundsPath
+      FileUtils.mkdir_p RecordingsPath
       @log = Rails.logger
       @synthesizer = Synthesizer.new self
       BaseBroker.instance.accept_call self
@@ -133,7 +135,7 @@ module Asterisk
     private
 
     def record_tmp_file
-      "#{SoundsPath}recording_#{Time.new.to_i}"
+      File.join RecordingsPath, "recording_#{Time.new.to_i}"
     end
 
     def capture_digit(timeout)
