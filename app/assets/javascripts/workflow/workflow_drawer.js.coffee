@@ -29,10 +29,11 @@ onWorkflow ->
     # Recursively draws the workflow by placing 'step' in position 'i', 'j' with class 'klass'
     #  Merge optional parameter indicates if a va-merge class should be added, which corresponds to either a branch or merge back from/to normal flow
     #  Has closure indicates if there is later any step which does a closure
-    recursive_draw_workflow: ({step, parent, i, j, klass, merge, has_closure}) =>
+    recursive_draw_workflow: ({step, parent, i, j, klass, merge, ancestor_has_closure}) =>
       klass ?= 'ha'
       merge ?= false
-      has_closure ?= false
+      ancestor_has_closure ?= false
+      has_closure = (step.children and step.children().length > 0 and step.next()?)
 
       @set_step(step, i, j, klass, merge)
       [next_i, next_j] = [i,j+1]
@@ -40,10 +41,9 @@ onWorkflow ->
       if step.children?
         klass = 'ha'
         next_merge = false
-        has_closure = has_closure or (step.children().length > 0 and step.next()?)
 
         for child in step.children()
-          unless child.type() == 'skip' and not has_closure
+          unless child.type() == 'skip' and not (has_closure or ancestor_has_closure)
             last_child_i = next_i
 
             [next_i, child_next_j] = @recursive_draw_workflow
@@ -53,7 +53,7 @@ onWorkflow ->
               j: j+1
               klass: klass
               merge: next_merge
-              has_closure: has_closure
+              ancestor_has_closure: ancestor_has_closure or has_closure
 
             next_j = child_next_j if next_j < child_next_j
             next_merge = ((klass == 'ha' or klass == 'root') and next_i == i+1)
@@ -64,6 +64,7 @@ onWorkflow ->
 
       if step.next()?
         parents_first_child_cannot_continue = step.children? and step.children()[0]? and not step.children()[0].can_continue()
+        has_closure
 
         [next_step_i, next_step_j] = [i, next_j]
         [child_next_i, child_next_j] = @recursive_draw_workflow
@@ -72,6 +73,7 @@ onWorkflow ->
           i: next_step_i
           j: next_step_j
           klass: if parents_first_child_cannot_continue then '' else 'ha'
+          ancestor_has_closure: ancestor_has_closure
 
         next_j = child_next_j if next_j < child_next_j
         next_i = child_next_i if next_i < child_next_i
