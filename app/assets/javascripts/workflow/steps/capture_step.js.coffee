@@ -32,7 +32,6 @@ onWorkflow ->
         @current_editing_message() != null
 
       @messages_are_valid = ko.computed () =>
-        # @message_selectors['invalid'].is_valid() and
         @message_selectors['instructions'].is_valid()
 
       @is_valid = ko.computed () =>

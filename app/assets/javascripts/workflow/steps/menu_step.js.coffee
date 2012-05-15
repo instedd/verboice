@@ -34,8 +34,6 @@ onWorkflow ->
       @default = ko.observable( new DefaultOption(attrs.default, @))
 
       @messages_are_valid = ko.computed () =>
-        # @message_selectors['invalid'].is_valid() and
-        # @message_selectors['explanation'].is_valid() and
         @message_selectors['options'].is_valid()
 
       @is_valid = ko.computed () =>

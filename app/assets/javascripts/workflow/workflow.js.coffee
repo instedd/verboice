@@ -9,6 +9,9 @@ onWorkflow ->
       @sidebar_content = ko.observable(@command_selector)
       @is_valid = ko.computed () =>
         (return false for step in @steps() when step.is_invalid())
+        for step in @steps()
+          for s in @steps() when ((s.name() == step.name()) and (s != step))
+            return false
         true
 
 
