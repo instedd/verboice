@@ -14,6 +14,12 @@ onWorkflow ->
       @is_editing_message = ko.computed () =>
         @current_editing_message() != null
 
+      @is_valid = ko.computed () =>
+        @name() and @message.is_valid()
+
+      @is_invalid = ko.computed () =>
+        not @is_valid()
+
     button_class: () =>
       'lsound'
 

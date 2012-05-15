@@ -33,6 +33,17 @@ onWorkflow ->
       @default_command_selected = ko.observable 'skip'
       @default = ko.observable( new DefaultOption(attrs.default, @))
 
+      @messages_are_valid = ko.computed () =>
+        @message_selectors['invalid'].is_valid() and
+        @message_selectors['explanation'].is_valid() and
+        @message_selectors['options'].is_valid()
+
+      @is_valid = ko.computed () =>
+        @name() and (@options().length > 0) and @messages_are_valid()
+
+      @is_invalid = ko.computed () =>
+        not @is_valid()
+
     @initialize: (hash) ->
       menu = new Menu(hash)
       menu.options(new MenuOption(opt.number, opt.next, menu) for opt in (hash.options || []))

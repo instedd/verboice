@@ -7,10 +7,10 @@ onWorkflow ->
 
       @current_step = ko.observable(null)
       @sidebar_content = ko.observable(@command_selector)
-      @is_valid = ko.computed( =>
-        (return false for step in @steps() when not step.is_valid())
+      @is_valid = ko.computed () =>
+        (return false for step in @steps() when step.is_invalid())
         true
-        )
+
 
     get_step: (id) =>
       return null if not id?

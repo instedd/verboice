@@ -31,6 +31,16 @@ onWorkflow ->
       @is_editing_message = ko.computed () =>
         @current_editing_message() != null
 
+      @messages_are_valid = ko.computed () =>
+        @message_selectors['invalid'].is_valid() and
+        @message_selectors['instructions'].is_valid()
+
+      @is_valid = ko.computed () =>
+        @name() and @messages_are_valid()
+
+      @is_invalid = ko.computed () =>
+        not @is_valid()
+
     get_default_skip_step: () =>
       @default_skip_step ?= new DefaultOption(null, @)
 

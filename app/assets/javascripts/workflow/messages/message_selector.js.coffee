@@ -7,6 +7,9 @@ onWorkflow ->
       @parent = null
       @name = ko.computed () =>
         @current_message()?.name()
+        
+      @is_valid = ko.computed =>
+        @name()
 
     to_hash: () =>
       hash = @current_message().to_hash()

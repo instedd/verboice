@@ -10,7 +10,7 @@
 
       %span.forwardto
         Phone number:
-      %input.ux-text.w20{ko(value: 'address')}
+      %input.ux-text.w20{ 'data-bind' => 'value: address, valueUpdate: "afterkeydown"' }
       %br
 
       %span.forwardto

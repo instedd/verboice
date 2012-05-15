@@ -6,12 +6,11 @@ onWorkflow ->
       @root = attrs.root
       @name = ko.observable(attrs.name || @default_name())
       @next_id = attrs.next
-      @is_valid = ko.computed =>
+      @is_valid = ko.computed () =>
         @name()
 
-      @is_invalid = ko.computed =>
+      @is_invalid = ko.computed () =>
         not @is_valid()
-
 
     @from_hash: (hash) ->
       if typeof(hash.type) == "string"

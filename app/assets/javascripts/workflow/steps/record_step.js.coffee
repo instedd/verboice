@@ -17,6 +17,16 @@ onWorkflow ->
       @is_editing_message = ko.computed () =>
         @current_editing_message() != null
 
+      @messages_are_valid = ko.computed () =>
+        @message_selectors['explanation'].is_valid() and
+        @message_selectors['confirmation'].is_valid()
+
+      @is_valid = ko.computed () =>
+        @name() and @messages_are_valid()
+
+      @is_invalid = ko.computed () =>
+        not @is_valid()
+
     button_class: () =>
       'lmicrophone'
 

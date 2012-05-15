@@ -9,6 +9,12 @@ onWorkflow ->
 
       @jump_id = ko.observable attrs.jump
 
+      @is_valid = ko.computed () =>
+        @name() and @jump_id()
+
+      @is_invalid = ko.computed () =>
+        not @is_valid()
+
     available_steps: () =>
       (step for step in workflow.steps() when step.type() != this.type())
 
