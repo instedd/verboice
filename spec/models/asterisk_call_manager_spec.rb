@@ -42,18 +42,18 @@ describe Asterisk::CallManager do
     other_call_manager.env['channel'] = 'MY/channel'
     @call_manager.bridge_with Session.new(pbx: other_call_manager)
   end
-  
+
   it 'pauses' do
     EM.should_receive(:fiber_sleep).with(13)
     @call_manager.pause(13)
   end
-  
+
   it 'say' do
     synthesizer = double('synthesizer')
     synthesizer.should_receive(:synth).with('some text').and_return(:filename)
     @call_manager.instance_eval { @synthesizer = synthesizer }
     @call_manager.should_receive(:play).with(:filename)
-    
+
     @call_manager.say 'some text'
   end
 
@@ -211,6 +211,13 @@ describe Asterisk::CallManager do
       @call_manager.should_receive(:get_variable).ordered.with('DIALSTATUS').and_return(asterisk_response('ANSWER'))
       @call_manager.dial '1234', :caller_id => '"foo" <1234>'
     end
+  end
+
+  it 'should record' do
+    @call_manager.should_receive(:record_tmp_file).and_return('tmp_recording_file')
+    @call_manager.should_receive(:record_file).with('tmp_recording_file', 'wav', '26#', '7000', 'beep')
+    FileUtils.should_receive(:mv).with('tmp_recording_file.wav', '/path/to/record')
+    @call_manager.record '/path/to/record', '26#', 7
   end
 
   def asterisk_response(note)

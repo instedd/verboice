@@ -108,14 +108,12 @@ module Asterisk
     end
 
     def record filename, stop_keys, timeout
-      # Ensure file exists so asterisk can write
-      FileUtils.touch(filename) unless File.exists?(filename)
-
       timeout = (timeout * 1000).to_s
-      ext = File.extname(filename).sub('.','')
-      filename = filename.chomp(File.extname(filename))
+      tmp_file = record_tmp_file
 
-      record_file filename, ext, stop_keys, timeout, 'beep'
+      record_file tmp_file, 'wav', stop_keys, timeout, 'beep'
+
+      FileUtils.mv "#{tmp_file}.wav", filename
     end
 
     def is_answering_machine?
@@ -133,6 +131,10 @@ module Asterisk
     end
 
     private
+
+    def record_tmp_file
+      "#{SoundsPath}recording_#{Time.new.to_i}"
+    end
 
     def capture_digit(timeout)
       line = wait_for_digit timeout
