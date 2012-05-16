@@ -1,11 +1,11 @@
 - content_for :head do
   :javascript
     var distinct_variables = #{ @variables.to_json };
-    var application_flow = #{ raw @application.user_flow.to_json };
-    var update_workflow_application_path = "#{ update_workflow_application_path(@application) }";
-    var application_path = "#{ application_path(@application) }";
-    var save_recording_application_path = "#{ save_recording_application_path(@application)}";
-    var play_recording_application_path = "#{ play_recording_application_path(@application)}";
+    var project_flow = #{ raw @project.user_flow.to_json };
+    var update_workflow_project_path = "#{ update_workflow_project_path(@project) }";
+    var project_path = "#{ project_path(@project) }";
+    var save_recording_project_path = "#{ save_recording_project_path(@project)}";
+    var play_recording_project_path = "#{ play_recording_project_path(@project)}";
     var menu_default_time_out_in_seconds = #{Parsers::UserFlowNode::Menu.default_time_out_in_seconds};
     var menu_default_number_of_attempts = #{Parsers::UserFlowNode::Menu.default_number_of_attempts};
     var capture_default_time_out_in_seconds = #{Parsers::UserFlowNode::Capture.default_time_out_in_seconds};
@@ -15,7 +15,7 @@
     var capture_default_maximum_input_lenght = #{Parsers::UserFlowNode::Capture.default_maximum_input_lenght};
 
   - %W(hang_up_step workflow_step capture_step menu_step play_step transfer_step goto_step branch_step record_step message recording_message text_message command_selector branch_option).each do |template|
-    = render "applications/workflow/#{template}_template"
+    = render "projects/workflow/#{template}_template"
 
 = render 'tabs'
 
@@ -23,11 +23,11 @@
 #workflow
   #workflow-page
     %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
-    = form_tag update_workflow_application_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
+    = form_tag update_workflow_project_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
       %div.right
         = hidden_field_tag 'flow'
         %button.grey{:type => "submit", 'data-bind' => "enable: workflow.is_valid()"} Save
-        = link_to 'Cancel', application_path(@application), :class => "button white cancel", :style => 'top: 1px; margin-right: 15px'
+        = link_to 'Cancel', project_path(@project), :class => "button white cancel", :style => 'top: 1px; margin-right: 15px'
     .clear
 
     .left

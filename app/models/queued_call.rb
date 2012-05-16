@@ -2,7 +2,7 @@ class QueuedCall < ActiveRecord::Base
   belongs_to :channel
   belongs_to :call_log
   belongs_to :call_queue
-  belongs_to :application
+  belongs_to :project
 
   serialize :flow, Command
 
@@ -14,13 +14,13 @@ class QueuedCall < ActiveRecord::Base
   def new_session
     options = {:call_log => call_log, :address => address}
     if callback_url.present?
-      options[:application] = Application.new :callback_url => callback_url
+      options[:project] = Project.new :callback_url => callback_url
     elsif flow.present?
-      options[:application] = Application.new :flow => flow
+      options[:project] = Project.new :flow => flow
     end
 
-    if status_callback_url.present? && options[:application]
-      options[:application].status_callback_url = status_callback_url
+    if status_callback_url.present? && options[:project]
+      options[:project].status_callback_url = status_callback_url
     end
 
     channel.new_session options

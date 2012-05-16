@@ -44,16 +44,16 @@ module CallLogSearch
           result = result.joins(:channel).where 'channels.name = ?', search[:channel]
         end
       end
-      if search[:application]
+      if search[:project]
         if options[:account]
-          app = options[:account].applications.select(:id).find_by_name search[:application]
+          app = options[:account].projects.select(:id).find_by_name search[:project]
           if app
-            result = result.where :application_id => app.id
+            result = result.where :project_id => app.id
           else
             result = result.where '1 = 2'
           end
         else
-          result = result.joins(:application).where 'applications.name = ?', search[:application]
+          result = result.joins(:project).where 'projects.name = ?', search[:project]
         end
       end
 

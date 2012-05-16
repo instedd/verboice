@@ -4,8 +4,8 @@ module Commands
   describe PersistVariableCommand do
     it "should create a persisted variable storing a value with a given name" do
       contact = Contact.make
-      application = Application.make account: contact.account
-      call_log = CallLog.make application: application
+      project = Project.make account: contact.account
+      call_log = CallLog.make project: project
 
       session = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => contact.address
@@ -35,8 +35,8 @@ module Commands
 
     it "should replace the value of an existing variable" do
       contact = Contact.make
-      application = Application.make account: contact.account
-      call_log = CallLog.make application: application
+      project = Project.make account: contact.account
+      call_log = CallLog.make project: project
 
       session = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => contact.address

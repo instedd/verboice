@@ -8,11 +8,11 @@ module Parsers
         params['type'] == 'recording'
       end
 
-      def initialize application, parent_step, action, params
-        @application = application
+      def initialize project, parent_step, action, params
+        @project = project
         @parent = parent_step
         @name = params['name']
-        @file_name = (RecordingManager.new application).recording_path_for(parent_step.id, action)
+        @file_name = (RecordingManager.new project).recording_path_for(parent_step.id, action)
       end
 
       def equivalent_flow

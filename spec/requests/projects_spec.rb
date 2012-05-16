@@ -1,15 +1,15 @@
 require 'spec_helper'
 
-describe "Applications" do
-  include ApplicationConfigHelpers
+describe "Projects" do
+  include ProjectConfigHelpers
 
   let(:account) { Account.make(:password => "secret") }
-  let(:new_application) { Application.last }
-  let(:application) { Application.make(:account => account) }
+  let(:new_project) { Project.last }
+  let(:project) { Project.make(:account => account) }
 
   def fill_in_callback_fields
     with_callback_url_accessors do |accessor, field_type|
-      field_id = "application_#{accessor}"
+      field_id = "project_#{accessor}"
       fill_in field_id, :with => accessor.to_s
       find("##{field_id}")[:type].should == field_type.to_s
     end
@@ -18,7 +18,7 @@ describe "Applications" do
   shared_examples_for "saving the configuration" do
     it "should save the configuration" do
       with_callback_url_accessors do |accessor|
-        reference_application.send(accessor).should == accessor.to_s
+        reference_project.send(accessor).should == accessor.to_s
       end
     end
   end
@@ -31,32 +31,32 @@ describe "Applications" do
       click_button "Log In"
     end
 
-    context "and I am editing an existing application" do
+    context "and I am editing an existing project" do
       before do
-        visit edit_application_path(application)
+        visit edit_project_path(project)
       end
 
-      context "and I update the application supplying a username and password" do
+      context "and I update the project supplying a username and password" do
         before do
           fill_in_callback_fields
           click_button "Update"
         end
 
         it_should_behave_like "saving the configuration" do
-          let(:reference_application) { application.reload }
+          let(:reference_project) { project.reload }
         end
       end
     end
 
-    context "and on the new Application page" do
+    context "and on the new Project page" do
       before do
-        visit new_application_path
+        visit new_project_path
       end
 
-      context "and I create a new application with a callback url" do
+      context "and I create a new project with a callback url" do
         before do
-          fill_in "application_name", :with => "Test"
-          select "Use an external application", :from => "application_mode"
+          fill_in "project_name", :with => "Test"
+          select "Use an external application", :from => "project_mode"
         end
 
         context "I fill in the user and password fields" do
@@ -66,7 +66,7 @@ describe "Applications" do
           end
 
           it_should_behave_like "saving the configuration" do
-            let(:reference_application) { new_application }
+            let(:reference_project) { new_project }
           end
         end
       end

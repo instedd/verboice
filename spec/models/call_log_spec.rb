@@ -2,11 +2,11 @@ require 'spec_helper'
 
 describe CallLog do
   it { should belong_to(:account) }
-  it { should belong_to(:application) }
+  it { should belong_to(:project) }
   it { should belong_to(:channel) }
 
   it { should validate_presence_of(:account) }
-  it { should validate_presence_of(:application) }
+  it { should validate_presence_of(:project) }
   it { should validate_presence_of(:channel) }
 
   it "call log structured details" do
@@ -24,9 +24,9 @@ EOF
 and some other text... possibly...'}, details[2])
   end
 
-  it "create for application assigns account" do
+  it "create for project assigns account" do
     chan = Channel.make
-    app = chan.application
+    app = chan.project
     call_log = app.call_logs.create! :channel => chan
     call_log.account_id.should == app.account_id
   end

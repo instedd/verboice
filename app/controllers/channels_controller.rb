@@ -3,7 +3,7 @@ class ChannelsController < ApplicationController
 
   # GET /channels
   def index
-    @channels = current_account.channels.includes(:application).all
+    @channels = current_account.channels.includes(:project).all
   end
 
   # GET /channels/1

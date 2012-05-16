@@ -6,13 +6,13 @@ class Channel < ActiveRecord::Base
   attr_protected :guid
 
   belongs_to :account
-  belongs_to :application
+  belongs_to :project
 
   has_many :call_logs, :dependent => :destroy
   has_many :queued_calls
 
   validates_presence_of :account
-  validates_presence_of :application
+  validates_presence_of :project
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
@@ -28,13 +28,13 @@ class Channel < ActiveRecord::Base
 
   def new_session(options = {})
     session = Session.new options
-    session.application ||= application
+    session.project ||= project
     session.channel = self
     unless session.call_log
-      session.call_log = call_logs.new :direction => :incoming, :application => application, :started_at => Time.now.utc
+      session.call_log = call_logs.new :direction => :incoming, :project => project, :started_at => Time.now.utc
       session.call_log.start_incoming
     end
-    session.commands = session.application.commands.dup
+    session.commands = session.project.commands.dup
     session
   end
 
@@ -43,12 +43,12 @@ class Channel < ActiveRecord::Base
     call_queue ||= options.has_key?(:queue) ? account.call_queues.find_by_name!(options[:queue]) : nil
 
     via = options.fetch(:via, 'API')
-    app_id = options[:application_id].presence || application_id
-    call_log = call_logs.new :direction => :outgoing, :application_id => app_id, :address => address, :state => :queued, :call_queue => call_queue, :not_before => options[:not_before]
+    app_id = options[:project_id].presence || project_id
+    call_log = call_logs.new :direction => :outgoing, :project_id => app_id, :address => address, :state => :queued, :call_queue => call_queue, :not_before => options[:not_before]
     call_log.info "Received via #{via}: call #{address}"
     call_log.save!
 
-    flow = options[:flow] || account.applications.find(app_id).flow
+    flow = options[:flow] || account.projects.find(app_id).flow
     queued_call = queued_calls.new(
       :call_log => call_log,
       :address => address,
@@ -57,7 +57,7 @@ class Channel < ActiveRecord::Base
       :flow => flow,
       :not_before => options[:not_before],
       :call_queue => call_queue,
-      :application_id => app_id
+      :project_id => app_id
     )
 
     if queued_call.call_queue

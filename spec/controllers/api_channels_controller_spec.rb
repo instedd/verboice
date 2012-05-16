@@ -9,9 +9,9 @@ describe ApiChannelsController do
   end
 
   it "create custom channel" do
-    app = @account.applications.make
+    app = @account.projects.make
 
-    data = {kind: "custom", name: "foo", application: app.name, username: 'xyz', password: 'pass'}
+    data = {kind: "custom", name: "foo", project: app.name, username: 'xyz', password: 'pass'}
     @request.env['RAW_POST_DATA'] = data.to_json
     post :create, format: :json
     assert_response :ok
@@ -19,7 +19,7 @@ describe ApiChannelsController do
     channels = @account.channels.all
     channels.length.should == 1
     channels[0].account.should == @account
-    channels[0].application_id.should == app.id
+    channels[0].project_id.should == app.id
     channels[0].name.should == data[:name]
     channels[0].kind.should == data[:kind]
     channels[0].username.should == data[:username]
@@ -27,9 +27,9 @@ describe ApiChannelsController do
   end
 
   it "create custom channel errors" do
-    app = @account.applications.make
+    app = @account.projects.make
 
-    data = {kind: "custom", application: app.name, username: 'xyz', password: 'pass'}
+    data = {kind: "custom", project: app.name, username: 'xyz', password: 'pass'}
     @request.env['RAW_POST_DATA'] = data.to_json
     post :create, format: :json
     assert_response :ok
@@ -46,8 +46,8 @@ describe ApiChannelsController do
     BrokerClient.stub(:new).and_return(broker_client)
     broker_client.should_receive(:delete_channel)
 
-    app = @account.applications.make
-    chan = @account.channels.make :application => app, :name => 'foo'
+    app = @account.projects.make
+    chan = @account.channels.make :project => app, :name => 'foo'
 
     delete :destroy, :name => chan.name
     assert_response :ok

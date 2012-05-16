@@ -17,7 +17,7 @@ module Parsers
           Compiler.parse do
             Label 1
             Assign "current_step", 1
-            Trace application_id: 1, step_id: 1, step_name: 'Transfer', store: '"Transfer to 1234-5678 in channel foo."'
+            Trace project_id: 1, step_id: 1, step_name: 'Transfer', store: '"Transfer to 1234-5678 in channel foo."'
             Dial '1234-5678', {:channel => 'foo'}
           end.first
         )
@@ -33,7 +33,7 @@ module Parsers
           Compiler.parse do
             Label 2
             Assign "current_step", 2
-            Trace application_id: 1, step_id: 2, step_name: 'Transfer', store: '"Transfer to 1234-5678 in current channel."'
+            Trace project_id: 1, step_id: 2, step_name: 'Transfer', store: '"Transfer to 1234-5678 in current channel."'
             Dial '1234-5678', {:channel => nil}
           end.first
         )

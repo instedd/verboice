@@ -48,24 +48,24 @@ describe Session do
     @session.resume
   end
 
-  context "sending status notification for an application" do
-    let(:application) { Application.make(:status_callback_url => 'http://foo') }
+  context "sending status notification for an project" do
+    let(:project) { Project.make(:status_callback_url => 'http://foo') }
 
-    def apply_authentication_to_application(user = "", password = "")
-      application.status_callback_url_user = user
-      application.status_callback_url_password = password
-      application.save
+    def apply_authentication_to_project(user = "", password = "")
+      project.status_callback_url_user = user
+      project.status_callback_url_password = password
+      project.save
     end
 
     before do
-      @session.application = application
+      @session.project = project
       @pbx.stub(:caller_id).and_return('999')
       @pbx.should_receive(:caller_id)
     end
 
     context "with status callback url authentication" do
       before do
-        apply_authentication_to_application("user", "password")
+        apply_authentication_to_project("user", "password")
       end
 
       it "should send a status notification with authentication" do
@@ -77,7 +77,7 @@ describe Session do
     context "without status callback url authentication" do
 
       before do
-        apply_authentication_to_application
+        apply_authentication_to_project
       end
 
       it "should send a status notification without authentication" do

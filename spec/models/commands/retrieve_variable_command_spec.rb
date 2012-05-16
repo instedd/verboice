@@ -8,9 +8,9 @@ module Commands
 
       contact = persisted_variable.contact
 
-      application = Application.make account: contact.account
+      project = Project.make account: contact.account
 
-      call_log = CallLog.make application: application
+      call_log = CallLog.make project: project
 
       session = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => contact.address
@@ -36,8 +36,8 @@ module Commands
     it "should set to nil if the variable doesn't exist" do
 
       contact = Contact.make
-      application = Application.make account: contact.account
-      call_log = CallLog.make application: application
+      project = Project.make account: contact.account
+      call_log = CallLog.make project: project
 
       session = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => contact.address

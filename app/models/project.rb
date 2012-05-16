@@ -1,4 +1,4 @@
-class Application < ActiveRecord::Base
+class Project < ActiveRecord::Base
   belongs_to :account
   has_many :call_logs, :dependent => :destroy
   has_many :traces, :dependent => :destroy

@@ -1,16 +1,16 @@
 module Parsers
   module UserFlowNode
     class HangUp < UserCommand
-      attr_reader :id, :name, :application
+      attr_reader :id, :name, :project
 
       def self.can_handle? params
         params['type'] == 'hang_up'
       end
 
-      def initialize application, params
+      def initialize project, params
         @id = params['id']
         @name = params['name'] || ''
-        @application = application
+        @project = project
         @root_index = params['root']
       end
 
@@ -35,7 +35,7 @@ module Parsers
         Compiler.parse do |compiler|
           compiler.Label @id
           compiler.Assign "current_step", @id
-          compiler.Trace context_for '"Application ended call."'
+          compiler.Trace context_for '"Verboice ended call."'
           compiler.End
         end
       end

@@ -10,12 +10,12 @@ module Commands
       @session.pbx.should_receive(:caller_id).and_return('999')
       @session.channel = mock('channel')
       @session.channel.should_receive(:name).and_return('foo')
-      @session.application = mock(
-        'application', :callback_url_user => nil, :callback_url_password => nil
+      @session.project = mock(
+        'project', :callback_url_user => nil, :callback_url_password => nil
       ).as_null_object
       @default_body = {:From => '999', :Channel => 'foo'}
       @session.call_log = CallLog.make
-      apply_application
+      apply_project
     end
 
     def assert_log(options = {})
@@ -34,12 +34,12 @@ module Commands
       uri.to_s
     end
 
-    def apply_application(user = "", password = "")
-      app = @session.call_log.channel.application
+    def apply_project(user = "", password = "")
+      app = @session.call_log.channel.project
       app.callback_url_user = user
       app.callback_url_password = password
       app.save
-      @session.application = app
+      @session.project = app
     end
 
     it "run with url as string" do
@@ -56,7 +56,7 @@ module Commands
     context "running with an app which has http basic authentication for the callback url", :focus => true do
       before do
         assert_log
-        apply_application("user", "password")
+        apply_project("user", "password")
       end
 
       context "and the url does not contain any http basic authentication" do

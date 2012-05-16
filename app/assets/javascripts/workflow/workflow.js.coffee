@@ -1,7 +1,7 @@
 onWorkflow ->
   class window.Workflow
     constructor: () ->
-      @steps = ko.observableArray(Step.from_hash(hash) for hash in application_flow)
+      @steps = ko.observableArray(Step.from_hash(hash) for hash in project_flow)
       @command_selector = new CommandSelector(new AddRootRequestor)
       @add_new_step = new window.New({id: -1})
 

@@ -22,7 +22,7 @@ onWorkflow ->
         id: 'wami'
         swfUrl: '/Wami.swf'
         onReady: =>
-          Wami.startRecording("#{save_recording_application_path}?#{@message_query_identifier()}");
+          Wami.startRecording("#{save_recording_project_path}?#{@message_query_identifier()}");
           @recording_start = @now_seconds()
           @update_duration_interval = window.setInterval((() =>
             @update_duration(@now_seconds() - @recording_start)), 100)
@@ -46,7 +46,7 @@ onWorkflow ->
         swfUrl: '/Wami.swf'
         onReady: =>
           window.playFinished = () => @playing(false)
-          url = "#{play_recording_application_path}?#{@message_query_identifier()}"
+          url = "#{play_recording_project_path}?#{@message_query_identifier()}"
           Wami.startPlaying(url, null, Wami.nameCallback(window.playFinished))
       @alert_flash_required('playing')
 

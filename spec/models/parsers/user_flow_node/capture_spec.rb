@@ -4,10 +4,10 @@ module Parsers
   module UserFlowNode
     describe Capture do
 
-      let(:app) { Application.make }
+      let(:project) { Project.make }
 
       it "should compile to a verboice equivalent flow" do
-        capture = Capture.new app,
+        capture = Capture.new project,
           'id' => 1,
           'root' => true,
           'type' => 'capture',
@@ -36,19 +36,19 @@ module Parsers
               c.Assign 'value_1', 'digits'
               c.PersistVariable 'some_variable', 'value_1'
               c.If "(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20)" do |c|
-                c.Trace application_id: app.id, step_id: 1, step_name: 'Capture number one', store: '"User pressed: " + digits'
+                c.Trace project_id: project.id, step_id: 1, step_name: 'Capture number one', store: '"User pressed: " + digits'
                 c.Goto "end1"
               end
               c.If "digits != null" do |c|
-                c.PlayFile File.join(Rails.root, "data","applications","#{app.id}","recordings", "1-invalid.wav")
-                c.Trace application_id: app.id, step_id: 1, step_name: 'Capture number one', store: '"Invalid key pressed"'
+                c.PlayFile File.join(Rails.root, "data","projects","#{project.id}","recordings", "1-invalid.wav")
+                c.Trace project_id: project.id, step_id: 1, step_name: 'Capture number one', store: '"Invalid key pressed"'
               end
               c.Else do |c|
-                c.Trace application_id: app.id, step_id: 1, step_name: 'Capture number one', store: '"No key was pressed. Timeout."'
+                c.Trace project_id: project.id, step_id: 1, step_name: 'Capture number one', store: '"No key was pressed. Timeout."'
               end
               c.Assign 'attempt_number1', 'attempt_number1 + 1'
             end
-            c.Trace application_id: app.id, step_id: 1, step_name: 'Capture number one', store: '"Missed input for 3 times."'
+            c.Trace project_id: project.id, step_id: 1, step_name: 'Capture number one', store: '"Missed input for 3 times."'
             c.Label "end1"
           end.first
         )
@@ -64,19 +64,19 @@ module Parsers
             c.Capture min: 1, max: 1, finish_on_key: '#', timeout: 5
             c.Assign 'value_4', 'digits'
             c.If 'true' do |c|
-              c.Trace application_id: app.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
+              c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
               c.Goto "end4"
             end
             c.Else do |c|
-              c.Trace application_id: app.id, step_id: 4, step_name: 'Capture', store: '"No key was pressed. Timeout."'
+              c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"No key was pressed. Timeout."'
             end
             c.Assign 'attempt_number4', 'attempt_number4 + 1'
           end
-          c.Trace application_id: app.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
+          c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
           c.Label "end4"
         end.first
 
-        capture = Capture.new app,
+        capture = Capture.new project,
           'id' => 4,
           'root' => true,
           'type' => 'capture',
@@ -84,7 +84,7 @@ module Parsers
 
         capture.equivalent_flow.first.should eq(capture_flow)
 
-        capture = Capture.new app,
+        capture = Capture.new project,
           'id' => 4,
           'root' => true,
           'type' => 'capture',
@@ -93,7 +93,7 @@ module Parsers
 
         capture.equivalent_flow.first.should eq(capture_flow)
 
-        capture = Capture.new app,
+        capture = Capture.new project,
           'id' => 4,
           'root' => true,
           'type' => 'capture',
@@ -112,20 +112,20 @@ module Parsers
               c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
               c.Assign 'value_4', 'digits'
               c.If '(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20) || (digits == null)' do |c|
-                c.Trace application_id: app.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
+                c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
                 c.Goto "end4"
               end
               c.Else do |c|
-                c.PlayFile File.join(Rails.root, "data","applications", "#{app.id}","recordings", "4-invalid.wav")
-                c.Trace application_id: app.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
+                c.PlayFile File.join(Rails.root, "data","projects", "#{project.id}","recordings", "4-invalid.wav")
+                c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
               end
               c.Assign 'attempt_number4', 'attempt_number4 + 1'
             end
-            c.Trace application_id: app.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
+            c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
             c.Label "end4"
           end.first
 
-          capture = Capture.new app,
+          capture = Capture.new project,
             'id' => 4,
             'root' => true,
             'type' => 'capture',
@@ -152,24 +152,24 @@ module Parsers
               c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
               c.Assign 'value_4', 'digits'
               c.If '(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20) || (digits == null)' do |c|
-                c.Trace application_id: app.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
+                c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
                 c.Goto "end4"
               end
               c.Else do |c|
-                c.PlayFile File.join(Rails.root, "data","applications", "#{app.id}","recordings", "4-invalid.wav")
-                c.Trace application_id: app.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
+                c.PlayFile File.join(Rails.root, "data","projects", "#{project.id}","recordings", "4-invalid.wav")
+                c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
               end
               c.Assign 'attempt_number4', 'attempt_number4 + 1'
             end
-            c.Trace application_id: app.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
+            c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
             c.Label 2
             c.Assign "current_step", 2
-            c.Trace application_id: app.id, step_id: 2, step_name: 'Play', store: '"Message played."'
+            c.Trace project_id: project.id, step_id: 2, step_name: 'Play', store: '"Message played."'
             c.Say "Some explanation message"
             c.Label "end4"
           end.first
 
-          capture = Capture.new app,
+          capture = Capture.new project,
             'id' => 4,
             'root' => true,
             'type' => 'capture',
@@ -186,7 +186,7 @@ module Parsers
             },
             'default' => 2
 
-          play = Play.new app, 'id' => 2,
+          play = Play.new project, 'id' => 2,
             'type' => 'play',
             'name' => 'Play',
             'message' => {

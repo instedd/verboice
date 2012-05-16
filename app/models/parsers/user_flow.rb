@@ -1,21 +1,21 @@
 module Parsers
   class UserFlow
 
-    attr_reader :application
+    attr_reader :project
 
-    def initialize application, application_flow
-      @application_flow = application_flow
+    def initialize project, project_flow
+      @project_flow = project_flow
       @roots = []
       @nodes = []
-      @application = application
+      @project = project
       build_nodes
     end
 
     def build_nodes
       @nodes = []
 
-      @application_flow.each do | an_ui_command |
-        @nodes << (Parsers::UserFlowNode::UserCommand.for application, an_ui_command)
+      @project_flow.each do | an_ui_command |
+        @nodes << (Parsers::UserFlowNode::UserCommand.for project, an_ui_command)
       end
 
       @nodes.each do | a_command_parser |
@@ -30,7 +30,7 @@ module Parsers
     end
 
     def error_flow
-      Commands::TraceCommand.new application_id: @application.id, step_id: 'current_step', step_name: '', store: '"User hanged up."'
+      Commands::TraceCommand.new project_id: @project.id, step_id: 'current_step', step_name: '', store: '"User hanged up."'
     end
 
     def build_equivalent_flow

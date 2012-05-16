@@ -13,7 +13,7 @@ class Commands::CallbackCommand < Command
     url = @url || session.callback_url
     method = (@method || 'post').to_s.downcase.to_sym
 
-    url, authorization = callback_authentication(url, session.application)
+    url, authorization = callback_authentication(url, session.project)
 
     body = {:CallSid => session.call_id, :From => session.pbx.caller_id, :Channel => session.channel.name}
     if @params
@@ -56,12 +56,12 @@ class Commands::CallbackCommand < Command
 
   private
 
-  def callback_authentication(url, application)
+  def callback_authentication(url, project)
     uri = URI.parse(url)
-    callback_url_user = uri.user || application.callback_url_user
+    callback_url_user = uri.user || project.callback_url_user
     uri.user = nil
 
-    callback_url_password = uri.password || application.callback_url_password
+    callback_url_password = uri.password || project.callback_url_password
     uri.password = nil
 
     authorization = {:head => {'authorization' => [callback_url_user, callback_url_password]}} if callback_url_user.present? || callback_url_password.present?

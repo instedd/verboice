@@ -8,8 +8,8 @@ module Parsers
         params.empty?
       end
 
-      def initialize application, parent_step, action, params
-        @application = application
+      def initialize project, parent_step, action, params
+        @project = project
         @parent = parent_step
         @name = params['name']
       end

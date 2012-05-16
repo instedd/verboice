@@ -6,7 +6,7 @@ class CallLogsController < ApplicationController
     @page = params[:page] || 1
     @search = params[:search]
     @per_page = 10
-    @logs = current_account.call_logs.includes(:application).includes(:channel).order('id DESC')
+    @logs = current_account.call_logs.includes(:project).includes(:channel).order('id DESC')
     @logs = @logs.search @search, :account => current_account if @search.present?
     @logs = @logs.paginate :page => @page, :per_page => @per_page
   end
@@ -28,14 +28,14 @@ class CallLogsController < ApplicationController
 
     @channels = current_account.channels
     @queues = current_account.call_queues
-    @applications = current_account.applications
+    @projects = current_account.projects
   end
 
   def enqueue
     @channel = current_account.channels.find(params[:channel_id])
     addresses = params[:addresses].split(/\n/).map(&:strip).select(&:presence)
     addresses.each do |address|
-      @channel.call(address.strip, {queue_id: params[:queue_id], application_id: params[:application_id], not_before: params[:not_before]})
+      @channel.call(address.strip, {queue_id: params[:queue_id], project_id: params[:project_id], not_before: params[:not_before]})
     end
     redirect_to({:action => 'queued'}, {:notice => "Enqueued calls to #{pluralize(addresses.count, 'address')} on channel #{@channel.name}"})
   end

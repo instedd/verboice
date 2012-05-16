@@ -1,7 +1,7 @@
 class Commands::TraceCommand < Command
 
   def initialize(options = {})
-    @application_id = options[:application_id]
+    @project_id = options[:project_id]
     @step_id = options[:step_id]
     @step_name = options[:step_name]
     @expression = options[:store]
@@ -9,7 +9,7 @@ class Commands::TraceCommand < Command
 
   def run(session)
     Trace.create!\
-      application_id: @application_id,
+      project_id: @project_id,
       step_id: session.eval(@step_id),
       step_name: @step_name,
       call_id: session.call_id,

@@ -7,7 +7,7 @@ class ApiChannelsController < ApplicationController
     data = JSON.parse(data).with_indifferent_access
     channel = Channel.from_json data
     channel.account = current_account
-    channel.application = current_account.applications.find_by_name data[:application]
+    channel.project = current_account.projects.find_by_name data[:project]
     if channel.save
       render :json => channel
     else

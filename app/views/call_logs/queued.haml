@@ -15,7 +15,7 @@
         %th Date
         %th Phone number
         %th Queue
-        %th Application
+        %th Project
         %th State
         %th
       - @calls.each do |call|
@@ -25,7 +25,7 @@
           %td= call.not_before
           %td= call.address
           %td= call.call_queue.try(:name)
-          %td= call.application.try(:name)
+          %td= call.project.try(:name)
           %td= call.call_log.try(:state)
           %td= link_to 'view log details', call_log_path(call.call_log)
     %br/
@@ -45,8 +45,8 @@
     = label_tag :queue_id, 'Call queue'
     = select_tag :queue_id, options_from_collection_for_select(@queues, 'id', 'name'), :include_blank => true
   %p
-    = label_tag :application_id, 'Application'
-    = select_tag :application_id, options_from_collection_for_select(@applications, 'id', 'name'), :include_blank => true
+    = label_tag :project_id, 'Project'
+    = select_tag :project_id, options_from_collection_for_select(@projects, 'id', 'name'), :include_blank => true
   %p
     = label_tag :not_before, 'Make calls'
     = text_field_tag :not_before, '', :class => "ux-datetimepicker"

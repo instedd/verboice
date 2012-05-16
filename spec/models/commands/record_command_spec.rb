@@ -11,8 +11,8 @@ module Commands
 
     it "should create a recorded audio linking the saved audio file to the call log and contact" do
       contact = Contact.make
-      application = Application.make account: contact.account
-      call_log = CallLog.make application: application
+      project = Project.make account: contact.account
+      call_log = CallLog.make project: project
 
       session = Session.new :pbx => pbx, :call_log => call_log
       session.stub :address => contact.address

@@ -19,10 +19,10 @@ describe Channel do
     before(:each) { Channel.make }
 
     it { should belong_to(:account) }
-    it { should belong_to(:application) }
+    it { should belong_to(:project) }
 
     it { should validate_presence_of(:account) }
-    it { should validate_presence_of(:application) }
+    it { should validate_presence_of(:project) }
     it { should validate_presence_of(:name) }
     it { should validate_uniqueness_of(:name).scoped_to(:account_id) }
   end
@@ -178,7 +178,7 @@ describe Channel do
     channel = Channel.make
     session = channel.new_session
     session.call_log.account.should == channel.account
-    session.call_log.application.should == channel.application
+    session.call_log.project.should == channel.project
     session.call_log.channel.should == channel
     session.call_log.direction.should == :incoming
     session.call_log.state.should == :active

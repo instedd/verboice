@@ -16,7 +16,7 @@ Verboice::Application.routes.draw do
 
   devise_for :accounts
 
-  resources :applications do
+  resources :projects do
     member do
       get :edit_workflow
       put :update_workflow

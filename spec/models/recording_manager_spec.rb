@@ -2,12 +2,12 @@ require 'spec_helper'
 
 describe RecordingManager do
 
-  let(:application) { Application.make }
+  let(:project) { Project.make }
   let(:call_log) { CallLog.make }
 
   it "should retrieve an absolute path for a recording of an aplication" do
-    manager = RecordingManager.for application
-    manager.recording_path_for(1, 'foo').should eq(File.join Rails.root, "data","applications", "#{application.id}" ,"recordings", "1-foo.wav")
+    manager = RecordingManager.for project
+    manager.recording_path_for(1, 'foo').should eq(File.join Rails.root, "data","projects", "#{project.id}" ,"recordings", "1-foo.wav")
   end
 
   it "should retrieve an absolute path for a result of a call_log" do

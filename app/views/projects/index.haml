@@ -1,0 +1,15 @@
+%p
+  A Project specifies what to do when an incoming call arrives through a Channel.
+%br
+= link_to 'Create a new Project', new_project_path, :class => "button white cancel"
+%br
+- if @projects.present?
+  %br
+  %table.GralTable
+    %tr
+      %th Name
+      %th Mode
+    - @projects.each do |project|
+      %tr.link{'data-url' => project_path(project)}
+        %td= project.name
+        %td= project.info

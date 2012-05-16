@@ -9,13 +9,13 @@ module Commands
     end
 
     it "should create a trace entrance for a given command" do
-      cmd = TraceCommand.new(:application_id => 1, :step_id => 20, :step_name => 'bar', :store => '"foo"')
+      cmd = TraceCommand.new(:project_id => 1, :step_id => 20, :step_name => 'bar', :store => '"foo"')
       cmd.next = :next
       cmd.run(session).should == :next
 
       Trace.all.size.should eq(1)
       Trace.first.result.should eq('foo')
-      Trace.first.application_id.should eq(1)
+      Trace.first.project_id.should eq(1)
       Trace.first.step_id.to_i.should eq(20)
       Trace.first.call_id.should eq(333)
       Trace.first.step_name.should eq('bar')
@@ -24,13 +24,13 @@ module Commands
     it "should take the step id from a given expression" do
       cmd = Compiler.make do |c|
         c.Assign "current_step", 3
-        c.Trace :application_id => 2, :step_id => 'current_step', :step_name => '', :store => '"zzz"'
+        c.Trace :project_id => 2, :step_id => 'current_step', :step_name => '', :store => '"zzz"'
       end
       cmd.run(session).run(session)
 
       Trace.all.size.should eq(1)
       Trace.first.result.should eq('zzz')
-      Trace.first.application_id.should eq(2)
+      Trace.first.project_id.should eq(2)
       Trace.first.step_id.to_i.should eq(3)
       Trace.first.call_id.should eq(333)
       Trace.first.step_name.should eq('')

@@ -23,7 +23,7 @@ module Freeswitch
         <param name="username" value="username"/>
         <param name="password" value="password"/>
         <param name="register" value="false"/>
-        <param name="extension" value="#{channel.application_id}"/>
+        <param name="extension" value="#{channel.project_id}"/>
         <param name="context" value="verboice"/>
       </gateway>
     </gateways>

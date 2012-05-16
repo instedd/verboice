@@ -69,13 +69,13 @@ class BaseBroker
     session = find_session_by_call_log_id session_id.to_i
     if session
 
-      application = if options[:application_id]
-        Application.find options[:application_id]
+      project = if options[:project_id]
+        Project.find options[:project_id]
       else
-        Application.new options
+        Project.new options
       end
 
-      session.commands = application.commands
+      session.commands = project.commands
       session.suspend
       restart session
       session.pbx.close_connection

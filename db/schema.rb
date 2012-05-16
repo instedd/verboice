@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120508204116) do
+ActiveRecord::Schema.define(:version => 20120515211910) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -36,26 +36,13 @@ ActiveRecord::Schema.define(:version => 20120508204116) do
   add_index "accounts", ["email"], :name => "index_accounts_on_email", :unique => true
   add_index "accounts", ["reset_password_token"], :name => "index_accounts_on_reset_password_token", :unique => true
 
-  create_table "applications", :force => true do |t|
-    t.string   "name"
-    t.string   "callback_url"
-    t.binary   "flow"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "account_id"
-    t.string   "status_callback_url"
-    t.text     "encrypted_config"
-    t.text     "user_flow"
-    t.binary   "error_flow"
-  end
-
   create_table "call_logs", :force => true do |t|
     t.integer  "account_id"
-    t.integer  "application_id"
+    t.integer  "project_id"
     t.datetime "finished_at"
     t.string   "direction"
     t.string   "address"
-    t.string   "state",          :default => "active"
+    t.string   "state",         :default => "active"
     t.text     "details"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -78,7 +65,7 @@ ActiveRecord::Schema.define(:version => 20120508204116) do
 
   create_table "channels", :force => true do |t|
     t.integer  "account_id"
-    t.integer  "application_id"
+    t.integer  "project_id"
     t.string   "name"
     t.text     "config"
     t.datetime "created_at"
@@ -104,6 +91,19 @@ ActiveRecord::Schema.define(:version => 20120508204116) do
 
   add_index "persisted_variables", ["contact_id"], :name => "index_persisted_variables_on_contact_id"
 
+  create_table "projects", :force => true do |t|
+    t.string   "name"
+    t.string   "callback_url"
+    t.binary   "flow"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "account_id"
+    t.string   "status_callback_url"
+    t.text     "encrypted_config"
+    t.text     "user_flow"
+    t.binary   "error_flow"
+  end
+
   create_table "queued_calls", :force => true do |t|
     t.integer  "channel_id"
     t.integer  "call_log_id"
@@ -116,10 +116,10 @@ ActiveRecord::Schema.define(:version => 20120508204116) do
     t.integer  "call_queue_id"
     t.datetime "not_before"
     t.integer  "retries",             :default => 0
-    t.integer  "application_id"
+    t.integer  "project_id"
   end
 
-  add_index "queued_calls", ["application_id"], :name => "index_queued_calls_on_application_id"
+  add_index "queued_calls", ["project_id"], :name => "index_queued_calls_on_application_id"
 
   create_table "recorded_audios", :force => true do |t|
     t.integer  "contact_id"
@@ -134,7 +134,7 @@ ActiveRecord::Schema.define(:version => 20120508204116) do
   add_index "recorded_audios", ["contact_id"], :name => "index_recorded_audios_on_contact_id"
 
   create_table "traces", :force => true do |t|
-    t.integer  "application_id"
+    t.integer  "project_id"
     t.integer  "call_id"
     t.string   "result"
     t.datetime "created_at"
@@ -143,6 +143,6 @@ ActiveRecord::Schema.define(:version => 20120508204116) do
     t.string   "step_id"
   end
 
-  add_index "traces", ["application_id"], :name => "index_traces_on_application_id"
+  add_index "traces", ["project_id"], :name => "index_traces_on_application_id"
 
 end

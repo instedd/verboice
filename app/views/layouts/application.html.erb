@@ -1,7 +1,7 @@
 <% content_for :navigation do %>
   <%= section "Home", home_path, :home %>
   <% if account_signed_in? %>
-    <%= section "Applications", applications_path, :applications  %>
+    <%= section "Projects", projects_path, :projects  %>
     <%= section "Channels", channels_path, :channels %>
     <%= section "Queues", call_queues_path, :call_queues %>
     <%= section "Calls", call_logs_path, :call_logs %>

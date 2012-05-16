@@ -4,8 +4,8 @@ describe CallLogsController do
   include Devise::TestHelpers
 
   let(:account) { Account.make }
-  let(:application) {Application.make :account => account}
-  let(:channel) { account.channels.make :application => application, :account => account}
+  let(:project) {Project.make :account => account}
+  let(:channel) { account.channels.make :project => project, :account => account}
   let(:queue) { account.call_queues.make :weekdays => "1" }
   let(:broker_client) { double('broker_client') }
 
@@ -41,7 +41,7 @@ describe CallLogsController do
 
     enqueued_call = QueuedCall.last
     enqueued_call.call_queue_id.should eq(queue.id)
-    enqueued_call.application_id.should eq(application.id)
+    enqueued_call.project_id.should eq(project.id)
     enqueued_call.not_before.should eq(not_before + 1)
 
     response.should be_redirect

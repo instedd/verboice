@@ -18,13 +18,13 @@ Account.blueprint do
   confirmed_at { 2.days.ago }
 end
 
-Application.blueprint do
+Project.blueprint do
   account
   name
 end
 
 Trace.blueprint do
-  application
+  project
   step_id {1}
   call_log
   result
@@ -32,12 +32,12 @@ end
 
 CallLog.blueprint do
   channel
-  application { channel.application }
+  project { channel.project }
 end
 
 Channel.blueprint do
-  application
-  account { application.account }
+  project
+  account { project.account }
   name
 end
 

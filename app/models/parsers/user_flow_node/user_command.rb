@@ -4,8 +4,8 @@ class Parsers::UserFlowNode::UserCommand
     params['type'] == name.downcase[name.rindex('::') + 2 ... name.size]
   end
 
-  def self.for application, params
-    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: params).new application, params
+  def self.for project, params
+    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: params).new project, params
   end
 
   def equivalent_flow
@@ -28,7 +28,7 @@ class Parsers::UserFlowNode::UserCommand
     raise "Subclasses must define this message"
   end
 
-  def application
+  def project
     raise "Subclasses must define this message"
   end
 
@@ -46,7 +46,7 @@ class Parsers::UserFlowNode::UserCommand
 
   def context_for message
     {
-      application_id: application.id,
+      project_id: project.id,
       step_id: id,
       step_name: name,
       store: message

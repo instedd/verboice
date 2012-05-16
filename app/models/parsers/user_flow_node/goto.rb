@@ -1,14 +1,14 @@
 module Parsers
   module UserFlowNode
     class Goto < UserCommand
-      attr_reader :id, :name, :application
+      attr_reader :id, :name, :project
       attr_accessor :next
 
-      def initialize application, params
+      def initialize project, params
         @id = params['id']
         @name = params['name'] || ''
         @jump = params['jump']
-        @application = application
+        @project = project
         @root_index = params['root']
       end
 

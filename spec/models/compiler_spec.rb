@@ -64,7 +64,7 @@ describe Compiler do
   end
 
   it "makes trace command" do
-    result = subject.Trace(application_id: 1, step_id: 2, step_name: 'foo', store: 'bar').make
+    result = subject.Trace(project_id: 1, step_id: 2, step_name: 'foo', store: 'bar').make
     result.should be_instance_of(Commands::TraceCommand)
   end
 

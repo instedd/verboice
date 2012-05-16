@@ -2,15 +2,15 @@ class CallLog < ActiveRecord::Base
   include CallLogSearch
 
   belongs_to :account
-  belongs_to :application
+  belongs_to :project
   belongs_to :channel
   belongs_to :call_queue
   has_many :traces, :foreign_key => "call_id"
 
-  before_validation :set_account_to_application_account, :if => :application_id?
+  before_validation :set_account_to_project_account, :if => :project_id?
 
   validates_presence_of :account
-  validates_presence_of :application
+  validates_presence_of :project
   validates_presence_of :channel
 
   Levels = {'E' => :error, 'W' => :warn, 'I' => :info, 'T' => :trace}
@@ -88,7 +88,7 @@ class CallLog < ActiveRecord::Base
     self.details += "#{level} #{Time.now.utc.to_f} #{text}\n"
   end
 
-  def set_account_to_application_account
-    self.account_id = self.application.account_id
+  def set_account_to_project_account
+    self.account_id = self.project.account_id
   end
 end

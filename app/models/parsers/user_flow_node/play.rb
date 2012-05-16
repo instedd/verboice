@@ -1,14 +1,14 @@
 module Parsers
   module UserFlowNode
     class Play < UserCommand
-      attr_reader :id, :message, :name, :application
+      attr_reader :id, :message, :name, :project
       attr_accessor :next
 
-      def initialize application, params
+      def initialize project, params
         @id = params['id']
         @name = params['name'] || ''
-        @message = Message.for application, self, :message, params['message']
-        @application = application
+        @message = Message.for project, self, :message, params['message']
+        @project = project
         @next = params['next']
         @root_index = params['root']
       end

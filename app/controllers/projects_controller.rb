@@ -1,32 +1,32 @@
 require 'csv'
 
-class ApplicationsController < ApplicationController
+class ProjectsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_application, :only => [
+  before_filter :load_project, :only => [
     :show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import_call_flow
   ]
   before_filter :load_recording_data, :only => [:play_recording, :save_recording, :play_result]
 
   skip_before_filter :verify_authenticity_token, :only => :save_recording
 
-  # GET /applications
+  # GET /projects
   def index
-    @applications = current_account.applications.all
+    @projects = current_account.projects.all
   end
 
-  # GET /applications/1
-  # Trace.create! application_id: @application_id, step_id: @step_id, step_name: @step_name, call_id: session.call_id, result: session.eval(@expression)
+  # GET /projects/1
+  # Trace.create! project_id: @project_id, step_id: @step_id, step_name: @step_name, call_id: session.call_id, result: session.eval(@expression)
   def show
     respond_to do |format|
       format.html
       format.csv do
         csv = CSV.generate({ :col_sep => ','}) do |csv|
 
-          steps = @application.step_names
+          steps = @project.step_names
           ids = steps.keys
           header = ['Call ID', 'Phone Number', 'Start Time', 'End Time']
           csv << header + steps.values
-          @application.call_logs.includes(:traces).each do |call_log|
+          @project.call_logs.includes(:traces).each do |call_log|
             line = []
             line << call_log.id
             line << call_log.address
@@ -37,7 +37,7 @@ class ApplicationsController < ApplicationController
                 line[ids.index(trace.step_id.to_i) + header.size] = trace.result
               rescue Exception => e
                 # If the Trace belongs to a deleted step, there is no way to represent it.
-                # This should be fixed when the application stores it's different flow versions.
+                # This should be fixed when the project stores it's different flow versions.
                 # For now, the trace is ignored
               end
             end
@@ -47,36 +47,36 @@ class ApplicationsController < ApplicationController
         render :text => csv
       end
       format.vrb do
-        render :text => @application.user_flow.to_yaml
+        render :text => @project.user_flow.to_yaml
       end
     end
   end
 
-  # GET /applications/new
+  # GET /projects/new
   def new
-    @application = Application.new
+    @project = Project.new
   end
 
-  # GET /applications/1/edit
+  # GET /projects/1/edit
   def edit
   end
 
-  # POST /applications
+  # POST /projects
   def create
-    @application = Application.new(params[:application])
-    @application.account = current_account
+    @project = Project.new(params[:project])
+    @project.account = current_account
 
-    if @application.save
-      redirect_to(edit_workflow_application_path(@application), :notice => "Application #{@application.name} successfully created.")
+    if @project.save
+      redirect_to(edit_workflow_project_path(@project), :notice => "Project #{@project.name} successfully created.")
     else
       render :action => "new"
     end
   end
 
-  # PUT /applications/1
+  # PUT /projects/1
   def update
-    if @application.update_attributes(params[:application])
-      redirect_to(application_path(@application), :notice => "Application #{@application.name} successfully updated.")
+    if @project.update_attributes(params[:project])
+      redirect_to(project_path(@project), :notice => "Project #{@project.name} successfully updated.")
     else
       render :action => "edit"
     end
@@ -88,12 +88,12 @@ class ApplicationsController < ApplicationController
 
   def update_workflow
     @variables = current_account.distinct_variables
-    @application.user_flow = JSON.parse params[:flow]
+    @project.user_flow = JSON.parse params[:flow]
 
-    if @application.save
+    if @project.save
       respond_to do |format|
-        format.html { redirect_to(edit_workflow_application_path(@application), :notice => "Workflow for application #{@application.name} successfully updated.")}
-        format.json { render(json: @application, status: 200, location: @application)}
+        format.html { redirect_to(edit_workflow_project_path(@project), :notice => "Workflow for project #{@project.name} successfully updated.")}
+        format.json { render(json: @project, status: 200, location: @project)}
       end
     else
       render :action => "edit_workflow"
@@ -105,9 +105,9 @@ class ApplicationsController < ApplicationController
       redirect_to({ :action => :show }, { :notice => 'No file found' })
     else
       begin
-        @application.user_flow = YAML::load File.read(params[:vrb].tempfile.path)
-        @application.save!
-        redirect_to({ :action => :show }, {:notice => "Application #{@application.name} successfully updated."})
+        @project.user_flow = YAML::load File.read(params[:vrb].tempfile.path)
+        @project.save!
+        redirect_to({ :action => :show }, {:notice => "Project #{@project.name} successfully updated."})
       rescue Exception => ex
         redirect_to({:action => :show}, {:notice => 'Invalid file'})
       end
@@ -124,10 +124,10 @@ class ApplicationsController < ApplicationController
     end
   end
 
-  # DELETE /applications/1
+  # DELETE /projects/1
   def destroy
-    @application.destroy
-    redirect_to(applications_url, :notice => "Application #{@application.name} successfully deleted.")
+    @project.destroy
+    redirect_to(projects_url, :notice => "Project #{@project.name} successfully deleted.")
   end
 
   private
@@ -135,17 +135,17 @@ class ApplicationsController < ApplicationController
   def load_recording_data
     @step_id = params[:step_id]
     @message = params[:message]
-    @recording_manager = RecordingManager.for(@application)
+    @recording_manager = RecordingManager.for(@project)
   end
 
-  def load_application
-    @application = current_account.applications.find(params[:id])
+  def load_project
+    @project = current_account.projects.find(params[:id])
   end
 
   def get_flow
-    return nil unless params[:application][:flow].present?
+    return nil unless params[:project][:flow].present?
 
-    ret = params[:application][:flow].map do |props|
+    ret = params[:project][:flow].map do |props|
       name = props[:name].downcase.to_sym
       args = props.reject { |k, v| k.to_sym == :name}
       case args.length

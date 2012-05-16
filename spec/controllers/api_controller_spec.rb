@@ -4,8 +4,8 @@ describe ApiController do
   include Devise::TestHelpers
 
   let(:account) { Account.make }
-  let(:application) {Application.make :account => account}
-  let(:channel) { account.channels.make :application => application, :account => account}
+  let(:project) {Project.make :account => account}
+  let(:channel) { account.channels.make :project => project, :account => account}
   let(:queue) { account.call_queues.make }
 
   before(:each) do
@@ -40,7 +40,7 @@ describe ApiController do
   end
 
   it "call state" do
-    call_log = CallLog.make :application => Application.make(:account => @controller.current_account)
+    call_log = CallLog.make :project => Project.make(:account => @controller.current_account)
     get :call_state, :id => call_log.id.to_s
     result = JSON.parse(@response.body)
     result['call_id'].should == call_log.id

@@ -16,8 +16,8 @@
     <%= f.text_field :name %>
   </div>
   <div class="field">
-    <%= f.label :application_id %>
-    <%= f.select :application_id, options_from_collection_for_select(current_account.applications, :id, :name, @channel.application_id) %>
+    <%= f.label :project_id %>
+    <%= f.select :project_id, options_from_collection_for_select(current_account.projects, :id, :name, @channel.project_id) %>
   </div>
 
   <%= f.hidden_field :kind %>

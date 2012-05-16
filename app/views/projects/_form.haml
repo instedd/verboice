@@ -1,0 +1,27 @@
+= form_for(@project, :builder => InsteddFormBuilder) do |f|
+  - if @project.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@project.errors.count, "error")
+        prohibited this project from being saved:
+      %ul
+        - @project.errors.full_messages.each do |msg|
+          %li= msg
+  - if @project.new_record?
+    = f.text_field :name
+  = f.select :mode, options_for_select([['Use an external application', :callback_url], ['Design your app in Verboice', :flow]], @project.mode)
+  #callback_url_container{:style => ('display: none' if @project.mode != :callback_url)}
+    - with_callback_url_fields do |field, field_type|
+      = f.send(field_type, field)
+
+  - with_callback_url_fields(:status) do |field, field_type|
+    = f.send(field_type, field)
+
+  %hr
+
+  - if @project.new_record?
+    %button.grey{:type => "submit"} Save
+    = link_to "Cancel", projects_path, :class => "button white cancel", :style => 'top: 1px;'
+  - else
+    %button.grey{:type => "submit"} Update
+    = link_to "Cancel", project_path(@project), :class => "button white cancel", :style => 'top: 1px;'

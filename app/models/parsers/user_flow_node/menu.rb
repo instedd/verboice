@@ -1,21 +1,21 @@
 module Parsers
   module UserFlowNode
     class Menu < UserCommand
-      attr_reader :id, :explanation_message, :options, :timeout, :invalid_message, :end_call_message, :name, :application
+      attr_reader :id, :explanation_message, :options, :timeout, :invalid_message, :end_call_message, :name, :project
       attr_accessor :next
 
-      def initialize application, params
+      def initialize project, params
         @id = params['id']
         @name = params['name'] || ''
-        @explanation_message = Message.for application, self, :explanation, params['explanation_message']
-        @options_message = Message.for application, self, :options, params['options_message']
+        @explanation_message = Message.for project, self, :explanation, params['explanation_message']
+        @options_message = Message.for project, self, :options, params['options_message']
         @options = params['options'].deep_clone || []
         @root_index = params['root']
         @timeout = params['timeout'] || self.class.default_time_out_in_seconds
         @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
-        @invalid_message = Message.for application, self, :invalid, params['invalid_message']
+        @invalid_message = Message.for project, self, :invalid, params['invalid_message']
         @default = params['default']
-        @application = application
+        @project = project
         @next = params['next']
         @persisted_variable_name = params['store']
       end

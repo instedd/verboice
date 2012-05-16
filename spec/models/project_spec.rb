@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe Application do
+describe Project do
 
   context "validations" do
-    before(:each) { Application.make }
+    before(:each) { Project.make }
 
     it { should belong_to(:account) }
     it { should have_many(:call_logs) }
@@ -14,17 +14,17 @@ describe Application do
 
   context "callbacks" do
     it "sets name to callback url if name is empty" do
-      app = Application.make :name => nil, :callback_url => 'foo'
+      app = Project.make :name => nil, :callback_url => 'foo'
       app.name.should == app.callback_url
     end
 
     it "keeps name if name set" do
-      app = Application.make :name => 'bar', :callback_url => 'foo'
+      app = Project.make :name => 'bar', :callback_url => 'foo'
       app.name.should == 'bar'
     end
 
     it "saves flow" do
-      app = Application.make_unsaved
+      app = Project.make_unsaved
       app.flow = Compiler.make { PlayUrl 'foo' }
       app.save!
 
@@ -35,7 +35,7 @@ describe Application do
 
   context "commands" do
     before(:each) do
-      @app = Application.make_unsaved
+      @app = Project.make_unsaved
     end
 
     it "commands is flow when present" do
@@ -50,7 +50,7 @@ describe Application do
   end
 
   context "config" do
-    include ApplicationConfigHelpers
+    include ProjectConfigHelpers
 
     it "should be encrypted" do
       subject.config = {:some => :config}
@@ -58,7 +58,7 @@ describe Application do
     end
 
     it "should propertly saved the encrypted config to the db" do
-      app = Application.make
+      app = Project.make
       with_callback_url_accessors do |accessor|
         app.send("#{accessor}=", accessor.to_s)
         app.save
@@ -75,9 +75,9 @@ describe Application do
   end
 
   it "should update the flow when it's user flow get's updated" do
-    application = Application.make id: 4
-    application.flow.should be_nil
-    application.user_flow = [
+    project = Project.make id: 4
+    project.flow.should be_nil
+    project.user_flow = [
       {
         'id' => 1,
         'root' => 1,
@@ -90,19 +90,19 @@ describe Application do
       }
     ]
 
-    application.save!
-    application.reload.flow.should eq(
+    project.save!
+    project.reload.flow.should eq(
       Compiler.make do
         Answer()
         Assign "current_step", 1
-        Trace application_id: 4, step_id: 1, step_name: 'Play number one', store: '"Message played."'
+        Trace project_id: 4, step_id: 1, step_name: 'Play number one', store: '"Message played."'
         Say "Some explanation message"
       end
     )
 
-    application.error_flow.should eq(
+    project.error_flow.should eq(
       Compiler.make do
-        Trace application_id: 4, step_id: 'current_step', step_name: '', store: '"User hanged up."'
+        Trace project_id: 4, step_id: 'current_step', step_name: '', store: '"User hanged up."'
       end
     )
   end

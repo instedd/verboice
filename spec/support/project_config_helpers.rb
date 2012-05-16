@@ -1,4 +1,4 @@
-module ApplicationConfigHelpers
+module ProjectConfigHelpers
   def with_callback_url_accessors
     [nil, :status_].each do |type|
       [nil, :_user, :_password].each do |accessor|

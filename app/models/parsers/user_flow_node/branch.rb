@@ -1,15 +1,15 @@
 module Parsers
   module UserFlowNode
     class Branch < UserCommand
-      attr_reader :id, :options, :name, :application
+      attr_reader :id, :options, :name, :project
       attr_accessor :next
 
-      def initialize application, params
+      def initialize project, params
         @id = params['id']
         @name = params['name'] || ''
         @options = params['options'].deep_clone || []
         @root_index = params['root']
-        @application = application
+        @project = project
         @next = params['next']
       end
 
