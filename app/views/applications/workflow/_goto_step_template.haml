@@ -1,12 +1,14 @@
 %script{type: "text/html", id: "goto_step_template"}
   .feditor-sidebar.right.box.w28.iblock.h65
     .tableheader
-      %span.left.i48grad-bookmark{'data-bind' => "css: { orange: is_invalid }"}
-      %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+      %span.left.i48grad-bookmark{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
 
     %table.GralTable.TwoColumn.CleanTable.NoHead
       %tr
-        %th Go to step
+        %th{ko(css: "{ orange: is_jump_id_invalid }")}
+          Go to step
+          %span{ko(css: "{ alert: is_jump_id_invalid }")}
         %th
       %tr
         %td{:colspan => 2}

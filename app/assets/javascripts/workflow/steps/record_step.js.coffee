@@ -17,15 +17,14 @@ onWorkflow ->
       @is_editing_message = ko.computed () =>
         @current_editing_message() != null
 
-      @messages_are_valid = ko.computed () =>
-        @message_selectors['explanation'].is_valid() and
-        @message_selectors['confirmation'].is_valid()
+      @is_explanation_message_invalid = ko.computed () =>
+        not @message_selectors['explanation'].is_valid()
 
-      @is_valid = ko.computed () =>
-        @name() and @messages_are_valid()
+      @is_confirmation_message_invalid = ko.computed () =>
+        not @message_selectors['confirmation'].is_valid()
 
       @is_invalid = ko.computed () =>
-        not @is_valid()
+        @is_name_invalid() or @is_explanation_message_invalid() or @is_confirmation_message_invalid()
 
     button_class: () =>
       'lmicrophone'

@@ -7,7 +7,7 @@
 
     .tableheader
       %span.left.i48grad-directions{'data-bind' => "css: { orange: is_invalid }"}
-      %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+      %input.ux-text.w20.right{ ko(value: "name", valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }') }
 
     %table.GralTable.TwoColumn.CleanTable.NoHead
       %tr
@@ -23,8 +23,9 @@
           %button.fremove{'data-bind' => 'click: $parent.remove_option_with_confirm'}
       / /ko
       %tr
-        %td.nowrap{:colspan => '2'}
+        %td.nowrap{ko(css: "{ orange: are_options_invalid }"), :colspan => '2'}
           Add branch
+          %span{ko(css: "{ alert: are_options_invalid }")}
           %select{:style => 'width:165px', 'data-bind' => "options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: new_option_command"}
           %button.fadd{'data-bind' => 'click: add_option'}
 

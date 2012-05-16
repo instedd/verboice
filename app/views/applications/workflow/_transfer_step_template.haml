@@ -1,15 +1,16 @@
 %script{type: "text/html", id: "transfer_step_template"}
   .feditor-sidebar.right.box.w28.iblock.h65
     .tableheader
-      %span.left.i48grad-callback{'data-bind' => "css: { orange: is_invalid }"}
-      %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+      %span.left.i48grad-callback{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
 
     .content
       %label Forward to
       %br
 
-      %span.forwardto
+      %span.forwardto{ko(css: "{ orange: is_address_invalid }")}
         Phone number:
+        %span{ko(css: "{ alert: is_address_invalid }")}
       %input.ux-text.w20{ 'data-bind' => 'value: address, valueUpdate: "afterkeydown"' }
       %br
 

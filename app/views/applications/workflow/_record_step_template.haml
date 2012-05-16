@@ -7,22 +7,24 @@
       .feditor-sidebar.right.box.w28.iblock.h65
 
         .tableheader
-          %span.left.i48grad-microphone{'data-bind' => "css: { orange: is_invalid }"}
-          %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+          %span.left.i48grad-microphone{ ko(css: '{ "orange": is_invalid }') }
+          %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
 
         %table.GralTable.TwoColumn.CleanTable.NoHead
           %tr
             %th Messages
             %th
           %tr
-            %td
+            %td{ko(css: "{ orange: is_explanation_message_invalid }")}
               Explanation:
+              %span{ko(css: "{ alert: is_explanation_message_invalid }")}
               %span{ko(text: "message('explanation').name()")}
             %td
               %button.farrow{:type => "button", 'data-bind' => 'click: show_explanation_message'}
           %tr
-            %td
+            %td{ko(css: "{ orange: is_confirmation_message_invalid }")}
               Confirmation:
+              %span{ko(css: "{ alert: is_confirmation_message_invalid }")}
               %span{ko(text: "message('confirmation').name()")}
             %td
               %button.farrow{:type => "button", 'data-bind' => 'click: show_confirmation_message'}

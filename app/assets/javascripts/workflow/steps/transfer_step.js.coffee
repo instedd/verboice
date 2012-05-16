@@ -11,11 +11,11 @@ onWorkflow ->
       @address = ko.observable attrs.address
       @channel = ko.observable attrs.channel
 
-      @is_valid = ko.computed () =>
-        @name() and @address()
+      @is_address_invalid = ko.computed () =>
+        not @address()
 
       @is_invalid = ko.computed () =>
-        not @is_valid()
+        @is_name_invalid() or @is_address_invalid()
 
     button_class: () =>
       'lforwardcall'

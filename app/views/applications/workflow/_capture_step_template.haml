@@ -6,16 +6,17 @@
     %div{ko(:if => "!is_editing_message()")}
       .feditor-sidebar.right.box.w28.iblock.h65
         .tableheader
-          %span.left.i48grad-numeral{'data-bind' => "css: { orange: is_invalid }"}
-          %input.ux-text.w20.right{ 'data-bind' => 'value: name, valueUpdate: "afterkeydown"' }
+          %span.left.i48grad-numeral{ ko(css: '{ "orange": is_invalid }') }
+          %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
 
         %table.GralTable.TwoColumn.CleanTable.NoHead
           %tr
             %th Messages
             %th
             %tr
-              %td
+              %td{ko(css: "{ orange: is_instructions_message_invalid }")}
                 Instructions:
+                %span{ko(css: "{ alert: is_instructions_message_invalid }")}
                 %span{ko(text: "message('instructions').name()")}
               %td
                 %button.farrow{ :type => "button", 'data-bind' => 'click: show_instructions_message' }

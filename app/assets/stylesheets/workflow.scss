@@ -255,9 +255,22 @@ span.orange {
 
 .lbookmark.invalid, .lnumeral.invalid, .ldirections.invalid, .lphone.invalid, .lanswer.invalid, .lforwardcall.invalid, .ldial.invalid, .lsound.invalid {
   border-radius: 7px;
-  border: 2px solid #FF8500;
+  border: 2px solid #F86808;
 }
 
 p.invalid {
-  color: #FF8500;
+  color: #F86808;
+}
+
+span.alert {
+  background: url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat;
+  display: inline-block;
+  vertical-align: middle;
+  width: 18px;
+  height: 18px;
+  margin-bottom: 2px;
+}
+
+th.orange, td.orange, li.orange, span.orange {
+  color: #F86808;
 }

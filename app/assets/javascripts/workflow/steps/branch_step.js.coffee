@@ -17,11 +17,11 @@ onWorkflow ->
       @is_editing_option = ko.computed () =>
         @current_editing_option() != null
 
-      @is_valid = ko.computed () =>
-        @name() and (@options().length > 0)
+      @are_options_invalid = ko.computed () =>
+        (@options().length < 1)
 
       @is_invalid = ko.computed () =>
-        not @is_valid()
+        @is_name_invalid() or @are_options_invalid()
 
     button_class: () =>
       'ldirections'
