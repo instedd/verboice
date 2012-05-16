@@ -252,3 +252,12 @@ ul.branches li { clear:both }
 span.orange {
   background-position: left -50px;
 }
+
+.lbookmark.invalid, .lnumeral.invalid, .ldirections.invalid, .lphone.invalid, .lanswer.invalid, .lforwardcall.invalid, .ldial.invalid, .lsound.invalid {
+  border-radius: 7px;
+  border: 2px solid #FF8500;
+}
+
+p.invalid {
+  color: #FF8500;
+}
