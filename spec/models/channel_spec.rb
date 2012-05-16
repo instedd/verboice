@@ -4,8 +4,14 @@ describe Channel do
   # Because we have after_commit callbacks...
   self.use_transactional_fixtures = false
 
+  let(:broker_client) { double('broker_client') }
+
+  before(:each) do
+    BrokerClient.stub(:new).and_return(broker_client)
+  end
+
   after(:each) do
-    BrokerClient.stub(:delete_channel)
+    broker_client.stub(:delete_channel)
     [Account, Channel, CallLog, CallQueue, QueuedCall].each &:destroy_all
   end
 
@@ -26,7 +32,7 @@ describe Channel do
     let (:queued_call) { channel.queued_calls.first }
 
     it "call ok" do
-      BrokerClient.should_receive(:notify_call_queued).with(channel.id)
+      broker_client.should_receive(:notify_call_queued).with(channel.id)
 
       call_log = channel.call 'foo'
       call_log.state.should == :queued
@@ -39,34 +45,34 @@ describe Channel do
     end
 
     it "call raises" do
-      BrokerClient.should_receive(:notify_call_queued).with(channel.id).and_raise("Oh no!")
+      broker_client.should_receive(:notify_call_queued).with(channel.id).and_raise("Oh no!")
 
       call_log = channel.call 'foo'
       call_log.state.should == :failed
     end
 
     it "call and set direction outgoing" do
-      BrokerClient.should_receive(:notify_call_queued)
+      broker_client.should_receive(:notify_call_queued)
 
       call_log = channel.call 'foo'
       call_log.direction.should == :outgoing
     end
 
     it "call with custom callback url" do
-      BrokerClient.should_receive(:notify_call_queued)
+      broker_client.should_receive(:notify_call_queued)
 
       channel.call 'foo', :callback_url => 'bar'
       queued_call.callback_url.should == 'bar'
     end
 
     it "call with custom flow" do
-      BrokerClient.should_receive(:notify_call_queued)
+      broker_client.should_receive(:notify_call_queued)
       channel.call 'foo', :flow => Compiler.make { Answer(); Hangup() }
       queued_call.flow.should == Compiler.make { Answer(); Hangup() }
     end
 
     it "call with custom status callback url" do
-      BrokerClient.should_receive(:notify_call_queued)
+      broker_client.should_receive(:notify_call_queued)
 
       channel.call 'foo', :status_callback_url => 'bar'
       queued_call.status_callback_url.should == 'bar'
@@ -74,46 +80,46 @@ describe Channel do
 
     it "notify with time when scheduling delayed call" do
       time = Time.now.utc + 1.hour
-      BrokerClient.should_receive(:notify_call_queued).with(channel.id, time)
+      broker_client.should_receive(:notify_call_queued).with(channel.id, time)
       channel.call 'foo', :not_before => time
     end
 
     it "obey queue lower time bound" do
       queue = channel.account.call_queues.make :time_from => '10:00', :time_to => '12:00'
-      BrokerClient.should_receive(:notify_call_queued)
+      broker_client.should_receive(:notify_call_queued)
       channel.call 'foo', :not_before => '2012-12-20T08:00:00', :queue => queue.name
       queued_call.not_before.should == '2012-12-20T10:00:00'
     end
 
     it "obey queue upper time bound" do
       queue = channel.account.call_queues.make :time_from => '10:00', :time_to => '12:00'
-      BrokerClient.should_receive(:notify_call_queued)
+      broker_client.should_receive(:notify_call_queued)
       channel.call 'foo', :not_before => '2012-12-20T13:00:00', :queue => queue.name
       queued_call.not_before.should == '2012-12-21T10:00:00'
     end
   end
 
-  it "call BrokerClient.create_channel on create" do
+  it "call create_channel on broker_client when create" do
     channel = Channel.make_unsaved
-    BrokerClient.should_receive(:create_channel).with do |channel_id|
+    broker_client.should_receive(:create_channel).with do |channel_id|
       channel_id == channel.id
     end
     channel.save!
   end
 
-  it "call BrokerClient.delete_channel and BrokerClient.create_channel on update" do
-    BrokerClient.should_receive(:create_channel)
+  it "call delete_channel and create_channel on broker_client when update" do
+    broker_client.should_receive(:create_channel)
     channel = Channel.make
 
-    BrokerClient.should_receive(:delete_channel).with(channel.id).ordered
-    BrokerClient.should_receive(:create_channel).with(channel.id).ordered
+    broker_client.should_receive(:delete_channel).with(channel.id).ordered
+    broker_client.should_receive(:create_channel).with(channel.id).ordered
 
     channel.save!
   end
 
-  it "call BrokerClient.delete_channel on destroy" do
+  it "call delete_channel on broker_client when destroy" do
     channel = Channel.make
-    BrokerClient.should_receive(:delete_channel).with(channel.id)
+    broker_client.should_receive(:delete_channel).with(channel.id)
     channel.destroy
   end
 
@@ -177,11 +183,32 @@ describe Channel do
     session.call_log.direction.should == :incoming
     session.call_log.state.should == :active
   end
-  
+
   it "should assign a guid" do
     channel = Channel.make_unsaved
     channel.guid.should be_nil
     channel.save!
     channel.guid.should_not be_nil
+  end
+
+  context 'broker client' do
+
+    let(:local_pbx_port) { Rails.configuration.verboice_configuration[:local_pbx_broker_port].to_i }
+    let(:voxeo_port) { Rails.configuration.verboice_configuration[:voxeo_broker_port].to_i }
+
+    it 'should return voxeo broker client for voxeo kind' do
+      channel = Channel.new :kind => 'voxeo'
+      BrokerClient.should_receive(:new).with(voxeo_port).and_return(broker_client)
+      channel.broker_client.should eq(broker_client)
+    end
+
+    Channel::Kinds.reject{|x| x == 'voxeo'}.each do |kind|
+      it "should return local broker client for #{kind} kind" do
+        channel = Channel.new :kind => kind
+        BrokerClient.should_receive(:new).with(local_pbx_port).and_return(broker_client)
+        channel.broker_client.should eq(broker_client)
+      end
+    end
+
   end
 end

@@ -68,9 +68,9 @@ class Channel < ActiveRecord::Base
 
     begin
       if queued_call.not_before?
-        BrokerClient.notify_call_queued id, queued_call.not_before
+        broker_client.notify_call_queued id, queued_call.not_before
       else
-        BrokerClient.notify_call_queued id
+        broker_client.notify_call_queued id
       end
     rescue Exception => ex
       call_log.finish_with_error ex.message
@@ -81,7 +81,7 @@ class Channel < ActiveRecord::Base
   end
 
   def active_calls_count
-    BrokerClient.active_calls_count_for id
+    broker_client.active_calls_count_for id
   end
 
   def poll_call
@@ -134,14 +134,26 @@ class Channel < ActiveRecord::Base
     servers.length == 0 ? [Server.new] : servers
   end
 
+  def broker_client
+    @broker_client ||= BrokerClient.new port
+  end
+
   private
 
+  def port
+    key = case kind
+    when 'voxeo' then :voxeo_broker_port
+    else :local_pbx_broker_port
+    end
+    Rails.configuration.verboice_configuration[key].to_i
+  end
+
   def call_broker_create_channel
-    BrokerClient.create_channel self.id
+    broker_client.create_channel self.id
   end
 
   def call_broker_delete_channel
-    BrokerClient.delete_channel self.id
+    broker_client.delete_channel self.id
   end
 
   def create_guid

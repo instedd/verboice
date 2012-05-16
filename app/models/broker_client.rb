@@ -1,10 +1,13 @@
 require_dependency 'pbx_unavailable_exception'
 
-module BrokerClient
-  Port = Rails.configuration.verboice_configuration[:broker_port].to_i
+class BrokerClient
 
-  def self.open
-    client = EM.connect '127.0.0.1', Port, MagicObjectProtocol::Client
+  def initialize port
+    @port = port
+  end
+
+  def open
+    client = EM.connect '127.0.0.1', @port, MagicObjectProtocol::Client
     begin
       yield client
     ensure
@@ -12,7 +15,7 @@ module BrokerClient
     end
   end
 
-  def self.method_missing(name, *args)
+  def method_missing(name, *args)
     open do |client|
       client.send name, *args
     end

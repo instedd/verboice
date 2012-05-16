@@ -1,5 +1,4 @@
 class BrokerFacade < MagicObjectProtocol::Server
-  Port = Rails.configuration.verboice_configuration[:broker_port].to_i
 
   def notify_call_queued(channel_id, not_before = nil)
     if not_before
@@ -29,4 +28,5 @@ class BrokerFacade < MagicObjectProtocol::Server
   def redirect(session_id, options)
     BaseBroker.instance.redirect session_id, options
   end
+
 end

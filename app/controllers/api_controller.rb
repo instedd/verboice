@@ -23,7 +23,9 @@ class ApiController < ApplicationController
       return render :status => 400
     end
 
-    BrokerClient.redirect params[:id], options
+    channel = CallLog.find(params[:id]).channel
+    channel.broker_client.redirect options
+
     render :text => 'OK'
   end
 

@@ -42,7 +42,9 @@ describe ApiChannelsController do
   end
 
   it "delete channel" do
-    BrokerClient.should_receive(:delete_channel)
+    broker_client = double('broker_client')
+    BrokerClient.stub(:new).and_return(broker_client)
+    broker_client.should_receive(:delete_channel)
 
     app = @account.applications.make
     chan = @account.channels.make :application => app, :name => 'foo'

@@ -9,7 +9,6 @@ describe CallLogsController do
   let(:queue) { account.call_queues.make :weekdays => "1" }
 
   before(:each) do
-    BrokerClient.stub(:notify_call_queued)
     sign_in account
   end
 
@@ -29,7 +28,10 @@ describe CallLogsController do
 
   it 'should enqueue a call not before specific date' do
     not_before = DateTime.new(2012, 1, 1, 16, 0, 0)
-    BrokerClient.should_receive(:notify_call_queued).with(channel.id,not_before + 1)
+
+    broker_client = double('broker_client')
+    BrokerClient.stub(:new).and_return(broker_client)
+    broker_client.should_receive(:notify_call_queued).with(channel.id,not_before + 1)
 
     expect {
       post :enqueue, :addresses => "1", :channel_id => channel.id, :queue_id => queue.id, :not_before => not_before
