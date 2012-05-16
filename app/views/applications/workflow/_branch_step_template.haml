@@ -11,7 +11,9 @@
 
     %table.GralTable.TwoColumn.CleanTable.NoHead
       %tr
-        %th Branches
+        %th{ko(css: "{ orange: are_options_invalid }")}
+          Branches
+          %span{ko(css: "{ alert: are_options_invalid }")}
         %th
       / ko foreach: options
       %tr
@@ -23,9 +25,8 @@
           %button.fremove{'data-bind' => 'click: $parent.remove_option_with_confirm'}
       / /ko
       %tr
-        %td.nowrap{ko(css: "{ orange: are_options_invalid }"), :colspan => '2'}
+        %td.nowrap{:colspan => '2'}
           Add branch
-          %span{ko(css: "{ alert: are_options_invalid }")}
           %select{:style => 'width:165px', 'data-bind' => "options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: new_option_command"}
           %button.fadd{'data-bind' => 'click: add_option'}
 

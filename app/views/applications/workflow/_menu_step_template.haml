@@ -52,7 +52,9 @@
           After final attempt fails:
           %select.w10{'data-bind' => 'options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: default_command_selected, event: { change: change_default_option }'}
           %hr
-          %label Options
+          %label{ko(css: "{ orange: are_options_invalid }")}
+            Options
+            %span{ko(css: "{ alert: are_options_invalid }")}
           %br
           %ul.oplist
             %span{ 'data-bind' => 'foreach: options' }
@@ -60,10 +62,9 @@
                 %select{ko(options: 'available_numbers', value: 'number')}
                 %span.ux-oplist{ko(text: "next_name()", click: 'select_step')}
                 %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option_with_confirm' }
-            %li{ko(css: "{ orange: are_options_invalid }")}
+            %li
               %span.ux-text
                 Add an option:
-                %span{ko(css: "{ alert: are_options_invalid }")}
                 %select.w10{ko(options: 'commands()', optionsText: "function(item) { return (new window[item]({})).default_name() }", value: 'new_option_command')}
               %button.clist-add{ 'data-bind' => 'click: add_option'}
           %hr
