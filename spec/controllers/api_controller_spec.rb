@@ -13,6 +13,13 @@ describe ApiController do
   end
 
   context "call" do
+    let(:broker_client) { double('broker_client') }
+
+    before(:each) do
+      BrokerClient.stub(:new).and_return(broker_client)
+      broker_client.stub(:notify_call_queued)
+    end
+
     it "calls" do
       get :call, :address => 'foo', :channel => channel.name, :callback => 'bar'
       call_log = CallLog.last
