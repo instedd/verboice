@@ -5,12 +5,10 @@ module Asterisk
     Port = Rails.configuration.asterisk_configuration[:call_manager_port].to_i
     SoundsDir = Rails.configuration.asterisk_configuration[:sounds_dir]
     SoundsPath = "#{SoundsDir}/verboice/"
-    RecordingsPath = "#{SoundsDir}/recordings/"
     AgiSeparator = Rails.configuration.asterisk_configuration[:agi_use_pipe_separator] == true ? '|' : ','
 
     def agi_post_init
       FileUtils.mkdir_p SoundsPath
-      FileUtils.mkdir_p RecordingsPath
       @log = Rails.logger
       @synthesizer = Synthesizer.new self
       BaseBroker.instance.accept_call self
@@ -110,12 +108,18 @@ module Asterisk
     end
 
     def record filename, stop_keys, timeout
+      # Ensure file exists and asterisk has write permissions
+      FileUtils.touch(filename) unless File.exists?(filename)
+      File.chmod(0666, filename)
+
       timeout = (timeout * 1000).to_s
-      tmp_file = record_tmp_file
+      ext = File.extname(filename).sub('.','')
+      filename_without_ext = filename.chomp(File.extname(filename))
 
-      record_file tmp_file, 'wav', stop_keys, timeout, 'beep'
+      record_file filename_without_ext, ext, stop_keys, timeout, 'beep'
 
-      FileUtils.mv "#{tmp_file}.wav", filename
+      # Set permissions back to default
+      File.chmod(0644, filename)
     end
 
     def is_answering_machine?
@@ -133,10 +137,6 @@ module Asterisk
     end
 
     private
-
-    def record_tmp_file
-      File.join RecordingsPath, "recording_#{Time.new.to_i}"
-    end
 
     def capture_digit(timeout)
       line = wait_for_digit timeout

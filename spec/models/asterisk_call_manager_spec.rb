@@ -214,10 +214,12 @@ describe Asterisk::CallManager do
   end
 
   it 'should record' do
-    @call_manager.should_receive(:record_tmp_file).and_return('tmp_recording_file')
-    @call_manager.should_receive(:record_file).with('tmp_recording_file', 'wav', '26#', '7000', 'beep')
-    FileUtils.should_receive(:mv).with('tmp_recording_file.wav', '/path/to/record')
-    @call_manager.record '/path/to/record', '26#', 7
+    File.should_receive(:exists?).with('/path/to/filename.wav').and_return(false)
+    FileUtils.should_receive(:touch).with('/path/to/filename.wav')
+    @call_manager.should_receive(:record_file).with('/path/to/filename', 'wav', '26#', '7000', 'beep')
+    File.should_receive(:chmod).with(0666, '/path/to/filename.wav').ordered
+    File.should_receive(:chmod).with(0644, '/path/to/filename.wav').ordered
+    @call_manager.record '/path/to/filename.wav', '26#', 7
   end
 
   def asterisk_response(note)
