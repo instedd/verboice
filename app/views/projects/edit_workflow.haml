@@ -17,6 +17,8 @@
   - %W(hang_up_step workflow_step capture_step menu_step play_step transfer_step goto_step branch_step record_step message recording_message text_message command_selector branch_option).each do |template|
     = render "projects/workflow/#{template}_template"
 
+%h1= @project.name
+
 = render 'tabs'
 
 #wami
