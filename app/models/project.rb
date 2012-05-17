@@ -1,4 +1,9 @@
 class Project < ActiveRecord::Base
+
+  class SerializableArray < Array
+    include MarshalZipSerializable
+  end
+
   belongs_to :account
   has_many :call_logs, :dependent => :destroy
   has_many :traces, :dependent => :destroy
@@ -11,7 +16,7 @@ class Project < ActiveRecord::Base
 
   serialize :flow, Command
   serialize :error_flow, Command
-  serialize :user_flow, Array
+  serialize :user_flow, SerializableArray
 
   before_update :update_flow_with_user_flow
   before_save :clear_flow, :if => lambda { @mode == 'callback_url' }
