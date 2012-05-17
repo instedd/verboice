@@ -1,7 +1,7 @@
 - content_for :head do
   :javascript
     var distinct_variables = #{ @variables.to_json };
-    var project_flow = #{ raw @project.user_flow.to_json };
+    var project_flow = #{ raw (@project.user_flow || []).to_json };
     var update_workflow_project_path = "#{ update_workflow_project_path(@project) }";
     var project_path = "#{ project_path(@project) }";
     var save_recording_project_path = "#{ save_recording_project_path(@project)}";
