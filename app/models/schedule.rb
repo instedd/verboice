@@ -1,6 +1,7 @@
-class CallQueue < ActiveRecord::Base
+class Schedule < ActiveRecord::Base
   belongs_to :account
   has_many :queued_calls
+  has_many :call_logs
 
   validates_presence_of :account
   validates_presence_of :name
@@ -36,26 +37,26 @@ class CallQueue < ActiveRecord::Base
         t = t + (from - time) + 1.day
       end
     end
-    
+
     if weekdays.present?
       available_days = Set.new(weekdays.split(',')).to_a.map(&:to_i).sort
       day = available_days.detect{|d| d >= t.wday} || available_days.first
       t = t + (day - t.wday + (day < t.wday ? 7 : 0)).days
     end
-    
+
     t
   end
-  
+
   def self.from_json(json)
-    call_queue = CallQueue.new
-    call_queue.name = json[:name]
-    call_queue.retries = json[:retries]
-    call_queue.time_from_str = json[:time_from_str]
-    call_queue.time_to_str = json[:time_to_str]
-    call_queue.weekdays = json[:weekdays]
-    call_queue
+    schedule = self.new
+    schedule.name = json[:name]
+    schedule.retries = json[:retries]
+    schedule.time_from_str = json[:time_from_str]
+    schedule.time_to_str = json[:time_to_str]
+    schedule.weekdays = json[:weekdays]
+    schedule
   end
-  
+
   def as_json(options={})
     super(options.merge({:only => [:name, :retries, :weekdays], :methods => [:time_from_str, :time_to_str]}))
   end
@@ -70,5 +71,5 @@ class CallQueue < ActiveRecord::Base
     return '' unless time
     "#{time.hour}:#{'%02d' % time.min}"
   end
-  
+
 end

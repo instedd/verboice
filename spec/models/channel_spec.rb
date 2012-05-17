@@ -12,7 +12,7 @@ describe Channel do
 
   after(:each) do
     broker_client.stub(:delete_channel)
-    [Account, Channel, CallLog, CallQueue, QueuedCall].each &:destroy_all
+    [Account, Channel, CallLog, Schedule, QueuedCall].each &:destroy_all
   end
 
   context "validations" do
@@ -85,16 +85,16 @@ describe Channel do
     end
 
     it "obey queue lower time bound" do
-      queue = channel.account.call_queues.make :time_from => '10:00', :time_to => '12:00'
+      schedule = channel.account.schedules.make :time_from => '10:00', :time_to => '12:00'
       broker_client.should_receive(:notify_call_queued)
-      channel.call 'foo', :not_before => '2012-12-20T08:00:00', :queue => queue.name
+      channel.call 'foo', :not_before => '2012-12-20T08:00:00', :schedule_id => schedule.id
       queued_call.not_before.should == '2012-12-20T10:00:00'
     end
 
     it "obey queue upper time bound" do
-      queue = channel.account.call_queues.make :time_from => '10:00', :time_to => '12:00'
+      schedule = channel.account.schedules.make :time_from => '10:00', :time_to => '12:00'
       broker_client.should_receive(:notify_call_queued)
-      channel.call 'foo', :not_before => '2012-12-20T13:00:00', :queue => queue.name
+      channel.call 'foo', :not_before => '2012-12-20T13:00:00', :schedule_id => schedule.id
       queued_call.not_before.should == '2012-12-21T10:00:00'
     end
   end

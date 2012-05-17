@@ -6,7 +6,7 @@ describe ApiController do
   let(:account) { Account.make }
   let(:project) {Project.make :account => account}
   let(:channel) { account.channels.make :project => project, :account => account}
-  let(:queue) { account.call_queues.make }
+  let(:schedule) { account.schedules.make }
 
   before(:each) do
     sign_in account
@@ -33,9 +33,9 @@ describe ApiController do
       QueuedCall.first.not_before.time.to_i.should == time.to_i
     end
 
-    it "schedule call in specific queue" do
-      get :call, :address => 'foo', :channel => channel.name, :queue => queue.name
-      QueuedCall.first.call_queue.should == queue
+    it "schedule call in specific schedule" do
+      get :call, :address => 'foo', :channel => channel.name, :schedule => schedule.name
+      QueuedCall.first.schedule.should == schedule
     end
   end
 

@@ -1,7 +1,7 @@
 class QueuedCall < ActiveRecord::Base
   belongs_to :channel
   belongs_to :call_log
-  belongs_to :call_queue
+  belongs_to :schedule
   belongs_to :project
 
   serialize :flow, Command

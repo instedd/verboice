@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe CallQueue do
+describe Schedule do
   context "validations" do
-    subject { CallQueue.make }
+    subject { Schedule.make }
 
     it { should belong_to(:account) }
     it { should validate_presence_of(:account) }
@@ -82,24 +82,24 @@ describe CallQueue do
           subject.next_available_time(t '2012-05-05T10:00:00Z').should == t('2012-05-05T18:00:00Z')
         end
       end
-      
+
       context "with weekdays" do
         before :each do
           subject.weekdays = '0,2,5'
         end
-        
+
         it "returns same day if current day is in weekdays" do
           # tuesday
           subject.next_available_time(t '2012-05-01T00:00:00Z').should == t('2012-05-01T00:00:00Z')
         end
-        
+
         it "returns next day in same week if current day is between weekdays" do
           # wednesday
           subject.next_available_time(t '2012-05-02T00:00:00Z').should == t('2012-05-04T00:00:00Z')
           # thursday
           subject.next_available_time(t '2012-05-03T00:00:00Z').should == t('2012-05-04T00:00:00Z')
         end
-        
+
         it "returns next day in next week if current day is after weekdays" do
           # saturday
           subject.next_available_time(t '2012-05-05T00:00:00Z').should == t('2012-05-06T00:00:00Z')

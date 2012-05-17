@@ -1,37 +1,37 @@
-class ApiCallQueuesController < ApplicationController
+class ApiSchedulesController < ApplicationController
   before_filter :authenticate_account!
   skip_before_filter :verify_authenticity_token
-  
-  expose(:call_queues) { current_account.call_queues }
-  expose(:call_queue) { current_account.call_queues.find_by_name(params[:name]) }
-  
+
+  expose(:schedules) { current_account.schedules }
+  expose(:schedule) { current_account.schedules.find_by_name(params[:name]) }
+
   def index
-    render :json => call_queues
+    render :json => schedules
   end
-  
+
   def show
-    render :json => call_queue
+    render :json => schedule
   end
-  
+
   def create
     data = JSON.parse(request.raw_post).with_indifferent_access
-    call_queue = CallQueue.from_json data
-    call_queue.account = current_account
-    call_queue.save
+    schedule = Schedule.from_json data
+    schedule.account = current_account
+    schedule.save
     head :ok
   end
-  
+
   def update
     data = JSON.parse(request.raw_post).with_indifferent_access
-    call_queue.update_attributes! data 
+    schedule.update_attributes! data
     head :ok
   end
-  
+
   def destroy
-    call_queue.destroy
+    schedule.destroy
     head :ok
   end
-  
+
   private
 
   def errors_to_json(errors, action)
@@ -44,5 +44,5 @@ class ApiCallQueuesController < ApplicationController
     end
     attrs
   end
-  
+
 end

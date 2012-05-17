@@ -37,7 +37,7 @@ Verboice::Application.routes.draw do
     end
   end
 
-  resources :call_queues, path: :queues
+  resources :schedules
 
   match "api/call" => "api#call", :as => :api_call
   match "api/call/:id/state" => "api#call_state"
@@ -47,11 +47,11 @@ Verboice::Application.routes.draw do
   post  "api/channels" => "api_channels#create"
   delete "api/channels/:name" => "api_channels#destroy"
 
-  get "api/call_queues" => "api_call_queues#index"
-  get "api/call_queues/:name" => "api_call_queues#show"
-  post "api/call_queues" => "api_call_queues#create"
-  put "api/call_queues/:name" => "api_call_queues#update"
-  delete "api/call_queues/:name" => "api_call_queues#destroy"
+  get "api/schedules" => "api_schedules#index"
+  get "api/schedules/:name" => "api_schedules#show"
+  post "api/schedules" => "api_schedules#create"
+  put "api/schedules/:name" => "api_schedules#update"
+  delete "api/schedules/:name" => "api_schedules#destroy"
 
   root :to => 'home#index'
 

@@ -47,7 +47,7 @@ Channel.blueprint(:voxeo) do
   url
 end
 
-CallQueue.blueprint do
+Schedule.blueprint do
   account
   name
 end

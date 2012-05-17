@@ -159,11 +159,11 @@ class BaseBroker
     end
 
     queued_call = active_queued_calls[session_id]
-    if queued_call && queued_call.call_queue && queued_call.call_queue.retry_delays.count > queued_call.retries
+    if queued_call && queued_call.schedule && queued_call.schedule.retry_delays.count > queued_call.retries
       queued_call = queued_call.dup
       queued_call.retries += 1
-      sleep = queued_call.call_queue.retry_delays[queued_call.retries - 1].to_f * (Rails.env == 'development' ? 1.second : 1.hour)
-      queued_call.not_before = queued_call.call_queue.next_available_time(Time.now.utc + sleep)
+      sleep = queued_call.schedule.retry_delays[queued_call.retries - 1].to_f * (Rails.env == 'development' ? 1.second : 1.hour)
+      queued_call.not_before = queued_call.schedule.next_available_time(Time.now.utc + sleep)
 
       finish_session_with_requeue session, message, queued_call
       schedule_call queued_call.not_before

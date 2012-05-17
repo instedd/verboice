@@ -6,7 +6,7 @@ describe CallLogsController do
   let(:account) { Account.make }
   let(:project) {Project.make :account => account}
   let(:channel) { account.channels.make :project => project, :account => account}
-  let(:queue) { account.call_queues.make :weekdays => "1" }
+  let(:schedule) { account.schedules.make :weekdays => "1" }
   let(:broker_client) { double('broker_client') }
 
   before(:each) do
@@ -25,7 +25,7 @@ describe CallLogsController do
 
   it 'should enqueue a call' do
     expect {
-      post :enqueue, :addresses => "1", :channel_id => channel.id, :queue_id => queue.id
+      post :enqueue, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id
     }.to change(QueuedCall, :count).by(1)
     response.should be_redirect
   end
@@ -36,11 +36,11 @@ describe CallLogsController do
     broker_client.should_receive(:notify_call_queued).with(channel.id,not_before + 1)
 
     expect {
-      post :enqueue, :addresses => "1", :channel_id => channel.id, :queue_id => queue.id, :not_before => not_before
+      post :enqueue, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :not_before => not_before
     }.to change(QueuedCall, :count).by(1)
 
     enqueued_call = QueuedCall.last
-    enqueued_call.call_queue_id.should eq(queue.id)
+    enqueued_call.schedule_id.should eq(schedule.id)
     enqueued_call.project_id.should eq(project.id)
     enqueued_call.not_before.should eq(not_before + 1)
 
@@ -49,7 +49,7 @@ describe CallLogsController do
 
   it 'should enqueue multiple calls' do
     expect {
-      post :enqueue, :addresses => "0\n1\n2", :channel_id => channel.id, :queue_id => queue.id
+      post :enqueue, :addresses => "0\n1\n2", :channel_id => channel.id, :schedule_id => schedule.id
     }.to change(QueuedCall, :count).by(3)
     response.should be_redirect
 

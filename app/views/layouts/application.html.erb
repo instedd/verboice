@@ -3,7 +3,7 @@
   <% if account_signed_in? %>
     <%= section "Projects", projects_path, :projects  %>
     <%= section "Channels", channels_path, :channels %>
-    <%= section "Queues", call_queues_path, :call_queues %>
+    <%= section "Schedules", schedules_path, :schedules %>
     <%= section "Calls", call_logs_path, :call_logs %>
     <%= section "Phone Book", contacts_path, :contacts, [:contacts, :persisted_variables] %>
   <% end %>

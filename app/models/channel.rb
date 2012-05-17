@@ -39,12 +39,12 @@ class Channel < ActiveRecord::Base
   end
 
   def call(address, options = {})
-    call_queue = options.has_key?(:queue_id) ? account.call_queues.find(options[:queue_id]) : nil
-    call_queue ||= options.has_key?(:queue) ? account.call_queues.find_by_name!(options[:queue]) : nil
+    schedule = options.has_key?(:schedule_id) ? account.schedules.find(options[:schedule_id]) : nil
+    schedule ||= options.has_key?(:schedule) ? account.schedules.find_by_name!(options[:schedule]) : nil
 
     via = options.fetch(:via, 'API')
     app_id = options[:project_id].presence || project_id
-    call_log = call_logs.new :direction => :outgoing, :project_id => app_id, :address => address, :state => :queued, :call_queue => call_queue, :not_before => options[:not_before]
+    call_log = call_logs.new :direction => :outgoing, :project_id => app_id, :address => address, :state => :queued, :schedule => schedule, :not_before => options[:not_before]
     call_log.info "Received via #{via}: call #{address}"
     call_log.save!
 
@@ -56,12 +56,12 @@ class Channel < ActiveRecord::Base
       :status_callback_url => options[:status_callback_url],
       :flow => flow,
       :not_before => options[:not_before],
-      :call_queue => call_queue,
+      :schedule => schedule,
       :project_id => app_id
     )
 
-    if queued_call.call_queue
-      queued_call.not_before = queued_call.call_queue.next_available_time(queued_call.not_before || Time.now.utc)
+    if queued_call.schedule
+      queued_call.not_before = queued_call.schedule.next_available_time(queued_call.not_before || Time.now.utc)
     end
 
     queued_call.save!

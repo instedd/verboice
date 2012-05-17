@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120517163539) do
+ActiveRecord::Schema.define(:version => 20120517153659) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -42,25 +42,14 @@ ActiveRecord::Schema.define(:version => 20120517163539) do
     t.datetime "finished_at"
     t.string   "direction"
     t.string   "address"
-    t.string   "state",         :default => "active"
+    t.string   "state",       :default => "active"
     t.text     "details"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "channel_id"
     t.datetime "started_at"
-    t.integer  "call_queue_id"
+    t.integer  "schedule_id"
     t.datetime "not_before"
-  end
-
-  create_table "call_queues", :force => true do |t|
-    t.integer  "account_id"
-    t.string   "name"
-    t.string   "retries"
-    t.time     "time_from"
-    t.time     "time_to"
-    t.string   "weekdays"
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "channels", :force => true do |t|
@@ -113,7 +102,7 @@ ActiveRecord::Schema.define(:version => 20120517163539) do
     t.string   "callback_url"
     t.binary   "flow"
     t.string   "status_callback_url"
-    t.integer  "call_queue_id"
+    t.integer  "schedule_id"
     t.datetime "not_before"
     t.integer  "retries",             :default => 0
     t.integer  "project_id"
@@ -132,6 +121,17 @@ ActiveRecord::Schema.define(:version => 20120517163539) do
 
   add_index "recorded_audios", ["call_log_id"], :name => "index_recorded_audios_on_call_log_id"
   add_index "recorded_audios", ["contact_id"], :name => "index_recorded_audios_on_contact_id"
+
+  create_table "schedules", :force => true do |t|
+    t.integer  "account_id"
+    t.string   "name"
+    t.string   "retries"
+    t.time     "time_from"
+    t.time     "time_to"
+    t.string   "weekdays"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "traces", :force => true do |t|
     t.integer  "project_id"

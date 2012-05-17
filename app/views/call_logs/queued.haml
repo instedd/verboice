@@ -24,7 +24,7 @@
           %td= call.channel.try(:name)
           %td= call.not_before
           %td= call.address
-          %td= call.call_queue.try(:name)
+          %td= call.schedule.try(:name)
           %td= call.project.try(:name)
           %td= call.call_log.try(:state)
           %td= link_to 'view log details', call_log_path(call.call_log)
@@ -42,8 +42,8 @@
     = label_tag :channel_id, 'Channel'
     = select_tag :channel_id, options_from_collection_for_select(@channels, 'id', 'name'), :include_blank => true
   %p
-    = label_tag :queue_id, 'Call queue'
-    = select_tag :queue_id, options_from_collection_for_select(@queues, 'id', 'name'), :include_blank => true
+    = label_tag :schedule_id, 'Schedule'
+    = select_tag :schedule_id, options_from_collection_for_select(@schedules, 'id', 'name'), :include_blank => true
   %p
     = label_tag :project_id, 'Project'
     = select_tag :project_id, options_from_collection_for_select(@projects, 'id', 'name'), :include_blank => true

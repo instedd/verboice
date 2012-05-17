@@ -9,7 +9,7 @@ class Account < ActiveRecord::Base
 
   has_many :projects, :dependent => :destroy
   has_many :call_logs
-  has_many :call_queues
+  has_many :schedules
   has_many :channels, :dependent => :destroy
   has_many :contacts, :dependent => :destroy
   has_many :persisted_variables, :through => :contacts

@@ -4,7 +4,7 @@ class CallLog < ActiveRecord::Base
   belongs_to :account
   belongs_to :project
   belongs_to :channel
-  belongs_to :call_queue
+  belongs_to :schedule
   has_many :traces, :foreign_key => "call_id"
 
   before_validation :set_account_to_project_account, :if => :project_id?
