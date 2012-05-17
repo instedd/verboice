@@ -253,9 +253,15 @@ span.orange {
   background-position: left -50px;
 }
 
-.lbookmark.invalid, .lnumeral.invalid, .ldirections.invalid, .lphone.invalid, .lanswer.invalid, .lforwardcall.invalid, .ldial.invalid, .lsound.invalid {
+.lbookmark.invalid, .lnumeral.invalid, .ldirections.invalid, .lphone.invalid, .lanswer.invalid, .lforwardcall.invalid, .ldial.invalid, .lsound.invalid, .lmicrophone.invalid {
   border-radius: 7px;
   border: 2px solid #F86808;
+}
+
+.feditor-sidebar {
+  .lbookmark, .lnumeral, .ldirections, .lphone, .lanswer, .lforwardcall, .ldial, .lsound, .lmicrophone {
+    margin: 0px 5px 0px 13px !important;
+  }
 }
 
 p.invalid {
