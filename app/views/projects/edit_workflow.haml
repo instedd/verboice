@@ -28,7 +28,7 @@
     = form_tag update_workflow_project_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
       %div.right
         = hidden_field_tag 'flow'
-        %button.grey{:type => "submit", 'data-bind' => "enable: workflow.is_valid()"} Save
+        %button.grey{:type => "submit"} Save
         = link_to 'Cancel', project_path(@project), :class => "button white cancel", :style => 'top: 1px; margin-right: 15px'
     .clear
 
