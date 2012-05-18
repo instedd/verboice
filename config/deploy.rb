@@ -25,7 +25,7 @@ namespace :deploy do
   end
 
   task :symlink_configs, :roles => :app do
-    %W(asterisk credentials freeswitch verboice).each do |file|
+    %W(asterisk credentials freeswitch verboice voxeo).each do |file|
       run "ln -nfs #{shared_path}/#{file}.yml #{release_path}/config/"
     end
   end
