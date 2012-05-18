@@ -14,14 +14,23 @@ module Voxeo
 
       response = EM::DelegatedHttpResponse.new(self)
 
-      fiber = store.get_fiber_for voxeo_session_id
+      if @http_request_uri =~ %r(^/audio/(.+)$)
+        send_audio(response, $1)
+      else
+        send_vxml(response)
+      end
+    end
+
+    def send_vxml(response)
+      session = store.session_for voxeo_session_id
+      fiber = session.get_fiber
 
       unless fiber
         fiber = Fiber.new do |context|
           opts = {:session_id => session_id, :caller_id => caller_id, :context => context}
           BaseBroker.instance.accept_call Voxeo::CallManager.new(channel_id, voxeo_session_id, opts)
         end
-        store.store_fiber voxeo_session_id, fiber
+        session.store_fiber fiber
       end
 
       if params[:error]
@@ -41,6 +50,27 @@ module Voxeo
       response.send_response
     end
 
+    def send_audio(response, key)
+      path = store.session_for(voxeo_session_id).get(key)
+
+      begin
+        if File.exists? path
+          response.status = 200
+          response.content_type 'audio/x-gsm'
+          File.open path do |f|
+            response.content = f.read
+          end
+        else
+          response.status = 404
+        end
+      rescue Exception => e
+        response.status = 500
+        response.content = e
+      end
+
+      response.send_response
+    end
+
     private
 
     def context
@@ -52,7 +82,7 @@ module Voxeo
     end
 
     def store
-      Voxeo::FiberStore.instance
+      Voxeo::SessionStore.instance
     end
 
     def channel_id

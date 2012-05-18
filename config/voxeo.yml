@@ -2,4 +2,3 @@ http_server_port: 8080
 http_url_options:
   port:
   host:
-sounds_url: http://staging.instedd.org:7001/sounds

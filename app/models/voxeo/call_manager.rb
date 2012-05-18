@@ -1,9 +1,9 @@
 module Voxeo
   class CallManager
-    
+
     attr_reader :session_id, :voxeo_session_id, :channel_id, :caller_id
 
-    def initialize channel_id, voxeo_session_id, opts = {} #session_id = nil, caller_id = nil, context = nil
+    def initialize channel_id, voxeo_session_id, opts = {}
       @channel_id = channel_id
       @voxeo_session_id = voxeo_session_id
       @session_id = opts[:session_id]
@@ -21,41 +21,41 @@ module Voxeo
       return if @hangup
       @builder.play sounds_url_for(filename)
     end
-    
+
     def say(text)
       return if @hangup
       @builder.say text
     end
-    
+
     def pause(length)
       return if @hangup
       @builder.pause length
     end
-    
+
     def capture(options)
       return if @hangup
-      
+
       options[:play] = sounds_url_for(options[:play]) if options[:play]
-      
+
       @builder.capture options
       @builder.callback callback_url
-      
+
       flush
       @context.params[:digits]
     end
 
     def hangup
       return if @hangup
-      
+
       @builder.hangup
-      
+
       end_session
     end
-    
+
     def bridge_with(other_session)
       # TODO
     end
-    
+
     def dial(address, options = {})
       # TODO
     end
@@ -67,7 +67,7 @@ module Voxeo
     def sound_path_for(basename)
       File.join sounds_path, "#{basename}.gsm"
     end
-    
+
     private
 
     def flush
@@ -77,53 +77,47 @@ module Voxeo
       #   handle_error e
       # end
     end
-    
+
     def handle_error(e)
       @hangup = true
-      
+
       @builder.say "An unexpected error ocurred"
-      
-      # Remove the fiber from the store
-      Voxeo::FiberStore.instance.delete_fiber_for @voxeo_session_id
-      
+
+      # End the session from the store
+      Voxeo::SessionStore.instance.session_for(@voxeo_session_id).end!
+
       # Enqueue operation to resume the fiber so the session can end
       current_fiber = Fiber.current
       EM.next_tick { current_fiber.resume e }
-      
+
       Fiber.yield @builder.build
     end
-    
+
     def end_session
       @hangup = true
-      
-      # Remove the fiber from the store
-      Voxeo::FiberStore.instance.delete_fiber_for @voxeo_session_id
-      
+
+      # End the session from the store
+      Voxeo::SessionStore.instance.session_for(@voxeo_session_id).end!
+
       # Enqueue operation to resume the fiber so the session can end
       current_fiber = Fiber.current
       EM.next_tick { current_fiber.resume }
-      
+
       flush
     end
-    
-    def callback_url
-      host = @config[:http_url_options][:host]
-      port = @config[:http_url_options][:port]
-      
-      if host.present? && port.present?
-        "http://#{host}:#{port}/"
-      else
-        "http://#{@context.headers[:Host]}/"
-      end
-    end
-    
-    def sounds_url_for(filename)
-      basename = filename[sounds_path.size..-1]
-      "#{@config[:sounds_url]}#{basename}"
-    end
-    
+
     def sounds_path
-      File.join(Rails.public_path, "sounds")
+      File.join(Rails.root, 'data', 'voxeo')
+    end
+
+    def callback_url
+      Voxeo::UrlHelper.callback_url :host => @context.headers[:Host]
+    end
+
+    def sounds_url_for(filename)
+      key = Guid.new.to_s
+      Voxeo::SessionStore.instance.session_for(@voxeo_session_id).store(key, filename)
+      Voxeo::UrlHelper.audio_url key, :sessionid => @voxeo_session_id, :host => @context.headers[:Host]
     end
 
   end
