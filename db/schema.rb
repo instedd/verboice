@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120517153659) do
+ActiveRecord::Schema.define(:version => 20120517163539) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -137,8 +137,8 @@ ActiveRecord::Schema.define(:version => 20120517153659) do
     t.integer  "project_id"
     t.integer  "call_id"
     t.string   "result"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "step_name"
     t.string   "step_id"
   end
