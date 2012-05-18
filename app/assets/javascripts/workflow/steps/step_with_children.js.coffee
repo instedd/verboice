@@ -48,6 +48,7 @@ onWorkflow ->
       @default_command_selected(new_step.type())
 
     change_default_option: (command) =>
+      @default().remove_next()
       @default(new DefaultOption(@new_child_step_for(@default_command_selected()), @))
 
     after_initialize: () =>
