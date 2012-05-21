@@ -5,7 +5,7 @@
     <%= section "Channels", channels_path, :channels %>
     <%= section "Schedules", schedules_path, :schedules %>
     <%= section "Calls", call_logs_path, :call_logs %>
-    <%= section "Phone Book", contacts_path, :contacts, [:contacts, :persisted_variables] %>
+    <%= section "Phone Book", contacts_path, :contacts, [:contacts, :persisted_variables, :recorded_audios] %>
   <% end %>
 <% end %>
 <% content_for :right_menu do %>
