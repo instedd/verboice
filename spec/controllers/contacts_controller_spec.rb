@@ -5,13 +5,15 @@ describe ContactsController do
 
   before(:each) do
     @account = Account.make
+    @other_account = Account.make
     sign_in @account
   end
-  let!(:contact) { Contact.make }
+  let!(:contact) { Contact.make :account => @account }
+  let!(:other_contact) { Contact.make :account => @other_account }
 
 
   describe "GET index" do
-    it "assigns all contacts as @contacts" do
+    it "assigns all account contacts as @contacts" do
       get :index, {}
       assigns(:contacts).should eq([contact])
     end
@@ -21,6 +23,13 @@ describe ContactsController do
     it "assigns the requested contact as @contact" do
       get :show, {:id => contact.to_param}
       assigns(:contact).should eq(contact)
+    end
+
+    it "fails if the requested contact is not in current account" do
+      expect {
+        get :show, {:id => other_contact.to_param}
+      }.should raise_error
+      assigns(:contact).should be_nil
     end
   end
 
@@ -35,6 +44,13 @@ describe ContactsController do
     it "assigns the requested contact as @contact" do
       get :edit, {:id => contact.to_param}
       assigns(:contact).should eq(contact)
+    end
+
+    it "fails if the requested contact is not in current account" do
+      expect {
+        get :edit, {:id => other_contact.to_param}
+      }.should raise_error
+      assigns(:contact).should be_nil
     end
   end
 
@@ -55,6 +71,11 @@ describe ContactsController do
       it "redirects to the created contact" do
         post :create, {:contact => Contact.plan}
         response.should redirect_to(Contact.last)
+      end
+
+      it "assigns the current account to the contact" do
+        post :create, {:contact => Contact.plan}
+        assigns(:contact).account.should eq(@account)
       end
     end
 
@@ -104,6 +125,13 @@ describe ContactsController do
         response.should render_template("edit")
       end
     end
+
+    it "fails if the requested contact is not in current account" do
+      expect {
+        put :update, {:id => other_contact.to_param}
+      }.should raise_error
+      assigns(:contact).should be_nil
+    end
   end
 
   describe "DELETE destroy" do
@@ -116,6 +144,14 @@ describe ContactsController do
     it "redirects to the contacts list" do
       delete :destroy, {:id => contact.to_param}
       response.should redirect_to(contacts_url)
+    end
+
+    it "fails if the requested contact is not in current account" do
+      expect {
+        delete :destroy, {:id => other_contact.to_param}
+      }.should raise_error
+      assigns(:contact).should be_nil
+      Contact.find(other_contact.id).should eq(other_contact)
     end
   end
 

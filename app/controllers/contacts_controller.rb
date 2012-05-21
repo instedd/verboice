@@ -3,7 +3,7 @@ class ContactsController < ApplicationController
   # GET /contacts
   # GET /contacts.json
   def index
-    @contacts = Contact.all
+    @contacts = current_account.contacts
 
     respond_to do |format|
       format.html # index.html.erb
@@ -14,7 +14,7 @@ class ContactsController < ApplicationController
   # GET /contacts/1
   # GET /contacts/1.json
   def show
-    @contact = Contact.find(params[:id])
+    @contact = current_account.contacts.find(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb
@@ -35,7 +35,7 @@ class ContactsController < ApplicationController
 
   # GET /contacts/1/edit
   def edit
-    @contact = Contact.find(params[:id])
+    @contact = current_account.contacts.find(params[:id])
   end
 
   # POST /contacts
@@ -58,7 +58,7 @@ class ContactsController < ApplicationController
   # PUT /contacts/1
   # PUT /contacts/1.json
   def update
-    @contact = Contact.find(params[:id])
+    @contact = current_account.contacts.find(params[:id])
 
     respond_to do |format|
       if @contact.update_attributes(params[:contact])
@@ -74,7 +74,7 @@ class ContactsController < ApplicationController
   # DELETE /contacts/1
   # DELETE /contacts/1.json
   def destroy
-    @contact = Contact.find(params[:id])
+    @contact = current_account.contacts.find(params[:id])
     @contact.destroy
 
     respond_to do |format|
