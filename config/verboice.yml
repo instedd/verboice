@@ -4,3 +4,6 @@ tts: system
 ispeech_api_key: developerdemokeydeveloperdemokey
 ispeech_voice: usenglishfemale
 ispeech_format: mp3
+default_url_options:
+  host: default-domain.com
+  protocol:
