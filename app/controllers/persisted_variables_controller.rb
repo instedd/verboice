@@ -1,7 +1,7 @@
 class PersistedVariablesController < ApplicationController
   before_filter :authenticate_account!
 
-  before_filter :load_persisted_variable_and_contact, only: [:show, :update, :destroy]
+  before_filter :load_persisted_variable_and_contact, only: [:show, :edit, :update, :destroy]
 
   def index
     @contact = current_account.contacts.includes(:persisted_variables).find(params[:contact_id])
@@ -17,8 +17,6 @@ class PersistedVariablesController < ApplicationController
   end
 
   def edit
-    @persisted_variable = PersistedVariable.find(params[:id])
-    @contact = @persisted_variable.contact
   end
 
   def create
