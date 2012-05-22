@@ -15,7 +15,7 @@ module Parsers
       end
 
       def equivalent_flow
-        Commands::SayCommand.new @name
+        Commands::SayCommand.new @name if @name.presence
       end
 
       def capture_flow

@@ -16,7 +16,7 @@ module Parsers
       end
 
       def equivalent_flow
-        Commands::PlayFileCommand.new @file_name
+        Commands::PlayFileCommand.new @file_name if File.exists?(@file_name)
       end
 
       def capture_flow
