@@ -7,6 +7,7 @@ module Parsers
       let(:project) { Project.make }
 
       it "should compile to a verboice equivalent flow" do
+        File.stub(:exists?).and_return{true}
         capture = Capture.new project,
           'id' => 1,
           'root' => true,
@@ -104,46 +105,48 @@ module Parsers
       end
 
       it "should accept an empty input" do
-         capture_flow = Compiler.parse do |c|
-            c.Label 4
-            c.Assign "current_step", 4
-            c.Assign 'attempt_number4', '1'
-            c.While 'attempt_number4 <= 3' do |c|
-              c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
-              c.Assign 'value_4', 'digits'
-              c.If '(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20) || (digits == null)' do |c|
-                c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
-                c.Goto "end4"
-              end
-              c.Else do |c|
-                c.PlayFile File.join(Rails.root, "data","projects", "#{project.id}","recordings", "4-invalid.wav")
-                c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
-              end
-              c.Assign 'attempt_number4', 'attempt_number4 + 1'
+        File.stub(:exists?).and_return{true}
+        capture_flow = Compiler.parse do |c|
+          c.Label 4
+          c.Assign "current_step", 4
+          c.Assign 'attempt_number4', '1'
+          c.While 'attempt_number4 <= 3' do |c|
+            c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
+            c.Assign 'value_4', 'digits'
+            c.If '(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20) || (digits == null)' do |c|
+              c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
+              c.Goto "end4"
             end
-            c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
-            c.Label "end4"
-          end.first
+            c.Else do |c|
+              c.PlayFile File.join(Rails.root, "data","projects", "#{project.id}","recordings", "4-invalid.wav")
+              c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
+            end
+            c.Assign 'attempt_number4', 'attempt_number4 + 1'
+          end
+          c.Trace project_id: project.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
+          c.Label "end4"
+        end.first
 
-          capture = Capture.new project,
-            'id' => 4,
-            'root' => true,
-            'type' => 'capture',
-            'name' => 'Capture',
-            'valid_values' => '1,2-4,10-20',
-            'finish_on_key' => '#',
-            'min_input_length' => 0,
-            'max_input_length' => 2,
-            'invalid_message' => {
-              "name" => "An invalid key was pressed",
-              "type" => "recording",
-              "file" => "file.wav",
-              "duration" => 5
-            }
+        capture = Capture.new project,
+          'id' => 4,
+          'root' => true,
+          'type' => 'capture',
+          'name' => 'Capture',
+          'valid_values' => '1,2-4,10-20',
+          'finish_on_key' => '#',
+          'min_input_length' => 0,
+          'max_input_length' => 2,
+          'invalid_message' => {
+            "name" => "An invalid key was pressed",
+            "type" => "recording",
+            "file" => "file.wav",
+            "duration" => 5
+          }
 
-          capture.equivalent_flow.first.should eq(capture_flow)
+        capture.equivalent_flow.first.should eq(capture_flow)
       end
       it "should have a default next step" do
+        File.stub(:exists?).and_return{true}
         capture_flow = Compiler.parse do |c|
             c.Label 4
             c.Assign "current_step", 4

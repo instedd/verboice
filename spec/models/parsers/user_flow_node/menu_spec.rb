@@ -6,6 +6,7 @@ module Parsers
 
       let(:project) { Project.make }
       it "should compile to a verboice equivalent flow" do
+        File.stub(:exists?).and_return{true}
         menu = Menu.new project, 'id' => 1,
           'type' => 'menu',
           'name' => 'Menu number one',

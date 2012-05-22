@@ -207,6 +207,7 @@ describe Parsers::UserFlow do
   end
 
   it "should retrieve an equivalent flow in verboice internal representation" do
+    File.stub(:exists?).and_return{true}
     (Parsers::UserFlow.new project, project_flow).equivalent_flow.should eq(
       Compiler.make do
         Answer()
