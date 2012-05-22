@@ -12,11 +12,16 @@ class ApiController < ApplicationController
     options = {}
     if request.post?
       options[:flow] = Parsers::Xml.parse request.body
-    elsif params[:project_id]
-      if not current_account.projects.exists? params[:projects_id]
+    elsif params[:call_flow_id]
+      if not current_account.call_flows.exists? params[:call_flow_id]
         return render :status => 404
       end
-      options[:projects_id] = params[:projects_id]
+      options[:call_flow_id] = params[:call_flow_id]
+    elsif params[:project_id]
+      if not current_account.projects.exists? params[:project_id]
+        return render :status => 404
+      end
+      options[:project_id] = params[:project_id]
     elsif params[:callback_url]
       options[:callback_url] = params[:callback_url]
     else

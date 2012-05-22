@@ -1,0 +1,20 @@
+= render 'shared/project_tabs_and_title', :project => @project
+
+%table
+  %tr
+    %th Name
+    %th
+    %th
+    %th
+
+
+  - @call_flows.each do |call_flow|
+    %tr
+      %td= call_flow.name
+      %td= link_to 'Edit', edit_project_call_flow_path(@project, call_flow)
+      %td= link_to 'Edit Workflow', edit_workflow_project_call_flow_path(@project, call_flow)
+      %td= link_to 'Destroy', [@project, call_flow], :confirm => 'Are you sure?', :method => :delete
+
+%br
+
+= link_to 'New Call flow', new_project_call_flow_path

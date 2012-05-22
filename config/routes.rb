@@ -17,12 +17,14 @@ Verboice::Application.routes.draw do
   devise_for :accounts
 
   resources :projects do
-    member do
-      get :edit_workflow
-      put :update_workflow
-      get :play_recording
-      post :save_recording
-      post :import_call_flow
+    resources :call_flows do
+      member do
+        get :edit_workflow
+        put :update_workflow
+        get :play_recording
+        post :save_recording
+        post :import_call_flow
+      end
     end
   end
 

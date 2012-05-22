@@ -1,7 +1,7 @@
 onWorkflow ->
   class window.Workflow
     constructor: () ->
-      @steps = ko.observableArray(Step.from_hash(hash) for hash in project_flow)
+      @steps = ko.observableArray(Step.from_hash(hash) for hash in call_flow)
       @command_selector = new CommandSelector(new AddRootRequestor)
       @add_new_step = new window.New({id: -1})
 
@@ -10,7 +10,6 @@ onWorkflow ->
       @is_valid = ko.computed () =>
         (return false for step in @steps() when step.is_invalid())
         true
-
 
     get_step: (id) =>
       return null if not id?

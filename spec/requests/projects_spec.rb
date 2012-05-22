@@ -56,7 +56,6 @@ describe "Projects" do
       context "and I create a new project with a callback url" do
         before do
           fill_in "project_name", :with => "Test"
-          select "Use an external application", :from => "project_mode"
         end
 
         context "I fill in the user and password fields" do

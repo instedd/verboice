@@ -3,15 +3,17 @@ class CallLog < ActiveRecord::Base
 
   belongs_to :account
   belongs_to :project
+  belongs_to :call_flow
   belongs_to :channel
   belongs_to :schedule
   has_many :traces, :foreign_key => "call_id"
 
-  before_validation :set_account_to_project_account, :if => :project_id?
+  before_validation :set_account_to_project_account, :if => :call_flow_id?
 
   validates_presence_of :account
   validates_presence_of :project
   validates_presence_of :channel
+  validates_presence_of :call_flow
 
   Levels = {'E' => :error, 'W' => :warn, 'I' => :info, 'T' => :trace}
 
@@ -89,6 +91,7 @@ class CallLog < ActiveRecord::Base
   end
 
   def set_account_to_project_account
+    self.project_id = self.call_flow.project_id
     self.account_id = self.project.account_id
   end
 end

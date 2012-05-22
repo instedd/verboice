@@ -5,7 +5,8 @@ describe ApiController do
 
   let(:account) { Account.make }
   let(:project) {Project.make :account => account}
-  let(:channel) { account.channels.make :project => project, :account => account}
+  let(:call_flow) { CallFlow.make project: project }
+  let(:channel) { account.channels.make :call_flow => call_flow, :account => account}
   let(:schedule) { account.schedules.make }
 
   before(:each) do
@@ -40,7 +41,8 @@ describe ApiController do
   end
 
   it "call state" do
-    call_log = CallLog.make :project => Project.make(:account => @controller.current_account)
+    project = Project.make account: @controller.current_account
+    call_log = CallLog.make :call_flow => CallFlow.make(project: project)
     get :call_state, :id => call_log.id.to_s
     result = JSON.parse(@response.body)
     result['call_id'].should == call_log.id

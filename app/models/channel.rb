@@ -6,13 +6,13 @@ class Channel < ActiveRecord::Base
   attr_protected :guid
 
   belongs_to :account
-  belongs_to :project
+  belongs_to :call_flow
 
   has_many :call_logs, :dependent => :destroy
   has_many :queued_calls
 
   validates_presence_of :account
-  validates_presence_of :project
+  validates_presence_of :call_flow
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
@@ -28,13 +28,13 @@ class Channel < ActiveRecord::Base
 
   def new_session(options = {})
     session = Session.new options
-    session.project ||= project
+    session.call_flow ||= call_flow
     session.channel = self
     unless session.call_log
-      session.call_log = call_logs.new :direction => :incoming, :project => project, :started_at => Time.now.utc
+      session.call_log = call_logs.new :direction => :incoming, :call_flow => call_flow, :account => account, :project => call_flow.project, :started_at => Time.now.utc
       session.call_log.start_incoming
     end
-    session.commands = session.project.commands.dup
+    session.commands = session.call_flow.commands.dup
     session
   end
 
@@ -43,12 +43,13 @@ class Channel < ActiveRecord::Base
     schedule ||= options.has_key?(:schedule) ? account.schedules.find_by_name!(options[:schedule]) : nil
 
     via = options.fetch(:via, 'API')
-    app_id = options[:project_id].presence || project_id
-    call_log = call_logs.new :direction => :outgoing, :project_id => app_id, :address => address, :state => :queued, :schedule => schedule, :not_before => options[:not_before]
+    flow_id = options[:call_flow_id].presence || call_flow_id
+    project_id = options[:project_id].presence || call_flow.project.try(:id)
+    call_log = call_logs.new :direction => :outgoing, :call_flow_id => flow_id, :project_id => project_id, :address => address, :state => :queued, :schedule => schedule, :not_before => options[:not_before]
     call_log.info "Received via #{via}: call #{address}"
     call_log.save!
 
-    flow = options[:flow] || account.projects.find(app_id).flow
+    flow = options[:flow] || account.call_flows.find(flow_id).try(:flow) || account.projects.find(project_id).try(:default_call_flow).try(:flow)
     queued_call = queued_calls.new(
       :call_log => call_log,
       :address => address,
@@ -57,7 +58,8 @@ class Channel < ActiveRecord::Base
       :flow => flow,
       :not_before => options[:not_before],
       :schedule => schedule,
-      :project_id => app_id
+      :call_flow_id => flow_id,
+      :project_id => project_id
     )
 
     if queued_call.schedule

@@ -1,17 +1,17 @@
 module Parsers
   module UserFlowNode
     class Record < UserCommand
-      attr_reader :id, :name, :project
+      attr_reader :id, :name, :call_flow
       attr_accessor :next
 
-      def initialize project, params
+      def initialize call_flow, params
         @id = params['id']
         @name = params['name'] || ''
-        @explanation_message = Message.for project, self, :explanation, params['explanation_message']
-        @confirmation_message = Message.for project, self, :confirmation, params['confirmation_message']
+        @explanation_message = Message.for call_flow, self, :explanation, params['explanation_message']
+        @confirmation_message = Message.for call_flow, self, :confirmation, params['confirmation_message']
         @timeout = params['timeout']
         @stop_key = params['stop_key']
-        @project = project
+        @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
       end

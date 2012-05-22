@@ -1,25 +1,6 @@
-%h1= @project.name
-
-= render 'tabs'
-
-%p
-  %b Mode:
-  = @project.info
-
-= link_to 'Download call results as CSV', project_path(:format => :csv), :class => "button fimport"
-%br
-= link_to 'Export call Flow', project_path(:format => :vrb), :class => "button fimport"
-%p
-  %b Import Call Flow:
-  = form_tag({:action => :import_call_flow}, :multipart => true) do
-    = file_field_tag 'vrb', :label => 'Browse'
-    = submit_tag 'Upload', :class => 'grey-button shadow'
+= render 'shared/project_tabs_and_title', :project => @project
 
 %hr
 = link_to 'Edit', edit_project_path(@project), :class => "button grey"
 = link_to 'Back', projects_path, :class => "button white cancel"
 = link_to 'Delete', @project, :confirm => "Are you sure you want to delete the project #{@project.name}?", :method => :delete, :class => "button white cancel"
-
-/ - if @project.mode == :flow
-/   %pre
-/     = @project.commands.to_yaml

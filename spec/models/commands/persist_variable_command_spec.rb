@@ -5,7 +5,8 @@ module Commands
     it "should create a persisted variable storing a value with a given name" do
       contact = Contact.make
       project = Project.make account: contact.account
-      call_log = CallLog.make project: project
+      call_flow = CallFlow.make project: project
+      call_log = CallLog.make call_flow: call_flow
 
       session = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => contact.address
@@ -36,7 +37,8 @@ module Commands
     it "should replace the value of an existing variable" do
       contact = Contact.make
       project = Project.make account: contact.account
-      call_log = CallLog.make project: project
+      call_flow = CallFlow.make project: project
+      call_log = CallLog.make call_flow: call_flow
 
       session = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => contact.address

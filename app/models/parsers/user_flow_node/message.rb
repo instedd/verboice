@@ -4,8 +4,8 @@ class Parsers::UserFlowNode::Message
     raise "Subclasses must define this message"
   end
 
-  def self.for project, parent_step, action, params
-    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: (params || {})).new project, parent_step, action, (params || {})
+  def self.for call_flow, parent_step, action, params
+    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: (params || {})).new call_flow, parent_step, action, (params || {})
   end
 
   def name

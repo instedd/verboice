@@ -60,14 +60,12 @@ describe PersistedVariablesController do
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved persisted_variable as @persisted_variable" do
-        # Trigger the behavior that occurs when invalid params are submitted
         PersistedVariable.any_instance.stub(:save).and_return(false)
         post :create, {:persisted_variable => {}, :contact_id => contact.to_param}
         assigns(:persisted_variable).should be_a_new(PersistedVariable)
       end
 
       it "re-renders the 'new' template" do
-        # Trigger the behavior that occurs when invalid params are submitted
         PersistedVariable.any_instance.stub(:save).and_return(false)
         post :create, {:persisted_variable => {}, :contact_id => contact.to_param}
         response.should render_template("new")

@@ -7,15 +7,11 @@
       %ul
         - @project.errors.full_messages.each do |msg|
           %li= msg
-  - if @project.new_record?
-    = f.text_field :name
-  = f.select :mode, options_for_select([['Use an external application', :callback_url], ['Design your app in Verboice', :flow]], @project.mode)
-  #callback_url_container{:style => ('display: none' if @project.mode != :callback_url)}
-    - with_callback_url_fields do |field, field_type|
-      = f.send(field_type, field)
 
-  - with_callback_url_fields(:status) do |field, field_type|
-    = f.send(field_type, field)
+  = f.text_field :name
+  = f.text_field :status_callback_url
+  = f.text_field :status_callback_url_user
+  = f.password_field :status_callback_url_password
 
   %hr
 

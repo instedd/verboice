@@ -8,8 +8,6 @@
   %table.GralTable
     %tr
       %th Name
-      %th Mode
     - @projects.each do |project|
       %tr.link{'data-url' => project_path(project)}
         %td= project.name
-        %td= project.info

@@ -1,11 +1,11 @@
 - content_for :head do
   :javascript
     var distinct_variables = #{ @variables.to_json };
-    var project_flow = #{ raw (@project.user_flow || []).to_json };
-    var update_workflow_project_path = "#{ update_workflow_project_path(@project) }";
-    var project_path = "#{ project_path(@project) }";
-    var save_recording_project_path = "#{ save_recording_project_path(@project)}";
-    var play_recording_project_path = "#{ play_recording_project_path(@project)}";
+    var call_flow = #{ raw (@call_flow.user_flow || []).to_json };
+
+    var save_recording_path = "#{ save_recording_project_call_flow_path(@project, @call_flow)}";
+    var play_recording_path = "#{ play_recording_project_call_flow_path(@project, @call_flow)}";
+
     var menu_default_time_out_in_seconds = #{Parsers::UserFlowNode::Menu.default_time_out_in_seconds};
     var menu_default_number_of_attempts = #{Parsers::UserFlowNode::Menu.default_number_of_attempts};
     var capture_default_time_out_in_seconds = #{Parsers::UserFlowNode::Capture.default_time_out_in_seconds};
@@ -15,27 +15,22 @@
     var capture_default_maximum_input_lenght = #{Parsers::UserFlowNode::Capture.default_maximum_input_lenght};
 
   - %W(hang_up_step workflow_step capture_step menu_step play_step transfer_step goto_step branch_step record_step message recording_message text_message command_selector branch_option).each do |template|
-    = render "projects/workflow/#{template}_template"
+    = render "call_flows/#{template}_template"
 
-%h1= @project.name
+= render 'shared/project_tabs_and_title', :project => @project
 
-= render 'tabs'
-
-#wami
-#workflow
-  #workflow-page
-    %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
-    = form_tag update_workflow_project_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
+= form_tag update_workflow_project_call_flow_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
+  #wami
+  #workflow
+    #workflow-page
+      %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
       %div.right
         = hidden_field_tag 'flow'
         %button.grey{:type => "submit"} Save
-        = link_to 'Cancel', project_path(@project), :class => "button white cancel", :style => 'top: 1px; margin-right: 15px'
-    .clear
-
-    .left
-      .box.lightgrey.workflow
-        .workflow-content-container.h65{ ko(workflow_steps: 'steps') }
-
-    %span{ko(template: '{name: display_template_for, data: sidebar_content}')}
-
-    .clear
+        = link_to 'Back', project_call_flows_path(@project), :class => "button white cancel", :style => 'top: 1px; margin-right: 15px'
+      .clear
+      .left
+        .box.lightgrey.workflow
+          .workflow-content-container.h65{ ko(workflow_steps: 'steps') }
+      %span{ko(template: '{name: display_template_for, data: sidebar_content}')}
+      .clear

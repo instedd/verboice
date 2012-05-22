@@ -50,6 +50,7 @@ describe Session do
 
   context "sending status notification for an project" do
     let(:project) { Project.make(:status_callback_url => 'http://foo') }
+    let(:call_flow) { CallFlow.make :project => project }
 
     def apply_authentication_to_project(user = "", password = "")
       project.status_callback_url_user = user
@@ -58,7 +59,7 @@ describe Session do
     end
 
     before do
-      @session.project = project
+      @session.call_flow = call_flow
       @pbx.stub(:caller_id).and_return('999')
       @pbx.should_receive(:caller_id)
     end

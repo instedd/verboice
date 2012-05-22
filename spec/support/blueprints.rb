@@ -23,8 +23,13 @@ Project.blueprint do
   name
 end
 
-Trace.blueprint do
+CallFlow.blueprint do
   project
+  name
+end
+
+Trace.blueprint do
+  call_flow
   step_id {1}
   call_log
   result
@@ -32,12 +37,14 @@ end
 
 CallLog.blueprint do
   channel
-  project { channel.project }
+  call_flow { channel.call_flow }
+  project { call_flow.project }
+  account { project.account }
 end
 
 Channel.blueprint do
-  project
-  account { project.account }
+  call_flow
+  account { call_flow.project.account }
   name
 end
 

@@ -4,9 +4,9 @@ module Parsers
   module UserFlowNode
     describe Branch do
 
-      let(:project) { self }
+      let(:call_flow) { self }
       it "should compile to a verboice equivalent flow" do
-        branch = Branch.new project, 'id' => 1,
+        branch = Branch.new call_flow, 'id' => 1,
           'type' => 'branch',
           'name' => 'Branch number one',
           'options' => [
@@ -47,21 +47,21 @@ module Parsers
               'next' => 5
             }
           ]
-        play1 = Play.new project, 'id' => 10,
+        play1 = Play.new call_flow, 'id' => 10,
           'type' => 'play',
           'name' => 'Play 1',
           'message' => {
             "name" => "Second explanation message",
             "type" => "text"
           }
-        play2 = Play.new project, 'id' => 14,
+        play2 = Play.new call_flow, 'id' => 14,
           'type' => 'play',
           'name' => 'Play 2',
           'message' => {
             "name" => "Third explanation message",
             "type" => "text"
           }
-        play3 = Play.new project, 'id' => 5,
+        play3 = Play.new call_flow, 'id' => 5,
           'type' => 'play',
           'name' => 'Play 3',
           'message' => {
@@ -77,32 +77,32 @@ module Parsers
             Assign "current_step", 1
             RetrieveVariable 'some_name'
             If "(value_3 == 6) && (var_some_name >= 5)" do
-              Trace project_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
+              Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
               Label 10
               Assign "current_step", 10
-              Trace project_id: 1, step_id: 10, step_name: 'Play 1', store: '"Message played."'
+              Trace call_flow_id: 1, step_id: 10, step_name: 'Play 1', store: '"Message played."'
               Say "Second explanation message"
               Goto "end1"
             end
             RetrieveVariable 'another_name'
             RetrieveVariable 'some_name'
             If "(value_1 <= var_another_name) && (var_some_name <= var_another_name)" do
-              Trace project_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
+              Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
               Label 14
               Assign "current_step", 14
-              Trace project_id: 1, step_id: 14, step_name: 'Play 2', store: '"Message played."'
+              Trace call_flow_id: 1, step_id: 14, step_name: 'Play 2', store: '"Message played."'
               Say "Third explanation message"
               Goto "end1"
             end
             If "true" do
-              Trace project_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 3 selected: \'zzz\'"'
+              Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 3 selected: \'zzz\'"'
               Label 5
               Assign "current_step", 5
-              Trace project_id: 1, step_id: 5, step_name: 'Play 3', store: '"Message played."'
+              Trace call_flow_id: 1, step_id: 5, step_name: 'Play 3', store: '"Message played."'
               Say "Fourth explanation message"
               Goto "end1"
             end
-            Trace(project_id: 1, step_id: 1, step_name: 'Branch number one', store: '"No branch was selected."')
+            Trace(call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"No branch was selected."')
             Label "end1"
           end.first
         )
@@ -114,7 +114,7 @@ module Parsers
       end
 
       it "should resolve it's next links from a given list of commands" do
-        branch = Branch.new project, 'id' => 27, 'type' => 'branch',
+        branch = Branch.new call_flow, 'id' => 27, 'type' => 'branch',
           'explanation_message' => {"name" => 'foo', 'type' => 'text'},
           'options' =>[
             {
@@ -126,10 +126,10 @@ module Parsers
               'next' => 14
             }
           ]
-        play_1 = Branch.new project, 'id' => 10,
+        play_1 = Branch.new call_flow, 'id' => 10,
           'type' => 'play',
           'message' => {"name"=>'foo', 'type' => 'text'}
-        play_2 = Play.new project, 'id' => 14,
+        play_2 = Play.new call_flow, 'id' => 14,
           'type' => 'play',
           'message' => {"name"=>'foo', 'type' => 'text'}
 
@@ -139,11 +139,11 @@ module Parsers
       end
 
       it "should respond if it's a root or not" do
-        branch_1 = Branch.new project, 'id' => 10,
+        branch_1 = Branch.new call_flow, 'id' => 10,
           'root' => 1,
           'type' => 'branch',
           'explanation_message' => {"name"=>'foo', 'type' => 'text'}
-        branch_2 = Branch.new project, 'id' => 14,
+        branch_2 = Branch.new call_flow, 'id' => 14,
           'type' => 'branch',
           'explanation_message' => {"name"=>'foo', 'type' => 'text'}
         branch_1.is_root?.should be_true
