@@ -25,7 +25,7 @@ module MagicObjectProtocol
       @cv ||= ConditionVariable.new
       send_object name => args
       @mutex.synchronize do
-        @cv.wait @mutex unless @obj
+        timeout(10) { @cv.wait @mutex unless @obj }
       end
       raise @obj if @obj.is_an? Exception
       obj, @obj = @obj, nil
