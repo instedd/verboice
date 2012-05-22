@@ -16,3 +16,6 @@ onWorkflow ->
 
     template: () =>
       "#{@type}_message_template"
+
+    is_valid: () =>
+      @name()

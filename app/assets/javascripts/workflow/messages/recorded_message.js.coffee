@@ -61,6 +61,9 @@ onWorkflow ->
           duration: @duration()
         )
 
+    is_valid: () =>
+      super() and @file()
+
     # private
 
     message_query_identifier: () =>
