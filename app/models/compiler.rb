@@ -76,36 +76,46 @@ class Compiler
 
   private
 
-  def resolve_gotos(parent = self, var = :@first, visited = Set.new)
-    node = parent.instance_variable_get var
-    return unless node
+  def resolve_gotos
+    nodes_to_visit = []
+    visited_nodes = Set.new
+    nodes_to_visit.push parent: self, node: first, variable: :@first
 
-    if node.is_a? Label
-      parent.instance_variable_set var, node.next
-      return resolve_gotos parent, var, visited
-    elsif node.is_a? Goto
-      next_node = if node.label
-        label_node = @labels[node.label]
-        if label_node
-          label_node.next
+    while !nodes_to_visit.empty? do
+
+      context = nodes_to_visit.shift
+
+      parent = context[:parent]
+      node = context[:node]
+      variable = context[:variable]
+
+      next unless node
+
+      if node.is_a? Label
+        parent.instance_variable_set variable, node.next
+        nodes_to_visit.push parent: parent, node: node.next, variable: variable
+      elsif node.is_a? Goto
+        next_node = if node.label
+          label_node = @labels[node.label]
+          if label_node
+            label_node.next
+          else
+            raise "Unmatched Goto label #{node.label}"
+          end
         else
-          raise "Unmatched Goto label #{node.label}"
+          nil
         end
-      else
-        nil
-      end
-      parent.instance_variable_set var, next_node
-      return resolve_gotos parent, var, visited
-    end
+        parent.instance_variable_set variable, next_node
+        nodes_to_visit.push parent: parent, node: next_node, variable: variable
+      elsif ! visited_nodes.include? node
+        visited_nodes.add node
 
-    # Avoid infinite loops
-    return if visited.include? node
-    visited.add node
-
-    node.instance_variables.each do |var|
-      val = node.instance_variable_get var
-      if val.is_a? Command
-        resolve_gotos node, var, visited
+        node.instance_variables.each do |var|
+          val = node.instance_variable_get var
+          if val.is_a? Command
+            nodes_to_visit.push parent: node, node: val, variable: var
+          end
+        end
       end
     end
   end
