@@ -40,7 +40,7 @@
 = form_tag enqueue_call_logs_path, :method => 'POST' do
   %p
     = label_tag :channel_id, 'Channel'
-    = select_tag :channel_id, options_from_collection_for_select(@channels, 'id', 'name'), :include_blank => true
+    = select_tag :channel_id, options_from_collection_for_select(@channels, 'id', 'name'), :prompt => 'Select a channel...'
   %p
     = label_tag :schedule_id, 'Schedule'
     = select_tag :schedule_id, options_from_collection_for_select(@schedules, 'id', 'name'), :include_blank => true
