@@ -86,6 +86,7 @@ class CallLog < ActiveRecord::Base
   def log(level, text)
     self.details ||= ""
     self.details += "#{level} #{Time.now.utc.to_f} #{text}\n"
+    self.save
   end
 
   def set_account_to_project_account
