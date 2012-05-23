@@ -5,10 +5,10 @@ module Parsers
       attr_accessor :next
 
       def initialize project, params
-        @id = params['id']
-        @name = params['name'] || ''
-        @jump = params['jump']
-        @project = project
+        @id         = params['id']
+        @name       = params['name'] || ''
+        @jump       = params['jump']
+        @project    = project
         @root_index = params['root']
       end
 

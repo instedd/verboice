@@ -45,6 +45,43 @@ module Commands
       RecordedAudio.first.contact.should eq(Contact.first)
     end
 
+    it "should create an anonymous contact using the call log id if the contact address is unknown" do
+      call_log = CallLog.make id: 456
+      session = Session.new :pbx => pbx, :call_log => call_log
+      session.stub :address => nil
+
+      Contact.all.size.should eq(0)
+
+      cmd = RecordCommand.new 2, 'foo'
+      cmd.next = :next
+      cmd.run(session).should == :next
+      Contact.all.size.should eq(1)
+      Contact.first.address.should eq('Anonymous456')
+      Contact.first.anonymous?.should eq(true)
+      RecordedAudio.first.contact.should eq(Contact.first)
+      details = call_log.structured_details
+
+      details[0][:text].should == "Record user voice"
+      details[1][:text].should == "Caller address is unknown. Recording 'foo' saved for contact Anonymous456."
+    end
+
+    it "should use an existing anonymous contact if the contact address is unknown but the contact is already created" do
+      contact  = Contact.make address: 'Anonymous34', anonymous: true
+      project  = Project.make account: contact.account
+      call_log = CallLog.make project: project, id: 34
+      session  = Session.new :pbx => pbx, :call_log => call_log
+      session.stub :address => nil
+
+      cmd = RecordCommand.new 2, 'foo'
+      cmd.next = :next
+      cmd.run(session).should == :next
+      Contact.all.size.should eq(1)
+      Contact.first.address.should eq('Anonymous34')
+      RecordedAudio.first.contact.should eq(Contact.first)
+      call_log.structured_details[1][:text].should == "Caller address is unknown. Recording 'foo' saved for contact Anonymous34."
+    end
+
+
     describe 'pbx' do
 
       let(:call_log) { CallLog.make }
@@ -64,7 +101,6 @@ module Commands
         cmd = RecordCommand.new 'key', 'desc'
         cmd.run(session)
       end
-
     end
 
   end

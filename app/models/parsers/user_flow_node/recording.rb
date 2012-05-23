@@ -9,9 +9,9 @@ module Parsers
       end
 
       def initialize project, parent_step, action, params
-        @project = project
-        @parent = parent_step
-        @name = params['name']
+        @project   = project
+        @parent    = parent_step
+        @name      = params['name']
         @file_name = (RecordingManager.new project).recording_path_for(parent_step.id, action)
       end
 

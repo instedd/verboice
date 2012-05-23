@@ -10,8 +10,8 @@ module Parsers
 
       def initialize project, parent_step, action, params
         @project = project
-        @parent = parent_step
-        @name = params['name']
+        @parent  = parent_step
+        @name    = params['name']
       end
 
       def equivalent_flow

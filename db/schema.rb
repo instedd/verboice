@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120517163539) do
+ActiveRecord::Schema.define(:version => 20120523154544) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -68,6 +68,7 @@ ActiveRecord::Schema.define(:version => 20120517163539) do
     t.integer  "account_id"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.boolean  "anonymous"
   end
 
   create_table "persisted_variables", :force => true do |t|

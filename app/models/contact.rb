@@ -3,6 +3,6 @@ class Contact < ActiveRecord::Base
   has_many :persisted_variables, :dependent => :destroy
   has_many :recorded_audios, :dependent => :destroy
 
-  attr_accessible :address
+  attr_accessible :address, :anonymous
   validates_presence_of :account, :address
 end

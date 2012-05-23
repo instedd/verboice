@@ -8,9 +8,9 @@ module Parsers
       end
 
       def initialize project, params
-        @id = params['id']
-        @name = params['name'] || ''
-        @project = project
+        @id         = params['id']
+        @name       = params['name'] || ''
+        @project    = project
         @root_index = params['root']
       end
 

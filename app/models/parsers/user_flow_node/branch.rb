@@ -5,12 +5,12 @@ module Parsers
       attr_accessor :next
 
       def initialize project, params
-        @id = params['id']
-        @name = params['name'] || ''
-        @options = params['options'].deep_clone || []
+        @id         = params['id']
+        @name       = params['name'] || ''
+        @options    = params['options'].deep_clone || []
         @root_index = params['root']
-        @project = project
-        @next = params['next']
+        @project    = project
+        @next       = params['next']
       end
 
       def solve_links_with nodes

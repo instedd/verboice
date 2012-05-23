@@ -5,11 +5,11 @@ module Parsers
       attr_accessor :next
 
       def initialize project, params
-        @id = params['id']
-        @name = params['name'] || ''
-        @message = Message.for project, self, :message, params['message']
-        @project = project
-        @next = params['next']
+        @id         = params['id']
+        @name       = params['name'] || ''
+        @message    = Message.for project, self, :message, params['message']
+        @project    = project
+        @next       = params['next']
         @root_index = params['root']
       end
 

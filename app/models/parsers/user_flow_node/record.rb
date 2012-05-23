@@ -5,15 +5,15 @@ module Parsers
       attr_accessor :next
 
       def initialize project, params
-        @id = params['id']
-        @name = params['name'] || ''
-        @explanation_message = Message.for project, self, :explanation, params['explanation_message']
+        @id                   = params['id']
+        @name                 = params['name'] || ''
+        @explanation_message  = Message.for project, self, :explanation, params['explanation_message']
         @confirmation_message = Message.for project, self, :confirmation, params['confirmation_message']
-        @timeout = params['timeout']
-        @stop_key = params['stop_key']
-        @project = project
-        @next = params['next']
-        @root_index = params['root']
+        @timeout              = params['timeout']
+        @stop_key             = params['stop_key']
+        @project              = project
+        @next                 = params['next']
+        @root_index           = params['root']
       end
 
       def is_root?

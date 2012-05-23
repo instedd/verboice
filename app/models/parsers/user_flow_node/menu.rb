@@ -5,18 +5,18 @@ module Parsers
       attr_accessor :next
 
       def initialize project, params
-        @id = params['id']
-        @name = params['name'] || ''
-        @explanation_message = Message.for project, self, :explanation, params['explanation_message']
-        @options_message = Message.for project, self, :options, params['options_message']
-        @options = params['options'].deep_clone || []
-        @root_index = params['root']
-        @timeout = params['timeout'] || self.class.default_time_out_in_seconds
-        @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
-        @invalid_message = Message.for project, self, :invalid, params['invalid_message']
-        @default = params['default']
-        @project = project
-        @next = params['next']
+        @id                      = params['id']
+        @name                    = params['name'] || ''
+        @explanation_message     = Message.for project, self, :explanation, params['explanation_message']
+        @options_message         = Message.for project, self, :options, params['options_message']
+        @options                 = params['options'].deep_clone || []
+        @root_index              = params['root']
+        @timeout                 = params['timeout'] || self.class.default_time_out_in_seconds
+        @number_of_attempts      = params['number_of_attempts'] || self.class.default_number_of_attempts
+        @invalid_message         = Message.for project, self, :invalid, params['invalid_message']
+        @default                 = params['default']
+        @project                 = project
+        @next                    = params['next']
         @persisted_variable_name = params['store']
       end
 
