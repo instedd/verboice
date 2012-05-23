@@ -8,18 +8,22 @@ class Commands::PersistVariableCommand < Command
   end
 
   def run session
-    account = session.call_log.account
-    contact = account.contacts.find_by_address(session.address)
-    contact = account.contacts.create! address: session.address unless contact
+    if session.address.presence
+      account = session.call_log.account
+      contact = account.contacts.find_by_address(session.address)
+      contact = account.contacts.create! address: session.address unless contact
 
-    persisted_variable = contact.persisted_variables.find_by_name @variable_name
-    if persisted_variable
-      persisted_variable.value = session.eval(@expression)
-      persisted_variable.save!
+      persisted_variable = contact.persisted_variables.find_by_name @variable_name
+      if persisted_variable
+        persisted_variable.value = session.eval(@expression)
+        persisted_variable.save!
+      else
+        contact.persisted_variables.create!\
+          name: @variable_name,
+          value: session.eval(@expression)
+      end
     else
-      contact.persisted_variables.create!\
-        name: @variable_name,
-        value: session.eval(@expression)
+      session.trace "Caller address is unknown. Variable '#{@variable_name}' can't be saved for an anonymous contact."
     end
     super
   end

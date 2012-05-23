@@ -7,16 +7,21 @@ class Commands::RetrieveVariableCommand < Command
   end
 
   def run session
-    account = session.call_log.account
-    contact = account.contacts.find_by_address(session.address)
-    if contact
-      persisted_variable = contact.persisted_variables.find_by_name @variable_name
-      if persisted_variable
-        Commands::AssignCommand.new("var_#{@variable_name}", persisted_variable.value).run(session)
+    if session.address.presence
+      account = session.call_log.account
+      contact = account.contacts.find_by_address(session.address)
+      if contact
+        persisted_variable = contact.persisted_variables.find_by_name @variable_name
+        if persisted_variable
+          Commands::AssignCommand.new("var_#{@variable_name}", persisted_variable.value).run(session)
+        else
+          set_to_nil session
+        end
       else
         set_to_nil session
       end
     else
+      session.trace "Caller address is unknown. Variable '#{@variable_name}' can't be retrieved for an anonymous contact."
       set_to_nil session
     end
     super

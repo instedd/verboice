@@ -47,5 +47,18 @@ module Commands
       cmd.run(session).should == :next
       session.eval('var_foo').should eq(nil)
     end
+
+    it "should set to nil if the caller address is unknown" do
+      call_log = CallLog.make
+
+      session = Session.new :pbx => mock('pbx'), :call_log => call_log
+      session.stub :address => nil
+
+      cmd = RetrieveVariableCommand.new 'foo'
+      cmd.next = :next
+      cmd.run(session).should == :next
+      session.eval('var_foo').should eq(nil)
+      call_log.structured_details[0][:text].should == "Caller address is unknown. Variable 'foo' can't be retrieved for an anonymous contact."
+    end
   end
 end

@@ -59,5 +59,18 @@ module Commands
       PersistedVariable.first.name.should eq('foo')
       PersistedVariable.first.contact.should eq(contact)
     end
+
+    it "shouldn't set the variable if the caller address is unknown" do
+      call_log = CallLog.make
+      session = Session.new :pbx => mock('pbx'), :call_log => call_log
+      session.stub :address => nil
+
+      cmd = PersistVariableCommand.new 'foo', 2
+      cmd.next = :next
+      cmd.run(session).should == :next
+      Contact.all.size.should eq(0)
+      PersistedVariable.all.size.should eq(0)
+      call_log.structured_details[0][:text].should == "Caller address is unknown. Variable 'foo' can't be saved for an anonymous contact."
+    end
   end
 end
