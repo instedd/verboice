@@ -102,14 +102,14 @@ class ProjectsController < ApplicationController
 
   def import_call_flow
     if params[:vrb].blank?
-      redirect_to({ :action => :show }, { :notice => 'No file found' })
+      redirect_to({ :action => :show }, :flash => { :alert => 'No file found' })
     else
       begin
         @project.user_flow = YAML::load File.read(params[:vrb].tempfile.path)
         @project.save!
         redirect_to({ :action => :show }, {:notice => "Project #{@project.name} successfully updated."})
       rescue Exception => ex
-        redirect_to({:action => :show}, {:notice => 'Invalid file'})
+        redirect_to({:action => :show}, :flash => {:error => 'Invalid file'})
       end
     end
   end
