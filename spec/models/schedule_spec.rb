@@ -38,7 +38,7 @@ describe Schedule do
     context "next available time" do
 
       def t(x)
-        Time.parse x
+        Time.parse(x)
       end
 
       it "returns same value if range is not set" do
@@ -104,6 +104,37 @@ describe Schedule do
           # saturday
           subject.next_available_time(t '2012-05-05T00:00:00Z').should == t('2012-05-06T00:00:00Z')
         end
+      end
+
+      context 'with time zone GMT-3' do
+        before :each do
+          subject.time_zone = 'Buenos Aires'
+        end
+
+        it "returns same value if range is not set" do
+          subject.next_available_time(t '2012-05-05 12:34:56 UTC').should == t('2012-05-05 12:34:56 UTC')
+        end
+
+        context "and range during same day" do
+          before(:each) do
+            subject.time_from = '10:00'
+            subject.time_to = '14:00'
+          end
+
+          it "returns same value if it falls inside range" do
+            subject.next_available_time(t '2012-05-05T16:00:00Z').should == t('2012-05-05 16:00:00 UTC')
+          end
+
+          it "moves time forward if it falls behind the beginning" do
+            subject.next_available_time(t '2012-05-05T11:00:00Z').should == t('2012-05-05 13:00:00 UTC')
+          end
+
+          it "moves time to next day if it falls after the end" do
+            subject.next_available_time(t '2012-05-05T18:00:00Z').should == t('2012-05-06 13:00:00 UTC')
+          end
+        end
+
+
       end
     end
 

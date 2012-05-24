@@ -9,6 +9,18 @@ class Schedule < ActiveRecord::Base
   validates_format_of :retries, :with => /^[0-9\.]+(,[0-9\.]+)*$/, :allow_blank => true
   validates_format_of :weekdays, :with => /^[0-6](,[0-6])*$/, :allow_blank => true
 
+  def time_zone=(value)
+    @time_zone = value
+  end
+
+  def with_time_zone(tz)
+    old_time_zone = @time_zone
+    @time_zone = tz.kind_of?(String) ? ActiveSupport::TimeZone.new(tz || 'UTC') : tz
+    value = yield self
+    @time_zone = old_time_zone
+    value
+  end
+
   def time_from_str
     time_str(time_from)
   end
@@ -27,8 +39,8 @@ class Schedule < ActiveRecord::Base
 
   def next_available_time(t)
     if time_from.present? && time_to.present?
-      from = time_from.as_seconds
-      to = time_to.as_seconds
+      from = get_seconds(time_from)
+      to = get_seconds(time_to)
       time = t.as_seconds
 
       if time < from && (time > to || to > from)
@@ -36,6 +48,7 @@ class Schedule < ActiveRecord::Base
       elsif time > to && to > from
         t = t + (from - time) + 1.day
       end
+
     end
 
     if weekdays.present?
@@ -66,6 +79,18 @@ class Schedule < ActiveRecord::Base
   end
 
   private
+
+  def get_seconds(time)
+    time = move_to_time_zone(time, @time_zone) if @time_zone
+    time.as_seconds
+  end
+
+  # Interprets a time as if it were in a different time zone
+  def move_to_time_zone(d, tz)
+    tz = ActiveSupport::TimeZone.new(tz) if tz.kind_of?(String)
+    offset = tz.utc_offset / 60 / 60 / 24.0
+    DateTime.civil(d.year, d.month, d.day, d.hour, d.min, d.sec, offset).utc.to_time
+  end
 
   def time_str(time)
     return '' unless time

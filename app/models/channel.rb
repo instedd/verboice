@@ -44,7 +44,17 @@ class Channel < ActiveRecord::Base
 
     via = options.fetch(:via, 'API')
     app_id = options[:project_id].presence || project_id
-    call_log = call_logs.new :direction => :outgoing, :project_id => app_id, :address => address, :state => :queued, :schedule => schedule, :not_before => options[:not_before]
+    project = account.projects.find(app_id)
+
+    time_zone = nil
+    not_before = if options[:not_before].is_a?(String)
+      time_zone = options[:time_zone].blank? ? ActiveSupport::TimeZone.new(project.time_zone || 'UTC') : (ActiveSupport::TimeZone.new(options[:time_zone]) or raise "Time zone #{options[:time_zone]} not supported")
+      time_zone.parse(options[:not_before]) unless options[:not_before].blank?
+    else
+      options[:not_before]
+    end
+
+    call_log = call_logs.new :direction => :outgoing, :project_id => app_id, :address => address, :state => :queued, :schedule => schedule, :not_before => not_before
     call_log.info "Received via #{via}: call #{address}"
     call_log.save!
 
@@ -55,14 +65,14 @@ class Channel < ActiveRecord::Base
       :callback_url => options[:callback_url],
       :status_callback_url => options[:status_callback_url],
       :flow => flow,
-      :not_before => options[:not_before],
+      :not_before => not_before,
       :schedule => schedule,
       :project_id => app_id
     )
 
-    if queued_call.schedule
-      queued_call.not_before = queued_call.schedule.next_available_time(queued_call.not_before || Time.now.utc)
-    end
+    queued_call.not_before = queued_call.schedule.with_time_zone(time_zone) do |time_zoned_schedule|
+      time_zoned_schedule.next_available_time(queued_call.not_before || Time.now.utc)
+    end if queued_call.schedule
 
     queued_call.save!
 
