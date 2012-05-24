@@ -253,10 +253,19 @@ span.orange {
   background-position: left -50px;
 }
 
-.lbookmark.invalid, .lnumeral.invalid, .ldirections.invalid, .lphone.invalid, .lanswer.invalid, .lforwardcall.invalid, .ldial.invalid, .lsound.invalid, .lmicrophone.invalid {
-  border-radius: 7px;
-  border: 2px solid #F86808;
+.workflow-container p.button.alert { background-position:-3px -2px !important; height:53px !important; width:53px !important; padding:0 !important; border:2px solid #ff6600 !important; border-radius:6px; -moz-border-radius:6px; -webkit-border-radius:6px ; -webkit-box-shadow:none !important;  -moz-box-shadow:none !important; box-shadow:none !important }
+.workflow-container p.button.alert:hover { background-position:-3px -62px !important }
+.workflow-container p.button.alert.active { background-position:-3px -122px !important }
+.workflow-container p.alert-icon {
+  background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat;
+  width:17px;
+  height:15px;
+  position:absolute;
+  right:1px;
+  top:1px;
+  z-index:2;
 }
+
 
 .feditor-sidebar {
   .lbookmark, .lnumeral, .ldirections, .lphone, .lanswer, .lforwardcall, .ldial, .lsound, .lmicrophone {
@@ -264,8 +273,8 @@ span.orange {
   }
 }
 
-p.invalid {
-  color: #F86808;
+p.alert {
+  color: #ff6600;
 }
 
 span.alert {
@@ -278,5 +287,5 @@ span.alert {
 }
 
 th.orange, td.orange, li.orange, span.orange, label.orange {
-  color: #F86808;
+  color: #ff6600;
 }
