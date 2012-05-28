@@ -250,6 +250,7 @@ DEPENDENCIES
   rspec
   rspec-rails
   ruby_parser
+  rubyzip
   rvm
   rvm-capistrano
   sass-rails (~> 3.2.5)

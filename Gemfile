@@ -19,6 +19,7 @@ gem "instedd-rails"
 gem 'decent_exposure'
 gem 'attr_encrypted'
 gem 'foreman'
+gem 'rubyzip', :require => 'zip/zip'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'

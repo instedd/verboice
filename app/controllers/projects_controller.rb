@@ -3,7 +3,7 @@ require 'csv'
 class ProjectsController < ApplicationController
   before_filter :authenticate_account!
   before_filter :load_project, :only => [
-    :show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import_call_flow
+    :show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import_call_flow, :export_call_flow
   ]
   before_filter :load_recording_data, :only => [:play_recording, :save_recording, :play_result]
 
@@ -45,9 +45,6 @@ class ProjectsController < ApplicationController
           end
         end
         render :text => csv
-      end
-      format.vrb do
-        render :text => @project.user_flow.to_yaml
       end
     end
   end
@@ -100,20 +97,6 @@ class ProjectsController < ApplicationController
     end
   end
 
-  def import_call_flow
-    if params[:vrb].blank?
-      redirect_to({ :action => :show }, :flash => { :alert => 'No file found' })
-    else
-      begin
-        @project.user_flow = YAML::load File.read(params[:vrb].tempfile.path)
-        @project.save!
-        redirect_to({ :action => :show }, {:notice => "Project #{@project.name} successfully updated."})
-      rescue Exception => ex
-        redirect_to({:action => :show}, :flash => {:error => 'Invalid file'})
-      end
-    end
-  end
-
   def play_recording
     send_file @recording_manager.recording_path_for(@step_id, @message), :x_sendfile=>true
   end
@@ -128,6 +111,43 @@ class ProjectsController < ApplicationController
   def destroy
     @project.destroy
     redirect_to(projects_url, :notice => "Project #{@project.name} successfully deleted.")
+  end
+
+  def import_call_flow
+    if params[:vrb].blank?
+      redirect_to({ :action => :show }, :flash => { :alert => 'No file found' })
+    else
+      begin
+        extension = File.extname params[:vrb].original_filename
+        case extension
+        when '.vrb'
+          @project.user_flow = YAML::load File.read(params[:vrb].tempfile.path)
+        when '.vrz'
+          VrzContainer.for(@project).import params[:vrb].tempfile.path
+        else
+          raise 'Invalid extension'
+        end
+        @project.save!
+        redirect_to({ :action => :show }, {:notice => "Project #{@project.name} successfully updated."})
+      rescue Exception => ex
+        raise ex
+        redirect_to({:action => :show}, :flash => {:error => 'Invalid file'})
+      end
+    end
+  end
+
+  def export_call_flow
+    if params[:export_audios]
+      file = Tempfile.new(@project.id.to_s)
+      begin
+        VrzContainer.for(@project).export file.path
+      ensure
+        file.close
+      end
+      send_file file.path, :x_sendfile => true, :filename => "#{@project.id}.vrz"
+    else
+      send_data @project.user_flow.to_yaml, :filename => "#{@project.id}.vrb"
+    end
   end
 
   private
@@ -156,4 +176,5 @@ class ProjectsController < ApplicationController
     end
     ret
   end
+
 end

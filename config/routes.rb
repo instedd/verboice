@@ -23,6 +23,7 @@ Verboice::Application.routes.draw do
       get :play_recording
       post :save_recording
       post :import_call_flow
+      get :export_call_flow
     end
   end
 
