@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120523154544) do
+ActiveRecord::Schema.define(:version => 20120524174716) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -63,6 +63,17 @@ ActiveRecord::Schema.define(:version => 20120523154544) do
     t.string   "guid"
   end
 
+  # create_table "consumer_tokens", :force => true do |t|
+  #   t.integer  "user_id"
+  #   t.string   "type",       :limit => 30
+  #   t.string   "token"
+  #   t.string   "secret"
+  #   t.datetime "created_at",               :null => false
+  #   t.datetime "updated_at",               :null => false
+  # end
+
+  # add_index "consumer_tokens", ["token"], :name => "index_consumer_tokens_on_token", :unique => true
+
   create_table "contacts", :force => true do |t|
     t.string   "address"
     t.integer  "account_id"
@@ -70,6 +81,32 @@ ActiveRecord::Schema.define(:version => 20120523154544) do
     t.datetime "updated_at", :null => false
     t.boolean  "anonymous"
   end
+
+  # create_table "delayed_jobs", :force => true do |t|
+  #   t.integer  "priority",   :default => 0
+  #   t.integer  "attempts",   :default => 0
+  #   t.text     "handler"
+  #   t.text     "last_error"
+  #   t.datetime "run_at"
+  #   t.datetime "locked_at"
+  #   t.datetime "failed_at"
+  #   t.string   "locked_by"
+  #   t.string   "queue"
+  #   t.datetime "created_at",                :null => false
+  #   t.datetime "updated_at",                :null => false
+  # end
+
+  # add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
+
+  # create_table "o_auth_tokens", :force => true do |t|
+  #   t.integer  "account_id"
+  #   t.string   "service"
+  #   t.string   "access_token"
+  #   t.string   "refresh_token"
+  #   t.datetime "expires_at"
+  #   t.datetime "created_at",    :null => false
+  #   t.datetime "updated_at",    :null => false
+  # end
 
   create_table "persisted_variables", :force => true do |t|
     t.string   "value"
@@ -92,6 +129,9 @@ ActiveRecord::Schema.define(:version => 20120523154544) do
     t.text     "encrypted_config"
     t.binary   "error_flow"
     t.binary   "user_flow"
+    # t.string   "fusion_table_name"
+    # t.string   "current_fusion_table_id"
+    t.string   "time_zone",               :default => "UTC"
   end
 
   create_table "queued_calls", :force => true do |t|

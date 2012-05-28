@@ -16,6 +16,11 @@ $(function() {
     window.location = $(this).data('url');
   });
 
+  // Datetime components
+  $(".ux-custom-datetimepicker:not([readonly])")
+    .click(function(){ $(this).datepicker("show"); })
+    .datetimepicker({showButtonPanel: false, dateFormat: 'yy-mm-dd'});
+
 });
 
 function create_channel(select) {
@@ -31,3 +36,4 @@ function onWorkflow(callback) {
     }
   });
 };
+

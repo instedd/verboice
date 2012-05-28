@@ -35,10 +35,13 @@ class CallLogsController < ApplicationController
     @channel = current_account.channels.find_by_id(params[:channel_id])
     if @channel
       addresses = params[:addresses].split(/\n/).map(&:strip).select(&:presence)
+
       options = {}
       options[:schedule_id] = params[:schedule_id] if params[:schedule_id].present?
       options[:not_before] = params[:not_before] if params[:not_before].present?
+      options[:time_zone] = params[:time_zone] if params[:time_zone].present?
       options[:project_id] = params[:project_id]
+
       addresses.each do |address|
         @channel.call(address.strip, options)
       end

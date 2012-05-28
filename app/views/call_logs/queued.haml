@@ -49,7 +49,10 @@
     = select_tag :project_id, options_from_collection_for_select(@projects, 'id', 'name'), :include_blank => true
   %p
     = label_tag :not_before, 'Make calls'
-    = text_field_tag :not_before, '', :class => "ux-datetimepicker"
+    = text_field_tag :not_before, '', :class => "ux-custom-datetimepicker"
+  %p
+    = label_tag :time_zone, 'On time zone'
+    = select_tag :time_zone, time_zone_options_for_select('UTC')
   %p
     = label_tag :addresses, 'Phone numbers'
     %p Enter each phone number in a separate line
