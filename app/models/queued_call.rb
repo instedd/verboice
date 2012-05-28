@@ -15,26 +15,14 @@ class QueuedCall < ActiveRecord::Base
   def new_session
     options = {:call_log => call_log, :address => address}
 
-    options[:call_flow] = if call_flow.present?
-      call_flow
-    else
-      CallFlow.new
-    end
-
     if callback_url.present?
-      options[:call_flow].callback_url = callback_url
+      options[:call_flow] = CallFlow.new :callback_url => callback_url
     elsif flow.present?
-      options[:call_flow].flow = flow
-    end
-
-    if project.present?
-      options[:call_flow].project = project
-    else
-      options[:call_flow].project = Project.new
+      options[:call_flow] = CallFlow.new :flow => flow
     end
 
     if status_callback_url.present? && options[:call_flow]
-      options[:call_flow].project.status_callback_url = status_callback_url
+      options[:call_flow].project = Project.new status_callback_url: status_callback_url
     end
 
     channel.new_session options

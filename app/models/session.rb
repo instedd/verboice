@@ -54,7 +54,7 @@ class Session
   end
 
   def status_callback_url
-    call_flow.project.status_callback_url
+    call_flow.project.try(:status_callback_url)
   end
 
   def run
