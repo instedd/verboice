@@ -130,7 +130,6 @@ class ProjectsController < ApplicationController
         @project.save!
         redirect_to({ :action => :show }, {:notice => "Project #{@project.name} successfully updated."})
       rescue Exception => ex
-        raise ex
         redirect_to({:action => :show}, :flash => {:error => 'Invalid file'})
       end
     end
