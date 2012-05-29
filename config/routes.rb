@@ -17,6 +17,9 @@ Verboice::Application.routes.draw do
   devise_for :accounts
 
   resources :projects do
+    member do
+      post :enqueue_call
+    end
     resources :call_flows do
       member do
         get :edit_workflow
@@ -37,7 +40,6 @@ Verboice::Application.routes.draw do
     end
     collection do
       get :queued
-      post :enqueue
     end
   end
 
