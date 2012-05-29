@@ -45,7 +45,8 @@ class ProjectsController < ApplicationController
       options[:schedule_id] = params[:schedule_id] if params[:schedule_id].present?
       options[:not_before] = params[:not_before] if params[:not_before].present?
       options[:time_zone] = params[:time_zone] if params[:time_zone].present?
-      options[:project_id] = params[:project_id]
+      options[:call_flow_id] = params[:call_flow_id] if params[:call_flow_id].present?
+      options[:project_id] = params[:id]
 
       addresses.each do |address|
         @channel.call(address.strip, options)
