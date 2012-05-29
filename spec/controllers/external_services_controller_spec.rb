@@ -164,4 +164,27 @@ describe ExternalServicesController do
     end
   end
 
+
+  describe "PUT update_manifest" do
+    before(:each) do
+      ExternalService.any_instance.stub(:update_manifest!)
+    end
+
+    it "updates the manifest of the requested external_service" do
+      ExternalService.any_instance.should_receive(:update_manifest!)
+      put :update_manifest, {:id => external_service.to_param, :project_id => project.to_param}
+    end
+
+    it "redirects to the external_services list" do
+      put :update_manifest, {:id => external_service.to_param, :project_id => project.to_param}
+      response.should redirect_to(project_external_services_url(project))
+    end
+
+     it "fails if the requested external_service is not in current account projects" do
+        expect {
+          put :update_manifest, {:id => other_external_service.to_param, :project_id => other_external_service.project.to_param}
+        }.should raise_error
+      end
+  end
+
 end

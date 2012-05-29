@@ -4,7 +4,7 @@
   %tr
     %th Name
     %th Url
-    %th Xml
+    %th
     %th
     %th
     %th
@@ -13,11 +13,10 @@
     %tr
       %td= external_service.name
       %td= external_service.url
-      %td= external_service.xml
       %td= link_to 'Show', project_external_service_path(project, external_service)
       %td= link_to 'Edit', edit_project_external_service_path(project, external_service)
       %td= link_to 'Destroy', project_external_service_path(project, external_service), :confirm => 'Are you sure?', :method => :delete
-
+      %td= link_to 'Update Manifest', update_manifest_project_external_service_path(project, external_service), :method => :put
 %br
 
 = link_to 'New External service', new_project_external_service_path(project)

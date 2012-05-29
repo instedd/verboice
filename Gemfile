@@ -20,6 +20,7 @@ gem 'decent_exposure'
 gem 'attr_encrypted'
 gem 'foreman'
 gem 'rubyzip', :require => 'zip/zip'
+gem 'rest-client'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'

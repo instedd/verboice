@@ -22,4 +22,14 @@ class ExternalServicesController < ApplicationController
     external_service.destroy
     respond_with(project, external_service)
   end
+
+  def update_manifest
+    begin
+      external_service.update_manifest!
+      flash[:notice] = 'Manifest successfully updated'
+    rescue
+      flash[:error] = 'Error updating manifest'
+    end
+    respond_with(project, external_service, :location => project_external_services_url)
+  end
 end
