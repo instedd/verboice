@@ -45,10 +45,10 @@ module Parsers
           c.While "attempt_number#{@id} <= #{@number_of_attempts}" do |c|
             c.Capture({finish_on_key: '', timeout: @timeout}.merge(@options_message.capture_flow))
             c.Assign "value_#{@id}", 'digits'
-            c.PersistVariable @persisted_variable_name, "value_#{@id}" if @persisted_variable_name
             @options.each do |an_option|
               c.If "digits == '#{an_option['number']}'" do |c|
                 c.Trace context_for '"User pressed: " + digits'
+                c.PersistVariable @persisted_variable_name, "value_#{@id}" if @persisted_variable_name
                 c.append an_option['next'].equivalent_flow if an_option['next']
                 c.Goto "end#{@id}"
               end
@@ -63,6 +63,7 @@ module Parsers
             c.Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"
           end
           c.Trace context_for %("Missed input for #{@number_of_attempts} times.")
+          c.PersistVariable @persisted_variable_name, nil if @persisted_variable_name
           c.append @default.equivalent_flow if @default
           c.Label "end#{@id}"
           c.append @next.equivalent_flow if @next

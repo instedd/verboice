@@ -90,9 +90,9 @@ module Parsers
             c.While 'attempt_number1 <= 3' do |c|
               c.Capture play_file: File.join(Rails.root, "data","call_flows","#{call_flow.id}","recordings", "1-options.wav"), finish_on_key: '', timeout: 20
               c.Assign 'value_1', 'digits'
-              c.PersistVariable 'some_variable', 'value_1'
               c.If "digits == '4'" do |c|
                 c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.PersistVariable 'some_variable', 'value_1'
                 c.Label 10
                 c.Assign "current_step", 10
                 c.Trace call_flow_id: call_flow.id, step_id: 10, step_name: 'Play 1', store: '"Message played."'
@@ -101,6 +101,7 @@ module Parsers
               end
               c.If "digits == '6'" do |c|
                 c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.PersistVariable 'some_variable', 'value_1'
                 c.Label 14
                 c.Assign "current_step", 14
                 c.Trace call_flow_id: call_flow.id, step_id: 14, step_name: 'Play 2', store: '"Message played."'
@@ -109,6 +110,7 @@ module Parsers
               end
               c.If "digits == '2'" do |c|
                 c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.PersistVariable 'some_variable', 'value_1'
                 c.Label 5
                 c.Assign "current_step", 5
                 c.Trace call_flow_id: call_flow.id, step_id: 5, step_name: 'Play 3', store: '"Message played."'
@@ -125,6 +127,7 @@ module Parsers
               c.Assign 'attempt_number1', 'attempt_number1 + 1'
             end
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"Missed input for 3 times."'
+            c.PersistVariable 'some_variable', nil
             c.Label 45
             c.Assign "current_step", 45
             c.Trace call_flow_id: call_flow.id, step_id: 45, step_name: 'Play 45', store: '"Message played."'

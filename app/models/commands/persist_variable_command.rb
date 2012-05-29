@@ -12,14 +12,22 @@ class Commands::PersistVariableCommand < Command
     persisted_variable = contact.persisted_variables.find_by_name @variable_name
 
     if persisted_variable
-      persisted_variable.value = session.eval(@expression)
+      persisted_variable.value = evaluate_expression(session)
       persisted_variable.save!
     else
       contact.persisted_variables.create!\
         name: @variable_name,
-        value: session.eval(@expression)
+        value: evaluate_expression(session)
     end
     super
+  end
+
+  def evaluate_expression(session)
+    if @expression
+      session.eval(@expression)
+    else
+      nil
+    end
   end
 
   def contact_from session

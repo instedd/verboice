@@ -12,7 +12,7 @@
           %br
           You have no polls yet.
           %br
-          = link_button_to _('Create Project'), new_project_path, :class => 'EmptyAddButton button cadd'
+          = link_button_to ('Create Project'), new_project_path, :class => 'EmptyAddButton button cadd'
     - else
       - @projects.each do |project|
         %tr.link{'data-url' => project_path(project)}
