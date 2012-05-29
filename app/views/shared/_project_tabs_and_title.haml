@@ -9,6 +9,6 @@
     = link_to "Settings", edit_project_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "call_flows"}"}
     = link_to "Call Flows", project_call_flows_path(project)
-  / %li{ :class =>"#{"active" if params[:controller] == "external_services"}"}
-  /   = link_to "External Services", project_external_services_path(project)
+  %li{ :class =>"#{"active" if params[:controller] == "external_services"}"}
+    = link_to "External Services", project_external_services_path(project)
 .tabsline
