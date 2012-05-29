@@ -1,7 +1,7 @@
 class Session
   attr_accessor :pbx
   attr_accessor :commands
-  attr_accessor :project
+  attr_accessor :call_flow
   attr_accessor :channel
   attr_accessor :call_log
   attr_accessor :address
@@ -50,11 +50,11 @@ class Session
   end
 
   def callback_url
-    project.callback_url
+    call_flow.callback_url
   end
 
   def status_callback_url
-    project.status_callback_url
+    call_flow.project.try(:status_callback_url)
   end
 
   def run
@@ -126,8 +126,8 @@ class Session
 
   def notify_status(status)
     if status_callback_url.present?
-      status_callback_url_user = project.status_callback_url_user
-      status_callback_url_password = project.status_callback_url_password
+      status_callback_url_user = call_flow.project.status_callback_url_user
+      status_callback_url_password = call_flow.project.status_callback_url_password
 
       authentication = if (status_callback_url_user.present? || status_callback_url_password.present?)
         {:head => {'authorization' => [status_callback_url_user, status_callback_url_password]}}
@@ -143,7 +143,7 @@ class Session
   end
 
   def finish_with_error message
-    @commands = project.error_flow
+    @commands = call_flow.error_flow
     run rescue nil
 
     call_log.finish_with_error message

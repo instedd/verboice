@@ -13,7 +13,7 @@ class Commands::CallbackCommand < Command
     url = @url || session.callback_url
     method = (@method || 'post').to_s.downcase.to_sym
 
-    url, authorization = callback_authentication(url, session.project)
+    url, authorization = callback_authentication(url, session.call_flow)
 
     body = {:CallSid => session.call_id, :From => session.pbx.caller_id, :Channel => session.channel.name}
     if @params

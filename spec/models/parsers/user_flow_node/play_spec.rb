@@ -4,11 +4,11 @@ module Parsers
   module UserFlowNode
     describe Play do
 
-      let(:project) { Project.make }
+      let(:call_flow) { CallFlow.make }
 
       it "should compile to a verboice equivalent flow" do
         File.stub(:exists?).and_return{true}
-        play = Play.new project, 'id' => 1,
+        play = Play.new call_flow, 'id' => 1,
           'type' => 'play',
           'name' => 'Play',
           'message' => {
@@ -22,13 +22,13 @@ module Parsers
           Compiler.parse do |c|
             c.Label 1
             c.Assign "current_step", 1
-            c.Trace project_id: project.id, step_id: 1, step_name: 'Play', store: '"Message played."'
-            c.PlayFile File.join(Rails.root, "data","projects","#{project.id}","recordings", "1-message.wav")
+            c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Play', store: '"Message played."'
+            c.PlayFile File.join(Rails.root, "data","call_flows","#{call_flow.id}","recordings", "1-message.wav")
           end.first
         )
       end
       it "should compile a tts message as well" do
-        play = Play.new project, 'id' => 27,
+        play = Play.new call_flow, 'id' => 27,
           'type' => 'play',
           'name' => 'Play number one',
           'message' => {
@@ -40,14 +40,14 @@ module Parsers
           Compiler.parse do |c|
             c.Label 27
             c.Assign "current_step", 27
-            c.Trace project_id: project.id, step_id: 27, step_name: 'Play number one', store: '"Message played."'
+            c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: 'Play number one', store: '"Message played."'
             c.Say "Some explanation message"
           end.first
         )
       end
 
       it "shouldn't compile the message playing if the file doesn't exist" do
-        play = Play.new project, 'id' => 1,
+        play = Play.new call_flow, 'id' => 1,
           'type' => 'play',
           'name' => 'Play',
           'message' => {
@@ -61,13 +61,13 @@ module Parsers
           Compiler.parse do |c|
             c.Label 1
             c.Assign "current_step", 1
-            c.Trace project_id: project.id, step_id: 1, step_name: 'Play', store: '"Message played."'
+            c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Play', store: '"Message played."'
           end.first
         )
       end
 
       it "shouldn't compile the message say if there is no text to read" do
-        play = Play.new project, 'id' => 27,
+        play = Play.new call_flow, 'id' => 27,
           'type' => 'play',
           'name' => 'Play number one',
           'message' => {
@@ -79,7 +79,7 @@ module Parsers
           Compiler.parse do |c|
             c.Label 27
             c.Assign "current_step", 27
-            c.Trace project_id: project.id, step_id: 27, step_name: 'Play number one', store: '"Message played."'
+            c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: 'Play number one', store: '"Message played."'
           end.first
         )
       end

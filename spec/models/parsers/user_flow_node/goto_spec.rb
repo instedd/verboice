@@ -4,10 +4,10 @@ module Parsers
   module UserFlowNode
     describe Goto do
 
-      let(:app) { self }
+      let(:call_flow) { self }
 
       it "should compile to a verboice equivalent flow" do
-        play = Goto.new app, 'id' => 1,
+        play = Goto.new call_flow, 'id' => 1,
           'type' => 'goto',
           'jump' => 3
 

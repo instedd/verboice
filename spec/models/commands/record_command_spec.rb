@@ -12,7 +12,8 @@ module Commands
     it "should create a recorded audio linking the saved audio file to the call log and contact" do
       contact = Contact.make
       project = Project.make account: contact.account
-      call_log = CallLog.make project: project
+      call_flow = CallFlow.make project: project
+      call_log = CallLog.make call_flow: call_flow
 
       session = Session.new :pbx => pbx, :call_log => call_log
       session.stub :address => contact.address
@@ -66,10 +67,11 @@ module Commands
     end
 
     it "should use an existing anonymous contact if the contact address is unknown but the contact is already created" do
-      contact  = Contact.make address: 'Anonymous34', anonymous: true
-      project  = Project.make account: contact.account
-      call_log = CallLog.make project: project, id: 34
-      session  = Session.new :pbx => pbx, :call_log => call_log
+      contact   = Contact.make address: 'Anonymous34', anonymous: true
+      project   = Project.make account: contact.account
+      call_flow = CallFlow.make project: project
+      call_log  = CallLog.make call_flow: call_flow, id: 34
+      session   = Session.new :pbx => pbx, :call_log => call_log
       session.stub :address => nil
 
       cmd = RecordCommand.new 2, 'foo'

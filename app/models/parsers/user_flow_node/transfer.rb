@@ -1,16 +1,16 @@
 module Parsers
   module UserFlowNode
     class Transfer < UserCommand
-      attr_reader :id, :name, :project
+      attr_reader :id, :name, :call_flow
       attr_accessor :next
 
-      def initialize project, params
-        @id         = params['id']
-        @name       = params['name'] || ''
-        @address    = params['address']
-        @channel    = params['channel']
-        @project    = project
-        @next       = params['next']
+      def initialize call_flow, params
+        @id = params['id']
+        @name = params['name'] || ''
+        @address = params['address']
+        @channel = params['channel']
+        @call_flow = call_flow
+        @next = params['next']
         @root_index = params['root']
       end
 

@@ -25,10 +25,10 @@ and some other text... possibly...'}, details[2])
   end
 
   it "create for project assigns account" do
-    chan = Channel.make
-    app = chan.project
-    call_log = app.call_logs.create! :channel => chan
-    call_log.account_id.should == app.account_id
+    channel = Channel.make
+    call_flow = channel.call_flow
+    call_log = call_flow.call_logs.create! :channel => channel
+    call_log.account_id.should == call_flow.account.id
   end
 
   it "save started at when starting an outgoing call" do

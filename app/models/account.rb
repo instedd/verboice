@@ -8,6 +8,7 @@ class Account < ActiveRecord::Base
   attr_accessible :email, :password, :password_confirmation, :remember_me
 
   has_many :projects, :dependent => :destroy
+  has_many :call_flows, :through => :projects
   has_many :call_logs
   has_many :schedules
   has_many :channels, :dependent => :destroy

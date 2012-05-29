@@ -5,7 +5,8 @@ describe CallLogsController do
 
   let(:account) { Account.make }
   let(:project) {Project.make :account => account}
-  let(:channel) { account.channels.make :project => project, :account => account}
+  let(:call_flow) { CallFlow.make :project => project }
+  let(:channel) { account.channels.make :call_flow => call_flow, :account => account}
   let(:schedule) { account.schedules.make :weekdays => "1" }
   let(:broker_client) { double('broker_client') }
 

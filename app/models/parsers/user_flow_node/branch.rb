@@ -1,16 +1,16 @@
 module Parsers
   module UserFlowNode
     class Branch < UserCommand
-      attr_reader :id, :options, :name, :project
+      attr_reader :id, :options, :name, :call_flow
       attr_accessor :next
 
-      def initialize project, params
+      def initialize call_flow, params
         @id         = params['id']
         @name       = params['name'] || ''
         @options    = params['options'].deep_clone || []
         @root_index = params['root']
-        @project    = project
-        @next       = params['next']
+        @call_flow = call_flow
+        @next = params['next']
       end
 
       def solve_links_with nodes

@@ -21,10 +21,10 @@ describe Channel do
     before(:each) { Channel.make }
 
     it { should belong_to(:account) }
-    it { should belong_to(:project) }
+    it { should belong_to(:call_flow) }
 
     it { should validate_presence_of(:account) }
-    it { should validate_presence_of(:project) }
+    it { should validate_presence_of(:call_flow) }
     it { should validate_presence_of(:name) }
     it { should validate_uniqueness_of(:name).scoped_to(:account_id) }
   end
@@ -108,14 +108,14 @@ describe Channel do
 
     it "uses selected time zone for 'not before' date" do
       broker_client.should_receive(:notify_call_queued)
-      channel.project.update_attribute :time_zone, 'Buenos Aires'
+      channel.call_flow.project.update_attribute :time_zone, 'Buenos Aires'
       channel.reload.call 'foo', :not_before => '2012-12-20T10:00:00', :time_zone => 'Paris'
       queued_call.not_before.should eq(Time.parse('2012-12-20T09:00:00 UTC'))
     end
 
     it "uses project's time zone for 'not before' date" do
       broker_client.should_receive(:notify_call_queued)
-      channel.project.update_attribute :time_zone, 'Buenos Aires'
+      channel.call_flow.project.update_attribute :time_zone, 'Buenos Aires'
       channel.reload.call 'foo', :not_before => '2012-12-20T10:00:00'
       queued_call.not_before.should eq(Time.parse('2012-12-20T13:00:00 UTC'))
     end
@@ -201,7 +201,7 @@ describe Channel do
     channel = Channel.make
     session = channel.new_session
     session.call_log.account.should == channel.account
-    session.call_log.project.should == channel.project
+    session.call_log.project.should == channel.call_flow.project
     session.call_log.channel.should == channel
     session.call_log.direction.should == :incoming
     session.call_log.state.should == :active

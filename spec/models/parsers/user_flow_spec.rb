@@ -1,13 +1,13 @@
 require 'spec_helper'
 
 describe Parsers::UserFlow do
-  let(:project) do
-    app = mock('project')
+  let(:call_flow) do
+    app = mock('call_flow')
     app.stubs(:id).returns 5
     app
   end
 
-  let (:project_flow) do
+  let (:user_flow) do
     [
       {
         'id' => 27,
@@ -208,11 +208,11 @@ describe Parsers::UserFlow do
 
   it "should retrieve an equivalent flow in verboice internal representation" do
     File.stub(:exists?).and_return{true}
-    (Parsers::UserFlow.new project, project_flow).equivalent_flow.should eq(
+    (Parsers::UserFlow.new call_flow, user_flow).equivalent_flow.should eq(
       Compiler.make do
         Answer()
         Assign "current_step", 1
-        Trace project_id: 5, step_id: 1, step_name: 'Play number one', store: '"Message played."'
+        Trace call_flow_id: 5, step_id: 1, step_name: 'Play number one', store: '"Message played."'
         PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "1-message.wav")
         Assign "current_step", 2
         Assign 'attempt_number2', '1'
@@ -220,19 +220,19 @@ describe Parsers::UserFlow do
           Capture say: "First Capture", min: 1, max: 10, finish_on_key: '#', timeout: 10
           Assign 'value_2', 'digits'
           If "(digits >= 1 && digits <= 10)" do
-            Trace project_id: 5, step_id: 2, step_name: 'Capture number one', store: '"User pressed: " + digits'
+            Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"User pressed: " + digits'
             Goto "end2"
           end
           If "digits != null" do
             PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "2-invalid.wav")
-            Trace project_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Invalid key pressed"'
+            Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Invalid key pressed"'
           end
           Else do
-            Trace project_id: 5, step_id: 2, step_name: 'Capture number one', store: '"No key was pressed. Timeout."'
+            Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"No key was pressed. Timeout."'
           end
           Assign 'attempt_number2', 'attempt_number2 + 1'
         end
-        Trace project_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Missed input for 3 times."'
+        Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Missed input for 3 times."'
         Label "end2"
         Assign "current_step", 3
         Say 'First Menu'
@@ -241,64 +241,64 @@ describe Parsers::UserFlow do
           Capture finish_on_key: '', timeout: 20
           Assign 'value_3', 'digits'
           If "digits == '2'" do
-            Trace project_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
+            Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
             Assign "current_step", 4
-            Trace project_id: 5, step_id: 4, step_name: 'Say number 4', store: '"Message played."'
+            Trace call_flow_id: 5, step_id: 4, step_name: 'Say number 4', store: '"Message played."'
             Say "Say 4"
             Goto "end3"
           end
           If "digits == '1'" do
-            Trace project_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
+            Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
             Assign "current_step", 6
-            Trace project_id: 5, step_id: 6, step_name: 'Say number 6', store: '"Message played."'
+            Trace call_flow_id: 5, step_id: 6, step_name: 'Say number 6', store: '"Message played."'
             Say "Say 6"
             Goto "end3"
           end
           If "digits != null" do
-            Trace project_id: 5, step_id: 3, step_name: 'Menu number one', store: '"Invalid key pressed"'
+            Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"Invalid key pressed"'
           end
           Else do
-            Trace project_id: 5, step_id: 3, step_name: 'Menu number one', store: '"No key was pressed. Timeout."'
+            Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"No key was pressed. Timeout."'
           end
           Assign 'attempt_number3', 'attempt_number3 + 1'
         end
-        Trace project_id: 5, step_id: 3, step_name: 'Menu number one', store: '"Missed input for 3 times."'
+        Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"Missed input for 3 times."'
         Label "end3"
         Assign "current_step", 5
-        Trace project_id: 5, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
+        Trace call_flow_id: 5, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
         Say "Say 5"
         Assign "current_step", 33
-        Trace project_id: 5, step_id: 33, step_name: 'Play number 33', store: '"Message played."'
+        Trace call_flow_id: 5, step_id: 33, step_name: 'Play number 33', store: '"Message played."'
         PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "33-message.wav")
         Assign "current_step", 34
         If "(value_3 == 6) && (value_2 < 30) && (value_2 >= 5)" do
-          Trace project_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
+          Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
           Label 10
           Assign "current_step", 10
-          Trace project_id: 5, step_id: 10, step_name: 'Play number 10', store: '"Message played."'
+          Trace call_flow_id: 5, step_id: 10, step_name: 'Play number 10', store: '"Message played."'
           PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "10-message.wav")
           Goto "end34"
         end
         If "(value_3 <= 5)" do
-          Trace project_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
+          Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
           Label 14
           Assign "current_step", 14
-          Trace project_id: 5, step_id: 14, step_name: 'Say 14', store: '"Message played."'
+          Trace call_flow_id: 5, step_id: 14, step_name: 'Say 14', store: '"Message played."'
           Say "Say 14"
           Label 15
           Assign "current_step", 15
-          Trace project_id: 5, step_id: 15, step_name: 'Hanged up!', store: '"Verboice ended call."'
+          Trace call_flow_id: 5, step_id: 15, step_name: 'Hanged up!', store: '"Verboice ended call."'
           End()
           Goto "end34"
         end
-        Trace(project_id: 5, step_id: 34, step_name: 'Branch number one', store: '"No branch was selected."')
+        Trace(call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"No branch was selected."')
         Label "end34"
       end
     )
   end
 
   it "should provide a hash of step names and IDs" do
-    (Parsers::UserFlow.new project, project_flow).step_names.should eq({
+    (Parsers::UserFlow.new call_flow, user_flow).step_names.should eq({
       27 => "Play number 27",
       3  => 'Menu number one',
       4  => 'Say number 4',
@@ -315,10 +315,10 @@ describe Parsers::UserFlow do
     })
   end
 
-  it "should provide an error flow to append to a given project" do
-    (Parsers::UserFlow.new project, project_flow).error_flow.should eq(
+  it "should provide an error flow to append to a given call_flow" do
+    (Parsers::UserFlow.new call_flow, user_flow).error_flow.should eq(
       Compiler.make do
-        Trace project_id: 5, step_id: 'current_step', step_name: '', store: '"User hanged up."'
+        Trace call_flow_id: 5, step_id: 'current_step', step_name: '', store: '"User hanged up."'
       end
     )
   end

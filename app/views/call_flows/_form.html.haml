@@ -1,0 +1,27 @@
+= form_for [@call_flow.project, @call_flow], :builder => InsteddFormBuilder do |f|
+  - if @call_flow.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@call_flow.errors.count, "error")} prohibited this call flow from being saved:"
+      %ul
+        - @call_flow.errors.full_messages.each do |msg|
+          %li= msg
+
+  = f.text_field :name
+
+  = f.select :mode, options_for_select([['Use an external application', :callback_url], ['Design your app in Verboice', :flow]], @call_flow.mode)
+
+  #callback_url_container{:style => ('display: none' if @call_flow.mode != :callback_url)}
+    = f.text_field :callback_url
+    = f.text_field :callback_url_user
+    = f.password_field :callback_url_password
+
+  %hr
+  - if @call_flow.new_record?
+    %button.grey{:type => "submit"} Save
+  - else
+    %button.grey{:type => "submit"} Update
+  = link_to "Cancel", project_call_flows_path(@project), :class => "button white cancel", :style => 'top: 1px;'
+
+  / - if @call_flow.mode == :flow
+  /   %pre
+  /     = @call_flow.commands.to_yaml

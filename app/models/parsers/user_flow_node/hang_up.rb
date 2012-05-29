@@ -1,16 +1,16 @@
 module Parsers
   module UserFlowNode
     class HangUp < UserCommand
-      attr_reader :id, :name, :project
+      attr_reader :id, :name, :call_flow
 
       def self.can_handle? params
         params['type'] == 'hang_up'
       end
 
-      def initialize project, params
-        @id         = params['id']
-        @name       = params['name'] || ''
-        @project    = project
+      def initialize call_flow, params
+        @id = params['id']
+        @name = params['name'] || ''
+        @call_flow = call_flow
         @root_index = params['root']
       end
 

@@ -2,13 +2,13 @@ require 'spec_helper'
 
 describe VrzContainer do
 
-  let(:project) { Project.new :user_flow => 'the user flow' }
+  let(:call_flow) { CallFlow.new :user_flow => 'the user flow' }
   let(:recording_manager) { double('recording_manager') }
-  let(:vrb_container) { VrzContainer.for project }
+  let(:vrb_container) { VrzContainer.for call_flow }
   let(:path) { '/path/to/zip' }
 
   before(:each) do
-    RecordingManager.stub(:for).with(project).and_return(recording_manager)
+    RecordingManager.stub(:for).with(call_flow).and_return(recording_manager)
     recording_manager.stub(:recordings_folder).and_return('/path/to/recordings')
   end
 
@@ -29,7 +29,7 @@ describe VrzContainer do
     # Mock zip stream
     stream = double('stream')
     stream.should_receive(:put_next_entry).with('workflow.yml')
-    stream.should_receive(:print).with(project.user_flow.to_yaml)
+    stream.should_receive(:print).with(call_flow.user_flow.to_yaml)
 
     stream.should_receive(:put_next_entry).with('one.wav')
     stream.should_receive(:print).with('one.wav content')
@@ -69,7 +69,7 @@ describe VrzContainer do
     workflow_entry = double('workflow', :name => 'workflow.yml')
     zip.should_receive(:read).with(workflow_entry).and_return('updated user flow'.to_yaml)
     each_block.call workflow_entry
-    project.user_flow.should eq('updated user flow')
+    call_flow.user_flow.should eq('updated user flow')
 
     # audio entries
     %w(one.wav two.wav).each do |audio_name|

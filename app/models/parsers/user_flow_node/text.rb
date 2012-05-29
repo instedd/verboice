@@ -8,10 +8,10 @@ module Parsers
         params['type'] == 'text'
       end
 
-      def initialize project, parent_step, action, params
-        @project = project
-        @parent  = parent_step
-        @name    = params['name']
+      def initialize call_flow, parent_step, action, params
+        @call_flow = call_flow
+        @parent = parent_step
+        @name = params['name']
       end
 
       def equivalent_flow

@@ -4,10 +4,10 @@ module Parsers
   module UserFlowNode
     describe HangUp do
 
-      let(:project) { self }
+      let(:call_flow) { self }
 
       it "should compile to a verboice equivalent flow" do
-        hang_up = HangUp.new project, 'id' => 1,
+        hang_up = HangUp.new call_flow, 'id' => 1,
           'type' => 'hang_up',
           'name' => 'Hang up'
 
@@ -15,7 +15,7 @@ module Parsers
           Compiler.parse do
             Label 1
             Assign "current_step", 1
-            Trace project_id: 1, step_id: 1, step_name: 'Hang up', store: '"Verboice ended call."'
+            Trace call_flow_id: 1, step_id: 1, step_name: 'Hang up', store: '"Verboice ended call."'
             End()
           end.first
         )

@@ -4,10 +4,11 @@ module Commands
   describe RetrieveVariableCommand do
     it "should retrieve a persisted variable" do
       persisted_variable = PersistedVariable.make name: 'foo'
-      contact            = persisted_variable.contact
-      project            = Project.make account: contact.account
-      call_log           = CallLog.make project: project
-      session            = Session.new :pbx => mock('pbx'), :call_log => call_log
+      contact = persisted_variable.contact
+      project = Project.make account: contact.account
+      call_flow = CallFlow.make project: project
+      call_log = CallLog.make call_flow: call_flow
+      session = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => contact.address
 
       cmd = RetrieveVariableCommand.new 'foo'
@@ -32,7 +33,8 @@ module Commands
     it "should set to nil if the variable doesn't exist" do
       contact  = Contact.make
       project  = Project.make account: contact.account
-      call_log = CallLog.make project: project
+      call_flow = CallFlow.make project: project
+      call_log = CallLog.make call_flow: call_flow
       session  = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => contact.address
 
@@ -47,7 +49,8 @@ module Commands
       contact            = Contact.make address: 'Anonymous44'
       persisted_variable = PersistedVariable.make name: 'foo', contact: contact
       project            = Project.make account: contact.account
-      call_log           = CallLog.make project: project, id: 44
+      call_flow          = CallFlow.make project: project
+      call_log           = CallLog.make call_flow: call_flow, id: 44
       session            = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => nil
 
