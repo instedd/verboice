@@ -1,0 +1,15 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = external_service.name
+%p
+  %b Url:
+  = external_service.url
+%p
+  %b Xml:
+  = external_service.xml
+
+= link_to 'Edit', edit_project_external_service_path(project, external_service)
+\|
+= link_to 'Back', project_external_services_path(project)

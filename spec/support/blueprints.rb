@@ -82,3 +82,9 @@ Contact.blueprint do
   account
   address { Sham.password }
 end
+
+ExternalService.blueprint do
+  name
+  url
+  project
+end

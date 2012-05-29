@@ -27,6 +27,7 @@ Verboice::Application.routes.draw do
         get :export_call_flow
       end
     end
+    resources :external_services
   end
 
   resources :call_logs, path: :calls do
