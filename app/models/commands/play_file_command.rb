@@ -3,7 +3,7 @@ class Commands::PlayFileCommand < Command
   param :path, :string, :ui_length => 80
 
   def initialize(path)
-    @file_id = path.sub("#{Rails.root}/data/projects/",'')
+    @file_id = path.sub("#{Rails.root}/data/call_flows/",'')
   end
 
   def run(session)
@@ -13,7 +13,7 @@ class Commands::PlayFileCommand < Command
 
   def setup_file(session)
     path = get_target_path(session)
-    convert_to_8000_hz_gsm "#{Rails.root}/data/projects/" + @file_id, path
+    convert_to_8000_hz_gsm "#{Rails.root}/data/call_flows/" + @file_id, path
     path
   end
 end
