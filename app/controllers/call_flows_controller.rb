@@ -137,6 +137,7 @@ class CallFlowsController < ApplicationController
     @recording_manager.save_recording_for(@step_id, @message) do |out|
       out.write request.body.read
     end
+    render text: @step_id
   end
 
   private
