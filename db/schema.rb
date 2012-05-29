@@ -11,12 +11,11 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120529130853) do
+ActiveRecord::Schema.define(:version => 20120529154055) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
     t.string   "encrypted_password",   :limit => 128, :default => "", :null => false
-    t.string   "password_salt",                       :default => "", :null => false
     t.string   "reset_password_token"
     t.string   "remember_token"
     t.datetime "remember_created_at"
@@ -25,8 +24,9 @@ ActiveRecord::Schema.define(:version => 20120529130853) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string   "password_salt"
+    t.datetime "created_at",                                          :null => false
+    t.datetime "updated_at",                                          :null => false
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
@@ -58,8 +58,8 @@ ActiveRecord::Schema.define(:version => 20120529130853) do
     t.string   "address"
     t.string   "state",        :default => "active"
     t.text     "details"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
     t.integer  "channel_id"
     t.datetime "started_at"
     t.integer  "schedule_id"
@@ -74,8 +74,8 @@ ActiveRecord::Schema.define(:version => 20120529130853) do
     t.integer  "call_flow_id"
     t.string   "name"
     t.text     "config"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
     t.string   "kind"
     t.string   "guid"
   end
@@ -113,8 +113,8 @@ ActiveRecord::Schema.define(:version => 20120529130853) do
 
   create_table "projects", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                             :null => false
+    t.datetime "updated_at",                             :null => false
     t.integer  "account_id"
     t.string   "status_callback_url"
     t.text     "encrypted_config"
@@ -125,8 +125,8 @@ ActiveRecord::Schema.define(:version => 20120529130853) do
     t.integer  "channel_id"
     t.integer  "call_log_id"
     t.string   "address"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
     t.string   "callback_url"
     t.binary   "flow"
     t.string   "status_callback_url"
@@ -159,21 +159,20 @@ ActiveRecord::Schema.define(:version => 20120529130853) do
     t.time     "time_from"
     t.time     "time_to"
     t.string   "weekdays"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "traces", :force => true do |t|
     t.integer  "call_flow_id"
     t.integer  "call_id"
     t.string   "result"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
     t.string   "step_name"
     t.string   "step_id"
   end
 
-  add_index "traces", ["call_flow_id"], :name => "index_traces_on_application_id"
   add_index "traces", ["call_flow_id"], :name => "index_traces_on_call_flow_id"
 
 end
