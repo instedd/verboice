@@ -1,13 +1,25 @@
-%p
-  A Project specifies what to do when an incoming call arrives through a Channel.
+%h2 Projects
+
 %br
-= link_to 'Create a new Project', new_project_path, :class => "button white cancel"
-%br
-- if @projects.present?
-  %br
-  %table.GralTable
+.tablewrapp.w60
+  %table.GralTable.TwoColumn.CleanTable.ItemsTable{:class => ('empty' if @projects.empty?)}
     %tr
-      %th Name
-    - @projects.each do |project|
-      %tr.link{'data-url' => project_path(project)}
-        %td= project.name
+      %th My Projects
+      %th
+    - if @projects.empty?
+      %tr
+        %td.EmptyDataPie{:colspan => 100}
+          %br
+          You have no polls yet.
+          %br
+          = link_button_to _('Create Project'), new_project_path, :class => 'EmptyAddButton button cadd'
+    - else
+      - @projects.each do |project|
+        %tr.link{'data-url' => project_path(project)}
+          %td= project.name
+          %td
+            %button.farrow{:type => :button}
+      %tr.link{'data-url' => new_project_path}
+        %td Create Project
+        %td
+          %button.cadd
