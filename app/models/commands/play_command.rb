@@ -1,5 +1,5 @@
 module Commands::PlayCommand
-  
+
   include AudioUtils
 
   def initialize(file_id)
@@ -14,10 +14,11 @@ module Commands::PlayCommand
 
   def download(session)
     target_path = get_target_path(session)
-    if File.exists? target_path
-      session.trace "File #{target_path} already exists"
-    else
+    if should_setup_file?(target_path)
       setup_file(session)
+      session.trace "File #{target_path} prepared for playing"
+    else
+      session.trace "File #{target_path} already exists"
     end
     target_path
   end
@@ -29,5 +30,9 @@ module Commands::PlayCommand
   def setup_file(session)
     raise "#{self.class.name} must implement setup_file"
   end
-  
+
+  def should_setup_file?(target_path)
+    not File.exists? target_path
+  end
+
 end

@@ -10,6 +10,7 @@ module Commands
       @session.pbx.should_receive(:sound_path_for).with(:md5).and_return(:target_path)
       @session.pbx.should_receive(:play).with(:target_path)
       @session.should_receive(:info).with("Play #{@url}")
+      @session.stub(:trace)
     end
 
     it "don't download if already downloaded" do
