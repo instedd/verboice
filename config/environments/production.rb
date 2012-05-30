@@ -1,4 +1,5 @@
 Verboice::Application.configure do
+  verboice_config = YAML::load_file("#{Rails.root}/config/verboice.yml").with_indifferent_access
   # Settings specified here will take precedence over those in config/application.rb
 
   # Code is not reloaded between requests
@@ -21,8 +22,8 @@ Verboice::Application.configure do
   config.assets.digest = true
 
   # Default url for action mailer
-  config.action_mailer.default_url_options = { :host => 'verboice.instedd.org' }
-  config.action_mailer.asset_host = 'http://verboice.instedd.org'
+  config.action_mailer.default_url_options = verboice_config[:default_url_options].symbolize_keys
+  config.action_mailer.asset_host = verboice_config[:asset_host]
 
   # Defaults to Rails.root.join("public/assets")
   # config.assets.manifest = YOUR_PATH
