@@ -121,6 +121,7 @@ GEM
     librevox (0.3)
       eventmachine (~> 0.12.10)
     libv8 (3.3.10.4)
+    licit (0.1)
     mail (2.4.4)
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
@@ -243,6 +244,7 @@ DEPENDENCIES
   instedd-rails
   jquery-rails
   librevox
+  licit
   machinist!
   mocha
   mysql2
