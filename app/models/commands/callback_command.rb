@@ -8,6 +8,7 @@ class Commands::CallbackCommand < Command
     @method = options[:method] || 'post'
     @params = options[:params]
     @response_type = options[:response_type] || :flow
+    @variables = options[:variables] || {}
   end
 
   def run(session)
@@ -103,6 +104,8 @@ class Commands::CallbackCommand < Command
   end
 
   def interpolate_url(session, url)
-    url.gsub(/\{([^\{]*)\}/) { session[$1] }
+    url.gsub(/\{([^\{]*)\}/) do
+      session.eval @variables[$1]
+    end
   end
 end

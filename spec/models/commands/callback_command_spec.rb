@@ -52,13 +52,15 @@ module Commands
     end
 
     it "interpolates url with session variables" do
-      url = 'http://www.domain.com/{foo}?key={bar}'
-      interpolated_url = 'http://www.domain.com/the_foo?key=the_bar'
-      @session.should_receive(:[]).with('foo').and_return('the_foo')
-      @session.should_receive(:[]).with('bar').and_return('the_bar')
+      options = {:variables => {'foo' => 'var_foo', 'bar' => 'value_bar', 'baz' => '42'}}
+      url = 'http://www.domain.com/{foo}?key1={bar}&key2={baz}'
+      interpolated_url = 'http://www.domain.com/the_foo?key1=the_bar&key2=the_42'
+      @session.should_receive(:eval).with('var_foo').and_return('the_foo')
+      @session.should_receive(:eval).with('value_bar').and_return('the_bar')
+      @session.should_receive(:eval).with('42').and_return('the_42')
 
       expect_em_http :post, interpolated_url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
-        CallbackCommand.new(url).run @session
+        CallbackCommand.new(url, options).run @session
       end
     end
 
