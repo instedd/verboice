@@ -5,5 +5,5 @@
       %span Choose one of the options below to insert a new step in the app
     .content-buttons{ 'data-bind' => 'foreach: commands' }
       %div
-        %button{'data-bind' => 'click: selected, class: button_class', :style => 'display:block' }
+        %button{'data-bind' => 'click: selected, class: button_class, style: {background: background_style()}', :style => 'display:block' }
         %span{ko(text: 'name()')}

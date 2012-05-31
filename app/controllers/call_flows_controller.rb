@@ -91,6 +91,7 @@ class CallFlowsController < ApplicationController
 
   def edit_workflow
     @variables = current_account.distinct_variables
+    @external_steps = @call_flow.project.external_service_steps.includes(:external_service)
   end
 
   def import_call_flow

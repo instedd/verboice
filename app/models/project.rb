@@ -7,6 +7,7 @@ class Project < ActiveRecord::Base
   has_many :call_logs, :dependent => :destroy
   has_many :queued_calls, :dependent => :destroy
   has_many :external_services, :dependent => :destroy
+  has_many :external_service_steps, :through => :external_services
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id

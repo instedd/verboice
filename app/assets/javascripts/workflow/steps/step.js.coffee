@@ -113,3 +113,9 @@ onWorkflow ->
 
     after_initialize: () =>
       null
+
+    background_style: () =>
+      if @icon_url?()?
+        "transparent url(\"#{@icon_url()}\") no-repeat 0 0 scroll"
+      else
+        null
