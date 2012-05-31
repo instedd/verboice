@@ -7,13 +7,14 @@
           %li= msg
 
   .field
-    = f.label :name
-    = f.text_field :name
-  .field
     = f.label :url
     = f.text_field :url
-  .field
-    = f.label :xml
-    = f.text_area :xml
+    = link_to 'Preview', '#', :class => 'request_service_manifest', :remote => true
+
+  %br
+
+  .external_service_info
+    = render 'data'
+
   .actions
     = f.submit 'Save'

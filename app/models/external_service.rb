@@ -7,10 +7,18 @@ class ExternalService < ActiveRecord::Base
   def update_manifest!
     response = RestClient.get self.url
     self.xml = response.to_str
-    self.save!
+    self.update_from_manifest!(xml)
+  end
+
+  def steps
+    external_service_steps
   end
 
   def update_from_manifest(xml)
+    Parsers::ExternalService.new(self).parse(xml).save
+  end
+
+  def update_from_manifest!(xml)
     Parsers::ExternalService.new(self).parse(xml).save
   end
 
@@ -20,8 +28,5 @@ class ExternalService < ActiveRecord::Base
     end
   end
 
-  def steps
-    external_service_steps
-  end
 
 end
