@@ -7,10 +7,12 @@ class Commands::CallbackCommand < Command
     @url = url
     @method = options[:method] || 'post'
     @params = options[:params]
+    @response_type = options[:response_type] || :flow
   end
 
   def run(session)
     url = @url || session.callback_url
+    url = interpolate_url session, url
     method = (@method || 'post').to_s.downcase.to_sym
 
     url, authorization = callback_authentication(url, session.call_flow)
@@ -37,15 +39,7 @@ class Commands::CallbackCommand < Command
 
         session.trace "Callback returned #{content_type}: #{body}"
 
-        commands = case content_type
-                   when %r(application/json)
-                     commands = Commands::JsCommand.new body
-                   else
-                     commands = Parsers::Xml.parse body
-                   end
-
-        commands.last.next = self.next
-        f.resume commands
+        f.resume self.send(@response_type, content_type, body)
       rescue Exception => e
         f.resume e
       end
@@ -55,6 +49,34 @@ class Commands::CallbackCommand < Command
   end
 
   private
+
+  def flow(content_type, body)
+     next_command = case content_type
+                    when %r(application/json)
+                      Commands::JsCommand.new body
+                    else
+                      Parsers::Xml.parse body
+                    end
+    next_command.last.next = self.next
+    next_command
+  end
+
+  def variables(content_type, body)
+    hash = JSON.parse body
+    next_command = Compiler.make do |c|
+      hash.each do |key, value|
+        c.Assign key, value
+        c.PersistVariable key, value
+      end
+    end
+
+    next_command.last.next = self.next
+    next_command
+  end
+
+  def none(content_type, body)
+    self.next
+  end
 
   def callback_authentication(url, project)
     uri = URI.parse(url)
@@ -78,5 +100,9 @@ class Commands::CallbackCommand < Command
     else
       request.post({:body => body}.merge(authorization))
     end
+  end
+
+  def interpolate_url(session, url)
+    url.gsub(/\{([^\{]*)\}/) { session[$1] }
   end
 end

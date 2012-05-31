@@ -51,6 +51,17 @@ module Commands
       result.should == Commands::HangupCommand.new
     end
 
+    it "interpolates url with session variables" do
+      url = 'http://www.domain.com/{foo}?key={bar}'
+      interpolated_url = 'http://www.domain.com/the_foo?key=the_bar'
+      @session.should_receive(:[]).with('foo').and_return('the_foo')
+      @session.should_receive(:[]).with('bar').and_return('the_bar')
+
+      expect_em_http :post, interpolated_url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+        CallbackCommand.new(url).run @session
+      end
+    end
+
     context "running with an app which has http basic authentication for the callback url", :focus => true do
       before do
         assert_log
@@ -133,5 +144,70 @@ module Commands
       end
       result.should == Compiler.make { Pause(); Hangup() }
     end
+
+    describe "variables" do
+      let(:options) { {:response_type => :variables}}
+      let(:variables) { {:key1 => 'value1', :key2 => 'value2'} }
+
+      before(:each) do
+        assert_log
+        @session.should_receive(:trace).with("Callback returned application/json: #{variables.to_json}")
+      end
+
+      it "assigns and persists returned variables" do
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => variables.to_json, :content_type => 'application/json' do
+          CallbackCommand.new(url, options).run @session
+        end
+
+        expected = Compiler.make do
+          Assign 'key1', 'value1'
+          PersistVariable 'key1', 'value1'
+          Assign 'key2', 'value2'
+          PersistVariable 'key2', 'value2'
+        end
+
+        result.should eq(expected)
+      end
+
+      it "continues with the following commands after the assigns and persists commands" do
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => variables.to_json, :content_type => 'application/json' do
+          Compiler.make do |c|
+            c.Callback url, options
+            c.Hangup
+          end.run @session
+        end
+
+        expected = Compiler.make do
+          Assign 'key1', 'value1'
+          PersistVariable 'key1', 'value1'
+          Assign 'key2', 'value2'
+          PersistVariable 'key2', 'value2'
+          Hangup()
+        end
+
+        result.should eq(expected)
+      end
+    end
+
+    describe "none" do
+      let(:options) { {:response_type => :none}}
+
+      before(:each) do
+        assert_log
+        @session.should_receive(:trace).with("Callback returned text/plain: ")
+      end
+
+      it "continues with the next command" do
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '', :content_type => 'text/plain' do
+          Compiler.make do |c|
+            c.Callback url, options
+            c.Hangup
+          end.run @session
+        end
+
+        result.should eq(Commands::HangupCommand.new)
+      end
+    end
+
   end
 end
