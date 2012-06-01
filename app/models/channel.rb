@@ -62,7 +62,7 @@ class Channel < ActiveRecord::Base
     via = options.fetch(:via, 'API')
 
   current_call_flow = (CallFlow.find(options[:call_flow_id].presence) rescue nil) || call_flow
-    flow = options[:flow] || current_call_flow.flow
+    flow = options[:flow] || current_call_flow.commands
     project_id = options[:project_id].presence || (CallFlow.find(options[:call_flow_id].presence) rescue nil).try(:project).try(:id) || call_flow.project.id
 
     time_zone = nil

@@ -1,4 +1,11 @@
 GIT
+  remote: https://github.com/edave/enumerated_attribute.git
+  revision: ec1021d11874f37d30589f91814d069884348fdf
+  specs:
+    enumerated_attribute (0.2.16)
+      meta_programming (>= 0.2.1)
+
+GIT
   remote: https://github.com/tbuehl/machinist.git
   revision: 2b6ea4c2e876d4e9b3b22cc975057268788c7ff5
   branch: 1.0-maintenance
@@ -99,7 +106,7 @@ GEM
     foreman (0.41.0)
       thor (>= 0.13.6)
     guid (0.1.1)
-    haml (3.1.4)
+    haml (3.1.6)
     haml-rails (0.3.4)
       actionpack (~> 3.0)
       activesupport (~> 3.0)
@@ -126,6 +133,7 @@ GEM
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    meta_programming (0.2.2)
     metaclass (0.0.1)
     mime-types (1.18)
     mocha (0.10.5)
@@ -234,6 +242,7 @@ DEPENDENCIES
   decent_exposure
   devise
   em-http-request
+  enumerated_attribute!
   equivalent-xml
   eventmachine_httpserver
   ffaker

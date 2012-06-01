@@ -21,12 +21,12 @@ describe CallFlow do
 
   context "callbacks" do
     it "sets name to callback url if name is empty" do
-      call_flow = CallFlow.make :name => nil, :callback_url => 'foo'
+      call_flow = CallFlow.make :name => nil, :callback_url => 'foo', :mode => :callback_url
       call_flow.name.should == call_flow.callback_url
     end
 
     it "keeps name if name set" do
-      call_flow = CallFlow.make :name => 'bar', :callback_url => 'foo'
+      call_flow = CallFlow.make :name => 'bar', :callback_url => 'foo', :mode => :callback_url
       call_flow.name.should == 'bar'
     end
   end
@@ -82,7 +82,10 @@ describe CallFlow do
         Say "Some explanation message"
       end
     )
+  end
 
+  it "should provide an error flow" do
+    call_flow = CallFlow.make id: 4
     call_flow.error_flow.should eq(
       Compiler.make do
         Trace call_flow_id: 4, step_id: 'current_step', step_name: '', store: '"User hanged up."'

@@ -332,12 +332,4 @@ describe Parsers::UserFlow do
     })
   end
 
-  it "should provide an error flow to append to a given call_flow" do
-    (Parsers::UserFlow.new call_flow, user_flow).error_flow.should eq(
-      Compiler.make do
-        Trace call_flow_id: 5, step_id: 'current_step', step_name: '', store: '"User hanged up."'
-      end
-    )
-  end
-
 end

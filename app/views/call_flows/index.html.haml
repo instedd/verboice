@@ -1,20 +1,15 @@
 = render 'shared/project_tabs_and_title', :project => @project
 
-%table
-  %tr
-    %th Name
-    %th
-    %th
-    %th
+%h2 Call flows
+%p Use the following tool to define your application's call flows
 
-
+%ul.vertical
   - @call_flows.each do |call_flow|
-    %tr
-      %td= call_flow.name
-      %td= link_to 'Edit', edit_project_call_flow_path(@project, call_flow)
-      %td= link_to 'Edit Workflow', edit_workflow_project_call_flow_path(@project, call_flow)
-      %td= link_to 'Destroy', [@project, call_flow], :confirm => 'Are you sure?', :method => :delete
+    %li.fields
+      = render 'box', :call_flow => call_flow, :expanded => call_flow.errors.any?
 
-%br
-
-= link_to 'New Call flow', new_project_call_flow_path
+  %li.fields
+    .box.grey.w60.call_flow_box
+      = link_to_add_call_flow  "Add Call flow", @project, :class => "add_fields"
+      %button.cadd.right{:onclick => "$('.add_fields', $(this).closest('.box')).click();", :type => "button"}
+      .clear

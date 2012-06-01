@@ -23,6 +23,7 @@ class CallFlowsController < ApplicationController
   before_filter :load_call_flow_and_project, :only => [
     :show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import_call_flow, :export_call_flow
   ]
+  before_filter :load_all_call_flows, :only => [:index, :update, :create]
   before_filter :load_recording_data, :only => [:play_recording, :save_recording, :play_result]
 
   skip_before_filter :verify_authenticity_token, :only => :save_recording
@@ -61,7 +62,6 @@ class CallFlowsController < ApplicationController
 
   def index
     @project = current_account.projects.includes(:call_flows).find(params[:project_id])
-    @call_flows = @project.call_flows
   end
 
   def new
@@ -73,10 +73,11 @@ class CallFlowsController < ApplicationController
     @project = current_account.projects.includes(:call_flows).find(params[:project_id])
     @call_flow = @project.call_flows.create(params[:call_flow])
 
-    if @call_flow.save
-      redirect_to edit_workflow_project_call_flow_path(@project, @call_flow), notice: 'Call flow was successfully created.'
+    @call_flow.save
+    if request.xhr?
+      render :partial => "box_content", :locals => { :call_flow => @call_flow, :expanded => (@call_flow.mode_flow? || @call_flow.errors.any?)}
     else
-      render action: "new"
+      render :action => "index"
     end
   end
 
@@ -90,17 +91,18 @@ class CallFlowsController < ApplicationController
   end
 
   def update
-    if @call_flow.update_attributes(params[:call_flow])
-        redirect_to(edit_project_call_flow_path(@project, @call_flow), :notice => "Call Flow #{@call_flow.name} successfully updated.")
+    @call_flow.update_attributes(params[:call_flow])
+    if request.xhr?
+      render :partial => "box_content", :locals => { :call_flow => @call_flow, :expanded => @call_flow.errors.any? }
     else
-      render :action => "edit"
+      render :action => "index"
     end
   end
 
   def update_workflow
     @call_flow.user_flow = JSON.parse params[:flow]
     if @call_flow.save
-        redirect_to(edit_workflow_project_call_flow_path(@project, @call_flow), :notice => "Call Flow #{@call_flow.name} successfully updated.")
+        redirect_to edit_workflow_project_call_flow_path(@project, @call_flow), :notice => "Call Flow #{@call_flow.name} successfully updated."
     else
       render :action => "edit_workflow"
     end
@@ -112,7 +114,7 @@ class CallFlowsController < ApplicationController
 
   def import_call_flow
     if params[:vrb].blank?
-      redirect_to({ :action => :show }, :flash => { :alert => 'No file found' })
+      redirect_to({:action => :edit_workflow}, :flash => {:alert => "No file found"})
     else
       begin
         extension = File.extname params[:vrb].original_filename
@@ -125,9 +127,9 @@ class CallFlowsController < ApplicationController
           raise 'Invalid extension'
         end
         @call_flow.save!
-        redirect_to({ :action => :edit }, {:notice => "Call Flow #{@call_flow.name} successfully updated."})
+        redirect_to({ :action => :edit_workflow }, {:notice => "Call Flow #{@call_flow.name} successfully updated."})
       rescue Exception => ex
-        redirect_to({:action => :edit}, :flash => {:error => "Invalid file: #{ex}"})
+        redirect_to({:action => :edit_workflow}, :flash => {:error => "Invalid file: #{ex}"})
       end
     end
   end
@@ -168,5 +170,14 @@ class CallFlowsController < ApplicationController
   def load_call_flow_and_project
     @project = current_account.projects.includes(:call_flows).find(params[:project_id])
     @call_flow = @project.call_flows.find(params[:id])
+  end
+
+  def load_all_call_flows
+    @project = current_account.projects.includes(:call_flows).find(params[:project_id])
+    @call_flows = if @call_flow
+      @project.call_flows.reject { |call_flow| call_flow.id == @call_flow.id }.unshift(@call_flow)
+    else
+      @project.call_flows
+    end
   end
 end

@@ -19,6 +19,28 @@
 
 = render 'shared/project_tabs_and_title', :project => @project
 
+%h2= @call_flow.name
+%p Use the following tool to define the application's call flow
+
+= form_tag export_call_flow_project_call_flow_path(@project, @call_flow), :method => :get do
+  %button.fimport Download current Call flow
+  = check_box_tag :export_audios
+  include audio recordings
+
+.ux-collapsible.collapsed.w40.file_upload{"data-on-expanded" => "box grey"}
+  %span
+    %a.button.fexport{:href => "#"} Upload a new Call Flow:
+  .ux-content
+    = form_tag({:action => :import_call_flow}, :multipart => true) do
+      %hr
+      = file_field_tag 'vrb', :label => 'Browse', :class =>'button white'
+      %hr
+      .right
+        %button.grey{:type => "submit"} Upload
+      .clear
+
+%hr
+
 = form_tag update_workflow_project_call_flow_path, :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
   #wami
   #workflow

@@ -37,7 +37,7 @@ Verboice::Application.routes.draw do
     member do
       post :enqueue_call
     end
-    resources :call_flows do
+    resources :call_flows, except: [:new, :edit] do
       member do
         get :edit_workflow
         put :update_workflow

@@ -74,20 +74,6 @@ describe CallFlowsController do
     end
   end
 
-  describe "GET new" do
-    it "assigns a new call_flow as @call_flow" do
-      get :new, {:project_id => project.to_param}
-      assigns(:call_flow).should be_a_new(CallFlow)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested call_flow as @call_flow" do
-      get :edit, {:project_id => project.to_param, :id => call_flow.to_param}
-      assigns(:call_flow).should eq(call_flow)
-    end
-  end
-
   describe "POST create" do
     describe "with valid params" do
       it "creates a new CallFlow" do
@@ -104,7 +90,7 @@ describe CallFlowsController do
 
       it "redirects to the created call_flow" do
         post :create, {:call_flow => CallFlow.plan, :project_id => project.to_param}
-        response.should redirect_to(edit_workflow_project_call_flow_path(project, CallFlow.last))
+        response.should render_template("index")
       end
     end
 
@@ -118,7 +104,7 @@ describe CallFlowsController do
       it "re-renders the 'new' template" do
         CallFlow.any_instance.stub(:save).and_return(false)
         post :create, {:call_flow => {}, :project_id => project.to_param}
-        response.should render_template("new")
+        response.should render_template("index")
       end
     end
   end
@@ -137,7 +123,7 @@ describe CallFlowsController do
 
       it "redirects to the call_flow" do
         put :update, {:id => call_flow.to_param, :call_flow => CallFlow.plan, :project_id => project.to_param}
-        response.should redirect_to(edit_project_call_flow_path(project.id, CallFlow.last.id))
+        response.should render_template("index")
       end
     end
 
@@ -151,7 +137,7 @@ describe CallFlowsController do
       it "re-renders the 'edit' template" do
         CallFlow.any_instance.stub(:save).and_return(false)
         put :update, {:id => call_flow.to_param, :call_flow => {}, :project_id => project.to_param}
-        response.should render_template("edit")
+        response.should render_template("index")
       end
     end
   end

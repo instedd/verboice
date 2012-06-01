@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120529154055) do
+ActiveRecord::Schema.define(:version => 20120601171031) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -40,12 +40,12 @@ ActiveRecord::Schema.define(:version => 20120529154055) do
     t.string   "name"
     t.binary   "flow"
     t.binary   "user_flow"
-    t.binary   "error_flow"
     t.string   "callback_url"
     t.integer  "project_id"
     t.text     "encrypted_config"
     t.datetime "created_at",       :null => false
     t.datetime "updated_at",       :null => false
+    t.string   "mode"
   end
 
   add_index "call_flows", ["project_id"], :name => "index_call_flows_on_project_id"

@@ -27,7 +27,7 @@ module Commands
       @session.pbx.should_receive(:caller_id).and_return('999')
       @session.channel = mock('channel')
       @session.channel.should_receive(:name).and_return('foo')
-      @session.call_flow = CallFlow.make
+      @session.call_flow = CallFlow.make mode: :callback_url
       @default_body = {:From => '999', :Channel => 'foo'}
       @session.call_log = CallLog.make
       apply_call_flow
