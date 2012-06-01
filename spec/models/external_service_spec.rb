@@ -14,4 +14,8 @@ describe ExternalService do
     external_service.reload.xml.should eq('new xml')
   end
 
+  it 'has empty global setting upon creation' do
+    external_service.global_settings.should be_empty
+  end
+
 end

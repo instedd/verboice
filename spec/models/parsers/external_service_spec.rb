@@ -21,6 +21,7 @@ describe Parsers::ExternalService do
 
       service.name.should eq('Empty service')
       service.steps.should be_empty
+      service.global_settings.should be_empty
       service.should be_valid
     end
 
@@ -88,6 +89,33 @@ describe Parsers::ExternalService do
       var_2.name.should eq('my-var-2')
       var_2.display_name.should eq('Variable Two')
       var_2.type.should eq('numeric')
+    end
+
+    it "should create a new external service with global settings" do
+      parse <<-XML
+        <verboice-service>
+          <name>My Service</name>
+          <global-settings>
+            <variable name="global-var-1" display-name="Global Var One" type="string"/>
+            <variable name="global-var-2" display-name="Global Var Two" type="numeric"/>
+          </global-settings>
+        </verboice-service>
+      XML
+
+      service.global_settings.should have(2).item
+      service.should be_valid
+
+      global_var_1 = service.global_settings['global-var-1']
+      global_var_1.name.should eq('global-var-1')
+      global_var_1.display_name.should eq('Global Var One')
+      global_var_1.type.should eq('string')
+      global_var_1.value.should be_nil
+
+      global_var_2 = service.global_settings['global-var-2']
+      global_var_2.name.should eq('global-var-2')
+      global_var_2.display_name.should eq('Global Var Two')
+      global_var_2.type.should eq('numeric')
+      global_var_2.value.should be_nil
     end
 
   end
@@ -166,7 +194,66 @@ describe Parsers::ExternalService do
       service.steps.where(:id => to_be_deleted.id).should have(0).items
     end
 
+    context "global settings" do
+      before(:each) do
+        globar_var_1 = ExternalService::GlobalVariable.new.tap do |v|
+          v.name = 'global-var-1'
+          v.display_name =  'Global Var One'
+          v.type = 'string'
+          v.value = 'global_var_1_value'
+        end
+
+        @existing_service.global_settings[globar_var_1.name] = globar_var_1
+      end
+
+      it "should keep values of variables and update fields" do
+        parse <<-XML
+          <verboice-service>
+            <name>My Service</name>
+            <global-settings>
+              <variable name="global-var-1" display-name="Updated Global Var One" type="numeric"/>
+            </global-settings>
+          </verboice-service>
+        XML
+
+        updated_global_var_1 = service.global_settings['global-var-1']
+        updated_global_var_1.name.should eq('global-var-1')
+        updated_global_var_1.display_name.should eq('Updated Global Var One')
+        updated_global_var_1.type.should eq('numeric')
+        updated_global_var_1.value.should eq('global_var_1_value')
+      end
+
+      it "should delete removed variables" do
+        parse <<-XML
+          <verboice-service>
+            <name>My Service</name>
+            <global-settings>
+              <variable name="global-var-2" display-name="Global Var Two" type="numeric"/>
+            </global-settings>
+          </verboice-service>
+        XML
+
+        service.global_settings['global-var-1'].should be_nil
+      end
+
+      it "should add new variables" do
+        parse <<-XML
+          <verboice-service>
+            <name>My Service</name>
+            <global-settings>
+              <variable name="global-var-1" display-name="Global Var One" type="string"/>
+              <variable name="global-var-2" display-name="Global Var Two" type="numeric"/>
+            </global-settings>
+          </verboice-service>
+        XML
+
+        global_var_2 = service.global_settings['global-var-2']
+        global_var_2.name.should eq('global-var-2')
+        global_var_2.display_name.should eq('Global Var Two')
+        global_var_2.type.should eq('numeric')
+        global_var_2.value.should be_nil
+      end
+    end
+
   end
-
-
 end

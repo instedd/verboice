@@ -10,6 +10,8 @@ module Parsers
 
       @external_service.name = xml.root.xpath('./name').text rescue nil
 
+      parse_global_settings xml.root
+
       existing_steps_ids = @external_service.steps.pluck :id
       xml.root.xpath('./steps/step').each do |step_node|
         step = parse_step step_node
@@ -24,6 +26,18 @@ module Parsers
     end
 
     private
+
+    def parse_global_settings root
+      updated_global_settings = {}
+      root.xpath('./global-settings/variable').each do |variable_node|
+        global_var = parse_global_variable variable_node
+        updated_global_settings[global_var.name] = global_var
+      end
+      @external_service.global_settings.each do |key, variable|
+        updated_global_settings[key].value = variable.value if updated_global_settings[key].present?
+      end
+      @external_service.global_settings = updated_global_settings
+    end
 
     def parse_step node
       attributes = {
@@ -49,6 +63,14 @@ module Parsers
 
     def parse_variable node
       ::ExternalServiceStep::Variable.new.tap do |var|
+        var.name = node.attr('name')
+        var.display_name = node.attr('display-name')
+        var.type = node.attr('type')
+      end
+    end
+
+    def parse_global_variable node
+      ::ExternalService::GlobalVariable.new.tap do |var|
         var.name = node.attr('name')
         var.display_name = node.attr('display-name')
         var.type = node.attr('type')

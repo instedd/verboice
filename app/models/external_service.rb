@@ -4,6 +4,8 @@ class ExternalService < ActiveRecord::Base
 
   attr_accessible :name, :url, :xml
 
+  serialize :global_settings, Hash
+
   def update_manifest!
     response = RestClient.get self.url
     self.xml = response.to_str
@@ -28,5 +30,8 @@ class ExternalService < ActiveRecord::Base
     end
   end
 
+  class GlobalVariable
+    attr_accessor :name, :display_name, :type, :value
+  end
 
 end
