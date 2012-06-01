@@ -15,10 +15,11 @@ onWorkflow ->
 
     @from_hash: (hash) ->
       if typeof(hash.type) == "string"
+        hash_type = if hash.external_step_id? then "#{hash.type}_#{hash.external_step_id}" else hash.type # TODO: Refactor me! It should be external step responsibility to define this
         for step_type in step_types
-          if hash.type == step_type.type
+          if hash_type == step_type.type
             return window[step_type.type].initialize(hash)
-        throw "Command type not recognised #{hash['type']}"
+        throw "Command type not recognised #{hash_type}"
       else
         return hash.type.initialize(hash)
 

@@ -11,7 +11,7 @@ onWorkflow ->
         @external_step_type_id = external_step.id
         @display_name = external_step.display_name
         @variables = external_step.variables
-        @type = "external_#{external_step.name}"
+        @type = "external_#{external_step.id}"
         @icon = external_step.icon) for external_step in external_steps
 
     constructor: (attrs) ->
