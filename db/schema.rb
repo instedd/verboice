@@ -16,7 +16,6 @@ ActiveRecord::Schema.define(:version => 20120601180726) do
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
     t.string   "encrypted_password",   :limit => 128, :default => "", :null => false
-    t.string   "password_salt",                       :default => "", :null => false
     t.string   "reset_password_token"
     t.string   "remember_token"
     t.datetime "remember_created_at"
@@ -25,8 +24,9 @@ ActiveRecord::Schema.define(:version => 20120601180726) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string   "password_salt"
+    t.datetime "created_at",                                          :null => false
+    t.datetime "updated_at",                                          :null => false
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
@@ -58,8 +58,8 @@ ActiveRecord::Schema.define(:version => 20120601180726) do
     t.string   "address"
     t.string   "state",        :default => "active"
     t.text     "details"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
     t.integer  "channel_id"
     t.datetime "started_at"
     t.integer  "schedule_id"
@@ -74,24 +74,13 @@ ActiveRecord::Schema.define(:version => 20120601180726) do
     t.integer  "call_flow_id"
     t.string   "name"
     t.text     "config"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
     t.string   "kind"
     t.string   "guid"
   end
 
   add_index "channels", ["call_flow_id"], :name => "index_channels_on_call_flow_id"
-
-  create_table "consumer_tokens", :force => true do |t|
-    t.integer  "user_id"
-    t.string   "type",       :limit => 30
-    t.string   "token"
-    t.string   "secret"
-    t.datetime "created_at",               :null => false
-    t.datetime "updated_at",               :null => false
-  end
-
-  add_index "consumer_tokens", ["token"], :name => "index_consumer_tokens_on_token", :unique => true
 
   create_table "contacts", :force => true do |t|
     t.string   "address"
@@ -100,22 +89,6 @@ ActiveRecord::Schema.define(:version => 20120601180726) do
     t.datetime "updated_at", :null => false
     t.boolean  "anonymous"
   end
-
-  create_table "delayed_jobs", :force => true do |t|
-    t.integer  "priority",   :default => 0
-    t.integer  "attempts",   :default => 0
-    t.text     "handler"
-    t.text     "last_error"
-    t.datetime "run_at"
-    t.datetime "locked_at"
-    t.datetime "failed_at"
-    t.string   "locked_by"
-    t.string   "queue"
-    t.datetime "created_at",                :null => false
-    t.datetime "updated_at",                :null => false
-  end
-
-  add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
   create_table "external_service_steps", :force => true do |t|
     t.integer  "external_service_id"
@@ -144,16 +117,6 @@ ActiveRecord::Schema.define(:version => 20120601180726) do
 
   add_index "external_services", ["project_id"], :name => "index_external_services_on_project_id"
 
-  create_table "o_auth_tokens", :force => true do |t|
-    t.integer  "account_id"
-    t.string   "service"
-    t.string   "access_token"
-    t.string   "refresh_token"
-    t.datetime "expires_at"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
-  end
-
   create_table "persisted_variables", :force => true do |t|
     t.string   "value"
     t.string   "name"
@@ -166,22 +129,20 @@ ActiveRecord::Schema.define(:version => 20120601180726) do
 
   create_table "projects", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                             :null => false
+    t.datetime "updated_at",                             :null => false
     t.integer  "account_id"
     t.string   "status_callback_url"
     t.text     "encrypted_config"
-    t.string   "fusion_table_name"
-    t.string   "current_fusion_table_id"
-    t.string   "time_zone",               :default => "UTC"
+    t.string   "time_zone",           :default => "UTC"
   end
 
   create_table "queued_calls", :force => true do |t|
     t.integer  "channel_id"
     t.integer  "call_log_id"
     t.string   "address"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
     t.string   "callback_url"
     t.binary   "flow"
     t.string   "status_callback_url"
@@ -214,16 +175,16 @@ ActiveRecord::Schema.define(:version => 20120601180726) do
     t.time     "time_from"
     t.time     "time_to"
     t.string   "weekdays"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "traces", :force => true do |t|
     t.integer  "call_flow_id"
     t.integer  "call_id"
     t.string   "result"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
     t.string   "step_name"
     t.string   "step_id"
   end
