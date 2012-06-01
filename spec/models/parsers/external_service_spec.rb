@@ -49,6 +49,8 @@ describe Parsers::ExternalService do
       step.name.should eq('my-step')
       step.display_name.should eq('My step')
       step.icon.should eq('http://example.com/icon.png')
+      step.kind.should eq('callback')
+      step.response_type.should eq('variables')
       step.callback_url.should eq('http://example.com/callback/')
     end
 

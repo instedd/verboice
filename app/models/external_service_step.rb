@@ -1,7 +1,7 @@
 class ExternalServiceStep < ActiveRecord::Base
   belongs_to :external_service
 
-  attr_accessible :callback_url, :display_name, :icon, :name, :type, :variables
+  attr_accessible :callback_url, :display_name, :icon, :name, :kind, :variables
 
   serialize :variables, Array
 

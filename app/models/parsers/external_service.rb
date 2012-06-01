@@ -44,6 +44,8 @@ module Parsers
         name: node.attr('name'),
         display_name: node.attr('display-name'),
         icon: node.attr('icon'),
+        kind: node.attr('type'),
+        response_type: node.attr('response-type'),
         callback_url: node.attr('callback-url')
       }
 
@@ -51,6 +53,8 @@ module Parsers
       step = @external_service.steps.find_or_initialize_by_name(attributes[:name])
       step.display_name = node.attr('display-name') if node.attr('display-name')
       step.icon = node.attr('icon') if node.attr('icon')
+      step.kind = node.attr('type') if node.attr('type')
+      step.response_type = node.attr('response-type') if node.attr('response-type')
       step.callback_url = node.attr('callback-url') if node.attr('callback-url')
 
       node.xpath('./settings/variable').each do |var_node|
