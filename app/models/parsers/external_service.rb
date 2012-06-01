@@ -57,10 +57,12 @@ module Parsers
       step.response_type = node.attr('response-type') if node.attr('response-type')
       step.callback_url = node.attr('callback-url') if node.attr('callback-url')
 
+      step.variables = []
       node.xpath('./settings/variable').each do |var_node|
         step.variables << parse_variable(var_node)
       end
 
+      # FIXME: Should not save when parsing!! See how to mark for update
       step.save if !step.new_record?
       step
     end

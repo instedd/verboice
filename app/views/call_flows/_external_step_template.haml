@@ -5,9 +5,18 @@
       %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
 
     %table.GralTable.TwoColumn.CleanTable.NoHead
-      %tr
-        %th External Service
-        %th
+      %tbody{ko(foreach: 'settings')}
+        %tr
+          %td{ko(text: 'name')}
+          %td
+            %select.w8{'data-bind' => "value: content_kind"}
+              %option{value: "step"} Step
+              %option{value: "variable"} Variable
+              %option{value: "value"} Value
+          %td
+            %input.ux-text.w8{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value"'}
+            %select{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables()'}
+            %select{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name"'}
 
     .content
       .bottom-actions
