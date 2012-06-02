@@ -66,8 +66,8 @@ class Commands::CallbackCommand < Command
     hash = JSON.parse body
     next_command = Compiler.make do |c|
       hash.each do |key, value|
-        c.Assign key, value
-        c.PersistVariable key, value
+        c.Assign key, "'#{value}'"
+        c.PersistVariable key, "'#{value}'"
       end
     end
 

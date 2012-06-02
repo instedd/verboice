@@ -46,7 +46,7 @@ module Parsers
               c.Callback external_service_step.callback_url, {:response_type => :variables, :variables => {
                 'variable_with_step' => 'value_20',
                 'variable_with_variable' => 'foobar',
-                'variable_with_value' => 'fixed value'
+                'variable_with_value' => "'fixed value'"
               }}
             end.first
           )

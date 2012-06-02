@@ -48,7 +48,7 @@ module Parsers
               compiler.RetrieveVariable setting['variable']
               map[setting['name']] = setting['variable']
             elsif setting['value'].present?
-              map[setting['name']] = setting['value']
+              map[setting['name']] = "'#{setting['value']}'"
             end
           end
         end

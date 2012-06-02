@@ -162,10 +162,10 @@ module Commands
         end
 
         expected = Compiler.make do
-          Assign 'key1', 'value1'
-          PersistVariable 'key1', 'value1'
-          Assign 'key2', 'value2'
-          PersistVariable 'key2', 'value2'
+          Assign 'key1', "'value1'"
+          PersistVariable 'key1', "'value1'"
+          Assign 'key2', "'value2'"
+          PersistVariable 'key2', "'value2'"
         end
 
         result.should eq(expected)
@@ -180,10 +180,10 @@ module Commands
         end
 
         expected = Compiler.make do
-          Assign 'key1', 'value1'
-          PersistVariable 'key1', 'value1'
-          Assign 'key2', 'value2'
-          PersistVariable 'key2', 'value2'
+          Assign 'key1', "'value1'"
+          PersistVariable 'key1', "'value1'"
+          Assign 'key2', "'value2'"
+          PersistVariable 'key2', "'value2'"
           Hangup()
         end
 
