@@ -23,12 +23,12 @@ describe ExternalService do
 
   it 'updates the manifest' do
     external_service.url = 'service url'
-    response = double('response', :to_str => 'new xml')
+    xml = '<verboice-service><name>my_service</name></verboice-service>'
+    response = double('response', :to_str => xml)
     RestClient.should_receive(:get).with('service url').and_return(response)
 
     external_service.update_manifest!
-
-    external_service.reload.xml.should eq('new xml')
+    external_service.reload.xml.should eq(xml)
   end
 
   it 'has empty global variables upon creation' do

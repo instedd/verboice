@@ -93,6 +93,46 @@ describe Parsers::ExternalService do
       var_2.type.should eq('numeric')
     end
 
+    it "should create a new external service with a callback step with several response variables" do
+        parse <<-XML
+          <verboice-service>
+            <name>My service</name>
+            <steps>
+              <step name="my-step"
+                display-name="My step"
+                icon="http://example.com/icon.png"
+                type="callback"
+                callback-url="http://example.com/callback/"
+                response-type="variables">
+                <settings>
+                  <variable name="my-var-1" display-name="Variable One" type="string"/>
+                  <response-variable name="my-resp-1" display-name="Response One" type="string"/>
+                  <response-variable name="my-resp-2" display-name="Response Two" type="numeric"/>
+                </settings>
+              </step>
+            </steps>
+          <verboice-service>
+        XML
+
+        service.steps.should have(1).item
+        service.should be_valid
+
+        step = service.steps.first
+        step.name.should eq('my-step')
+
+        step.should have(2).response_variables
+        var_1, var_2 = step.response_variables
+
+        var_1.name.should eq('my-resp-1')
+        var_1.display_name.should eq('Response One')
+        var_1.type.should eq('string')
+
+        var_2.name.should eq('my-resp-2')
+        var_2.display_name.should eq('Response Two')
+        var_2.type.should eq('numeric')
+      end
+
+
     it "should create a new external service with global settings" do
       parse <<-XML
         <verboice-service>
