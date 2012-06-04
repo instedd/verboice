@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -92,11 +92,13 @@ module Parsers
           Compiler.parse do
             Label 1
             Assign "current_step", 1
+            Assign "current_step_name", "'Branch number one'"
             RetrieveVariable 'some_name'
             If "(value_3 == 6) && (var_some_name >= 5)" do
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
               Label 10
               Assign "current_step", 10
+              Assign "current_step_name", "'Play 1'"
               Trace call_flow_id: 1, step_id: 10, step_name: 'Play 1', store: '"Message played."'
               Say "Second explanation message"
               Goto "end1"
@@ -107,6 +109,7 @@ module Parsers
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
               Label 14
               Assign "current_step", 14
+              Assign "current_step_name", "'Play 2'"
               Trace call_flow_id: 1, step_id: 14, step_name: 'Play 2', store: '"Message played."'
               Say "Third explanation message"
               Goto "end1"
@@ -115,6 +118,7 @@ module Parsers
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 3 selected: \'zzz\'"'
               Label 5
               Assign "current_step", 5
+              Assign "current_step_name", "'Play 3'"
               Trace call_flow_id: 1, step_id: 5, step_name: 'Play 3', store: '"Message played."'
               Say "Fourth explanation message"
               Goto "end1"

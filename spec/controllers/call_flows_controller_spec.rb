@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -64,13 +64,6 @@ describe CallFlowsController do
     it "assigns all call_flows as @call_flows" do
       get :index, {:project_id => project.to_param}
       assigns(:call_flows).should eq([call_flow])
-    end
-  end
-
-  describe "GET show" do
-    it "assigns the requested call_flow as @call_flow" do
-      get :show, {:id => call_flow.to_param, :project_id => project.to_param}
-      assigns(:call_flow).should eq(call_flow)
     end
   end
 

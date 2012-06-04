@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -23,7 +23,8 @@ class CallLog < ActiveRecord::Base
   belongs_to :call_flow
   belongs_to :channel
   belongs_to :schedule
-  has_many :traces, :foreign_key => "call_id"
+  has_many :traces, :foreign_key => 'call_id'
+  has_many :entries, :foreign_key => 'call_id', :class_name => "CallLogEntry"
 
   before_validation :set_account_to_project_account, :if => :call_flow_id?
 
@@ -31,8 +32,6 @@ class CallLog < ActiveRecord::Base
   validates_presence_of :project
   validates_presence_of :channel
   validates_presence_of :call_flow
-
-  Levels = {'E' => :error, 'W' => :warn, 'I' => :info, 'T' => :trace}
 
   def state
     read_attribute(:state).try(:to_sym)
@@ -78,35 +77,24 @@ class CallLog < ActiveRecord::Base
   end
 
   def structured_details
-    lines = details.split("\n")
-    str = []
-    last = nil
-    lines.each do |line|
-      if line.match /(E|W|I|T) (\d+(?:\.\d+)) (.*)/
-        last = {:severity => Levels[$1], :time => Time.at($2.to_f).utc, :text => $3}
-        str << last
-      else
-        last[:text] << "\n#{line}"
-      end
+    entries.inject [] do |logs, call_log_entry|
+      logs << {:severity => call_log_entry.severity, :time => call_log_entry.created_at, :text => call_log_entry.description}
     end
-    str
   end
 
-  Levels.each do |letter, name|
+  CallLogEntry::Levels.each do | severity |
     class_eval %Q(
-      def #{name}(text)
-        log '#{letter}', text
+      def #{severity}(description, options = {})
+        log :#{severity}, description, options
       end
     )
   end
 
-  private
-
-  def log(level, text)
-    self.details ||= ""
-    self.details += "#{level} #{Time.now.utc.to_f} #{text}\n"
-    self.save
+  def log(level, description, options = {})
+    CallLogEntry.create! severity: level, description: description, call_id: self.id, step_id: options[:step_id], step_name: options[:step_name]
   end
+
+  private
 
   def set_account_to_project_account
     self.project_id = self.call_flow.project_id

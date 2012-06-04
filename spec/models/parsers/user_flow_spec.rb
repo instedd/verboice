@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -229,9 +229,11 @@ describe Parsers::UserFlow do
       Compiler.make do
         Answer()
         Assign "current_step", 1
+        Assign "current_step_name", "'Play number one'"
         Trace call_flow_id: 5, step_id: 1, step_name: 'Play number one', store: '"Message played."'
         PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "1-message.wav")
         Assign "current_step", 2
+        Assign "current_step_name", "'Capture number one'"
         Assign 'attempt_number2', '1'
         While 'attempt_number2 <= 3' do
           Capture say: "First Capture", min: 1, max: 10, finish_on_key: '#', timeout: 10
@@ -252,6 +254,7 @@ describe Parsers::UserFlow do
         Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Missed input for 3 times."'
         Label "end2"
         Assign "current_step", 3
+        Assign "current_step_name", "'Menu number one'"
         Say 'First Menu'
         Assign 'attempt_number3', '1'
         While 'attempt_number3 <= 3' do
@@ -260,6 +263,7 @@ describe Parsers::UserFlow do
           If "digits == '2'" do
             Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
             Assign "current_step", 4
+            Assign "current_step_name", "'Say number 4'"
             Trace call_flow_id: 5, step_id: 4, step_name: 'Say number 4', store: '"Message played."'
             Say "Say 4"
             Goto "end3"
@@ -267,6 +271,7 @@ describe Parsers::UserFlow do
           If "digits == '1'" do
             Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
             Assign "current_step", 6
+            Assign "current_step_name", "'Say number 6'"
             Trace call_flow_id: 5, step_id: 6, step_name: 'Say number 6', store: '"Message played."'
             Say "Say 6"
             Goto "end3"
@@ -282,16 +287,20 @@ describe Parsers::UserFlow do
         Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"Missed input for 3 times."'
         Label "end3"
         Assign "current_step", 5
+        Assign "current_step_name", "'Say number 5'"
         Trace call_flow_id: 5, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
         Say "Say 5"
         Assign "current_step", 33
+        Assign "current_step_name", "'Play number 33'"
         Trace call_flow_id: 5, step_id: 33, step_name: 'Play number 33', store: '"Message played."'
         PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "33-message.wav")
         Assign "current_step", 34
+        Assign "current_step_name", "'Branch number one'"
         If "(value_3 == 6) && (value_2 < 30) && (value_2 >= 5)" do
           Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
           Label 10
           Assign "current_step", 10
+          Assign "current_step_name", "'Play number 10'"
           Trace call_flow_id: 5, step_id: 10, step_name: 'Play number 10', store: '"Message played."'
           PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "10-message.wav")
           Goto "end34"
@@ -300,10 +309,12 @@ describe Parsers::UserFlow do
           Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
           Label 14
           Assign "current_step", 14
+          Assign "current_step_name", "'Say 14'"
           Trace call_flow_id: 5, step_id: 14, step_name: 'Say 14', store: '"Message played."'
           Say "Say 14"
           Label 15
           Assign "current_step", 15
+          Assign "current_step_name", "'Hanged up!'"
           Trace call_flow_id: 5, step_id: 15, step_name: 'Hanged up!', store: '"Verboice ended call."'
           End()
           Goto "end34"

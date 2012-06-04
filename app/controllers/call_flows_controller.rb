@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -29,35 +29,9 @@ class CallFlowsController < ApplicationController
   skip_before_filter :verify_authenticity_token, :only => :save_recording
 
   def show
-    respond_to do |format|
-      format.csv do
-        csv = CSV.generate({ :col_sep => ','}) do |csv|
-
-          steps = @call_flow.step_names
-          ids = steps.keys
-          header = ['Call ID', 'Phone Number', 'Start Time', 'End Time']
-          csv << header + steps.values
-          @call_flow.call_logs.includes(:traces).each do |call_log|
-            line = []
-            line << call_log.id
-            line << call_log.address
-            line << call_log.started_at
-            line << call_log.finished_at
-            call_log.traces.each do |trace|
-              begin
-                line[ids.index(trace.step_id.to_i) + header.size] = trace.result
-              rescue Exception => e
-                # If the Trace belongs to a deleted step, there is no way to represent it.
-                # This should be fixed when the call flow stores it's different flow versions.
-                # For now, the trace is ignored
-              end
-            end
-            csv << line
-          end
-        end
-        render :text => csv
-      end
-    end
+    @filename = "Call results #{@call_flow.id} (#{Time.now}).csv"
+    @streaming = true
+    @csv_options = { :col_sep => ',' }
   end
 
   def index
@@ -142,9 +116,9 @@ class CallFlowsController < ApplicationController
       ensure
         file.close
       end
-      send_file file.path, :x_sendfile => true, :filename => "#{@call_flow.id}.vrz"
+      send_file file.path, :x_sendfile => true, :filename => "Call flow #{@call_flow.id}.vrz"
     else
-      send_data @call_flow.user_flow.to_yaml, :filename => "#{@call_flow.id}.vrb"
+      send_data @call_flow.user_flow.to_yaml, :filename => "Call flow #{@call_flow.id}.vrb"
     end
   end
 

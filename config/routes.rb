@@ -57,6 +57,7 @@ Verboice::Application.routes.draw do
     end
     collection do
       get :queued
+      get :download
     end
   end
 

@@ -21,6 +21,7 @@ gem 'attr_encrypted'
 gem 'foreman'
 gem 'rubyzip', :require => 'zip/zip'
 gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribute.git"
+gem 'csv_builder'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'

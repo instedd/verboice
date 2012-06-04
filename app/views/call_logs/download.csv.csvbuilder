@@ -1,0 +1,9 @@
+csv << ['Call ID', 'Phone Number', 'Time', 'Step name', 'Step ID', 'Detail']
+@logs = current_account.call_logs.includes(:entries).order('id DESC')
+@logs = @logs.search params[:search], :account => current_account if params[:search].present?
+
+@logs.find_each do |call|
+  call.entries.find_each do |entry|
+    csv << [call.id, call.address, entry.created_at, entry.step_name, entry.step_id, entry.description]
+  end
+end

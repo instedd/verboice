@@ -32,6 +32,7 @@ module Parsers
           Compiler.parse do
             Label 1
             Assign "current_step", 1
+            Assign "current_step_name", "'Hang up'"
             Trace call_flow_id: 1, step_id: 1, step_name: 'Hang up', store: '"Verboice ended call."'
             End()
           end.first
