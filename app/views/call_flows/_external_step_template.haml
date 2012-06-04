@@ -4,21 +4,35 @@
       %span.left.i48grad-phone{ ko(css: '{ "orange": is_invalid }') }
       %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
 
-    %table.GralTable.CleanTable.NoHead
+    %table.GralTable.CleanTable.NoHead{ko(:if => 'settings().length > 0')}
       %thead
         %tr
           %th{colspan: 2} Configure parameters for this service:
       %tbody{ko(foreach: 'settings')}
         %tr
-          %td{ko(text: 'name')}
+          %td{ko(text: 'display_name')}
+        %tr
           %td
-            %select.w8{'data-bind' => "value: content_kind"}
+            %select.w10{'data-bind' => "value: content_kind"}
               %option{value: "step"} Step
               %option{value: "variable"} Variable
               %option{value: "value"} Value
-            %input.ux-text.w8{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value"'}
-            %select{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables()'}
-            %select{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name"'}
+          %td
+            %input.ux-text.w10{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value"'}
+            %select.w10{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables()'}
+            %select.w10{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name"'}
+
+
+    %hr/
+    %table.GralTable.CleanTable.NoHead{ko(:if => 'responses().length > 0')}
+      %thead
+        %tr
+          %th{colspan: 2} Configure response
+      %tbody{ko(foreach: 'responses')}
+        %tr
+          %td{ko(text: 'display_name')}
+        %tr
+          %td= store_value_tags
 
     .content
       .bottom-actions
