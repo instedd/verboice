@@ -18,4 +18,18 @@ describe ExternalService do
     external_service.global_settings.should be_empty
   end
 
+  it 'updates global settings' do
+    variable = ExternalService::GlobalVariable.new
+    variable.name = 'var_name_1'
+    variable.value = 'var_value_1'
+    external_service.global_settings[variable.name] = variable
+
+    attrs = {"0" => {:name => 'var_name_1', :value => 'new_var_value_1'}, "1" => {:name => 'var_name_2', :value => 'new_var_value_2'}}
+
+    external_service.global_settings_attributes = attrs
+
+    external_service.global_settings[variable.name].value.should eq('new_var_value_1')
+    external_service.global_settings['var_name_2'].should be_nil
+  end
+
 end

@@ -16,5 +16,15 @@
   .external_service_info
     = render 'data'
 
+  %br
+
+  .external_service_settings
+    %h2 Settings
+    = f.fields_for :global_settings, external_service.global_settings.values do |settings_form|
+      .field
+        = settings_form.object.name
+        = settings_form.hidden_field :name
+        = settings_form.text_field :value
+
   .actions
     = f.submit 'Save'
