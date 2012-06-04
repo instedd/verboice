@@ -31,7 +31,7 @@ module Parsers
           compiler.Assign "current_step", @id
           compiler.Trace context_for %("Calling External Service #{service.name}.")
           variables_map = build_variables_map compiler
-          compiler.Callback service_step.callback_url, {:response_type => service_step.response_type.to_sym, :variables => variables_map}
+          compiler.Callback service_step.callback_url, {:response_type => service_step.response_type.to_sym, :variables => variables_map, :external_service_id => service.id}
           compiler.append @next.equivalent_flow if @next
         end
       end

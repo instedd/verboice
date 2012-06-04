@@ -37,8 +37,19 @@ class ExternalService < ActiveRecord::Base
     end
   end
 
+  def global_variable_value_for(name)
+    global_settings[name].try(:value)
+  end
+
   class GlobalVariable
     attr_accessor :name, :display_name, :type, :value
+
+    def initialize(opts = {})
+      @name = opts[:name]
+      @display_name = opts[:display_name]
+      @type = opts[:type]
+      @value = opts[:value]
+    end
 
     def persisted?
       false

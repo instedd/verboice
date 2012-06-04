@@ -9,6 +9,7 @@ class Commands::CallbackCommand < Command
     @params = options[:params]
     @response_type = options[:response_type] || :flow
     @variables = options[:variables] || {}
+    @external_service_id = options[:external_service_id]
   end
 
   def run(session)
@@ -105,7 +106,16 @@ class Commands::CallbackCommand < Command
 
   def interpolate_url(session, url)
     url.gsub(/\{([^\{]*)\}/) do
-      session.eval @variables[$1]
+      if @variables[$1].present?
+        session.eval @variables[$1]
+      else
+        external_service.global_variable_value_for $1
+      end
     end
   end
+
+  def external_service
+    @external_service ||= ExternalService.find_by_id(@external_service_id)
+  end
+
 end

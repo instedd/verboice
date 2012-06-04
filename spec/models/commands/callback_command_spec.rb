@@ -64,6 +64,20 @@ module Commands
       end
     end
 
+    it "interpolates url with external service global settings" do
+      options = {:external_service_id => 7}
+      external_service = double('external_service')
+      external_service.should_receive(:global_variable_value_for).with('foo_global').and_return('the_foo_global')
+      ExternalService.should_receive(:find_by_id).with(7).and_return(external_service)
+
+      url = 'http://www.domain.com/{foo_global}'
+      interpolated_url = 'http://www.domain.com/the_foo_global'
+
+      expect_em_http :post, interpolated_url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+        CallbackCommand.new(url, options).run @session
+      end
+    end
+
     context "running with an app which has http basic authentication for the callback url", :focus => true do
       before do
         assert_log
