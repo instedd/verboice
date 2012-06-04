@@ -1,21 +1,19 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
-
-class FastAgiProtocol < EventMachine::Protocols::LineAndTextProtocol; end
 
 module Asterisk
   class CallManager < Asterisk::FastAgiProtocol
@@ -78,9 +76,17 @@ module Asterisk
     end
 
     def play(filename, escape_digits = nil)
+      # failure: 200 result=-1 endpos=<sample offset>
+      # failure on open: 200 result=0 endpos=0
+      # success: 200 result=0 endpos=<offset>
+      # digit pressed: 200 result=<digit> endpos=<offset>
+
       filename = filename[SoundsPath.length .. -5] # Remove SoundsPath and .gsm extension
       line = stream_file("verboice/#{filename}", escape_digits)
       if line.result == '-1'
+        raise Exception.new 'User hanged up'
+      end
+      if line.result == '0' && line.endpos == 0
         raise Exception.new 'Error while playing file'
       end
       ascii_to_number line.result
