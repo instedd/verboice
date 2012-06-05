@@ -1,15 +1,32 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe CallFlow do
 
   context "callbacks" do
     it "sets name to callback url if name is empty" do
-      call_flow = CallFlow.make :name => nil, :callback_url => 'foo'
+      call_flow = CallFlow.make :name => nil, :callback_url => 'foo', :mode => :callback_url
       call_flow.name.should == call_flow.callback_url
     end
 
     it "keeps name if name set" do
-      call_flow = CallFlow.make :name => 'bar', :callback_url => 'foo'
+      call_flow = CallFlow.make :name => 'bar', :callback_url => 'foo', :mode => :callback_url
       call_flow.name.should == 'bar'
     end
   end
@@ -61,11 +78,15 @@ describe CallFlow do
       Compiler.make do
         Answer()
         Assign "current_step", 1
+        Assign "current_step_name", "'Play number one'"
         Trace call_flow_id: 4, step_id: 1, step_name: 'Play number one', store: '"Message played."'
         Say "Some explanation message"
       end
     )
+  end
 
+  it "should provide an error flow" do
+    call_flow = CallFlow.make id: 4
     call_flow.error_flow.should eq(
       Compiler.make do
         Trace call_flow_id: 4, step_id: 'current_step', step_name: '', store: '"User hanged up."'

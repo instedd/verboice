@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 module Parsers
@@ -31,6 +48,7 @@ module Parsers
           Compiler.parse do |c|
             c.Label 1
             c.Assign "current_step", 1
+            c.Assign "current_step_name", "'Capture number one'"
             c.Assign 'attempt_number1', '1'
             c.While 'attempt_number1 <= 3' do |c|
               c.Capture say: "First Capture", min: 1, max: 2, finish_on_key: '#', timeout: 10
@@ -60,6 +78,7 @@ module Parsers
         capture_flow = Compiler.parse do |c|
           c.Label 4
           c.Assign "current_step", 4
+          c.Assign "current_step_name", "'Capture'"
           c.Assign 'attempt_number4', '1'
           c.While 'attempt_number4 <= 3' do |c|
             c.Capture min: 1, max: 1, finish_on_key: '#', timeout: 5
@@ -109,6 +128,7 @@ module Parsers
         capture_flow = Compiler.parse do |c|
           c.Label 4
           c.Assign "current_step", 4
+          c.Assign "current_step_name", "'Capture'"
           c.Assign 'attempt_number4', '1'
           c.While 'attempt_number4 <= 3' do |c|
             c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
@@ -150,6 +170,7 @@ module Parsers
         capture_flow = Compiler.parse do |c|
             c.Label 4
             c.Assign "current_step", 4
+            c.Assign "current_step_name", "'Capture'"
             c.Assign 'attempt_number4', '1'
             c.While 'attempt_number4 <= 3' do |c|
               c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
@@ -167,6 +188,7 @@ module Parsers
             c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
             c.Label 2
             c.Assign "current_step", 2
+            c.Assign "current_step_name", "'Play'"
             c.Trace call_flow_id: call_flow.id, step_id: 2, step_name: 'Play', store: '"Message played."'
             c.Say "Some explanation message"
             c.Label "end4"

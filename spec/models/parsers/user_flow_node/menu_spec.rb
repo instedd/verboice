@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 module Parsers
@@ -85,6 +102,7 @@ module Parsers
           Compiler.parse do |c|
             c.Label 1
             c.Assign "current_step", 1
+            c.Assign "current_step_name", "'Menu number one'"
             c.PlayFile File.join(Rails.root, "data","call_flows","#{call_flow.id}","recordings", "1-explanation.wav")
             c.Assign 'attempt_number1', '1'
             c.While 'attempt_number1 <= 3' do |c|
@@ -95,6 +113,7 @@ module Parsers
                 c.PersistVariable 'some_variable', 'value_1'
                 c.Label 10
                 c.Assign "current_step", 10
+                c.Assign "current_step_name", "'Play 1'"
                 c.Trace call_flow_id: call_flow.id, step_id: 10, step_name: 'Play 1', store: '"Message played."'
                 c.Say "Second explanation message"
                 c.Goto "end1"
@@ -104,6 +123,7 @@ module Parsers
                 c.PersistVariable 'some_variable', 'value_1'
                 c.Label 14
                 c.Assign "current_step", 14
+                c.Assign "current_step_name", "'Play 2'"
                 c.Trace call_flow_id: call_flow.id, step_id: 14, step_name: 'Play 2', store: '"Message played."'
                 c.Say "Third explanation message"
                 c.Goto "end1"
@@ -113,6 +133,7 @@ module Parsers
                 c.PersistVariable 'some_variable', 'value_1'
                 c.Label 5
                 c.Assign "current_step", 5
+                c.Assign "current_step_name", "'Play 3'"
                 c.Trace call_flow_id: call_flow.id, step_id: 5, step_name: 'Play 3', store: '"Message played."'
                 c.Say "Fourth explanation message"
                 c.Goto "end1"
@@ -130,6 +151,7 @@ module Parsers
             c.PersistVariable 'some_variable', nil
             c.Label 45
             c.Assign "current_step", 45
+            c.Assign "current_step_name", "'Play 45'"
             c.Trace call_flow_id: call_flow.id, step_id: 45, step_name: 'Play 45', store: '"Message played."'
             c.Say "Fifth explanation message"
             c.Label "end1"
@@ -142,6 +164,7 @@ module Parsers
         menu.equivalent_flow.make.should eq(
           Compiler.make do |c|
             c.Assign "current_step", 27
+            c.Assign "current_step_name", "''"
             c.Assign 'attempt_number27', '1'
             c.While 'attempt_number27 <= 3' do |c|
               c.Capture finish_on_key: '', timeout: 5

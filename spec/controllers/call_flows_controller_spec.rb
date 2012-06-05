@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe CallFlowsController do
@@ -50,27 +67,6 @@ describe CallFlowsController do
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested call_flow as @call_flow" do
-      get :show, {:id => call_flow.to_param, :project_id => project.to_param}
-      assigns(:call_flow).should eq(call_flow)
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new call_flow as @call_flow" do
-      get :new, {:project_id => project.to_param}
-      assigns(:call_flow).should be_a_new(CallFlow)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested call_flow as @call_flow" do
-      get :edit, {:project_id => project.to_param, :id => call_flow.to_param}
-      assigns(:call_flow).should eq(call_flow)
-    end
-  end
-
   describe "POST create" do
     describe "with valid params" do
       it "creates a new CallFlow" do
@@ -87,7 +83,7 @@ describe CallFlowsController do
 
       it "redirects to the created call_flow" do
         post :create, {:call_flow => CallFlow.plan, :project_id => project.to_param}
-        response.should redirect_to(edit_workflow_project_call_flow_path(project, CallFlow.last))
+        response.should render_template("index")
       end
     end
 
@@ -101,7 +97,7 @@ describe CallFlowsController do
       it "re-renders the 'new' template" do
         CallFlow.any_instance.stub(:save).and_return(false)
         post :create, {:call_flow => {}, :project_id => project.to_param}
-        response.should render_template("new")
+        response.should render_template("index")
       end
     end
   end
@@ -120,7 +116,7 @@ describe CallFlowsController do
 
       it "redirects to the call_flow" do
         put :update, {:id => call_flow.to_param, :call_flow => CallFlow.plan, :project_id => project.to_param}
-        response.should redirect_to(edit_project_call_flow_path(project.id, CallFlow.last.id))
+        response.should render_template("index")
       end
     end
 
@@ -134,7 +130,7 @@ describe CallFlowsController do
       it "re-renders the 'edit' template" do
         CallFlow.any_instance.stub(:save).and_return(false)
         put :update, {:id => call_flow.to_param, :call_flow => {}, :project_id => project.to_param}
-        response.should render_template("edit")
+        response.should render_template("index")
       end
     end
   end

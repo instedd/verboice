@@ -16,3 +16,23 @@ tr.link {
 .nowrap {
   white-space: nowrap;
 }
+
+label {
+  color:#555555
+}
+
+label + p.desc {
+  font-size:11px !important;
+  color:#555555;
+  margin:0 !important;
+}
+
+p + p.desc {
+  font-size:11px !important;
+  color:#555555;
+  margin-top:-15px !important;
+}
+
+.desc {
+  font-size:11px;
+}

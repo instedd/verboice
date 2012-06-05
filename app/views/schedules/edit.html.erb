@@ -1,5 +1,7 @@
+<%= render 'shared/project_tabs_and_title', :project => project %>
+
 <h2>Edit <%=schedule.name %></h2>
 
 <%= render 'form' %>
 
-<%= link_to 'Go back', schedules_path %>
+<%= link_to 'Go back', project_schedules_path(project) %>

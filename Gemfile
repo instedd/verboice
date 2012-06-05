@@ -7,6 +7,7 @@ gem "jquery-rails"
 
 gem 'mysql2'
 gem 'librevox'
+gem 'batphone', :git => 'https://github.com/instedd/batphone', :branch => 'fastagi'
 gem 'em-http-request'
 gem 'eventmachine_httpserver', :require => 'evma_httpserver'
 gem 'nokogiri'
@@ -21,6 +22,8 @@ gem 'attr_encrypted'
 gem 'foreman'
 gem 'rubyzip', :require => 'zip/zip'
 gem 'rest-client'
+gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribute.git"
+gem 'csv_builder'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
@@ -46,6 +49,7 @@ group :development do
   gem 'capistrano'
   gem 'rvm'
   gem 'rvm-capistrano'
+  gem 'licit'
 end
 
 group :test do

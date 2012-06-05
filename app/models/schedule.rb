@@ -1,11 +1,29 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 class Schedule < ActiveRecord::Base
-  belongs_to :account
+  belongs_to :project
   has_many :queued_calls
   has_many :call_logs
+  has_one :account, :through => :project
 
   validates_presence_of :account
   validates_presence_of :name
-  validates_uniqueness_of :name, :case_sensitive => false, :scoped_to => :account_id
+  validates_uniqueness_of :name, :case_sensitive => false, :scope => :project_id
   validates_format_of :retries, :with => /^[0-9\.]+(,[0-9\.]+)*$/, :allow_blank => true
   validates_format_of :weekdays, :with => /^[0-6](,[0-6])*$/, :allow_blank => true
 

@@ -1,5 +1,42 @@
 = render 'shared/project_tabs_and_title', :project => @project
 
-= link_to 'Edit', edit_project_path(@project), :class => "button grey"
+.box.w30.right.lmargin
+  %h2 Enqueue new calls
+  %p.desc Add new calls to this project queue
+  = form_tag enqueue_call_project_path, :method => 'POST' do
+    %p
+      = label_tag :call_flow_id, 'Call Flow'
+      %br/
+      = select_tag :call_flow_id, options_from_collection_for_select(@call_flows, 'id', 'name'), :prompt => 'Select a Call Flow...', :class => 'w30'
+    %p
+      = label_tag :channel_id, 'Channel'
+      %br/
+      = select_tag :channel_id, options_from_collection_for_select(@channels, 'id', 'name'), :prompt => 'Select a Channel...', :class => 'w30'
+    %p
+      = label_tag :schedule_id, 'Schedule'
+      %br/
+      = select_tag :schedule_id, options_from_collection_for_select(@schedules, 'id', 'name'), :prompt => 'Select a Schedule...', :class => 'w30'
+    %p
+      = label_tag :not_before, 'Not before'
+      %br/
+      = text_field_tag :not_before, '', :class => "ux-custom-datetimepicker w30"
+    %p
+      = label_tag :time_zone, 'On time zone'
+      %br/
+      = select_tag :time_zone, time_zone_options_for_select('UTC'), :class => 'w30'
+    %p
+      = label_tag :addresses, 'Phone numbers'
+      %br/
+      %span.desc Enter each phone number in a separate line
+      %p
+        = text_area_tag :addresses, nil, :placeholder => "555-1000", :rows => 10, :class => 'w30'
+    %p
+      = button_tag "Enqueue calls", :class => 'orange'
+
+= link_to 'Edit settings', edit_project_path(@project), :class => "button faccept"
+%hr
+
+= link_to 'Delete this project', @project, :confirm => "Are you sure you want to delete the project #{@project.name}?", :method => :delete, :class => "button fdelete"
+%br
 = link_to 'Back', projects_path, :class => "button white cancel"
-= link_to 'Delete', @project, :confirm => "Are you sure you want to delete the project #{@project.name}?", :method => :delete, :class => "button white cancel"
+.clear

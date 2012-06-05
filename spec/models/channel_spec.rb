@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe Channel do
@@ -93,14 +110,14 @@ describe Channel do
     end
 
     it "obey queue lower time bound" do
-      schedule = channel.account.schedules.make :time_from => '10:00', :time_to => '12:00'
+      schedule = channel.project.schedules.make :time_from => '10:00', :time_to => '12:00'
       broker_client.should_receive(:notify_call_queued)
       channel.call 'foo', :not_before => '2012-12-20T08:00:00Z', :schedule_id => schedule.id
       queued_call.not_before.should == '2012-12-20T10:00:00Z'
     end
 
     it "obey queue upper time bound" do
-      schedule = channel.account.schedules.make :time_from => '10:00', :time_to => '12:00'
+      schedule = channel.project.schedules.make :time_from => '10:00', :time_to => '12:00'
       broker_client.should_receive(:notify_call_queued)
       channel.call 'foo', :not_before => '2012-12-20T13:00:00', :schedule_id => schedule.id
       queued_call.not_before.should == '2012-12-21T10:00:00'

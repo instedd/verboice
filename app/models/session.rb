@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 class Session
   attr_accessor :pbx
   attr_accessor :commands
@@ -8,7 +25,7 @@ class Session
   attr_accessor :suspended
 
   delegate :finish_successfully, :to => :call_log
-  CallLog::Levels.each { |key, name| delegate name, :to => :call_log }
+  CallLogEntry::Levels.each { |severity| delegate severity, :to => :call_log }
 
   def initialize(options = {})
     @vars = {}
@@ -86,10 +103,10 @@ class Session
     @quit = true
   end
 
-  CallLog::Levels.each do |letter, name|
+  CallLogEntry::Levels.each do |name|
     class_eval %Q(
       def #{name}(text)
-        call_log.#{name} text
+        call_log.#{name} text, step_id: self['current_step'], step_name: self['current_step_name']
       end
     )
   end

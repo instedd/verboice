@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+# 
+# This file is part of Verboice.
+# 
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 module Commands
@@ -10,6 +27,7 @@ module Commands
       @session.pbx.should_receive(:sound_path_for).with(:md5).and_return(:target_path)
       @session.pbx.should_receive(:play).with(:target_path)
       @session.should_receive(:info).with("Play #{@url}")
+      @session.stub(:trace)
     end
 
     it "don't download if already downloaded" do

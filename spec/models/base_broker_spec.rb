@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe BaseBroker do
@@ -61,7 +78,7 @@ describe BaseBroker do
     end
 
     it "requeue call if rejected and retries available by queue" do
-      schedule = @channel.account.schedules.make :retries => '1,2,4'
+      schedule = @channel.project.schedules.make :retries => '1,2,4'
       queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 1
       the_session = nil
 
@@ -76,7 +93,7 @@ describe BaseBroker do
     end
 
     it "do not requeue if all retries has been used" do
-      schedule = @channel.account.schedules.make :retries => '1,2,4'
+      schedule = @channel.project.schedules.make :retries => '1,2,4'
       queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 3
       the_session = nil
 
@@ -131,10 +148,10 @@ describe BaseBroker do
       @broker.should_receive(:call).with { |session| the_session = session }
       @broker.notify_call_queued @channel
 
-      @broker.finish_session_with_error the_session, 'An error'
+      @broker.finish_session_with_error the_session, 'A foobar error'
       @broker.sessions.length.should == 0
       @broker.active_calls[@channel.id].length.should == 0
-      assert_match /An error/, the_session.call_log.details
+      assert_match /A foobar error/, the_session.call_log.entries.last.description
       the_session.call_log.state.should == :failed
     end
 

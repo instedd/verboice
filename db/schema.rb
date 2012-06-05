@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120601180726) do
+ActiveRecord::Schema.define(:version => 20120605140519) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -40,15 +40,27 @@ ActiveRecord::Schema.define(:version => 20120601180726) do
     t.string   "name"
     t.binary   "flow"
     t.binary   "user_flow"
-    t.binary   "error_flow"
     t.string   "callback_url"
     t.integer  "project_id"
     t.text     "encrypted_config"
     t.datetime "created_at",       :null => false
     t.datetime "updated_at",       :null => false
+    t.string   "mode"
   end
 
   add_index "call_flows", ["project_id"], :name => "index_call_flows_on_project_id"
+
+  create_table "call_log_entries", :force => true do |t|
+    t.integer  "call_id"
+    t.string   "step_name"
+    t.string   "step_id"
+    t.text     "description"
+    t.string   "severity"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  add_index "call_log_entries", ["call_id"], :name => "index_call_log_entries_on_call_id"
 
   create_table "call_logs", :force => true do |t|
     t.integer  "account_id"
@@ -169,7 +181,6 @@ ActiveRecord::Schema.define(:version => 20120601180726) do
   add_index "recorded_audios", ["contact_id"], :name => "index_recorded_audios_on_contact_id"
 
   create_table "schedules", :force => true do |t|
-    t.integer  "account_id"
     t.string   "name"
     t.string   "retries"
     t.time     "time_from"
@@ -177,7 +188,10 @@ ActiveRecord::Schema.define(:version => 20120601180726) do
     t.string   "weekdays"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.integer  "project_id"
   end
+
+  add_index "schedules", ["project_id"], :name => "index_schedules_on_project_id"
 
   create_table "traces", :force => true do |t|
     t.integer  "call_flow_id"

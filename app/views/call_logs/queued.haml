@@ -31,32 +31,3 @@
     %br/
     %div= page_entries_info @calls, :entry_name => 'queued calls'
     = will_paginate @calls, :param_name => 'page'
-%br/
-
-%hr/
-
-%h2 Enqueue new calls
-
-= form_tag enqueue_call_logs_path, :method => 'POST' do
-  %p
-    = label_tag :channel_id, 'Channel'
-    = select_tag :channel_id, options_from_collection_for_select(@channels, 'id', 'name'), :prompt => 'Select a channel...'
-  %p
-    = label_tag :schedule_id, 'Schedule'
-    = select_tag :schedule_id, options_from_collection_for_select(@schedules, 'id', 'name'), :include_blank => true
-  %p
-    = label_tag :project_id, 'Project'
-    = select_tag :project_id, options_from_collection_for_select(@projects, 'id', 'name'), :include_blank => true
-  %p
-    = label_tag :not_before, 'Make calls'
-    = text_field_tag :not_before, '', :class => "ux-custom-datetimepicker"
-  %p
-    = label_tag :time_zone, 'On time zone'
-    = select_tag :time_zone, time_zone_options_for_select('UTC')
-  %p
-    = label_tag :addresses, 'Phone numbers'
-    %p Enter each phone number in a separate line
-    %p
-      = text_area_tag :addresses, nil, :placeholder => "555-1000", :rows => 10
-  %p
-    = submit_tag "Enqueue calls"

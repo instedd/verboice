@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 Verboice::Application.routes.draw do
 
   resources :contacts do
@@ -17,7 +34,10 @@ Verboice::Application.routes.draw do
   devise_for :accounts
 
   resources :projects do
-    resources :call_flows do
+    member do
+      post :enqueue_call
+    end
+    resources :call_flows, except: [:new, :edit] do
       member do
         get :edit_workflow
         put :update_workflow
@@ -32,6 +52,7 @@ Verboice::Application.routes.draw do
         put :update_manifest
       end
     end
+    resources :schedules
   end
 
   resources :call_logs, path: :calls do
@@ -41,11 +62,9 @@ Verboice::Application.routes.draw do
     end
     collection do
       get :queued
-      post :enqueue
+      get :download
     end
   end
-
-  resources :schedules
 
   match "api/call" => "api#call", :as => :api_call
   match "api/call/:id/state" => "api#call_state"

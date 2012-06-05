@@ -1,6 +1,22 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 class CallLogsController < ApplicationController
   before_filter :authenticate_account!
-  include ActionView::Helpers::TextHelper
 
   def index
     @page = params[:page] || 1
@@ -25,35 +41,17 @@ class CallLogsController < ApplicationController
     @per_page = 10
     @calls = current_account.queued_calls.includes(:channel).includes(:call_log).includes(:schedule).order('id DESC')
     @calls = @calls.paginate :page => @page, :per_page => @per_page
-
-    @channels = current_account.channels
-    @schedules = current_account.schedules
-    @projects = current_account.projects
-  end
-
-  def enqueue
-    @channel = current_account.channels.find_by_id(params[:channel_id])
-    if @channel
-      addresses = params[:addresses].split(/\n/).map(&:strip).select(&:presence)
-
-      options = {}
-      options[:schedule_id] = params[:schedule_id] if params[:schedule_id].present?
-      options[:not_before] = params[:not_before] if params[:not_before].present?
-      options[:time_zone] = params[:time_zone] if params[:time_zone].present?
-      options[:project_id] = params[:project_id]
-
-      addresses.each do |address|
-        @channel.call(address.strip, options)
-      end
-      redirect_to queued_call_logs_path, {:notice => "Enqueued calls to #{pluralize(addresses.count, 'address')} on channel #{@channel.name}"}
-    else
-      redirect_to queued_call_logs_path, :flash => { :error => 'You need to select a channel' }
-    end
   end
 
   def play_result
     log = current_account.call_logs.find params[:id]
     send_file RecordingManager.for(log).result_path_for(params[:key]), :x_sendfile => true
+  end
+
+  def download
+    @filename = "Call logs #{current_account.id} (#{Time.now}).csv"
+    @streaming = true
+    @csv_options = { :col_sep => ',' }
   end
 
 end

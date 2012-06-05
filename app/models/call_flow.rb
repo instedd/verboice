@@ -1,5 +1,22 @@
+# Copyright (C) 2010-2012, InSTEDD
+# 
+# This file is part of Verboice.
+# 
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 class CallFlow < ActiveRecord::Base
-  attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url
+  attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url, :mode, :callback_url_user, :callback_url_password
 
   belongs_to :project
   has_many :call_logs, :dependent => :destroy
@@ -9,7 +26,6 @@ class CallFlow < ActiveRecord::Base
   has_one :account, :through => :project
 
   serialize :flow, Command
-  serialize :error_flow, Command
   serialize :user_flow, SerializableArray
 
   before_validation :set_name_to_callback_url, :unless => :name?
@@ -17,7 +33,9 @@ class CallFlow < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :project_id
 
   before_update :update_flow_with_user_flow
-  before_save :clear_flow, :if => lambda { @mode == 'callback_url' }
+  before_save :clear_flow, :if => lambda { mode_callback_url?}
+  before_save :clear_callback_url, :if => lambda { mode_flow? }
+  enum_attr :mode, %w(callback_url ^flow)
 
   config_accessor :callback_url_user, :callback_url_password
   attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true
@@ -30,16 +48,12 @@ class CallFlow < ActiveRecord::Base
     self.flow.present? ? "custom flow" : "callback #{self.callback_url}"
   end
 
-  def mode
-    self.flow.present? ? :flow : :callback_url
-  end
-
-  def mode=(value)
-    @mode = value.to_s
-  end
-
   def step_names
     (Parsers::UserFlow.new self, user_flow).step_names
+  end
+
+  def error_flow
+    Commands::TraceCommand.new call_flow_id: id, step_id: 'current_step', step_name: '', store: '"User hanged up."'
   end
 
   private
@@ -49,16 +63,20 @@ class CallFlow < ActiveRecord::Base
   end
 
   def update_flow_with_user_flow
-    if user_flow_changed?
+    if user_flow.presence && user_flow_changed?
       parser  = Parsers::UserFlow.new self, user_flow
       self.flow = parser.equivalent_flow
-      self.error_flow = parser.error_flow
     end
     true
   end
 
   def clear_flow
-    self.flow = nil
+    self.flow = self.user_flow = nil
+    true
+  end
+
+  def clear_callback_url
+    self.callback_url = self.callback_url_user = self.callback_url_password = nil
     true
   end
 

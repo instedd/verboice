@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 class Channel < ActiveRecord::Base
   include ChannelSerialization
 
@@ -7,6 +24,7 @@ class Channel < ActiveRecord::Base
 
   belongs_to :account
   belongs_to :call_flow
+  has_one :project, :through => :call_flow
 
   has_many :call_logs, :dependent => :destroy
   has_many :queued_calls
@@ -39,14 +57,16 @@ class Channel < ActiveRecord::Base
   end
 
   def call(address, options = {})
-    schedule = options.has_key?(:schedule_id) ? account.schedules.find(options[:schedule_id]) : nil
-    schedule ||= options.has_key?(:schedule) ? account.schedules.find_by_name!(options[:schedule]) : nil
 
     via = options.fetch(:via, 'API')
 
-  current_call_flow = (CallFlow.find(options[:call_flow_id].presence) rescue nil) || call_flow
-    flow = options[:flow] || current_call_flow.flow
+    current_call_flow = (CallFlow.find(options[:call_flow_id].presence) rescue nil) || call_flow
+    flow = options[:flow] || current_call_flow.commands
     project_id = options[:project_id].presence || (CallFlow.find(options[:call_flow_id].presence) rescue nil).try(:project).try(:id) || call_flow.project.id
+
+    project = Project.find(project_id)
+    schedule = options.has_key?(:schedule_id) ? project.schedules.find(options[:schedule_id]) : nil
+    schedule ||= options.has_key?(:schedule) ? project.schedules.find_by_name!(options[:schedule]) : nil
 
     time_zone = nil
     not_before = if options[:not_before].is_a?(String)

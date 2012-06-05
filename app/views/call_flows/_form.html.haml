@@ -1,27 +1,32 @@
-= form_for [@call_flow.project, @call_flow], :builder => InsteddFormBuilder do |f|
-  - if @call_flow.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(@call_flow.errors.count, "error")} prohibited this call flow from being saved:"
-      %ul
-        - @call_flow.errors.full_messages.each do |msg|
-          %li= msg
-
+= form_for [call_flow.project, call_flow], :remote => true do |f|
+  = f.label :name
+  %br/
   = f.text_field :name
+  %br/
+  = f.label :mode
+  %p.desc Choose whether you will use an external app or build one using Verboice
+  .call_flow_mode
+    = f.select :mode, options_for_select([['Use an external application', :callback_url], ['Design your app in Verboice', :flow]], call_flow.mode)
+    = link_to "#{call_flow.user_flow ? 'Edit' : 'Create'} Workflow", edit_workflow_project_call_flow_path(@project, call_flow), :class => 'button farrow flow_settings flow_settings', :style => "margin-top: -4px;" unless call_flow.new_record?
+  .flow_settings
+    = link_to 'Download call results as CSV', project_call_flow_path(@project, call_flow, :format => :csv), :class => "button fimport" unless call_flow.new_record?
 
-  = f.select :mode, options_for_select([['Use an external application', :callback_url], ['Design your app in Verboice', :flow]], @call_flow.mode)
-
-  #callback_url_container{:style => ('display: none' if @call_flow.mode != :callback_url)}
+  .callback_url_settings
+    = f.label :callback_url, 'URL'
+    %br/
     = f.text_field :callback_url
+    %br/
+    = f.label :callback_url_user, 'User'
+    %br/
     = f.text_field :callback_url_user
+    %br/
+    = f.label :callback_url_password, 'Password'
+    %br/
     = f.password_field :callback_url_password
 
   %hr
-  - if @call_flow.new_record?
-    %button.grey{:type => "submit"} Save
+  - if call_flow.new_record?
+    %button.white{:type => "submit"} Save
   - else
-    %button.grey{:type => "submit"} Update
-  = link_to "Cancel", project_call_flows_path(@project), :class => "button white cancel", :style => 'top: 1px;'
-
-  / - if @call_flow.mode == :flow
-  /   %pre
-  /     = @call_flow.commands.to_yaml
+    %button.white{:type => "submit"} Update
+  = link_to 'Cancel', '#', :class => "button white cancel #{call_flow.new_record? ? 'remove_unsaved_call_flow' : 'collapse_trigger'}", :style => 'top: 1px;'
