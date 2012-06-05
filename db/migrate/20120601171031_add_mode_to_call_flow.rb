@@ -2,8 +2,8 @@ class AddModeToCallFlow < ActiveRecord::Migration
   def up
     add_column :call_flows, :mode, :string
 
-    connection.execute("UPDATE CALL_FLOWS SET MODE = 'callback_url' WHERE CALLBACK_URL IS NOT NULL")
-    connection.execute("UPDATE CALL_FLOWS SET MODE = 'flow' WHERE CALLBACK_URL IS NULL")
+    connection.execute("UPDATE call_flows SET MODE = 'callback_url' WHERE callback_url IS NOT NULL")
+    connection.execute("UPDATE call_flows SET MODE = 'flow' WHERE callback_url IS NULL")
   end
 
   def down
