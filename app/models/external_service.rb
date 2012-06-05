@@ -2,7 +2,7 @@ class ExternalService < ActiveRecord::Base
   belongs_to :project
   has_many :external_service_steps, :autosave => true, :dependent => :destroy
 
-  attr_accessible :name, :url, :xml, :global_settings_attributes
+  attr_accessible :name, :url, :xml, :global_variables_attributes
 
   serialize :global_settings, Hash
 
@@ -30,15 +30,23 @@ class ExternalService < ActiveRecord::Base
     end
   end
 
-  def global_settings_attributes=(attributes)
-    attributes.each do |index,attrs|
-      variable = global_settings[attrs[:name]]
+  def global_variables_attributes=(attributes)
+    attributes.each do |index, attrs|
+      variable = global_variables.detect{|v| v.name == attrs[:name]}
       variable.value = attrs[:value] if variable
     end
   end
 
   def global_variable_value_for(name)
-    global_settings[name].try(:value)
+    global_variables.detect{|v| v.name == name}.try(:value)
+  end
+
+  def global_variables
+    global_settings[:variables] ||= []
+  end
+
+  def global_variables=(vars)
+    global_settings[:variables] = vars
   end
 
   class GlobalVariable

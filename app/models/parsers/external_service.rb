@@ -28,15 +28,14 @@ module Parsers
     private
 
     def parse_global_settings root
-      updated_global_settings = {}
+      updated_global_variables = []
       root.xpath('./global-settings/variable').each do |variable_node|
-        global_var = parse_global_variable variable_node
-        updated_global_settings[global_var.name] = global_var
+        new_variable = parse_global_variable(variable_node)
+        current_variable = @external_service.global_variables.detect{|v| v.name == new_variable.name}
+        new_variable.value = current_variable.value if current_variable.present?
+        updated_global_variables << new_variable
       end
-      @external_service.global_settings.each do |key, variable|
-        updated_global_settings[key].value = variable.value if updated_global_settings[key].present?
-      end
-      @external_service.global_settings = updated_global_settings
+      @external_service.global_variables = updated_global_variables
     end
 
     def parse_step node

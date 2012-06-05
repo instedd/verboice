@@ -20,11 +20,11 @@
 
   .external_service_settings
     %h2 Settings
-    = f.fields_for :global_settings, external_service.global_settings.values do |settings_form|
+    = f.fields_for :global_variables, external_service.global_variables do |variables_form|
       .field
-        = settings_form.object.name
-        = settings_form.hidden_field :name
-        = settings_form.text_field :value
+        = variables_form.object.name
+        = variables_form.hidden_field :name
+        = variables_form.text_field :value
 
   .actions
     = f.submit 'Save'

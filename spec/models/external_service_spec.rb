@@ -14,24 +14,25 @@ describe ExternalService do
     external_service.reload.xml.should eq('new xml')
   end
 
-  it 'has empty global setting upon creation' do
-    external_service.global_settings.should be_empty
+  it 'has empty global variables upon creation' do
+    external_service.global_variables.should be_empty
   end
 
   describe 'global settings' do
     let(:variable) { ExternalService::GlobalVariable.new :name => 'var_name_1', :value => 'var_value_1' }
 
     before(:each) do
-      external_service.global_settings[variable.name] = variable
+      external_service.global_variables << variable
     end
 
-    it 'updates global settings' do
+    it 'updates global variables' do
       attrs = {"0" => {:name => 'var_name_1', :value => 'new_var_value_1'}, "1" => {:name => 'var_name_2', :value => 'new_var_value_2'}}
 
-      external_service.global_settings_attributes = attrs
+      external_service.global_variables_attributes = attrs
 
-      external_service.global_settings[variable.name].value.should eq('new_var_value_1')
-      external_service.global_settings['var_name_2'].should be_nil
+      external_service.global_variables.should have(1).items
+      variable = external_service.global_variables.first
+      variable.value.should eq('new_var_value_1')
     end
 
     it 'should return global variables value' do

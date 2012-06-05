@@ -21,7 +21,7 @@ describe Parsers::ExternalService do
 
       service.name.should eq('Empty service')
       service.steps.should be_empty
-      service.global_settings.should be_empty
+      service.global_variables.should be_empty
       service.should be_valid
     end
 
@@ -104,16 +104,16 @@ describe Parsers::ExternalService do
         </verboice-service>
       XML
 
-      service.global_settings.should have(2).item
+      service.global_variables.should have(2).item
       service.should be_valid
 
-      global_var_1 = service.global_settings['global-var-1']
+      global_var_1 = service.global_variables.first
       global_var_1.name.should eq('global-var-1')
       global_var_1.display_name.should eq('Global Var One')
       global_var_1.type.should eq('string')
       global_var_1.value.should be_nil
 
-      global_var_2 = service.global_settings['global-var-2']
+      global_var_2 = service.global_variables.last
       global_var_2.name.should eq('global-var-2')
       global_var_2.display_name.should eq('Global Var Two')
       global_var_2.type.should eq('numeric')
@@ -205,7 +205,7 @@ describe Parsers::ExternalService do
           v.value = 'global_var_1_value'
         end
 
-        @existing_service.global_settings[globar_var_1.name] = globar_var_1
+        @existing_service.global_variables << globar_var_1
       end
 
       it "should keep values of variables and update fields" do
@@ -218,7 +218,9 @@ describe Parsers::ExternalService do
           </verboice-service>
         XML
 
-        updated_global_var_1 = service.global_settings['global-var-1']
+        service.global_variables.should have(1).items
+
+        updated_global_var_1 = service.global_variables.first
         updated_global_var_1.name.should eq('global-var-1')
         updated_global_var_1.display_name.should eq('Updated Global Var One')
         updated_global_var_1.type.should eq('numeric')
@@ -235,7 +237,8 @@ describe Parsers::ExternalService do
           </verboice-service>
         XML
 
-        service.global_settings['global-var-1'].should be_nil
+        service.global_variables.should have(1).items
+        service.global_variables.detect{|v| v.name == 'global-var-1'}.should be_nil
       end
 
       it "should add new variables" do
@@ -249,7 +252,9 @@ describe Parsers::ExternalService do
           </verboice-service>
         XML
 
-        global_var_2 = service.global_settings['global-var-2']
+        service.global_variables.should have(2).items
+
+        global_var_2 = service.global_variables.detect{|v| v.name == 'global-var-2'}
         global_var_2.name.should eq('global-var-2')
         global_var_2.display_name.should eq('Global Var Two')
         global_var_2.type.should eq('numeric')
