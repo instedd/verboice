@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -21,7 +21,7 @@ describe ProjectsController do
   include Devise::TestHelpers
 
   let!(:account) { Account.make }
-  let!(:project) {Project.make :account => account}
+  let!(:project) { Project.make :account => account }
 
   before(:each) do
     sign_in account
@@ -46,7 +46,7 @@ describe ProjectsController do
 
     let!(:call_flow) { CallFlow.make :project => project }
     let!(:channel) { account.channels.make :call_flow => call_flow, :account => account}
-    let!(:schedule) { account.schedules.make :weekdays => "1" }
+    let!(:schedule) { project.schedules.make :weekdays => "1" }
     let!(:broker_client) { double('broker_client') }
 
     before(:each) do

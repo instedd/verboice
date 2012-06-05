@@ -72,7 +72,7 @@ Channel.blueprint(:voxeo) do
 end
 
 Schedule.blueprint do
-  account
+  project
   name
 end
 

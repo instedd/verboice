@@ -1,4 +1,4 @@
-<%= form_for(schedule) do |f| %>
+<%= form_for([project, schedule]) do |f| %>
   <% if schedule.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(schedule.errors.count, "error") %> prohibited this schedule from being saved:</h2>

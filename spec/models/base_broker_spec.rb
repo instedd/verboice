@@ -78,7 +78,7 @@ describe BaseBroker do
     end
 
     it "requeue call if rejected and retries available by queue" do
-      schedule = @channel.account.schedules.make :retries => '1,2,4'
+      schedule = @channel.project.schedules.make :retries => '1,2,4'
       queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 1
       the_session = nil
 
@@ -93,7 +93,7 @@ describe BaseBroker do
     end
 
     it "do not requeue if all retries has been used" do
-      schedule = @channel.account.schedules.make :retries => '1,2,4'
+      schedule = @channel.project.schedules.make :retries => '1,2,4'
       queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 3
       the_session = nil
 

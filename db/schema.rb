@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120601200223) do
+ActiveRecord::Schema.define(:version => 20120605140519) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -165,7 +165,6 @@ ActiveRecord::Schema.define(:version => 20120601200223) do
   add_index "recorded_audios", ["contact_id"], :name => "index_recorded_audios_on_contact_id"
 
   create_table "schedules", :force => true do |t|
-    t.integer  "account_id"
     t.string   "name"
     t.string   "retries"
     t.time     "time_from"
@@ -173,7 +172,10 @@ ActiveRecord::Schema.define(:version => 20120601200223) do
     t.string   "weekdays"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.integer  "project_id"
   end
+
+  add_index "schedules", ["project_id"], :name => "index_schedules_on_project_id"
 
   create_table "traces", :force => true do |t|
     t.integer  "call_flow_id"
