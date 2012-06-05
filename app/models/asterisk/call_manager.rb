@@ -77,10 +77,19 @@ module Asterisk
     end
 
     def play(filename, escape_digits = nil)
+      # Usage: STREAM FILE <filename> <escape digits> [sample offset]
+      # Send the given file, allowing playback to be interrupted by the given digits, if any.
+      # Use double quotes for the digits if you wish none to be permitted.
+      # If sample offset is provided then the audio will seek to sample offset before play starts.
+      # Remember, the file extension must not be included in the filename.
+      #
       # failure: 200 result=-1 endpos=<sample offset>
       # failure on open: 200 result=0 endpos=0
       # success: 200 result=0 endpos=<offset>
       # digit pressed: 200 result=<digit> endpos=<offset>
+      #
+      # <offset> is the stream position streaming stopped. If it equals <sample offset> there was probably an error.
+      # <digit> is the ascii code for the digit pressed.
 
       filename = filename[SoundsPath.length .. -5] # Remove SoundsPath and .gsm extension
       line = stream_file("verboice/#{filename}", escape_digits)
