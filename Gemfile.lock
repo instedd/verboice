@@ -6,6 +6,13 @@ GIT
       meta_programming (>= 0.2.1)
 
 GIT
+  remote: https://github.com/instedd/batphone
+  revision: 4c5220a746f643f3ade8265a0fa0ab127491205e
+  branch: fastagi
+  specs:
+    batphone (0.2.0)
+
+GIT
   remote: https://github.com/tbuehl/machinist.git
   revision: 2b6ea4c2e876d4e9b3b22cc975057268788c7ff5
   branch: 1.0-maintenance
@@ -235,6 +242,7 @@ PLATFORMS
 
 DEPENDENCIES
   attr_encrypted
+  batphone!
   capistrano
   capybara
   ci_reporter

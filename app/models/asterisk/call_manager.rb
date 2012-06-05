@@ -16,7 +16,8 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 module Asterisk
-  class CallManager < Asterisk::FastAgiProtocol
+  class CallManager < Batphone::FiberedFastAgiProtocol
+    undef exec
     Port = Rails.configuration.asterisk_configuration[:call_manager_port].to_i
     SoundsDir = Rails.configuration.asterisk_configuration[:sounds_dir]
     SoundsPath = "#{SoundsDir}/verboice/"

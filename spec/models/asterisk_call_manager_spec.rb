@@ -92,7 +92,7 @@ describe Asterisk::CallManager do
     end
 
     it "play throws exception when fails" do
-      @call_manager.should_receive(:stream_file).and_return(Asterisk::AgiMixin::Response.new "200 result=0 endpos=0")
+      @call_manager.should_receive(:stream_file).and_return(Batphone::AgiMixin::Response.new "200 result=0 endpos=0")
       assert_raise(Exception, 'Error while playing file') { @call_manager.play 'foo' }
     end
 
@@ -245,10 +245,10 @@ describe Asterisk::CallManager do
   end
 
   def asterisk_response(note)
-    Asterisk::AgiMixin::Response.new("200 result=1 (#{note})")
+    Batphone::AgiMixin::Response.new("200 result=1 (#{note})")
   end
 
   def line(result)
-    Asterisk::AgiMixin::Response.new "200 result=#{result}"
+    Batphone::AgiMixin::Response.new "200 result=#{result}"
   end
 end
