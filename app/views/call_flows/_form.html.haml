@@ -29,5 +29,4 @@
     %button.white{:type => "submit"} Save
   - else
     %button.white{:type => "submit"} Update
-  / = link_to "Cancel", project_call_flows_path(@project), :class => "button white cancel", :style => 'top: 1px;'
-  = link_to 'Cancel', '#', :class => "button white cancel collapse_trigger", :style => 'top: 1px;'
+  = link_to 'Cancel', '#', :class => "button white cancel #{call_flow.new_record? ? 'remove_unsaved_call_flow' : 'collapse_trigger'}", :style => 'top: 1px;'

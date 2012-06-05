@@ -35,10 +35,8 @@ $(function() {
     call_flow.toggleClass('callback_mode');
   });
 
-  $('.remove_unsaved_call_flow').each(function(){
-    $(this).live('click', function(){
-      $(this).closest(".call_flow_box").remove()
-    });
+  $('.remove_unsaved_call_flow').live('click', function(){
+    $(this).closest(".call_flow_box").remove()
   });
 
   $('.call_flow_box form').live('ajax:complete', function(triggered_event, xml_http_request, ajax_options){
