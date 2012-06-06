@@ -25,7 +25,7 @@ module Commands::PlayCommand
 
   def run(session)
     target_path = download session
-    session.pbx.play target_path, if_hang_up: lambda() { |offset| session.info "User interrupted playback at #{offset} milliseconds." }
+    session.pbx.play target_path, if_hang_up: lambda() { |offset| session.info "User hanged up at #{offset} milliseconds.", command: command_name, action: 'user_hang_up'}
     super
   end
 
@@ -33,9 +33,9 @@ module Commands::PlayCommand
     target_path = get_target_path(session)
     if should_setup_file?(target_path)
       setup_file(session)
-      session.trace "File #{target_path} prepared for playing"
+      session.trace "File #{target_path} prepared for playing", command: command_name
     else
-      session.trace "File #{target_path} already exists"
+      session.trace "File #{target_path} already exists", command: command_name
     end
     target_path
   end
@@ -46,6 +46,10 @@ module Commands::PlayCommand
 
   def setup_file(session)
     raise "#{self.class.name} must implement setup_file"
+  end
+
+  def command_name
+    raise "#{self.class.name} must implement command_name"
   end
 
   def should_setup_file?(target_path)

@@ -23,9 +23,9 @@ class Commands::SayCommand < Command
   end
 
   def run(session)
-    session.info "Say '#{@text}'"
-    session.pbx.say @text, if_hang_up: lambda() { |offset| session.info "User interrupted playback at #{offset} milliseconds." }
-    session.info "Say '#{@text}' finished."
+    session.info "Say '#{@text}'", command: 'say', action: 'start'
+    session.pbx.say @text, if_hang_up: lambda() { |offset| session.info "User interrupted playback at #{offset} milliseconds.", command: 'say', action: 'user_hang_up' }
+    session.info "Say '#{@text}' finished.", command: 'say', action: 'finish'
     super
   end
 end

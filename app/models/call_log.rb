@@ -90,7 +90,15 @@ class CallLog < ActiveRecord::Base
   end
 
   def log(level, description, options = {})
-    CallLogEntry.create! severity: level, description: description, call_id: self.id, step_id: options[:step_id], step_name: options[:step_name]
+    CallLogEntry.create!(
+      severity: level,
+      description: description,
+      call_id: self.id,
+      step_id: options[:step_id],
+      step_name: options[:step_name],
+      command: options[:command],
+      action: options[:action]
+    )
   end
 
   private

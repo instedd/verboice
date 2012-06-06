@@ -23,9 +23,9 @@ class Commands::PlayFileCommand < Command
   end
 
   def run(session)
-    session.info "Play file #{@file_id}"
+    session.info "Play file #{@file_id}", command: command_name, action: 'start'
     super
-    session.info "Play file #{@file_id} finished"
+    session.info "Play file #{@file_id} finished", command: command_name, action: 'finish'
   end
 
   def setup_file(session)
@@ -40,5 +40,9 @@ class Commands::PlayFileCommand < Command
 
   def file_to_convert_path
     "#{Rails.root}/data/call_flows/" + @file_id
+  end
+
+  def command_name
+    'play_file'
   end
 end

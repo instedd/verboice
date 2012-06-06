@@ -53,43 +53,36 @@ class Commands::CaptureCommand < Command
 
     options[:after_play] = lambda() do |digits, offset|
       if digits
-        session.info "User interrupted playback at #{offset} milliseconds."
+        session.info "User interrupted playback at #{offset} milliseconds by pressing #{digits}.", command: 'capture', action: 'received'
       else
-        session.info "Finished playing file."
-        session.info "Waiting for user input."
+        session.info "Finished playing file.", command: 'capture', action: 'finish'
+        session.info "Waiting for user input.", command: 'capture', action: 'waiting'
       end
     end
 
+    options[:if_hang_up] = lambda() { |offset| session.info "User hanged up at #{offset} milliseconds.", command: 'capture', action: 'user_hang_up' }
+
     if options[:say].present?
-      session.log(
-        :info => "Say '#{@options[:say]}'. Waiting user input",
-        :trace => "Say '#{@options[:say]}'. Waiting user input: #{@options.to_pretty_s}"
-      )
+      session.info "Say '#{@options[:say]}'. Waiting user input: #{@options.to_pretty_s}", command: 'capture', action: 'start'
     elsif options[:play].present?
-      session.log(
-        :info => "Play file #{@options[:play]}. Waiting user input",
-        :trace => "Play file #{@options[:play]}. Waiting user input: #{@options.to_pretty_s}"
-      )
+      session.info "Play file #{@options[:play]}. Waiting user input: #{@options.to_pretty_s}", command: 'capture', action: 'start'
     else
-      session.log(
-        :info => "Waiting user input",
-        :trace => "Waiting user input: #{@options.to_pretty_s}"
-      )
+      session.info "Waiting user input: #{@options.to_pretty_s}", command: 'capture', action: 'waiting'
     end
 
     digits = session.pbx.capture options
     case digits
     when nil
-      session.info("User didn't press enough digits")
+      session.info("User didn't press enough digits", command: 'capture', action: 'timeout')
       session[:timeout] = true
     when :timeout
-      session.info("User timeout")
+      session.info("User timeout", command: 'capture', action: 'timeout')
       session[:timeout] = true
     when :finish_key
-      session.info("User pressed the finish key")
+      session.info("User pressed the finish key", command: 'capture', action: 'finish_key')
       session[:finish_key] = true
     else
-      session.info("User pressed: #{digits}")
+      session.info("User pressed: #{digits}", command: 'capture', action: 'received')
       session[:digits] = digits
     end
 

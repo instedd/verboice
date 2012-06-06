@@ -110,7 +110,7 @@ module Asterisk
       digits = ''
 
       if options[:play]
-        play_digit, offset = play(options[:play], {}, '0123456789#*')
+        play_digit, offset = play(options[:play], { if_hang_up: options[:if_hang_up] }, '0123456789#*')
         options[:after_play].call play_digit, offset if options[:after_play].present?
         if play_digit
           return :finish_key if options[:finish_on_key].include? play_digit
