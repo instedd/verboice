@@ -26,7 +26,10 @@ onWorkflow ->
       @settings = ko.observableArray(settings)
 
     button_class: () =>
-      'ltext'
+      if @is_icon_external()
+        'lpgear'
+      else
+        'lp' + @icon_url()
 
     @add_to_steps: () ->
       workflow.add_step(new window[@type])
@@ -49,6 +52,9 @@ onWorkflow ->
 
     icon_url: () =>
       @.constructor.icon
+
+    is_icon_external: () =>
+      @.constructor.icon.indexOf('http') == 0
 
     variables: () =>
       @.constructor.variables
