@@ -15,14 +15,14 @@ onWorkflow ->
 
     record: () =>
       return if @playing() or @recording()
-      @recording true
       @playing false
       @update_duration 0
       Wami.setup
         id: 'wami'
         swfUrl: '/Wami.swf'
         onReady: =>
-          Wami.startRecording("#{save_recording_path}?#{@message_query_identifier()}");
+          Wami.startRecording("#{save_recording_path}?#{@message_query_identifier()}",
+            Wami.nameCallback(@wami_record_start), Wami.nameCallback(@wami_record_finished), Wami.nameCallback(@wami_record_failed));
           @recording_start = @now_seconds()
           @update_duration_interval = window.setInterval((() =>
             @update_duration(@now_seconds() - @recording_start)), 100)
@@ -33,7 +33,6 @@ onWorkflow ->
         Wami.stopRecording() if @recording()
         Wami.stopPlaying() if @playing()
         @file(true)
-      @recording(false)
       @playing(false)
       window.clearInterval(@update_duration_interval)
 
@@ -65,6 +64,15 @@ onWorkflow ->
       super() and @file()
 
     # private
+
+    wami_record_start: () =>
+      @recording(true)
+
+    wami_record_finished: () =>
+      @recording(false)
+
+    wami_record_failed: () =>
+      @recording(false)
 
     message_query_identifier: () =>
       return "step_id=#{@parent.id}&message=#{@title}"
