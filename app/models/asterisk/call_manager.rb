@@ -67,16 +67,16 @@ module Asterisk
       end
     end
 
-    def say(text)
+    def say(text, options = {})
       filename = @synthesizer.synth text
-      play filename
+      play filename, options
     end
 
     def sound_path_for(basename)
       "#{SoundsPath}#{basename}.gsm"
     end
 
-    def play(filename, escape_digits = nil)
+    def play(filename, options = {}, escape_digits = nil)
       # Usage: STREAM FILE <filename> <escape digits> [sample offset]
       # Send the given file, allowing playback to be interrupted by the given digits, if any.
       # Use double quotes for the digits if you wish none to be permitted.
@@ -94,12 +94,13 @@ module Asterisk
       filename = filename[SoundsPath.length .. -5] # Remove SoundsPath and .gsm extension
       line = stream_file("verboice/#{filename}", escape_digits)
       if line.result == '-1'
+        options[:if_hang_up].call line.endpos if options[:if_hang_up].present?
         raise Exception.new 'User hanged up'
       end
       if line.result == '0' && line.endpos == 0
         raise Exception.new 'Error while playing file'
       end
-      ascii_to_number line.result
+      [ascii_to_number(line.result), line.endpos]
     end
 
     def capture(options)
@@ -109,7 +110,8 @@ module Asterisk
       digits = ''
 
       if options[:play]
-        play_digit = play(options[:play], '0123456789#*')
+        play_digit, offset = play(options[:play], {}, '0123456789#*')
+        options[:after_play].call play_digit, offset if options[:after_play].present?
         if play_digit
           return :finish_key if options[:finish_on_key].include? play_digit
 

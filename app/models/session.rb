@@ -163,6 +163,7 @@ class Session
     @commands = call_flow.error_flow
     run rescue nil
 
+    error message
     call_log.finish_with_error message
   end
 

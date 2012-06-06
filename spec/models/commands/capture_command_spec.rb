@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -28,8 +28,18 @@ module Commands
     def expect_capture(options = {})
       options = @defaults.merge(options)
 
-      @session.should_receive(:log).with(:info => "Waiting user input", :trace => "Waiting user input: #{options.to_pretty_s}")
-      @session.pbx.should_receive(:capture).with(options).and_return(@digit)
+      if options[:play]
+        @session.should_receive(:log).with(
+          :info => "Play file #{options[:play]}. Waiting user input",
+          :trace => "Play file #{options[:play]}. Waiting user input: #{options.to_pretty_s}"
+        )
+      else
+        @session.should_receive(:log).with(
+          :info => "Waiting user input",
+          :trace => "Waiting user input: #{options.to_pretty_s}"
+        )
+      end
+      @session.pbx.should_receive(:capture).with(options.merge(:after_play => anything)).and_return(@digit)
       case @digit
       when nil
         @session.should_receive(:info).with("User didn't press enough digits")
@@ -131,9 +141,13 @@ module Commands
     end
 
     it "capture with play" do
-      @session.should_receive(:log).with(:info => "Waiting user input", :trace => "Waiting user input: #{@defaults.merge(:play => :url).to_pretty_s}")
-      @session.pbx.should_receive(:capture).with(@defaults.merge(:play => :target_path)).and_return(@digit)
+      @session.should_receive(:log).with(
+        :info => "Play file url. Waiting user input",
+        :trace => "Play file url. Waiting user input: #{@defaults.merge(:play => :url).to_pretty_s}"
+      )
+      @session.pbx.should_receive(:capture).with(@defaults.merge(:play => :target_path, :after_play => anything)).and_return(@digit)
       @session.should_receive(:info).with("User pressed: #{@digit}")
+
 
       play = mock('play')
       play.should_receive(:download).with(@session).and_return(:target_path)
@@ -145,8 +159,11 @@ module Commands
     end
 
     it "capture with say" do
-      @session.should_receive(:log).with(:info => "Waiting user input", :trace => "Waiting user input: #{@defaults.merge(:say => "some text").to_pretty_s}")
-      @session.pbx.should_receive(:capture).with(@defaults.merge(:say => "some text")).and_return(@digit)
+      @session.should_receive(:log).with(
+        :info => "Say 'some text'. Waiting user input",
+        :trace => "Say 'some text'. Waiting user input: #{@defaults.merge(:say => "some text").to_pretty_s}"
+      )
+      @session.pbx.should_receive(:capture).with(@defaults.merge(:say => "some text", :after_play => anything)).and_return(@digit)
       @session.should_receive(:info).with("User pressed: #{@digit}")
 
       CaptureCommand.new(:say => "some text").run @session

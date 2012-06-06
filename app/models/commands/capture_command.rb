@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -34,7 +34,6 @@ class Commands::CaptureCommand < Command
   end
 
   def run(session)
-    session.log :info => "Waiting user input", :trace => "Waiting user input: #{@options.to_pretty_s}"
 
     options = @options.dup
     if options[:play].present?
@@ -51,6 +50,32 @@ class Commands::CaptureCommand < Command
     end
 
     [:digits, :timeout, :finish_key].each { |key| session.delete key }
+
+    options[:after_play] = lambda() do |digits, offset|
+      if digits
+        session.info "User interrupted playback at #{offset} milliseconds."
+      else
+        session.info "Finished playing file."
+        session.info "Waiting for user input."
+      end
+    end
+
+    if options[:say].present?
+      session.log(
+        :info => "Say '#{@options[:say]}'. Waiting user input",
+        :trace => "Say '#{@options[:say]}'. Waiting user input: #{@options.to_pretty_s}"
+      )
+    elsif options[:play].present?
+      session.log(
+        :info => "Play file #{@options[:play]}. Waiting user input",
+        :trace => "Play file #{@options[:play]}. Waiting user input: #{@options.to_pretty_s}"
+      )
+    else
+      session.log(
+        :info => "Waiting user input",
+        :trace => "Waiting user input: #{@options.to_pretty_s}"
+      )
+    end
 
     digits = session.pbx.capture options
     case digits
