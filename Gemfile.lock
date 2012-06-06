@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/instedd/batphone
-  revision: 8816e25a028e80441841db0f50d3cf7abe520271
+  revision: 6475f47d4d44c0522dbeaab62c26bef0cc9fccca
   branch: fastagi
   specs:
     batphone (0.2.0)
