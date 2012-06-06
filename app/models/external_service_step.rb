@@ -8,8 +8,7 @@ class ExternalServiceStep < ActiveRecord::Base
 
   validates :name, :presence => true, :uniqueness => { :scope => :external_service_id }
 
-  class Variable
-    attr_accessor :name, :display_name, :type
+  class Variable < Struct.new(:name, :display_name, :type)
   end
 
 end

@@ -64,10 +64,18 @@ onWorkflow ->
       @command_selector.commands()
 
     variables: () =>
-      (step.store() for step in @steps() when step.defines_store?())
+      vars = []
+      for step in @steps()
+        if step.defines_store?()
+          store = step.store()
+          if store instanceof Array
+            vars = vars.concat(store)
+          else
+            vars.push(store)
+      return vars
 
     all_variables: () =>
-      (step.store() for step in @steps() when step.defines_store?()).sort().concat(
+      @variables().sort().concat(
         variable for variable in distinct_variables.sort() when variable not in workflow.variables()
       )
 

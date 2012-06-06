@@ -58,7 +58,7 @@ class Commands::CallbackCommand < Command
 
         session.trace "Callback returned #{content_type}: #{body}"
 
-        f.resume self.send(@response_type, content_type, body)
+        f.resume self.send(@response_type, content_type, body, session)
       rescue Exception => e
         f.resume e
       end
@@ -69,7 +69,7 @@ class Commands::CallbackCommand < Command
 
   private
 
-  def flow(content_type, body)
+  def flow(content_type, body, session)
      next_command = case content_type
                     when %r(application/json)
                       Commands::JsCommand.new body
@@ -80,20 +80,15 @@ class Commands::CallbackCommand < Command
     next_command
   end
 
-  def variables(content_type, body)
+  def variables(content_type, body, session)
     hash = JSON.parse body
-    next_command = Compiler.make do |c|
-      hash.each do |key, value|
-        c.Assign key, "'#{value}'"
-        c.PersistVariable key, "'#{value}'"
-      end
+    hash.each do |key, value|
+      session["response_#{key}"] = value
     end
-
-    next_command.last.next = self.next
-    next_command
+    self.next
   end
 
-  def none(content_type, body)
+  def none(content_type, body, session)
     self.next
   end
 

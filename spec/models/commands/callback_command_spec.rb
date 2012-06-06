@@ -179,47 +179,23 @@ module Commands
     end
 
     describe "variables" do
-      let(:options) { {:response_type => :variables}}
-      let(:variables) { {:key1 => 'value1', :key2 => 'value2'} }
+      let(:options)  { {:response_type => :variables}}
+      let(:response) { {:key1 => 'value1', :key2 => 'value2'} }
 
       before(:each) do
         assert_log
-        @session.should_receive(:trace).with("Callback returned application/json: #{variables.to_json}")
+        @session.should_receive(:trace).with("Callback returned application/json: #{response.to_json}")
       end
 
-      it "assigns and persists returned variables" do
-        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => variables.to_json, :content_type => 'application/json' do
+      it "assigns returned variables to session" do
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => response.to_json, :content_type => 'application/json' do
           CallbackCommand.new(url, options).run @session
         end
 
-        expected = Compiler.make do
-          Assign 'key1', "'value1'"
-          PersistVariable 'key1', "'value1'"
-          Assign 'key2', "'value2'"
-          PersistVariable 'key2', "'value2'"
-        end
-
-        result.should eq(expected)
+        @session['response_key1'].should eq('value1')
+        @session['response_key2'].should eq('value2')
       end
 
-      it "continues with the following commands after the assigns and persists commands" do
-        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => variables.to_json, :content_type => 'application/json' do
-          Compiler.make do |c|
-            c.Callback url, options
-            c.Hangup
-          end.run @session
-        end
-
-        expected = Compiler.make do
-          Assign 'key1', "'value1'"
-          PersistVariable 'key1', "'value1'"
-          Assign 'key2', "'value2'"
-          PersistVariable 'key2', "'value2'"
-          Hangup()
-        end
-
-        result.should eq(expected)
-      end
     end
 
     describe "none" do

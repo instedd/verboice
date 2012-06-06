@@ -12,6 +12,7 @@ module Parsers
         @next = params['next']
         @root_index = params['root']
         @settings = params['settings']
+        @responses = params['responses']
       end
 
       def is_root?
@@ -30,8 +31,8 @@ module Parsers
           compiler.Label @id
           compiler.Assign "current_step", @id
           compiler.Trace context_for %("Calling External Service #{service.name}.")
-          variables_map = build_variables_map compiler
-          compiler.Callback service_step.callback_url, {:response_type => service_step.response_type.to_sym, :variables => variables_map, :external_service_id => service.id}
+          compiler.Callback service_step.callback_url, {:response_type => service_step.response_type.to_sym, :variables => build_variables_map(compiler), :external_service_id => service.id}
+          assign_responses(compiler, service_step)
           compiler.append @next.equivalent_flow if @next
         end
       end
@@ -53,6 +54,26 @@ module Parsers
           end
         end
       end
+
+      def assign_responses(compiler, service_step)
+        service_step.response_variables.each do |var|
+          compiler.Assign "external_#{@id}_#{var.name}", "response_#{var.name}", :try
+          response = @responses.find {|r| r['name'] == var.name}
+          compiler.PersistVariable response['variable'], "response_#{var.name}" if response && response['variable']
+        end
+      end
+
+      # def build_responses_map(compiler)
+      #   return nil unless @responses.present?
+      #   HashWithIndifferentAccess.new.tap do |map|
+      #     @responses.each do |response|
+      #       if response['variable']
+      #         map[response['name']] = response['variable']
+      #       end
+      #     end
+      #   end
+      # end
+
     end
   end
 end

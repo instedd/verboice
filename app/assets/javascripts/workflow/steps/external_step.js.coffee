@@ -67,6 +67,12 @@ onWorkflow ->
     display_template_id: () =>
       'external_step_template'
 
+    defines_store: () =>
+      _.any(response.defines_store() for response in @responses())
+
+    store: () =>
+      (response.store() for response in @responses())
+
     icon_url: () =>
       @.constructor.icon
 
