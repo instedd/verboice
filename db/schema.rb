@@ -113,6 +113,7 @@ ActiveRecord::Schema.define(:version => 20120605140519) do
     t.datetime "created_at",          :null => false
     t.datetime "updated_at",          :null => false
     t.string   "response_type"
+    t.text     "response_variables"
   end
 
   add_index "external_service_steps", ["external_service_id"], :name => "index_external_service_steps_on_external_service_id"

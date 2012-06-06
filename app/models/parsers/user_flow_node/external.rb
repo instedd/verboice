@@ -63,17 +63,6 @@ module Parsers
         end
       end
 
-      # def build_responses_map(compiler)
-      #   return nil unless @responses.present?
-      #   HashWithIndifferentAccess.new.tap do |map|
-      #     @responses.each do |response|
-      #       if response['variable']
-      #         map[response['name']] = response['variable']
-      #       end
-      #     end
-      #   end
-      # end
-
     end
   end
 end
