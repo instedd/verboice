@@ -43,13 +43,15 @@ module Parsers
         return nil unless @settings.present?
         HashWithIndifferentAccess.new.tap do |map|
           @settings.each do |setting|
-            if setting['step'].present?
-              map[setting['name']] = "value_#{setting['step']}"
+            map[setting['name']] = if setting['step'].present?
+              "value_#{setting['step']}"
             elsif setting['variable'].present?
               compiler.RetrieveVariable setting['variable']
-              map[setting['name']] = setting['variable']
+              "var_#{setting['variable']}"
             elsif setting['value'].present?
-              map[setting['name']] = "'#{setting['value']}'"
+              "'#{setting['value']}'"
+            elsif setting['response'].present?
+              "external_#{setting['response']}"
             end
           end
         end
