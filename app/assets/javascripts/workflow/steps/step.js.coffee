@@ -118,7 +118,7 @@ onWorkflow ->
       null
 
     background_style: () =>
-      if @icon_url?()?
-        "transparent url(\"#{@icon_url()}\") no-repeat 0 0 scroll"
+      if @is_icon_external?()
+        "url(\"#{@icon_url()}\") no-repeat 0 0 scroll, url(http://theme.instedd.org/theme/images/buttons/large/plain/gear.png) no-repeat 0 0 scroll"
       else
         null
