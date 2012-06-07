@@ -296,7 +296,7 @@ describe Parsers::UserFlow do
         PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "33-message.wav")
         Assign "current_step", 34
         Assign "current_step_name", "'Branch number one'"
-        If "(value_3 == '6') && (value_2 < '30') && (value_2 >= '5')" do
+        If "(value_3 == 6) && (value_2 < 30) && (value_2 >= 5)" do
           Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
           Label 10
           Assign "current_step", 10
@@ -305,7 +305,7 @@ describe Parsers::UserFlow do
           PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "10-message.wav")
           Goto "end34"
         end
-        If "(value_3 <= '5')" do
+        If "(value_3 <= 5)" do
           Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
           Label 14
           Assign "current_step", 14

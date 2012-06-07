@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -72,11 +72,11 @@ module Commands
       options = {:variables => {'foo' => 'var_foo', 'bar' => 'value_bar', 'baz' => '42'}}
       url = 'http://www.domain.com/{foo}?key1={bar}&key2={baz}'
       interpolated_url = 'http://www.domain.com/the_foo?key1=the_bar&key2=the_42'
-      @session.should_receive(:eval).with('var_foo').and_return('the_foo')
-      @session.should_receive(:eval).with('value_bar').and_return('the_bar')
-      @session.should_receive(:eval).with('42').and_return('the_42')
+      @session.should_receive(:eval).with('var_foo').at_least(:once).and_return('the_foo')
+      @session.should_receive(:eval).with('value_bar').at_least(:once).and_return('the_bar')
+      @session.should_receive(:eval).with('42').at_least(:once).and_return('the_42')
 
-      expect_em_http :post, interpolated_url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+      expect_em_http :post, interpolated_url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, 'foo' => 'the_foo', 'bar' => 'the_bar', 'baz' => 'the_42')}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
         CallbackCommand.new(url, options).run @session
       end
     end

@@ -94,7 +94,7 @@ module Parsers
             Assign "current_step", 1
             Assign "current_step_name", "'Branch number one'"
             RetrieveVariable 'some_name'
-            If "(value_3 == '6') && (var_some_name >= '5')" do
+            If "(value_3 == 6) && (var_some_name >= 5)" do
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
               Label 10
               Assign "current_step", 10
