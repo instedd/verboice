@@ -11,8 +11,8 @@ module Parsers
         @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
-        @settings = params['settings']
-        @responses = params['responses']
+        @settings = (params['settings'] || [])
+        @responses = (params['responses'] || [])
       end
 
       def is_root?
@@ -43,16 +43,8 @@ module Parsers
         return nil unless @settings.present?
         HashWithIndifferentAccess.new.tap do |map|
           @settings.each do |setting|
-            map[setting['name']] = if setting['step'].present?
-              "value_#{setting['step']}"
-            elsif setting['variable'].present?
-              compiler.RetrieveVariable setting['variable']
-              "var_#{setting['variable']}"
-            elsif setting['value'].present?
-              "'#{setting['value']}'"
-            elsif setting['response'].present?
-              "external_#{setting['response']}"
-            end
+            input_setting = InputSetting.new(setting)
+            map[setting['name']] = input_setting.retrieve_if_needed(compiler).and_return_expression()
           end
         end
       end

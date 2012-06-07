@@ -15,7 +15,7 @@
         %br
         %span.desc Define hoy to fill these variables
 
-        %table.GralTable.TwoColumn.CleanTable.NoHead{ko(:if => 'settings().length > 0')}
+        %table.GralTable.TwoColumn.CleanTable.NoHead
           %tbody{ko(foreach: 'settings')}
             %tr
               %td{ko(text: 'display_name')}

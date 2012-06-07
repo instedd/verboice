@@ -1,0 +1,7 @@
+%td
+  %select.w10{'data-bind' => "value: content_kind, options: content_kinds(), optionsText: 'text', optionsValue: 'value'"}
+%td
+  %input.ux-text.w10{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value"'}
+  %select.w10{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables()'}
+  %select.w10{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name", optionsValue: "value"'}
+  %select.w10{'data-bind' => 'value: response, visible: content_kind() == "response", options: available_responses(), optionsText: "name", optionsValue: "value"'}

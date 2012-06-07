@@ -45,7 +45,7 @@ module Parsers
               c.RetrieveVariable 'foobar'
               c.Callback external_service_step.callback_url, {:response_type => :variables, :variables => {
                 'variable_with_step' => 'value_20',
-                'variable_with_variable' => 'foobar',
+                'variable_with_variable' => 'var_foobar',
                 'variable_with_value' => "'fixed value'"
               }, :external_service_id => external_service.id}
             end.first
@@ -73,7 +73,7 @@ module Parsers
               c.Label 1
               c.Assign 'current_step', 1
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Calling External Service #{external_service.name}.")
-              c.Callback external_service_step.callback_url, {:response_type => :variables}
+              c.Callback external_service_step.callback_url, {:response_type => :variables, :external_service_id => external_service_step.external_service_id}
               c.Assign "external_1_response_one", 'response_response_one', :try
               c.PersistVariable "my_var", 'response_response_one'
               c.Assign "external_1_response_two", 'response_response_two', :try
