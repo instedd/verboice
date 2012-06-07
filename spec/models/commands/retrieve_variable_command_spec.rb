@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -76,7 +76,6 @@ module Commands
 
       cmd.run(session).should == :next
       session.eval('var_foo').should eq(persisted_variable.value.to_i)
-      call_log.structured_details[0][:text].should == "Caller address is unknown. For current call, variable 'foo' has been retrieved from contact 'Anonymous44'."
     end
 
      it "should set the value to nil if the caller address is unknown and the anonymous contact doesn't exist" do
@@ -89,7 +88,6 @@ module Commands
 
        cmd.run(session).should == :next
        session.eval('var_foo').should eq(nil)
-       call_log.structured_details[0][:text].should == "Caller address is unknown. Variable 'foo' can't be retrieved for an anonymous contact."
      end
 
      it "should set to nil if the address is unknown and the variable doesn't exist" do

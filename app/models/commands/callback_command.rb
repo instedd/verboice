@@ -27,6 +27,7 @@ class Commands::CallbackCommand < Command
   end
 
   def run(session)
+    session.info "Callback started", command: 'callback', action: 'start'
     url = @url || session.callback_url
     method = (@method || 'post').to_s.downcase.to_sym
 
@@ -38,7 +39,7 @@ class Commands::CallbackCommand < Command
         body[name] = session[key]
       end
     end
-    session.trace "Callback #{method} #{url} with #{body.to_query}"
+    session.trace "Callback #{method} #{url} with #{body.to_query}", command: 'callback', action: method
 
     http = http_request(url, method, body, authorization)
 
@@ -46,13 +47,14 @@ class Commands::CallbackCommand < Command
     http.callback do
       begin
         if http.response_header.status.to_i != 200
+          session.trace "Callback status #{http.response_header.status}", command: 'callback', action: 'fail'
           raise "Callback failed with status #{http.response_header.status}"
         end
 
         content_type = http.response_header[EventMachine::HttpClient::CONTENT_TYPE]
         body = http.response
 
-        session.trace "Callback returned #{content_type}: #{body}"
+        session.trace "Callback returned #{content_type}: #{body}", command: 'callback', action: 'return'
 
         commands = case content_type
                    when %r(application/json)
@@ -64,10 +66,16 @@ class Commands::CallbackCommand < Command
         commands.last.next = self.next
         f.resume commands
       rescue Exception => e
+        session.error "#{e}", command: 'callback', action: 'error'
         f.resume e
       end
     end
-    http.errback { f.resume Exception.new(http.error.present? ? http.error : "Failed to communicate with #{url}") }
+    http.errback do
+      error_message = http.error.present? ? http.error : "Failed to communicate with #{url}"
+      session.trace error_message, command: 'callback', action: 'error'
+      f.resume Exception.new(error_message)
+    end
+    session.info "Callback ended", command: 'callback', action: 'finish'
     Fiber.yield
   end
 

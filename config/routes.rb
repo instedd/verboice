@@ -55,6 +55,7 @@ Verboice::Application.routes.draw do
     member do
       get :progress
       get 'results/:key', :action => :play_result, :as => 'result'
+      get :download_details
     end
     collection do
       get :queued

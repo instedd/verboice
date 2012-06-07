@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -77,10 +77,6 @@ module Commands
       Contact.first.address.should eq('Anonymous456')
       Contact.first.anonymous?.should eq(true)
       RecordedAudio.first.contact.should eq(Contact.first)
-      details = call_log.structured_details
-
-      details[0][:text].should == "Record user voice"
-      details[1][:text].should == "Caller address is unknown. Recording 'foo' saved for contact Anonymous456."
     end
 
     it "should use an existing anonymous contact if the contact address is unknown but the contact is already created" do
@@ -97,7 +93,6 @@ module Commands
       Contact.all.size.should eq(1)
       Contact.first.address.should eq('Anonymous34')
       RecordedAudio.first.contact.should eq(Contact.first)
-      call_log.structured_details[1][:text].should == "Caller address is unknown. Recording 'foo' saved for contact Anonymous34."
     end
 
 

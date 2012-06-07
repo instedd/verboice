@@ -29,11 +29,11 @@ describe CallLog do
   it "call log structured details" do
     call = CallLog.make
     Timecop.freeze(Time.local(2012, 1, 1, 0, 0, 13))
-    CallLogEntry.make description: 'Answer', call_log: call, severity: :info
+    CallLogEntry.make description: 'Answer', call: call, severity: :info
     Timecop.freeze(Time.local(2012, 1, 1, 0, 12, 25))
-    CallLogEntry.make description: 'Callback http://localhost:4567 with CallSid=b1cc8e26-21b3-1b16-d97d-bf18033e314d&Digits=', severity: :trace, call_log: call
+    CallLogEntry.make description: 'Callback http://localhost:4567 with CallSid=b1cc8e26-21b3-1b16-d97d-bf18033e314d&Digits=', severity: :trace, call: call
     Timecop.freeze(Time.local(2012, 1, 1, 1, 23, 48))
-    CallLogEntry.make description: 'Callback returned: http://localhost:4567/guess.mp3', severity: :trace, call_log: call
+    CallLogEntry.make description: 'Callback returned: http://localhost:4567/guess.mp3', severity: :trace, call: call
 
     details = call.structured_details
     details.length.should == 3

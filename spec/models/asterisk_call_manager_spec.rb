@@ -147,34 +147,34 @@ describe Asterisk::CallManager do
     end
 
     it "capture digits while playing" do
-      @call_manager.should_receive(:play).ordered.with('some_file', {}, '0123456789#*').and_return('4')
+      @call_manager.should_receive(:play).ordered.with('some_file', anything, '0123456789#*').and_return('4')
       expect_digit '2'.ord.to_s
       value = @call_manager.capture :min => 2, :max => 2, :finish_on_key => '#', :timeout => 5, :play => 'some_file'
       value.should == '42'
     end
 
     it "capture digits with string values" do
-      @call_manager.should_receive(:play).ordered.with('some_file', {}, '0123456789#*').and_return('4')
+      @call_manager.should_receive(:play).ordered.with('some_file', anything, '0123456789#*').and_return('4')
       expect_digit '2'.ord.to_s
       value = @call_manager.capture :min => '2', :max => '2', :finish_on_key => '#', :timeout => '5', :play => 'some_file'
       value.should == '42'
     end
 
     it "capture digits and play is finish key" do
-      @call_manager.should_receive(:play).ordered.with('some_file', {}, '0123456789#*').and_return('*')
+      @call_manager.should_receive(:play).ordered.with('some_file', anything, '0123456789#*').and_return('*')
       value = @call_manager.capture :min => 2, :max => 2, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
       value.should == :finish_key
     end
 
     it "capture digits and play nothing pressed" do
-      @call_manager.should_receive(:play).ordered.with('some_file', {}, '0123456789#*').and_return(nil)
+      @call_manager.should_receive(:play).ordered.with('some_file', anything, '0123456789#*').and_return(nil)
       expect_digits '24'
       value = @call_manager.capture :min => 2, :max => 2, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
       value.should == '24'
     end
 
     it "capture digits and play just one digit" do
-      @call_manager.should_receive(:play).ordered.with('some_file', {}, '0123456789#*').and_return('1')
+      @call_manager.should_receive(:play).ordered.with('some_file', anything, '0123456789#*').and_return('1')
       value = @call_manager.capture :min => 1, :max => 1, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
       value.should == '1'
     end

@@ -33,9 +33,9 @@ module Commands::PlayCommand
     target_path = get_target_path(session)
     if should_setup_file?(target_path)
       setup_file(session)
-      session.trace "File #{target_path} prepared for playing", command: command_name
+      session.trace "File #{target_path} prepared for playing", command: command_name, action: 'set_up'
     else
-      session.trace "File #{target_path} already exists", command: command_name
+      session.trace "File #{target_path} already exists", command: command_name, action: 'set_up'
     end
     target_path
   end

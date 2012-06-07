@@ -20,13 +20,10 @@ require 'spec_helper'
 module Commands
   describe SayCommand do
 
-    let(:pbx) { double('pbx') }
-    let(:session) { Session.new :pbx => pbx}
+    let(:session) { Session.new pbx: double('pbx'), call_log: CallLog.make}
 
     it "runs" do
       session.pbx.should_receive(:say).with('some text', anything)
-      session.should_receive(:info).with("Say 'some text'")
-      session.should_receive(:info).with("Say 'some text' finished.")
       Commands::SayCommand.new('some text').run session
     end
 

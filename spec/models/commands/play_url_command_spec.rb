@@ -23,10 +23,9 @@ module Commands
       @url = url
       Digest::MD5.should_receive(:hexdigest).with(@url).and_return(:md5)
 
-      @session = Session.new :pbx => mock('pbx')
+      @session = Session.new pbx: double('pbx'), call_log: CallLog.make
       @session.pbx.should_receive(:sound_path_for).with(:md5).and_return(:target_path)
       @session.pbx.should_receive(:play).with(:target_path, :if_hang_up => anything)
-      @session.should_receive(:info).with("Play #{@url}")
       @session.stub(:trace)
     end
 
@@ -34,8 +33,6 @@ module Commands
       setup_for_url 'http://foo.gsm'
 
       File.should_receive(:exists?).with(:target_path).and_return(true)
-
-      @session.should_receive(:trace).with("File #{:target_path} already exists")
 
       cmd = PlayUrlCommand.new @url
       cmd.should_receive(:download_url_to).never
@@ -49,8 +46,6 @@ module Commands
       File.should_receive(:exists?).with(:target_path).and_return(false)
       File.should_receive(:is_mpeg?).with(:tmp_file).and_return(true)
 
-      @session.should_receive(:trace).with("Download #{@url}")
-
       cmd = PlayUrlCommand.new @url
       cmd.should_receive(:download_url_to_temporary_location).and_yield(:tmp_file)
       cmd.should_receive(:convert_to_wav).with(:tmp_file)
@@ -62,8 +57,6 @@ module Commands
       setup_for_url 'http://foo.wav'
 
       File.should_receive(:exists?).with(:target_path).and_return(false)
-
-      @session.should_receive(:trace).with("Download #{@url}")
 
       cmd = PlayUrlCommand.new @url
       cmd.should_receive(:download_url_to_temporary_location).and_yield(:tmp_file)
@@ -81,8 +74,6 @@ module Commands
       setup_for_url 'http://foo.gsm'
 
       File.should_receive(:exists?).with(:target_path).and_return(false)
-
-      @session.should_receive(:trace).with("Download #{@url}")
 
       cmd = PlayUrlCommand.new @url
       cmd.should_receive(:download_url_to_temporary_location).and_yield(:tmp_file)
