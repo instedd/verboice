@@ -1,0 +1,21 @@
+%script{type: "text/html", id: "external_setting_template"}
+  .popup
+    .courtain
+    .box.popupmessage
+      %div
+        Fill
+        %span{ko(text: 'display_name')}
+        with
+      %hr
+      %div
+        %select.w22{'data-bind' => "value: content_kind"}
+          %option{value: "step"} Step
+          %option{value: "variable"} Variable
+          %option{value: "value"} Value
+      %div
+        %input.ux-text.w22{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value"'}
+        %select.w22{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables()'}
+        %select.w22{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name"'}
+      %hr
+      %button.white{ko(click: 'save')} Save
+      %a.cancel{ko(click: 'cancel').merge(href: '#')} Cancel

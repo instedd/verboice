@@ -1,6 +1,6 @@
 onWorkflow ->
   class window.ExternalStepSetting
-    constructor: (attrs) ->
+    constructor: (parent, attrs) ->
 
       @name = attrs.name
       @display_name = attrs.display_name
@@ -15,6 +15,8 @@ onWorkflow ->
           'step'
         else
           'value')
+
+      @parent = parent
 
     to_hash: () =>
       name: @name
@@ -38,3 +40,22 @@ onWorkflow ->
 
     on_step_removed: (step) =>
       @step_id(null) if step.id == parseInt(@step_id())
+
+    on_begin_edition: () =>
+      @content_kind_tmp = @content_kind()
+      @value_tmp = @value()
+      @variable_tmp = @variable()
+      @step_id_tmp = @step_id()
+
+    save: () =>
+      @exit()
+
+    cancel: () =>
+      @content_kind(@content_kind_tmp)
+      @value(@value_tmp)
+      @variable(@variable_tmp)
+      @step_id(@step_id_tmp)
+      @exit()
+
+    exit: () =>
+      @parent.current_editing_setting(null)

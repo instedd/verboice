@@ -1,39 +1,40 @@
 %script{type: "text/html", id: "external_step_template"}
   .feditor-sidebar.right.box.w28.iblock.h65
+
+    / ko if: is_editing_setting()
+    %div{ko(:template => "{name: 'external_setting_template', data: current_editing_setting}")}
+    / /ko
+
     .tableheader
       %span.left.i48grad-phone{ ko(css: '{ "orange": is_invalid }') }
       %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
 
-    %table.GralTable.CleanTable.NoHead{ko(:if => 'settings().length > 0')}
-      %thead
-        %tr
-          %th{colspan: 2} Configure parameters for this service:
-      %tbody{ko(foreach: 'settings')}
-        %tr
-          %td{ko(text: 'display_name')}
-        %tr
-          %td
-            %select.w10{'data-bind' => "value: content_kind"}
-              %option{value: "step"} Step
-              %option{value: "variable"} Variable
-              %option{value: "value"} Value
-          %td
-            %input.ux-text.w10{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value"'}
-            %select.w10{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables()'}
-            %select.w10{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name"'}
+    .content.scroll
+      %label Outgoing
+      %br
+      %span.desc Define hoy to fill this variables
 
+      %table.GralTable.TwoColumn.CleanTable.NoHead{ko(:if => 'settings().length > 0')}
+        %tbody{ko(foreach: 'settings')}
+          %tr
+            %td{ko(text: 'display_name')}
+            %td
+              %button.farrow{ko(click: '$parent.edit_setting')}
 
-    %hr/
-    %table.GralTable.CleanTable.NoHead{ko(:if => 'responses().length > 0')}
-      %thead
-        %tr
-          %th{colspan: 2} Configure response
-      %tbody{ko(foreach: 'responses')}
-        %tr
-          %td{ko(text: 'display_name')}
-        %tr
-          %td= store_value_tags
+      %hr
 
-    .content
-      .bottom-actions
-        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+      %label Incoming
+      %br
+      %span.desc Define whre to store this values
+
+      %table.GralTable.CleanTable.NoHead{ko(:if => 'responses().length > 0')}
+        %tbody{ko(foreach: 'responses')}
+          %tr
+            %td{ko(text: 'display_name')}
+          %tr
+            %td
+              = store_value_tags
+              / %button.farrow
+
+    .bottom-actions
+      %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

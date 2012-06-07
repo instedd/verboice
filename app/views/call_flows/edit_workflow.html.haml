@@ -15,7 +15,7 @@
     var capture_default_minimum_input_lenght = #{Parsers::UserFlowNode::Capture.default_minimum_input_lenght};
     var capture_default_maximum_input_lenght = #{Parsers::UserFlowNode::Capture.default_maximum_input_lenght};
 
-  - %W(external_step hang_up_step workflow_step capture_step menu_step play_step transfer_step goto_step branch_step record_step message recording_message text_message command_selector branch_option).each do |template|
+  - %W(external_step hang_up_step workflow_step capture_step menu_step play_step transfer_step goto_step branch_step record_step message recording_message text_message command_selector branch_option external_setting).each do |template|
     = render "call_flows/#{template}_template"
 
 = render 'shared/project_tabs_and_title', :project => @project

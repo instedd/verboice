@@ -25,7 +25,7 @@ onWorkflow ->
       for variable in @variables()
         setting = ((s for s in attrs.settings when s.name == variable.name)[0] or {})
         setting = $.extend({name: variable.name, display_name: variable.display_name}, setting)
-        settings.push(new ExternalStepSetting(setting))
+        settings.push(new ExternalStepSetting(@, setting))
       @settings = ko.observableArray(settings)
 
       # Setup responses
@@ -36,6 +36,10 @@ onWorkflow ->
         response = $.extend({name: variable.name, display_name: variable.display_name}, response)
         responses.push(new ExternalStepResponse(response))
       @responses = ko.observableArray(responses)
+
+      @current_editing_setting = ko.observable null
+      @is_editing_setting = ko.computed () =>
+        @current_editing_setting() != null
 
     button_class: () =>
       if @is_icon_external()
@@ -87,3 +91,7 @@ onWorkflow ->
 
     on_step_removed: (step) =>
       setting.on_step_removed(step) for setting in @settings()
+
+    edit_setting: (setting) =>
+      setting.on_begin_edition()
+      @current_editing_setting(setting)
