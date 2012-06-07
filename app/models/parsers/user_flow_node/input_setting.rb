@@ -2,6 +2,7 @@ module Parsers
   module UserFlowNode
     class InputSetting
 
+      include ActionView::Helpers::JavaScriptHelper
       attr_accessor :value, :variable, :step, :response
 
       def initialize(opts)
@@ -22,7 +23,7 @@ module Parsers
         elsif variable.present?
           "var_#{variable}"
         elsif value.present?
-          "'#{value}'"
+          is_numeric?(value) ? value : "'#{escape_javascript value}'"
         elsif response.present?
           "external_#{response}"
         end
@@ -31,6 +32,10 @@ module Parsers
       def retrieve_if_needed(compiler)
         compiler.RetrieveVariable variable if variable.present?
         self
+      end
+
+      def is_numeric?(obj)
+         obj.to_s.match(/\A\d+?(\.\d+)?\Z/) == nil ? false : true
       end
 
     end

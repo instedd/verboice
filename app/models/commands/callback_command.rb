@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -37,11 +37,15 @@ class Commands::CallbackCommand < Command
     url, authorization = callback_authentication(url, session.call_flow)
 
     body = {:CallSid => session.call_id, :From => session.pbx.caller_id, :Channel => session.channel.name}
-    if @params
-      @params.each do |name, key|
-        body[name] = session[key]
-      end
-    end
+
+    @params.each do |name, key|
+      body[name] = session[key]
+    end if @params
+
+    @variables.each do |name, expr|
+      body[name] = session.eval expr
+    end if @variables
+
     session.log :info => "Callback #{method} #{url}", :trace => "Callback #{method} #{url} with #{body.to_query}"
 
     http = http_request(url, method, body, authorization)

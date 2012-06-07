@@ -8,14 +8,12 @@
         with
       %hr
       %div
-        %select.w22{'data-bind' => "value: content_kind"}
-          %option{value: "step"} Step
-          %option{value: "variable"} Variable
-          %option{value: "value"} Value
+        %select.w22{'data-bind' => "value: content_kind, options: content_kinds(), optionsText: 'text', optionsValue: 'value'"}
       %div
         %input.ux-text.w22{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value"'}
         %select.w22{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables()'}
-        %select.w22{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name"'}
+        %select.w22{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name", optionsValue: "value"'}
+        %select.w22{'data-bind' => 'value: response, visible: content_kind() == "response", options: available_responses(), optionsText: "name", optionsValue: "value"'}
       %hr
       %button.white{ko(click: 'save')} Save
       %a.cancel{ko(click: 'cancel').merge(href: '#')} Cancel

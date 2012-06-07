@@ -8,19 +8,17 @@
       %div{'data-bind' => 'if: is_editing_condition'}
         .box.grey.noshadow
           / ko with: current_editing_condition
-          %div
-            %table
-              %tbody
-                %tr{ko(with: 'lhs')}
-                  = render 'input_setting'
-          %div
-            %select.w20{'data-bind' => "value: operator, options: operators, optionsText: 'text', optionsValue: 'value'"}
           %table
             %tbody
+              %tr{ko(with: 'lhs')}
+                = render 'input_setting'
+              %tr
+                %td{colspan: 2}
+                  %select{'data-bind' => "value: operator, options: operators, optionsText: 'text', optionsValue: 'value'", 'style' => 'width: 203px; margin-top: 7px'}
               %tr{ko(with: 'rhs')}
                 = render 'input_setting'
-              %td
-                %button.faccept{'data-bind' => 'click: $parent.close_condition_edition'}
+                %td
+                  %button.faccept{'type' => 'button', 'data-bind' => 'click: $parent.close_condition_edition'}
           / /ko
 
       %table.GralTable.TwoColumn.CleanTable.NoHead
