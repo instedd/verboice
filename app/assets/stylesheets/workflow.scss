@@ -113,6 +113,12 @@ table.workflow-table {
   .content {
     padding: 0 5px;
   }
+
+  .content.scroll {
+    height:544px;
+    overflow:auto;
+    overflow-x: hidden;
+  }
 }
 
 .box.addstep {
