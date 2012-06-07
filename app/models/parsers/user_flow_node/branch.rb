@@ -79,7 +79,7 @@ module Parsers
       end
 
       def second_comparison_term_from condition
-        condition['rhs_variable'].presence ? "var_#{condition['rhs_variable']}" : "#{condition['value']}"
+        condition['rhs_variable'].presence ? "var_#{condition['rhs_variable']}" : "#{condition['rhs_value'] || condition['value']}" # 'Value' is legacy name
       end
 
       def retrieve_variables compiler, conditions

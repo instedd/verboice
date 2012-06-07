@@ -36,9 +36,9 @@ onWorkflow ->
 
 
       # Right hand side
-      @value = ko.observable attrs.value
+      @rhs_value = ko.observable(attrs.rhs_value || attrs.value) # Legacy name
       @rhs_variable = ko.observable attrs.rhs_variable
-      @rhs_kind = ko.observable (if attrs.rhs_variable? and attrs.rhs_variable != '' then 'variable' else 'value')
+      @rhs_kind = ko.observable(if attrs.rhs_variable? and attrs.rhs_variable != '' then 'variable' else 'value')
 
 
     subject_value: () =>
@@ -53,7 +53,7 @@ onWorkflow ->
       step: @step_id()
       variable: @variable()
       operator: @operator()
-      value: if @rhs_kind() == 'value' then @value() else null
+      rhs_value: if @rhs_kind() == 'value' then @rhs_value() else null
       rhs_variable: if @rhs_kind() == 'variable' then @rhs_variable() else null
 
     variable_or_step_name: () =>
@@ -87,7 +87,7 @@ onWorkflow ->
         "#{@variable_or_step_name()} #{@operator_text_for(@operator())} #{@rhs()}"
 
     rhs: () =>
-      (if @rhs_kind() == 'value' then @value() else @rhs_variable()) or ''
+      (if @rhs_kind() == 'value' then @rhs_value() else @rhs_variable()) or ''
 
     on_step_removed: (step) =>
       @step_id(null) if step.id == parseInt(@step_id())
