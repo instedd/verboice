@@ -25,6 +25,9 @@ class Project < ActiveRecord::Base
   has_many :external_services, :dependent => :destroy
   has_many :schedules, :dependent => :destroy
 
+  attr_accessible :name, :account, :status_callback_url, :status_callback_url_user, :status_callback_url_password, :time_zone
+
+
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
 
