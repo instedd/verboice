@@ -18,7 +18,10 @@
         %table.GralTable.TwoColumn.CleanTable.NoHead
           %tbody{ko(foreach: 'settings')}
             %tr
-              %td{ko(text: 'display_name')}
+              %td
+                &larr;
+                %span{ko(text: 'display_name')}
+                %span.greytext{ko(text: 'description()')}
               %td
                 %button.farrow{ko(click: '$parent.edit_setting')}
 

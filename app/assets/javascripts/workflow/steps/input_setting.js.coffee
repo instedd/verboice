@@ -40,3 +40,13 @@ onWorkflow ->
     on_step_removed: (step) =>
       @step_id(null) if step.id == parseInt(@step_id())
       @response(null) if step.id == parseInt(@response()) # Note that parseInt("123_resp") == "123"
+
+    description: () =>
+      if @content_kind() == 'step'
+        workflow.get_step(@step_id()).name()
+      else if @content_kind() == 'variable'
+        @variable()
+      else if @content_kind() == 'value'
+        @value()
+      else if @content_kind() == 'response'
+        (response.name for response in @available_responses() when response.value == @response())[0]

@@ -2,16 +2,6 @@
 
 onWorkflow ->
   class window.BranchConditionSetting extends window.InputSetting
-    description: () =>
-      if @content_kind() == 'step'
-        workflow.get_step(@step_id()).name()
-      else if @content_kind() == 'variable'
-        @variable()
-      else if @content_kind() == 'value'
-        @value()
-      else if @content_kind() == 'response'
-        (response.name for response in @available_responses() when response.value == @response())[0]
-
   class window.BranchRhsConditionSetting extends window.BranchConditionSetting
   class window.BranchLhsConditionSetting extends window.BranchConditionSetting
     content_kinds: () =>

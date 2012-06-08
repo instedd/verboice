@@ -34,6 +34,10 @@ onWorkflow ->
       @step_id(null) if step.id == parseInt(@step_id())
       @response(null) if step.id == parseInt(@response()) # Note that parseInt("123_resp") == "123"
 
+    description: () =>
+      desc = super()
+      if desc? then "(#{desc})" else null
+
     on_begin_edition: () =>
       @content_kind_tmp = @content_kind()
       @value_tmp = @value()
