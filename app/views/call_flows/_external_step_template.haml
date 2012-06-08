@@ -31,15 +31,16 @@
         %label Response
         %br
         %span.desc These will be returned by the external service
-
-        %table.GralTable.CleanTable.NoHead
-          %tbody{ko(foreach: 'responses')}
-            %tr
-              %td{ko(text: 'display_name')}
-            %tr
-              %td
-                = store_value_tags
-                / %button.farrow
+        / ko foreach: responses
+        .response
+          %span.greytext &larr;
+          %span{ko(text: 'display_name')}
+          %br
+          %input{:type => 'checkbox', 'data-bind' => 'checked: defines_store'}
+          %label Store to the address book as:
+          %br
+          %input{:type => 'text', :placeholder => 'Enter a name for the value', 'data-bind' => 'value: store, enable: defines_store, initAutocomplete: {source: workflow.all_variables()}'}
+        / /ko
 
     .bottom-actions
       %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
