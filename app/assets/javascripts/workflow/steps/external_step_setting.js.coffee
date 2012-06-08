@@ -1,10 +1,6 @@
 #= require workflow/steps/input_setting
 
 onWorkflow ->
-
-  class window.ExternalStepSetting
-    constructor: (parent, attrs) ->
-
   class window.ExternalStepSetting extends window.InputSetting
     constructor: (parent, attrs) ->
       super(attrs)
