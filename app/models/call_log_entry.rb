@@ -16,8 +16,9 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class CallLogEntry < ActiveRecord::Base
-  belongs_to :call_log, :foreign_key => "call_id"
-  attr_accessible :description, :severity, :step_id, :step_name, :call_id
+  belongs_to :call, :class_name => 'CallLog'
+  attr_accessible :details, :severity, :call, :step_name, :step_id, :command, :action, :description
+  store :details, accessors: [ :step_name, :step_id, :command, :action, :description ]
   Levels = [:error, :warn, :info, :trace]
   enum_attr :severity, Levels
 end

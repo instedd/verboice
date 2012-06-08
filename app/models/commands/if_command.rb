@@ -33,9 +33,12 @@ class Commands::IfCommand < Command
   end
 
   def run(session)
+    session.trace "Testing statement: #{@condition}", command: 'if', action: 'testing'
     if session.eval(@condition)
+      session.trace "The statement is true", command: 'if', action: 'true'
       @then || super
     else
+      session.trace "The statement is false", command: 'if', action: 'false'
       @else || super
     end
   end

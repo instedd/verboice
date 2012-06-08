@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -27,9 +27,12 @@ class Commands::RecordCommand < Command
   end
 
   def run(session)
-    session.info "Record user voice"
+    session.info "Record user voice", command: 'record', action: 'start'
     session.pbx.record filename(session), stop_keys, timeout
+    session.trace "Recording complete", command: 'record', action: 'complete'
+    session.trace "Saving recording", command: 'record', action: 'save'
     create_recorded_audio(session)
+    session.info "Recording saved", command: 'record', action: 'finish'
     super
   end
 
@@ -47,7 +50,7 @@ class Commands::RecordCommand < Command
     else
       account.contacts.where(:address => "Anonymous#{session.call_log.id}", :anonymous => true).first_or_create!
     end
-    session.trace "Caller address is unknown. Recording '#{@description}' saved for contact #{contact.address}." unless session.address.presence
+    session.trace "Caller address is unknown. Recording '#{@description}' will be saved for contact #{contact.address}.", command: 'record', action: 'contact_unknown' unless session.address.presence
 
     contact.recorded_audios.create! :call_log => session.call_log, :key => @key, :description => @description
   end

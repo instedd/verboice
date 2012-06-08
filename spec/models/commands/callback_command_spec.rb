@@ -33,15 +33,6 @@ module Commands
       apply_call_flow
     end
 
-    def assert_log(options = {})
-      options[:method] ||= "post"
-      options[:trace_params] ||= "CallSid=#{@session.call_id}&Channel=foo&From=999"
-      @session.should_receive(:log).with({
-        :info => "Callback #{options[:method]} #{url}",
-        :trace => "Callback #{options[:method]} #{url} with #{options[:trace_params]}"
-      })
-    end
-
     def authenticated_url(user, password)
       uri = URI.parse(url)
       uri.user = user
@@ -58,10 +49,6 @@ module Commands
     end
 
     it "run with url as string" do
-      assert_log
-
-      @session.should_receive(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
-
       result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
         CallbackCommand.new(url).run @session
       end
@@ -97,7 +84,6 @@ module Commands
 
     context "running with an app which has http basic authentication for the callback url", :focus => true do
       before do
-        assert_log
         apply_call_flow("user", "password")
       end
 
@@ -119,10 +105,6 @@ module Commands
     end
 
     it "run with url and get method" do
-      assert_log(:method => :get)
-
-      @session.should_receive(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
-
       result = expect_em_http :get, url, :with => @default_body.merge(:CallSid => @session.call_id), :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
         CallbackCommand.new(url, :method => :get).run(@session)
       end
@@ -130,10 +112,7 @@ module Commands
     end
 
     it "run without url" do
-      assert_log
-
       @session.should_receive(:callback_url).and_return(url)
-      @session.should_receive(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
 
       result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
         CallbackCommand.new.run @session
@@ -142,10 +121,6 @@ module Commands
     end
 
     it "run receives json in response" do
-      assert_log
-
-      @session.should_receive(:trace).with("Callback returned application/json: hangup();")
-
       result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => 'hangup();', :content_type => 'application/json' do
         CallbackCommand.new(url).run @session
       end
@@ -153,10 +128,7 @@ module Commands
     end
 
     it "run with custom parameters" do
-      assert_log(:trace_params => "CallSid=#{@session.call_id}&Channel=foo&Digits=123&From=999")
       @session[:digits] = '123'
-      @session.should_receive(:trace).with("Callback returned application/xml: <Response><Hangup/></Response>")
-
       result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, :Digits => '123')}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
         CallbackCommand.new(url, :params => {:Digits => :digits}).run @session
       end
@@ -164,10 +136,7 @@ module Commands
     end
 
     it "continues with following commands after callback result" do
-      assert_log
-
       @session.should_receive(:callback_url).and_return(url)
-      @session.should_receive(:trace).with("Callback returned application/xml: <Response><Pause/></Response>")
 
       result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Pause/></Response>', :content_type => 'application/xml' do
         Compiler.make do
@@ -182,11 +151,6 @@ module Commands
       let(:options)  { {:response_type => :variables}}
       let(:response) { {:key1 => 'value1', :key2 => 'value2'} }
 
-      before(:each) do
-        assert_log
-        @session.should_receive(:trace).with("Callback returned application/json: #{response.to_json}")
-      end
-
       it "assigns returned variables to session" do
         result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => response.to_json, :content_type => 'application/json' do
           CallbackCommand.new(url, options).run @session
@@ -200,11 +164,6 @@ module Commands
 
     describe "none" do
       let(:options) { {:response_type => :none}}
-
-      before(:each) do
-        assert_log
-        @session.should_receive(:trace).with("Callback returned text/plain: ")
-      end
 
       it "continues with the next command" do
         result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '', :content_type => 'text/plain' do

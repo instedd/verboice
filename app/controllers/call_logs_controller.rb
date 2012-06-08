@@ -44,12 +44,19 @@ class CallLogsController < ApplicationController
   end
 
   def play_result
-    log = current_account.call_logs.find params[:id]
-    send_file RecordingManager.for(log).result_path_for(params[:key]), :x_sendfile => true
+    @log = current_account.call_logs.find params[:id]
+    send_file RecordingManager.for(@log).result_path_for(params[:key]), :x_sendfile => true
   end
 
   def download
     @filename = "Call logs #{current_account.id} (#{Time.now}).csv"
+    @streaming = true
+    @csv_options = { :col_sep => ',' }
+  end
+
+  def download_details
+    @log = current_account.call_logs.includes(:entries).find params[:id]
+    @filename = "Call details #{@log.id} (#{Time.now}).csv"
     @streaming = true
     @csv_options = { :col_sep => ',' }
   end

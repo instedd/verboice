@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -25,7 +25,7 @@ module Commands::PlayCommand
 
   def run(session)
     target_path = download session
-    session.pbx.play target_path
+    session.pbx.play target_path, if_hang_up: lambda() { |offset| session.info "User hanged up at #{offset} milliseconds.", command: command_name, action: 'user_hang_up'}
     super
   end
 
@@ -33,9 +33,9 @@ module Commands::PlayCommand
     target_path = get_target_path(session)
     if should_setup_file?(target_path)
       setup_file(session)
-      session.trace "File #{target_path} prepared for playing"
+      session.trace "File #{target_path} prepared for playing", command: command_name, action: 'set_up'
     else
-      session.trace "File #{target_path} already exists"
+      session.trace "File #{target_path} already exists", command: command_name, action: 'set_up'
     end
     target_path
   end
@@ -46,6 +46,10 @@ module Commands::PlayCommand
 
   def setup_file(session)
     raise "#{self.class.name} must implement setup_file"
+  end
+
+  def command_name
+    raise "#{self.class.name} must implement command_name"
   end
 
   def should_setup_file?(target_path)
