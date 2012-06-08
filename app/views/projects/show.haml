@@ -23,7 +23,7 @@
     %p
       = label_tag :time_zone, 'On time zone'
       %br/
-      = select_tag :time_zone, time_zone_options_for_select('UTC'), :class => 'w30'
+      = select_tag :time_zone, time_zone_options_for_select(@project.time_zone), :class => 'w30'
     %p
       = label_tag :addresses, 'Phone numbers'
       %br/
