@@ -18,9 +18,11 @@
 class Compiler
   attr_accessor :first
   attr_accessor :labels
+  attr_accessor :variables
 
   def initialize
     @labels = {}
+    @variables = Set.new
   end
 
   def parse &blk
@@ -73,6 +75,11 @@ class Compiler
 
   def End
     Goto nil
+  end
+
+  def PersistVariable(variable, expression)
+    @variables.add variable
+    append Commands::PersistVariableCommand.new(variable, expression)
   end
 
   def method_missing(method, *args)
