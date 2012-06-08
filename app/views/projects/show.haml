@@ -1,6 +1,6 @@
 = render 'shared/project_tabs_and_title', :project => @project
 
-.box.w30.right.lmargin
+.box.w30.right.lmargin.enqueue_new_call
   %h2 Enqueue new calls
   %p.desc Add new calls to this project queue
   = form_tag enqueue_call_project_path, :method => 'POST' do
@@ -17,9 +17,10 @@
       %br/
       = select_tag :schedule_id, options_from_collection_for_select(@schedules, 'id', 'name'), :prompt => 'Select a Schedule...', :class => 'w30'
     %p
+      = check_box_tag :not_before
       = label_tag :not_before, 'Not before'
       %br/
-      = text_field_tag :not_before, '', :class => "ux-custom-datetimepicker w30"
+      = text_field_tag :not_before_date, '', :class => "ux-custom-datetimepicker w30"
     %p
       = label_tag :time_zone, 'On time zone'
       %br/

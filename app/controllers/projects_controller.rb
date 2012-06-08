@@ -60,7 +60,7 @@ class ProjectsController < ApplicationController
 
       options = {}
       options[:schedule_id] = params[:schedule_id] if params[:schedule_id].present?
-      options[:not_before] = params[:not_before] if params[:not_before].present?
+      options[:not_before] = params[:not_before_date] if params[:not_before_date].present? && params[:not_before].present?
       options[:time_zone] = params[:time_zone] if params[:time_zone].present?
       options[:call_flow_id] = params[:call_flow_id] if params[:call_flow_id].present?
       options[:project_id] = params[:id]
