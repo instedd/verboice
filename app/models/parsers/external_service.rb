@@ -53,11 +53,13 @@ module Parsers
       step.display_name = node.attr('display-name') if node.attr('display-name')
       step.icon = node.attr('icon') if node.attr('icon')
       step.kind = node.attr('type') if node.attr('type')
-      step.response_type = node.attr('response-type') if node.attr('response-type')
       step.callback_url = node.attr('callback-url') if node.attr('callback-url')
 
+      response_type = node.at_xpath('./response').attr('type') rescue nil
+      step.response_type = response_type if response_type
+
       step.variables = parse_variables node.xpath('./settings/variable')
-      step.response_variables = parse_variables node.xpath('./settings/response-variable')
+      step.response_variables = parse_variables node.xpath('./response/variable')
 
       # FIXME: Should not save when parsing!! See how to mark for update
       step.save if !step.new_record?

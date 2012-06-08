@@ -34,8 +34,7 @@ describe Parsers::ExternalService do
               display-name="My step"
               icon="http://example.com/icon.png"
               type="callback"
-              callback-url="http://example.com/callback/"
-              response-type="variables">
+              callback-url="http://example.com/callback/">
             </step>
           </steps>
         <verboice-service>
@@ -50,7 +49,6 @@ describe Parsers::ExternalService do
       step.display_name.should eq('My step')
       step.icon.should eq('http://example.com/icon.png')
       step.kind.should eq('callback')
-      step.response_type.should eq('variables')
       step.callback_url.should eq('http://example.com/callback/')
     end
 
@@ -64,8 +62,7 @@ describe Parsers::ExternalService do
               display-name="My step"
               icon="http://example.com/icon.png"
               type="callback"
-              callback-url="http://example.com/callback/"
-              response-type="variables">
+              callback-url="http://example.com/callback/">
               <settings>
                 <variable name="my-var-1" display-name="Variable One" type="string"/>
                 <variable name="my-var-2" display-name="Variable Two" type="numeric"/>
@@ -93,44 +90,74 @@ describe Parsers::ExternalService do
       var_2.type.should eq('numeric')
     end
 
-    it "should create a new external service with a callback step with several response variables" do
-        parse <<-XML
-          <verboice-service>
-            <name>My service</name>
-            <steps>
-              <step name="my-step"
-                display-name="My step"
-                icon="http://example.com/icon.png"
-                type="callback"
-                callback-url="http://example.com/callback/"
-                response-type="variables">
-                <settings>
-                  <variable name="my-var-1" display-name="Variable One" type="string"/>
-                  <response-variable name="my-resp-1" display-name="Response One" type="string"/>
-                  <response-variable name="my-resp-2" display-name="Response Two" type="numeric"/>
-                </settings>
-              </step>
-            </steps>
-          <verboice-service>
-        XML
+    it "should create a new external service with a callback step with several responses" do
+      parse <<-XML
+        <verboice-service>
+          <name>My service</name>
+          <steps>
+            <step name="my-step"
+              display-name="My step"
+              icon="http://example.com/icon.png"
+              type="callback"
+              callback-url="http://example.com/callback/">
+              <settings>
+                <variable name="my-var-1" display-name="Variable One" type="string"/>
+              </settings>
+              <response type="variables">
+                <variable name="my-resp-1" display-name="Response One" type="string"/>
+                <variable name="my-resp-2" display-name="Response Two" type="numeric"/>
+              </response>
+            </step>
+          </steps>
+        <verboice-service>
+      XML
 
-        service.steps.should have(1).item
-        service.should be_valid
+      service.steps.should have(1).item
+      service.should be_valid
 
-        step = service.steps.first
-        step.name.should eq('my-step')
+      step = service.steps.first
+      step.name.should eq('my-step')
 
-        step.should have(2).response_variables
-        var_1, var_2 = step.response_variables
+      step.should have(2).response_variables
+      var_1, var_2 = step.response_variables
 
-        var_1.name.should eq('my-resp-1')
-        var_1.display_name.should eq('Response One')
-        var_1.type.should eq('string')
+      var_1.name.should eq('my-resp-1')
+      var_1.display_name.should eq('Response One')
+      var_1.type.should eq('string')
 
-        var_2.name.should eq('my-resp-2')
-        var_2.display_name.should eq('Response Two')
-        var_2.type.should eq('numeric')
-      end
+      var_2.name.should eq('my-resp-2')
+      var_2.display_name.should eq('Response Two')
+      var_2.type.should eq('numeric')
+    end
+
+
+    it "should create a new external service with a callback step with flow response type" do
+      parse <<-XML
+        <verboice-service>
+          <name>My service</name>
+          <steps>
+            <step name="my-step"
+              display-name="My step"
+              icon="http://example.com/icon.png"
+              type="callback"
+              callback-url="http://example.com/callback/">
+              <settings>
+                <variable name="my-var-1" display-name="Variable One" type="string"/>
+              </settings>
+              <response type="flow"/>
+            </step>
+          </steps>
+        <verboice-service>
+      XML
+
+      service.steps.should have(1).item
+      service.should be_valid
+
+      step = service.steps.first
+      step.name.should eq('my-step')
+      step.response_type.should eq('flow')
+      step.should have(0).response_variables
+    end
 
 
     it "should create a new external service with global settings" do
@@ -188,8 +215,7 @@ describe Parsers::ExternalService do
               display-name="My step"
               icon="http://example.com/icon.png"
               type="callback"
-              callback-url="http://example.com/callback/"
-              response-type="variables">
+              callback-url="http://example.com/callback/">
             </step>
           </steps>
         <verboice-service>
