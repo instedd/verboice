@@ -239,7 +239,7 @@ describe Parsers::UserFlow do
           Capture say: "First Capture", min: 1, max: 10, finish_on_key: '#', timeout: 10
           Assign 'value_2', 'digits'
           If "(digits >= 1 && digits <= 10)" do
-            Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"User pressed: " + digits'
+            Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"User pressed: " + (digits ? digits : "<empty>")'
             Goto "end2"
           end
           If "digits != null" do
