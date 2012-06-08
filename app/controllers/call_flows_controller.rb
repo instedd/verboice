@@ -21,15 +21,15 @@ class CallFlowsController < ApplicationController
 
   before_filter :authenticate_account!
   before_filter :load_call_flow_and_project, :only => [
-    :show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import_call_flow, :export_call_flow
+    :download_results, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import_call_flow, :export_call_flow
   ]
   before_filter :load_all_call_flows, :only => [:index, :update, :create]
   before_filter :load_recording_data, :only => [:play_recording, :save_recording, :play_result]
 
   skip_before_filter :verify_authenticity_token, :only => :save_recording
 
-  def show
-    @filename = "Call results #{@call_flow.id} (#{Time.now}).csv"
+  def download_results
+    @filename = "Call results #{@call_flow.id} - #{@call_flow.name} (#{Time.now}).csv"
     @streaming = true
     @csv_options = { :col_sep => ',' }
   end

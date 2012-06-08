@@ -45,6 +45,7 @@ Verboice::Application.routes.draw do
         post :save_recording
         post :import_call_flow
         get :export_call_flow
+        get :download_results
       end
     end
     resources :external_services
