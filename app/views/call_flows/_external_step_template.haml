@@ -13,7 +13,7 @@
       %div{ko(:if => 'settings().length > 0')}
         %label Parameters
         %br
-        %span.desc Define hoy to fill these variables
+        %span.desc These will be sent to the external service
 
         %table.GralTable.TwoColumn.CleanTable.NoHead
           %tbody{ko(foreach: 'settings')}
@@ -30,7 +30,7 @@
       %div{ko(:if => 'responses().length > 0')}
         %label Response
         %br
-        %span.desc Define where to store these values
+        %span.desc These will be returned by the external service
 
         %table.GralTable.CleanTable.NoHead
           %tbody{ko(foreach: 'responses')}
