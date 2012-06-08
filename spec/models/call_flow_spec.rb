@@ -47,7 +47,7 @@ describe CallFlow do
     end
   end
 
-  it "should save it's flow" do
+  it "should save its flow" do
     call_flow = CallFlow.make_unsaved
     call_flow.flow = Compiler.make { PlayUrl 'foo' }
     call_flow.save!
@@ -55,7 +55,6 @@ describe CallFlow do
     call_flow.reload
     call_flow.flow.should == Compiler.make { PlayUrl 'foo' }
   end
-
 
   it "should update the flow when it's user flow get's updated" do
     call_flow = CallFlow.make id: 4
@@ -93,4 +92,31 @@ describe CallFlow do
       end
     )
   end
+
+  it "should store its user flow's defined variables" do
+    call_flow = CallFlow.make
+    call_flow.user_flow = [{
+      'id' => 1,
+      'root' => true,
+      'type' => 'capture',
+      'name' => 'Capture number one',
+      'store' => 'some_variable',
+      'instructions_message' => { "name" => 'First Capture', 'type' => 'text' },
+      'invalid_message' => {
+        "name" => "An invalid key was pressed",
+        "type" => "recording",
+        "file" => "file.wav",
+        "duration" => 5
+      },
+      'valid_values' => '1,2-4,10-20',
+      'finish_on_key' => '#',
+      'min_input_length' => 1,
+      'max_input_length' => 2,
+      'timeout' => 10 }]
+    call_flow.save!
+
+    call_flow.reload
+    call_flow.variables.should eq(['some_variable'])
+  end
+
 end

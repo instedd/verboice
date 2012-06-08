@@ -148,6 +148,7 @@ class Compiler
     block ||= Compiler.parse(&blk)
     if block.is_a? Compiler
       @labels.merge! block.labels
+      @variables.merge block.variables
       block.first
     else
       block
