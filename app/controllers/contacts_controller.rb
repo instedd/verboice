@@ -1,6 +1,6 @@
 class ContactsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_project
+  before_filter :load_project, :only => [:new, :create, :index]
   before_filter :load_contact, :only => [:show, :edit, :update, :destroy]
 
   def index
@@ -21,6 +21,7 @@ class ContactsController < ApplicationController
 
   def new
     @contact = Contact.new
+    @contact.project = @project
 
     respond_to do |format|
       format.html # new.html.erb
@@ -73,6 +74,7 @@ class ContactsController < ApplicationController
   end
 
   def load_contact
-    @contact = @project.contacts.find(params[:id])
+    @contact = current_account.contacts.find(params[:id])
+    @project = @contact.project
   end
 end
