@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <verboice-service>
   <name>Health Center</name>
+  <global-settings>
+    <variable name="service_domain" display-name="Service Domain" type="string"/>
+  </global-settings>
   <steps>
     <step name="results"
       display-name="Analysis Results"
       icon="medicalkit"
       type="callback"
-      callback-url="http://localhost:4567/results">
+      callback-url="http://{service_domain}/results">
       <settings>
         <variable name="pin" display-name="Patient pin" type="string"/>
       </settings>
@@ -20,7 +23,7 @@
       display-name="Available Appointment Dates"
       icon="medicalkit"
       type="callback"
-      callback-url="http://localhost:4567/available_dates">
+      callback-url="http://{service_domain}/available_dates">
       <settings/>
       <response type="flow"/>
     </step>
@@ -30,7 +33,7 @@
       display-name="Make Appoinment"
       icon="medicalkit"
       type="callback"
-      callback-url="http://localhost:4567/make_appointment">
+      callback-url="http://{service_domain}/make_appointment">
       <settings>
         <variable name="pin" display-name="Patient pin" type="string"/>
         <variable name="date_option" display-name="Date option" type="numeric"/>
@@ -43,7 +46,7 @@
       display-name="Booked Appoinment"
       icon="medicalkit"
       type="callback"
-      callback-url="http://localhost:4567/appointments">
+      callback-url="http://{service_domain}/appointments">
       <settings>
         <variable name="pin" display-name="Patient pin" type="string"/>
       </settings>
