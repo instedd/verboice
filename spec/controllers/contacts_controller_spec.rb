@@ -23,7 +23,7 @@ describe ContactsController do
   before(:each) do
     @account = Account.make
     @project = @account.projects.make
-    @other_project = @account.projects.make
+    @other_project = Project.make
     sign_in @account
   end
 
