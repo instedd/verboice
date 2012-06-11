@@ -3,8 +3,8 @@
     var distinct_variables = #{ @variables.to_json };
     var call_flow = #{ raw (@call_flow.user_flow || []).to_json };
 
-    var save_recording_path = "#{ save_recording_project_call_flow_path(@project, @call_flow)}";
-    var play_recording_path = "#{ play_recording_project_call_flow_path(@project, @call_flow)}";
+    var save_recording_path = "#{ save_recording_call_flow_path(@call_flow)}";
+    var play_recording_path = "#{ play_recording_call_flow_path(@call_flow)}";
 
     var menu_default_time_out_in_seconds = #{Parsers::UserFlowNode::Menu.default_time_out_in_seconds};
     var menu_default_number_of_attempts = #{Parsers::UserFlowNode::Menu.default_number_of_attempts};
@@ -22,7 +22,7 @@
 %h2= @call_flow.name
 %p Use the following tool to define the application's call flow
 
-= form_tag export_call_flow_project_call_flow_path(@project, @call_flow), :method => :get do
+= form_tag export_call_flow_path(@call_flow), :method => :get do
   %button.fimport Download current Call flow
   = check_box_tag :export_audios
   include audio recordings

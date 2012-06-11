@@ -19,11 +19,14 @@ class Project < ActiveRecord::Base
 
   belongs_to :account
   belongs_to :default_call_flow, :class_name => "CallFlow", :foreign_key => "call_flow_id"
+
   has_many :call_flows, :dependent => :destroy
   has_many :call_logs, :dependent => :destroy
   has_many :queued_calls, :dependent => :destroy
   has_many :external_services, :dependent => :destroy
   has_many :schedules, :dependent => :destroy
+  has_many :contacts, :dependent => :destroy
+  has_many :persisted_variables, :through => :contacts
 
   attr_accessible :name, :account, :status_callback_url, :status_callback_url_user, :status_callback_url_password, :time_zone
 

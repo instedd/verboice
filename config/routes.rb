@@ -17,11 +17,6 @@
 
 Verboice::Application.routes.draw do
 
-  resources :contacts do
-    resources :persisted_variables
-    resources :recorded_audios, only: [:index, :show, :delete]
-  end
-
   resources :channels do
     resources :queued_calls
     member do
@@ -33,23 +28,37 @@ Verboice::Application.routes.draw do
 
   devise_for :accounts
 
-  resources :projects do
-    member do
-      post :enqueue_call
-    end
-    resources :call_flows, except: [:new, :edit] do
+  # Register both shallow and deep routes:
+  # - Shallow routes allow for easier path helper methods, such as contact_recorded_audios(@contact) instead of project_contact_recorded_audios(@project, @contact)
+  # - Deep routes ensure that form_for directives work as expected, so form_for([@project, @contact]) works no matter it is a creation or an update
+  [true, false].each do |shallow|
+    resources :projects, :shallow => shallow do
       member do
-        get :edit_workflow
-        put :update_workflow
-        get :play_recording
-        post :save_recording
-        post :import_call_flow
-        get :export_call_flow
-        get :download_results
+        post :enqueue_call
       end
+
+      resources :call_flows, except: [:new, :edit] do
+        member do
+          get :edit_workflow
+          put :update_workflow
+          get :play_recording
+          post :save_recording
+          post :import
+          get :export
+          get :download_results
+        end
+      end
+
+      resources :external_services
+
+      resources :schedules
+
+      resources :contacts do
+        resources :persisted_variables
+        resources :recorded_audios, only: [:index, :show, :delete]
+      end
+
     end
-    resources :external_services
-    resources :schedules
   end
 
   resources :call_logs, path: :calls do

@@ -12,9 +12,9 @@
     %tr
       %td= persisted_variable.name
       %td= persisted_variable.value
-      %td= link_to 'Show', contact_persisted_variable_path(@contact, persisted_variable)
-      %td= link_to 'Edit', edit_contact_persisted_variable_path(@contact, persisted_variable)
-      %td= link_to 'Destroy', [@contact, persisted_variable], :confirm => 'Are you sure?', :method => :delete
+      %td= link_to 'Show', persisted_variable
+      %td= link_to 'Edit', edit_persisted_variable_path(persisted_variable)
+      %td= link_to 'Destroy', persisted_variable, :confirm => 'Are you sure?', :method => :delete
 
 %br
 = link_to 'New Persisted variable', new_contact_persisted_variable_path(@contact)

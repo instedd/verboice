@@ -26,10 +26,14 @@ class Account < ActiveRecord::Base
 
   has_many :projects, :dependent => :destroy
   has_many :call_flows, :through => :projects
-  has_many :call_logs
-  has_many :channels, :dependent => :destroy
-  has_many :contacts, :dependent => :destroy
+
+  has_many :contacts, :through => :projects
   has_many :persisted_variables, :through => :contacts
+  has_many :recorded_audios, :through => :contacts
+
+  has_many :call_logs
+
+  has_many :channels, :dependent => :destroy
   has_many :queued_calls, :through => :channels
 
   def call(options = {})

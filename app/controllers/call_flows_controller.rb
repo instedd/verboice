@@ -77,7 +77,7 @@ class CallFlowsController < ApplicationController
     @call_flow.user_flow = JSON.parse params[:flow]
     @call_flow.mode= :flow
     if @call_flow.save
-        redirect_to edit_workflow_project_call_flow_path(@project, @call_flow), :notice => "Call Flow #{@call_flow.name} successfully updated."
+        redirect_to edit_workflow_call_flow_path(@call_flow), :notice => "Call Flow #{@call_flow.name} successfully updated."
     else
       render :action => "edit_workflow"
     end
@@ -87,7 +87,7 @@ class CallFlowsController < ApplicationController
     @variables = current_account.distinct_variables
   end
 
-  def import_call_flow
+  def import
     if params[:vrb].blank?
       redirect_to({:action => :edit_workflow}, :flash => {:alert => "No file found"})
     else
@@ -109,7 +109,7 @@ class CallFlowsController < ApplicationController
     end
   end
 
-  def export_call_flow
+  def export
     if params[:export_audios]
       file = Tempfile.new(@call_flow.id.to_s)
       begin
@@ -143,8 +143,8 @@ class CallFlowsController < ApplicationController
   end
 
   def load_call_flow_and_project
-    @project = current_account.projects.includes(:call_flows).find(params[:project_id])
-    @call_flow = @project.call_flows.find(params[:id])
+    @call_flow = current_account.call_flows.find(params[:id])
+    @project = @call_flow.project
   end
 
   def load_all_call_flows

@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -23,8 +23,10 @@ describe PersistedVariablesController do
   before(:each) do
     sign_in account
   end
+
   let!(:account) { Account.make }
-  let!(:contact) { Contact.make account: account }
+  let!(:project) { Project.make account: account }
+  let!(:contact) { Contact.make project: project }
   let!(:other_contact) { Contact.make }
   let!(:persisted_variable) { PersistedVariable.make contact: contact }
   let!(:other_persisted_variable) { PersistedVariable.make contact: other_contact }
@@ -38,13 +40,13 @@ describe PersistedVariablesController do
 
   describe "GET show" do
     it "assigns the requested persisted_variable as @persisted_variable" do
-      get :show, {:id => persisted_variable.to_param, :contact_id => contact.to_param}
+      get :show, {:id => persisted_variable.to_param}
       assigns(:persisted_variable).should eq(persisted_variable)
     end
 
     it "fails if the requested persisted_variable is not in current account contacts" do
       expect {
-        get :show, {:id => other_persisted_variable.to_param, :contact_id => other_contact.to_param}
+        get :show, {:id => other_persisted_variable.to_param}
       }.should raise_error
       assigns(:persisted_variable).should be_nil
     end
@@ -64,13 +66,13 @@ describe PersistedVariablesController do
 
   describe "GET edit" do
     it "assigns the requested persisted_variable as @persisted_variable" do
-      get :edit, {:contact_id => contact.to_param, :id => persisted_variable.to_param}
+      get :edit, {:id => persisted_variable.to_param}
       assigns(:persisted_variable).should eq(persisted_variable)
     end
 
     it "fails if the requested persisted_variable is not in current account contacts" do
       expect {
-        get :edit, {:id => other_persisted_variable.to_param, :contact_id => other_contact.to_param}
+        get :edit, {:id => other_persisted_variable.to_param}
       }.should raise_error
       assigns(:persisted_variable).should be_nil
     end
@@ -92,7 +94,7 @@ describe PersistedVariablesController do
 
       it "redirects to the created persisted_variable" do
         post :create, {:persisted_variable => PersistedVariable.plan, :contact_id => contact.to_param}
-        response.should redirect_to([contact, contact.persisted_variables.last])
+        response.should redirect_to(contact.persisted_variables.last)
       end
     end
 
@@ -122,37 +124,37 @@ describe PersistedVariablesController do
     describe "with valid params" do
       it "updates the requested persisted_variable" do
         PersistedVariable.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, {:id => persisted_variable.to_param, :persisted_variable => {'these' => 'params'}, :contact_id => contact.to_param}
+        put :update, {:id => persisted_variable.to_param, :persisted_variable => {'these' => 'params'}}
       end
 
       it "assigns the requested persisted_variable as @persisted_variable" do
-        put :update, {:id => persisted_variable.to_param, :persisted_variable => PersistedVariable.plan, :contact_id => contact.to_param}
+        put :update, {:id => persisted_variable.to_param, :persisted_variable => PersistedVariable.plan}
         assigns(:persisted_variable).should eq(persisted_variable)
       end
 
       it "redirects to the persisted_variable" do
-        put :update, {:id => persisted_variable.to_param, :persisted_variable => PersistedVariable.plan, :contact_id => contact.to_param}
-        response.should redirect_to([contact, contact.persisted_variables.last])
+        put :update, {:id => persisted_variable.to_param, :persisted_variable => PersistedVariable.plan}
+        response.should redirect_to(contact.persisted_variables.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns the persisted_variable as @persisted_variable" do
         PersistedVariable.any_instance.stub(:save).and_return(false)
-        put :update, {:id => persisted_variable.to_param, :persisted_variable => {}, :contact_id => contact.to_param}
+        put :update, {:id => persisted_variable.to_param, :persisted_variable => {}}
         assigns(:persisted_variable).should eq(persisted_variable)
       end
 
       it "re-renders the 'edit' template" do
         PersistedVariable.any_instance.stub(:save).and_return(false)
-        put :update, {:id => persisted_variable.to_param, :persisted_variable => {}, :contact_id => contact.to_param}
+        put :update, {:id => persisted_variable.to_param, :persisted_variable => {}}
         response.should render_template("edit")
       end
     end
 
     it "fails if the requested persisted_variable is not in current account contacts" do
       expect {
-        put :update, {:id => other_persisted_variable.to_param, :contact_id => other_contact.to_param}
+        put :update, {:id => other_persisted_variable.to_param}
       }.should raise_error
       assigns(:persisted_variable).should be_nil
     end
@@ -161,18 +163,18 @@ describe PersistedVariablesController do
   describe "DELETE destroy" do
     it "destroys the requested persisted_variable" do
       expect {
-        delete :destroy, {:id => persisted_variable.to_param, :contact_id => contact.to_param}
+        delete :destroy, {:id => persisted_variable.to_param}
       }.to change(PersistedVariable, :count).by(-1)
     end
 
     it "redirects to the persisted_variables list" do
-      delete :destroy, {:id => persisted_variable.to_param, :contact_id => contact.to_param}
+      delete :destroy, {:id => persisted_variable.to_param}
       response.should redirect_to(contact_persisted_variables_path(contact))
     end
 
     it "fails if the requested persisted_variable is not in current account contacts" do
       expect {
-        delete :destroy, {:id => other_persisted_variable.to_param, :contact_id => other_contact.to_param}
+        delete :destroy, {:id => other_persisted_variable.to_param}
       }.should raise_error
       assigns(:persisted_variable).should be_nil
       PersistedVariable.find(other_persisted_variable.id).should eq(other_persisted_variable)

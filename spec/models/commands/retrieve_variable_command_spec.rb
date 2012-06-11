@@ -22,7 +22,7 @@ module Commands
     it "should retrieve a persisted variable" do
       persisted_variable = PersistedVariable.make name: 'foo'
       contact = persisted_variable.contact
-      project = Project.make account: contact.account
+      project = contact.project
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow
       session = Session.new :pbx => mock('pbx'), :call_log => call_log
@@ -48,8 +48,8 @@ module Commands
     end
 
     it "should set to nil if the variable doesn't exist" do
-      contact  = Contact.make
-      project  = Project.make account: contact.account
+      project  = Project.make
+      contact  = Contact.make project: project
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow
       session  = Session.new :pbx => mock('pbx'), :call_log => call_log
@@ -63,9 +63,9 @@ module Commands
     end
 
     it "should set to the value from an anonymous contact based on the call id if the caller address is unknown" do
-      contact            = Contact.make address: 'Anonymous44'
+      project            = Project.make
+      contact            = Contact.make address: 'Anonymous44', project: project
       persisted_variable = PersistedVariable.make name: 'foo', contact: contact
-      project            = Project.make account: contact.account
       call_flow          = CallFlow.make project: project
       call_log           = CallLog.make call_flow: call_flow, id: 44
       session            = Session.new :pbx => mock('pbx'), :call_log => call_log
@@ -92,7 +92,7 @@ module Commands
 
      it "should set to nil if the address is unknown and the variable doesn't exist" do
        contact  = Contact.make address: 'Anonymous2'
-       project  = Project.make account: contact.account
+       project  = contact.project
        call_log = CallLog.make project: project, id: 2
        session  = Session.new :pbx => mock('pbx'), :call_log => call_log
        session.stub :address => nil

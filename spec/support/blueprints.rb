@@ -96,7 +96,7 @@ RecordedAudio.blueprint do
 end
 
 Contact.blueprint do
-  account
+  project
   address { Sham.password }
 end
 
