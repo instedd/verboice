@@ -41,8 +41,4 @@ class Account < ActiveRecord::Base
     channel.call options[:address], options
   end
 
-  def distinct_variables
-    persisted_variables.select(:name).uniq.pluck(:name)
-  end
-
 end

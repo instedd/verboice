@@ -61,7 +61,7 @@ class CallFlowsController < ApplicationController
   end
 
   def edit
-    @variables = current_account.distinct_variables
+    @variables = @project.defined_variables
   end
 
   def update
@@ -84,7 +84,7 @@ class CallFlowsController < ApplicationController
   end
 
   def edit_workflow
-    @variables = current_account.distinct_variables
+    @variables = @project.defined_variables
   end
 
   def import

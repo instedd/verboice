@@ -39,4 +39,8 @@ class Project < ActiveRecord::Base
 
   def call(address)
   end
+
+  def defined_variables
+    call_flows.pluck(:variables).flatten.uniq
+  end
 end
