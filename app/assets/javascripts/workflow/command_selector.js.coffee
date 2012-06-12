@@ -5,6 +5,12 @@ onWorkflow ->
       @commands = ko.observableArray(@handlers)
       @requestor = requestor
 
+      @standard_commands = ko.computed =>
+        (command for command in @commands() when !command.cmd.is_external?())
+
+      @external_commands = ko.computed =>
+        (command for command in @commands() when command.cmd.is_external?())
+
     display_template_id: () ->
       'command_selector_template'
 

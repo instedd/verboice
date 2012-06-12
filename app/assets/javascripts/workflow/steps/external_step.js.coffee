@@ -57,6 +57,9 @@ onWorkflow ->
       hash_type = if hash.external_step_id? then "#{hash.type}_#{hash.external_step_id}" else hash.type
       return hash_type == @type
 
+    @is_external: () ->
+      true
+
     to_hash: () =>
       $.extend(super,
         external_step_id: @.constructor.external_step_type_id

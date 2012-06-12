@@ -3,7 +3,20 @@
     .content-header
       %h1 Add step
       %span Choose one of the options below to insert a new step in the app
-    .content-buttons{ 'data-bind' => 'foreach: commands' }
+    .content-buttons
+      / ko foreach: standard_commands
       %div
         %button{'data-bind' => 'click: selected, class: button_class, style: {background: background_style()}', :style => 'display:block' }
         %span{ko(text: 'name()')}
+      / /ko
+
+      %hr
+
+      / ko if: external_commands().length > 0
+      / ko foreach: external_commands
+      %div
+        %button{'data-bind' => 'click: selected, class: button_class, style: {background: background_style()}', :style => 'display:block' }
+        %span{ko(text: 'name()')}
+      / /ko
+      / /ko
+
