@@ -2,27 +2,27 @@
   .middle
     - unless external_service.new_record?
       .field
-        = f.label :name 
-        = f.text_field :name, :disabled => true, :readonly => true
+        = f.label :name
+        = f.text_field :name, :disabled => true, :readonly => true, :class => "w30"
     .field
       = f.label :url, 'URL'
-      = f.text_field :url
-      = link_to 'Update Manifest', update_manifest_project_external_service_path(project.id, external_service.id), :method => :put, :class => 'fsync' if external_service.id
+      = f.text_field :url, :class => "w50"
+    = link_to 'Update Manifest', update_manifest_project_external_service_path(project.id, external_service.id), :method => :put, :class => 'fsync' if external_service.id
     - unless external_service.new_record?
       .external_service_settings
         %p Settings
         = f.fields_for :global_variables, external_service.global_variables do |variables_form|
           .field
-            = variables_form.object.name
+            = variables_form.label :value, variables_form.object.display_name
             = variables_form.hidden_field :name
-            = variables_form.text_field :value
+            = variables_form.text_field :value, :class => "w30"
 
       .steps
         - if external_service.steps.any?
           %p Steps
           - external_service.steps.each do |step|
             %div
-              %a{:class => "button #{step.icon.index('http') == 0 ? 'lpgear' : "lp#{step.icon}" }"}
+              %a{:class => "#{step.icon.index('http') == 0 ? 'lpgear' : "lp#{step.icon}" }"}
                 %span= step.display_name
                 - unless step.variables.empty?
                   %span.greytext

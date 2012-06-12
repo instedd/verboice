@@ -2,9 +2,14 @@
   .middle {
     .steps {
       div {
-        a.button{
+        a{
           width: 270px !important;
+          height: 56px !important;
           padding-left: 69px;
+          cursor: inherit;
+        }
+        a:hover, a:active {
+          background-position: 0px 0px;
         }
       }
     }
