@@ -160,6 +160,39 @@ module Commands
         @session['response_key2'].should eq('value2')
       end
 
+      it "should eval returned variables in session" do
+        @session.should_receive(:eval).with("'value1'")
+        @session.should_receive(:eval).with("'value2'")
+
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => response.to_json, :content_type => 'application/json' do
+          CallbackCommand.new(url, options).run @session
+        end
+      end
+
+      it "should escape javascript" do
+        response = {:key1 => "foo'bar"}
+
+        @session.should_receive(:eval).with("'foo\\'bar'").and_return("foo'bar")
+
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => response.to_json, :content_type => 'application/json' do
+          CallbackCommand.new(url, options).run @session
+        end
+
+        @session['response_key1'].should eq("foo'bar")
+      end
+
+      it "should not quote numbers" do
+        response = {:key1 => "7"}
+
+        @session.should_receive(:eval).with('7').and_return(7)
+
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => response.to_json, :content_type => 'application/json' do
+          CallbackCommand.new(url, options).run @session
+        end
+
+        @session['response_key1'].should eq(7)
+      end
+
     end
 
     describe "none" do

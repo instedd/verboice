@@ -20,6 +20,8 @@ class Commands::CallbackCommand < Command
   attr_accessor :method
   attr_accessor :params
 
+  include JavascriptUtils
+
   def initialize(url = nil, options = {})
     @url = url
     @method = options[:method] || 'post'
@@ -95,7 +97,7 @@ class Commands::CallbackCommand < Command
   def variables(content_type, body, session)
     hash = JSON.parse body
     hash.each do |key, value|
-      session["response_#{key}"] = value
+      session["response_#{key}"] = session.eval(value_for_js(value))
     end
     self.next
   end
