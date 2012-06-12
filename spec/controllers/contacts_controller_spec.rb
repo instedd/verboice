@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -22,29 +22,30 @@ describe ContactsController do
 
   before(:each) do
     @account = Account.make
-    @other_account = Account.make
+    @project = @account.projects.make
+    @other_project = Project.make
     sign_in @account
   end
-  let!(:contact) { Contact.make :account => @account }
-  let!(:other_contact) { Contact.make :account => @other_account }
 
+  let!(:contact) { Contact.make :project => @project }
+  let!(:other_contact) { Contact.make :project => @other_project }
 
   describe "GET index" do
-    it "assigns all account contacts as @contacts" do
-      get :index, {}
+    it "assigns all project contacts as @contacts" do
+      get :index, {:project_id => @project.id}
       assigns(:contacts).should eq([contact])
     end
   end
 
   describe "GET show" do
     it "assigns the requested contact as @contact" do
-      get :show, {:id => contact.to_param}
+      get :show, {:project_id => @project.id, :id => contact.to_param}
       assigns(:contact).should eq(contact)
     end
 
-    it "fails if the requested contact is not in current account" do
+    it "fails if the requested contact is not in current project" do
       expect {
-        get :show, {:id => other_contact.to_param}
+        get :show, {:project_id => @project.id, :id => other_contact.to_param}
       }.should raise_error
       assigns(:contact).should be_nil
     end
@@ -52,20 +53,20 @@ describe ContactsController do
 
   describe "GET new" do
     it "assigns a new contact as @contact" do
-      get :new, {}
+      get :new, {:project_id => @project.id}
       assigns(:contact).should be_a_new(Contact)
     end
   end
 
   describe "GET edit" do
     it "assigns the requested contact as @contact" do
-      get :edit, {:id => contact.to_param}
+      get :edit, {:project_id => @project.id, :id => contact.to_param}
       assigns(:contact).should eq(contact)
     end
 
-    it "fails if the requested contact is not in current account" do
+    it "fails if the requested contact is not in current project" do
       expect {
-        get :edit, {:id => other_contact.to_param}
+        get :edit, {:project_id => @project.id, :id => other_contact.to_param}
       }.should raise_error
       assigns(:contact).should be_nil
     end
@@ -75,37 +76,37 @@ describe ContactsController do
     describe "with valid params" do
       it "creates a new Contact" do
         expect {
-          post :create, {:contact => Contact.plan}
+          post :create, {:project_id => @project.id, :contact => Contact.plan}
         }.to change(Contact, :count).by(1)
       end
 
       it "assigns a newly created contact as @contact" do
-        post :create, {:contact => Contact.plan}
+        post :create, {:project_id => @project.id, :contact => Contact.plan}
         assigns(:contact).should be_a(Contact)
         assigns(:contact).should be_persisted
       end
 
       it "redirects to the created contact" do
-        post :create, {:contact => Contact.plan}
-        response.should redirect_to(Contact.last)
+        post :create, {:project_id => @project.id, :contact => Contact.plan}
+        response.should redirect_to([@project, Contact.last])
       end
 
-      it "assigns the current account to the contact" do
-        post :create, {:contact => Contact.plan}
-        assigns(:contact).account.should eq(@account)
+      it "assigns the current project to the contact" do
+        post :create, {:project_id => @project.id, :contact => Contact.plan}
+        assigns(:contact).project.should eq(@project)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved contact as @contact" do
         Contact.any_instance.stub(:save).and_return(false)
-        post :create, {:contact => {}}
+        post :create, {:project_id => @project.id, :contact => {}}
         assigns(:contact).should be_a_new(Contact)
       end
 
       it "re-renders the 'new' template" do
         Contact.any_instance.stub(:save).and_return(false)
-        post :create, {:contact => {}}
+        post :create, {:project_id => @project.id, :contact => {}}
         response.should render_template("new")
       end
     end
@@ -115,37 +116,37 @@ describe ContactsController do
     describe "with valid params" do
       it "updates the requested contact" do
         Contact.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, {:id => contact.to_param, :contact => {'these' => 'params'}}
+        put :update, {:project_id => @project.id, :id => contact.to_param, :contact => {'these' => 'params'}}
       end
 
       it "assigns the requested contact as @contact" do
-        put :update, {:id => contact.to_param, :contact => Contact.plan}
+        put :update, {:project_id => @project.id, :id => contact.to_param, :contact => Contact.plan}
         assigns(:contact).should eq(contact)
       end
 
       it "redirects to the contact" do
-        put :update, {:id => contact.to_param, :contact => Contact.plan}
-        response.should redirect_to(contact)
+        put :update, {:project_id => @project.id, :id => contact.to_param, :contact => Contact.plan}
+        response.should redirect_to([@project, contact])
       end
     end
 
     describe "with invalid params" do
       it "assigns the contact as @contact" do
         Contact.any_instance.stub(:save).and_return(false)
-        put :update, {:id => contact.to_param, :contact => {}}
+        put :update, {:project_id => @project.id, :id => contact.to_param, :contact => {}}
         assigns(:contact).should eq(contact)
       end
 
       it "re-renders the 'edit' template" do
         Contact.any_instance.stub(:save).and_return(false)
-        put :update, {:id => contact.to_param, :contact => {}}
+        put :update, {:project_id => @project.id, :id => contact.to_param, :contact => {}}
         response.should render_template("edit")
       end
     end
 
-    it "fails if the requested contact is not in current account" do
+    it "fails if the requested contact is not in current project" do
       expect {
-        put :update, {:id => other_contact.to_param}
+        put :update, {:project_id => @project.id, :id => other_contact.to_param}
       }.should raise_error
       assigns(:contact).should be_nil
     end
@@ -154,18 +155,18 @@ describe ContactsController do
   describe "DELETE destroy" do
     it "destroys the requested contact" do
       expect {
-        delete :destroy, {:id => contact.to_param}
+        delete :destroy, {:project_id => @project.id, :id => contact.to_param}
       }.to change(Contact, :count).by(-1)
     end
 
     it "redirects to the contacts list" do
-      delete :destroy, {:id => contact.to_param}
-      response.should redirect_to(contacts_url)
+      delete :destroy, {:project_id => @project.id, :id => contact.to_param}
+      response.should redirect_to(project_contacts_url(@project))
     end
 
-    it "fails if the requested contact is not in current account" do
+    it "fails if the requested contact is not in current project" do
       expect {
-        delete :destroy, {:id => other_contact.to_param}
+        delete :destroy, {:project_id => @project.id, :id => other_contact.to_param}
       }.should raise_error
       assigns(:contact).should be_nil
       Contact.find(other_contact.id).should eq(other_contact)

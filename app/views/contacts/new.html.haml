@@ -1,5 +1,7 @@
+= render 'shared/project_tabs_and_title', :project => @project
+
 %h1 New contact
 
 = render 'form'
 
-= link_to 'Back', contacts_path
+= link_to 'Back', project_contacts_path(@project)

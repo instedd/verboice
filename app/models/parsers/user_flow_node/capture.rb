@@ -68,7 +68,7 @@ module Parsers
             c.Assign "value_#{@id}", 'digits'
             c.PersistVariable @persisted_variable_name, "value_#{@id}" if @persisted_variable_name
             c.If valid_digits_condition do |c|
-              c.Trace context_for '"User pressed: " + digits'
+              c.Trace context_for '"User pressed: " + (digits ? digits : "<empty>")'
               c.Goto "end#{@id}"
             end
 

@@ -1,4 +1,4 @@
-= form_for [@persisted_variable.contact, @persisted_variable] do |f|
+= form_for [@contact.project, @contact, @persisted_variable] do |f|
   - if @persisted_variable.errors.any?
     #error_explanation
       %h2= "#{pluralize(@persisted_variable.errors.count, "error")} prohibited this persisted_variable from being saved:"

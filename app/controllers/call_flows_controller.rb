@@ -21,15 +21,15 @@ class CallFlowsController < ApplicationController
 
   before_filter :authenticate_account!
   before_filter :load_call_flow_and_project, :only => [
-    :show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import_call_flow, :export_call_flow
+    :download_results, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import_call_flow, :export_call_flow
   ]
   before_filter :load_all_call_flows, :only => [:index, :update, :create]
   before_filter :load_recording_data, :only => [:play_recording, :save_recording, :play_result]
 
   skip_before_filter :verify_authenticity_token, :only => :save_recording
 
-  def show
-    @filename = "Call results #{@call_flow.id} (#{Time.now}).csv"
+  def download_results
+    @filename = "Call results #{@call_flow.id} - #{@call_flow.name} (#{Time.now}).csv"
     @streaming = true
     @csv_options = { :col_sep => ',' }
   end
@@ -61,7 +61,7 @@ class CallFlowsController < ApplicationController
   end
 
   def edit
-    @variables = current_account.distinct_variables
+    @variables = @project.defined_variables
   end
 
   def update
@@ -75,19 +75,20 @@ class CallFlowsController < ApplicationController
 
   def update_workflow
     @call_flow.user_flow = JSON.parse params[:flow]
+    @call_flow.mode= :flow
     if @call_flow.save
-        redirect_to edit_workflow_project_call_flow_path(@project, @call_flow), :notice => "Call Flow #{@call_flow.name} successfully updated."
+        redirect_to edit_workflow_call_flow_path(@call_flow), :notice => "Call Flow #{@call_flow.name} successfully updated."
     else
       render :action => "edit_workflow"
     end
   end
 
   def edit_workflow
-    @variables = current_account.distinct_variables
+    @variables = @project.defined_variables
     @external_steps = @call_flow.project.external_service_steps.includes(:external_service)
   end
 
-  def import_call_flow
+  def import
     if params[:vrb].blank?
       redirect_to({:action => :edit_workflow}, :flash => {:alert => "No file found"})
     else
@@ -109,7 +110,7 @@ class CallFlowsController < ApplicationController
     end
   end
 
-  def export_call_flow
+  def export
     if params[:export_audios]
       file = Tempfile.new(@call_flow.id.to_s)
       begin
@@ -143,8 +144,8 @@ class CallFlowsController < ApplicationController
   end
 
   def load_call_flow_and_project
-    @project = current_account.projects.includes(:call_flows).find(params[:project_id])
-    @call_flow = @project.call_flows.find(params[:id])
+    @call_flow = current_account.call_flows.find(params[:id])
+    @project = @call_flow.project
   end
 
   def load_all_call_flows

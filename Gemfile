@@ -41,6 +41,7 @@ group :development, :test do
   gem 'ci_reporter'
   gem 'equivalent-xml'
   gem 'debugger'
+  gem 'syntax'
 end
 
 group :development do

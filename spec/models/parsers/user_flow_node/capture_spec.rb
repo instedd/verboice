@@ -55,7 +55,7 @@ module Parsers
               c.Assign 'value_1', 'digits'
               c.PersistVariable 'some_variable', 'value_1'
               c.If "(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20)" do |c|
-                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Capture number one', store: '"User pressed: " + digits'
+                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Capture number one', store: '"User pressed: " + (digits ? digits : "<empty>")'
                 c.Goto "end1"
               end
               c.If "digits != null" do |c|
@@ -84,7 +84,7 @@ module Parsers
             c.Capture min: 1, max: 1, finish_on_key: '#', timeout: 5
             c.Assign 'value_4', 'digits'
             c.If 'true' do |c|
-              c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
+              c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + (digits ? digits : "<empty>")'
               c.Goto "end4"
             end
             c.Else do |c|
@@ -134,7 +134,7 @@ module Parsers
             c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
             c.Assign 'value_4', 'digits'
             c.If '(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20) || (digits == null)' do |c|
-              c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
+              c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + (digits ? digits : "<empty>")'
               c.Goto "end4"
             end
             c.Else do |c|
@@ -176,7 +176,7 @@ module Parsers
               c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
               c.Assign 'value_4', 'digits'
               c.If '(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20) || (digits == null)' do |c|
-                c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + digits'
+                c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + (digits ? digits : "<empty>")'
                 c.Goto "end4"
               end
               c.Else do |c|

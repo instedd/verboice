@@ -26,6 +26,10 @@ class Project < ActiveRecord::Base
   has_many :external_services, :dependent => :destroy
   has_many :external_service_steps, :through => :external_services
   has_many :schedules, :dependent => :destroy
+  has_many :contacts, :dependent => :destroy
+  has_many :persisted_variables, :through => :contacts
+
+  attr_accessible :name, :account, :status_callback_url, :status_callback_url_user, :status_callback_url_password, :time_zone
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
@@ -35,5 +39,9 @@ class Project < ActiveRecord::Base
   attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true
 
   def call(address)
+  end
+
+  def defined_variables
+    call_flows.pluck(:variables).flatten.uniq
   end
 end

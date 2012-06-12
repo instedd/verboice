@@ -53,7 +53,7 @@ describe CallFlowsController do
     Trace.make call_flow: call_flow, call_log: call_log6, step_id: 737, result: "User pressed: 2", step_name: "Menu Bar"
     Trace.make call_flow: call_flow, call_log: call_log5, step_id: 43212345678, result: "User pressed: 2"
 
-    response = get :show, :format => :csv, id: call_flow.id, project_id: call_flow.project.id
+    response = get :download_results, :format => :csv, id: call_flow.id, project_id: call_flow.project.id
     response.body.should eq File.read(File.join(Rails.root, 'spec/fixtures/trace.csv'))
 
     Timecop.return

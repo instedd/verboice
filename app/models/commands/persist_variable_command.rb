@@ -51,12 +51,12 @@ class Commands::PersistVariableCommand < Command
 
   def contact_from session
 
-    account = session.call_log.account
+    project = session.call_log.project
 
     contact = if session.address.presence
-      account.contacts.where(:address => session.address).first_or_create!
+      project.contacts.where(:address => session.address).first_or_create!
     else
-      account.contacts.where(:address => "Anonymous#{session.call_log.id}", :anonymous => true).first_or_create!
+      project.contacts.where(:address => "Anonymous#{session.call_log.id}", :anonymous => true).first_or_create!
     end
     session.trace "Caller address is unknown. Variable '#{@variable_name}' will be saved for contact '#{contact.address}'.", command: 'persist_variable', action: 'contact_unknown' unless session.address.presence
 

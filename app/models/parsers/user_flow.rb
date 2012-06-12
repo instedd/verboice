@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -25,6 +25,7 @@ module Parsers
       @roots = []
       @nodes = []
       @call_flow = call_flow
+      @variables = nil
       build_nodes
     end
 
@@ -46,6 +47,11 @@ module Parsers
       @equivalent_flow ||= build_equivalent_flow
     end
 
+    def variables
+      equivalent_flow()
+      @variables
+    end
+
     def build_equivalent_flow
       Compiler.make do |compiler|
         compiler.Answer
@@ -53,6 +59,7 @@ module Parsers
           compiler.append a_root_node.equivalent_flow
           compiler.End
         end
+        @variables = compiler.variables.clone
       end
     end
 
