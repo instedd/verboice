@@ -24,6 +24,7 @@ gem 'rubyzip', :require => 'zip/zip'
 gem 'rest-client'
 gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribute.git"
 gem 'csv_builder'
+gem 'newrelic_rpm'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
