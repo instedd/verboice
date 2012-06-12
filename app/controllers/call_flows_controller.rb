@@ -21,7 +21,7 @@ class CallFlowsController < ApplicationController
 
   before_filter :authenticate_account!
   before_filter :load_call_flow_and_project, :only => [
-    :download_results, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import_call_flow, :export_call_flow
+    :download_results, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import, :export
   ]
   before_filter :load_all_call_flows, :only => [:index, :update, :create]
   before_filter :load_recording_data, :only => [:play_recording, :save_recording, :play_result]
