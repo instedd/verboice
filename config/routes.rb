@@ -39,8 +39,8 @@ Verboice::Application.routes.draw do
 
       resources :call_flows, except: [:new, :edit] do
         member do
-          get :edit_workflow
-          put :update_workflow
+          get :edit_workflow, path: :designer
+          put :update_workflow, path: :update_flow
           get :play_recording
           post :save_recording
           post :import
