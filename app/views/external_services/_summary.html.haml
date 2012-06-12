@@ -1,0 +1,7 @@
+.toptitle
+  %span.title= external_service.name
+.middle
+  = external_service.url
+.bottom
+  = link_to 'Edit', '#', :class => 'farrow collapse_trigger'
+  = link_to 'Update Manifest', update_manifest_project_external_service_path(project.id, external_service.id), :method => :put, :class => 'fsync' if external_service.id

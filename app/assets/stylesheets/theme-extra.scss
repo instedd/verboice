@@ -1,132 +1,198 @@
-.homepage .illustration {
-  background: image-url("illustration.png") no-repeat scroll 0 0 transparent;
-  height: 406px;
-  width: 438px;
-}
-.i96grad-medicine
-{
-  background: image-url("medicine.png") no-repeat center top;
-  display: inline-block;
-  vertical-align: middle;
-  height: 96px;
-  width: 96px;
-}
+@charset "utf-8";
 
-.i96grad-tree
-{
-  background: image-url("tree.png") no-repeat center top;
-  display: inline-block;
-  vertical-align: middle;
-  height: 96px;
-  width: 96px;
-}
-.i96grad-pieChart
-{
-  background: image-url("pieChart.png") no-repeat center top;
-  display: inline-block;
-  vertical-align: middle;
-  height: 96px;
-  width: 96px;
-}
-.i96grad-fire
-{
-  background: image-url("fire.png") no-repeat center top;
-  display: inline-block;
-  vertical-align: middle;
-  height: 96px;
-  width: 96px;
-}
+/* ------------ User Menu ------------------- */
+.avatar { width:65px; height:65px; text-align:center; margin:0 0 2px 0; padding:0 5px 0 0; border:none; display: table; position:relative }
+.avatar span { display:block; position:absolute; margin:0px auto; width:65px; height:65px; z-index:1; box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2)inset; -moz-box-shadow:0px 0px 2px 1px rgba(0, 0, 0, 0.2)inset; -webkit-box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2)inset; border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px }
+.avatar img { border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px }
 
-.i96-council
-{
-  background: image-url("council.png") no-repeat center top;
-  display: inline-block;
-  vertical-align: middle;
-  height: 96px;
-  width: 96px;
-}
-.i96-cross
-{
-  background: image-url("cross.png") no-repeat center top;
-  display: inline-block;
-  vertical-align: middle;
-  height: 96px;
-  width: 96px;
-}
+.location { background:#555555 url(http://theme.instedd.org/theme/images/icons/18/white/location.png) no-repeat; color:#FFFFFF; padding:2px 3px 2px 16px; border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px }
+#achannels { color:#555555 }
 
-.i48grad-scale {
-  background: image-url("scale.png") no-repeat center top;
-  display: inline-block;
-  vertical-align: middle;
-  height: 48px;
-  width: 48px;
-}
+.mobile { background: url(http://theme.instedd.org/theme/images/icons/18/black/mobile.png) no-repeat left; padding-left:20px }
+.message { background: url(http://theme.instedd.org/theme/images/icons/18/black/message.png) no-repeat left; padding-left:20px }
+.twitter { background: url(http://theme.instedd.org/theme/images/icons/18/black/twitter.png) no-repeat left; padding-left:20px }
+.phone { background: url(http://theme.instedd.org/theme/images/icons/18/black/phone.png) no-repeat left; padding-left:20px }
 
-.i48grad-computer {
-  background: image-url("computer.png") no-repeat center top;
-  display: inline-block;
-  vertical-align: middle;
-  height: 48px;
-  width: 48px;
-}
+.gmobile { background: url(http://theme.instedd.org/theme/images/icons/18/grey/mobile.png) no-repeat left; padding-left:20px }
+.gmessage { background: url(http://theme.instedd.org/theme/images/icons/18/grey/message.png) no-repeat left; padding-left:20px }
+.gtwitter { background: url(http://theme.instedd.org/theme/images/icons/18/grey/twitter.png) no-repeat left; padding-left:20px }
+.gphone { background: url(http://theme.instedd.org/theme/images/icons/18/grey/phone.png) no-repeat left; padding-left:20px }
 
-.i48grad-language {
-  background: image-url("language.png") no-repeat center top;
-  display: inline-block;
-  vertical-align: middle;
-  height: 48px;
-  width: 48px;
-}
 
-span.validation {
-  display: inline-block;
-  width: 135px;
-  margin:6px 0 !important;
-}
+/* ------------ classes ------------------- */
+label { color:#555555 }
+label + p.desc { font-size:11px !important; color:#555555; margin:0 !important }
+p + p.desc { font-size:11px !important; color:#555555; margin-top:-15px !important }
+.desc { font-size:11px }
+.lightgrey { background-color:#ebebeb }
+.box.workflow { -webkit-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset; -moz-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset;  box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset }
+.workflow-content-container { overflow:auto; max-width:100% }
+.workflow-container { position:relative; white-space:nowrap }
+.workflow-container p { margin:0; padding:0 }
+.workflow-container div { display:inline-block; margin:0 35px 10px 0; vertical-align:top; text-align:center; width:55px; height:80px; position:relative }
+.workflow-container div p { font-size:11px; line-height:12px; margin:3px 0 0 0; padding:0; white-space:normal }
+.workflow-container div.ha span { background:url(http://theme.instedd.org/theme/images/workflow/arrow-hor.png) no-repeat; width:32px; height:8px; position:absolute; left:-34px; top:25px; display:block }
+.workflow-container div.ha2 span { background:url(arrow-hor2.png) no-repeat; width:32px; height:8px; position:absolute; left:-34px; top:25px; display:block }
+.workflow-container div.ha-ext span { background:url(arrow-hor-ext.png) no-repeat; width:95px; height:8px; position:absolute; left:-34px; top:27px; display:block }
+.workflow-container div.ha-ext2 span { background:url(arrow-hor-ext2.png) no-repeat; width:95px; height:8px; position:absolute; left:-34px; top:27px; display:block }
+.workflow-container div.va span { background:url(http://theme.instedd.org/theme/images/workflow/arrow-ver.png) no-repeat; width:18px; height:95px; position:absolute; left:-20px; top:-60px; display:block }
+.workflow-container div.va2 span { background:url(arrow-ver2.png) no-repeat; width:32px; height:95px; position:absolute; left:-34px; top:-60px; display:block }
+.workflow-container div.va3 span { background:url(arrow-ver3.png) no-repeat; width:32px; height:95px; position:absolute; left:-34px; top:-60px; display:block }
+.workflow-container div.va-ext span { background:url(arrow-ver-ext.png) no-repeat; width:2px; height:90px; position:absolute; left:-20px; top:-60px; display:block }
+.workflow-container div.alert { background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat 50px 10px }
+.workflow-container div.alert button { background-position:-1px top !important; height:57px !important; width:57px !important; padding:0 !important; border:2px solid #ff6600 !important; border-radius:10px; -moz-border-radius:10px; -webkit-border-radius:10px; -webkit-box-shadow:none !important;  -moz-box-shadow:none !important; box-shadow:none !important }
+.workflow-container div.alert button:hover { background-position:-1px -60px !important }
+.workflow-container div.alert button:active { background-position:-1px -120px !important }
+.workflow-container div.alert p:first-child { background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat; width:15px; height:15px; position:absolute; right:3px; top:-2px; z-index:2 }
+.workflow-container div.alert p { color:#ff6600 !important; overflow:visible }
 
-span.forwardto {
-  display:inline-block;
-  width:66px;
-  margin:6px 0 !important
-}
+.box.iblock { padding:10px 0; position:relative }
+.iblock { display:inline-block; vertical-align:top; margin-right:15px }
+.box.addstep { background-color:#efefef; -webkit-box-shadow:0 1px 1px 0px rgba(0, 0, 0, 0.2)inset !important;  -moz-box-shadow:0 1px 1px 0px rgba(0, 0, 0, 0.2)inset !important; box-shadow:0 1px 1px 0px rgba(0, 0, 0, 0.2)inset !important; white-space:normal  }
 
-span.alert-orange {
-  background: url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat right;
-  padding-right:18px;
-  color:#ff6600;
-  display:inline-block
-}
 
+.box.iblock hr { width:92%; margin:15px auto 20px auto }
+.tableheader { background:url(http://theme.instedd.org/theme/images/interface/backtd.png) repeat-x left 140%; height:65px; padding:0 5px 15px 5px }
+.box.iblock table { white-space:normal }
+.GralTable.NoHead td { border:none; padding:2px 6px }
+.GralTable.NoHead tr:nth-child(2){ background-image:none }
+.TwoColumn tr td:last-child, .TwoColumn tr th:last-child { width:30px; white-space:nowrap }
+.GralTable.NoHead td.sub { padding-left:15px }
+.GralTable.NoHead td.disabled { color:#cccccc }
+.GralTable.NoHead td.add { color: #1F86C8 }
+.GralTable.NoHead td button { vertical-align:middle }
+.box.iblock .content { padding:0 5px }
+.box.iblock .content.scroll { height:544px; overflow:auto; overflow-x: hidden }
+.noborder { border-right:none !important }
+
+.bottom-actions { padding-left:5px }
+.iblock .bottom-actions { padding-left:5px; position:absolute; bottom:5px }
+
+
+ul.oplist { margin:0; padding:0; list-style:none }
+ul.oplist select { width:60px }
+
+.ux-oplist { border-color:white !important; -webkit-box-shadow: none !important; -moz-box-shadow: none !important; box-shadow: none !important; width:178px !important }
+.ux-oplist:focus { border:2px solid #dddddd !important; -webkit-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.3) inset;  -moz-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.3) inset; box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.3) inset }
+
+.ux-oplist:disabled { background-color:white !important; color:#999999; border:1px solid transparent !important; -webkit-box-shadow: none; -moz-box-shadow: none; box-shadow: none; }
+
+ul.oplist .ux-text { width:238px !important }
+
+span.validation { display:inline-block; width:135px; margin:6px 0 !important }
+span.forwardto { display:inline-block; width:66px; margin:6px 0 !important }
+
+span.alert-orange { background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat right; padding-right:18px; color:#ff6600; display:inline-block }
+
+
+.content-header { padding:10px 50px; text-align:center }
+.content-header h1 { font-size:16px; color:#000000; margin:0 }
+.content-header span { font-size:12px; color:#555555 }
+
+.content-buttons { margin:0 auto; width:265px }
+.content-buttons div { text-align:center; display:inline-block; vertical-align:top; width:85px; margin-bottom:15px }
+.content-buttons span { font-size:11px; color:#000000; display:block; padding-top:5px }
+.content-buttons div.disabled span { color:#b3b3b3 }
+
+.popup { position:absolute; top:0; left:0; width:285px; height:670px }
+.popupmessage { width:220px; margin:20% auto 0 auto  }
+.box.popupmessage hr { width:220px; margin:9px 0 }
+.popupmessage div { color:#555555; margin:5px 0 }
+.popupmessage div.grey { background:#eeeeee; padding:5px; border-radius:5px; -moz-border-radius:5px; -webkit-border-radius:5px }
+.popupmessage div.grey button { vertical-align:middle }
+.box.popupmessage { position:relative; z-index:3; width:240px; }
+div.courtain { background:#000000; width:285px; height:670px; border-radius:5px; -moz-border-radius:5px; -webkit-border-radius:5px; position:absolute; top:0px; left:0px; z-index:2; filter: alpha(opacity=50); -moz-opacity:0.5; -khtml-opacity: 0.5; opacity: 0.5; -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)" }
+
+.box.noshadow { padding:2px !important; margin:0px !important; -webkit-box-shadow:none; -moz-box-shadow:none; box-shadow:none }
+ul.branches { margin:0; padding:0; list-style:none }
+ul.branches button { float:right}
+ul.branches li { clear:both }
+
+
+span.arrow-col { background: url(http://theme.instedd.org/theme/images/icons/misc/grey/arrowRight.png) no-repeat; display:inline-block; height:10px; width:14px }
+span.arrow-exp { background: url(http://theme.instedd.org/theme/images/icons/misc/grey/arrowDown.png) no-repeat; display:inline-block; height:10px; width:16px }
+span.arrow-col.orange { background: url(http://theme.instedd.org/theme/images/icons/misc/orange/arrowRight.png) no-repeat; display:inline-block; height:10px; width:14px }
+span.arrow-exp.orange { background: url(http://theme.instedd.org/theme/images/icons/misc/orange/arrowDown.png) no-repeat; display:inline-block; height:10px; width:16px }
+
+div.player span { color:#cf490c; display:inline-block; vertical-align:middle }
+div.player button { vertical-align:middle }
+
+ul.call-log-details li { list-style-type:none; border-bottom:1px solid #dddddd; padding:3px 2px 3px 5px }
+ul.call-log-details li:last-child { border-bottom:none }
+ul.call-log-details li div { display:inline-block; vertical-align:middle }
+ul.call-log-details li div.date { font-size:11px; color:#999999; margin-right:5px }
+ul.call-log-details li div span { display:block }
+ul.call-log-details li div span.grey { color:#999999 }
+ul.call-log-details li.orange div { background-position:left -48px }
+ul.call-log-details li.orange div span { color:#ff6600 }
+
+.butt-right { background: url(http://theme.instedd.org/theme/images/buttons/mark/greyRight.png) no-repeat right top; color:#000000 !important; padding:2px 15px 2px 4px; display:inline-block; vertical-align:middle }
+.butt-right:hover { background-position:right -30px }
+.butt-right:active { background-position:right -60px }
+
+.box.grey { position:relative; -webkit-box-shadow: 0px 0.05em 1px 1px rgba(0, 0, 0, 0.3); -moz-box-shadow: 0px 0.05em 1px 1px rgba(0, 0, 0, 0.3); box-shadow: 0px 0.05em 1px 1px rgba(0, 0, 0, 0.3) }
+.rightbuttons { position: absolute; right: 2px; top: 5px }
+.toptitle .title { color:#000000 !important }
+
+
+ul.days { margin:0; padding:0 }
+ul.days li { background:url(ok-day.png) no-repeat center 23px #769923; color:#FFFFFF; font-weight:bold; text-align:center; vertical-align:middle; display:inline-block; width:40px; height:45px; padding-top:2px; list-style-type:none; border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px }
+ul.days li.no { background:url(un-day.png) no-repeat center 23px #939393; color:#d0d0d0 }
+
+.ux-text.editable { background-color:transparent; -webkit-box-shadow: none !important; -moz-box-shadow: none !important; box-shadow: none !important; border:1px solid #bcbcbc !important }
+.ux-text.editable:focus { background-color:#ffffff; height:24px; border: 1px solid #dddddd !important; -webkit-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.3) inset !important;  -moz-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.3) inset !important; box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.3) inset !important }
+
+.box.grey hr { background-color:#BCBCBC }
+
+.box.addqueue { padding:0 10px; margin-top:10px; height:30px }
+.box.addqueue span { color:#1f86c8; display:inline-block; padding-top:8px }
+.box.addqueue button { margin-right:-5px }
+
+.lmargin { margin-left:20px }
+
+ul.call-properties { margin:5px 0 20px 0; padding:0 }
+ul.call-properties li { list-style-type:none; display:inline-block; border:1px solid #dddddd; width:200px; margin-right:5px; padding:4px; vertical-align:top; border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px }
+ul.call-properties li div { display:inline-block; vertical-align:top }
+ul.call-properties li div span { display:inline-block; width:90px; padding-top:8px }
+
+input+label { color:#000 }
+
+.response { margin-bottom:8px }
+.response input[type="text"] { width:265px }
+.response label { color:#555555 }
+
+.w01 { width:10px }
 .w05 { width:50px }
 .w17 { width:172px !important }
 .w25 { width:254px !important }
+.w26 { width:260px !important }
 .w28 { width:285px }
 .w64 { width:640px }
-.w100 { width:100% }
+.w100 { width:100% !important }
+.w70p { width:70% }
+.w30p { width:26% }
 
 .h40 { height:400px }
 .h50 { height:500px }
 .h60 { height:600px }
 .h65 { height:650px }
 
-/* Body full width */
-body.full-width #toolbar, body.full-width #header, body.full-width #container, body.full-width #footer-container { margin:auto; width:98%; min-width:1000px }
-body.full-width #header { position:relative; height:auto; margin-bottom:0; padding-bottom:35px }
-body.full-width #header .logo { position:absolute; top:-20px }
-body.full-width #header .BreadCrumb { margin:24px 0 0 170px; width:auto; float:none }
-body.full-width .apps.right { max-width:700px }
-body.full-width #instedd-footer { display:inline-block }
-body.full-width.fixed-width-content #container { width: 960px; margin-left: auto; margin-right: auto; }
 
-/*
-body.full-width #instedd-footer .jcarousel-container,body.full-width  #instedd-footer .jcarousel-clip { width:auto; display:inline-block  }
-body.full-width .jcarousel-list-horizontal { width:auto !important }
-table.apps-footer { width:100% }
-table.apps-footer td.platform { padding:28px 15px 10px 0 }
-*/
+button.power.off { background: url(http://theme.instedd.org/theme/images/buttons/other/power.png) no-repeat left top; display:inline-block; height:20px; width:50px; border:none; cursor:pointer }
+button.power.off:hover { background-position:left -30px }
+button.power.off:active { background-position:left -60px }
+button.power.on { background: url(http://theme.instedd.org/theme/images/buttons/other/power.png) no-repeat right top; display:inline-block; height:20px; width:50px; border:none; cursor:pointer }
+button.power.on:hover { background-position:right -30px }
+button.power.on:active { background-position:right -60px }
 
-/* Footer */
-#instedd-footer .jcarousel-container { background-color:#ffffff; background-image:none; border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; border: 1px solid #dddddd; -webkit-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset; -moz-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset;  box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset }
+button.fhelp { vertical-align:middle }
+
+.greytext { color:#555555 !important }
+
+.steps div { display:inline-block; width:45%; margin:0 8px 10px 0 }
+.steps div button { float:left; margin-right:10px }
+.steps div button:after { clear:both }
+.steps div span { display:block; color:#000000 }
 
 /* ------------ Buttons Up/Down ------------------- */
 .btupdn { display: inline-block; vertical-align:middle; width:24px; height:24px; position:relative }
@@ -149,3 +215,20 @@ table.apps-footer td.platform { padding:28px 15px 10px 0 }
 .fmovedown { background:url(http://resmap-stg.instedd.org/assets/moveDown.png) no-repeat; position:absolute; bottom:1px }
 .fmoveup { background:url(http://resmap-stg.instedd.org/assets/moveUp.png) no-repeat; position:absolute; top:0 }
 
+
+
+/* ------------ FULL WIDTH ------------------- */
+body.full-width #toolbar, body.full-width #header, body.full-width #container, body.full-width #footer-container { margin:auto; width:98%; min-width:1000px }
+body.full-width #header { position:relative; height:auto; margin-bottom:0; padding-bottom:35px }
+body.full-width #header .logo { position:absolute; top:-20px }
+body.full-width #header .BreadCrumb { margin:24px 0 0 170px; width:auto; float:none }
+body.full-width .apps.right { max-width:700px }
+body.full-width #instedd-footer .jcarousel-container,body.full-width  #instedd-footer .jcarousel-clip { width:auto; display:inline-block  }
+table.workflow-table { width:100% }
+table.apps-footer { width:100% }
+table.apps-footer td.platform { padding:28px 15px 10px 0 }
+body.full-width .jcarousel-list-horizontal { width:auto !important }
+body.full-width #instedd-footer { display:inline-block }
+
+/*--------- Para reemplazar en el theme --------------*/
+#instedd-footer .jcarousel-container { background-color:#ffffff; background-image:none; border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; border: 1px solid #dddddd; -webkit-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset; -moz-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset;  box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset }

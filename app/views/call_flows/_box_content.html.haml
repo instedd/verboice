@@ -1,11 +1,12 @@
-.box.grey.w60.call_flow_box{:class => ("#{expanded ? 'expanded' : 'collapsed'} #{call_flow.mode_flow? ? 'flow_mode' : 'callback_mode'}")}
+.box.grey.w60.collapsible_crud_box{:class => ("#{expanded ? 'expanded' : 'collapsed'} #{call_flow.mode_flow? ? 'flow_mode' : 'callback_mode'}")}
   - if call_flow.errors.any?
     .error_explanation
       %h2= "#{pluralize(call_flow.errors.count, "error")} prohibited this call flow from being saved:"
       %ul
         - call_flow.errors.full_messages.each do |msg|
           %li= msg
-  = link_to '', call_flow, :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless call_flow.new_record?
+  .rightbuttons
+    = link_to '', call_flow, :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless call_flow.new_record?
   .summary
     = render 'summary', :call_flow => call_flow
 

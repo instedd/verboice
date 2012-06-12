@@ -1,32 +1,32 @@
 = form_for [call_flow.project, call_flow], :remote => true do |f|
-  = f.label :name
-  %br/
-  = f.text_field :name
-  %br/
-  = f.label :mode
-  %p.desc Choose whether you will use an external app or build one using Verboice
-  .call_flow_mode
-    = f.select :mode, options_for_select([['Use an external application', :callback_url], ['Design your app in Verboice', :flow]], call_flow.mode)
-    = link_to "#{call_flow.user_flow ? 'Edit' : 'Create'} Workflow", edit_workflow_call_flow_path(call_flow), :class => 'button farrow flow_settings flow_settings', :style => "margin-top: -4px;" unless call_flow.new_record?
-  .flow_settings
-    = link_to 'Download call results as CSV', download_results_call_flow_path(call_flow, :format => :csv), :class => "button fimport" unless call_flow.new_record?
+  .field
+    = f.label :name
+    = f.text_field :name, :class => "w30"
+  .field
+    = f.label :mode
+    %p.desc Choose whether you will use an external app or build one using Verboice
+    .call_flow_mode
+      = f.select :mode, options_for_select([['Use an external application', :callback_url], ['Design your app in Verboice', :flow]], call_flow.mode), {}, :class => "w30"
+      = link_to "#{call_flow.user_flow ? 'Edit' : 'Create'} Workflow", edit_workflow_project_call_flow_path(@project, call_flow), :class => 'button farrow flow_settings flow_settings', :style => "margin-top: -4px;" unless call_flow.new_record?
+    .flow_settings
+      = link_to 'Download call results as CSV', download_results_call_flow_path(call_flow, :format => :csv), :class => "button fimport" unless call_flow.new_record?
 
   .callback_url_settings
     = f.label :callback_url, 'URL'
     %br/
-    = f.text_field :callback_url
+    = f.text_field :callback_url, :class => "w30"
     %br/
     = f.label :callback_url_user, 'User'
     %br/
-    = f.text_field :callback_url_user
+    = f.text_field :callback_url_user, :class => "w30"
     %br/
     = f.label :callback_url_password, 'Password'
     %br/
-    = f.password_field :callback_url_password
+    = f.password_field :callback_url_password, :class => "w30"
 
   %hr
   - if call_flow.new_record?
     %button.white{:type => "submit"} Save
   - else
     %button.white{:type => "submit"} Update
-  = link_to 'Cancel', '#', :class => "button white cancel #{call_flow.new_record? ? 'remove_unsaved_call_flow' : 'collapse_trigger'}", :style => 'top: 1px;'
+  = link_to 'Cancel', '#', :class => "button white cancel #{call_flow.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'

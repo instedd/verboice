@@ -49,7 +49,7 @@ Verboice::Application.routes.draw do
         end
       end
 
-      resources :external_services do
+      resources :external_services, except: [:show, :new, :edit] do
         member do
           put :update_manifest
         end

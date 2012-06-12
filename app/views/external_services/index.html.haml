@@ -1,25 +1,13 @@
 = render 'shared/project_tabs_and_title', :project => project
 
-%table
-  %tr
-    %th Name
-    %th Url
-    %th
-    %th
-    %th
-    %th
+%h2 External services
+%p Use the following tool to define your application's external services
 
-  - external_services.each do |external_service|
-    %tr
-      %td= external_service.name
-      %td= external_service.url
-      %td= link_to 'Show', external_service_path(external_service)
-      / %td= link_to 'Show', project_external_service_path(project, external_service)
-      %td= link_to 'Edit', edit_external_service_path(external_service)
-      / %td= link_to 'Edit', edit_project_external_service_path(project, external_service)
-      %td= link_to 'Destroy', external_service_path(external_service), :confirm => 'Are you sure?', :method => :delete
-      / %td= link_to 'Destroy', project_external_service_path(project, external_service), :confirm => 'Are you sure?', :method => :delete
-      %td= link_to 'Update Manifest', update_manifest_project_external_service_path(project, external_service), :method => :put
-%br
+- external_services.each do |external_service|
+  = render 'box', :external_service => external_service, :expanded => external_service.errors.any?
 
-= link_to 'New External service', new_project_external_service_path(project)
+.box.grey.w60.addqueue
+  %span
+    = link_to_add_fields :external_service, "Add External service", @project, :class => 'addfields'
+  %button.cadd.right{:onclick => "$('.add_fields', $(this).closest('.box')).click();", :type => "button"}
+  .clear

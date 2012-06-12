@@ -1,30 +1,40 @@
-= form_for [project, external_service] do |f|
-  -if external_service.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(external_service.errors.count, "error")} prohibited this external_service from being saved:"
-      %ul
-        - external_service.errors.full_messages.each do |msg|
-          %li= msg
-
-  .field
-    = f.label :url
-    = f.text_field :url
-    = link_to 'Preview', '#', :class => 'request_service_manifest', :remote => true
-
-  %br
-
-  .external_service_info
-    = render 'data'
-
-  %br
-
-  .external_service_settings
-    %h2 Settings
-    = f.fields_for :global_variables, external_service.global_variables do |variables_form|
+= form_for [project, external_service], :remote => true do |f|
+  .middle
+    - unless external_service.new_record?
       .field
-        = variables_form.object.name
-        = variables_form.hidden_field :name
-        = variables_form.text_field :value
+        = f.label :name
+        = f.text_field :name, :disabled => true, :readonly => true, :class => "w30"
+    .field
+      = f.label :url, 'URL'
+      = f.text_field :url, :class => "w50"
+    = link_to 'Update Manifest', update_manifest_project_external_service_path(project.id, external_service.id), :method => :put, :class => 'fsync' if external_service.id
+    - unless external_service.new_record?
+      .external_service_settings
+        %p Settings
+        = f.fields_for :global_variables, external_service.global_variables do |variables_form|
+          .field
+            = variables_form.label :value, variables_form.object.display_name
+            = variables_form.hidden_field :name
+            = variables_form.text_field :value, :class => "w30"
 
-  .actions
-    = f.submit 'Save'
+      .steps
+        - if external_service.steps.any?
+          %p Steps
+          - external_service.steps.each do |step|
+            %div
+              %a{:class => "#{step.icon.index('http') == 0 ? 'lpgear' : "lp#{step.icon}" }"}
+                %span= step.display_name
+                - unless step.variables.empty?
+                  %span.greytext
+                    &rarr;
+                    = step.variables.map {|variable| variable.display_name }.join ", "
+                - unless step.response_variables.empty?
+                  %span.greytext
+                    &larr;
+                    = step.response_variables.map {|variable| variable.display_name }.join ", "
+  %hr
+    - if external_service.new_record?
+      %button.white{:type => "submit"} Save
+    - else
+      %button.white{:type => "submit"} Update
+    = link_to 'Cancel', '#', :class => "button white cancel #{external_service.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'
