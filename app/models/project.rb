@@ -24,6 +24,7 @@ class Project < ActiveRecord::Base
   has_many :call_logs, :dependent => :destroy
   has_many :queued_calls, :dependent => :destroy
   has_many :external_services, :dependent => :destroy
+  has_many :external_service_steps, :through => :external_services
   has_many :schedules, :dependent => :destroy
   has_many :contacts, :dependent => :destroy
   has_many :persisted_variables, :through => :contacts

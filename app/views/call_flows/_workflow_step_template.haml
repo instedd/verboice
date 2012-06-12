@@ -1,7 +1,7 @@
 %script{type: "text/html", id: "workflow_step_template"}
   %span
   %p{ ko(:css => "{'alert-icon': is_invalid()}")}
-  %p.button{ ko(:click => "set_as_current", :class => "button_class", :css => "{active: $data == $root.current_step(), alert: is_invalid()}") }
+  %p.button{ ko(:click => "set_as_current", :class => "button_class", :css => "{active: $data == $root.current_step(), alert: is_invalid()}", :style => "{'background': background_style()}") }
   %a.insertBefore{ ko(:click => "insert_before", :visible => "$data == $root.current_step() && can_insert_before()"), :title => "Insert new step before" }
   %a.insertAfter{ ko(:click => "insert_after", :visible => "$data == $root.current_step() && can_insert_after()"), :title => "Insert new step after" }
   %p{ ko(text: 'name', :css => "{alert: is_invalid()}") }

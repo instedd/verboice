@@ -274,7 +274,7 @@ span.orange {
 
 
 .feditor-sidebar {
-  .lbookmark, .lnumeral, .ldirections, .lphone, .lanswer, .lforwardcall, .ldial, .lsound, .lmicrophone {
+  .lbookmark, .lnumeral, .ldirections, .lphone, .lanswer, .lforwardcall, .ldial, .lsound, .lmicrophone, .ltext {
     margin: 0px 5px 0px 13px !important;
   }
 }
@@ -295,3 +295,11 @@ span.alert {
 th.orange, td.orange, li.orange, span.orange, label.orange {
   color: #ff6600;
 }
+
+.greytext {
+  color:#555555 !important;
+}
+
+.response { margin-bottom:8px; }
+.response input[type="text"] { width:265px; }
+.response label { color:#555555; }

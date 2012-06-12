@@ -18,15 +18,21 @@
 class Commands::AssignCommand < Command
   attr_accessor :name
   attr_accessor :expr
+  attr_accessor :try
 
-  def initialize(name, expr)
+  def initialize(name, expr, try=nil)
     @name = name
     @expr = expr
+    @try = try
   end
 
   def run(session)
     session.trace "Assign: #{@name}", command: 'assign', action: 'start'
-    session[@name.to_s] = session.eval @expr
+    begin
+      session[@name.to_s] = session.eval @expr
+    rescue
+      raise unless @try
+    end
     session.trace "Assign: #{@name}", command: 'assign', action: 'finish'
     super
   end

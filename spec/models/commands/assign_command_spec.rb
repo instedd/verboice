@@ -24,8 +24,26 @@ describe Commands::AssignCommand do
   it "assigns" do
     cmd = Commands::AssignCommand.new 'foo', '1 + 2'
     cmd.next = :next
-    cmd.run(session).should == :next
+    cmd.run(session).should eq(:next)
 
-    session['foo'].should == 3
+    session['foo'].should eq(3)
+  end
+
+  it "assigns raising exception if invalid" do
+    expect {
+      cmd = Commands::AssignCommand.new 'foo', 'invalid'
+      cmd.next = :next
+      cmd.run(session)
+    }.to raise_error
+
+    session['foo'].should be_nil
+  end
+
+  it "assigns without raising exception" do
+    cmd = Commands::AssignCommand.new 'foo', 'invalid', :try
+    cmd.next = :next
+    cmd.run(session).should eq(:next)
+
+    session['foo'].should be_nil
   end
 end

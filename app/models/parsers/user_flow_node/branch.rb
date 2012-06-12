@@ -51,8 +51,7 @@ module Parsers
           c.Assign "current_step", @id
           c.Assign "current_step_name", "'#{@name}'"
           @options.each_with_index do |an_option, index|
-            retrieve_variables c, an_option['conditions']
-            c.If(merge_conditions_from(an_option['conditions'])) do |c|
+            c.If(merge_conditions_from(an_option['conditions'], c)) do |c|
               c.Trace context_for "\"Branch number #{index + 1} selected: '#{an_option['description']}'\""
               c.append(an_option['next'].equivalent_flow) if an_option['next']
               c.Goto("end#{@id}")
@@ -64,32 +63,21 @@ module Parsers
         end
       end
 
-      def merge_conditions_from conditions
+      def merge_conditions_from conditions, compiler
         if conditions.nil? or conditions.empty?
           'true'
         else
-          conditions.collect do |condition|
-            "(#{first_comparison_term_from condition} #{condition['operator']} #{second_comparison_term_from condition})"
+          variables = []
+          string_condition = conditions.collect do |condition|
+            lhs = InputSetting.new(variable: condition['variable'], response: condition['response'], step: condition['step'])
+            rhs = InputSetting.new(variable: condition['rhs_variable'], response: condition['rhs_response'], step: condition['rhs_step'], value: (condition['rhs_value'] || condition['value']))
+            variables << lhs.variable << rhs.variable
+            "(#{lhs.expression()} #{condition['operator']} #{rhs.expression()})"
           end.join(' && ')
-        end
-      end
-
-      def first_comparison_term_from condition
-        condition['step'].presence ? "value_#{condition['step']}" : "var_#{condition['variable']}"
-      end
-
-      def second_comparison_term_from condition
-        condition['rhs_variable'].presence ? "var_#{condition['rhs_variable']}" : "#{condition['value']}"
-      end
-
-      def retrieve_variables compiler, conditions
-        return if conditions.nil?
-        conditions.collect do |condition|
-          ['variable', 'rhs_variable'].collect do |var_name|
-            condition[var_name].presence
+          variables.compact.uniq.each do |variable|
+            compiler.RetrieveVariable variable
           end
-        end.flatten.compact.uniq.each do |variable|
-          compiler.RetrieveVariable variable
+          string_condition
         end
       end
     end

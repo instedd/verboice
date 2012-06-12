@@ -16,14 +16,17 @@ onWorkflow ->
     @from_hash: (hash) ->
       if typeof(hash.type) == "string"
         for step_type in step_types
-          if hash.type == step_type.type
+          if step_type.can_handle(hash)
             return window[step_type.type].initialize(hash)
-        throw "Command type not recognised #{hash['type']}"
+        throw "Command type not recognised #{hash.type}"
       else
         return hash.type.initialize(hash)
 
     @initialize: (hash) ->
       return new @(hash)
+
+    @can_handle: (hash) ->
+      return @type == hash.type
 
     insert_before: () =>
       workflow.show_command_selector(new InsertBeforeRequestor(@))
@@ -113,3 +116,9 @@ onWorkflow ->
 
     after_initialize: () =>
       null
+
+    background_style: () =>
+      if @is_icon_external?()
+        "url(\"#{@icon_url()}\") no-repeat 0 0 scroll, url(http://theme.instedd.org/theme/images/buttons/large/plain/gear.png) no-repeat 0 0 scroll"
+      else
+        null

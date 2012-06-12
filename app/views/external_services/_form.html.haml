@@ -7,13 +7,24 @@
           %li= msg
 
   .field
-    = f.label :name
-    = f.text_field :name
-  .field
     = f.label :url
     = f.text_field :url
-  .field
-    = f.label :xml
-    = f.text_area :xml
+    = link_to 'Preview', '#', :class => 'request_service_manifest', :remote => true
+
+  %br
+
+  .external_service_info
+    = render 'data'
+
+  %br
+
+  .external_service_settings
+    %h2 Settings
+    = f.fields_for :global_variables, external_service.global_variables do |variables_form|
+      .field
+        = variables_form.object.name
+        = variables_form.hidden_field :name
+        = variables_form.text_field :value
+
   .actions
     = f.submit 'Save'

@@ -48,5 +48,9 @@ describe ExternalServicesController do
       delete("/projects/3/external_services/1").should route_to("external_services#destroy", :project_id => "3", :id => "1")
     end
 
+    it "routes to #update_manifest" do
+      put("/projects/3/external_services/1/update_manifest").should route_to("external_services#update_manifest", :project_id => "3", :id => "1")
+    end
+
   end
 end

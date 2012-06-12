@@ -13,6 +13,6 @@
     = link_to "Schedules", project_schedules_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "contacts"}" }
     = link_to "Phone Book", project_contacts_path(project)
-  / %li{ :class =>"#{"active" if params[:controller] == "external_services"}"}
-  /   = link_to "External Services", project_external_services_path(project)
+  %li{ :class =>"#{"active" if params[:controller] == "external_services"}"}
+    = link_to "External Services", project_external_services_path(project)
 .tabsline

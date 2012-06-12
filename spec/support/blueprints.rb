@@ -106,5 +106,13 @@ ExternalService.blueprint do
   project
 end
 
+ExternalServiceStep.blueprint do
+  external_service
+  name
+  display_name { name }
+  icon { Sham.url }
+  callback_url { Sham.url }
+end
+
 CallLogEntry.blueprint do
 end

@@ -49,7 +49,11 @@ Verboice::Application.routes.draw do
         end
       end
 
-      resources :external_services
+      resources :external_services do
+        member do
+          put :update_manifest
+        end
+      end
 
       resources :schedules
 

@@ -21,6 +21,7 @@ gem 'decent_exposure'
 gem 'attr_encrypted'
 gem 'foreman'
 gem 'rubyzip', :require => 'zip/zip'
+gem 'rest-client'
 gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribute.git"
 gem 'csv_builder'
 

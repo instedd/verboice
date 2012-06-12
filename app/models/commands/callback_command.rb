@@ -20,25 +20,35 @@ class Commands::CallbackCommand < Command
   attr_accessor :method
   attr_accessor :params
 
+  include JavascriptUtils
+
   def initialize(url = nil, options = {})
     @url = url
     @method = options[:method] || 'post'
     @params = options[:params]
+    @response_type = options[:response_type] || :flow
+    @variables = options[:variables] || {}
+    @external_service_id = options[:external_service_id]
   end
 
   def run(session)
     session.info "Callback started", command: 'callback', action: 'start'
     url = @url || session.callback_url
+    url = interpolate_url session, url
     method = (@method || 'post').to_s.downcase.to_sym
 
     url, authorization = callback_authentication(url, session.call_flow)
 
     body = {:CallSid => session.call_id, :From => session.pbx.caller_id, :Channel => session.channel.name}
-    if @params
-      @params.each do |name, key|
-        body[name] = session[key]
-      end
-    end
+
+    @params.each do |name, key|
+      body[name] = session[key]
+    end if @params
+
+    @variables.each do |name, expr|
+      body[name] = session.eval expr
+    end if @variables
+
     session.trace "Callback #{method} #{url} with #{body.to_query}", command: 'callback', action: method
 
     http = http_request(url, method, body, authorization)
@@ -56,15 +66,7 @@ class Commands::CallbackCommand < Command
 
         session.trace "Callback returned #{content_type}: #{body}", command: 'callback', action: 'return'
 
-        commands = case content_type
-                   when %r(application/json)
-                     commands = Commands::JsCommand.new body
-                   else
-                     commands = Parsers::Xml.parse body
-                   end
-
-        commands.last.next = self.next
-        f.resume commands
+        f.resume self.send(@response_type, content_type, body, session)
       rescue Exception => e
         session.error "#{e}", command: 'callback', action: 'error'
         f.resume e
@@ -80,6 +82,29 @@ class Commands::CallbackCommand < Command
   end
 
   private
+
+  def flow(content_type, body, session)
+     next_command = case content_type
+                    when %r(application/json)
+                      Commands::JsCommand.new body
+                    else
+                      Parsers::Xml.parse body
+                    end
+    next_command.last.next = self.next
+    next_command
+  end
+
+  def variables(content_type, body, session)
+    hash = JSON.parse body
+    hash.each do |key, value|
+      session["response_#{key}"] = session.eval(value_for_js(value))
+    end
+    self.next
+  end
+
+  def none(content_type, body, session)
+    self.next
+  end
 
   def callback_authentication(url, project)
     uri = URI.parse(url)
@@ -104,4 +129,19 @@ class Commands::CallbackCommand < Command
       request.post({:body => body}.merge(authorization))
     end
   end
+
+  def interpolate_url(session, url)
+    url.gsub(/\{([^\{]*)\}/) do
+      if @variables[$1].present?
+        session.eval @variables[$1]
+      else
+        external_service.global_variable_value_for $1
+      end
+    end
+  end
+
+  def external_service
+    @external_service ||= ExternalService.find_by_id(@external_service_id)
+  end
+
 end

@@ -55,6 +55,33 @@ module Commands
       result.should == Commands::HangupCommand.new
     end
 
+    it "interpolates url with session variables" do
+      options = {:variables => {'foo' => 'var_foo', 'bar' => 'value_bar', 'baz' => '42'}}
+      url = 'http://www.domain.com/{foo}?key1={bar}&key2={baz}'
+      interpolated_url = 'http://www.domain.com/the_foo?key1=the_bar&key2=the_42'
+      @session.should_receive(:eval).with('var_foo').at_least(:once).and_return('the_foo')
+      @session.should_receive(:eval).with('value_bar').at_least(:once).and_return('the_bar')
+      @session.should_receive(:eval).with('42').at_least(:once).and_return('the_42')
+
+      expect_em_http :post, interpolated_url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, 'foo' => 'the_foo', 'bar' => 'the_bar', 'baz' => 'the_42')}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+        CallbackCommand.new(url, options).run @session
+      end
+    end
+
+    it "interpolates url with external service global settings" do
+      options = {:external_service_id => 7}
+      external_service = double('external_service')
+      external_service.should_receive(:global_variable_value_for).with('foo_global').and_return('the_foo_global')
+      ExternalService.should_receive(:find_by_id).with(7).and_return(external_service)
+
+      url = 'http://www.domain.com/{foo_global}'
+      interpolated_url = 'http://www.domain.com/the_foo_global'
+
+      expect_em_http :post, interpolated_url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+        CallbackCommand.new(url, options).run @session
+      end
+    end
+
     context "running with an app which has http basic authentication for the callback url", :focus => true do
       before do
         apply_call_flow("user", "password")
@@ -119,5 +146,69 @@ module Commands
       end
       result.should == Compiler.make { Pause(); Hangup() }
     end
+
+    describe "variables" do
+      let(:options)  { {:response_type => :variables}}
+      let(:response) { {:key1 => 'value1', :key2 => 'value2'} }
+
+      it "assigns returned variables to session" do
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => response.to_json, :content_type => 'application/json' do
+          CallbackCommand.new(url, options).run @session
+        end
+
+        @session['response_key1'].should eq('value1')
+        @session['response_key2'].should eq('value2')
+      end
+
+      it "should eval returned variables in session" do
+        @session.should_receive(:eval).with("'value1'")
+        @session.should_receive(:eval).with("'value2'")
+
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => response.to_json, :content_type => 'application/json' do
+          CallbackCommand.new(url, options).run @session
+        end
+      end
+
+      it "should escape javascript" do
+        response = {:key1 => "foo'bar"}
+
+        @session.should_receive(:eval).with("'foo\\'bar'").and_return("foo'bar")
+
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => response.to_json, :content_type => 'application/json' do
+          CallbackCommand.new(url, options).run @session
+        end
+
+        @session['response_key1'].should eq("foo'bar")
+      end
+
+      it "should not quote numbers" do
+        response = {:key1 => "7"}
+
+        @session.should_receive(:eval).with('7').and_return(7)
+
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => response.to_json, :content_type => 'application/json' do
+          CallbackCommand.new(url, options).run @session
+        end
+
+        @session['response_key1'].should eq(7)
+      end
+
+    end
+
+    describe "none" do
+      let(:options) { {:response_type => :none}}
+
+      it "continues with the next command" do
+        result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id)}, :and_return => '', :content_type => 'text/plain' do
+          Compiler.make do |c|
+            c.Callback url, options
+            c.Hangup
+          end.run @session
+        end
+
+        result.should eq(Commands::HangupCommand.new)
+      end
+    end
+
   end
 end
