@@ -3,13 +3,11 @@
 %h2 Call flows
 %p Use the following tool to define your application's call flows
 
-%ul.vertical
-  - @call_flows.each do |call_flow|
-    %li.fields
-      = render 'box', :call_flow => call_flow, :expanded => call_flow.errors.any?
+- @call_flows.each do |call_flow|
+  = render 'box', :call_flow => call_flow, :expanded => call_flow.errors.any?
 
-  %li.fields
-    .box.grey.w60.call_flow_box
-      = link_to_add_call_flow  "Add Call flow", @project, :class => "add_fields"
-      %button.cadd.right{:onclick => "$('.add_fields', $(this).closest('.box')).click();", :type => "button"}
-      .clear
+.box.grey.w60.addqueue
+  %span
+    = link_to_add_fields :call_flow, "Add Call flow", @project
+  %button.cadd.right{:onclick => "$('.add_fields', $(this).closest('.box')).click();", :type => "button"}
+  .clear

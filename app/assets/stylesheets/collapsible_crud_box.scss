@@ -1,0 +1,38 @@
+.collapsible_crud_box {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  word-wrap: break-word;
+  font-weight: normal;
+
+  padding: 5px;
+
+  a {
+    color: black;
+  }
+  .bottom {
+    a.farrow, a.fsync {
+      margin-bottom: 0px !important;
+      height: 20px;
+    }
+  }
+  .rightbuttons { top: 0px }
+}
+
+.collapsible_crud_box.expanded {
+  .summary {
+    display: none;
+  }
+}
+
+.collapsible_crud_box.collapsed {
+  .content {
+    display: none;
+  }
+}
+
+.box.addqueue {
+  padding:0 5px !important;
+  button {
+    margin-right:-1px !important;
+  }
+}

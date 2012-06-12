@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -37,44 +37,6 @@ describe ExternalServicesController do
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested external_service as external_service" do
-      get :show, {:project_id => project.to_param, :id => external_service.to_param}
-      controller.external_service.should eq(external_service)
-    end
-
-    it "fails if the requested external_service is not in current account projects" do
-      expect {
-        get :show, {:project_id => other_external_service.project.to_param, :id => other_external_service.to_param}
-      }.should raise_error
-    end
-  end
-
-  describe "GET new" do
-    it "assigns a new external_service as external_service" do
-      get :new, {:project_id => project.to_param}
-      controller.external_service.should be_a_new(ExternalService)
-    end
-
-    it "assigns the project to the new external_service" do
-      get :new, {:project_id => project.to_param}
-      controller.external_service.project.should eq(project)
-    end
-  end
-
-  describe "GET edit" do
-    it "assigns the requested external_service as @external_service" do
-      get :edit, {:project_id => project.to_param, :id => external_service.to_param}
-      controller.external_service.should eq(external_service)
-    end
-
-    it "fails if the requested external_service is not in current account projects" do
-      expect {
-        get :edit, {:project_id => other_external_service.project.to_param, :id => other_external_service.to_param}
-      }.should raise_error
-    end
-  end
-
   describe "POST create" do
     describe "with valid params" do
       it "creates a new ExternalService" do
@@ -87,11 +49,6 @@ describe ExternalServicesController do
         post :create, {:external_service => ExternalService.plan, :project_id => project.to_param}
         controller.external_service.should be_a(ExternalService)
         controller.external_service.should be_persisted
-      end
-
-      it "redirects to the created external_service" do
-        post :create, {:external_service => ExternalService.plan, :project_id => project.to_param}
-        response.should redirect_to([project, ExternalService.last])
       end
 
       it "assigns the project to the created external_service" do
@@ -107,11 +64,11 @@ describe ExternalServicesController do
         controller.external_service.should be_a_new(ExternalService)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the 'index' template" do
         ExternalService.any_instance.stub(:save).and_return(false)
         ExternalService.any_instance.stub(:errors).and_return(errors)
         post :create, {:external_service => {}, :project_id => project.to_param}
-        response.should render_template("new")
+        response.should render_template("index")
       end
     end
 
@@ -134,10 +91,6 @@ describe ExternalServicesController do
         controller.external_service.should eq(external_service)
       end
 
-      it "redirects to the external_service" do
-        put :update, {:id => external_service.to_param, :external_service => ExternalService.plan, :project_id => project.to_param}
-        response.should redirect_to([project, external_service])
-      end
     end
 
     describe "with invalid params" do
@@ -147,11 +100,11 @@ describe ExternalServicesController do
         controller.external_service.should eq(external_service)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the 'index' template" do
         ExternalService.any_instance.stub(:save).and_return(false)
         ExternalService.any_instance.stub(:errors).and_return(errors)
         put :update, {:id => external_service.to_param, :external_service => {}, :project_id => project.to_param}
-        response.should render_template("edit")
+        response.should render_template("index")
       end
     end
 
@@ -167,11 +120,6 @@ describe ExternalServicesController do
       expect {
         delete :destroy, {:id => external_service.to_param, :project_id => project.to_param}
       }.to change(ExternalService, :count).by(-1)
-    end
-
-    it "redirects to the external_services list" do
-      delete :destroy, {:id => external_service.to_param, :project_id => project.to_param}
-      response.should redirect_to(project_external_services_url(project))
     end
 
     it "fails if the requested external_service is not in current account projects" do
@@ -192,10 +140,6 @@ describe ExternalServicesController do
       put :update_manifest, {:id => external_service.to_param, :project_id => project.to_param}
     end
 
-    it "redirects to the external_services list" do
-      put :update_manifest, {:id => external_service.to_param, :project_id => project.to_param}
-      response.should redirect_to(project_external_services_url(project))
-    end
 
      it "fails if the requested external_service is not in current account projects" do
         expect {

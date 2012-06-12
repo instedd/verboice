@@ -1,0 +1,15 @@
+.box.grey.w60.collapsible_crud_box{:class => ("#{expanded ? 'expanded' : 'collapsed'}")}
+  - if external_service.errors.any?
+    .error_explanation
+      %h2= "#{pluralize(external_service.errors.count, "error")} prohibited this external service from being saved:"
+      %ul
+        - external_service.errors.full_messages.each do |msg|
+          %li= msg
+  .rightbuttons
+    = link_to '', [project, external_service], :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless external_service.new_record?
+  .summary
+    = render 'summary', :external_service => external_service
+
+  .content
+    = render 'form', :external_service => external_service
+  .clear

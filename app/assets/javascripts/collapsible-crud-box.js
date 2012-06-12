@@ -1,7 +1,7 @@
 $(function() {
   // Support collapsible items by running handlers and applying classes
-  $('.call_flow_box > span:first-child > a, .call_flow_box div .collapse_trigger').live('click', function(){
-    var collapsible = $(this).closest('.call_flow_box');
+  $('.collapsible_crud_box > span:first-child > a, .collapsible_crud_box div .collapse_trigger').live('click', function(){
+    var collapsible = $(this).closest('.collapsible_crud_box');
     var trigger = $(this);
 
     collapsible.toggleClass('collapsed');
@@ -29,24 +29,18 @@ $(function() {
     return false;
   });
 
-  $('.call_flow_mode select').live('change', function(){
-    var call_flow = $(this).closest('.call_flow_box');
-    call_flow.toggleClass('flow_mode');
-    call_flow.toggleClass('callback_mode');
+  $('.remove_unsaved_element').live('click', function(){
+    $(this).closest(".collapsible_crud_box").remove()
   });
 
-  $('.remove_unsaved_call_flow').live('click', function(){
-    $(this).closest(".call_flow_box").remove()
-  });
-
-  $('.call_flow_box form').live('ajax:complete', function(triggered_event, xml_http_request, ajax_options){
-    var call_flow_box = $(this).closest('.call_flow_box_container');
-    call_flow_box.html(xml_http_request.responseText);
+  $('.collapsible_crud_box form').live('ajax:complete', function(triggered_event, xml_http_request, ajax_options){
+    var collapsible_crud_box = $(this).closest('.collapsible_crud_box_container');
+    collapsible_crud_box.html(xml_http_request.responseText);
   });
 });
 
 function add_fields(link, content) {
-  $(link).closest(".call_flow_box").before(content);
+  $(link).closest(".addqueue").before(content);
 }
 
 

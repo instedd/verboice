@@ -1,81 +1,13 @@
-ul.vertical { padding: 0; }
-ul.vertical li { list-style: none; }
-
-.fields > .box > .left, .fields .farrow { color: #000000; }
-.fields .box { padding: 5px; position: relative; }
-.fields hr { margin: 9px 0px 5px 0px; }
-.fields .aleft { clear: left; float: left; }
-
-.fields .farrow { height: 20px;  left: -4px; position: relative; margin-bottom: 0px; margin-top: 3px; }
-
-.fields .fdelete, .fields .cadd { position: absolute; top: 0; right: 0; }
-
-.fields .orange { margin-bottom: 7px; }
-.fields .add_fields { display: block; margin: 2px 0; color: #2d79c4; }
-
-.fields p {
-  margin: 0;
-  white-space: pre-wrap;
-}
-
-.fields .actions { padding: 0px 0px; color: #555555;}
-
-.fields button.cadd.right {
-  margin-top: 3px;
-}
-.fields .fdelete {
-  margin-top: 3px;
-}
-
-.call_flow_box {
-  margin-top: 10px;
-  margin-bottom: 10px;
-  padding-right: 14px !important;
-  padding-top: 7px !important;
-  word-wrap: break-word;
-  font-weight: normal;
-  input[type="text"] {
-    margin: 5px 0px 15px 0px;
-  }
-}
-
-.call_flow_box.expanded {
-  .summary {
-    display: none;
-  }
-}
-
-.call_flow_box.flow_mode {
+.collapsible_crud_box.flow_mode {
   .callback_url_settings {
     display: none;
   }
 }
-.call_flow_box.callback_mode {
+
+.collapsible_crud_box.callback_mode {
   .flow_settings {
     display: none;
   }
-}
-
-
-.call_flow_box.collapsed {
-  padding-top: 3px !important;
-  padding-bottom: 4px !important;
-  .content {
-    display: none;
-  }
-}
-
-.call_flow_box.grey {
-
-  color: #000000;
-  hr {
-    color: #bcbcbc;
-    background: #bcbcbc;
-  }
-  p.grey {
-    color: #555555;
-  }
-  font-weight: normal;
 }
 
 .file_upload {

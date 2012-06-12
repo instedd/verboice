@@ -1,5 +1,6 @@
-= call_flow.name
-%p.grey= call_flow.name
-%span.aleft
-  / = link_to 'Edit', edit_project_call_flow_path(@project, call_flow), :class => 'farrow'
+.toptitle
+  %span.title= call_flow.name
+.middle
+  = call_flow.name
+.bottom
   = link_to 'Edit', '#', :class => 'farrow collapse_trigger'
