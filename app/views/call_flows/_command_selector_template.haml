@@ -10,9 +10,13 @@
         %span{ko(text: 'name()')}
       / /ko
 
-      %hr
-
       / ko if: external_commands().length > 0
+      %hr
+      = link_to 'Manage external services', project_external_services_path(@project), :class => 'faccept'
+
+      %br/
+      %br/
+
       / ko foreach: external_commands
       %div
         %button{'data-bind' => 'click: selected, class: button_class, style: {background: background_style()}', :style => 'display:block' }
