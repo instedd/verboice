@@ -68,9 +68,9 @@ class ProjectsController < ApplicationController
       addresses.each do |address|
         @channel.call(address.strip, options)
       end
-      redirect_to project_path(params[:project_id]), {:notice => "Enqueued calls to #{pluralize(addresses.count, 'address')} on channel #{@channel.name}"}
+      redirect_to project_path(params[:id]), {:notice => "Enqueued calls to #{pluralize(addresses.count, 'address')} on channel #{@channel.name}"}
     else
-      redirect_to project_path(params[:project_id]), flash: {error: 'You need to select a channel'}
+      redirect_to project_path(params[:id]), flash: {error: 'You need to select a channel'}
     end
   end
 
