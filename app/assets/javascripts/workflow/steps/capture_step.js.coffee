@@ -69,6 +69,8 @@ onWorkflow ->
         max_input_length: @max_input_length()
         valid_values: @valid_values()
         finish_on_key: @finish_on_key()
+        timeout: @timeout()
+        number_of_attempts: @number_of_attempts()
         default: @default().next_id
       )
 

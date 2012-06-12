@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -46,6 +46,10 @@ namespace :deploy do
       run "ln -nfs #{shared_path}/#{file}.yml #{release_path}/config/"
     end
   end
+
+  task :symlink_data, :roles => :app do
+    run "ln -nfs #{shared_path}/data #{release_path}/"
+  end
 end
 
 namespace :foreman do
@@ -75,6 +79,7 @@ end
 before "deploy:start", "deploy:migrate"
 before "deploy:restart", "deploy:migrate"
 after "deploy:update_code", "deploy:symlink_configs"
+after "deploy:update_code", "deploy:symlink_data"
 
 after "deploy:update", "foreman:export"    # Export foreman scripts
 after "deploy:restart", "foreman:restart"   # Restart application scripts
