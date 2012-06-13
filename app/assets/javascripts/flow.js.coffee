@@ -38,5 +38,6 @@ onWorkflow ->
   $(window).resize () ->
     container_width = $('#container').width()
     $('.workflow-content-container').width(container_width - 364)
+    $('.workflow').width(container_width - 364)
   .resize()
 
