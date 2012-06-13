@@ -39,7 +39,7 @@ module Voxeo
       @builder.play sounds_url_for(filename)
     end
 
-    def say(text)
+    def say(text, opts = {})
       return if @hangup
       @builder.say text
     end
