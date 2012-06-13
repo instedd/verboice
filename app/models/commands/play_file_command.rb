@@ -24,8 +24,9 @@ class Commands::PlayFileCommand < Command
 
   def run(session)
     session.info "Play file #{@file_id}", command: command_name, action: 'start'
-    super
+    next_command = super
     session.info "Play file #{@file_id} finished", command: command_name, action: 'finish'
+    next_command
   end
 
   def setup_file(session)

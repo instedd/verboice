@@ -26,7 +26,9 @@ class Commands::PlayUrlCommand < Command
 
   def run(session)
     session.info "Play #{@url}", command: command_name, action: 'start'
-    super
+    next_command = super
+    session.info "Play #{@url} finished", command: command_name, action: 'finish'
+    next_command
   end
 
   def setup_file(session)
