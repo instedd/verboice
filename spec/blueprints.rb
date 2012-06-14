@@ -75,3 +75,10 @@ Contact.blueprint do
   account
   address { Sham.password }
 end
+
+OAuthToken.blueprint do
+  access_token { Faker::Name.name }
+  refresh_token { Faker::Name.name }
+  service { :google }
+  expires_at { DateTime.now.utc + 3600.seconds }
+end

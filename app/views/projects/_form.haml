@@ -7,8 +7,10 @@
       %ul
         - @project.errors.full_messages.each do |msg|
           %li= msg
+
   - if @project.new_record?
     = f.text_field :name
+
   = f.select :mode, options_for_select([['Use an external application', :callback_url], ['Design your app in Verboice', :flow]], @project.mode)
   #callback_url_container{:style => ('display: none' if @project.mode != :callback_url)}
     - with_callback_url_fields do |field, field_type|
@@ -16,6 +18,11 @@
 
   - with_callback_url_fields(:status) do |field, field_type|
     = f.send(field_type, field)
+
+  - if current_account.google_oauth_token.nil?
+    = link_to 'Link your Google Account with Verboice to enable export to Google Fusion Tables', google_oauth_path(:redirect_back_to => @project.new_record? ? new_project_url : edit_project_url(@project))
+  = f.text_field :fusion_table_name, :label_options => {:title => "Enter a fusion table name and Verboice will create the table and store call results in real-time to it. Note that in the case that the flow definition changes, Verboice might need to generate a fresh table with the new structure to store new results; in such case, Verboice will generate new tables using the name you provided and a version number."}
+
 
   %hr
 

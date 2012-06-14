@@ -22,7 +22,6 @@
         <td><%= channel.project.try(:name) %></td>
         <td><%= channel.kind %></td>
         <td>
-          <%= link_to 'view', channel %>
           <%= link_to 'queued calls', channel_queued_calls_path(channel), :class => 'fancybox' %>
           <%= link_to 'call...', call_channel_path(channel), :class => 'fancybox' %>
           <%= link_to 'edit', edit_channel_path(channel) %>

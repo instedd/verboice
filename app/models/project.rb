@@ -1,5 +1,7 @@
 class Project < ActiveRecord::Base
 
+  include FusionTablesPush
+
   class SerializableArray < Array
     include MarshalZipSerializable
   end
@@ -48,6 +50,10 @@ class Project < ActiveRecord::Base
   end
 
   def call(address)
+  end
+
+  def push_results(call_log)
+    self.push_to_fusion_tables(call_log) #TODO: Delay it!
   end
 
   def update_flow_with_user_flow

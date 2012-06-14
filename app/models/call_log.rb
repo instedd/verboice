@@ -49,6 +49,7 @@ class CallLog < ActiveRecord::Base
   end
 
   def finish_successfully
+    project.push_results(self) unless project.nil?
     finish :completed
   end
 

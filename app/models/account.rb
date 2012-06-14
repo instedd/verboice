@@ -15,6 +15,8 @@ class Account < ActiveRecord::Base
   has_many :persisted_variables, :through => :contacts
   has_many :queued_calls, :through => :channels
 
+  has_one :google_oauth_token, :class_name => 'OAuthToken', :conditions => {:service => :google}, :dependent => :destroy
+
   def call(options = {})
     channel = channels.find_by_name! options[:channel]
     channel.call options[:address], options

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120517163539) do
+ActiveRecord::Schema.define(:version => 20120518183157) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -70,6 +70,32 @@ ActiveRecord::Schema.define(:version => 20120517163539) do
     t.datetime "updated_at", :null => false
   end
 
+  create_table "delayed_jobs", :force => true do |t|
+    t.integer  "priority",   :default => 0
+    t.integer  "attempts",   :default => 0
+    t.text     "handler"
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.string   "queue"
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
+  end
+
+  add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
+
+  create_table "o_auth_tokens", :force => true do |t|
+    t.integer  "account_id"
+    t.string   "service"
+    t.string   "access_token"
+    t.string   "refresh_token"
+    t.datetime "expires_at"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
+
   create_table "persisted_variables", :force => true do |t|
     t.string   "value"
     t.string   "name"
@@ -91,6 +117,8 @@ ActiveRecord::Schema.define(:version => 20120517163539) do
     t.text     "encrypted_config"
     t.binary   "error_flow"
     t.binary   "user_flow"
+    t.string   "fusion_table_name"
+    t.string   "current_fusion_table_id"
   end
 
   create_table "queued_calls", :force => true do |t|
@@ -137,8 +165,8 @@ ActiveRecord::Schema.define(:version => 20120517163539) do
     t.integer  "project_id"
     t.integer  "call_id"
     t.string   "result"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
     t.string   "step_name"
     t.string   "step_id"
   end

@@ -19,6 +19,10 @@ gem "instedd-rails"
 gem 'decent_exposure'
 gem 'attr_encrypted'
 gem 'foreman'
+gem 'oauth2', :require => 'oauth2'
+gem 'enumerated_attribute'
+gem 'delayed_job_active_record'
+gem 'rest-client'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
