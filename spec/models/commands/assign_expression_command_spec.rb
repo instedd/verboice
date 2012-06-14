@@ -17,25 +17,33 @@
 
 require 'spec_helper'
 
-module Commands
-  describe WhileCommand do
-    let(:session) { Session.new pbx: double('pbx'), call_log: CallLog.make}
+describe Commands::AssignExpressionCommand do
 
-    it "while when true" do
-      session['i'] = 0
+  let(:session) { Session.new pbx: double('pbx'), call_log: CallLog.make}
 
-      cmd = WhileCommand.new 'i == 0', AssignExpressionCommand.new(:i, 'i + 1')
-      result = cmd.run(session)
-      result.should be_instance_of(Commands::AssignExpressionCommand)
-      result.next.should be(cmd)
-    end
+  it "assigns" do
+    cmd = Commands::AssignExpressionCommand.new 'foo', '1 + 2'
+    cmd.next = :next
+    cmd.run(session).should eq(:next)
 
-    it "while when false" do
-      session['i'] = 0
+    session['foo'].should eq(3)
+  end
 
-      cmd = WhileCommand.new 'i != 0', AssignExpressionCommand.new(:i, 'i + 1')
+  it "assigns raising exception if invalid" do
+    expect {
+      cmd = Commands::AssignExpressionCommand.new 'foo', 'invalid'
       cmd.next = :next
-      cmd.run(session).should == :next
-    end
+      cmd.run(session)
+    }.to raise_error
+
+    session['foo'].should be_nil
+  end
+
+  it "assigns without raising exception" do
+    cmd = Commands::AssignExpressionCommand.new 'foo', 'invalid', :try
+    cmd.next = :next
+    cmd.run(session).should eq(:next)
+
+    session['foo'].should be_nil
   end
 end

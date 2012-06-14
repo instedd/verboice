@@ -24,11 +24,18 @@ describe Compiler do
     result.should be_instance_of(Commands::AnswerCommand)
   end
 
-  it "makes assign command" do
+  it "makes assign expression command" do
     result = subject.Assign('foo', 'bar').make
-    result.should be_instance_of(Commands::AssignCommand)
+    result.should be_instance_of(Commands::AssignExpressionCommand)
     result.name.should == 'foo'
-    result.expr.should == 'bar'
+    result.data.should == 'bar'
+  end
+
+  it "makes assign value command" do
+    result = subject.AssignValue('foo', 'bar').make
+    result.should be_instance_of(Commands::AssignValueCommand)
+    result.name.should == 'foo'
+    result.data.should == 'bar'
   end
 
   it "makes bridge command" do

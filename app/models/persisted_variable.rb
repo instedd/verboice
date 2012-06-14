@@ -21,4 +21,12 @@ class PersistedVariable < ActiveRecord::Base
 
   validates_presence_of :contact, :name
   attr_accessible :contact, :name, :value
+
+  def typecasted_value
+    if value && value =~ /^[-+]?[0-9]+$/
+      value.to_i
+    else
+      value
+    end
+  end
 end

@@ -17,33 +17,27 @@
 
 require 'spec_helper'
 
-describe Commands::AssignCommand do
+describe Commands::AssignValueCommand do
 
   let(:session) { Session.new pbx: double('pbx'), call_log: CallLog.make}
 
-  it "assigns" do
-    cmd = Commands::AssignCommand.new 'foo', '1 + 2'
+  it "assigns value" do
+    cmd = Commands::AssignValueCommand.new 'foo', '1 + 2'
+    cmd.next = :next
+    cmd.run(session).should eq(:next)
+
+    session['foo'].should eq('1 + 2')
+    session.eval('foo == "1 + 2"').should be_true
+  end
+
+  it "assigns numeric value" do
+    cmd = Commands::AssignValueCommand.new 'foo', 3
     cmd.next = :next
     cmd.run(session).should eq(:next)
 
     session['foo'].should eq(3)
+    session.eval('foo == 4').should be_false
+    session.eval('foo == 3').should be_true
   end
 
-  it "assigns raising exception if invalid" do
-    expect {
-      cmd = Commands::AssignCommand.new 'foo', 'invalid'
-      cmd.next = :next
-      cmd.run(session)
-    }.to raise_error
-
-    session['foo'].should be_nil
-  end
-
-  it "assigns without raising exception" do
-    cmd = Commands::AssignCommand.new 'foo', 'invalid', :try
-    cmd.next = :next
-    cmd.run(session).should eq(:next)
-
-    session['foo'].should be_nil
-  end
 end

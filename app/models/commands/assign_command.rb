@@ -17,23 +17,27 @@
 
 class Commands::AssignCommand < Command
   attr_accessor :name
-  attr_accessor :expr
+  attr_accessor :data
   attr_accessor :try
 
-  def initialize(name, expr, try=nil)
+  def initialize(name, data, try=nil)
     @name = name
-    @expr = expr
+    @data = data
     @try = try
   end
 
   def run(session)
     session.trace "Assign: #{@name}", command: 'assign', action: 'start'
     begin
-      session[@name.to_s] = session.eval @expr
+      assign_data session
     rescue
       raise unless @try
     end
     session.trace "Assign: #{@name}", command: 'assign', action: 'finish'
     super
+  end
+
+  def assign_data(session)
+    raise "Unimplemented"
   end
 end

@@ -29,7 +29,7 @@ class Commands::RetrieveVariableCommand < Command
     contact = account.contacts.find_by_address(session.address.presence || "Anonymous#{session.call_log.id}" )
 
     if contact && (persisted_variable = contact.persisted_variables.find_by_name @variable_name)
-        set_value_to persisted_variable.value, session
+        set_value_to persisted_variable.typecasted_value, session
       unless session.address.presence
         session.trace "Caller address is unknown. For current call, variable '#{@variable_name}' has been retrieved from contact '#{contact.address}'.", command: 'retrieve_variable', action: 'retrieve'
       end
@@ -48,6 +48,6 @@ class Commands::RetrieveVariableCommand < Command
   end
 
   def set_value_to value, session
-    Commands::AssignCommand.new("var_#{@variable_name}", value).run(session)
+    Commands::AssignValueCommand.new("var_#{@variable_name}", value).run(session)
   end
 end

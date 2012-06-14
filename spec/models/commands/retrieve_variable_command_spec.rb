@@ -19,7 +19,7 @@ require 'spec_helper'
 
 module Commands
   describe RetrieveVariableCommand do
-    it "should retrieve a persisted variable" do
+    it "should retrieve a persisted numeric variable" do
       persisted_variable = PersistedVariable.make name: 'foo'
       contact = persisted_variable.contact
       project = contact.project
@@ -34,6 +34,23 @@ module Commands
       cmd.run(session).should == :next
       session.eval('var_foo').should eq(persisted_variable.value.to_i)
     end
+
+    it "should retrieve a persisted string variable" do
+      persisted_variable = PersistedVariable.make name: 'varname', value: 'thevalue'
+      contact = persisted_variable.contact
+      project = contact.project
+      call_flow = CallFlow.make project: project
+      call_log = CallLog.make call_flow: call_flow
+      session = Session.new :pbx => mock('pbx'), :call_log => call_log
+      session.stub :address => contact.address
+
+      cmd = RetrieveVariableCommand.new 'varname'
+      cmd.next = :next
+
+      cmd.run(session).should == :next
+      session.eval('var_varname').should eq('thevalue')
+    end
+
 
     it "should set to nil if the contact doesn't exist" do
       call_log = CallLog.make

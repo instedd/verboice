@@ -82,6 +82,10 @@ class Compiler
     append Commands::PersistVariableCommand.new(variable, expression)
   end
 
+  def Assign(*args)
+    append Commands::AssignExpressionCommand.new(*args)
+  end
+
   def method_missing(method, *args)
     cmd_class = "Commands::#{method.to_s}Command".constantize
     append cmd_class.new *args
