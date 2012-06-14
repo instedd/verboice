@@ -25,7 +25,7 @@ module Project::FusionTablesPush
     end
 
     def check_token_validity
-      #TODO: IMPLEMENT ME
+      #TODO: IMPLEMENT ME!
     end
 
     def upload_call_data
@@ -99,7 +99,7 @@ module Project::FusionTablesPush
     end
 
     def access_token
-      project.account.google_oauth_token.access_token #TODO: Refresh
+      project.account.google_oauth_token.access_token
     end
 
     def columns # TODO: Column names should be unique

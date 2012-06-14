@@ -15,18 +15,21 @@ describe OauthController do
     end
 
     let!(:mock_client) do
-      mock_client = double('oauth2_google_client')
-      OAuth2::Client.should_receive(:google).and_return(mock_client)
-      mock_client.stub(:auth_code).and_return(mock_auth_strategy)
-      mock_client
+      double('oauth2_google_client').tap do |mock_client|
+        OAuth2::Client.should_receive(:google).and_return(mock_client)
+        mock_client.stub(:auth_code).and_return(mock_auth_strategy)
+      end
     end
 
     describe "successful" do
 
+      let(:mock_token) do
+        double('token', :token => "ACCESS", :refresh_token => "REFRESH", :expires_in => '3600')
+      end
+
       before(:each) do
         Timecop.freeze(DateTime.new(2011,1,1,8,0,0))
-        mock_auth_strategy.should_receive(:get_token).with("SAMPLECODE", anything)
-          .and_return({:access_token => "ACCESS", :refresh_token => "REFRESH", :expires_in => '3600'})
+        mock_auth_strategy.should_receive(:get_token).with("SAMPLECODE", anything).and_return(mock_token)
       end
 
       after(:each) do

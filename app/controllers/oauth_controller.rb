@@ -19,7 +19,7 @@ class OauthController < ApplicationController
       flash[:notice] = "Access for fusion tables was successfully set up"
     rescue Exception => ex
       logger.warn "Error retrieving access token from google: #{ex}"
-      flash[:error] = 'Could not grant access to fusion tables'
+      flash[:error] = 'Could not obtain access to your fusion tables account'
     end
 
     redirect_to params[:state].presence || projects_path
