@@ -9,7 +9,7 @@ module Project::FusionTablesPush
 
     API_URL = "https://www.google.com/fusiontables/api/query"
 
-    attr_accessor :project, :call_log
+    attr_accessor :project, :call_log, :access_token
 
     delegate :current_fusion_table_id, :fusion_table_name, to: :project
 
@@ -19,13 +19,15 @@ module Project::FusionTablesPush
     end
 
     def push
-      check_token_validity
+      load_token
       create_table unless has_table? && is_table_valid?
       upload_call_data
     end
 
-    def check_token_validity
-      #TODO: IMPLEMENT ME!
+    def load_token
+      self.access_token = project.account.google_oauth_token.tap do |t|
+        t.refresh! && t.save! if t.expired?
+      end.access_token
     end
 
     def upload_call_data
@@ -96,10 +98,6 @@ module Project::FusionTablesPush
 
     def csv_parse(csv)
       CSV.parse csv, {:headers => true, :header_converters => :symbol}
-    end
-
-    def access_token
-      project.account.google_oauth_token.access_token
     end
 
     def columns # TODO: Column names should be unique
