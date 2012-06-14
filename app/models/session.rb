@@ -1,14 +1,31 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 class Session
   attr_accessor :pbx
   attr_accessor :commands
-  attr_accessor :project
+  attr_accessor :call_flow
   attr_accessor :channel
   attr_accessor :call_log
   attr_accessor :address
   attr_accessor :suspended
 
   delegate :finish_successfully, :to => :call_log
-  CallLog::Levels.each { |key, name| delegate name, :to => :call_log }
+  CallLogEntry::Levels.each { |severity| delegate severity, :to => :call_log }
 
   def initialize(options = {})
     @vars = {}
@@ -50,11 +67,11 @@ class Session
   end
 
   def callback_url
-    project.callback_url
+    call_flow.callback_url
   end
 
   def status_callback_url
-    project.status_callback_url
+    call_flow.project.try(:status_callback_url)
   end
 
   def run
@@ -86,10 +103,10 @@ class Session
     @quit = true
   end
 
-  CallLog::Levels.each do |letter, name|
+  CallLogEntry::Levels.each do |name|
     class_eval %Q(
-      def #{name}(text)
-        call_log.#{name} text
+      def #{name}(text, options ={})
+        call_log.#{name} text, step_id: self['current_step'], step_name: self['current_step_name'], command: options[:command], action: options[:action]
       end
     )
   end
@@ -126,8 +143,8 @@ class Session
 
   def notify_status(status)
     if status_callback_url.present?
-      status_callback_url_user = project.status_callback_url_user
-      status_callback_url_password = project.status_callback_url_password
+      status_callback_url_user = call_flow.project.status_callback_url_user
+      status_callback_url_password = call_flow.project.status_callback_url_password
 
       authentication = if (status_callback_url_user.present? || status_callback_url_password.present?)
         {:head => {'authorization' => [status_callback_url_user, status_callback_url_password]}}
@@ -143,9 +160,10 @@ class Session
   end
 
   def finish_with_error message
-    @commands = project.error_flow
+    @commands = call_flow.error_flow
     run rescue nil
 
+    error message
     call_log.finish_with_error message
   end
 

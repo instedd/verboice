@@ -14,8 +14,8 @@
       %td= recorded_audio.contact.address
       %td= recorded_audio.call_log.id
       %td= recorded_audio.description
-      %td= link_to 'Show', contact_recorded_audio_path(@contact, recorded_audio)
-      %td= link_to 'Destroy', [@contact, recorded_audio], :confirm => 'Are you sure?', :method => :delete
+      %td= link_to 'Show', recorded_audio
+      %td= link_to 'Destroy', recorded_audio, :confirm => 'Are you sure?', :method => :delete
       %td= link_to 'Download', result_call_log_path(recorded_audio.call_log, {:key => recorded_audio.key})
 
 %br

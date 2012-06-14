@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe BaseBroker do
@@ -61,7 +78,7 @@ describe BaseBroker do
     end
 
     it "requeue call if rejected and retries available by queue" do
-      schedule = @channel.account.schedules.make :retries => '1,2,4'
+      schedule = @channel.project.schedules.make :retries => '1,2,4'
       queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 1
       the_session = nil
 
@@ -76,7 +93,7 @@ describe BaseBroker do
     end
 
     it "do not requeue if all retries has been used" do
-      schedule = @channel.account.schedules.make :retries => '1,2,4'
+      schedule = @channel.project.schedules.make :retries => '1,2,4'
       queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 3
       the_session = nil
 
@@ -131,10 +148,10 @@ describe BaseBroker do
       @broker.should_receive(:call).with { |session| the_session = session }
       @broker.notify_call_queued @channel
 
-      @broker.finish_session_with_error the_session, 'An error'
+      @broker.finish_session_with_error the_session, 'A foobar error'
       @broker.sessions.length.should == 0
       @broker.active_calls[@channel.id].length.should == 0
-      assert_match /An error/, the_session.call_log.details
+      assert_match /A foobar error/, the_session.call_log.entries.last.description
       the_session.call_log.state.should == :failed
     end
 
@@ -145,7 +162,7 @@ describe BaseBroker do
       @broker.should_receive(:call).with { |session| the_session = session }
       @broker.notify_call_queued @channel
 
-      the_session.project.status_callback_url = 'http://foo'
+      the_session.call_flow.project.status_callback_url = 'http://foo'
       the_session.pbx = mock('pbx')
       the_session.should_receive(:notify_status).with('completed')
       @broker.finish_session_successfully the_session
@@ -158,7 +175,7 @@ describe BaseBroker do
       @broker.should_receive(:call).with { |session| the_session = session }
       @broker.notify_call_queued @channel
 
-      the_session.project.status_callback_url = 'http://foo'
+      the_session.call_flow.project.status_callback_url = 'http://foo'
       the_session.pbx = mock('pbx')
       the_session.should_receive(:notify_status).with('failed')
       @broker.finish_session_with_error the_session, 'An error'
@@ -171,7 +188,7 @@ describe BaseBroker do
       @broker.should_receive(:call).with { |session| the_session = session }
       @broker.notify_call_queued @channel
 
-      the_session.project.status_callback_url = 'http://foo'
+      the_session.call_flow.project.status_callback_url = 'http://foo'
       the_session.pbx = mock('pbx')
       the_session.should_receive(:notify_status).with('busy')
       @broker.finish_session_with_error the_session, 'An error', 'busy'
@@ -179,7 +196,7 @@ describe BaseBroker do
 
     it "should create a Trace logging that the call has ended" do
 
-      @channel.project.user_flow = [
+      @channel.call_flow.user_flow = [
         {
           'id' => 1,
           'root' => 1,
@@ -191,8 +208,8 @@ describe BaseBroker do
           }
         }
       ]
-      @channel.project.save!
-      @channel.project.reload
+      @channel.call_flow.save!
+      @channel.call_flow.reload
 
       queued_call = @channel.queued_calls.make
       the_session = nil
@@ -210,12 +227,12 @@ describe BaseBroker do
 
       Trace.all.size.should eq(2)
       Trace.first.result.should eq('Message played.')
-      Trace.first.project_id.should eq(@channel.project.id)
+      Trace.first.call_flow_id.should eq(@channel.call_flow.id)
       Trace.first.step_id.to_i.should eq(1)
       Trace.first.step_name.should eq('Play number one')
 
       Trace.last.result.should eq('User hanged up.')
-      Trace.last.project_id.should eq(@channel.project.id)
+      Trace.last.call_flow_id.should eq(@channel.call_flow.id)
       Trace.last.step_id.to_i.should eq(1)
       Trace.last.step_name.should eq('')
     end
@@ -255,8 +272,8 @@ describe BaseBroker do
 
   context "accept call" do
     it "run when there is already a session" do
-      @channel.project.flow = Compiler.make { Answer(); Hangup() }
-      @channel.project.save!
+      @channel.call_flow.flow = Compiler.make { Answer(); Hangup() }
+      @channel.call_flow.save!
 
       queued_call = @channel.queued_calls.make
       the_session = nil
@@ -278,8 +295,8 @@ describe BaseBroker do
     end
 
     it "run when there is no session" do
-      @channel.project.flow = Compiler.make { Answer(); Hangup() }
-      @channel.project.save!
+      @channel.call_flow.flow = Compiler.make { Answer(); Hangup() }
+      @channel.call_flow.save!
 
       pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
       pbx.should_receive :answer
@@ -311,8 +328,8 @@ describe BaseBroker do
     end
 
     it "resume and close pbx connection" do
-      @channel.project.flow = Compiler.make { Yield(); Hangup() }
-      @channel.project.save!
+      @channel.call_flow.flow = Compiler.make { Yield(); Hangup() }
+      @channel.call_flow.save!
 
       pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
 
@@ -339,8 +356,8 @@ describe BaseBroker do
     end
 
     it "send 'in-progress' status notification" do
-      @channel.project.flow = Compiler.make { Answer() }
-      @channel.project.save!
+      @channel.call_flow.flow = Compiler.make { Answer() }
+      @channel.call_flow.save!
 
       class << @broker
         def find_or_create_session(pbx)

@@ -1,21 +1,39 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 module Parsers
   class UserFlow
 
-    attr_reader :project
+    attr_reader :call_flow
 
-    def initialize project, project_flow
-      @project_flow = project_flow
+    def initialize call_flow, user_flow
+      @user_flow = user_flow
       @roots = []
       @nodes = []
-      @project = project
+      @call_flow = call_flow
+      @variables = nil
       build_nodes
     end
 
     def build_nodes
       @nodes = []
 
-      @project_flow.each do | an_ui_command |
-        @nodes << (Parsers::UserFlowNode::UserCommand.for project, an_ui_command)
+      @user_flow.each do | an_ui_command |
+        @nodes << (Parsers::UserFlowNode::UserCommand.for call_flow, an_ui_command)
       end
 
       @nodes.each do | a_command_parser |
@@ -29,8 +47,9 @@ module Parsers
       @equivalent_flow ||= build_equivalent_flow
     end
 
-    def error_flow
-      Commands::TraceCommand.new project_id: @project.id, step_id: 'current_step', step_name: '', store: '"User hanged up."'
+    def variables
+      equivalent_flow()
+      @variables
     end
 
     def build_equivalent_flow
@@ -40,6 +59,7 @@ module Parsers
           compiler.append a_root_node.equivalent_flow
           compiler.End
         end
+        @variables = compiler.variables.clone
       end
     end
 

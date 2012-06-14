@@ -1,0 +1,59 @@
+- content_for :head do
+  :javascript
+    var distinct_variables = #{ @variables.to_json };
+    var call_flow = #{ raw (@call_flow.user_flow || []).to_json };
+    var external_steps = #{ @external_steps.to_json };
+
+    var save_recording_path = "#{ save_recording_call_flow_path(@call_flow)}";
+    var play_recording_path = "#{ play_recording_call_flow_path(@call_flow)}";
+
+    var menu_default_time_out_in_seconds = #{Parsers::UserFlowNode::Menu.default_time_out_in_seconds};
+    var menu_default_number_of_attempts = #{Parsers::UserFlowNode::Menu.default_number_of_attempts};
+    var capture_default_time_out_in_seconds = #{Parsers::UserFlowNode::Capture.default_time_out_in_seconds};
+    var capture_default_number_of_attempts = #{Parsers::UserFlowNode::Capture.default_number_of_attempts};
+    var capture_default_finish_key = "#{Parsers::UserFlowNode::Capture.default_finish_key}";
+    var capture_default_minimum_input_lenght = #{Parsers::UserFlowNode::Capture.default_minimum_input_lenght};
+    var capture_default_maximum_input_lenght = #{Parsers::UserFlowNode::Capture.default_maximum_input_lenght};
+
+  - %W(external_step hang_up_step workflow_step capture_step menu_step play_step transfer_step goto_step branch_step record_step message recording_message text_message command_selector branch_option external_setting).each do |template|
+    = render "call_flows/#{template}_template"
+
+= render 'shared/project_tabs_and_title', :project => @project
+
+%h2= @call_flow.name
+%p Use the following tool to define the application's call flow
+
+= form_tag export_call_flow_path(@call_flow), :method => :get do
+  %button.fimport Download current Call flow
+  = check_box_tag :export_audios
+  include audio recordings
+
+.ux-collapsible.collapsed.w40.file_upload{"data-on-expanded" => "box grey"}
+  %span
+    %a.button.fexport{:href => "#"} Upload a new Call Flow:
+  .ux-content
+    = form_tag({:action => :import}, :multipart => true) do
+      %hr
+      = file_field_tag 'vrb', :label => 'Browse', :class =>'button white'
+      %hr
+      .right
+        %button.grey{:type => "submit"} Upload
+      .clear
+
+%hr
+
+= form_tag update_workflow_call_flow_path(@call_flow), :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
+  #wami
+  #workflow
+    #workflow-page
+      %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
+      %div.right
+        = hidden_field_tag 'flow'
+        %button.grey{:type => "submit"} Save
+        = link_to 'Back', project_call_flows_path(@project), :class => "button white cancel", :style => 'top: 1px; margin-right: 15px'
+      .clear
+      .left
+        .box.lightgrey.workflow
+          .workflow-content-container.h65{ ko(workflow_steps: 'steps') }
+      %span{ko(template: '{name: display_template_for, data: sidebar_content}')}
+      .clear

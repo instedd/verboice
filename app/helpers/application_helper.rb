@@ -1,5 +1,22 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 module ApplicationHelper
-  
+
   def short(msg, length = 15)
     return '' if msg.nil?
     msg.length > length ? (msg[0 ... length] + "...") : msg
@@ -13,7 +30,7 @@ module ApplicationHelper
     return '' if time.nil?
     '<span title="' << time.utc.to_s << '">' << time_ago_in_words(time.utc, true) << ' ago</span>'
   end
-  
+
   def ko(hash = {})
     {'data-bind' => kov(hash)}
   end
@@ -29,4 +46,10 @@ module ApplicationHelper
     end
   end
 
+  def link_to_add_fields(class_name, name, project, options={})
+    new_object = class_name.to_s.camelize.constantize.new
+    new_object.project = project
+    fields = render "box", class_name => new_object, :expanded => true
+    link_to_function(name, "add_fields(this, \"#{escape_javascript(fields)}\")", options)
+  end
 end

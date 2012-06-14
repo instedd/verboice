@@ -22,7 +22,7 @@ onWorkflow ->
       $(element).addClass(value)
       element['__ko__previousClassValue__'] = value
 
-  window.step_types = [Play, Menu, Capture, Transfer, Goto, Branch, HangUp, Record]
+  window.step_types = [Play, Menu, Capture, Transfer, Goto, Branch, HangUp, Record].concat(External.classes())
   for step_type in window.step_types
     window[step_type.type] = step_type
 
@@ -38,5 +38,6 @@ onWorkflow ->
   $(window).resize () ->
     container_width = $('#container').width()
     $('.workflow-content-container').width(container_width - 364)
+    $('.workflow').width(container_width - 364)
   .resize()
 

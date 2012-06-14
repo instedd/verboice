@@ -11,12 +11,11 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120518183157) do
+ActiveRecord::Schema.define(:version => 20120608221549) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
     t.string   "encrypted_password",   :limit => 128, :default => "", :null => false
-    t.string   "password_salt",                       :default => "", :null => false
     t.string   "reset_password_token"
     t.string   "remember_token"
     t.datetime "remember_created_at"
@@ -25,8 +24,9 @@ ActiveRecord::Schema.define(:version => 20120518183157) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string   "password_salt"
+    t.datetime "created_at",                                          :null => false
+    t.datetime "updated_at",                                          :null => false
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
@@ -36,39 +36,71 @@ ActiveRecord::Schema.define(:version => 20120518183157) do
   add_index "accounts", ["email"], :name => "index_accounts_on_email", :unique => true
   add_index "accounts", ["reset_password_token"], :name => "index_accounts_on_reset_password_token", :unique => true
 
+  create_table "call_flows", :force => true do |t|
+    t.string   "name"
+    t.binary   "flow"
+    t.binary   "user_flow"
+    t.string   "callback_url"
+    t.integer  "project_id"
+    t.text     "encrypted_config"
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
+    t.string   "mode"
+    t.text     "variables"
+  end
+
+  add_index "call_flows", ["project_id"], :name => "index_call_flows_on_project_id"
+
+  create_table "call_log_entries", :force => true do |t|
+    t.integer  "call_id"
+    t.text     "details"
+    t.string   "severity"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "call_log_entries", ["call_id"], :name => "index_call_log_entries_on_call_id"
+
   create_table "call_logs", :force => true do |t|
     t.integer  "account_id"
     t.integer  "project_id"
     t.datetime "finished_at"
     t.string   "direction"
     t.string   "address"
-    t.string   "state",       :default => "active"
-    t.text     "details"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string   "state",        :default => "active"
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
     t.integer  "channel_id"
     t.datetime "started_at"
     t.integer  "schedule_id"
     t.datetime "not_before"
+    t.integer  "call_flow_id"
   end
+
+  add_index "call_logs", ["call_flow_id"], :name => "index_call_logs_on_call_flow_id"
 
   create_table "channels", :force => true do |t|
     t.integer  "account_id"
-    t.integer  "project_id"
+    t.integer  "call_flow_id"
     t.string   "name"
     t.text     "config"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
     t.string   "kind"
     t.string   "guid"
   end
 
+  add_index "channels", ["call_flow_id"], :name => "index_channels_on_call_flow_id"
+
   create_table "contacts", :force => true do |t|
     t.string   "address"
-    t.integer  "account_id"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.boolean  "anonymous"
+    t.integer  "project_id"
   end
+
+  add_index "contacts", ["project_id"], :name => "index_contacts_on_project_id"
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
@@ -85,6 +117,34 @@ ActiveRecord::Schema.define(:version => 20120518183157) do
   end
 
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
+
+  create_table "external_service_steps", :force => true do |t|
+    t.integer  "external_service_id"
+    t.string   "name"
+    t.string   "display_name"
+    t.string   "icon"
+    t.string   "kind"
+    t.string   "callback_url"
+    t.text     "variables"
+    t.datetime "created_at",          :null => false
+    t.datetime "updated_at",          :null => false
+    t.string   "response_type"
+    t.text     "response_variables"
+  end
+
+  add_index "external_service_steps", ["external_service_id"], :name => "index_external_service_steps_on_external_service_id"
+
+  create_table "external_services", :force => true do |t|
+    t.integer  "project_id"
+    t.string   "name"
+    t.string   "url"
+    t.text     "xml"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+    t.text     "global_settings"
+  end
+
+  add_index "external_services", ["project_id"], :name => "index_external_services_on_project_id"
 
   create_table "o_auth_tokens", :force => true do |t|
     t.integer  "account_id"
@@ -108,25 +168,22 @@ ActiveRecord::Schema.define(:version => 20120518183157) do
 
   create_table "projects", :force => true do |t|
     t.string   "name"
-    t.string   "callback_url"
-    t.binary   "flow"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                 :null => false
+    t.datetime "updated_at",                                 :null => false
     t.integer  "account_id"
     t.string   "status_callback_url"
     t.text     "encrypted_config"
-    t.binary   "error_flow"
-    t.binary   "user_flow"
     t.string   "fusion_table_name"
     t.string   "current_fusion_table_id"
+    t.string   "time_zone",               :default => "UTC"
   end
 
   create_table "queued_calls", :force => true do |t|
     t.integer  "channel_id"
     t.integer  "call_log_id"
     t.string   "address"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
     t.string   "callback_url"
     t.binary   "flow"
     t.string   "status_callback_url"
@@ -134,8 +191,10 @@ ActiveRecord::Schema.define(:version => 20120518183157) do
     t.datetime "not_before"
     t.integer  "retries",             :default => 0
     t.integer  "project_id"
+    t.integer  "call_flow_id"
   end
 
+  add_index "queued_calls", ["call_flow_id"], :name => "index_queued_calls_on_call_flow_id"
   add_index "queued_calls", ["project_id"], :name => "index_queued_calls_on_application_id"
 
   create_table "recorded_audios", :force => true do |t|
@@ -151,26 +210,28 @@ ActiveRecord::Schema.define(:version => 20120518183157) do
   add_index "recorded_audios", ["contact_id"], :name => "index_recorded_audios_on_contact_id"
 
   create_table "schedules", :force => true do |t|
-    t.integer  "account_id"
     t.string   "name"
     t.string   "retries"
     t.time     "time_from"
     t.time     "time_to"
     t.string   "weekdays"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "traces", :force => true do |t|
-    t.integer  "project_id"
-    t.integer  "call_id"
-    t.string   "result"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.integer  "project_id"
+  end
+
+  add_index "schedules", ["project_id"], :name => "index_schedules_on_project_id"
+
+  create_table "traces", :force => true do |t|
+    t.integer  "call_flow_id"
+    t.integer  "call_id"
+    t.string   "result"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
     t.string   "step_name"
     t.string   "step_id"
   end
 
-  add_index "traces", ["project_id"], :name => "index_traces_on_application_id"
+  add_index "traces", ["call_flow_id"], :name => "index_traces_on_call_flow_id"
 
 end

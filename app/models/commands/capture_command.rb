@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 class Commands::CaptureCommand < Command
   param :min, :integer, :default => 1, :ui_length => 1
   param :max, :integer, :default => 1, :ui_length => 1
@@ -17,7 +34,6 @@ class Commands::CaptureCommand < Command
   end
 
   def run(session)
-    session.log :info => "Waiting user input", :trace => "Waiting user input: #{@options.to_pretty_s}"
 
     options = @options.dup
     if options[:play].present?
@@ -35,19 +51,38 @@ class Commands::CaptureCommand < Command
 
     [:digits, :timeout, :finish_key].each { |key| session.delete key }
 
+    options[:after_play] = lambda() do |digits, offset|
+      if digits
+        session.info "User interrupted playback at #{offset} milliseconds by pressing #{digits}.", command: 'capture', action: 'received'
+      else
+        session.info "Finished playing file.", command: 'capture', action: 'finish'
+        session.info "Waiting for user input.", command: 'capture', action: 'waiting'
+      end
+    end
+
+    options[:if_hang_up] = lambda() { |offset| session.info "User hanged up at #{offset} milliseconds.", command: 'capture', action: 'user_hang_up' }
+
+    if options[:say].present?
+      session.info "Say '#{@options[:say]}'. Waiting user input: #{@options.to_pretty_s}", command: 'capture', action: 'start'
+    elsif options[:play].present?
+      session.info "Play file #{@options[:play]}. Waiting user input: #{@options.to_pretty_s}", command: 'capture', action: 'start'
+    else
+      session.info "Waiting user input: #{@options.to_pretty_s}", command: 'capture', action: 'waiting'
+    end
+
     digits = session.pbx.capture options
     case digits
     when nil
-      session.info("User didn't press enough digits")
+      session.info("User didn't press enough digits", command: 'capture', action: 'timeout')
       session[:timeout] = true
     when :timeout
-      session.info("User timeout")
+      session.info("User timeout", command: 'capture', action: 'timeout')
       session[:timeout] = true
     when :finish_key
-      session.info("User pressed the finish key")
+      session.info("User pressed the finish key", command: 'capture', action: 'finish_key')
       session[:finish_key] = true
     else
-      session.info("User pressed: #{digits}")
+      session.info("User pressed: #{digits}", command: 'capture', action: 'received')
       session[:digits] = digits
     end
 

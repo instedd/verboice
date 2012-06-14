@@ -1,11 +1,28 @@
+# Copyright (C) 2010-2012, InSTEDD
+# 
+# This file is part of Verboice.
+# 
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 class Parsers::UserFlowNode::UserCommand
 
   def self.can_handle? params
     params['type'] == name.downcase[name.rindex('::') + 2 ... name.size]
   end
 
-  def self.for project, params
-    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: params).new project, params
+  def self.for call_flow, params
+    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: params).new call_flow, params
   end
 
   def equivalent_flow
@@ -28,7 +45,7 @@ class Parsers::UserFlowNode::UserCommand
     raise "Subclasses must define this message"
   end
 
-  def project
+  def call_flow
     raise "Subclasses must define this message"
   end
 
@@ -46,7 +63,7 @@ class Parsers::UserFlowNode::UserCommand
 
   def context_for message
     {
-      project_id: project.id,
+      call_flow_id: call_flow.id,
       step_id: id,
       step_name: name,
       store: message

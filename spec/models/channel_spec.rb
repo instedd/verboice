@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe Channel do
@@ -7,29 +24,31 @@ describe Channel do
   let(:broker_client) { double('broker_client') }
 
   before(:each) do
+    Timecop.freeze(Date.today)
     BrokerClient.stub(:new).and_return(broker_client)
   end
 
   after(:each) do
     broker_client.stub(:delete_channel)
     [Account, Channel, CallLog, Schedule, QueuedCall].each &:destroy_all
+    Timecop.return
   end
 
   context "validations" do
     before(:each) { Channel.make }
 
     it { should belong_to(:account) }
-    it { should belong_to(:project) }
+    it { should belong_to(:call_flow) }
 
     it { should validate_presence_of(:account) }
-    it { should validate_presence_of(:project) }
+    it { should validate_presence_of(:call_flow) }
     it { should validate_presence_of(:name) }
     it { should validate_uniqueness_of(:name).scoped_to(:account_id) }
   end
 
   context "call" do
     let (:channel) { Channel.make }
-    let (:queued_call) { channel.queued_calls.first }
+    let (:queued_call) { channel.reload.queued_calls.first }
 
     it "call ok" do
       broker_client.should_receive(:notify_call_queued).with(channel.id)
@@ -84,19 +103,40 @@ describe Channel do
       channel.call 'foo', :not_before => time
     end
 
+    it "notify with time when scheduling delayed call with time as string" do
+      time = Time.now.utc + 1.hour
+      broker_client.should_receive(:notify_call_queued).with(channel.id, time).once
+      channel.call 'foo', :not_before => time.to_s
+    end
+
     it "obey queue lower time bound" do
-      schedule = channel.account.schedules.make :time_from => '10:00', :time_to => '12:00'
+      schedule = channel.project.schedules.make :time_from => '10:00', :time_to => '12:00'
       broker_client.should_receive(:notify_call_queued)
-      channel.call 'foo', :not_before => '2012-12-20T08:00:00', :schedule_id => schedule.id
-      queued_call.not_before.should == '2012-12-20T10:00:00'
+      channel.call 'foo', :not_before => '2012-12-20T08:00:00Z', :schedule_id => schedule.id
+      queued_call.not_before.should == '2012-12-20T10:00:00Z'
     end
 
     it "obey queue upper time bound" do
-      schedule = channel.account.schedules.make :time_from => '10:00', :time_to => '12:00'
+      schedule = channel.project.schedules.make :time_from => '10:00', :time_to => '12:00'
       broker_client.should_receive(:notify_call_queued)
       channel.call 'foo', :not_before => '2012-12-20T13:00:00', :schedule_id => schedule.id
       queued_call.not_before.should == '2012-12-21T10:00:00'
     end
+
+    it "uses selected time zone for 'not before' date" do
+      broker_client.should_receive(:notify_call_queued)
+      channel.call_flow.project.update_attribute :time_zone, 'Buenos Aires'
+      channel.reload.call 'foo', :not_before => '2012-12-20T10:00:00', :time_zone => 'Paris'
+      queued_call.not_before.should eq(Time.parse('2012-12-20T09:00:00 UTC'))
+    end
+
+    it "uses project's time zone for 'not before' date" do
+      broker_client.should_receive(:notify_call_queued)
+      channel.call_flow.project.update_attribute :time_zone, 'Buenos Aires'
+      channel.reload.call 'foo', :not_before => '2012-12-20T10:00:00'
+      queued_call.not_before.should eq(Time.parse('2012-12-20T13:00:00 UTC'))
+    end
+
   end
 
   it "call create_channel on broker_client when create" do
@@ -178,7 +218,7 @@ describe Channel do
     channel = Channel.make
     session = channel.new_session
     session.call_log.account.should == channel.account
-    session.call_log.project.should == channel.project
+    session.call_log.project.should == channel.call_flow.project
     session.call_log.channel.should == channel
     session.call_log.direction.should == :incoming
     session.call_log.state.should == :active

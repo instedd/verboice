@@ -1,0 +1,23 @@
+.collapsible_crud_box.flow_mode {
+  .callback_url_settings {
+    display: none;
+  }
+}
+
+.collapsible_crud_box.callback_mode {
+  .flow_settings {
+    display: none;
+  }
+}
+
+.file_upload {
+  margin-top: 0px !important;
+}
+
+.file_upload.collapsed {
+  margin-top: 11px !important;
+}
+
+.call_flow_mode{
+  margin: 10px 0px 10px 0px;
+}

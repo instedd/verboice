@@ -1,13 +1,30 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 module Parsers
   module UserFlowNode
     describe Menu do
 
-      let(:project) { Project.make }
+      let(:call_flow) { CallFlow.make }
       it "should compile to a verboice equivalent flow" do
         File.stub(:exists?).and_return{true}
-        menu = Menu.new project, 'id' => 1,
+        menu = Menu.new call_flow, 'id' => 1,
           'type' => 'menu',
           'name' => 'Menu number one',
           'store' => 'some_variable',
@@ -50,28 +67,28 @@ module Parsers
           ],
           'default' => 45
 
-        play1 = Play.new project, 'id' => 10,
+        play1 = Play.new call_flow, 'id' => 10,
           'type' => 'play',
           'name' => 'Play 1',
           'message' => {
             "name" => "Second explanation message",
             "type" => "text"
           }
-        play2 = Play.new project, 'id' => 14,
+        play2 = Play.new call_flow, 'id' => 14,
           'type' => 'play',
           'name' => 'Play 2',
           'message' => {
             "name" => "Third explanation message",
             "type" => "text"
           }
-        play3 = Play.new project, 'id' => 5,
+        play3 = Play.new call_flow, 'id' => 5,
           'type' => 'play',
           'name' => 'Play 3',
           'message' => {
             "name" => "Fourth explanation message",
             "type" => "text"
           }
-        play4 = Play.new project, 'id' => 45,
+        play4 = Play.new call_flow, 'id' => 45,
             'type' => 'play',
             'name' => 'Play 45',
             'message' => {
@@ -85,49 +102,57 @@ module Parsers
           Compiler.parse do |c|
             c.Label 1
             c.Assign "current_step", 1
-            c.PlayFile File.join(Rails.root, "data","projects","#{project.id}","recordings", "1-explanation.wav")
+            c.Assign "current_step_name", "'Menu number one'"
+            c.PlayFile File.join(Rails.root, "data","call_flows","#{call_flow.id}","recordings", "1-explanation.wav")
             c.Assign 'attempt_number1', '1'
             c.While 'attempt_number1 <= 3' do |c|
-              c.Capture play_file: File.join(Rails.root, "data","projects","#{project.id}","recordings", "1-options.wav"), finish_on_key: '', timeout: 20
+              c.Capture play_file: File.join(Rails.root, "data","call_flows","#{call_flow.id}","recordings", "1-options.wav"), finish_on_key: '', timeout: 20
               c.Assign 'value_1', 'digits'
-              c.PersistVariable 'some_variable', 'value_1'
               c.If "digits == '4'" do |c|
-                c.Trace project_id: project.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.PersistVariable 'some_variable', 'value_1'
                 c.Label 10
                 c.Assign "current_step", 10
-                c.Trace project_id: project.id, step_id: 10, step_name: 'Play 1', store: '"Message played."'
+                c.Assign "current_step_name", "'Play 1'"
+                c.Trace call_flow_id: call_flow.id, step_id: 10, step_name: 'Play 1', store: '"Message played."'
                 c.Say "Second explanation message"
                 c.Goto "end1"
               end
               c.If "digits == '6'" do |c|
-                c.Trace project_id: project.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.PersistVariable 'some_variable', 'value_1'
                 c.Label 14
                 c.Assign "current_step", 14
-                c.Trace project_id: project.id, step_id: 14, step_name: 'Play 2', store: '"Message played."'
+                c.Assign "current_step_name", "'Play 2'"
+                c.Trace call_flow_id: call_flow.id, step_id: 14, step_name: 'Play 2', store: '"Message played."'
                 c.Say "Third explanation message"
                 c.Goto "end1"
               end
               c.If "digits == '2'" do |c|
-                c.Trace project_id: project.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.PersistVariable 'some_variable', 'value_1'
                 c.Label 5
                 c.Assign "current_step", 5
-                c.Trace project_id: project.id, step_id: 5, step_name: 'Play 3', store: '"Message played."'
+                c.Assign "current_step_name", "'Play 3'"
+                c.Trace call_flow_id: call_flow.id, step_id: 5, step_name: 'Play 3', store: '"Message played."'
                 c.Say "Fourth explanation message"
                 c.Goto "end1"
               end
               c.If "digits != null" do |c|
-                c.PlayFile File.join(Rails.root, "data","projects","#{project.id}","recordings", "1-invalid.wav")
-                c.Trace project_id: project.id, step_id: 1, step_name: 'Menu number one', store: '"Invalid key pressed"'
+                c.PlayFile File.join(Rails.root, "data","call_flows","#{call_flow.id}","recordings", "1-invalid.wav")
+                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"Invalid key pressed"'
               end
               c.Else do |c|
-                c.Trace project_id: project.id, step_id: 1, step_name: 'Menu number one', store: '"No key was pressed. Timeout."'
+                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"No key was pressed. Timeout."'
               end
               c.Assign 'attempt_number1', 'attempt_number1 + 1'
             end
-            c.Trace project_id: project.id, step_id: 1, step_name: 'Menu number one', store: '"Missed input for 3 times."'
+            c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"Missed input for 3 times."'
+            c.PersistVariable 'some_variable', nil
             c.Label 45
             c.Assign "current_step", 45
-            c.Trace project_id: project.id, step_id: 45, step_name: 'Play 45', store: '"Message played."'
+            c.Assign "current_step_name", "'Play 45'"
+            c.Trace call_flow_id: call_flow.id, step_id: 45, step_name: 'Play 45', store: '"Message played."'
             c.Say "Fifth explanation message"
             c.Label "end1"
           end.first
@@ -135,30 +160,31 @@ module Parsers
       end
 
       it "should compile to a minimum verboice equivalent flow" do
-        menu = Menu.new project, 'id' => 27, 'type' => 'menu'
+        menu = Menu.new call_flow, 'id' => 27, 'type' => 'menu'
         menu.equivalent_flow.make.should eq(
           Compiler.make do |c|
             c.Assign "current_step", 27
+            c.Assign "current_step_name", "''"
             c.Assign 'attempt_number27', '1'
             c.While 'attempt_number27 <= 3' do |c|
               c.Capture finish_on_key: '', timeout: 5
               c.Assign 'value_27', 'digits'
               c.If "digits != null" do |c|
-                c.Trace project_id: project.id, step_id: 27, step_name: '', store: '"Invalid key pressed"'
+                c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: '', store: '"Invalid key pressed"'
               end
               c.Else do |c|
-                c.Trace project_id: project.id, step_id: 27, step_name: '', store: '"No key was pressed. Timeout."'
+                c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: '', store: '"No key was pressed. Timeout."'
               end
               c.Assign 'attempt_number27', 'attempt_number27 + 1'
             end
-            c.Trace project_id: project.id, step_id: 27, step_name: '', store: '"Missed input for 3 times."'
+            c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: '', store: '"Missed input for 3 times."'
             c.Label 'end27'
           end
         )
       end
 
       it "should be able to build itself from an incomming hash" do
-        menu = Menu.new project, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo', 'type' => 'text'}, 'timeout' => 20, 'invalid_message' => {'name' => 'foobar', 'type' => 'text'}, 'options_message' => {}
+        menu = Menu.new call_flow, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo', 'type' => 'text'}, 'timeout' => 20, 'invalid_message' => {'name' => 'foobar', 'type' => 'text'}, 'options_message' => {}
         menu.id.should eq(27)
         menu.explanation_message.name.should eq('foo')
         menu.timeout.should eq(20)
@@ -171,7 +197,7 @@ module Parsers
       end
 
       it "should build with a collection of options" do
-        menu = Menu.new project, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo', 'type' => 'text'},
+        menu = Menu.new call_flow, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo', 'type' => 'text'},
           'options' => [
             {
               'description' => 'foo',
@@ -194,7 +220,7 @@ module Parsers
       end
 
       it "should resolve it's next links from a given list of commands" do
-        menu = Menu.new project, 'id' => 27, 'type' => 'menu',
+        menu = Menu.new call_flow, 'id' => 27, 'type' => 'menu',
           'explanation_message' => {"name" => 'foo', 'type' => 'text'},
           'options' =>[
             {
@@ -208,10 +234,10 @@ module Parsers
               'next' => 14
             }
           ]
-        menu_2 = Menu.new project, 'id' => 10,
+        menu_2 = Menu.new call_flow, 'id' => 10,
           'type' => 'menu',
           'explanation_message' => {"name"=>'foo', 'type' => 'text'}
-        menu_3 = Menu.new project, 'id' => 14,
+        menu_3 = Menu.new call_flow, 'id' => 14,
           'type' => 'menu',
           'explanation_message' => {"name"=>'foo', 'type' => 'text'}
 
@@ -221,11 +247,11 @@ module Parsers
       end
 
       it "should respond if it's a root or not" do
-        menu_1 = Menu.new project, 'id' => 10,
+        menu_1 = Menu.new call_flow, 'id' => 10,
           'root' => 1,
           'type' => 'menu',
           'explanation_message' => {"name"=>'foo', 'type' => 'text'}
-        menu_2 = Menu.new project, 'id' => 14,
+        menu_2 = Menu.new call_flow, 'id' => 14,
           'type' => 'menu',
           'explanation_message' => {"name"=>'foo', 'type' => 'text'}
         menu_1.is_root?.should be_true

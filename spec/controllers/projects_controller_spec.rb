@@ -1,39 +1,133 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe ProjectsController do
   include Devise::TestHelpers
 
+  let!(:account) { Account.make }
+  let!(:project) { Project.make :account => account }
+
   before(:each) do
-    @account = Account.make
-    sign_in @account
+    sign_in account
   end
 
+  context "CRUD" do
+    it "should edit a project" do
+      get :edit, :id => project.id
+      response.should be_successful
+      assigns(:project).should eq(project)
+    end
 
-  it 'Should retrieve a csv with the call traces' do
+    it "should update a project" do
+      put :update, :id => project.id, :project => {:name => 'My New Project Name', :time_zone => 'GMT-3'}
+      response.should be_redirect
+      project.reload.name.should eq('My New Project Name')
+      project.reload.time_zone.should eq('GMT-3')
+    end
+  end
 
-    Timecop.freeze(Time.local(2012, 1, 1, 0, 0, 0))
+  context "Call enqueue:" do
 
-    project = Project.make id: 3, user_flow: [{"id"=>1, "name"=>"Initial menu", "type"=>"menu", "root"=>true, "options"=>[{"number"=>1, "next"=>593}, {"number"=>2, "next"=>737}], "end_call_message"=>{"name"=>"Bye", "type"=>"recording", "duration"=>"00:00"}, "invalid_message"=>{"name"=>"Wrong number!", "type"=>"recording", "duration"=>"00:00"}, "explanation_message"=>{"name"=>"Welcome to test project 01", "type"=>"recording", "duration"=>"00:00"}, "options_message"=>{"name"=>"Press 1 for foo, press 2 for bar", "type"=>"recording", "duration"=>"00:00"}}, {"id"=>593, "name"=>"Menu Foo", "type"=>"menu", "root"=>false, "options"=>[{"number"=>1, "next"=>509}, {"number"=>2, "next"=>897}], "end_call_message"=>{}, "invalid_message"=>{}, "explanation_message"=>{"name"=>"You pressed Foo", "type"=>"recording", "duration"=>"00:00"}, "options_message"=>{"name"=>"Press 1 if it's ok, if not, 2", "type"=>"recording", "duration"=>"00:00"}}, {"id"=>737, "name"=>"Menu Bar", "type"=>"menu", "root"=>false, "options"=>[{"number"=>2, "next"=>2}, {"number"=>3, "next"=>3}], "end_call_message"=>{"name"=>"Goodbye", "type"=>"recording", "duration"=>"00:00"}, "invalid_message"=>{}, "explanation_message"=>{"name"=>"You chosed Bar", "type"=>"recording", "duration"=>"00:00"}, "options_message"=>{"name"=>"Press 2 if it's ok, 3 if not", "type"=>"recording", "duration"=>"00:00"}}, {"id"=>509, "name"=>"Menu Ok", "type"=>"menu", "root"=>false, "options"=>[], "end_call_message"=>{"name"=>"Goodbye", "type"=>"recording", "duration"=>"00:00"}, "invalid_message"=>{}, "explanation_message"=>{"name"=>"Thank you for chosing foo", "type"=>"recording", "duration"=>"00:00"}, "options_message"=>{}}, {"id"=>897, "name"=>"Menu not ok", "type"=>"menu", "root"=>false, "options"=>[], "end_call_message"=>{"name"=>"Bye", "type"=>"recording", "duration"=>"00:00"}, "invalid_message"=>{}, "explanation_message"=>{"name"=>"We will call you back later", "type"=>"recording", "duration"=>"00:00"}, "options_message"=>{}}, {"id"=>2, "name"=>"Menu Ok", "type"=>"menu", "root"=>false, "options"=>[], "end_call_message"=>{}, "invalid_message"=>{}, "explanation_message"=>{"name"=>"Ok. Thank you for choosing bar", "type"=>"recording", "duration"=>"00:00"}, "options_message"=>{}}, {"id"=>3, "name"=>"Menu Not ok", "type"=>"menu", "root"=>false, "options"=>[], "end_call_message"=>{}, "invalid_message"=>{}, "explanation_message"=>{"name"=>"Goodbye", "type"=>"recording", "duration"=>"00:00"}, "options_message"=>{}}], account_id: @account.id
+    let!(:call_flow) { CallFlow.make :project => project }
+    let!(:channel) { account.channels.make :call_flow => call_flow, :account => account}
+    let!(:schedule) { project.schedules.make :weekdays => "1" }
+    let!(:broker_client) { double('broker_client') }
 
-    call_log1 = CallLog.make id: 1, address: 1000, project: project, started_at: Time.now, finished_at: Time.now
-    call_log2 = CallLog.make id: 2, address: 1000, project: project, started_at: Time.now, finished_at: Time.now
-    call_log3 = CallLog.make id: 3, address: 1000, project: project, started_at: Time.now, finished_at: Time.now
-    call_log4 = CallLog.make id: 4, address: 1000, project: project, started_at: Time.now, finished_at: Time.now
-    call_log5 = CallLog.make id: 5, address: 1000, project: project, started_at: Time.now, finished_at: Time.now
-    call_log6 = CallLog.make id: 6, address: 1000, project: project, started_at: Time.now, finished_at: Time.now
-    Trace.make project: project, call_log: call_log3, step_id: 1, result: "No key was pressed. Timeout.", step_name: 'Initial menu'
-    Trace.make project: project, call_log: call_log1, step_id: 1, result: "User pressed: 2"
-    Trace.make project: project, call_log: call_log2, step_id: 1, result: "User pressed: 1"
-    Trace.make project: project, call_log: call_log2, step_id: 593, result: "User pressed: 1"
-    Trace.make project: project, call_log: call_log4, step_id: 1, result: "User pressed: 1"
-    Trace.make project: project, call_log: call_log4, step_id: 593, result: "User pressed: 2"
-    Trace.make project: project, call_log: call_log5, step_id: 1, result: "User pressed: 2"
-    Trace.make project: project, call_log: call_log5, step_id: 737, result: "No key was pressed. Timeout.", step_name: "Menu Bar"
-    Trace.make project: project, call_log: call_log6, step_id: 1, result: "User pressed: 2", step_name: "Menu inicial"
-    Trace.make project: project, call_log: call_log6, step_id: 737, result: "User pressed: 2", step_name: "Menu Bar"
-    Trace.make project: project, call_log: call_log5, step_id: 43212345678, result: "User pressed: 2"
+    before(:each) do
+      BrokerClient.stub(:new).and_return(broker_client)
+      broker_client.stub(:notify_call_queued)
+    end
 
-    response = get :show, :format => :csv, id: project.id
-    response.body.should eq File.read(File.join(Rails.root, 'spec/fixtures/trace.csv'))
+    it 'should enqueue a call' do
+      expect {
+        post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id
+      }.to change(QueuedCall, :count).by(1)
+      response.should be_redirect
+    end
+
+    it 'should ignore the not before date if not before check is not set' do
+      not_before = DateTime.new(2012, 1, 1, 16, 0, 0)
+
+      broker_client.should_receive(:notify_call_queued).with(channel.id, anything)
+
+      expect {
+        post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :not_before_date => not_before
+      }.to change(QueuedCall, :count).by(1)
+
+      enqueued_call = QueuedCall.last
+      enqueued_call.schedule_id.should eq(schedule.id)
+      enqueued_call.project_id.should eq(project.id)
+      enqueued_call.not_before.should_not eq(not_before + 1)
+
+      response.should be_redirect
+    end
+
+    it 'should enqueue a call not before specific date' do
+      not_before = DateTime.new(2012, 1, 1, 16, 0, 0)
+
+      broker_client.should_receive(:notify_call_queued).with(channel.id,not_before + 1)
+
+      expect {
+        post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :not_before_date => not_before, :not_before => true
+      }.to change(QueuedCall, :count).by(1)
+
+      enqueued_call = QueuedCall.last
+      enqueued_call.schedule_id.should eq(schedule.id)
+      enqueued_call.project_id.should eq(project.id)
+      enqueued_call.not_before.should eq(not_before + 1)
+
+      response.should be_redirect
+    end
+
+    it 'should enqueue a call not before specific date with a timezone' do
+      not_before = DateTime.new(2012, 1, 1, 4, 0, 0)
+      expected_not_before = DateTime.parse "2012-01-02 10:00:00 GMT-3"
+
+      schedule.time_from = '10:00'
+      schedule.time_to = '18:00'
+      schedule.save!
+
+      broker_client.should_receive(:notify_call_queued).with(channel.id, expected_not_before)
+
+      expect {
+        post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :not_before_date => '2012-01-01 4:00:00', :not_before => true, :time_zone => 'Buenos Aires'
+      }.to change(QueuedCall, :count).by(1)
+
+      enqueued_call = QueuedCall.last
+      enqueued_call.schedule_id.should eq(schedule.id)
+      enqueued_call.project_id.should eq(project.id)
+      enqueued_call.not_before.should eq(expected_not_before)
+
+      response.should be_redirect
+    end
+
+
+    it 'should enqueue multiple calls' do
+      expect {
+        post :enqueue_call, :id => project.id, :addresses => "0\n1\n2", :channel_id => channel.id, :schedule_id => schedule.id
+      }.to change(QueuedCall, :count).by(3)
+      response.should be_redirect
+
+      actual = QueuedCall.all
+      [0,1,2].each do |num|
+        actual[num].address.should eq(num.to_s)
+      end
+    end
   end
 end

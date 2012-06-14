@@ -1,0 +1,224 @@
+---
+- id: 1339428203856
+  name: Welcome
+  type: play
+  root: true
+  next: 1339428236662
+  message:
+    name: Welcome to the Health Center
+    type: text
+    title: Message
+- id: 1339428236662
+  name: Pin
+  type: capture
+  root: false
+  next: 1339428375757
+  store: pin
+  invalid_message:
+    name: Invalid pin number, please enter it again.
+    type: text
+    title: Invalid
+  instructions_message:
+    name: Please enter your 4 digit pin number
+    type: text
+    title: Instructions
+  min_input_length: '4'
+  max_input_length: '4'
+  finish_on_key: ! '#'
+  default: 
+- id: 1339428275248
+  name: Thanks for calling
+  type: play
+  root: false
+  next: 1339429180117
+  message:
+    name: Thank you for calling, good bye.
+    type: text
+    title: Message
+- id: 1339428375757
+  name: Option
+  type: menu
+  root: false
+  next: 1339428275248
+  store: 
+  options:
+  - next: 1339428852670
+    is_default: false
+    number: '1'
+  - next: 1339430027055
+    is_default: false
+    number: '2'
+  - next: 1339429703507
+    is_default: false
+    number: '3'
+  invalid_message: {}
+  explanation_message: {}
+  options_message:
+    name: ! 'Press 1 to consult the result of your latest analysis. Press 2 to make
+      an appointment. Press 3 to consult your booked appointment. '
+    type: text
+    title: Options
+  timeout: 5
+  number_of_attempts: 3
+- id: 1339428852670
+  name: Analysis Results
+  type: external
+  root: false
+  next: 1339428957354
+  external_step_id: 8
+  settings:
+  - step: 
+    variable: pin
+    value: 
+    response: 
+    name: pin
+    display_name: Patient pin
+  responses:
+  - name: result
+    variable: analysis_result
+- id: 1339428957354
+  name: Branches
+  type: branch
+  root: false
+  next: 
+  options:
+  - next: 1339429019573
+    is_default: false
+    conditions:
+    - step: 
+      variable: analysis_result
+      response: 
+      operator: ==
+      rhs_value: positive
+      rhs_variable: 
+      rhs_response: 
+      rhs_step: 
+  - next: 1339429063806
+    is_default: false
+    conditions:
+    - step: 
+      variable: analysis_result
+      response: 
+      operator: ==
+      rhs_value: negative
+      rhs_variable: 
+      rhs_response: 
+      rhs_step: 
+  - next: 1339429083056
+    is_default: false
+    conditions:
+    - step: 
+      variable: analysis_result
+      response: 
+      operator: ==
+      rhs_value: not_available
+      rhs_variable: 
+      rhs_response: 
+      rhs_step: 
+  - next: 
+    is_default: true
+- id: 1339429019573
+  name: Positive
+  type: play
+  root: false
+  next: 
+  message:
+    name: The result of your analysis is positive.
+    type: text
+    title: Message
+- id: 1339429063806
+  name: Negative
+  type: play
+  root: false
+  next: 
+  message:
+    name: The result of your analysis is negative.
+    type: text
+    title: Message
+- id: 1339429083056
+  name: Not Available
+  type: play
+  root: false
+  next: 
+  message:
+    name: The result aren't available yet, please call again in a few days.
+    type: text
+    title: Message
+- id: 1339429180117
+  name: Hang Up
+  type: hang_up
+  root: false
+  next: 
+- id: 1339429572822
+  name: Available Appointment Dates
+  type: external
+  root: false
+  next: 1339429646412
+  external_step_id: 9
+  settings: []
+  responses: []
+- id: 1339429646412
+  name: Choose Date
+  type: capture
+  root: false
+  next: 1339429751370
+  store: 
+  invalid_message: {}
+  instructions_message:
+    name: Please enter your option now. Press asterisk to listen the options again.
+    type: text
+    title: Instructions
+  min_input_length: 1
+  max_input_length: 1
+  valid_values: '1,2,3'
+  finish_on_key: ! '*'
+  default: 1339429842165
+- id: 1339429703507
+  name: Booked Appoinment
+  type: external
+  root: false
+  next: 
+  external_step_id: 11
+  settings:
+  - step: 
+    variable: pin
+    value: 
+    response: 
+    name: pin
+    display_name: Patient pin
+  responses: []
+- id: 1339429751370
+  name: Make Appoinment
+  type: external
+  root: false
+  next: 
+  external_step_id: 10
+  settings:
+  - step: 
+    variable: pin
+    value: 
+    response: 
+    name: pin
+    display_name: Patient pin
+  - step: 1339429646412
+    variable: 
+    value: 
+    response: 
+    name: date_option
+    display_name: Date option
+  responses: []
+- id: 1339429842165
+  name: Return to available dates
+  type: goto
+  root: false
+  next: 
+  jump: 1339429572822
+- id: 1339430027055
+  name: Listen options
+  type: play
+  root: false
+  next: 1339429572822
+  message:
+    name: Please listen to the available options.
+    type: text
+    title: Message

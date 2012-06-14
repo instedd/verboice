@@ -1,0 +1,4 @@
+csv << ['Call ID', 'Phone Number', 'Time', 'Severity', 'Step name', 'Step ID', 'Command', 'Action', 'Detail']
+@log.entries.find_each do |entry|
+  csv << [@log.id, @log.address, entry.created_at, entry.severity, entry.step_name, entry.step_id, entry.command, entry.action, entry.description]
+end

@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe Asterisk::CallManager do
@@ -52,7 +69,7 @@ describe Asterisk::CallManager do
     synthesizer = double('synthesizer')
     synthesizer.should_receive(:synth).with('some text').and_return(:filename)
     @call_manager.instance_eval { @synthesizer = synthesizer }
-    @call_manager.should_receive(:play).with(:filename)
+    @call_manager.should_receive(:play).with(:filename, {})
 
     @call_manager.say 'some text'
   end
@@ -65,18 +82,23 @@ describe Asterisk::CallManager do
     it "play" do
       @call_manager.should_receive(:stream_file).with('verboice/something', nil).and_return(line '1'.ord.to_s)
       value = @call_manager.play @path
-      value.should == '1'
+      value.should == ['1', nil]
     end
 
     it "play with escape digits" do
       @call_manager.should_receive(:stream_file).with('verboice/something', '123').and_return(line '0')
-      value = @call_manager.play @path, '123'
-      value.should == nil
+      value = @call_manager.play @path, {}, '123'
+      value.should == [nil, nil]
     end
 
     it "play throws exception when fails" do
+      @call_manager.should_receive(:stream_file).and_return(Batphone::AgiMixin::Response.new "200 result=0 endpos=0")
+      assert_raise(Exception, 'Error while playing file') { @call_manager.play 'foo' }
+    end
+
+    it "play throws exception when user hangs up" do
       @call_manager.should_receive(:stream_file).and_return(line '-1')
-      assert_raise(Exception) { @call_manager.play 'foo' }
+      assert_raise(Exception, 'User hanged up') { @call_manager.play 'foo' }
     end
   end
 
@@ -125,34 +147,34 @@ describe Asterisk::CallManager do
     end
 
     it "capture digits while playing" do
-      @call_manager.should_receive(:play).ordered.with('some_file', '0123456789#*').and_return('4')
+      @call_manager.should_receive(:play).ordered.with('some_file', anything, '0123456789#*').and_return('4')
       expect_digit '2'.ord.to_s
       value = @call_manager.capture :min => 2, :max => 2, :finish_on_key => '#', :timeout => 5, :play => 'some_file'
       value.should == '42'
     end
 
     it "capture digits with string values" do
-      @call_manager.should_receive(:play).ordered.with('some_file', '0123456789#*').and_return('4')
+      @call_manager.should_receive(:play).ordered.with('some_file', anything, '0123456789#*').and_return('4')
       expect_digit '2'.ord.to_s
       value = @call_manager.capture :min => '2', :max => '2', :finish_on_key => '#', :timeout => '5', :play => 'some_file'
       value.should == '42'
     end
 
     it "capture digits and play is finish key" do
-      @call_manager.should_receive(:play).ordered.with('some_file', '0123456789#*').and_return('*')
+      @call_manager.should_receive(:play).ordered.with('some_file', anything, '0123456789#*').and_return('*')
       value = @call_manager.capture :min => 2, :max => 2, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
       value.should == :finish_key
     end
 
     it "capture digits and play nothing pressed" do
-      @call_manager.should_receive(:play).ordered.with('some_file', '0123456789#*').and_return(nil)
+      @call_manager.should_receive(:play).ordered.with('some_file', anything, '0123456789#*').and_return(nil)
       expect_digits '24'
       value = @call_manager.capture :min => 2, :max => 2, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
       value.should == '24'
     end
 
     it "capture digits and play just one digit" do
-      @call_manager.should_receive(:play).ordered.with('some_file', '0123456789#*').and_return('1')
+      @call_manager.should_receive(:play).ordered.with('some_file', anything, '0123456789#*').and_return('1')
       value = @call_manager.capture :min => 1, :max => 1, :finish_on_key => '*', :timeout => 5, :play => 'some_file'
       value.should == '1'
     end
@@ -223,10 +245,10 @@ describe Asterisk::CallManager do
   end
 
   def asterisk_response(note)
-    Asterisk::AgiMixin::Response.new("200 result=1 (#{note})")
+    Batphone::AgiMixin::Response.new("200 result=1 (#{note})")
   end
 
   def line(result)
-    stub('line', :result => result)
+    Batphone::AgiMixin::Response.new "200 result=#{result}"
   end
 end

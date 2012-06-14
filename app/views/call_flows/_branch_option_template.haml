@@ -1,0 +1,38 @@
+%script{type: "text/html", id: "branch_option_template"}
+  .popup
+    .courtain
+    .box.popupmessage
+      %div{'data-bind' => 'text: next_name()'}
+      %hr
+
+      %div{'data-bind' => 'if: is_editing_condition'}
+        .box.grey.noshadow
+          / ko with: current_editing_condition
+          %table
+            %tbody
+              %tr{ko(with: 'lhs')}
+                = render 'input_setting'
+              %tr
+                %td{colspan: 2}
+                  %select{'data-bind' => "value: operator, options: operators, optionsText: 'text', optionsValue: 'value'", 'style' => 'width: 203px; margin-top: 7px'}
+              %tr{ko(with: 'rhs')}
+                = render 'input_setting'
+                %td
+                  %button.faccept{'type' => 'button', 'data-bind' => 'click: $parent.close_condition_edition'}
+          / /ko
+
+      %table.GralTable.TwoColumn.CleanTable.NoHead
+        %tbody
+          / ko foreach: conditions
+          %tr
+            %td.clickable{'data-bind' => 'text: description, click: $parent.show_condition'}
+            %td
+              %button.clist-remove{'data-bind' => 'click: $parent.remove_condition'}
+          / /ko
+          %tr
+            %td Add condition
+            %td
+              %button.clist-add{'data-bind' => 'click: add_condition'}
+      %hr
+      %button.white{'data-bind' => 'click: save'} Save
+      %button.white.cancel{'data-bind' => 'click: cancel'} Cancel

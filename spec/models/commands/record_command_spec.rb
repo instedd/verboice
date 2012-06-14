@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 module Commands
@@ -11,8 +28,9 @@ module Commands
 
     it "should create a recorded audio linking the saved audio file to the call log and contact" do
       contact = Contact.make
-      project = Project.make account: contact.account
-      call_log = CallLog.make project: project
+      project = contact.project
+      call_flow = CallFlow.make project: project
+      call_log = CallLog.make call_flow: call_flow
 
       session = Session.new :pbx => pbx, :call_log => call_log
       session.stub :address => contact.address
@@ -45,6 +63,39 @@ module Commands
       RecordedAudio.first.contact.should eq(Contact.first)
     end
 
+    it "should create an anonymous contact using the call log id if the contact address is unknown" do
+      call_log = CallLog.make id: 456
+      session = Session.new :pbx => pbx, :call_log => call_log
+      session.stub :address => nil
+
+      Contact.all.size.should eq(0)
+
+      cmd = RecordCommand.new 2, 'foo'
+      cmd.next = :next
+      cmd.run(session).should == :next
+      Contact.all.size.should eq(1)
+      Contact.first.address.should eq('Anonymous456')
+      Contact.first.anonymous?.should eq(true)
+      RecordedAudio.first.contact.should eq(Contact.first)
+    end
+
+    it "should use an existing anonymous contact if the contact address is unknown but the contact is already created" do
+      contact   = Contact.make address: 'Anonymous34', anonymous: true
+      project   = contact.project
+      call_flow = CallFlow.make project: project
+      call_log  = CallLog.make call_flow: call_flow, id: 34
+      session   = Session.new :pbx => pbx, :call_log => call_log
+      session.stub :address => nil
+
+      cmd = RecordCommand.new 2, 'foo'
+      cmd.next = :next
+      cmd.run(session).should == :next
+      Contact.all.size.should eq(1)
+      Contact.first.address.should eq('Anonymous34')
+      RecordedAudio.first.contact.should eq(Contact.first)
+    end
+
+
     describe 'pbx' do
 
       let(:call_log) { CallLog.make }
@@ -64,7 +115,6 @@ module Commands
         cmd = RecordCommand.new 'key', 'desc'
         cmd.run(session)
       end
-
     end
 
   end

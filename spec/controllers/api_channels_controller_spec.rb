@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+# 
+# This file is part of Verboice.
+# 
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe ApiChannelsController do
@@ -9,9 +26,11 @@ describe ApiChannelsController do
   end
 
   it "create custom channel" do
-    app = @account.projects.make
+    project = @account.projects.make
+    call_flow = CallFlow.make project: project
+    project.default_call_flow = call_flow
 
-    data = {kind: "custom", name: "foo", project: app.name, username: 'xyz', password: 'pass'}
+    data = {kind: "custom", name: "foo", call_flow: call_flow.name, username: 'xyz', password: 'pass'}
     @request.env['RAW_POST_DATA'] = data.to_json
     post :create, format: :json
     assert_response :ok
@@ -19,7 +38,7 @@ describe ApiChannelsController do
     channels = @account.channels.all
     channels.length.should == 1
     channels[0].account.should == @account
-    channels[0].project_id.should == app.id
+    channels[0].call_flow_id.should == call_flow.id
     channels[0].name.should == data[:name]
     channels[0].kind.should == data[:kind]
     channels[0].username.should == data[:username]
@@ -27,9 +46,10 @@ describe ApiChannelsController do
   end
 
   it "create custom channel errors" do
-    app = @account.projects.make
+    project = @account.projects.make
+    call_flow = CallFlow.make project: project
 
-    data = {kind: "custom", project: app.name, username: 'xyz', password: 'pass'}
+    data = {kind: "custom", call_flow: call_flow.name, username: 'xyz', password: 'pass'}
     @request.env['RAW_POST_DATA'] = data.to_json
     post :create, format: :json
     assert_response :ok
@@ -46,8 +66,9 @@ describe ApiChannelsController do
     BrokerClient.stub(:new).and_return(broker_client)
     broker_client.should_receive(:delete_channel)
 
-    app = @account.projects.make
-    chan = @account.channels.make :project => app, :name => 'foo'
+    project = @account.projects.make
+    call_flow = CallFlow.make project: project
+    chan = @account.channels.make :call_flow => call_flow, :name => 'foo'
 
     delete :destroy, :name => chan.name
     assert_response :ok

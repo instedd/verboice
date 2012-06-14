@@ -1,0 +1,5 @@
+copyright: Copyright (C) 2010-2012, InSTEDD
+program_name: Verboice
+exclude:
+  - db/schema.rb
+  - db/migrate/

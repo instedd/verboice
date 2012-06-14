@@ -1,9 +1,28 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 class Compiler
   attr_accessor :first
   attr_accessor :labels
+  attr_accessor :variables
 
   def initialize
     @labels = {}
+    @variables = Set.new
   end
 
   def parse &blk
@@ -56,6 +75,15 @@ class Compiler
 
   def End
     Goto nil
+  end
+
+  def PersistVariable(variable, expression)
+    @variables.add variable
+    append Commands::PersistVariableCommand.new(variable, expression)
+  end
+
+  def Assign(*args)
+    append Commands::AssignExpressionCommand.new(*args)
   end
 
   def method_missing(method, *args)
@@ -124,6 +152,7 @@ class Compiler
     block ||= Compiler.parse(&blk)
     if block.is_a? Compiler
       @labels.merge! block.labels
+      @variables.merge block.variables
       block.first
     else
       block

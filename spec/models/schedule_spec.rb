@@ -1,10 +1,27 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe Schedule do
   context "validations" do
     subject { Schedule.make }
 
-    it { should belong_to(:account) }
+    it { should belong_to(:project) }
     it { should validate_presence_of(:account) }
     it { should validate_presence_of(:name) }
     it { should_not allow_value("ABC").for(:retries) }
@@ -38,7 +55,7 @@ describe Schedule do
     context "next available time" do
 
       def t(x)
-        Time.parse x
+        Time.parse(x)
       end
 
       it "returns same value if range is not set" do
@@ -104,6 +121,37 @@ describe Schedule do
           # saturday
           subject.next_available_time(t '2012-05-05T00:00:00Z').should == t('2012-05-06T00:00:00Z')
         end
+      end
+
+      context 'with time zone GMT-3' do
+        before :each do
+          subject.time_zone = 'Buenos Aires'
+        end
+
+        it "returns same value if range is not set" do
+          subject.next_available_time(t '2012-05-05 12:34:56 UTC').should == t('2012-05-05 12:34:56 UTC')
+        end
+
+        context "and range during same day" do
+          before(:each) do
+            subject.time_from = '10:00'
+            subject.time_to = '14:00'
+          end
+
+          it "returns same value if it falls inside range" do
+            subject.next_available_time(t '2012-05-05T16:00:00Z').should == t('2012-05-05 16:00:00 UTC')
+          end
+
+          it "moves time forward if it falls behind the beginning" do
+            subject.next_available_time(t '2012-05-05T11:00:00Z').should == t('2012-05-05 13:00:00 UTC')
+          end
+
+          it "moves time to next day if it falls after the end" do
+            subject.next_available_time(t '2012-05-05T18:00:00Z').should == t('2012-05-06 13:00:00 UTC')
+          end
+        end
+
+
       end
     end
 

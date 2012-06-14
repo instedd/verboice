@@ -1,18 +1,38 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 class Commands::RecordCommand < Command
 
   attr_accessor :filename, :stop_keys, :timeout
 
   def initialize key, description, options = {}
-    @key = key
+    @key         = key
     @description = description
-    @stop_keys = options[:stop_keys] || '01234567890*#'
-    @timeout = options[:timeout].try(:to_i) || 10
+    @stop_keys   = options[:stop_keys] || '01234567890*#'
+    @timeout     = options[:timeout].try(:to_i) || 10
   end
 
   def run(session)
-    session.info "Record user voice"
+    session.info "Record user voice", command: 'record', action: 'start'
     session.pbx.record filename(session), stop_keys, timeout
+    session.trace "Recording complete", command: 'record', action: 'complete'
+    session.trace "Saving recording", command: 'record', action: 'save'
     create_recorded_audio(session)
+    session.info "Recording saved", command: 'record', action: 'finish'
     super
   end
 
@@ -23,8 +43,15 @@ class Commands::RecordCommand < Command
   end
 
   def create_recorded_audio(session)
-    account = session.call_log.account
-    contact = account.contacts.where(:address => session.address).first_or_create!
+    project = session.call_log.project
+
+    contact = if session.address.presence
+      project.contacts.where(:address => session.address).first_or_create!
+    else
+      project.contacts.where(:address => "Anonymous#{session.call_log.id}", :anonymous => true).first_or_create!
+    end
+    session.trace "Caller address is unknown. Recording '#{@description}' will be saved for contact #{contact.address}.", command: 'record', action: 'contact_unknown' unless session.address.presence
+
     contact.recorded_audios.create! :call_log => session.call_log, :key => @key, :description => @description
   end
 end

@@ -1,13 +1,30 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 module Parsers
   module UserFlowNode
     describe Transfer do
 
-      let(:app) { double('app', :id => 1) }
+      let(:call_flow) { double('call_flow', :id => 1) }
 
       it "should compile to an equivalent flow" do
-        transfer = Transfer.new app, 'id' => 1,
+        transfer = Transfer.new call_flow, 'id' => 1,
           'type' => 'transfer',
           'name' => 'Transfer',
           'channel' => 'foo',
@@ -17,14 +34,15 @@ module Parsers
           Compiler.parse do
             Label 1
             Assign "current_step", 1
-            Trace project_id: 1, step_id: 1, step_name: 'Transfer', store: '"Transfer to 1234-5678 in channel foo."'
+            Assign "current_step_name", "'Transfer'"
+            Trace call_flow_id: 1, step_id: 1, step_name: 'Transfer', store: '"Transfer to 1234-5678 in channel foo."'
             Dial '1234-5678', {:channel => 'foo'}
           end.first
         )
       end
 
       it "should compile with current channel" do
-        transfer = Transfer.new app, 'id' => 2,
+        transfer = Transfer.new call_flow, 'id' => 2,
           'type' => 'transfer',
           'name' => 'Transfer',
           'address' => '1234-5678'
@@ -33,7 +51,8 @@ module Parsers
           Compiler.parse do
             Label 2
             Assign "current_step", 2
-            Trace project_id: 1, step_id: 2, step_name: 'Transfer', store: '"Transfer to 1234-5678 in current channel."'
+            Assign "current_step_name", "'Transfer'"
+            Trace call_flow_id: 1, step_id: 2, step_name: 'Transfer', store: '"Transfer to 1234-5678 in current channel."'
             Dial '1234-5678', {:channel => nil}
           end.first
         )

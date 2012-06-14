@@ -1,130 +1,79 @@
-require 'csv'
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class ProjectsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_project, :only => [
-    :show, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import_call_flow
-  ]
-  before_filter :load_recording_data, :only => [:play_recording, :save_recording, :play_result]
+  before_filter :load_project, only: [:edit, :update, :destroy]
+  before_filter :load_enqueue_call_fields, only: [:show, :enqueue_call]
 
-  skip_before_filter :verify_authenticity_token, :only => :save_recording
-
-  # GET /projects
   def index
     @projects = current_account.projects.all
   end
 
-  # GET /projects/1
-  # Trace.create! project_id: @project_id, step_id: @step_id, step_name: @step_name, call_id: session.call_id, result: session.eval(@expression)
   def show
-    respond_to do |format|
-      format.html
-      format.csv do
-        csv = CSV.generate({ :col_sep => ','}) do |csv|
-
-          steps = @project.step_names
-          ids = steps.keys
-          header = ['Call ID', 'Phone Number', 'Start Time', 'End Time']
-          csv << header + steps.values
-          @project.call_logs.includes(:traces).each do |call_log|
-            line = []
-            line << call_log.id
-            line << call_log.address
-            line << call_log.started_at
-            line << call_log.finished_at
-            call_log.traces.each do |trace|
-              begin
-                line[ids.index(trace.step_id.to_i) + header.size] = trace.result
-              rescue Exception => e
-                # If the Trace belongs to a deleted step, there is no way to represent it.
-                # This should be fixed when the project stores it's different flow versions.
-                # For now, the trace is ignored
-              end
-            end
-            csv << line
-          end
-        end
-        render :text => csv
-      end
-      format.vrb do
-        render :text => @project.user_flow.to_yaml
-      end
-    end
   end
 
-  # GET /projects/new
   def new
     @project = Project.new
   end
 
-  # GET /projects/1/edit
   def edit
   end
 
-  # POST /projects
   def create
     @project = Project.new(params[:project])
     @project.account = current_account
 
     if @project.save
-      redirect_to(edit_workflow_project_path(@project), :notice => "Project #{@project.name} successfully created.")
+      redirect_to(project_call_flows_path(@project), :notice => "Project #{@project.name} successfully created.")
     else
       render :action => "new"
     end
   end
 
-  # PUT /projects/1
   def update
     if @project.update_attributes(params[:project])
       redirect_to(project_path(@project), :notice => "Project #{@project.name} successfully updated.")
     else
-      render :action => "edit"
+      render :action => "show"
     end
   end
 
-  def edit_workflow
-    @variables = current_account.distinct_variables
-  end
+  def enqueue_call
+    @channel = current_account.channels.find_by_id(params[:channel_id])
+    if @channel
+      addresses = params[:addresses].split(/\n/).map(&:strip).select(&:presence)
 
-  def update_workflow
-    @variables = current_account.distinct_variables
-    @project.user_flow = JSON.parse params[:flow]
+      options = {}
+      options[:schedule_id] = params[:schedule_id] if params[:schedule_id].present?
+      options[:not_before] = params[:not_before_date] if params[:not_before_date].present? && params[:not_before].present?
+      options[:time_zone] = params[:time_zone] if params[:time_zone].present?
+      options[:call_flow_id] = params[:call_flow_id] if params[:call_flow_id].present?
+      options[:project_id] = params[:id]
 
-    if @project.save
-      respond_to do |format|
-        format.html { redirect_to(edit_workflow_project_path(@project), :notice => "Workflow for project #{@project.name} successfully updated.")}
-        format.json { render(json: @project, status: 200, location: @project)}
+      addresses.each do |address|
+        @channel.call(address.strip, options)
       end
+      redirect_to project_path(params[:id]), {:notice => "Enqueued calls to #{pluralize(addresses.count, 'address')} on channel #{@channel.name}"}
     else
-      render :action => "edit_workflow"
+      redirect_to project_path(params[:id]), flash: {error: 'You need to select a channel'}
     end
   end
 
-  def import_call_flow
-    if params[:vrb].blank?
-      redirect_to({ :action => :show }, { :notice => 'No file found' })
-    else
-      begin
-        @project.user_flow = YAML::load File.read(params[:vrb].tempfile.path)
-        @project.save!
-        redirect_to({ :action => :show }, {:notice => "Project #{@project.name} successfully updated."})
-      rescue Exception => ex
-        redirect_to({:action => :show}, {:notice => 'Invalid file'})
-      end
-    end
-  end
-
-  def play_recording
-    send_file @recording_manager.recording_path_for(@step_id, @message), :x_sendfile=>true
-  end
-
-  def save_recording
-    @recording_manager.save_recording_for(@step_id, @message) do |out|
-      out.write request.body.read
-    end
-  end
-
-  # DELETE /projects/1
   def destroy
     @project.destroy
     redirect_to(projects_url, :notice => "Project #{@project.name} successfully deleted.")
@@ -132,28 +81,15 @@ class ProjectsController < ApplicationController
 
   private
 
-  def load_recording_data
-    @step_id = params[:step_id]
-    @message = params[:message]
-    @recording_manager = RecordingManager.for(@project)
-  end
-
   def load_project
     @project = current_account.projects.find(params[:id])
   end
 
-  def get_flow
-    return nil unless params[:project][:flow].present?
-
-    ret = params[:project][:flow].map do |props|
-      name = props[:name].downcase.to_sym
-      args = props.reject { |k, v| k.to_sym == :name}
-      case args.length
-      when 0 then name
-      when 1 then {name => args.first[1]}
-      else {name => args.to_hash}
-      end
-    end
-    ret
+  def load_enqueue_call_fields
+    @channels = current_account.channels
+    @project = current_account.projects.includes(:call_flows).find(params[:id])
+    @schedules = @project.schedules
+    @call_flows = @project.call_flows
   end
+
 end

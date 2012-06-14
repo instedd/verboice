@@ -5,6 +5,8 @@
 %form
   %p
     Search: #{text_field_tag :search, @search, :size => 80, :class => (@search.present? ? 'highlighted' : '')}
+  %p
+    = link_to 'Download as CSV', download_call_logs_path(:format => :csv, :search => @search), :class => "button fimport"
   %div= page_entries_info @logs, :entry_name => 'call log'
   = will_paginate @logs, :param_name => 'page'
   - if @logs.present?

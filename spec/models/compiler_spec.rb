@@ -1,3 +1,20 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe Compiler do
@@ -7,11 +24,18 @@ describe Compiler do
     result.should be_instance_of(Commands::AnswerCommand)
   end
 
-  it "makes assign command" do
+  it "makes assign expression command" do
     result = subject.Assign('foo', 'bar').make
-    result.should be_instance_of(Commands::AssignCommand)
+    result.should be_instance_of(Commands::AssignExpressionCommand)
     result.name.should == 'foo'
-    result.expr.should == 'bar'
+    result.data.should == 'bar'
+  end
+
+  it "makes assign value command" do
+    result = subject.AssignValue('foo', 'bar').make
+    result.should be_instance_of(Commands::AssignValueCommand)
+    result.name.should == 'foo'
+    result.data.should == 'bar'
   end
 
   it "makes bridge command" do
@@ -112,6 +136,31 @@ describe Compiler do
     result = subject.parse { Hangup() }.append(nil).make
     result.should be_instance_of(Commands::HangupCommand)
     result.next.should be_nil
+  end
+
+  it "can collect persisted variables" do
+    compiler = subject\
+      .Answer().Say('hello')
+      .PersistVariable('var_1', 'my_expr_1')
+      .Say('goodbye')
+      .PersistVariable('var_2', 'my_expr_2')
+      .Hangup()
+    compiler.should have(2).variables
+    var_1, var_2 = compiler.variables.to_a
+    var_1.should eq('var_1')
+    var_2.should eq('var_2')
+  end
+
+  it "can collect persisted variables without repeating" do
+    compiler = subject\
+      .Answer().Say('hello')
+      .PersistVariable('var_1', 'my_expr_1')
+      .Say('goodbye')
+      .PersistVariable('var_1', 'my_expr_2')
+      .Hangup()
+    compiler.should have(1).variables
+    var_1 = compiler.variables.first
+    var_1.should eq('var_1')
   end
 
   context "makes if command" do

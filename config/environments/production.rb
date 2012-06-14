@@ -1,4 +1,22 @@
+# Copyright (C) 2010-2012, InSTEDD
+# 
+# This file is part of Verboice.
+# 
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 Verboice::Application.configure do
+  verboice_config = YAML::load_file("#{Rails.root}/config/verboice.yml").with_indifferent_access
   # Settings specified here will take precedence over those in config/application.rb
 
   # Code is not reloaded between requests
@@ -21,8 +39,8 @@ Verboice::Application.configure do
   config.assets.digest = true
 
   # Default url for action mailer
-  config.action_mailer.default_url_options = { :host => 'verboice.instedd.org' }
-  config.action_mailer.asset_host = 'http://verboice.instedd.org'
+  config.action_mailer.default_url_options = verboice_config[:default_url_options].symbolize_keys
+  config.action_mailer.asset_host = verboice_config[:asset_host]
 
   # Defaults to Rails.root.join("public/assets")
   # config.assets.manifest = YOUR_PATH

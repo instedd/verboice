@@ -1,0 +1,10 @@
+%script{type: "text/html", id: "recording_message_template"}
+  .w22
+    %textarea{'rows' => 8, 'data-bind' => "value: name, valueUpdate: 'afterkeydown'"}
+    %br
+  .player
+    %span{ko(text: 'duration', css: "{recording: recording()}")}
+    %button.fplay{ko(click: 'play', visible: '!playing()', css: "{disabled: recording() || !file()}")}
+    %button.fstop{ko(click: 'stop', visible: 'playing()')}
+    %button.frecording{ko(click: 'record', visible: '!recording()', css: "{disabled: playing()}")}
+    %button.fstopped{ko(click: 'stop', visible: 'recording()', css: "{active: recording(), disabled: playing()}")}
