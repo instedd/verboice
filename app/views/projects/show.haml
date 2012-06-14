@@ -1,43 +1,43 @@
 = render 'shared/project_tabs_and_title', :project => @project
 
-.box.w30.right.lmargin.enqueue_new_call
-  %h2 Enqueue new calls
-  %p.desc Add new calls to this project queue
-  = form_tag enqueue_call_project_path, :method => 'POST' do
-    %p
-      = label_tag :call_flow_id, 'Call Flow'
-      %br/
-      = select_tag :call_flow_id, options_from_collection_for_select(@call_flows, 'id', 'name'), :prompt => 'Select a Call Flow...', :class => 'w30'
-    %p
-      = label_tag :channel_id, 'Channel'
-      %br/
-      = select_tag :channel_id, options_from_collection_for_select(@channels, 'id', 'name'), :prompt => 'Select a Channel...', :class => 'w30'
-    %p
-      = label_tag :schedule_id, 'Schedule'
-      %br/
-      = select_tag :schedule_id, options_from_collection_for_select(@schedules, 'id', 'name'), :prompt => 'Select a Schedule...', :class => 'w30'
-    %p
-      = check_box_tag :not_before
-      = label_tag :not_before, 'Not before'
-      %br/
-      = text_field_tag :not_before_date, '', :class => "ux-custom-datetimepicker w30"
-    %p
-      = label_tag :time_zone, 'On time zone'
-      %br/
-      = select_tag :time_zone, time_zone_options_for_select(@project.time_zone), :class => 'w30'
-    %p
-      = label_tag :addresses, 'Phone numbers'
-      %br/
-      %span.desc Enter each phone number in a separate line
-      %p
-        = text_area_tag :addresses, nil, :placeholder => "555-1000", :rows => 10, :class => 'w30'
-    %p
-      = button_tag "Enqueue calls", :class => 'orange'
+= render 'enqueue_new_call', :project => @project, :call_flows => @call_flows, :channels => @channels, :schedules => @schedules
+
+%h1 Calls
+%p.desc Total number of calls made and received
+
+.sbox.grey.StateDisplay.w30
+  .values
+    .U
+      %span.big= @call_logs.size
+      %span= "#{@call_logs.size == 1 ? 'call' : 'calls'} registered"
+  = link_to 'Download as CSV', download_call_logs_path(:format => :csv, :search => 'project_id:"1"'), :class => "button white"
+
+%hr/
+
+%h1 Properties
+
+%ul.call-properties.left
+  %li
+    .i48grad-call-flow
+    %div
+      %span="#{pluralize @call_flows.size, 'Call flow'} in this project"
+    = link_to "Edit Call Flows", project_call_flows_path(@project), :class => "button faccept"
+  %li
+    .i48grad-channel
+    %div
+      %span= "#{pluralize @project_channels.size, 'channel'} in this project"
+    = link_to "Manage channels", channels_path, :class => "button faccept"
+
+  %li
+    .i48grad-time
+    %div
+      %span= pluralize @queued_calls.size, 'queued call'
+    = link_to "View calls", queued_call_logs_path, :class => "button faccept"
+
+%br{ :clear => 'left'}
 
 = link_to 'Edit settings', edit_project_path(@project), :class => "button faccept"
 %hr
 
 = link_to 'Delete this project', @project, :confirm => "Are you sure you want to delete the project #{@project.name}?", :method => :delete, :class => "button fdelete"
-%br
-= link_to 'Back', projects_path, :class => "button white cancel"
 .clear

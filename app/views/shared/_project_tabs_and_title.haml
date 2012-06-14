@@ -4,7 +4,7 @@
   %li{ :class =>"#{"active" if params[:controller] == "projects" && params[:action] == 'show'}" }
     = link_to "Overview", project_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "call_logs"}" }
-    = link_to "Logs", call_logs_path
+    = link_to "Calls", call_logs_path
   %li{ :class =>"#{"active" if params[:controller] == "projects" && params[:action] == 'edit'}" }
     = link_to "Settings", edit_project_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "call_flows"}" }
