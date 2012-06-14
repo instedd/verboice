@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -40,9 +40,9 @@ class BaseBroker
       call session
       session.notify_status 'ringing'
     rescue PbxUnavailableException => ex
-      finish_session_with_requeue session, ex.message, queued_call
+      finish_session_with_requeue session, error_message_for(ex), queued_call
     rescue Exception => ex
-      finish_session_with_error session, ex.message
+      finish_session_with_error session, error_message_for(ex)
     end
   end
 
@@ -111,7 +111,7 @@ class BaseBroker
       session.notify_status 'in-progress'
       session.run
     rescue Exception => ex
-      finish_session_with_error session, ex.message
+      finish_session_with_error session, error_message_for(ex)
     else
       finish_session_successfully session
     ensure
@@ -207,5 +207,13 @@ class BaseBroker
     active_calls[session.channel.id].delete session.id
     active_calls.delete session.channel.id if active_calls[session.channel.id].empty?
     active_queued_calls.delete session.id
+  end
+
+  def error_message_for(exception)
+    if Rails.env.production?
+      exception.message
+    else
+      "Exception #{exception.class}: #{exception.message}\n#{exception.backtrace.join("\n")}"
+    end
   end
 end
