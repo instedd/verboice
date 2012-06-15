@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -88,17 +88,18 @@ module Voxeo
     private
 
     def flush
-      # begin
+      begin
         @context = Fiber.yield @builder.build
-      # rescue Exception => e
-      #   handle_error e
-      # end
+      rescue Exception => e
+        handle_error e
+      end
     end
 
     def handle_error(e)
       @hangup = true
 
       @builder.say "An unexpected error ocurred"
+      @builder.hangup
 
       # End the session from the store
       Voxeo::SessionStore.instance.session_for(@voxeo_session_id).end!
