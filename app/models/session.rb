@@ -41,7 +41,7 @@ class Session
   end
 
   def call_id
-    call_log.id
+    call_log.try(:id)
   end
 
   def js

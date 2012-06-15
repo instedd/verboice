@@ -27,21 +27,25 @@ class BaseBroker
   end
 
   def notify_call_queued channel
-    return unless pbx_available?
-    return if reached_active_calls_limit?(channel)
+    log "Notified call queued for channel #{channel.id}"
+    log "PBX is unavailable" and return unless pbx_available?
+    log "Reached active calls limit for channel #{channel.id}" and return if reached_active_calls_limit?(channel)
 
     queued_call = channel.poll_call
-    return unless queued_call
+    log "No queued calls for channel #{channel.id}" and return unless queued_call
 
     session = queued_call.start
     store_session session, queued_call
+    log "Starting new call #{session.call_id} from queued call #{queued_call.id} on channel #{channel.id}"
 
     begin
       call session
-      session.notify_status 'ringing'
+      log "Call #{session.call_id} is ringing" and session.notify_status 'ringing'
     rescue PbxUnavailableException => ex
+      log "Pbx is unavailable for call #{session.call_id}: #{ex.message}\n#{ex.backtrace.join("\n")}"
       finish_session_with_requeue session, error_message_for(ex), queued_call
     rescue Exception => ex
+      log "Error performing call #{session.call_id}: #{ex.message}\n#{ex.backtrace.join("\n")}"
       finish_session_with_error session, error_message_for(ex)
     end
   end
@@ -105,14 +109,17 @@ class BaseBroker
 
   def accept_call(pbx)
     session = find_or_create_session pbx
-    return session.resume if session.suspended
+    log "Accepting call from PBX with call id #{session.call_id}"
+    log "Session for call #{session.call_id} is suspended" and return session.resume if session.suspended
     session.call_log.address = pbx.caller_id unless session.call_log.address.present?
     begin
-      session.notify_status 'in-progress'
+      log "Call #{session.call_id} is now in progress" and session.notify_status 'in-progress'
       session.run
     rescue Exception => ex
+      log "Error in call #{session.call_id}: #{ex.message}\n#{ex.backtrace.join("\n")}"
       finish_session_with_error session, error_message_for(ex)
     else
+      log "Call #{session.call_id} finished successfully"
       finish_session_successfully session
     ensure
       session.pbx.hangup
@@ -175,6 +182,8 @@ class BaseBroker
     else 'Failed to establish the communication'
     end
 
+    log "Call for session #{session_id} rejected: #{reason}"
+
     queued_call = active_queued_calls[session_id]
     if queued_call && queued_call.schedule && queued_call.schedule.retry_delays.count > queued_call.retries
       queued_call = queued_call.dup
@@ -182,9 +191,10 @@ class BaseBroker
       sleep = queued_call.schedule.retry_delays[queued_call.retries - 1].to_f * (Rails.env == 'development' ? 1.second : 1.hour)
       queued_call.not_before = queued_call.schedule.next_available_time(Time.now.utc + sleep)
 
-      finish_session_with_requeue session, message, queued_call
+      log "Re enqueuing call for session #{session_id} with queued call #{queued_call.id} for #{queued_call.not_before}" and finish_session_with_requeue session, message, queued_call
       schedule_call queued_call.not_before
     else
+      log "Dropping call for session #{session_id}"
       finish_session_with_error session, message, reason.to_s.dasherize
     end
 
@@ -216,4 +226,10 @@ class BaseBroker
       "Exception #{exception.class}: #{exception.message}\n#{exception.backtrace.join("\n")}"
     end
   end
+
+  def log(str)
+    Rails.logger.info(str)
+    true
+  end
+
 end
