@@ -97,12 +97,12 @@ class CallFlowsController < ApplicationController
         case extension
         when '.vrb'
           @call_flow.user_flow = YAML::load File.read(params[:vrb].tempfile.path)
+          @call_flow.save!
         when '.vrz'
           VrzContainer.for(@call_flow).import params[:vrb].tempfile.path
         else
           raise 'Invalid extension'
         end
-        @call_flow.save!
         redirect_to({ :action => :edit_workflow }, {:notice => "Call Flow #{@call_flow.name} successfully updated."})
       rescue Exception => ex
         redirect_to({:action => :edit_workflow}, :flash => {:error => "Invalid file: #{ex}"})
@@ -111,10 +111,10 @@ class CallFlowsController < ApplicationController
   end
 
   def export
-    if params[:export_audios]
+    if params[:export_audios] || @call_flow.external_service_guids.any?
       file = Tempfile.new(@call_flow.id.to_s)
       begin
-        VrzContainer.for(@call_flow).export file.path
+        VrzContainer.for(@call_flow, params[:export_audios]).export file.path
       ensure
         file.close
       end

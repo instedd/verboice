@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120615215025) do
+ActiveRecord::Schema.define(:version => 20120618161939) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -104,21 +104,21 @@ ActiveRecord::Schema.define(:version => 20120615215025) do
   add_index "contacts", ["project_id"], :name => "index_contacts_on_project_id"
 
   create_table "external_service_steps", :force => true do |t|
-    t.integer  "external_service_id"
     t.string   "name"
     t.string   "display_name"
     t.string   "icon"
     t.string   "kind"
     t.string   "callback_url"
     t.text     "variables"
-    t.datetime "created_at",          :null => false
-    t.datetime "updated_at",          :null => false
+    t.datetime "created_at",            :null => false
+    t.datetime "updated_at",            :null => false
     t.string   "response_type"
     t.text     "response_variables"
     t.string   "guid"
+    t.string   "external_service_guid"
   end
 
-  add_index "external_service_steps", ["external_service_id"], :name => "index_external_service_steps_on_external_service_id"
+  add_index "external_service_steps", ["external_service_guid"], :name => "index_external_service_steps_on_external_service_guid"
   add_index "external_service_steps", ["guid"], :name => "index_external_service_steps_on_guid"
 
   create_table "external_services", :force => true do |t|

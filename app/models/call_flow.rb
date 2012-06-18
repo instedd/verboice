@@ -16,7 +16,7 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class CallFlow < ActiveRecord::Base
-  attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url, :mode, :callback_url_user, :callback_url_password
+  attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url, :mode, :callback_url_user, :callback_url_password, :external_service_guids
 
   belongs_to :project
 

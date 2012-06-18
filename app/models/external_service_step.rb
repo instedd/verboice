@@ -16,14 +16,14 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class ExternalServiceStep < ActiveRecord::Base
-  belongs_to :external_service
+  belongs_to :external_service, :foreign_key => :external_service_guid, :primary_key => :guid
 
-  attr_accessible :callback_url, :display_name, :icon, :name, :kind, :variables
+  attr_accessible :callback_url, :display_name, :icon, :name, :kind, :variables, :guid, :external_service_guid
 
   serialize :variables, Array
   serialize :response_variables, Array
 
-  validates :name, :presence => true, :uniqueness => { :scope => :external_service_id }
+  validates :name, :presence => true, :uniqueness => { :scope => :external_service_guid }
 
   after_initialize do
     self.guid ||= Guid.new.to_s
