@@ -17,7 +17,7 @@ describe CallFlow do
       'root' => 1,
       'type' => 'play',
       'name' => 'Play Step',
-      'message' => { "name" => "Some explanation message", "type" => "recording", "file" => "file.wav", "duration" => 5 }
+      'message' => { "name" => "Some explanation message", "type" => "text" }
     }]
   end
 
@@ -32,7 +32,7 @@ describe CallFlow do
   end
 
   after(:each) do
-    Timecop.resume
+    Timecop.return
   end
 
   def get_tables(opts={})
@@ -207,7 +207,7 @@ describe CallFlow do
         'id' => 120,
         'type' => 'play',
         'name' => 'Play Step',
-        'message' => { "name" => "Some explanation message", "type" => "recording", "file" => "file.wav", "duration" => 5 }
+        'message' => { "name" => "Some explanation message", "type" => "text" }
       }]
       call_flow.save!
 

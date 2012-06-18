@@ -118,6 +118,7 @@ CallLogEntry.blueprint do
 end
 
 OAuthToken.blueprint do
+  account
   access_token { Faker::Name.name }
   refresh_token { Faker::Name.name }
   service { :google }
