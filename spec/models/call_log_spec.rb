@@ -63,4 +63,31 @@ describe CallLog do
     call_log.state.should == :active
     call_log.address.should == '1234'
   end
+
+  context "finishing call" do
+
+    let(:call_flow) do
+      CallFlow.make
+    end
+
+    let(:call_log) do
+      call_log = CallLog.make :call_flow => call_flow
+    end
+
+    before(:each) do
+      call_flow.should_receive(:push_results).with(call_log)
+      call_log.start
+    end
+
+    it "should push data on success" do
+      call_log.finish_successfully
+      call_log.state.should eq(:completed)
+    end
+
+    it "should push data on error" do
+      call_log.finish_with_error("Error")
+      call_log.state.should eq(:failed)
+    end
+
+  end
 end

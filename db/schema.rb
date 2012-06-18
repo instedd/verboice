@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120608221549) do
+ActiveRecord::Schema.define(:version => 20120615163639) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -43,10 +43,12 @@ ActiveRecord::Schema.define(:version => 20120608221549) do
     t.string   "callback_url"
     t.integer  "project_id"
     t.text     "encrypted_config"
-    t.datetime "created_at",       :null => false
-    t.datetime "updated_at",       :null => false
+    t.datetime "created_at",              :null => false
+    t.datetime "updated_at",              :null => false
     t.string   "mode"
     t.text     "variables"
+    t.string   "fusion_table_name"
+    t.string   "current_fusion_table_id"
   end
 
   add_index "call_flows", ["project_id"], :name => "index_call_flows_on_project_id"
@@ -168,14 +170,12 @@ ActiveRecord::Schema.define(:version => 20120608221549) do
 
   create_table "projects", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at",                                 :null => false
-    t.datetime "updated_at",                                 :null => false
+    t.datetime "created_at",                             :null => false
+    t.datetime "updated_at",                             :null => false
     t.integer  "account_id"
     t.string   "status_callback_url"
     t.text     "encrypted_config"
-    t.string   "fusion_table_name"
-    t.string   "current_fusion_table_id"
-    t.string   "time_zone",               :default => "UTC"
+    t.string   "time_zone",           :default => "UTC"
   end
 
   create_table "queued_calls", :force => true do |t|

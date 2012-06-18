@@ -15,10 +15,6 @@
 
   = f.time_zone_select :time_zone, ActiveSupport::TimeZone.all
 
-  - if current_account.google_oauth_token.nil?
-    = link_to 'Link your Google Account with Verboice to enable export to Google Fusion Tables', google_oauth_path(:redirect_back_to => @project.new_record? ? new_project_url : edit_project_url(@project))
-  = f.text_field :fusion_table_name, :label_options => {:title => "Enter a fusion table name and Verboice will create the table and store call results in real-time to it. Note that in the case that the flow definition changes, Verboice might need to generate a fresh table with the new structure to store new results; in such case, Verboice will generate new tables using the name you provided and a revision number."}
-
   %hr
 
   - if @project.new_record?

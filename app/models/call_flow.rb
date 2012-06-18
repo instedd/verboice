@@ -16,6 +16,8 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class CallFlow < ActiveRecord::Base
+  include FusionTablesPush
+
   attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url, :mode, :callback_url_user, :callback_url_password
 
   belongs_to :project
@@ -58,6 +60,10 @@ class CallFlow < ActiveRecord::Base
 
   def error_flow
     Commands::TraceCommand.new call_flow_id: id, step_id: 'current_step', step_name: '', store: '"User hanged up."'
+  end
+
+  def push_results(call_log)
+    self.push_to_fusion_tables(call_log)
   end
 
   private

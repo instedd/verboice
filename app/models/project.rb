@@ -17,8 +17,6 @@
 
 class Project < ActiveRecord::Base
 
-  include FusionTablesPush
-
   belongs_to :account
   belongs_to :default_call_flow, :class_name => "CallFlow", :foreign_key => "call_flow_id"
 
@@ -41,10 +39,6 @@ class Project < ActiveRecord::Base
   attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true
 
   def call(address)
-  end
-
-  def push_results(call_log)
-    self.push_to_fusion_tables(call_log)
   end
 
   def defined_variables

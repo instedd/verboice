@@ -1,4 +1,4 @@
-module Project::FusionTablesPush
+module CallFlow::FusionTablesPush
 
   def push_to_fusion_tables(call_log)
     return if fusion_table_name.blank?
@@ -9,12 +9,12 @@ module Project::FusionTablesPush
 
     API_URL = "https://www.google.com/fusiontables/api/query"
 
-    attr_accessor :project, :call_log, :access_token
+    attr_accessor :call_flow, :call_log, :access_token
 
-    delegate :current_fusion_table_id, :fusion_table_name, to: :project
+    delegate :current_fusion_table_id, :fusion_table_name, to: :call_flow
 
-    def initialize(project, call_log)
-      self.project = project
+    def initialize(call_flow, call_log)
+      self.call_flow = call_flow
       self.call_log = call_log
     end
 
@@ -25,7 +25,7 @@ module Project::FusionTablesPush
     end
 
     def load_token
-      self.access_token = project.account.google_oauth_token.tap do |t|
+      self.access_token = call_flow.account.google_oauth_token.tap do |t|
         t.refresh! && t.save! if t.expired?
       end.access_token
     end
@@ -33,11 +33,13 @@ module Project::FusionTablesPush
     def upload_call_data
       columns_expr = columns.map{|name, kind| "'#{name.gsub("'", "\\'")}'"}.join(', ')
 
-      ids = project.step_names.keys
-      values = [call_log.id, call_log.address, call_log.started_at, call_log.finished_at]
+      ids = call_flow.step_names.keys
+      values = [call_log.id, call_log.address, call_log.state, call_log.started_at, call_log.finished_at]
+
       call_log.traces.each do |trace|
         values[ids.index(trace.step_id.to_i) + 4] = trace.result rescue nil
       end
+
       columns.count.times {|i| values[i] ||= '' }
       values_expr = values.map{|val| "'#{val}'"}.join(', ')
 
@@ -50,7 +52,7 @@ module Project::FusionTablesPush
       query = "CREATE TABLE #{new_table_name} ( #{columns_expr} )"
       response = post_sql_query query
       id = csv_parse(response)[:tableid][0]
-      project.update_attribute :current_fusion_table_id, id
+      call_flow.update_attribute :current_fusion_table_id, id
     end
 
     def has_table?
@@ -67,7 +69,7 @@ module Project::FusionTablesPush
     end
 
     def make_name(index)
-      "#{fusion_table_name.strip.gsub(/ /,'_')}_#{index.to_s.rjust(2,'0')}"
+      "#{fusion_table_name.strip.gsub(/ /,'_')}_#{index.to_s.rjust(3,'0')}"
     end
 
     def is_table_valid?
@@ -101,7 +103,7 @@ module Project::FusionTablesPush
     end
 
     def columns # TODO: Column names should be unique
-      ['Call ID', 'Phone Number', ['Start Time', 'DATETIME'], ['End Time', 'DATETIME']] + project.step_names.values.map(&:to_s)
+      ['Call ID', 'Phone Number', 'State', ['Start Time', 'DATETIME'], ['End Time', 'DATETIME']] + call_flow.step_names.values.map(&:to_s)
     end
 
   end

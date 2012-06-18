@@ -66,7 +66,6 @@ class CallLog < ActiveRecord::Base
   end
 
   def finish_successfully
-    project.push_results(self) unless project.nil?
     finish :completed
   end
 
@@ -74,6 +73,8 @@ class CallLog < ActiveRecord::Base
     self.state = state
     self.finished_at = Time.now.utc
     self.save!
+
+    call_flow.try(:push_results, self)
   end
 
   def structured_details

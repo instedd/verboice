@@ -115,7 +115,7 @@ class BaseBroker
     else
       finish_session_successfully session
     ensure
-      session.pbx.hangup
+      session.pbx.hangup rescue nil
 
       EM.fiber_sleep 2
 
