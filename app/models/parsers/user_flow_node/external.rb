@@ -24,7 +24,7 @@ module Parsers
       def initialize call_flow, params
         @id = params['id']
         @name = params['name'] || ''
-        @external_step_id = params['external_step_id']
+        @external_step_guid = params['external_step_guid']
         @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
@@ -41,14 +41,17 @@ module Parsers
       end
 
       def equivalent_flow
-        service_step = ExternalServiceStep.find(@external_step_id)
+        service_step = ExternalServiceStep.find_by_guid(@external_step_guid)
         service = service_step.external_service
-
         Compiler.parse do |compiler|
           compiler.Label @id
           compiler.Assign "current_step", @id
           compiler.Trace context_for %("Calling External Service #{service.name}.")
-          compiler.Callback service_step.callback_url, {:response_type => service_step.response_type.to_sym, :variables => build_variables_map(compiler), :external_service_id => service.id}
+          compiler.Callback service_step.callback_url, {
+            response_type: (service_step.response_type.present? ? service_step.response_type.to_sym : :flow),
+            variables: build_variables_map(compiler),
+            external_service_guid: service.guid
+          }
           assign_responses(compiler, service_step)
           compiler.append @next.equivalent_flow if @next
         end

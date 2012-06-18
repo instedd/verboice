@@ -25,6 +25,10 @@ class ExternalServiceStep < ActiveRecord::Base
 
   validates :name, :presence => true, :uniqueness => { :scope => :external_service_id }
 
+  after_initialize do
+    self.guid ||= Guid.new.to_s
+  end
+
   class Variable < Struct.new(:name, :display_name, :type)
   end
 

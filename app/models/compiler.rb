@@ -19,10 +19,12 @@ class Compiler
   attr_accessor :first
   attr_accessor :labels
   attr_accessor :variables
+  attr_accessor :external_service_guids
 
   def initialize
     @labels = {}
     @variables = Set.new
+    @external_service_guids = Set.new
   end
 
   def parse &blk
@@ -80,6 +82,11 @@ class Compiler
   def PersistVariable(variable, expression)
     @variables.add variable
     append Commands::PersistVariableCommand.new(variable, expression)
+  end
+
+  def Callback url=nil, options={}
+    @external_service_guids.add options[:external_service_guid] if options[:external_service_guid].present?
+    append Commands::CallbackCommand.new(url, options)
   end
 
   def Assign(*args)
@@ -153,6 +160,7 @@ class Compiler
     if block.is_a? Compiler
       @labels.merge! block.labels
       @variables.merge block.variables
+      @external_service_guids.merge block.external_service_guids
       block.first
     else
       block

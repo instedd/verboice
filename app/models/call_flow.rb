@@ -30,6 +30,7 @@ class CallFlow < ActiveRecord::Base
   serialize :flow,      Command
   serialize :user_flow, SerializableArray
   serialize :variables, Array
+  serialize :external_service_guids, Array
 
   before_validation :set_name_to_callback_url, :unless => :name?
 
@@ -71,6 +72,7 @@ class CallFlow < ActiveRecord::Base
       parser  = Parsers::UserFlow.new self, user_flow
       self.flow = parser.equivalent_flow
       self.variables = parser.variables.to_a
+      self.external_service_guids = parser.external_service_guids.to_a
     end
     true
   end

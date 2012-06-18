@@ -104,9 +104,11 @@ ExternalService.blueprint do
   name
   url
   project
+  guid
 end
 
 ExternalServiceStep.blueprint do
+  guid
   external_service
   name
   display_name { name }
