@@ -18,7 +18,8 @@
 module Builders
   class Vxml
 
-    def initialize(vars = {})
+    def initialize(callback_url, vars = {})
+      @callback_url = callback_url
       @vars = vars
       init_xml_builder
     end
@@ -142,14 +143,14 @@ module Builders
         xml.vxml(:version => "2.1") do
           xml.catch_(:event => "connection.disconnect.hangup") do
             xml.var(:name => "disconnect", :expr => "true")
-            xml.submit_(:next => "http://staging.instedd.org:7000/", :namelist => @vars.keys.concat(%w(disconnect)).join(' '))
+            xml.submit_(:next => @callback_url, :namelist => @vars.keys.concat(%w(disconnect)).join(' '))
             xml.exit
           end
           xml.error do
             xml.var(:name => "error", :expr => "true")
             xml.var(:name => "message", :expr => "_message")
             xml.var(:name => "event", :expr => "_event")
-            xml.submit_(:next => "http://staging.instedd.org:7000/", :namelist => @vars.keys.concat(%w(error message event)).join(' '))
+            xml.submit_(:next => @callback_url, :namelist => @vars.keys.concat(%w(error message event)).join(' '))
             xml.exit
           end
           @vars.each do |k, v|

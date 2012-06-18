@@ -19,7 +19,8 @@ require 'spec_helper'
 
 describe Builders::Vxml do
 
-  let(:vxml) { Builders::Vxml.new }
+  let(:callback) { 'http://www.domain.com/foo' }
+  let(:vxml) { Builders::Vxml.new callback }
   let(:vars) { Hash.new }
 
   it "builds an empty vxml" do
@@ -89,7 +90,7 @@ describe Builders::Vxml do
       <var name="key2" expr="'value2'"/>
     XML
 
-    Builders::Vxml.new(vars).build.should be_equivalent_to(build_xml(nil,nil,outside_form))
+    Builders::Vxml.new(callback, vars).build.should be_equivalent_to(build_xml(nil,nil,outside_form))
   end
 
   context "capture" do
@@ -176,14 +177,14 @@ describe Builders::Vxml do
       <vxml version="2.1">
         <catch event="connection.disconnect.hangup">
           <var name="disconnect" expr="true"/>
-          <submit next="http://staging.instedd.org:7000/" namelist="#{disconnect_vars_list}"/>
+          <submit next="#{callback}" namelist="#{disconnect_vars_list}"/>
           <exit/>
         </catch>
         <error>
           <var name="error" expr="true"/>
           <var name="message" expr="_message"/>
           <var name="event" expr="_event"/>
-          <submit next="http://staging.instedd.org:7000/" namelist="#{error_vars_list}"/>
+          <submit next="#{callback}" namelist="#{error_vars_list}"/>
           <exit/>
         </error>
         #{outside_form}

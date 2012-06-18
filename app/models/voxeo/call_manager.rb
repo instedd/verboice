@@ -26,7 +26,7 @@ module Voxeo
       @session_id = opts[:session_id]
       @caller_id = opts[:caller_id]
       @context = opts[:context]
-      @builder = Builders::Vxml.new "sessionid" => voxeo_session_id
+      @builder = Builders::Vxml.new callback_url, "sessionid" => voxeo_session_id
       @hangup = false
       @config = Rails.configuration.voxeo_configuration
     end
