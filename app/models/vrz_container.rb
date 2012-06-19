@@ -19,7 +19,7 @@ class VrzContainer
 
   def initialize(call_flow, export_audios = true)
     @call_flow = call_flow
-    @recoding_manager = RecordingManager.for(@call_flow)
+    @recording_manager = RecordingManager.for(@call_flow)
     @export_audios = export_audios
   end
 
@@ -54,7 +54,7 @@ class VrzContainer
             end
           end
         when '.wav'
-          zip.extract(entry, File.join(@recoding_manager.recordings_folder, entry.name)) {true} # true to always overwrite
+          zip.extract(entry, File.join(@recording_manager.recordings_folder, entry.name)) {true} # true to always overwrite
         end
       end
     end
@@ -80,7 +80,7 @@ class VrzContainer
       end
       # audio files
       if @export_audios
-        Dir.glob(File.join(@recoding_manager.recordings_folder, '*.wav')) do |audio_file|
+        Dir.glob(File.join(@recording_manager.recordings_folder, '*.wav')) do |audio_file|
           zos.put_next_entry File.basename(audio_file)
           zos.print IO.read(audio_file)
         end
