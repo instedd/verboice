@@ -62,7 +62,7 @@ ignore CallFlow do
     sql = opts[:sql]
     id = opts[:result]
     stub_request(:post, "https://foowww.google.com/fusiontables/api/query")
-      .with(:body => {"sql" => "CREATE%20TABLE%20my_table_001%20(%20'Call%20ID'%3A%20STRING%2C%20'Phone%20Number'%3A%20STRING%2C%20'State'%3A%20STRING%2C%20'Start%20Time'%3A%20DATETIME%2C%20'End%20Time'%3A%20DATETIME%2C%20'Play%20Step'%3A%20STRING%20)"})
+      .with(:body => {"sql" => sql})
       .to_return(:body => "tableid\n#{id}")
   end
 

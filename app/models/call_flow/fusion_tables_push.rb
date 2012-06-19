@@ -1,11 +1,10 @@
 module CallFlow::FusionTablesPush
 
   def push_to_fusion_tables(call_log)
-    return if !store_in_fusion_tables || fusion_table_name.blank? || account.google_oauth_token.nil?
-    Pusher.new(self, call_log).push
+    Delayed::Job.enqueue Pusher.new(self.id, call_log.id)
   end
 
-  class Pusher
+  class Pusher < Struct.new(:call_flow_id, :call_log_id)
 
     API_URL = "https://www.google.com/fusiontables/api/query"
 
@@ -13,9 +12,11 @@ module CallFlow::FusionTablesPush
 
     delegate :current_fusion_table_id, :fusion_table_name, to: :call_flow
 
-    def initialize(call_flow, call_log)
-      self.call_flow = call_flow
-      self.call_log = call_log
+    def perform
+      self.call_flow = CallFlow.find(self.call_flow_id)
+      self.call_log = CallLog.find(self.call_log_id)
+      return if !self.call_flow.store_in_fusion_tables || self.call_flow.fusion_table_name.blank? || self.call_flow.account.google_oauth_token.nil?
+      push
     end
 
     def push
