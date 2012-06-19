@@ -56,7 +56,7 @@ CallLog.blueprint do
   channel
   call_flow { channel.call_flow }
   project { call_flow.project }
-  account { project.account }
+  account { project.try(:account) || channel.try(:account) || account }
 end
 
 Channel.blueprint do

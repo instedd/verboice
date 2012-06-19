@@ -1,7 +1,7 @@
 module CallFlow::FusionTablesPush
 
   def push_to_fusion_tables(call_log)
-    return if fusion_table_name.blank?
+    return if !store_in_fusion_tables || fusion_table_name.blank? || account.google_oauth_token.nil?
     Pusher.new(self, call_log).push
   end
 
@@ -37,7 +37,7 @@ module CallFlow::FusionTablesPush
       values = [call_log.id, call_log.address, call_log.state, call_log.started_at, call_log.finished_at]
 
       call_log.traces.each do |trace|
-        values[ids.index(trace.step_id.to_i) + 4] = trace.result rescue nil
+        values[ids.index(trace.step_id.to_i) + 5] = trace.result rescue nil
       end
 
       columns.count.times {|i| values[i] ||= '' }
@@ -74,9 +74,9 @@ module CallFlow::FusionTablesPush
 
     def is_table_valid?
       current_columns = get_table_columns(current_fusion_table_id).map{|row| row[:name]}
-      expected_columns = columns()
+      expected_columns = columns_names()
       return current_columns[0...expected_columns.length] == expected_columns
-    rescue
+    rescue Exception => ex
       return false
     end
 
@@ -102,8 +102,23 @@ module CallFlow::FusionTablesPush
       CSV.parse csv, {:headers => true, :header_converters => :symbol}
     end
 
-    def columns # TODO: Column names should be unique
-      ['Call ID', 'Phone Number', 'State', ['Start Time', 'DATETIME'], ['End Time', 'DATETIME']] + call_flow.step_names.values.map(&:to_s)
+    def columns
+      step_names = []
+      call_flow.step_names.values.map(&:to_s).each do |original_step_name|
+        step_name = original_step_name
+        index = 1
+        while step_names.include?(step_name)
+          index += 1
+          step_name = "#{original_step_name}_#{index}"
+        end
+        step_names << step_name
+      end
+
+      ['Call ID', 'Phone Number', 'State', ['Start Time', 'DATETIME'], ['End Time', 'DATETIME']] + step_names
+    end
+
+    def columns_names
+      columns.map{|name,type| name}
     end
 
   end
