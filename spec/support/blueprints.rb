@@ -65,6 +65,10 @@ Channel.blueprint do
   name
 end
 
+Channel.blueprint(:custom) do
+  kind { 'custom' }
+end
+
 Channel.blueprint(:voxeo) do
   kind { "voxeo" }
   token { Sham.guid }

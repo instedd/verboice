@@ -21,7 +21,7 @@ class BaseBroker
   end
 
   def wake_up_queued_calls
-    Channel.joins(:queued_calls).each do |channel|
+    channels.joins(:queued_calls).each do |channel|
       notify_call_queued channel
     end
   end
