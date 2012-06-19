@@ -69,9 +69,9 @@ ignore CallFlow do
   def post_data(opts={})
     sql = opts[:sql]
     if sql
-      # stub_request(:post, API_URL).with(:body => {"sql" => sql})
+      stub_request(:post, API_URL).with(:body => {"sql" => sql})
     else
-      # stub_request(:post, API_URL)
+      stub_request(:post, API_URL)
     end
   end
 
