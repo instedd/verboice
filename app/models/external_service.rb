@@ -23,6 +23,8 @@ class ExternalService < ActiveRecord::Base
 
   serialize :global_settings, Hash
 
+  validates_presence_of :url
+
   after_initialize do
     self.guid ||= Guid.new.to_s
   end
