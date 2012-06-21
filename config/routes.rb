@@ -91,6 +91,8 @@ Verboice::Application.routes.draw do
   put "api/schedules/:name" => "api_schedules#update"
   delete "api/schedules/:name" => "api_schedules#destroy"
 
+  get 'api/logs/:call_id' => "api_logs#list"
+
   get 'oauth/google' => 'oauth#google', :as => 'google_oauth'
   match 'oauth/google/callback' => 'oauth#google_callback', :as => 'google_callback_oauth'
 

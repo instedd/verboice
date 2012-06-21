@@ -1,0 +1,4 @@
+csv << ['Entry ID', 'Time', 'Step name', 'Command', 'Action', 'Detail']
+@entries.find_each do |entry|
+  csv << [entry.id, entry.created_at, entry.step_name, entry.command, entry.action, entry.description]
+end
