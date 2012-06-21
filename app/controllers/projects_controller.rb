@@ -49,7 +49,7 @@ class ProjectsController < ApplicationController
     if @project.update_attributes(params[:project])
       redirect_to(project_path(@project), :notice => "Project #{@project.name} successfully updated.")
     else
-      render :action => "show"
+      render :action => "edit"
     end
   end
 
