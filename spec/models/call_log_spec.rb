@@ -95,4 +95,13 @@ describe CallLog do
     end
 
   end
+
+  it 'should return last entry' do
+    call = CallLog.make
+    call.last_entry.should be_nil
+    entry1 = CallLogEntry.make :call => call
+    call.last_entry.should eq(entry1)
+    entry2 = CallLogEntry.make :call => call
+    call.last_entry.should eq(entry2)
+  end
 end

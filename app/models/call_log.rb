@@ -107,6 +107,10 @@ class CallLog < ActiveRecord::Base
     )
   end
 
+  def last_entry
+    self.entries.order('created_at DESC, id DESC').first
+  end
+
   private
 
   def set_account_to_project_account

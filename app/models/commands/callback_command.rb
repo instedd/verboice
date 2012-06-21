@@ -32,6 +32,8 @@ class Commands::CallbackCommand < Command
   end
 
   def run(session)
+    last_entry = session.call_log.last_entry
+
     session.info "Callback started", command: 'callback', action: 'start'
     url = @url || session.callback_url
     url = interpolate_url session, url
@@ -40,6 +42,7 @@ class Commands::CallbackCommand < Command
     url, authorization = callback_authentication(url, session.call_flow)
 
     body = {:CallSid => session.call_id, :From => session.pbx.caller_id, :Channel => session.channel.name}
+    body[:LastEntry] = last_entry.id if last_entry.present?
 
     @params.each do |name, key|
       body[name] = session[key]

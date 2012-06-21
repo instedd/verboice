@@ -210,5 +210,12 @@ module Commands
       end
     end
 
+    it "should include last entry from call log" do
+      @session.call_log.should_receive(:last_entry).and_return(double('last entry', :id => 567))
+      result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, :LastEntry => 567)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+        CallbackCommand.new(url).run @session
+      end
+    end
+
   end
 end
