@@ -18,7 +18,7 @@
 class InsteddFormBuilder < ActionView::Helpers::FormBuilder
 
   delegate :content_tag, :concat, :capture, :to => :@template
-  
+
   def initialize(object_name, object, template, options, proc)
     super
   end

@@ -63,4 +63,5 @@ describe Project do
       project.reload.defined_variables.should eq(['foo', 'bar', 'baz'])
     end
   end
+
 end

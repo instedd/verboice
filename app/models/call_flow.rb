@@ -16,7 +16,9 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class CallFlow < ActiveRecord::Base
-  attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url, :mode, :callback_url_user, :callback_url_password, :external_service_guids
+  include FusionTablesPush
+
+  attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url, :mode, :callback_url_user, :callback_url_password, :external_service_guids, :store_in_fusion_tables, :fusion_table_name, :current_fusion_table_id
 
   belongs_to :project
 
@@ -26,6 +28,7 @@ class CallFlow < ActiveRecord::Base
   has_many :traces, :dependent => :destroy
 
   has_one :account, :through => :project
+  has_one :google_oauth_token, :through => :account
 
   serialize :flow,      Command
   serialize :user_flow, SerializableArray
@@ -36,6 +39,9 @@ class CallFlow < ActiveRecord::Base
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :project_id
+
+  validates_presence_of :fusion_table_name, :if => :store_in_fusion_tables
+  validates_presence_of :google_oauth_token, :if => :store_in_fusion_tables
 
   before_save :clear_flow, :if => lambda { mode_callback_url?}
   before_save :clear_callback_url, :if => lambda { mode_flow? }
@@ -59,6 +65,10 @@ class CallFlow < ActiveRecord::Base
 
   def error_flow
     Commands::TraceCommand.new call_flow_id: id, step_id: 'current_step', step_name: '', store: '"User hanged up."'
+  end
+
+  def push_results(call_log)
+    self.push_to_fusion_tables(call_log)
   end
 
   private

@@ -73,6 +73,12 @@ class CallLog < ActiveRecord::Base
     self.state = state
     self.finished_at = Time.now.utc
     self.save!
+
+    begin
+      call_flow.try(:push_results, self)
+    rescue Exception => ex
+      logger.error "Error pushing call flow results #{ex.message}\n#{ex.backtrace.join("\n")}"
+    end
   end
 
   def structured_details

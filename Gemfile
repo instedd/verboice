@@ -20,6 +20,8 @@ gem "instedd-rails"
 gem 'decent_exposure'
 gem 'attr_encrypted'
 gem 'foreman'
+gem 'oauth2', :require => 'oauth2'
+gem 'delayed_job_active_record'
 gem 'rubyzip', :require => 'zip/zip'
 gem 'rest-client'
 gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribute.git"
@@ -57,4 +59,5 @@ end
 group :test do
   gem 'capybara'
   gem 'timecop'
+  gem 'webmock'
 end

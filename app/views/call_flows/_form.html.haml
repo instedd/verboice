@@ -24,6 +24,19 @@
     %br/
     = f.password_field :callback_url_password, :class => "w30"
 
+  - if OAuth2::Client.service_configured?(:google)
+    %hr
+    %p
+      = f.check_box :store_in_fusion_tables, :class => "store_in_fusion_tables"
+      = f.label "Store results of this call flow in Google Fusion Tables"
+    .fusion_tables_settings
+      .field
+        = f.label :fusion_table_name, "Fusion Table name"
+        %p.desc Enter a fusion table name and Verboice will create the table and store call results in real-time to it. Note that in the case that the flow definition changes, Verboice might need to generate a fresh table with the new structure to store new results; in such case, Verboice will generate new tables using the name you provided and a revision number.
+        = f.text_field :fusion_table_name, :class => 'w30'
+      .field
+        = link_to current_account.google_oauth_token.nil? ? 'Link your Google Account with Verboice to enable storage in Fusion Tables' : 'Change your Google Account for Fusion Tables', google_oauth_path(:redirect_back_to => project_call_flows_path(@project)), :class => 'button farrow'
+
   %hr
   - if call_flow.new_record?
     %button.white{:type => "submit"} Save

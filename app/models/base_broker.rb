@@ -122,7 +122,7 @@ class BaseBroker
       log "Call #{session.call_id} finished successfully"
       finish_session_successfully session
     ensure
-      session.pbx.hangup
+      session.pbx.hangup rescue nil
 
       EM.fiber_sleep 2
 

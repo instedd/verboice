@@ -56,7 +56,7 @@ CallLog.blueprint do
   channel
   call_flow { channel.call_flow }
   project { call_flow.project }
-  account { project.account }
+  account { project.try(:account) || channel.try(:account) || account }
 end
 
 Channel.blueprint do
@@ -121,4 +121,12 @@ ExternalServiceStep.blueprint do
 end
 
 CallLogEntry.blueprint do
+end
+
+OAuthToken.blueprint do
+  account
+  access_token { Faker::Name.name }
+  refresh_token { Faker::Name.name }
+  service { :google }
+  expires_at { DateTime.now.utc + 3600.seconds }
 end
