@@ -6,6 +6,7 @@ onWorkflow ->
       @root = attrs.root
       @name = ko.observable(attrs.name || @default_name())
       @next_id = attrs.next
+      @index = ko.observable(0)
 
       @is_name_invalid = ko.computed () =>
         not @name()
@@ -47,11 +48,20 @@ onWorkflow ->
       root: @root
       next: (if @next_id > 0 then @next_id else null)
 
+    children: () =>
+      []
+
+    has_children: () =>
+      @children().length > 0
+
     parent: () =>
       workflow.get_parent(@)
 
     next: () =>
       workflow.get_step(@next_id)
+
+    has_next: () =>
+      @next_id? and @next_id > 0
 
     can_add_next: () =>
       not @next_id?

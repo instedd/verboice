@@ -31,7 +31,11 @@ onWorkflow ->
       super()
 
     children: () =>
-      (option.next() or option.skip() for option in @child_steps())
+      ((if option.next()
+          option.next().index(i)
+          option.next()
+        else
+          option.skip()) for option, i in @child_steps())
 
     children_ids: () =>
       (option.next_id for option in @child_steps())

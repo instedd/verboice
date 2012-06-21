@@ -54,6 +54,8 @@
       .clear
       .left
         .box.lightgrey.workflow
-          .workflow-content-container.h65{ ko(workflow_steps: 'steps') }
+          .workflow-content-container.h65
+            .workflow-container{ "data-bind" => "template: { name: 'workflow_step_template', foreach: roots }" }
+          -#.workflow-content-container.h65{ ko(workflow_steps: 'steps') }
       %span{ko(template: '{name: display_template_for, data: sidebar_content}')}
       .clear

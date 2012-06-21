@@ -11,6 +11,9 @@ onWorkflow ->
         (return false for step in @steps() when step.is_invalid())
         true
 
+      @roots = ko.computed () =>
+        (step for step in @steps() when step.root)
+
     get_step: (id) =>
       return null if not id?
       (step for step in @steps() when step.id == id)[0]

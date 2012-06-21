@@ -27,6 +27,8 @@ p + p.desc { font-size:11px !important; color:#555555; margin-top:-15px !importa
 .lightgrey { background-color:#ebebeb }
 .box.workflow { -webkit-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset; -moz-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset;  box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.2) inset }
 .workflow-content-container { overflow:auto; max-width:100% }
+
+/*
 .workflow-container { position:relative; white-space:nowrap }
 .workflow-container p { margin:0; padding:0 }
 .workflow-container div { display:inline-block; margin:0 35px 10px 0; vertical-align:top; text-align:center; width:55px; height:80px; position:relative }
@@ -45,6 +47,7 @@ p + p.desc { font-size:11px !important; color:#555555; margin-top:-15px !importa
 .workflow-container div.alert button:active { background-position:-1px -120px !important }
 .workflow-container div.alert p:first-child { background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat; width:15px; height:15px; position:absolute; right:3px; top:-2px; z-index:2 }
 .workflow-container div.alert p { color:#ff6600 !important; overflow:visible }
+*/
 
 .box.iblock { padding:10px 0; position:relative }
 .iblock { display:inline-block; vertical-align:top; margin-right:15px }

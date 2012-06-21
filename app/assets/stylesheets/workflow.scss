@@ -36,6 +36,44 @@ table.workflow-table {
 
 .workflow-container {
   position:relative;
+  padding-left: 20px;
+
+  button { width:70px; height:70px; border:1px solid #666; background:#CCC; cursor:pointer; border-radius:5px }
+  div { display:inline-block; vertical-align:top }
+  div.b { display:block; margin-left:90px }
+  div span { width:90px; height:110px; display:inline-block; vertical-align:top; text-align:center }
+  p { margin:0 auto; padding:0; width:70px }
+
+  p.button.active {
+    background-position: 0 -120px !important
+  }
+
+  a.insertBefore, a.insertAfter {
+    cursor: pointer;
+    z-index: 20;
+    &.active { background-position: 0 -30px !important}
+    &:active { background-position: 0 -30px !important}
+    &:hover  { background-position: 0 -60px !important}
+  }
+
+  a.insertBefore {
+    background:image-url("insertBefore.png") no-repeat; width:19px; height:19px; position:absolute; left:-20px; top:37px; display: block;
+  }
+
+  a.insertAfter {
+    background:image-url("insertAfter.png") no-repeat; width:19px; height:19px; position:absolute; left:60px; top:37px; display: block;
+  }
+
+  p.addnew {
+    background:image-url("addStep.png") no-repeat; height: 21px; width: 21px; margin: 18px 0px 5px 15px; cursor: pointer; border: medium none;
+    &.button.active { background-position: 0 -30px !important}
+    &.button:hover  { background-position: 0 -60px !important}
+  }
+
+}
+
+.workflow-container-old {
+  position:relative;
   white-space:nowrap;
   padding-left: 20px;
 
