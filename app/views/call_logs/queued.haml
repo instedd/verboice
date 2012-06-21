@@ -27,7 +27,9 @@
           %td= call.schedule.try(:name)
           %td= call.project.try(:name)
           %td= call.call_log.try(:state)
-          %td= link_to 'view log details', call_log_path(call.call_log)
+          %td
+            = link_to 'view log details', call_log_path(call.call_log)
+            = link_to '', [call.channel, call], :confirm => "Are you sure you want to delete the call #{call.address}?", :method => :delete, :class => "button fdelete"
     %br/
     %div= page_entries_info @calls, :entry_name => 'queued calls'
     = will_paginate @calls, :param_name => 'page'

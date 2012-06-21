@@ -18,7 +18,7 @@
 class Schedule < ActiveRecord::Base
   belongs_to :project
   has_many :queued_calls
-  has_many :call_logs
+  has_many :call_logs, :dependent => :destroy
   has_one :account, :through => :project
 
   validates_presence_of :account
