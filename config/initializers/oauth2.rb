@@ -8,7 +8,7 @@ class OAuth2::Client
   end
 
   def self.service_configured?(service)
-    @@oauth_data.include?(service.to_s)
+    @@oauth_data.include?(service.to_s) && !@@oauth_data[service.to_s]['api_key'].blank? && !@@oauth_data[service.to_s]['api_secret'].blank?
   end
 
   protected

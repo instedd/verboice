@@ -47,10 +47,10 @@ ActiveRecord::Schema.define(:version => 20120619150109) do
     t.datetime "updated_at",              :null => false
     t.string   "mode"
     t.text     "variables"
+    t.text     "external_service_guids"
     t.string   "fusion_table_name"
     t.string   "current_fusion_table_id"
     t.boolean  "store_in_fusion_tables"
-    t.text     "external_service_guids"
   end
 
   add_index "call_flows", ["project_id"], :name => "index_call_flows_on_project_id"
