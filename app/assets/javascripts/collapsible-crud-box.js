@@ -39,7 +39,7 @@ $(function() {
   });
 });
 
-function add_fields(link, content) {
+function add_box(link, content) {
   $(link).closest(".addqueue").before(content);
 }
 

@@ -18,21 +18,16 @@
 class ContactsController < ApplicationController
   before_filter :authenticate_account!
   before_filter :load_project, :only => [:new, :create, :index]
-  before_filter :load_contact, :only => [:show, :edit, :update, :destroy]
+  before_filter :initialize_context, :only => [:show, :edit, :update, :destroy]
 
   def index
-    @contacts = @project.contacts
+    @contacts = @project.contacts.includes(:recorded_audios).includes(:persisted_variables)
+    @persisted_variable_names = PersistedVariable.select(:name).where(:contact_id => @contacts.collect(&:id)).collect(&:name).to_set
+    @recorded_audio_descriptions = RecordedAudio.select(:description).where(:contact_id => @contacts.collect(&:id)).collect(&:description).to_set
 
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @contacts }
-    end
-  end
-
-  def show
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @contact }
     end
   end
 
@@ -55,7 +50,7 @@ class ContactsController < ApplicationController
 
     respond_to do |format|
       if @contact.save
-        format.html { redirect_to [@project, @contact], notice: 'Contact was successfully created.' }
+        format.html { redirect_to project_contacts_url(@project), notice: 'Contact was successfully created.' }
         format.json { render json: @contact, status: :created, location: @contact }
       else
         format.html { render action: "new" }
@@ -67,7 +62,7 @@ class ContactsController < ApplicationController
   def update
     respond_to do |format|
       if @contact.update_attributes(params[:contact])
-        format.html { redirect_to [@project, @contact], notice: 'Contact was successfully updated.' }
+        format.html { redirect_to project_contacts_url(@project), notice: 'Contact was successfully updated.' }
         format.json { head :no_content }
       else
         format.html { render action: "edit" }
@@ -90,8 +85,10 @@ class ContactsController < ApplicationController
     @project = current_account.projects.find(params[:project_id])
   end
 
-  def load_contact
-    @contact = current_account.contacts.find(params[:id])
+  def initialize_context
+    @contact = current_account.contacts.includes(:recorded_audios).includes(:persisted_variables).find(params[:id])
+    @recorded_audios = @contact.recorded_audios
+    @persisted_variables = @contact.persisted_variables
     @project = @contact.project
   end
 end

@@ -1,21 +1,36 @@
 = render 'shared/project_tabs_and_title', :project => @project
 
-%h1 Listing contacts
-
-%table
-  %tr
-    %th Phone number
-    %th
-    %th
-    %th
-
-  - @contacts.each do |contact|
-    %tr
-      %td= contact.address
-      %td= link_to 'Show', contact
-      %td= link_to 'Edit', edit_contact_path(contact)
-      %td= link_to 'Destroy', contact, :confirm => 'Are you sure?', :method => :delete
-
+%h2 Contacts
 %br
 
-= link_to 'New Contact', new_project_contact_path(@project)
+.tablewrapp
+  %table.GralTable
+    %tr
+      %th Phone number
+      - @persisted_variable_names.each do |variable_name|
+        %th=variable_name
+      - @recorded_audio_descriptions.each do |audio_description|
+        %th=audio_description
+      %th
+
+    - @contacts.each do |contact|
+      %tr.link{'data-url' => edit_contact_path(contact)}
+        %td= contact.address
+        - @persisted_variable_names.each do |variable_name|
+          - variable = contact.persisted_variables.detect do |variable|
+            - variable.name == variable_name
+          - if variable
+            %td= variable.value
+          - else
+            %td
+        - @recorded_audio_descriptions.each do |audio_description|
+          - audios = contact.recorded_audios.collect do |audio|
+            - audio.description == audio_description
+          %td= audios.size
+
+
+        %td
+          = link_to '', contact, :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
+%br
+
+= link_to 'New Contact', new_project_contact_path(@project), :class => 'cadd'

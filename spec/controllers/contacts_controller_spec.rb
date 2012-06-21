@@ -37,20 +37,6 @@ describe ContactsController do
     end
   end
 
-  describe "GET show" do
-    it "assigns the requested contact as @contact" do
-      get :show, {:project_id => @project.id, :id => contact.to_param}
-      assigns(:contact).should eq(contact)
-    end
-
-    it "fails if the requested contact is not in current project" do
-      expect {
-        get :show, {:project_id => @project.id, :id => other_contact.to_param}
-      }.should raise_error
-      assigns(:contact).should be_nil
-    end
-  end
-
   describe "GET new" do
     it "assigns a new contact as @contact" do
       get :new, {:project_id => @project.id}
@@ -86,9 +72,9 @@ describe ContactsController do
         assigns(:contact).should be_persisted
       end
 
-      it "redirects to the created contact" do
+      it "redirects to index" do
         post :create, {:project_id => @project.id, :contact => Contact.plan}
-        response.should redirect_to([@project, Contact.last])
+        response.should redirect_to(project_contacts_url(@project))
       end
 
       it "assigns the current project to the contact" do
@@ -124,9 +110,9 @@ describe ContactsController do
         assigns(:contact).should eq(contact)
       end
 
-      it "redirects to the contact" do
+      it "redirects to index" do
         put :update, {:project_id => @project.id, :id => contact.to_param, :contact => Contact.plan}
-        response.should redirect_to([@project, contact])
+        response.should redirect_to(project_contacts_url(@project))
       end
     end
 

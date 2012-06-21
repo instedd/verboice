@@ -17,9 +17,11 @@
 
 class Contact < ActiveRecord::Base
   belongs_to :project
-  has_many :persisted_variables, :dependent => :destroy
+  has_many :persisted_variables, :dependent => :destroy, :inverse_of => :contact
   has_many :recorded_audios, :dependent => :destroy
 
-  attr_accessible :address, :anonymous
+  accepts_nested_attributes_for :persisted_variables, :reject_if => lambda { |attributes| attributes[:name].blank? }, :allow_destroy => true
+
+  attr_accessible :address, :anonymous, :persisted_variables_attributes
   validates_presence_of :project, :address
 end

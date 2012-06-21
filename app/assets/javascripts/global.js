@@ -37,3 +37,26 @@ function onWorkflow(callback) {
   });
 };
 
+function remove_fields(link) {
+  $(link).prev("input[type=hidden]").val("1");
+  $(link).closest(".fields").hide();
+}
+
+function add_fields(link, association, content) {
+  var new_id = new Date().getTime();
+  var regexp = new RegExp("new_" + association, "g");
+  $(link).parent().before(content.replace(regexp, new_id));
+}
+
+function add_variable(link, association, content) {
+  var label_regexp = new RegExp("Value", "g");
+  var text_input = $(link).prev("input:text");
+  if(text_input.attr('value') == "") {
+    text_input.addClass('error');
+    return false;
+  } else {
+    text_input.removeClass('error');
+    add_fields(link, association, content.replace(label_regexp, text_input.attr('value')));
+    $('.field').last().find('input[type=hidden]').attr('value', text_input.attr('value'))
+  }
+}

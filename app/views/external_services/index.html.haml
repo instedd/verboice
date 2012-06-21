@@ -8,6 +8,6 @@
 
 .box.grey.w60.addqueue
   %span
-    = link_to_add_fields :external_service, "Add External service", @project, :class => 'addfields'
+    = link_to_add_box :external_service, "Add External service", @project, :class => 'addfields'
   %button.cadd.right{:onclick => "$('.add_fields', $(this).closest('.box')).click();", :type => "button"}
   .clear

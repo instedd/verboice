@@ -8,6 +8,29 @@
 
   .field
     = f.label :address, 'Phone number'
-    = f.text_field :address
-  .actions
-    = f.submit 'Save'
+    = f.text_field :address, :class => 'w30'
+
+  = f.fields_for :persisted_variables do |builder|
+    = render 'persisted_variable_fields', :f => builder
+
+  .add_variable
+    = label_tag :name, 'Add new variable named:'
+    %br/
+    = text_field_tag :name, '', :class => 'w30'
+    = link_to_add "", f, :persisted_variables, 'add_variable', :class => 'button clist-add'
+
+  - if @recorded_audios.present?
+    %br/
+    %hr/
+    %br/
+    - @recorded_audios.group_by(&:description).each do |description, audios|
+      .field
+        = f.label description
+        - audios.each do |recorded_audio|
+          = recorded_audio.created_at
+          = link_to '', result_call_log_path(recorded_audio.call_log, {:key => recorded_audio.key}), :class => 'button fimport'
+
+  %hr/
+
+  %button.white{:type =>'submit'} Save
+  = link_to 'Cancel', project_contacts_path(@project), :class => 'cancel'

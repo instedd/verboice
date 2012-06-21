@@ -1,11 +1,5 @@
 = render 'shared/project_tabs_and_title', :project => @project
 
-%h1 Editing contact
+%h2 Contact
 
 = render 'form'
-
-= link_to 'Edit Variables', contact_persisted_variables_path(@contact)
-\|
-= link_to 'Show', @contact
-\|
-= link_to 'Back', project_contacts_path(@project)

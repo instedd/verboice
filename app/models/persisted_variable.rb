@@ -17,7 +17,7 @@
 
 class PersistedVariable < ActiveRecord::Base
   has_one :project, :through => :contact
-  belongs_to :contact
+  belongs_to :contact, :inverse_of => :persisted_variables
 
   validates_presence_of :contact, :name
   attr_accessible :contact, :name, :value

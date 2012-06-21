@@ -8,6 +8,6 @@
 
 .box.grey.w60.addqueue
   %span
-    = link_to_add_fields :call_flow, "Add Call flow", @project
+    = link_to_add_box :call_flow, "Add Call flow", @project
   %button.cadd.right{:onclick => "$('.add_fields', $(this).closest('.box')).click();", :type => "button"}
   .clear
