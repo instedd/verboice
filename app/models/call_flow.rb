@@ -18,7 +18,7 @@
 class CallFlow < ActiveRecord::Base
   include FusionTablesPush
 
-  attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url, :mode, :callback_url_user, :callback_url_password, :store_in_fusion_tables, :fusion_table_name, :current_fusion_table_id
+  attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url, :mode, :callback_url_user, :callback_url_password, :external_service_guids, :store_in_fusion_tables, :fusion_table_name, :current_fusion_table_id
 
   belongs_to :project
 
@@ -33,6 +33,7 @@ class CallFlow < ActiveRecord::Base
   serialize :flow,      Command
   serialize :user_flow, SerializableArray
   serialize :variables, Array
+  serialize :external_service_guids, Array
 
   before_validation :set_name_to_callback_url, :unless => :name?
 
@@ -81,6 +82,7 @@ class CallFlow < ActiveRecord::Base
       parser  = Parsers::UserFlow.new self, user_flow
       self.flow = parser.equivalent_flow
       self.variables = parser.variables.to_a
+      self.external_service_guids = parser.external_service_guids.to_a
     end
     true
   end

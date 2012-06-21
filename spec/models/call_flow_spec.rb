@@ -119,4 +119,48 @@ describe CallFlow do
     call_flow.variables.should eq(['some_variable'])
   end
 
+  it "should store its user flow's external steps" do
+    service = ExternalService.make
+    step = ExternalServiceStep.make :external_service => service
+
+    call_flow = CallFlow.make
+    call_flow.user_flow = [
+      {
+        "id" => '1339774522765',
+        "name" => "Play",
+        "type" => "play",
+        "root" => true,
+        "next" => '1339802366354',
+        "message" => {
+            "name" => "Hello!",
+            "type" => "text",
+            "title" => "Message"
+            }
+      },
+      {
+        "id" => '1339802366354',
+        "name" => "Analysis Results",
+        "type" => "external",
+        "root" => false,
+        "next" => nil,
+        "external_step_guid" => step.guid,
+        "settings" => [{
+          "step" => nil,
+          "variable" => "foo",
+          "value" => nil,
+          "response" => nil,
+          "name" => "pin",
+          "display_name" => "Patient pin"
+        }],
+        "responses" => [{
+          "name" => "result",
+          "variable" => "bar"
+        }]
+      }
+    ]
+    call_flow.save!
+
+    call_flow.reload
+    call_flow.external_service_guids.should eq([service.guid])
+  end
 end

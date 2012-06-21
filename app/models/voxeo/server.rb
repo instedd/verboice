@@ -27,8 +27,6 @@ module Voxeo
     end
 
     def process_http_request
-      p "New request, params: #{params.inspect}"
-
       response = EM::DelegatedHttpResponse.new(self)
 
       if @http_request_uri =~ %r(^/audio/(.+)$)
@@ -52,13 +50,10 @@ module Voxeo
 
       if params[:error]
         xml = fiber.resume Exception.new("Voxeo returned error. Event: #{params[:event]}. Message: #{params[:message]}.")
-        p "Error! sending xml: #{xml}"
       elsif params[:disconnect]
         xml = fiber.resume Exception.new("User hung up.")
-        p "Disconnect! sending xml: #{xml}"
       else
         xml = fiber.resume context
-        p "Sending xml: #{xml}"
       end
 
       response.status = 200

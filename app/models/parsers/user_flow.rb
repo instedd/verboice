@@ -25,7 +25,6 @@ module Parsers
       @roots = []
       @nodes = []
       @call_flow = call_flow
-      @variables = nil
       build_nodes
     end
 
@@ -48,8 +47,13 @@ module Parsers
     end
 
     def variables
-      equivalent_flow()
+      equivalent_flow
       @variables
+    end
+
+    def external_service_guids
+      equivalent_flow
+      @external_service_guids
     end
 
     def build_equivalent_flow
@@ -60,6 +64,7 @@ module Parsers
           compiler.End
         end
         @variables = compiler.variables.clone
+        @external_service_guids = compiler.external_service_guids.clone
       end
     end
 

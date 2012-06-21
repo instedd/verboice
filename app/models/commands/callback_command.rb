@@ -28,7 +28,7 @@ class Commands::CallbackCommand < Command
     @params = options[:params]
     @response_type = options[:response_type] || :flow
     @variables = options[:variables] || {}
-    @external_service_id = options[:external_service_id]
+    @external_service_guid = options[:external_service_guid]
   end
 
   def run(session)
@@ -141,7 +141,7 @@ class Commands::CallbackCommand < Command
   end
 
   def external_service
-    @external_service ||= ExternalService.find_by_id(@external_service_id)
+    @external_service ||= ExternalService.find_by_guid(@external_service_guid)
   end
 
 end

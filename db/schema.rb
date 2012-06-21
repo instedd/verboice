@@ -50,6 +50,7 @@ ActiveRecord::Schema.define(:version => 20120619150109) do
     t.string   "fusion_table_name"
     t.string   "current_fusion_table_id"
     t.boolean  "store_in_fusion_tables"
+    t.text     "external_service_guids"
   end
 
   add_index "call_flows", ["project_id"], :name => "index_call_flows_on_project_id"
@@ -122,20 +123,22 @@ ActiveRecord::Schema.define(:version => 20120619150109) do
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
   create_table "external_service_steps", :force => true do |t|
-    t.integer  "external_service_id"
     t.string   "name"
     t.string   "display_name"
     t.string   "icon"
     t.string   "kind"
     t.string   "callback_url"
     t.text     "variables"
-    t.datetime "created_at",          :null => false
-    t.datetime "updated_at",          :null => false
+    t.datetime "created_at",            :null => false
+    t.datetime "updated_at",            :null => false
     t.string   "response_type"
     t.text     "response_variables"
+    t.string   "guid"
+    t.string   "external_service_guid"
   end
 
-  add_index "external_service_steps", ["external_service_id"], :name => "index_external_service_steps_on_external_service_id"
+  add_index "external_service_steps", ["external_service_guid"], :name => "index_external_service_steps_on_external_service_guid"
+  add_index "external_service_steps", ["guid"], :name => "index_external_service_steps_on_guid"
 
   create_table "external_services", :force => true do |t|
     t.integer  "project_id"
@@ -145,8 +148,10 @@ ActiveRecord::Schema.define(:version => 20120619150109) do
     t.datetime "created_at",      :null => false
     t.datetime "updated_at",      :null => false
     t.text     "global_settings"
+    t.string   "guid"
   end
 
+  add_index "external_services", ["guid"], :name => "index_external_services_on_guid"
   add_index "external_services", ["project_id"], :name => "index_external_services_on_project_id"
 
   create_table "o_auth_tokens", :force => true do |t|

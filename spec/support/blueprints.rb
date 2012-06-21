@@ -65,6 +65,10 @@ Channel.blueprint do
   name
 end
 
+Channel.blueprint(:custom) do
+  kind { 'custom' }
+end
+
 Channel.blueprint(:voxeo) do
   kind { "voxeo" }
   token { Sham.guid }
@@ -104,9 +108,11 @@ ExternalService.blueprint do
   name
   url
   project
+  guid
 end
 
 ExternalServiceStep.blueprint do
+  guid
   external_service
   name
   display_name { name }

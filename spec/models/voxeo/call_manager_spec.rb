@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -33,6 +33,7 @@ describe Voxeo::CallManager do
     Builders::Vxml.should_receive(:new).and_return(builder)
     Voxeo::SessionStore.stub(:instance).and_return(store)
     store.stub(:session_for).with(voxeo_session_id).and_return(session)
+    context.stub(:headers).and_return(:Host => 'requesthost.com')
   end
 
   it "should tell session id" do
@@ -184,7 +185,7 @@ describe Voxeo::CallManager do
     end
 
     it 'should tell callback_url using UrlHelper' do
-      Voxeo::UrlHelper.should_receive(:callback_url).with(:host => 'requesthost.com').and_return(:url)
+      Voxeo::UrlHelper.should_receive(:callback_url).at_least(:once).with(:host => 'requesthost.com').and_return(:url)
       call_manager.send(:callback_url).should eq(:url)
     end
 

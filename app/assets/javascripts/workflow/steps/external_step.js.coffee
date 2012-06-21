@@ -7,13 +7,12 @@ onWorkflow ->
 
     @classes: () ->
       (class extends External
-        @external_service_id = external_step.external_service_id
         @external_step_type = external_step.name
-        @external_step_type_id = external_step.id
+        @external_step_type_guid = external_step.guid
         @display_name = external_step.display_name
         @variables = external_step.variables
         @response_variables = external_step.response_variables
-        @type = "external_#{external_step.id}"
+        @type = "external_#{external_step.guid}"
         @icon = external_step.icon) for external_step in external_steps
 
     constructor: (attrs) ->
@@ -54,7 +53,7 @@ onWorkflow ->
       return new window[@type](hash)
 
     @can_handle: (hash) ->
-      hash_type = if hash.external_step_id? then "#{hash.type}_#{hash.external_step_id}" else hash.type
+      hash_type = if hash.external_step_guid? then "#{hash.type}_#{hash.external_step_guid}" else hash.type
       return hash_type == @type
 
     @is_external: () ->
@@ -62,7 +61,7 @@ onWorkflow ->
 
     to_hash: () =>
       $.extend(super,
-        external_step_id: @.constructor.external_step_type_id
+        external_step_guid: @.constructor.external_step_type_guid
         type: 'external'
         settings: (setting.to_hash() for setting in @settings())
         responses: (response.to_hash() for response in @responses())
