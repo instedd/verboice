@@ -15,7 +15,7 @@ module CallFlow::FusionTablesPush
     def perform
       self.call_flow = CallFlow.find(self.call_flow_id)
       self.call_log = CallLog.find(self.call_log_id)
-      return if !self.call_flow.store_in_fusion_tables || self.call_flow.fusion_table_name.blank? || self.call_flow.account.google_oauth_token.nil?
+      return if !OAuth2::Client.service_available?(:google) || !self.call_flow.store_in_fusion_tables || self.call_flow.fusion_table_name.blank? || self.call_flow.account.google_oauth_token.nil?
       push
     end
 
