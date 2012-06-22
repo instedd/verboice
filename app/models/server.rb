@@ -19,4 +19,12 @@ class Server < Struct.new(:host, :register, :direction, :port)
   def register?
     register == '1'
   end
+
+  def is_outbound?
+    direction == 'outbound' || direction == 'both'
+  end
+
+  def is_inbound?
+    direction == 'inbound' || direction == 'both'
+  end
 end
