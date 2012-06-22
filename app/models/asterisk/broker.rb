@@ -99,15 +99,33 @@ module Asterisk
             f_channels.puts "context=verboice"
             f_channels.puts
 
-            channel.servers.each_with_index do |server, i|
+            expand_servers(channel.servers).each_with_index do |server, i|
               f_channels.puts "[#{section}-#{i}](#{section})"
               f_channels.puts "host=#{server.host}"
               f_channels.puts "domain=#{server.host}"
               f_channels.puts "fromdomain=#{server.host}"
               f_channels.puts "type=#{(server.direction == 'inbound' ? 'user' : (server.direction == 'outbound' ? 'peer' : 'friend'))}"
               f_channels.puts
+            end
 
+            channel.servers.each do |server|
               f_reg.puts "register => #{channel.username}:#{channel.password}@#{server.host}/#{channel.id}" if server.register?
+            end
+          end
+        end
+      end
+    end
+
+    def expand_servers(servers)
+      dns = Resolv::DNS.new
+      Enumerator.new do |yielder|
+        servers.each do |server|
+          resources = dns.getresources "_sip._udp.#{server.host}", Resolv::DNS::Resource::IN::SRV
+          if resources.empty?
+            yielder << server
+          else
+            resources.each do |resource|
+              yielder << Server.new(resource.target.to_s, server.register, server.direction)
             end
           end
         end
