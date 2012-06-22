@@ -122,8 +122,8 @@ describe Parsers::ExternalService do
                 <variable name="myvar1" display-name="Variable One" type="string"/>
               </settings>
               <response type="variables">
-                <variable name="my-resp-1" display-name="Response One" type="string"/>
-                <variable name="my-resp-2" display-name="Response Two" type="numeric"/>
+                <variable name="myresp1" display-name="Response One" type="string"/>
+                <variable name="myresp2" display-name="Response Two" type="numeric"/>
               </response>
             </step>
           </steps>
@@ -139,11 +139,11 @@ describe Parsers::ExternalService do
       step.should have(2).response_variables
       var_1, var_2 = step.response_variables
 
-      var_1.name.should eq('my-resp-1')
+      var_1.name.should eq('myresp1')
       var_1.display_name.should eq('Response One')
       var_1.type.should eq('string')
 
-      var_2.name.should eq('my-resp-2')
+      var_2.name.should eq('myresp2')
       var_2.display_name.should eq('Response Two')
       var_2.type.should eq('numeric')
     end

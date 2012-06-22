@@ -39,8 +39,8 @@ class ExternalServiceStep < ActiveRecord::Base
 
   class Variable < Struct.new(:name, :display_name, :type)
     def valid?(parent, field)
-      unless self.name =~ /^[a-zA-Z][a-zA-Z0-9]*$/
-        parent.errors.add(field, " contain invalid name #{self.name}")
+      unless self.name =~ /^[a-zA-Z_][a-zA-Z0-9_]*$/
+        parent.errors.add(field, "contain invalid name #{self.name}")
       end
     end
   end
