@@ -38,15 +38,18 @@ table.workflow-table {
   position:relative;
   padding-left: 20px;
 
-  button { width:70px; height:70px; border:1px solid #666; background:#CCC; cursor:pointer; border-radius:5px }
-  div { display:inline-block; vertical-align:top }
-  div.b { display:block; margin-left:90px }
-  div span { width:90px; height:110px; display:inline-block; vertical-align:top; text-align:center }
   p { margin:0 auto; padding:0; width:70px }
 
-  p.button.active {
-    background-position: 0 -120px !important
-  }
+  button { width:70px; height:70px; border:1px solid #666; background:#CCC; cursor:pointer; border-radius:5px }
+  p.button { width:70px; height:70px; border:1px solid #666; background:#CCC; cursor:pointer; border-radius:5px }
+
+  div { display:inline-block; vertical-align:top }
+  div.sub { display:inline-block; vertical-align:top }
+  div.sub > div.b:first-child { display:inline-block !important; vertical-align:top }
+  div.b { display:block; /*margin-left:90px*/ }
+  div span { width:90px; height:110px; display:inline-block; vertical-align:top; text-align:center }
+
+  p.button.active { background-position: 0 -120px !important }
 
   a.insertBefore, a.insertAfter {
     cursor: pointer;

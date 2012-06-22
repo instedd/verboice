@@ -6,7 +6,7 @@ onWorkflow ->
       @root = attrs.root
       @name = ko.observable(attrs.name || @default_name())
       @next_id = attrs.next
-      @index = ko.observable(0)
+      @index = ko.observable(null)
 
       @is_name_invalid = ko.computed () =>
         not @name()
