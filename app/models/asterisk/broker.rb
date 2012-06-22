@@ -102,6 +102,7 @@ module Asterisk
             expand_servers(channel.servers).each_with_index do |server, i|
               f_channels.puts "[#{section}-#{i}](#{section})"
               f_channels.puts "host=#{server.host}"
+              f_channels.puts "port=#{server.port}" if server.port
               f_channels.puts "domain=#{server.host}"
               f_channels.puts "fromdomain=#{server.host}"
               f_channels.puts "type=#{(server.direction == 'inbound' ? 'user' : (server.direction == 'outbound' ? 'peer' : 'friend'))}"
@@ -124,8 +125,9 @@ module Asterisk
           if resources.empty?
             yielder << server
           else
+            yielder << server
             resources.each do |resource|
-              yielder << Server.new(resource.target.to_s, server.register, server.direction)
+              yielder << Server.new(resource.target.to_s, server.register, server.direction, resource.port)
             end
           end
         end
