@@ -166,6 +166,7 @@ class BaseBroker
 
   def finish_session_with_requeue(session, error_message, queued_call)
     queued_call.call_log.warn error_message
+    queued_call.call_log.fail_reason = error_message
     queued_call.call_log.state = :queued
     queued_call.call_log.save!
 
