@@ -20,7 +20,8 @@ require 'spec_helper'
 describe Parsers::ExternalService do
 
   def parse(xml)
-    @service = Parsers::ExternalService.new(@existing_service).parse(xml)
+    existing = @existing_service || ExternalService.new(:url => 'http://www.domain.com')
+    @service = Parsers::ExternalService.new(existing).parse(xml)
   end
 
   def service
