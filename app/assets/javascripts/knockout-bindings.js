@@ -7,6 +7,15 @@ ko.bindingHandlers.initAutocomplete = {
   },
 };
 
+/*
+  Jquery simple meio mask binding handler, only inits meio mask, does not update it
+*/
+ko.bindingHandlers.initMask = {
+  init: function (element, params) {
+    $(element).setMask(params());
+  },
+};
+
 
 /*
   Jquery Autocomplete Binding Handler (not-tested)

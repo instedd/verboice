@@ -7,7 +7,7 @@ onWorkflow ->
     't': /[a-zA-Z_0-9]/
   };
 
-  $.mask.masks.token = 's' + 'ttttttttttttttttttttttttttttttt';
+  $.mask.masks.token = 'sttttttttttttttttttttttttttttttt';
 
   ko.bindingHandlers.workflow_steps =
     init: (element, valueAccessor, allBindingsAccessor, viewModel) ->
