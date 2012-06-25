@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -40,7 +40,7 @@ describe ApiChannelsController do
     channels[0].account.should == @account
     channels[0].call_flow_id.should == call_flow.id
     channels[0].name.should == data[:name]
-    channels[0].kind.should == data[:kind]
+    channels[0].class.should == Channels::Custom
     channels[0].username.should == data[:username]
     channels[0].password.should == data[:password]
   end
@@ -68,7 +68,8 @@ describe ApiChannelsController do
 
     project = @account.projects.make
     call_flow = CallFlow.make project: project
-    chan = @account.channels.make :call_flow => call_flow, :name => 'foo'
+
+    chan = Channel.all_leaf_subclasses.sample.make :call_flow => call_flow, :name => 'foo', :account => @account
 
     delete :destroy, :name => chan.name
     assert_response :ok

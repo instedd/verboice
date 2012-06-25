@@ -58,23 +58,23 @@ module Asterisk
     end
 
     def get_dial_address(channel, address)
-      send "#{channel.kind}_address", channel, address
+      channel.asterisk_address_string_for self, address
+    end
+
+    def sip_address_string_for channel, address
+      index = channel.servers.find_index{|server| channel.server.direction == 'outbound' || server.direction == 'both'}
+      "SIP/verboice_#{id}-#{index}/#{address}"
+    end
+
+    def custom_address_string_for channel, address
+      channel.dial_string.gsub '{number}', address
     end
 
     def channels
-      Channel.where("kind != 'voxeo'")
+      Channel.where("type != '#{Channels::Voxeo.name}'")
     end
 
     private
-
-    def sip_address(channel, address)
-      index = channel.servers.find_index{|x| x.direction == 'outbound' || x.direction == 'both'}
-      "SIP/verboice_#{channel.id}-#{index}/#{address}"
-    end
-
-    def custom_address(channel, address)
-      channel.dial_string.gsub '{number}', address
-    end
 
     def reload!
       $asterisk_client.command :command => 'sip reload'
@@ -83,7 +83,7 @@ module Asterisk
     def regenerate_config options = {}
       File.open("#{ConfigDir}/sip_verboice_registrations.conf", 'w') do |f_reg|
         File.open("#{ConfigDir}/sip_verboice_channels.conf", 'w') do |f_channels|
-          Channel.where(:kind => 'sip').each do |channel|
+          Channels::Sip.all.each do |channel|
             next if channel == options[:delete]
             section = "verboice_#{channel.id}"
 

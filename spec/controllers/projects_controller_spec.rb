@@ -45,7 +45,7 @@ describe ProjectsController do
   context "Call enqueue:" do
 
     let!(:call_flow) { CallFlow.make :project => project }
-    let!(:channel) { account.channels.make :call_flow => call_flow, :account => account}
+    let!(:channel) { Channel.all_leaf_subclasses.sample.make :call_flow => call_flow, :account => account }
     let!(:schedule) { project.schedules.make :weekdays => "1" }
     let!(:broker_client) { double('broker_client') }
 

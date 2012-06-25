@@ -232,4 +232,7 @@ class BaseBroker
     true
   end
 
+  def channels
+    subclass_responsibility
+  end
 end

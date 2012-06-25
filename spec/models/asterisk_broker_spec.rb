@@ -21,8 +21,8 @@ describe Asterisk::Broker do
   before(:each) do
     @broker = Asterisk::Broker.new
     $asterisk_client = mock('asterisk_client')
-    @channel = Channel.make :kind => 'custom', :config => {'dial_string' => 'SIP/{number}'}
-    Channel.make(:voxeo)
+    @channel = Channels::Custom.make :config => {'dial_string' => 'SIP/{number}'}
+    Channels::Voxeo.make
   end
 
   it "returns channels" do

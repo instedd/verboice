@@ -38,6 +38,6 @@ class Commands::AssignCommand < Command
   end
 
   def assign_data(session)
-    raise "Unimplemented"
+    subclass_responsibility
   end
 end

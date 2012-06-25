@@ -63,7 +63,7 @@ module Voxeo
     end
 
     def channels
-      Channel.where("kind = 'voxeo'")
+      Channels::Voxeo.scoped
     end
 
     private

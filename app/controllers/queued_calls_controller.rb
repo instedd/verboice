@@ -29,11 +29,7 @@ class QueuedCallsController < ApplicationController
 
   def destroy
     @channel = current_account.channels.includes(:queued_calls).find params[:channel_id]
-    p "Channel #{@channel}"
-    p "Queued calls #{@channel.queued_calls}"
     @call = @channel.queued_calls.find(params[:id])
-    p "Call #{@call}"
-    p "Call from scratch #{QueuedCall.find(params[:id])}"
     @call.destroy
     redirect_to(queued_call_logs_path, :notice => "Call #{@call.address} successfully canceled.")
   end

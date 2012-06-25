@@ -20,12 +20,11 @@ $(function() {
   $(".ux-custom-datetimepicker:not([readonly])")
     .click(function(){ $(this).datepicker("show"); })
     .datetimepicker({showButtonPanel: false, dateFormat: 'yy-mm-dd'});
-
 });
 
 function create_channel(select) {
   if (!select.value) return;
-  window.location = '/channels/new?kind=' + select.value;
+  window.location = '/channels/new?type=' + select.value;
   select.value = '';
 };
 

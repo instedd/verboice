@@ -20,9 +20,9 @@
     <%= f.select :call_flow_id, options_from_collection_for_select(current_account.call_flows, :id, :name, @channel.call_flow_id) %>
   </div>
 
-  <%= f.hidden_field :kind %>
+  <%= f.hidden_field :type %>
 
-  <%= render "form_#{@channel.kind}", :f => f %>
+  <%= render "form_#{@channel.kind.downcase}", :f => f %>
 
   <div class="actions">
     <%= f.submit %>

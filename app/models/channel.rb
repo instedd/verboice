@@ -18,10 +18,6 @@
 class Channel < ActiveRecord::Base
   include ChannelSerialization
 
-  Kinds = %w(sip custom voxeo)
-
-  attr_protected :guid
-
   belongs_to :account
   belongs_to :call_flow
   has_one :project, :through => :call_flow
@@ -40,9 +36,19 @@ class Channel < ActiveRecord::Base
   after_commit :call_broker_create_channel, :if => :persisted?
   before_update :call_broker_delete_channel
   before_destroy :call_broker_delete_channel
-  before_create :create_guid
 
   serialize :config, Hash
+
+  def self.inherited(child)
+    # force all subclass to have :channel as model name
+    child.instance_eval do
+      def model_name
+        Channel.model_name
+      end
+    end
+    super
+  end
+
 
   def new_session(options = {})
     session = Session.new options
@@ -142,14 +148,6 @@ class Channel < ActiveRecord::Base
   config_accessor :token
   config_accessor :url
 
-  def host_and_port?
-    config['host_and_port'].present?
-  end
-
-  def host_and_port
-    config['host_and_port'].split ':', 2
-  end
-
   def register?
     config['register'] == '1'
   end
@@ -158,27 +156,8 @@ class Channel < ActiveRecord::Base
     config['limit'].present?
   end
 
-  def servers
-    hosts = config['host'] || []
-    servers = []
-    hosts.each_with_index do |host, i|
-      servers << Server.new(host, config['register'][i], config['direction'][i])
-    end
-    servers.length == 0 ? [Server.new] : servers
-  end
-
   def broker_client
     @broker_client ||= BrokerClient.new port
-  end
-
-  private
-
-  def port
-    key = case kind
-    when 'voxeo' then :voxeo_broker_port
-    else :local_pbx_broker_port
-    end
-    Rails.configuration.verboice_configuration[key].to_i
   end
 
   def call_broker_create_channel
@@ -189,7 +168,19 @@ class Channel < ActiveRecord::Base
     broker_client.delete_channel self.id
   end
 
-  def create_guid
-    self.guid ||= Guid.new.to_s
+  def kind
+    self.class.kind
+  end
+
+  def self.kind
+    self.name.split('::').last
+  end
+
+  def port
+    subclass_responsibility
+  end
+
+  def self.can_handle? a_kind
+    subclass_responsibility
   end
 end

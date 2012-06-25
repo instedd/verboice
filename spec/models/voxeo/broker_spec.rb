@@ -20,10 +20,10 @@ require 'spec_helper'
 describe Voxeo::Broker do
 
   let(:broker) { Voxeo::Broker.new }
-  let!(:channel) { Channel.make(:voxeo) }
+  let!(:channel) { Channels::Voxeo.make }
 
   before(:each) do
-    Channel.make(:custom)
+    Channels::Custom.make
   end
 
   it "returns channels" do

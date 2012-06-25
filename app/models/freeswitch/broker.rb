@@ -71,7 +71,7 @@ EOF
     end
 
     def channels
-      Channel.where("kind != 'voxeo'")
+      Channel.where("type != '#{Channels::Voxeo.name}'")
     end
   end
 end

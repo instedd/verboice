@@ -44,7 +44,7 @@ describe CallLog do
   end
 
   it "create for project assigns account" do
-    channel = Channel.make
+    channel = Channel.all_leaf_subclasses.sample.make
     call_flow = channel.call_flow
     call_log = call_flow.call_logs.create! :channel => channel
     call_log.account_id.should == call_flow.account.id

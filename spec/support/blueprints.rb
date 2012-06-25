@@ -53,26 +53,28 @@ Trace.blueprint do
 end
 
 CallLog.blueprint do
-  channel
+  channel { Channel.all_leaf_subclasses.sample.make }
   call_flow { channel.call_flow }
   project { call_flow.project }
   account { project.try(:account) || channel.try(:account) || account }
 end
 
-Channel.blueprint do
+Channels::Custom.blueprint do
   call_flow
   account { call_flow.project.account }
   name
 end
 
-Channel.blueprint(:custom) do
-  kind { 'custom' }
+Channels::Sip.blueprint do
+  call_flow
+  account { call_flow.project.account }
+  name
 end
 
-Channel.blueprint(:voxeo) do
-  kind { "voxeo" }
-  token { Sham.guid }
-  url
+Channels::Voxeo.blueprint do
+  call_flow
+  account { call_flow.project.account }
+  name
 end
 
 Schedule.blueprint do
@@ -81,7 +83,7 @@ Schedule.blueprint do
 end
 
 QueuedCall.blueprint do
-  channel
+  channel { Channel.all_leaf_subclasses.sample.make }
   call_log
   address { Sham.password }
 end
