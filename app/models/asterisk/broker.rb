@@ -62,8 +62,9 @@ module Asterisk
     end
 
     def sip_address_string_for channel, address
-      index = channel.servers.find_index{|server| channel.server.direction == 'outbound' || server.direction == 'both'}
-      "SIP/verboice_#{id}-#{index}/#{address}"
+      count = channel.servers.count { |c| c.is_outbound? }
+      raise "There is no available outbound server" if count == 0
+      "SIP/verboice_#{channel.id}-outbound-#{rand(count)}/#{address}"
     end
 
     def custom_address_string_for channel, address
@@ -99,15 +100,43 @@ module Asterisk
             f_channels.puts "context=verboice"
             f_channels.puts
 
-            channel.servers.each_with_index do |server, i|
-              f_channels.puts "[#{section}-#{i}](#{section})"
+            channel.servers.select {|c| c.is_outbound? }.each_with_index do |server, i|
+              f_channels.puts "[#{section}-outbound-#{i}](#{section})"
               f_channels.puts "host=#{server.host}"
               f_channels.puts "domain=#{server.host}"
               f_channels.puts "fromdomain=#{server.host}"
-              f_channels.puts "type=#{(server.direction == 'inbound' ? 'user' : (server.direction == 'outbound' ? 'peer' : 'friend'))}"
+              f_channels.puts "type=peer"
               f_channels.puts
+            end
 
+            expand_servers(channel.servers).each_with_index do |server, i|
+              f_channels.puts "[#{section}-inbound-#{i}](#{section})"
+              f_channels.puts "host=#{server.host}"
+              f_channels.puts "port=#{server.port}" if server.port
+              f_channels.puts "domain=#{server.host}"
+              f_channels.puts "fromdomain=#{server.host}"
+              f_channels.puts "type=user"
+              f_channels.puts
+            end
+
+            channel.servers.each do |server|
               f_reg.puts "register => #{channel.username}:#{channel.password}@#{server.host}/#{channel.id}" if server.register?
+            end
+          end
+        end
+      end
+    end
+
+    def expand_servers(servers)
+      dns = Resolv::DNS.new
+      Enumerator.new do |yielder|
+        servers.each do |server|
+          resources = dns.getresources "_sip._udp.#{server.host}", Resolv::DNS::Resource::IN::SRV
+          if resources.empty?
+            yielder << server
+          else
+            resources.each do |resource|
+              yielder << Server.new(resource.target.to_s, server.register, server.direction, resource.port)
             end
           end
         end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120622132839) do
+ActiveRecord::Schema.define(:version => 20120622153307) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -79,6 +79,7 @@ ActiveRecord::Schema.define(:version => 20120622132839) do
     t.integer  "schedule_id"
     t.datetime "not_before"
     t.integer  "call_flow_id"
+    t.string   "fail_reason"
   end
 
   add_index "call_logs", ["call_flow_id"], :name => "index_call_logs_on_call_flow_id"

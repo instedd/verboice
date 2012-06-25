@@ -20,7 +20,8 @@ require 'spec_helper'
 describe Parsers::ExternalService do
 
   def parse(xml)
-    @service = Parsers::ExternalService.new(@existing_service).parse(xml)
+    existing = @existing_service || ExternalService.new(:url => 'http://www.domain.com')
+    @service = Parsers::ExternalService.new(existing).parse(xml)
   end
 
   def service
@@ -81,8 +82,8 @@ describe Parsers::ExternalService do
               type="callback"
               callback-url="http://example.com/callback/">
               <settings>
-                <variable name="my-var-1" display-name="Variable One" type="string"/>
-                <variable name="my-var-2" display-name="Variable Two" type="numeric"/>
+                <variable name="myvar1" display-name="Variable One" type="string"/>
+                <variable name="myvar2" display-name="Variable Two" type="numeric"/>
               </settings>
             </step>
           </steps>
@@ -98,11 +99,11 @@ describe Parsers::ExternalService do
       step.should have(2).variables
       var_1, var_2 = step.variables
 
-      var_1.name.should eq('my-var-1')
+      var_1.name.should eq('myvar1')
       var_1.display_name.should eq('Variable One')
       var_1.type.should eq('string')
 
-      var_2.name.should eq('my-var-2')
+      var_2.name.should eq('myvar2')
       var_2.display_name.should eq('Variable Two')
       var_2.type.should eq('numeric')
     end
@@ -118,11 +119,11 @@ describe Parsers::ExternalService do
               type="callback"
               callback-url="http://example.com/callback/">
               <settings>
-                <variable name="my-var-1" display-name="Variable One" type="string"/>
+                <variable name="myvar1" display-name="Variable One" type="string"/>
               </settings>
               <response type="variables">
-                <variable name="my-resp-1" display-name="Response One" type="string"/>
-                <variable name="my-resp-2" display-name="Response Two" type="numeric"/>
+                <variable name="myresp1" display-name="Response One" type="string"/>
+                <variable name="myresp2" display-name="Response Two" type="numeric"/>
               </response>
             </step>
           </steps>
@@ -138,11 +139,11 @@ describe Parsers::ExternalService do
       step.should have(2).response_variables
       var_1, var_2 = step.response_variables
 
-      var_1.name.should eq('my-resp-1')
+      var_1.name.should eq('myresp1')
       var_1.display_name.should eq('Response One')
       var_1.type.should eq('string')
 
-      var_2.name.should eq('my-resp-2')
+      var_2.name.should eq('myresp2')
       var_2.display_name.should eq('Response Two')
       var_2.type.should eq('numeric')
     end
@@ -159,7 +160,7 @@ describe Parsers::ExternalService do
               type="callback"
               callback-url="http://example.com/callback/">
               <settings>
-                <variable name="my-var-1" display-name="Variable One" type="string"/>
+                <variable name="myvar1" display-name="Variable One" type="string"/>
               </settings>
               <response type="flow"/>
             </step>
@@ -182,8 +183,8 @@ describe Parsers::ExternalService do
         <verboice-service>
           <name>My Service</name>
           <global-settings>
-            <variable name="global-var-1" display-name="Global Var One" type="string"/>
-            <variable name="global-var-2" display-name="Global Var Two" type="numeric"/>
+            <variable name="globalvar1" display-name="Global Var One" type="string"/>
+            <variable name="globalvar2" display-name="Global Var Two" type="numeric"/>
           </global-settings>
         </verboice-service>
       XML
@@ -192,16 +193,40 @@ describe Parsers::ExternalService do
       service.should be_valid
 
       global_var_1 = service.global_variables.first
-      global_var_1.name.should eq('global-var-1')
+      global_var_1.name.should eq('globalvar1')
       global_var_1.display_name.should eq('Global Var One')
       global_var_1.type.should eq('string')
       global_var_1.value.should be_nil
 
       global_var_2 = service.global_variables.last
-      global_var_2.name.should eq('global-var-2')
+      global_var_2.name.should eq('globalvar2')
       global_var_2.display_name.should eq('Global Var Two')
       global_var_2.type.should eq('numeric')
       global_var_2.value.should be_nil
+    end
+
+    it "should not create a new external service with invalid variable names" do
+      parse <<-XML
+        <verboice-service>
+          <name>My service</name>
+          <steps>
+            <step name="my-step"
+              display-name="My step"
+              icon="http://example.com/icon.png"
+              type="callback"
+              callback-url="http://example.com/callback/">
+              <settings>
+                <variable name="my-var-1" display-name="Variable One" type="string"/>
+              </settings>
+              <response type="flow"/>
+            </step>
+          </steps>
+        <verboice-service>
+      XML
+
+      service.steps.should have(1).item
+      service.steps.first.should be_invalid
+      service.should be_invalid
     end
 
   end
@@ -282,7 +307,7 @@ describe Parsers::ExternalService do
     context "global settings" do
       before(:each) do
         globar_var_1 = ExternalService::GlobalVariable.new.tap do |v|
-          v.name = 'global-var-1'
+          v.name = 'globalvar1'
           v.display_name =  'Global Var One'
           v.type = 'string'
           v.value = 'global_var_1_value'
@@ -296,7 +321,7 @@ describe Parsers::ExternalService do
           <verboice-service>
             <name>My Service</name>
             <global-settings>
-              <variable name="global-var-1" display-name="Updated Global Var One" type="numeric"/>
+              <variable name="globalvar1" display-name="Updated Global Var One" type="numeric"/>
             </global-settings>
           </verboice-service>
         XML
@@ -304,7 +329,7 @@ describe Parsers::ExternalService do
         service.global_variables.should have(1).items
 
         updated_global_var_1 = service.global_variables.first
-        updated_global_var_1.name.should eq('global-var-1')
+        updated_global_var_1.name.should eq('globalvar1')
         updated_global_var_1.display_name.should eq('Updated Global Var One')
         updated_global_var_1.type.should eq('numeric')
         updated_global_var_1.value.should eq('global_var_1_value')
@@ -315,13 +340,13 @@ describe Parsers::ExternalService do
           <verboice-service>
             <name>My Service</name>
             <global-settings>
-              <variable name="global-var-2" display-name="Global Var Two" type="numeric"/>
+              <variable name="globalvar2" display-name="Global Var Two" type="numeric"/>
             </global-settings>
           </verboice-service>
         XML
 
         service.global_variables.should have(1).items
-        service.global_variables.detect{|v| v.name == 'global-var-1'}.should be_nil
+        service.global_variables.detect{|v| v.name == 'globalvar1'}.should be_nil
       end
 
       it "should add new variables" do
@@ -329,16 +354,16 @@ describe Parsers::ExternalService do
           <verboice-service>
             <name>My Service</name>
             <global-settings>
-              <variable name="global-var-1" display-name="Global Var One" type="string"/>
-              <variable name="global-var-2" display-name="Global Var Two" type="numeric"/>
+              <variable name="globalvar1" display-name="Global Var One" type="string"/>
+              <variable name="globalvar2" display-name="Global Var Two" type="numeric"/>
             </global-settings>
           </verboice-service>
         XML
 
         service.global_variables.should have(2).items
 
-        global_var_2 = service.global_variables.detect{|v| v.name == 'global-var-2'}
-        global_var_2.name.should eq('global-var-2')
+        global_var_2 = service.global_variables.detect{|v| v.name == 'globalvar2'}
+        global_var_2.name.should eq('globalvar2')
         global_var_2.display_name.should eq('Global Var Two')
         global_var_2.type.should eq('numeric')
         global_var_2.value.should be_nil

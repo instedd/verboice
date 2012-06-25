@@ -25,11 +25,24 @@ class ExternalServiceStep < ActiveRecord::Base
 
   validates :name, :presence => true, :uniqueness => { :scope => :external_service_guid }
 
+  validate :validate_variables
+
   after_initialize do
     self.guid ||= Guid.new.to_s
   end
 
+  def validate_variables
+    variables.each{|v| v.valid?(self, :variables)}
+    response_variables.each{|v| v.valid?(self, :response_variables)}
+    true
+  end
+
   class Variable < Struct.new(:name, :display_name, :type)
+    def valid?(parent, field)
+      unless self.name =~ /^[a-zA-Z_][a-zA-Z0-9_]*$/
+        parent.errors.add(field, "contain invalid name #{self.name}")
+      end
+    end
   end
 
 end

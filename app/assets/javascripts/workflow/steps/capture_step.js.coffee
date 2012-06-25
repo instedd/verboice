@@ -37,6 +37,7 @@ onWorkflow ->
       @is_invalid = ko.computed () =>
         @is_name_invalid() or @is_instructions_message_invalid()
 
+
     get_default_skip_step: () =>
       @default_skip_step ?= new DefaultOption(null, @)
 
