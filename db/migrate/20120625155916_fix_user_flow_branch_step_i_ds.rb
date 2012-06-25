@@ -8,10 +8,10 @@ class FixUserFlowBranchStepIDs < ActiveRecord::Migration
         data.select{|step| step['type'] == 'branch'}.each do |step|
           step['options'].each do |option|
             option['conditions'].each do |condition|
-              step = condition['step']
-              next if step.blank?
-              puts " Fixing condition for step #{step['name']} referring to step #{step}"
-              condition['step'] = step.to_i
+              referred_step = condition['step']
+              next if referred_step.blank?
+              puts " Fixing condition for step #{step['name']} referring to step #{referred_step}"
+              condition['step'] = referred_step.to_i
             end if option['conditions']
           end if step['options']
         end
