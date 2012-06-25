@@ -39,7 +39,7 @@
           %input{:type => 'checkbox', 'data-bind' => 'checked: defines_store'}
           %label Store to the address book as:
           %br
-          %input{:type => 'text', :placeholder => 'Enter a name for the value', 'data-bind' => 'value: store, enable: defines_store, initAutocomplete: {source: workflow.all_variables()}'}
+          %input{:type => 'text', :placeholder => 'Enter a name for the value', 'data-bind' => 'value: store, enable: defines_store, initAutocomplete: {source: workflow.all_variables()}, initMask: {mask: $.mask.masks.token}'}
         / /ko
 
     .bottom-actions
