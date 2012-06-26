@@ -13,7 +13,7 @@ onWorkflow ->
       console.log 'Redrawing workflow'
       steps = workflow.steps()
       @matrix_ij = []
-      $('.helper-cell', @container).remove()
+      $('.helper_cell', @container).remove()
 
       i = 0
       roots = (step for step in steps when step.root)
