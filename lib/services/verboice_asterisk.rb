@@ -39,6 +39,7 @@ EM::run do
     EM::connect 'localhost', Asterisk::Client::Port, Asterisk::Client
     EM::start_server 'localhost', broker_port, BrokerFacade
     EM::start_server 'localhost', Asterisk::CallManager::Port, Asterisk::CallManager
+    BaseBroker.instance.start
     puts 'Ready'
   end
 end

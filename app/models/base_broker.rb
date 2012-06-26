@@ -20,6 +20,24 @@ class BaseBroker
     attr_accessor :instance
   end
 
+  def start
+    EM.add_periodic_timer(20) do
+      Fiber.new do
+        QueuedCall.where('not_before IS NULL OR not_before <= ?', Time.now.utc).order(:not_before).select([:id, :channel_id]).includes(:channel).each do |queued_call|
+          if queued_call.channel
+            begin
+              notify_call_queued queued_call.channel
+            rescue Exception => ex
+              log "Error notifying queued call #{queued_call.id}: #{ex}"
+            end
+          else
+            queued_call.delete
+          end
+        end
+      end.resume
+    end
+  end
+
   def wake_up_queued_calls
     channels.joins(:queued_calls).each do |channel|
       notify_call_queued channel
@@ -47,26 +65,6 @@ class BaseBroker
     rescue Exception => ex
       log "Error performing call #{session.call_id}: #{ex.message}\n#{ex.backtrace.join("\n")}"
       finish_session_with_error session, error_message_for(ex)
-    end
-  end
-
-  def schedule_call not_before
-    if @scheduled_at.nil? || @scheduled_at > not_before
-      @scheduled_at = not_before
-      EM.cancel_timer(@scheduled_timer) if @scheduled_timer
-      @scheduled_timer = EM.add_timer(not_before - Time.now) do
-        Fiber.new do
-          @scheduled_at = nil
-          @scheduled_timer = nil
-
-          QueuedCall.where('not_before <= ?', not_before).order(:not_before).select(:channel_id).includes(:channel).each do |queued_call|
-            notify_call_queued queued_call.channel
-          end
-
-          next_call = QueuedCall.where('not_before > ?', not_before).order(:not_before).first
-          schedule_call next_call.not_before if next_call
-        end.resume
-      end
     end
   end
 
@@ -192,8 +190,8 @@ class BaseBroker
       sleep = queued_call.schedule.retry_delays[queued_call.retries - 1].to_f * (Rails.env == 'development' ? 1.second : 1.hour)
       queued_call.not_before = queued_call.schedule.next_available_time(Time.now.utc + sleep)
 
-      log "Re enqueuing call for session #{session_id} with queued call #{queued_call.id} for #{queued_call.not_before}" and finish_session_with_requeue session, message, queued_call
-      schedule_call queued_call.not_before
+      log "Re enqueuing call for session #{session_id} with queued call #{queued_call.id} for #{queued_call.not_before}"
+      finish_session_with_requeue session, message, queued_call
     else
       log "Dropping call for session #{session_id}"
       finish_session_with_error session, message, reason.to_s.dasherize
