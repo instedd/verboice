@@ -65,7 +65,7 @@ Channels::Custom.blueprint do
   name
 end
 
-Channels::Sip.blueprint do
+Channels::CustomSip.blueprint do
   call_flow
   account { call_flow.project.account }
   name
@@ -75,6 +75,14 @@ Channels::Voxeo.blueprint do
   call_flow
   account { call_flow.project.account }
   name
+end
+
+Channels::TemplateBasedSip.blueprint do
+  call_flow
+  account { call_flow.project.account }
+  name
+  server_url { Sham.url }
+  kind { name }
 end
 
 Schedule.blueprint do

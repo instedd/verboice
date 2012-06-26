@@ -19,6 +19,40 @@ require 'spec_helper'
 
 describe BaseBroker do
 
+  Channel.all_leaf_subclasses.reject{|a_subclass| a_subclass == Channels::TemplateBasedSip}.each do |a_channel|
+    it "shouldn't call if call limit is reached" do
+      @broker = BaseBroker.new
+      @broker.stub(:pbx_available? => true)
+      @channel = a_channel.make
+
+      @channel.limit = 1
+
+      queued_call_1 = @channel.queued_calls.make
+      queued_call_2 = @channel.queued_calls.make
+
+      the_session = nil
+      @broker.should_receive(:call).once.with { |session| the_session = session }
+      @broker.notify_call_queued @channel
+
+      @broker.notify_call_queued @channel
+    end
+  end
+
+  it "shouldn't call if call limit is reached" do
+    @broker = BaseBroker.new
+    @broker.stub(:pbx_available? => true)
+    @channel = Channels::TemplateBasedSip.make
+
+    queued_call_1 = @channel.queued_calls.make
+    queued_call_2 = @channel.queued_calls.make
+
+    the_session = nil
+    @broker.should_receive(:call).once.with { |session| the_session = session }
+    @broker.notify_call_queued @channel
+
+    @broker.notify_call_queued @channel
+  end
+
   Channel.all_leaf_subclasses.each do |a_channel|
     before(:each) do
       @broker = BaseBroker.new
@@ -106,19 +140,6 @@ describe BaseBroker do
         @broker.call_rejected the_session.id, :busy
 
         QueuedCall.last.should be_nil
-      end
-
-      it "not call if limit reached" do
-        @channel.limit = 1
-
-        queued_call_1 = @channel.queued_calls.make
-        queued_call_2 = @channel.queued_calls.make
-
-        the_session = nil
-        @broker.should_receive(:call).once.with { |session| the_session = session }
-        @broker.notify_call_queued @channel
-
-        @broker.notify_call_queued @channel
       end
 
       it "not call if scheduled for the future" do

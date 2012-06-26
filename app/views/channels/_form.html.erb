@@ -22,7 +22,7 @@
 
   <%= f.hidden_field :type %>
 
-  <%= render "form_#{@channel.kind.downcase}", :f => f %>
+  <%= render "form_#{@channel.class.name.split('::').last.underscore}", :f => f %>
 
   <div class="actions">
     <%= f.submit %>

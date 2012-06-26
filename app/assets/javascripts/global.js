@@ -24,7 +24,7 @@ $(function() {
 
 function create_channel(select) {
   if (!select.value) return;
-  window.location = '/channels/new?type=' + select.value;
+  window.location = '/channels/new?type=' + select.value.split('-')[0] + '&template=' + select.value.split('-')[1];
   select.value = '';
 };
 

@@ -1,7 +1,4 @@
-<%-
-  channel_kinds = [['Create new...', '']] + (Channel.all_leaf_subclasses.map{|channel_class| ["#{channel_class.kind} channel", channel_class.name]})
--%>
-<%= select_tag('new_channel', options_for_select(channel_kinds), :onchange => 'create_channel(this)') -%>
+<%= select_tag('new_channel', options_for_select(@channel_kinds), :onchange => 'create_channel(this)') -%>
 
 <br/>
 

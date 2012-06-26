@@ -34,10 +34,10 @@ describe Channel do
     Timecop.return
   end
 
-  Channel.all_leaf_subclasses.each do |a_subclass|
+  Channel.all_leaf_subclasses.each do |a_channel|
 
     context "validations" do
-      before(:each) { a_subclass.make }
+      before(:each) { a_channel.make }
 
       it { should belong_to(:account) }
       it { should belong_to(:call_flow) }
@@ -49,7 +49,7 @@ describe Channel do
     end
 
     context "call" do
-      let (:channel) { a_subclass.make }
+      let (:channel) { a_channel.make }
       let (:queued_call) { channel.reload.queued_calls.first }
 
       it "call ok" do
@@ -142,7 +142,7 @@ describe Channel do
     end
 
     it "call create_channel on broker_client when create" do
-      channel = a_subclass.make_unsaved
+      channel = a_channel.make_unsaved
       broker_client.should_receive(:create_channel).with do |channel_id|
         channel_id == channel.id
       end
@@ -151,7 +151,7 @@ describe Channel do
 
     it "call delete_channel and create_channel on broker_client when update" do
       broker_client.should_receive(:create_channel)
-      channel = a_subclass.make
+      channel = a_channel.make
 
       broker_client.should_receive(:delete_channel).with(channel.id).ordered
       broker_client.should_receive(:create_channel).with(channel.id).ordered
@@ -160,29 +160,24 @@ describe Channel do
     end
 
     it "call delete_channel on broker_client when destroy" do
-      channel = a_subclass.make
+      channel = a_channel.make
       broker_client.should_receive(:delete_channel).with(channel.id)
       channel.destroy
     end
 
     it "register? and_return true" do
-      channel = a_subclass.new :config => { 'register' => '1' }
+      channel = a_channel.new :config => { 'register' => '1' }
       channel.register?.should_not be_nil
-    end
-
-    it "register? and_return false" do
-      channel = a_subclass.new :config => { 'register' => '0' }
-      channel.register?.should be_false
     end
 
     context "poll call" do
       it "return nil if no queued calls" do
-        channel = a_subclass.make
+        channel = a_channel.make
         channel.poll_call.should == nil
       end
 
       it "return queued call and destroy it" do
-        channel = a_subclass.make
+        channel = a_channel.make
         queued_call = channel.queued_calls.make
 
         channel.poll_call.should == queued_call
@@ -190,7 +185,7 @@ describe Channel do
       end
 
       it "not return scheduled calls in the future" do
-        channel = a_subclass.make
+        channel = a_channel.make
         channel.queued_calls.make :not_before => Time.now + 1.hour
 
         channel.poll_call.should == nil
@@ -198,7 +193,7 @@ describe Channel do
     end
 
     it "create new session without a call log" do
-      channel = a_subclass.make
+      channel = a_channel.make
       session = channel.new_session
       session.call_log.account.should == channel.account
       session.call_log.project.should == channel.call_flow.project
@@ -206,6 +201,17 @@ describe Channel do
       session.call_log.direction.should == :incoming
       session.call_log.state.should == :active
     end
+  end
+  Channel.all_leaf_subclasses.reject{|a_channel| a_channel == Channels::TemplateBasedSip}.each do |a_channel|
+    it "register? and_return false" do
+      channel = a_channel.new :config => { 'register' => '0' }
+      channel.register?.should be_false
+    end
+  end
+
+  it "should allways register" do
+    channel = Channels::TemplateBasedSip.new :config => { 'register' => '0' }
+    channel.register?.should be_true
   end
 
   it "should assign a guid" do
@@ -226,9 +232,9 @@ describe Channel do
       channel.broker_client.should eq(broker_client)
     end
 
-    Channel.all_leaf_subclasses.reject{|a_subclass| a_subclass == Channels::Voxeo }.each do |a_subclass|
-      it "should return local broker client for #{a_subclass}" do
-        channel = a_subclass.new
+    Channel.all_leaf_subclasses.reject{|a_channel| a_channel == Channels::Voxeo }.each do |a_channel|
+      it "should return local broker client for #{a_channel}" do
+        channel = a_channel.new
         BrokerClient.should_receive(:new).with(local_pbx_port).and_return(broker_client)
         channel.broker_client.should eq(broker_client)
       end

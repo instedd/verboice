@@ -16,7 +16,6 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Channel < ActiveRecord::Base
-  include ChannelSerialization
 
   belongs_to :account
   belongs_to :call_flow
@@ -31,13 +30,18 @@ class Channel < ActiveRecord::Base
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
 
-  validates_numericality_of :limit, :only_integer => true, :greater_than => 0, :if => :has_limit?
-
   after_commit :call_broker_create_channel, :if => :persisted?
   before_update :call_broker_delete_channel
   before_destroy :call_broker_delete_channel
 
   serialize :config, Hash
+
+  def config
+    self[:config] ||= {}
+  end
+
+  config_accessor :username
+  config_accessor :password
 
   def self.inherited(child)
     # force all subclass to have :channel as model name
@@ -48,7 +52,6 @@ class Channel < ActiveRecord::Base
     end
     super
   end
-
 
   def new_session(options = {})
     session = Session.new options
@@ -63,6 +66,25 @@ class Channel < ActiveRecord::Base
   end
 
   def call(address, options = {})
+
+    queued_call = enqueue_call_to address, options
+    call_log = queued_call.call_log
+
+    begin
+      if queued_call.not_before?
+        broker_client.notify_call_queued id, queued_call.not_before
+      else
+        broker_client.notify_call_queued id
+      end
+    rescue Exception => ex
+      call_log.finish_with_error ex.message
+      queued_call.destroy
+    end
+
+    call_log
+  end
+
+  def enqueue_call_to address, options
 
     via = options.fetch(:via, 'API')
 
@@ -86,7 +108,6 @@ class Channel < ActiveRecord::Base
     call_log.info "Received via #{via}: call #{address}"
     call_log.save!
 
-
     queued_call = queued_calls.new(
       :call_log => call_log,
       :address => address,
@@ -105,18 +126,7 @@ class Channel < ActiveRecord::Base
 
     queued_call.save!
 
-    begin
-      if queued_call.not_before?
-        broker_client.notify_call_queued id, queued_call.not_before
-      else
-        broker_client.notify_call_queued id
-      end
-    rescue Exception => ex
-      call_log.finish_with_error ex.message
-      queued_call.destroy
-    end
-
-    call_log
+    queued_call
   end
 
   def active_calls_count
@@ -131,29 +141,16 @@ class Channel < ActiveRecord::Base
     end
   end
 
-  def config
-    self[:config] ||= {}
-  end
-
-  config_accessor :username
-  config_accessor :password
-  config_accessor :limit
-
-  config_accessor :host
-  config_accessor :register
-  config_accessor :direction
-
-  config_accessor :dial_string
-
-  config_accessor :token
-  config_accessor :url
-
   def register?
     config['register'] == '1'
   end
 
   def has_limit?
-    config['limit'].present?
+    limit.present?
+  end
+
+  def limit
+    subclass_responsibility
   end
 
   def broker_client
@@ -176,11 +173,23 @@ class Channel < ActiveRecord::Base
     self.name.split('::').last
   end
 
+  def self.kinds
+    [["#{kind} channel", "#{name}-#{kind}"]]
+  end
+
   def port
     subclass_responsibility
   end
 
   def self.can_handle? a_kind
     subclass_responsibility
+  end
+
+  def self.from_json(json)
+    channel = (SuitableClassFinder.find_leaf_subclass_of self, suitable_for: (json[:kind])).new
+    channel.name = json[:name]
+    channel.username = json[:username]
+    channel.password = json[:password]
+    channel
   end
 end

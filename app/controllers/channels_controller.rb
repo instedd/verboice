@@ -21,6 +21,7 @@ class ChannelsController < ApplicationController
   # GET /channels
   def index
     @channels = current_account.channels.includes(:call_flow).all
+    @channel_kinds = [['Create new...', '']] + (Channel.all_leaf_subclasses.map(&:kinds).flatten 1)
   end
 
   # GET /channels/1
@@ -30,7 +31,16 @@ class ChannelsController < ApplicationController
 
   # GET /channels/new
   def new
-    @channel = current_account.channels.new :type => params[:type]
+    if Channel.all_leaf_subclasses.map(&:name).include? params[:type]
+      @channel = if params[:type] == 'Channels::TemplateBasedSip'
+        params[:type].constantize.send "new_#{params[:template].underscore}_channel"
+      else
+        params[:type].constantize.new
+      end
+      @channel.account = current_account
+    else
+      redirect_to(channels_path, :alert => "Channel type invalid.")
+    end
   end
 
   # GET /channels/1/edit
@@ -40,12 +50,22 @@ class ChannelsController < ApplicationController
 
   # POST /channels
   def create
-    @channel = current_account.channels.new(params[:channel])
+    if Channel.all_leaf_subclasses.map(&:name).include? params[:channel][:type]
+      @channel = if params[:channel][:type] == 'Channels::TemplateBasedSip'
+        params[:channel][:type].constantize.send "new_#{params[:channel][:kind].underscore}_channel"
+      else
+        params[:channel][:type].constantize.new
+      end
+      @channel.update_attributes(params[:channel])
+      @channel.account = current_account
 
-    if @channel.save
-      redirect_to(channels_path, :notice => "Channel #{@channel.name} successfully created.")
+      if @channel.save
+        redirect_to(channels_path, :notice => "Channel #{@channel.name} successfully created.")
+      else
+        render :action => "new"
+      end
     else
-      render :action => "new"
+      redirect_to(channels_path, :alert => "Channel type invalid.")
     end
   end
 
