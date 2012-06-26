@@ -150,7 +150,9 @@ class BaseBroker
     session = find_session session unless session.is_a? Session
     session.notify_status 'completed'
     session.finish_successfully
-
+  rescue Exception => ex
+    log "Error when completing session #{session.id} successfully: #{ex}"
+  ensure
     finish_session session
   end
 
@@ -158,7 +160,9 @@ class BaseBroker
     session = find_session session unless session.is_a? Session
     session.notify_status status
     session.finish_with_error error_message
-
+  rescue Exception => ex
+    log "Error when completing session #{session.id} with error: #{ex}"
+  ensure
     finish_session session
   end
 
@@ -169,7 +173,9 @@ class BaseBroker
     queued_call.call_log.save!
 
     queued_call.dup.save!
-
+  rescue Exception => ex
+    log "Failed to requeue call #{queued_call.id}: #{ex}"
+  ensure
     finish_session session
   end
 
