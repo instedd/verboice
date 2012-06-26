@@ -6,6 +6,9 @@ onWorkflow ->
       @root = attrs.root
       @name = ko.observable(attrs.name || @default_name())
       @next_id = attrs.next
+      @position_left = ko.observable 0
+      @position_top  = ko.observable 0
+      @drawing_class = ko.observable ''
 
       @is_name_invalid = ko.computed () =>
         not @name()
@@ -116,6 +119,9 @@ onWorkflow ->
 
     after_initialize: () =>
       null
+
+    redraw: () =>
+      workflow.workflow_drawer.draw_workflow()
 
     background_style: () =>
       if @is_icon_external?()

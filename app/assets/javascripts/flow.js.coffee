@@ -9,13 +9,13 @@ onWorkflow ->
 
   $.mask.masks.token = 'sttttttttttttttttttttttttttttttt';
 
-  ko.bindingHandlers.workflow_steps =
-    init: (element, valueAccessor, allBindingsAccessor, viewModel) ->
-      container = $("<div class='workflow-container'></div>").appendTo(element)
-      viewModel.workflow_drawer = new WorkflowDrawer(container)
-    update: (element, valueAccessor, allBindingsAccessor, viewModel) ->
-      steps = ko.utils.unwrapObservable(valueAccessor())
-      viewModel.workflow_drawer.draw_workflow(steps)
+  # ko.bindingHandlers.workflow_steps =
+  #   init: (element, valueAccessor, allBindingsAccessor, viewModel) ->
+  #     container = $("<div class='workflow-container'></div>").appendTo(element)
+  #     viewModel.workflow_drawer = new WorkflowDrawer(container)
+  #   update: (element, valueAccessor, allBindingsAccessor, viewModel) ->
+  #     steps = ko.utils.unwrapObservable(valueAccessor())
+  #     viewModel.workflow_drawer.draw_workflow(steps)
 
   ko.bindingHandlers.instedd_init =
     init: (element, valueAccessor, allBindingsAccessor, viewModel) ->
@@ -34,6 +34,9 @@ onWorkflow ->
     window[step_type.type] = step_type
 
   window.workflow = new Workflow()
+  container = $(".workflow-container")
+  workflow.workflow_drawer = new WorkflowDrawer(container)
+
   window.workflow.after_initialize()
   ko.applyBindings(workflow)
 

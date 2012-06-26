@@ -9,10 +9,11 @@ onWorkflow ->
     #  ha-ext-nodot -> Horizontal arrow, extended, without initial dot
     #  va-bl-t ->   Vertical arrow, from Bottom Left to Top
     #  va-bl-tr ->  Vertical arrow, from Bottom Left to Top Right
-    draw_workflow: (steps) =>
-      #console.log 'Redrawing workflow'
+    draw_workflow: () =>
+      console.log 'Redrawing workflow'
+      steps = workflow.steps()
       @matrix_ij = []
-      @container.empty()
+      $('.helper-cell', @container).remove()
 
       i = 0
       roots = (step for step in steps when step.root)
@@ -123,30 +124,37 @@ onWorkflow ->
         @matrix_ij[i][j] = [null, klass]
 
     draw_matrix: () =>
-      for row in @matrix_ij
+      for row, i in @matrix_ij
         @draw_newline()
-        for pair in row
+        for pair, j in row
           if pair?
             [elem, klass] = pair
             if not elem?
-              @draw_empty(klass)
+              @draw_empty(klass,i,j)
             else if elem.type() == 'skip'
-              @draw_skip(elem, klass)
+              @draw_skip(elem, klass, i, j)
             else
-              @draw_step(elem, klass)
-      ko.applyBindings
+              @draw_step(elem, klass, i, j)
 
     draw_newline: () =>
-      @container.append('<p> </p>')
+      true
 
-    draw_empty: (klass="") =>
-      @container.append("<div class=\"#{klass}\"><span></span></div>")
+    draw_empty: (klass="", i=0, j=0) =>
+      @container.append("<div class=\"#{klass} helper_cell\" style=\"#{@get_style(i,j)}\"><span></span></div>")
 
-    draw_skip: (step, klass="") =>
-      @container.append("<div class=\"#{klass}\"><span></span></div>")
+    draw_skip: (step, klass="", i=0, j=0) =>
+      @container.append("<div class=\"#{klass} helper_cell\" style=\"#{@get_style(i,j)}\"><span></span></div>")
 
-    draw_step: (step, klass="") =>
-      # TODO: Check if render template is more efficient, or apply binding directly to the step to avoid the get_step call
-      # ko.renderTemplate(step.item_template_id(), step, {}, step_node[0]) ?
-      step_node = $("<div class=\"#{klass}\" data-bind=\"template: { name: '#{step.item_template_id()}', data: get_step(#{step.id}) }\"> </div>").appendTo(@container)
-      ko.applyBindings(workflow, step_node[0])
+    draw_step: (step, klass="", i=0, j=0) =>
+      step.position_left(@get_left(j))
+      step.position_top(@get_top(i))
+      step.drawing_class(klass)
+
+    get_style: (i,j) =>
+      "left: #{@get_left(j)}; top: #{@get_top(i)}; position: absolute;"
+
+    get_top:  (i) =>
+      "#{i * (80+10)}px"
+
+    get_left: (j) =>
+      "#{j * (55+35)}px"
