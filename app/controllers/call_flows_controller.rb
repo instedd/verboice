@@ -29,7 +29,7 @@ class CallFlowsController < ApplicationController
   skip_before_filter :verify_authenticity_token, :only => :save_recording
 
   def download_results
-    @filename = "Call results #{@call_flow.id} - #{@call_flow.name} (#{Time.now}).csv"
+    @filename = "Call_results_-_#{@call_flow.name}_(#{Time.now.to_s.gsub(' ', '_')}).csv"
     @streaming = true
     @csv_options = { :col_sep => ',' }
   end

@@ -49,7 +49,7 @@ class CallLogsController < ApplicationController
   end
 
   def download
-    @filename = "Call logs #{current_account.id} (#{Time.now}).csv"
+    @filename = "Call_logs_(#{Time.now.to_s.gsub(' ', '_')}).csv"
     @streaming = true
     @csv_options = { :col_sep => ',' }
   end

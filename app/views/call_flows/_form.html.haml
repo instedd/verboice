@@ -9,7 +9,7 @@
       = f.select :mode, options_for_select([['Use an external application', :callback_url], ['Design your app in Verboice', :flow]], call_flow.mode), {}, :class => "w30"
       = link_to "Go to Designer", edit_workflow_call_flow_path(call_flow), :class => 'button farrow flow_settings flow_settings' unless call_flow.new_record?
     .flow_settings
-      = link_to 'Download call results as CSV', download_results_call_flow_path(call_flow, :format => :csv), :class => "button fimport" unless call_flow.new_record?
+      = link_to 'Download call results as CSV', download_results_call_flow_path(call_flow, :format => :csv), :class => "button fimport" unless call_flow.new_record? || call_flow.user_flow.nil?
 
   .callback_url_settings
     = f.label :callback_url, 'URL'

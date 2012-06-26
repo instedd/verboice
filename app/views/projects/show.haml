@@ -10,7 +10,7 @@
     .U
       %span.big= @call_logs.size
       %span= "#{@call_logs.size == 1 ? 'call' : 'calls'} registered"
-  = link_to 'Download as CSV', download_call_logs_path(:format => :csv, :search => 'project_id:"1"'), :class => "button white"
+  = link_to 'Download as CSV', download_call_logs_path(:format => :csv, :search => "project_id:\"#{@project.id}\""), :class => "button white"
 
 %hr/
 
