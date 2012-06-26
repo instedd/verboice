@@ -19,54 +19,61 @@ require 'spec_helper'
 
 describe Asterisk::Broker do
   before(:each) do
-    @broker = Asterisk::Broker.new
     $asterisk_client = mock('asterisk_client')
-    @channel = Channels::Custom.make :config => {'dial_string' => 'SIP/{number}'}
-    Channels::Voxeo.make
   end
 
+  let(:broker) { Asterisk::Broker.new }
+  let!(:channel) { Channels::Custom.make :config => {'dial_string' => 'SIP/{number}'} }
+
   it "returns channels" do
-    @broker.channels.should eq([@channel])
+    Channels::Voxeo.make
+    broker.channels.should eq([channel])
   end
 
   context "call" do
-    before(:each) do
-      @session = Session.new :channel => @channel, :address => 'Foo'
-    end
 
-    it "call ok" do
+    let(:session) { Session.new :channel => channel, :address => 'Foo' }
+
+    its "response should be OK" do
       $asterisk_client.should_receive(:error?).and_return(false)
       $asterisk_client.should_receive(:originate).with({
-        :channel => "SIP/#{@session.address}",
+        :channel => "SIP/#{session.address}",
         :application => 'AGI',
-        :data => "agi://localhost:#{Asterisk::CallManager::Port},#{@session.id}",
+        :data => "agi://localhost:#{Asterisk::CallManager::Port},#{session.id}",
         :async => true,
-        :actionid => @session.id
+        :actionid => session.id
       }).and_return(:response => 'OK')
 
-      result = @broker.call @session
+      result = broker.call session
       result.should == nil
     end
 
-    it "call fails on asterisk_client error" do
+    it "should fail on asterisk_client error" do
       $asterisk_client.should_receive(:error?).and_return(true)
 
-      ex = assert_raise(PbxUnavailableException) { @broker.call @session }
+      ex = assert_raise(PbxUnavailableException) { broker.call session }
       assert_match /not available/, ex.message
     end
 
-    it "call fails on originate error" do
+    it "should fail on originate error" do
       $asterisk_client.should_receive(:error?).and_return(false)
       $asterisk_client.should_receive(:originate).with({
-        :channel => "SIP/#{@session.address}",
+        :channel => "SIP/#{session.address}",
         :application => 'AGI',
-        :data => "agi://localhost:#{Asterisk::CallManager::Port},#{@session.id}",
+        :data => "agi://localhost:#{Asterisk::CallManager::Port},#{session.id}",
         :async => true,
-        :actionid => @session.id
+        :actionid => session.id
       }).and_return(:response => 'Error', :message => 'Oops')
 
-      ex = assert_raise(RuntimeError) { @broker.call @session }
+      ex = assert_raise(RuntimeError) { broker.call session }
       ex.message.should == 'Oops'
+    end
+
+    it "shouln't take other broker's queued calls " do
+      call = QueuedCall.make :channel => channel
+      QueuedCall.make :channel => Channels::Voxeo.make
+
+      broker.queued_calls.should == [call]
     end
   end
 end

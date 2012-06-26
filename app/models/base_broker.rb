@@ -23,7 +23,7 @@ class BaseBroker
   def start
     EM.add_periodic_timer(20) do
       Fiber.new do
-        QueuedCall.where('not_before IS NULL OR not_before <= ?', Time.now.utc).order(:not_before).select([:id, :channel_id]).includes(:channel).each do |queued_call|
+        queued_calls.each do |queued_call|
           if queued_call.channel
             begin
               notify_call_queued queued_call.channel
@@ -207,6 +207,14 @@ class BaseBroker
     notify_call_queued session.channel
   end
 
+  def channels
+    subclass_responsibility
+  end
+
+  def queued_calls
+    subclass_responsibility
+  end
+
   private
 
   def store_session(session, queued_call = nil)
@@ -235,9 +243,5 @@ class BaseBroker
   def log(str)
     Rails.logger.info(str)
     true
-  end
-
-  def channels
-    subclass_responsibility
   end
 end

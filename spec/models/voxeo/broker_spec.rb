@@ -22,11 +22,8 @@ describe Voxeo::Broker do
   let(:broker) { Voxeo::Broker.new }
   let!(:channel) { Channels::Voxeo.make }
 
-  before(:each) do
-    Channels::Custom.make
-  end
-
   it "returns channels" do
+    Channels::Custom.make
     broker.channels.should eq([channel])
   end
 
@@ -43,5 +40,11 @@ describe Voxeo::Broker do
       broker.call session
     end
 
+    it "shouln't take other broker's queued calls " do
+      call = QueuedCall.make :channel => channel
+      QueuedCall.make :channel => Channels::Custom.make
+
+      broker.queued_calls.should == [call]
+    end
   end
 end

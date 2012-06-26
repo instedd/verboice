@@ -66,6 +66,10 @@ module Voxeo
       Channels::Voxeo.scoped
     end
 
+    def queued_calls
+      QueuedCall.where('not_before IS NULL OR not_before <= ?', Time.now.utc).order(:not_before).select([:id, :channel_id]).includes(:channel).where('channels.type = "Channels::Voxeo" ')
+    end
+
     private
 
     def call_request_failed session
@@ -74,6 +78,5 @@ module Voxeo
         call_rejected session.id, :error
       end.resume
     end
-
   end
 end

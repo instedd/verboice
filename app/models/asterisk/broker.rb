@@ -75,6 +75,10 @@ module Asterisk
       Channel.where("type != '#{Channels::Voxeo.name}'")
     end
 
+    def queued_calls
+      QueuedCall.where('not_before IS NULL OR not_before <= ?', Time.now.utc).order(:not_before).select([:id, :channel_id]).includes(:channel).where('channels.type != "Channels::Voxeo" ')
+    end
+
     private
 
     def reload!
