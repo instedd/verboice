@@ -137,8 +137,8 @@ class Session
         "Commands::#{func.camelcase}Command".constantize.new(*options).run self
       end
     end
-    ctx['alert'] = lambda { |str| info str }
-    ctx['record_url'] = lambda { |key| record_url(key) }
+    ctx['alert'] = lambda { |this, str| info str }
+    ctx['record_url'] = lambda { |this, key| record_url(key) }
     ctx
   end
 
