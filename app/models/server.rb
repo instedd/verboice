@@ -17,7 +17,10 @@
 
 class Server < Struct.new(:host, :register, :direction, :port)
   def register?
-    register == '1'
+    case register
+    when String then register == '1'
+    else register
+    end
   end
 
   def is_outbound?
