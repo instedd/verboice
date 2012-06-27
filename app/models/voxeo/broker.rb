@@ -41,7 +41,7 @@ module Voxeo
             raise "Voxeo call request returned failure, reason: #{body}"
           end
         rescue Exception => e
-          session.trace e
+          session.trace e.message
           call_request_failed session
         end
       end
