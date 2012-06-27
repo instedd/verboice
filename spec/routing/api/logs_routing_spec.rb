@@ -17,11 +17,11 @@
 
 require "spec_helper"
 
-describe ApiLogsController do
+describe Api::LogsController do
   describe "routing" do
 
     it "routes to #list" do
-      get("/api/logs/123").should route_to("api_logs#list", :call_id => "123")
+      get("/api/logs/123").should route_to("api/logs#list", :call_id => "123")
     end
 
   end

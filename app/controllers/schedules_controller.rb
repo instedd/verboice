@@ -16,6 +16,7 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class SchedulesController < ApplicationController
+
   respond_to :html
   expose(:project)
   expose(:schedules) { project.schedules }
@@ -25,7 +26,7 @@ class SchedulesController < ApplicationController
     if schedule.save
       redirect_to project_schedules_path(project), :notice => "Schedule #{schedule.name} successfully created."
     else
-      respond_with schedule
+      render :action => "new"
     end
   end
 
@@ -33,7 +34,7 @@ class SchedulesController < ApplicationController
     if schedule.save
       redirect_to project_schedules_path(project), :notice => "Schedule #{schedule.name} successfully updated."
     else
-      respond_with schedule
+      render :action => "edit"
     end
   end
 

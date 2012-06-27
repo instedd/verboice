@@ -17,7 +17,7 @@
 
 require 'spec_helper'
 
-describe ApiController do
+describe Api::CallsController do
   include Devise::TestHelpers
 
   let(:account) { Account.make }
@@ -60,7 +60,7 @@ describe ApiController do
   it "call state" do
     project = Project.make account: @controller.current_account
     call_log = CallLog.make :call_flow => CallFlow.make(project: project)
-    get :call_state, :id => call_log.id.to_s
+    get :state, :id => call_log.id.to_s
     result = JSON.parse(@response.body)
     result['call_id'].should == call_log.id
     result['state'].should == call_log.state.to_s

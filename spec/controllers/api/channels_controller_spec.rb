@@ -17,7 +17,7 @@
 
 require 'spec_helper'
 
-describe ApiChannelsController do
+describe Api::ChannelsController do
   include Devise::TestHelpers
 
   before(:each) do
@@ -57,7 +57,7 @@ describe ApiChannelsController do
     @account.channels.count.should == 0
 
     response = JSON.parse(@response.body).with_indifferent_access
-    response[:summary].should == "There were problems creating the channel"
+    response[:summary].should == "There were problems creating the Channel"
     response[:properties].should == ["name" => "can't be blank"]
   end
 

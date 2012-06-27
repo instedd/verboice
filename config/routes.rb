@@ -74,21 +74,35 @@ Verboice::Application.routes.draw do
     end
   end
 
-  match "api/call" => "api#call", :as => :api_call
-  match "api/call/:id/state" => "api#call_state"
-  match 'api/call/:id/redirect' => 'api#call_redirect'
-
-  get "api/channels" => "api_channels#list"
-  post  "api/channels" => "api_channels#create"
-  delete "api/channels/:name" => "api_channels#destroy"
-
-  get "api/schedules" => "api_schedules#index"
-  get "api/schedules/:name" => "api_schedules#show"
-  post "api/schedules" => "api_schedules#create"
-  put "api/schedules/:name" => "api_schedules#update"
-  delete "api/schedules/:name" => "api_schedules#destroy"
-
-  get 'api/logs/:call_id' => "api_logs#list"
+  namespace :api do
+    match "call" => "calls#call"
+    resources :calls, only: [] do
+      member do
+        match :state
+        match :redirect
+      end
+    end
+    get "channels" => "channels#list"
+    resources :channels, only: [:create] do
+      collection do
+        delete ":name", :action => "destroy"
+      end
+    end
+    resources :projects, only: [] do
+      resources :schedules, only: [:index, :create] do
+        collection do
+          get ':name', :action => "show"
+          put ':name', :action => "update"
+          delete ':name', :action => "destroy"
+        end
+      end
+    end
+    resources :logs, only: [] do
+      collection do
+        get ':call_id', action: :list
+      end
+    end
+  end
 
   get 'oauth/google' => 'oauth#google', :as => 'google_oauth'
   match 'oauth/google/callback' => 'oauth#google_callback', :as => 'google_callback_oauth'

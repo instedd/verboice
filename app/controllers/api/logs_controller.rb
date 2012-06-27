@@ -14,23 +14,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+module Api
+  class LogsController < ApiController
+    respond_to :csv
 
-class ApiLogsController < ApplicationController
-  before_filter :authenticate_account!
-  skip_before_filter :verify_authenticity_token
+    def list
+      @log = current_account.call_logs.find_by_id params[:call_id]
 
-  respond_to :csv
-
-  def list
-    @log = current_account.call_logs.find_by_id params[:call_id]
-
-    if @log.present?
-      @entries = @log.entries
-      @entries = @entries.where('id > ?', params[:after]) if params[:after].present?
-    else
-      head :not_found
-      return
+      if @log.present?
+        @entries = @log.entries
+        @entries = @entries.where('id > ?', params[:after]) if params[:after].present?
+      else
+        head :not_found
+        return
+      end
     end
   end
-
 end

@@ -85,6 +85,7 @@ class Schedule < ActiveRecord::Base
     schedule.time_from_str = json[:time_from_str]
     schedule.time_to_str = json[:time_to_str]
     schedule.weekdays = json[:weekdays]
+    schedule.project_id = json[:project_id]
     schedule
   end
 
