@@ -32,7 +32,9 @@ class QueuedCall < ActiveRecord::Base
   def new_session
     options = {:call_log => call_log, :address => address}
 
-    if callback_url.present?
+    if call_flow.present?
+      options[:call_flow] = call_flow
+    elsif callback_url.present?
       options[:call_flow] = CallFlow.new :callback_url => callback_url, mode: :callback_url
     elsif flow.present?
       options[:call_flow] = CallFlow.new :flow => flow

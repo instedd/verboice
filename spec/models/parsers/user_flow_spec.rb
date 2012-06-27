@@ -231,7 +231,7 @@ describe Parsers::UserFlow do
         Assign "current_step", 1
         Assign "current_step_name", "'Play number one'"
         Trace call_flow_id: 5, step_id: 1, step_name: 'Play number one', store: '"Message played."'
-        PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "1-message.wav")
+        PlayFile "1-message"
         Assign "current_step", 2
         Assign "current_step_name", "'Capture number one'"
         Assign 'attempt_number2', '1'
@@ -243,7 +243,7 @@ describe Parsers::UserFlow do
             Goto "end2"
           end
           If "digits != null" do
-            PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "2-invalid.wav")
+            PlayFile "2-invalid"
             Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Invalid key pressed"'
           end
           Else do
@@ -293,7 +293,7 @@ describe Parsers::UserFlow do
         Assign "current_step", 33
         Assign "current_step_name", "'Play number 33'"
         Trace call_flow_id: 5, step_id: 33, step_name: 'Play number 33', store: '"Message played."'
-        PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "33-message.wav")
+        PlayFile "33-message"
         Assign "current_step", 34
         Assign "current_step_name", "'Branch number one'"
         If "(value_3 == 6) && (value_2 < 30) && (value_2 >= 5)" do
@@ -302,7 +302,7 @@ describe Parsers::UserFlow do
           Assign "current_step", 10
           Assign "current_step_name", "'Play number 10'"
           Trace call_flow_id: 5, step_id: 10, step_name: 'Play number 10', store: '"Message played."'
-          PlayFile File.join(Rails.root, "data","r_spec","mocks","mocks","5","recordings", "10-message.wav")
+          PlayFile "10-message"
           Goto "end34"
         end
         If "(value_3 <= 5)" do

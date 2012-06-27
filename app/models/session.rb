@@ -171,4 +171,8 @@ class Session
   def record_url(key)
     NamedRoutes.result_call_log_url(call_log, :key => key.to_i)
   end
+
+  def recording_manager
+    @recording_manager ||= RecordingManager.for(call_flow)
+  end
 end

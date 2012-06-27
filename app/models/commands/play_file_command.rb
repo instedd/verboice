@@ -18,8 +18,8 @@
 class Commands::PlayFileCommand < Command
   include Commands::PlayCommand
 
-  def initialize(path)
-    @file_id = path.sub("#{Rails.root}/data/call_flows/",'')
+  def initialize(key)
+    @file_id = key
   end
 
   def run(session)
@@ -31,16 +31,16 @@ class Commands::PlayFileCommand < Command
 
   def setup_file(session)
     path = get_target_path(session)
-    convert_to_8000_hz_gsm file_to_convert_path, path
+    convert_to_8000_hz_gsm file_to_convert_path(session), path
     path
   end
 
-  def should_setup_file?(target_path)
-    not File.exists?(target_path) or File.mtime(target_path) < File.mtime(file_to_convert_path)
+  def should_setup_file?(session, target_path)
+    not File.exists?(target_path) or File.mtime(target_path) < File.mtime(file_to_convert_path(session))
   end
 
-  def file_to_convert_path
-    "#{Rails.root}/data/call_flows/" + @file_id
+  def file_to_convert_path(session)
+    session.recording_manager.recording_path_for(@file_id)
   end
 
   def command_name

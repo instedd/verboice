@@ -125,11 +125,11 @@ class CallFlowsController < ApplicationController
   end
 
   def play_recording
-    send_file @recording_manager.recording_path_for(@step_id, @message), :x_sendfile=>true
+    send_file @recording_manager.recording_path_for(RecordingManager.format_recording(@step_id, @message)), :x_sendfile=>true
   end
 
   def save_recording
-    @recording_manager.save_recording_for(@step_id, @message) do |out|
+    @recording_manager.save_recording_for(RecordingManager.format_recording(@step_id, @message)) do |out|
       out.write request.body.read
     end
     render text: @step_id

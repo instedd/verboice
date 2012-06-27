@@ -31,7 +31,7 @@ module Commands::PlayCommand
 
   def download(session)
     target_path = get_target_path(session)
-    if should_setup_file?(target_path)
+    if should_setup_file?(session, target_path)
       setup_file(session)
       session.trace "File #{target_path} prepared for playing", command: command_name, action: 'set_up'
     else
@@ -52,7 +52,7 @@ module Commands::PlayCommand
     raise "#{self.class.name} must implement command_name"
   end
 
-  def should_setup_file?(target_path)
+  def should_setup_file?(session, target_path)
     not File.exists? target_path
   end
 

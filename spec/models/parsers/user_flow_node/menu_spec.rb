@@ -103,10 +103,10 @@ module Parsers
             c.Label 1
             c.Assign "current_step", 1
             c.Assign "current_step_name", "'Menu number one'"
-            c.PlayFile File.join(Rails.root, "data","call_flows","#{call_flow.id}","recordings", "1-explanation.wav")
+            c.PlayFile "1-explanation"
             c.Assign 'attempt_number1', '1'
             c.While 'attempt_number1 <= 3' do |c|
-              c.Capture play_file: File.join(Rails.root, "data","call_flows","#{call_flow.id}","recordings", "1-options.wav"), finish_on_key: '', timeout: 20
+              c.Capture play_file: "1-options", finish_on_key: '', timeout: 20
               c.Assign 'value_1', 'digits'
               c.If "digits == '4'" do |c|
                 c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
@@ -139,7 +139,7 @@ module Parsers
                 c.Goto "end1"
               end
               c.If "digits != null" do |c|
-                c.PlayFile File.join(Rails.root, "data","call_flows","#{call_flow.id}","recordings", "1-invalid.wav")
+                c.PlayFile "1-invalid"
                 c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"Invalid key pressed"'
               end
               c.Else do |c|

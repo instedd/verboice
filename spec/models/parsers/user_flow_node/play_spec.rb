@@ -41,7 +41,7 @@ module Parsers
             c.Assign "current_step", 1
             c.Assign "current_step_name", "'Play'"
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Play', store: '"Message played."'
-            c.PlayFile File.join(Rails.root, "data","call_flows","#{call_flow.id}","recordings", "1-message.wav")
+            c.PlayFile "1-message"
           end.first
         )
       end

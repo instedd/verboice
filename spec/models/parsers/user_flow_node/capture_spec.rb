@@ -59,7 +59,7 @@ module Parsers
                 c.Goto "end1"
               end
               c.If "digits != null" do |c|
-                c.PlayFile File.join(Rails.root, "data","call_flows","#{call_flow.id}","recordings", "1-invalid.wav")
+                c.PlayFile "1-invalid"
                 c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Capture number one', store: '"Invalid key pressed"'
               end
               c.Else do |c|
@@ -138,7 +138,7 @@ module Parsers
               c.Goto "end4"
             end
             c.Else do |c|
-              c.PlayFile File.join(Rails.root, "data","call_flows", "#{call_flow.id}","recordings", "4-invalid.wav")
+              c.PlayFile "4-invalid"
               c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
             end
             c.Assign 'attempt_number4', 'attempt_number4 + 1'
@@ -180,7 +180,7 @@ module Parsers
                 c.Goto "end4"
               end
               c.Else do |c|
-                c.PlayFile File.join(Rails.root, "data","call_flows", "#{call_flow.id}","recordings", "4-invalid.wav")
+                c.PlayFile "4-invalid"
                 c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
               end
               c.Assign 'attempt_number4', 'attempt_number4 + 1'

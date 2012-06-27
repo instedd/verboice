@@ -21,19 +21,20 @@ module Commands
   describe PlayFileCommand do
 
     before(:each) do
-      @file_id = 'test_file'
-      @file_path = "#{Rails.root}/data/call_flows/#{@file_id}"
+      @key = 'file_key'
+      @file_path = "/path/to/original/file"
       @target_path = '/path/to/pbx/target_path'
 
-      @session = Session.new :pbx => mock('pbx')
-      @session.pbx.should_receive(:sound_path_for).with(@file_id).and_return(@target_path)
+      @session = Session.new :pbx => double('pbx'), :call_flow => double('call_flow')
+      @session.pbx.should_receive(:sound_path_for).with(@key).and_return(@target_path)
       @session.pbx.should_receive(:play).with(@target_path, anything)
+      @session.recording_manager.should_receive(:recording_path_for).at_least(:once).with(@key).and_return(@file_path)
       @session.stub(:info)
       @session.stub(:trace)
     end
 
     let(:command) do
-      PlayFileCommand.new @file_path
+      PlayFileCommand.new @key
     end
 
     it "should convert the file if not present in target path" do
