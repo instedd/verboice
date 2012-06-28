@@ -98,7 +98,7 @@ describe Asterisk::CallManager do
 
     it "play throws exception when user hangs up" do
       @call_manager.should_receive(:stream_file).and_return(line '-1')
-      assert_raise(Exception, 'User hanged up') { @call_manager.play 'foo' }
+      assert_raise(Exception, 'User hung up') { @call_manager.play 'foo' }
     end
   end
 

@@ -60,7 +60,7 @@ class Commands::CaptureCommand < Command
       end
     end
 
-    options[:if_hang_up] = lambda() { |offset| session.info "User hanged up at #{offset} milliseconds.", command: 'capture', action: 'user_hang_up' }
+    options[:if_hang_up] = lambda() { |offset| session.info "User hung up at #{offset} milliseconds.", command: 'capture', action: 'user_hang_up' }
 
     if options[:say].present?
       session.info "Say '#{@options[:say]}'. Waiting user input: #{@options.to_pretty_s}", command: 'capture', action: 'start'

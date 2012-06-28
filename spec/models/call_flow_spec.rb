@@ -88,7 +88,7 @@ describe CallFlow do
     call_flow = CallFlow.make id: 4
     call_flow.error_flow.should eq(
       Compiler.make do
-        Trace call_flow_id: 4, step_id: 'current_step', step_name: '', store: '"User hanged up."'
+        Trace call_flow_id: 4, step_id: 'current_step', step_name: '', store: '"User hung up."'
       end
     )
   end

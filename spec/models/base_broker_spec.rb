@@ -254,7 +254,7 @@ describe BaseBroker do
         Trace.first.step_id.to_i.should eq(1)
         Trace.first.step_name.should eq('Play number one')
 
-        Trace.last.result.should eq('User hanged up.')
+        Trace.last.result.should eq('User hung up.')
         Trace.last.call_flow_id.should eq(@channel.call_flow.id)
         Trace.last.step_id.to_i.should eq(1)
         Trace.last.step_name.should eq('')

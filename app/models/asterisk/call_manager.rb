@@ -95,7 +95,7 @@ module Asterisk
       line = stream_file("verboice/#{filename}", escape_digits)
       if line.result == '-1'
         options[:if_hang_up].call line.endpos if options[:if_hang_up].present?
-        raise Exception.new 'User hanged up'
+        raise Exception.new 'User hung up'
       end
       if line.result == '0' && line.endpos == 0
         raise Exception.new 'Error while playing file'

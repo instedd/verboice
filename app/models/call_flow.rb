@@ -64,7 +64,7 @@ class CallFlow < ActiveRecord::Base
   end
 
   def error_flow
-    Commands::TraceCommand.new call_flow_id: id, step_id: 'current_step', step_name: '', store: '"User hanged up."'
+    Commands::TraceCommand.new call_flow_id: id, step_id: 'current_step', step_name: '', store: '"User hung up."'
   end
 
   def push_results(call_log)

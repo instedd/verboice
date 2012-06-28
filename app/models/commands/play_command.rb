@@ -25,7 +25,7 @@ module Commands::PlayCommand
 
   def run(session)
     target_path = download session
-    session.pbx.play target_path, if_hang_up: lambda() { |offset| session.info "User hanged up at #{offset} milliseconds.", command: command_name, action: 'user_hang_up'}
+    session.pbx.play target_path, if_hang_up: lambda() { |offset| session.info "User hung up at #{offset} milliseconds.", command: command_name, action: 'user_hang_up'}
     super
   end
 
