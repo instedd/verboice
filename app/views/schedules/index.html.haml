@@ -1,0 +1,14 @@
+= render 'shared/project_tabs_and_title', :project => project
+
+%h1 Schedules
+
+- schedules.each do |schedule|
+  = render 'box', :schedule => schedule, :expanded => schedule.errors.any?
+
+.box.grey.addqueue.w60
+  %span
+    = link_to_add_box :schedule, "Add Schedule", @project, :class => 'add_fields'
+  %button.cadd.right{:onclick => "$('.add_fields').click();", :type => "button"}
+  %br{clear: 'all'}
+
+%br

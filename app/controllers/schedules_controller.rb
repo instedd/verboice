@@ -23,18 +23,20 @@ class SchedulesController < ApplicationController
   expose(:schedule)
 
   def create
-    if schedule.save
-      redirect_to project_schedules_path(project), :notice => "Schedule #{schedule.name} successfully created."
+    schedule.save
+    if request.xhr?
+      render :partial => "box_content", :locals => { :schedule => schedule, :expanded => schedule.errors.any?}
     else
-      render :action => "new"
+      redirect_to project_schedules_path(project), :notice => "Schedule #{schedule.name} successfully created."
     end
   end
 
   def update
-    if schedule.save
-      redirect_to project_schedules_path(project), :notice => "Schedule #{schedule.name} successfully updated."
+    schedule.save
+    if request.xhr?
+      render :partial => "box_content", :locals => { :schedule => schedule, :expanded => schedule.errors.any?}
     else
-      render :action => "edit"
+      redirect_to project_schedules_path(project), :notice => "Schedule #{schedule.name} successfully updated."
     end
   end
 

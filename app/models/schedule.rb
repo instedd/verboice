@@ -97,6 +97,20 @@ class Schedule < ActiveRecord::Base
     retries.split(',').map &:to_f
   end
 
+  def includes_day?(day)
+    (weekdays || '').split(',').map(&:to_i).include?(day)
+  end
+
+  def description
+    days_desc = (weekdays || '').split(',').map{|d| Date::DAYNAMES[d.to_i]}
+    desc = "#{days_desc.to_sentence} from #{time_from_str} to #{time_to_str}."
+    if retries.present?
+      retries_desc = (retries || '').split(',').map{|r| "#{r} #{'hour'.pluralize(r.to_f)}"}
+      desc << " Retry after #{retries_desc.to_sentence}."
+    end
+    desc
+  end
+
   private
 
   def get_seconds(time)

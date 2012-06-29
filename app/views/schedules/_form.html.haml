@@ -1,0 +1,28 @@
+= form_for [project, schedule], :remote => true do |f|
+  .toptitle
+    %span Name
+  .middle
+    = f.text_field :name, :class => 'w30'
+    %p Days
+    %ul.days
+      = f.hidden_field :weekdays
+      - %w(Sun Mon Tue Wed Thu Fri Sat).each_with_index do |day_name, i|
+        %li{:class => schedule.includes_day?(i) ? '' : 'no'}
+          = day_name
+    %p
+      From
+      = f.text_field :time_from_str, :size => 4
+      to
+      = f.text_field :time_to_str, :size => 4
+
+    %p Retries
+    %p.desc Enter comma separated delays in hours
+    = f.text_field :retries, :class => 'ux-text w30'
+    %br
+    %br
+  %hr
+  - if schedule.new_record?
+    %button.white{:type => "submit"} Save
+  - else
+    %button.white{:type => "submit"} Update
+  = link_to 'Cancel', '#', :class => "tgrey #{schedule.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'

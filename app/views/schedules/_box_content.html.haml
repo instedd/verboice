@@ -1,0 +1,14 @@
+.box.grey.w60.collapsible_crud_box{:class => ("#{expanded ? 'expanded' : 'collapsed'}")}
+  - if schedule.errors.any?
+    .error_explanation
+      %h2= "#{pluralize(schedule.errors.count, "error")} prohibited this schedule from being saved:"
+      %ul
+        - schedule.errors.full_messages.each do |msg|
+          %li= msg
+  .rightbuttons
+    = link_to '', [project, schedule], :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless schedule.new_record?
+  .summary
+    = render 'summary', :schedule => schedule
+  .content
+    = render 'form', :schedule => schedule
+  .clear
