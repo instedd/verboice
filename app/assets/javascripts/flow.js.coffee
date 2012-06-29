@@ -34,10 +34,13 @@ onWorkflow ->
     window[step_type.type] = step_type
 
   window.workflow = new Workflow()
+  window.workflow.load_steps()
   container = $(".workflow-container")
-  workflow.workflow_drawer = new WorkflowDrawer(container)
+  workflow.drawer = new WorkflowDrawer(container)
 
-  window.workflow.after_initialize()
+  workflow.after_initialize()
+  workflow.drawer.draw_workflow(workflow.steps())
+
   ko.applyBindings(workflow)
 
   window.workflow.serialize_workflow()

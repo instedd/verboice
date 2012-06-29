@@ -1,4 +1,14 @@
 /*
+  Prevent binding from descendants
+*/
+ko.bindingHandlers.stopBinding = {
+    init: function() {
+        return { controlsDescendantBindings: true };
+    }
+};
+
+
+/*
   Jquery simple Autocomplete Binding Handler, only inits autocomplete, does not update it
 */
 ko.bindingHandlers.initAutocomplete = {

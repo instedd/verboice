@@ -1,7 +1,9 @@
 onWorkflow ->
   class window.WorkflowDrawer
     constructor: (container) ->
-      @container = $(container)
+      @container = $('.helpers-container', $(container))
+      workflow.steps.subscribe (newValue) =>
+        window.setTimeout (() => @draw_workflow(newValue)), 0
 
     # Arrows classes:
     #  ha ->        Horizontal arrow, short
@@ -9,11 +11,11 @@ onWorkflow ->
     #  ha-ext-nodot -> Horizontal arrow, extended, without initial dot
     #  va-bl-t ->   Vertical arrow, from Bottom Left to Top
     #  va-bl-tr ->  Vertical arrow, from Bottom Left to Top Right
-    draw_workflow: () =>
+    draw_workflow: (steps) =>
       console.log 'Redrawing workflow'
-      steps = workflow.steps()
+      @old_matrix = @copy_matrix(@matrix_ij)
       @matrix_ij = []
-      $('.helper_cell', @container).remove()
+      $(@container).html('')
 
       i = 0
       roots = (step for step in steps when step.root)
@@ -26,6 +28,17 @@ onWorkflow ->
           klass: 'root'
 
       @draw_matrix()
+
+    # Makes a copy of the i,j matrix to determine what needs to be redrawn
+    copy_matrix: (matrix) =>
+      return null if not matrix?
+      copy = new Array(matrix.length)
+      for row, i in matrix
+        copy[i] = new Array(row.length)
+        for item, j in row
+          copy[i][j] = item
+      copy
+
 
     # Recursively draws the workflow by placing 'step' in position 'i', 'j' with class 'klass'
     #  Merge optional parameter indicates if a va-merge class should be added, which corresponds to either a branch or merge back from/to normal flow

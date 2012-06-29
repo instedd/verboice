@@ -6,15 +6,29 @@ onWorkflow ->
       @root = attrs.root
       @name = ko.observable(attrs.name || @default_name())
       @next_id = attrs.next
-      @position_left = ko.observable 0
-      @position_top  = ko.observable 0
+      @position_left = ko.observable null
+      @position_top  = ko.observable null
       @drawing_class = ko.observable ''
+
+      @visible = ko.computed () =>
+        @position_left()? and @position_top()?
 
       @is_name_invalid = ko.computed () =>
         not @name()
 
       @is_invalid = ko.computed () =>
         @is_name_invalid()
+
+      @is_active = ko.computed () =>
+        workflow.current_step() == @
+
+      @show_insert_before = ko.computed () =>
+        @can_insert_before() && @is_active()
+
+      @show_insert_after = ko.computed () =>
+        @can_insert_after() && @is_active()
+
+
 
     @from_hash: (hash) ->
       if typeof(hash.type) == "string"
@@ -118,10 +132,7 @@ onWorkflow ->
         [@]
 
     after_initialize: () =>
-      null
-
-    redraw: () =>
-      workflow.workflow_drawer.draw_workflow()
+      true
 
     background_style: () =>
       if @is_icon_external?()

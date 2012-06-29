@@ -83,7 +83,7 @@ onWorkflow ->
         @options.splice(index, 2, after, option)
 
     after_initialize: () =>
-      super
+      super()
       option.after_initialize() for option in @options()
 
     show_option: (option) =>

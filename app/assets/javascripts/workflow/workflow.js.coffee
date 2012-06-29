@@ -1,12 +1,13 @@
 onWorkflow ->
   class window.Workflow
     constructor: () ->
-      @steps = ko.observableArray(Step.from_hash(hash) for hash in call_flow)
       @command_selector = new CommandSelector(new AddRootRequestor)
-      @add_new_step = new window.New({id: -1})
-
       @current_step = ko.observable(null)
       @sidebar_content = ko.observable(@command_selector)
+
+    load_steps: () =>
+      @steps = ko.observableArray(Step.from_hash(hash) for hash in call_flow)
+      @add_new_step = new window.New({id: -1})
       @is_valid = ko.computed () =>
         (return false for step in @steps() when step.is_invalid())
         true

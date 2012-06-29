@@ -82,6 +82,10 @@ table.workflow-table {
     }
   }
 
+  .helpers-container, .steps-container {
+    position: absolute;
+  }
+
   p.addnew {
     background:image-url("addStep.png") no-repeat; height: 21px; width: 21px; margin: 18px 0px 5px 15px; cursor: pointer; border: medium none;
     &.button.active { background-position: 0 -30px !important}

@@ -55,7 +55,9 @@
       .left
         .box.lightgrey.workflow
           .workflow-content-container.h65
-            .workflow-container{ ko(foreach: 'steps') }
-              %div{ko(template: "{name: item_template_id, afterRender: redraw}", style: "{'left': position_left, 'top': position_top, 'position': 'absolute'}", :class => "drawing_class" )}
+            .workflow-container
+              .helpers-container{ ko(stopBinding: true) }
+              .steps-container{ ko(foreach: 'steps') }
+                %div{ko(visible: 'visible', template: "{name: item_template_id}", style: "{'left': position_left, 'top': position_top, 'position': 'absolute'}", :class => "drawing_class" )}
       %span{ko(template: '{name: display_template_for, data: sidebar_content}')}
       .clear
