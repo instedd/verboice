@@ -3,7 +3,7 @@ csv << ['Call ID', 'Phone Number', 'Time', 'Severity', 'Step name', 'Step ID', '
 @logs = @logs.search params[:search], :account => current_account if params[:search].present?
 
 @logs.find_each do |call|
-  call.entries.find_each do |entry|
+  call.entries.each do |entry|
     csv << [call.id, call.address, entry.created_at, entry.severity, entry.step_name, entry.step_id, entry.command, entry.action, entry.description]
   end
 end
