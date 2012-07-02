@@ -48,9 +48,9 @@ describe SchedulesController do
         controller.schedule.should be_persisted
       end
 
-      it "redirects to index" do
+      it "renders 'box_content' template" do
         post :create, {:schedule => Schedule.plan, :project_id => project.to_param}
-        response.should redirect_to(project_schedules_path(project))
+        response.should render_template('box_content')
       end
     end
 
@@ -61,10 +61,10 @@ describe SchedulesController do
         controller.schedule.should be_a_new(Schedule)
       end
 
-      it "re-renders the 'new' template" do
+      it "re-renders the 'box_content' template" do
         Schedule.any_instance.stub(:save).and_return(false)
         post :create, {:schedule => {}, :project_id => project.to_param}
-        response.should render_template("new")
+        response.should render_template("box_content")
       end
     end
   end
@@ -81,9 +81,9 @@ describe SchedulesController do
         controller.schedule.should eq(schedule)
       end
 
-      it "redirects to index" do
+      it "renders 'box_content' template" do
         put :update, {:id => schedule.to_param, :schedule => Schedule.plan, :project_id => project.to_param}
-        response.should redirect_to(project_schedules_path(project))
+        response.should render_template('box_content')
       end
     end
 
@@ -94,10 +94,10 @@ describe SchedulesController do
         controller.schedule.should eq(schedule)
       end
 
-      it "re-renders the 'edit' template" do
+      it "re-renders the 'box_content' template" do
         Schedule.any_instance.stub(:save).and_return(false)
         put :update, {:id => schedule.to_param, :schedule => {}, :project_id => project.to_param}
-        response.should render_template("edit")
+        response.should render_template("box_content")
       end
     end
   end

@@ -24,20 +24,12 @@ class SchedulesController < ApplicationController
 
   def create
     schedule.save
-    if request.xhr?
-      render :partial => "box_content", :locals => { :schedule => schedule, :expanded => schedule.errors.any?}
-    else
-      redirect_to project_schedules_path(project), :notice => "Schedule #{schedule.name} successfully created."
-    end
+    render :partial => "box_content", :locals => { :schedule => schedule, :expanded => schedule.errors.any?}
   end
 
   def update
     schedule.save
-    if request.xhr?
-      render :partial => "box_content", :locals => { :schedule => schedule, :expanded => schedule.errors.any?}
-    else
-      redirect_to project_schedules_path(project), :notice => "Schedule #{schedule.name} successfully updated."
-    end
+    render :partial => "box_content", :locals => { :schedule => schedule, :expanded => schedule.errors.any?}
   end
 
   def destroy
