@@ -69,10 +69,20 @@ module Parsers
         else
           variables = []
           string_condition = conditions.collect do |condition|
-            lhs = InputSetting.new(variable: condition['variable'], response: condition['response'], step: condition['step'])
-            rhs = InputSetting.new(variable: condition['rhs_variable'], response: condition['rhs_response'], step: condition['rhs_step'], value: (condition['rhs_value'] || condition['value']))
-            variables << lhs.variable << rhs.variable
-            "(#{lhs.expression()} #{condition['operator']} #{rhs.expression()})"
+            if condition['operator'] == 'def' || condition['operator'] == 'undef'
+              lhs = InputSetting.new(variable: condition['variable'], response: condition['response'], step: condition['step'])
+              variables << lhs.variable
+              if condition['operator'] == 'def'
+                "(typeof(#{lhs.expression()}) != 'undefined')"
+              else
+                "(typeof(#{lhs.expression()}) == 'undefined')"
+              end
+            else
+              lhs = InputSetting.new(variable: condition['variable'], response: condition['response'], step: condition['step'])
+              rhs = InputSetting.new(variable: condition['rhs_variable'], response: condition['rhs_response'], step: condition['rhs_step'], value: (condition['rhs_value'] || condition['value']))
+              variables << lhs.variable << rhs.variable
+              "(#{lhs.expression()} #{condition['operator']} #{rhs.expression()})"
+            end
           end.join(' && ')
           variables.compact.uniq.each do |variable|
             compiler.RetrieveVariable variable

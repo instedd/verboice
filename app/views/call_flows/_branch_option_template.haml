@@ -11,12 +11,27 @@
           %table
             %tbody
               %tr{ko(with: 'lhs')}
-                = render 'input_setting'
+                %td
+                  %select.w10{'data-bind' => "value: content_kind, options: content_kinds(), optionsText: 'text', optionsValue: 'value'"}
+                %td
+                  %input.ux-text.w10{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value"'}
+                  %select.w10{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables()'}
+                  %select.w10{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name", optionsValue: "value"'}
+                  %select.w10{'data-bind' => 'value: response, visible: content_kind() == "response", options: available_responses(), optionsText: "name", optionsValue: "value"'}
               %tr
                 %td{colspan: 2}
                   %select{'data-bind' => "value: operator, options: operators, optionsText: 'text', optionsValue: 'value'", 'style' => 'width: 203px; margin-top: 7px'}
               %tr{ko(with: 'rhs')}
-                = render 'input_setting'
+                %td{ko(:if => "($parent.operator() != 'def') && ($parent.operator() != 'undef')")}
+                  %select.w10{'data-bind' => "value: content_kind, options: content_kinds(), optionsText: 'text', optionsValue: 'value'"}
+                %td{ko(:if => "($parent.operator() != 'def') && ($parent.operator() != 'undef')")}
+                  %input.ux-text.w10{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value"'}
+                  %select.w10{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables()'}
+                  %select.w10{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name", optionsValue: "value"'}
+                  %select.w10{'data-bind' => 'value: response, visible: content_kind() == "response", options: available_responses(), optionsText: "name", optionsValue: "value"'}
+              %tr
+                %td
+                %td
                 %td
                   %button.faccept{'type' => 'button', 'data-bind' => 'click: $parent.close_condition_edition'}
           / /ko

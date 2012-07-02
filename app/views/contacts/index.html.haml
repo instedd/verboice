@@ -28,7 +28,7 @@
 .tablewrapp.scroll
   %table.GralTable
     %tr
-      %th Phone number
+      %th{style: "min-width: 100px", colspan: 2} Phone number
       - @project_variables.each do |variable|
         %th=variable.name
       - @recorded_audio_descriptions.each do |audio_description|
@@ -38,6 +38,7 @@
     - @contacts.each do |contact|
       %tr.link{'data-url' => edit_contact_path(contact)}
         %td= contact.address
+        %td= link_to '', contact, :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
         - @project_variables.each do |project_variable|
           - variable = contact.persisted_variables.detect do |variable|
             - variable.project_variable == project_variable
@@ -49,9 +50,6 @@
           - audios = contact.recorded_audios.collect do |audio|
             - audio.description == audio_description
           %td= audios.size
-
-        %td
-          = link_to '', contact, :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
 %br
 
 = link_to 'New Contact', new_project_contact_path(@project), :class => 'cadd'

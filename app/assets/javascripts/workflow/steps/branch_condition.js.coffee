@@ -27,7 +27,9 @@ onWorkflow ->
         {text: 'greater or equal to', value: '>='},
         {text: 'less or equal to', value: '<='},
         {text: 'greater than', value: '>'},
-        {text: 'less than', value: '<'}
+        {text: 'less than', value: '<'},
+        {text: 'is defined', value: 'def'},
+        {text: 'is undefined', value: 'undef'}
       ]
 
       # Right hand side
@@ -58,7 +60,10 @@ onWorkflow ->
 
     after_initialize: () =>
       @description = ko.computed () =>
-        "#{@lhs.description()} #{@operator_text_for(@operator())} #{@rhs.description()}"
+        if @operator() != 'def' && @operator() != 'undef'
+          "#{@lhs.description()} #{@operator_text_for(@operator())} #{@rhs.description()}"
+        else
+          "#{@lhs.description()} #{@operator_text_for(@operator())}"
 
     on_step_removed: (step) =>
       @lhs.on_step_removed(step)

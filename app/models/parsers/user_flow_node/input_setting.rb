@@ -43,6 +43,8 @@ module Parsers
           value_for_js value
         elsif response.present?
           "external_#{response}"
+        else
+          'null'
         end
       end
 
