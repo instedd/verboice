@@ -17,7 +17,7 @@
 
 class ProjectsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_project, only: [:edit, :update, :destroy]
+  before_filter :load_project, only: [:edit, :update, :destroy, :update_variables]
   before_filter :load_enqueue_call_fields, only: [:show, :enqueue_call]
 
   def index
@@ -77,6 +77,14 @@ class ProjectsController < ApplicationController
   def destroy
     @project.destroy
     redirect_to(projects_url, :notice => "Project #{@project.name} successfully deleted.")
+  end
+
+  def update_variables
+    if @project.update_attributes(params[:project])
+      redirect_to project_contacts_path(@project), notice: "Columns successfully updated."
+    else
+      redirect_to project_contacts_path(@project), flash: { error: "Error updating columns."}
+    end
   end
 
   private

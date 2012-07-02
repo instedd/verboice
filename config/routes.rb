@@ -35,6 +35,7 @@ Verboice::Application.routes.draw do
     resources :projects, :shallow => shallow do
       member do
         post :enqueue_call
+        put :update_variables
       end
 
       resources :call_flows, except: [:new, :edit] do

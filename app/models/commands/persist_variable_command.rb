@@ -27,14 +27,20 @@ class Commands::PersistVariableCommand < Command
   def run session
     session.trace "Saving '#{@variable_name}'", command: 'persist_variable', action: 'start'
     contact            = contact_from session
-    persisted_variable = contact.persisted_variables.find_by_name @variable_name
-
-    if persisted_variable
+    project_variable = contact.project_variables.find_by_name @variable_name
+    if project_variable
+      persisted_variable = contact.persisted_variables.find_by_project_variable_id project_variable.id
+      if persisted_variable
       persisted_variable.value = evaluate_expression(session)
       persisted_variable.save!
+      else
+        contact.persisted_variables.create!\
+          project_variable: project_variable,
+          value: evaluate_expression(session)
+      end
     else
       contact.persisted_variables.create!\
-        name: @variable_name,
+        project_variable: contact.project.project_variables.create!(name: @variable_name),
         value: evaluate_expression(session)
     end
     session.trace "'#{@variable_name}' saved for contact '#{contact.address}'.", command: 'persist_variable', action: 'finish'

@@ -29,11 +29,13 @@ module Commands
 
       cmd = PersistVariableCommand.new 'foo', 2
       cmd.next = :next
-      cmd.run(session).should == :next
+      cmd.run(session).should eq(:next)
 
       PersistedVariable.all.size.should eq(1)
       PersistedVariable.first.value.should eq('2')
-      PersistedVariable.first.name.should eq('foo')
+      ProjectVariable.all.size.should eq(1)
+      ProjectVariable.first.name.should eq('foo')
+      PersistedVariable.first.project_variable.should eq(ProjectVariable.first)
       PersistedVariable.first.contact.should eq(contact)
     end
 
@@ -44,7 +46,7 @@ module Commands
 
       cmd = PersistVariableCommand.new 'foo', 2
       cmd.next = :next
-      cmd.run(session).should == :next
+      cmd.run(session).should eq(:next)
       Contact.all.size.should eq(1)
       Contact.first.address.should eq('1234xxx')
       PersistedVariable.first.contact.should eq(Contact.first)
@@ -60,20 +62,24 @@ module Commands
 
       cmd = PersistVariableCommand.new 'foo', 2
       cmd.next = :next
-      cmd.run(session).should == :next
+      cmd.run(session).should eq(:next)
 
       PersistedVariable.all.size.should eq(1)
       PersistedVariable.first.value.should eq('2')
-      PersistedVariable.first.name.should eq('foo')
+      ProjectVariable.all.size.should eq(1)
+      ProjectVariable.first.name.should eq('foo')
+      PersistedVariable.first.project_variable.should eq(ProjectVariable.first)
       PersistedVariable.first.contact.should eq(contact)
 
       cmd = PersistVariableCommand.new 'foo', 1
       cmd.next = :next
-      cmd.run(session).should == :next
+      cmd.run(session).should eq(:next)
 
       PersistedVariable.all.size.should eq(1)
       PersistedVariable.first.value.should eq('1')
-      PersistedVariable.first.name.should eq('foo')
+      ProjectVariable.all.size.should eq(1)
+      ProjectVariable.first.name.should eq('foo')
+      PersistedVariable.first.project_variable.should eq(ProjectVariable.first)
       PersistedVariable.first.contact.should eq(contact)
     end
 
@@ -84,7 +90,7 @@ module Commands
 
       cmd = PersistVariableCommand.new 'foo', 2
       cmd.next = :next
-      cmd.run(session).should == :next
+      cmd.run(session).should eq(:next)
       Contact.all.size.should eq(1)
       Contact.first.address.should eq('Anonymous123')
       Contact.first.anonymous?.should eq(true)
@@ -102,7 +108,7 @@ module Commands
 
       cmd = PersistVariableCommand.new 'foo', 2
       cmd.next = :next
-      cmd.run(session).should == :next
+      cmd.run(session).should eq(:next)
       Contact.all.size.should eq(1)
       Contact.first.address.should eq('Anonymous34')
       PersistedVariable.first.contact.should eq(Contact.first)

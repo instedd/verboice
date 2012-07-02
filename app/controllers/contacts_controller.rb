@@ -21,8 +21,8 @@ class ContactsController < ApplicationController
   before_filter :initialize_context, :only => [:show, :edit, :update, :destroy]
 
   def index
-    @contacts = @project.contacts.includes(:recorded_audios).includes(:persisted_variables)
-    @persisted_variable_names = PersistedVariable.select(:name).where(:contact_id => @contacts.collect(&:id)).collect(&:name).to_set
+    @contacts = @project.contacts.includes(:recorded_audios).includes(:persisted_variables).includes(:project_variables)
+    @project_variables = @project.project_variables
     @recorded_audio_descriptions = RecordedAudio.select(:description).where(:contact_id => @contacts.collect(&:id)).collect(&:description).to_set
 
     respond_to do |format|
@@ -33,6 +33,12 @@ class ContactsController < ApplicationController
 
   def new
     @contact = Contact.new
+    @project_variables = @project.project_variables
+    @project_variables.each do |project_variable|
+      @contact.persisted_variables << PersistedVariable.new(project_variable: project_variable)
+    end
+    @persisted_variables = @contact.persisted_variables
+
     @contact.project = @project
 
     respond_to do |format|
@@ -42,9 +48,17 @@ class ContactsController < ApplicationController
   end
 
   def edit
+    @project_variables.each do |project_variable|
+      unless @contact.persisted_variables.any? { |persisted| persisted.project_variable == project_variable }
+        @contact.persisted_variables << PersistedVariable.new(project_variable: project_variable)
+      end
+    end
+    @persisted_variables = @contact.persisted_variables
   end
 
   def create
+    mark_empty_variables_for_removal params
+
     @contact = Contact.new(params[:contact])
     @contact.project = @project
 
@@ -60,6 +74,7 @@ class ContactsController < ApplicationController
   end
 
   def update
+    mark_empty_variables_for_removal params
     respond_to do |format|
       if @contact.update_attributes(params[:contact])
         format.html { redirect_to project_contacts_url(@project), notice: 'Contact was successfully updated.' }
@@ -90,5 +105,14 @@ class ContactsController < ApplicationController
     @recorded_audios = @contact.recorded_audios
     @persisted_variables = @contact.persisted_variables
     @project = @contact.project
+    @project_variables = @project.project_variables
+  end
+
+  def mark_empty_variables_for_removal params
+    params[:contact][:persisted_variables_attributes].each do |index, variable|
+      unless variable['value'].present?
+        variable['_destroy'] = "1"
+      end
+    end if params[:contact][:persisted_variables_attributes].present?
   end
 end

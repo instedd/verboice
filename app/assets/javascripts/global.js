@@ -26,7 +26,7 @@ function create_channel(select) {
   if (!select.value) return;
   window.location = '/channels/new?type=' + select.value.split('-')[0] + '&template=' + select.value.split('-')[1];
   select.value = '';
-};
+}
 
 function onWorkflow(callback) {
   $(function() {
@@ -34,7 +34,7 @@ function onWorkflow(callback) {
       callback();
     }
   });
-};
+}
 
 function remove_fields(link) {
   $(link).prev("input[type=hidden]").val("1");
@@ -50,12 +50,12 @@ function add_fields(link, association, content) {
 function add_variable(link, association, content) {
   var label_regexp = new RegExp("Value", "g");
   var text_input = $(link).prev("input:text");
-  if(text_input.attr('value') == "") {
+  if(text_input.attr('value') === "") {
     text_input.addClass('error');
     return false;
   } else {
     text_input.removeClass('error');
     add_fields(link, association, content.replace(label_regexp, text_input.attr('value')));
-    $('.field').last().find('input[type=hidden]').attr('value', text_input.attr('value'))
+    $('.field').last().find('input[type=hidden]').attr('value', text_input.attr('value'));
   }
 }

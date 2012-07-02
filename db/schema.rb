@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120626224229) do
+ActiveRecord::Schema.define(:version => 20120628192925) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -167,13 +167,23 @@ ActiveRecord::Schema.define(:version => 20120626224229) do
 
   create_table "persisted_variables", :force => true do |t|
     t.string   "value"
-    t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",          :null => false
+    t.datetime "updated_at",          :null => false
     t.integer  "contact_id"
+    t.integer  "project_variable_id"
   end
 
   add_index "persisted_variables", ["contact_id"], :name => "index_persisted_variables_on_contact_id"
+  add_index "persisted_variables", ["project_variable_id"], :name => "index_persisted_variables_on_project_variable_id"
+
+  create_table "project_variables", :force => true do |t|
+    t.integer  "project_id"
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "project_variables", ["project_id"], :name => "index_project_variables_on_project_id"
 
   create_table "projects", :force => true do |t|
     t.string   "name"

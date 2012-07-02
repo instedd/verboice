@@ -1,14 +1,36 @@
 = render 'shared/project_tabs_and_title', :project => @project
 
-%h2 Contacts
+%h2 Phone book
+%p.desc List of all the people that have made or received calls in this project
+
+.ux-collapsible.collapsed.w40.file_upload{"data-on-expanded" => "box grey"}
+  %span
+    %a.button.fconfiguration{:href => "#"} Manage Phone book's columns
+  .ux-content
+    = form_for(@project, :url => update_variables_project_path(@project)) do |f|
+      %hr
+      %ul.oplist
+        = f.fields_for :project_variables do |builder|
+          = render 'project_variable_fields', :f => builder
+        .add_project_variable
+          .ux-optext{class: 'w30', style: 'display: inline-block;'}
+            Add new variable
+          = link_to_add_fields '', f, :project_variables, :class => 'button clist-add'
+      %hr
+      .right
+        %a.button.ux-collapse-trigger Cancel
+        %button.white{:type => "submit"} Confirm
+      .clear
+
+%br
 %br
 
 .tablewrapp
   %table.GralTable
     %tr
       %th Phone number
-      - @persisted_variable_names.each do |variable_name|
-        %th=variable_name
+      - @project_variables.each do |variable|
+        %th=variable.name
       - @recorded_audio_descriptions.each do |audio_description|
         %th=audio_description
       %th
@@ -16,9 +38,9 @@
     - @contacts.each do |contact|
       %tr.link{'data-url' => edit_contact_path(contact)}
         %td= contact.address
-        - @persisted_variable_names.each do |variable_name|
+        - @project_variables.each do |project_variable|
           - variable = contact.persisted_variables.detect do |variable|
-            - variable.name == variable_name
+            - variable.project_variable == project_variable
           - if variable
             %td= variable.value
           - else
@@ -27,7 +49,6 @@
           - audios = contact.recorded_audios.collect do |audio|
             - audio.description == audio_description
           %td= audios.size
-
 
         %td
           = link_to '', contact, :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'

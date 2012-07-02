@@ -28,8 +28,13 @@ class Project < ActiveRecord::Base
   has_many :schedules, :dependent => :destroy
   has_many :contacts, :dependent => :destroy
   has_many :persisted_variables, :through => :contacts
+  has_many :project_variables, :dependent => :destroy, :inverse_of => :project
 
-  attr_accessible :name, :account, :status_callback_url, :status_callback_url_user, :status_callback_url_password, :time_zone
+  accepts_nested_attributes_for :project_variables,
+    :reject_if => lambda { |attributes| attributes[:name].blank?},
+    :allow_destroy => true
+
+  attr_accessible :name, :account, :status_callback_url, :status_callback_url_user, :status_callback_url_password, :time_zone, :project_variables_attributes
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id

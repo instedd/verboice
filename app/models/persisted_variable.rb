@@ -16,11 +16,13 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class PersistedVariable < ActiveRecord::Base
-  has_one :project, :through => :contact
+  has_one :project, :through => :project_variable
   belongs_to :contact, :inverse_of => :persisted_variables
+  belongs_to :project_variable, :inverse_of => :persisted_variables
 
-  validates_presence_of :contact, :name
-  attr_accessible :contact, :name, :value
+
+  validates_presence_of :contact, :project_variable
+  attr_accessible :contact, :value, :project_variable, :project_variable_id
 
   def typecasted_value
     if value && value =~ /^[-+]?[0-9]+$/

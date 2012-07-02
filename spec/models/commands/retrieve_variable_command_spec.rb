@@ -20,34 +20,36 @@ require 'spec_helper'
 module Commands
   describe RetrieveVariableCommand do
     it "should retrieve a persisted numeric variable" do
-      persisted_variable = PersistedVariable.make name: 'foo'
-      contact = persisted_variable.contact
-      project = contact.project
-      call_flow = CallFlow.make project: project
-      call_log = CallLog.make call_flow: call_flow
-      session = Session.new :pbx => mock('pbx'), :call_log => call_log
+      project             = Project.make
+      contact             = Contact.make project: project
+      project_variable    = ProjectVariable.make name: 'foo', project: project
+      persisted_variable  = PersistedVariable.make project_variable: project_variable, contact: contact
+      call_flow           = CallFlow.make project: project
+      call_log            = CallLog.make call_flow: call_flow
+      session             = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => contact.address
 
       cmd = RetrieveVariableCommand.new 'foo'
       cmd.next = :next
 
-      cmd.run(session).should == :next
+      cmd.run(session).should eq(:next)
       session.eval('var_foo').should eq(persisted_variable.value.to_i)
     end
 
     it "should retrieve a persisted string variable" do
-      persisted_variable = PersistedVariable.make name: 'varname', value: 'thevalue'
-      contact = persisted_variable.contact
-      project = contact.project
-      call_flow = CallFlow.make project: project
-      call_log = CallLog.make call_flow: call_flow
-      session = Session.new :pbx => mock('pbx'), :call_log => call_log
+      project           = Project.make
+      contact           = Contact.make project: project
+      project_variable  = ProjectVariable.make name: 'varname', project: project
+      PersistedVariable.make project_variable: project_variable, value: 'thevalue', contact: contact
+      call_flow         = CallFlow.make project: project
+      call_log          = CallLog.make call_flow: call_flow
+      session           = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => contact.address
 
       cmd = RetrieveVariableCommand.new 'varname'
       cmd.next = :next
 
-      cmd.run(session).should == :next
+      cmd.run(session).should eq(:next)
       session.eval('var_varname').should eq('thevalue')
     end
 
@@ -60,29 +62,30 @@ module Commands
       cmd = RetrieveVariableCommand.new 'foo'
       cmd.next = :next
 
-      cmd.run(session).should == :next
+      cmd.run(session).should eq(:next)
       session.eval('var_foo').should eq(nil)
     end
 
     it "should set to nil if the variable doesn't exist" do
-      project  = Project.make
-      contact  = Contact.make project: project
+      project   = Project.make
+      contact   = Contact.make project: project
       call_flow = CallFlow.make project: project
-      call_log = CallLog.make call_flow: call_flow
-      session  = Session.new :pbx => mock('pbx'), :call_log => call_log
+      call_log  = CallLog.make call_flow: call_flow
+      session   = Session.new :pbx => mock('pbx'), :call_log => call_log
       session.stub :address => contact.address
 
       cmd = RetrieveVariableCommand.new 'foo'
       cmd.next = :next
 
-      cmd.run(session).should == :next
+      cmd.run(session).should eq(:next)
       session.eval('var_foo').should eq(nil)
     end
 
     it "should set to the value from an anonymous contact based on the call id if the caller address is unknown" do
       project            = Project.make
       contact            = Contact.make address: 'Anonymous44', project: project
-      persisted_variable = PersistedVariable.make name: 'foo', contact: contact
+      project_variable   = ProjectVariable.make name: 'foo', project: project
+      persisted_variable = PersistedVariable.make project_variable: project_variable, contact: contact
       call_flow          = CallFlow.make project: project
       call_log           = CallLog.make call_flow: call_flow, id: 44
       session            = Session.new :pbx => mock('pbx'), :call_log => call_log
@@ -91,7 +94,7 @@ module Commands
       cmd = RetrieveVariableCommand.new 'foo'
       cmd.next = :next
 
-      cmd.run(session).should == :next
+      cmd.run(session).should eq(:next)
       session.eval('var_foo').should eq(persisted_variable.value.to_i)
     end
 
@@ -103,7 +106,7 @@ module Commands
        cmd = RetrieveVariableCommand.new 'foo'
        cmd.next = :next
 
-       cmd.run(session).should == :next
+       cmd.run(session).should eq(:next)
        session.eval('var_foo').should eq(nil)
      end
 
@@ -117,7 +120,7 @@ module Commands
        cmd = RetrieveVariableCommand.new 'foo'
        cmd.next = :next
 
-       cmd.run(session).should == :next
+       cmd.run(session).should eq(:next)
        session.eval('var_foo').should eq(nil)
      end
   end

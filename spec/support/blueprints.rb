@@ -98,8 +98,13 @@ end
 
 PersistedVariable.blueprint do
   contact
-  name
+  project_variable
   value { rand(9999) }
+end
+
+ProjectVariable.blueprint do
+  name
+  project
 end
 
 RecordedAudio.blueprint do
