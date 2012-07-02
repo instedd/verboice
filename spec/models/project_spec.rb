@@ -57,10 +57,59 @@ describe Project do
   context "variables" do
     it "should gather variables from call flows" do
       project = Project.make
-      project.call_flows.make :variables => ['foo', 'bar']
-      project.call_flows.make :variables => ['foo', 'baz']
+      project.call_flows.make user_flow: [{
+      'id' => 1,
+      'root' => true,
+      'type' => 'capture',
+      'name' => 'Capture number one',
+      'store' => 'some_variable',
+      'instructions_message' => { "name" => 'First Capture', 'type' => 'text' },
+      'invalid_message' => {
+        "name" => "An invalid key was pressed",
+        "type" => "text"
+      },
+      'valid_values' => '1,2-4,10-20',
+      'finish_on_key' => '#',
+      'min_input_length' => 1,
+      'max_input_length' => 2,
+      'timeout' => 10 }]
 
-      project.reload.defined_variables.should eq(['foo', 'bar', 'baz'])
+      project.call_flows.make user_flow: [{
+      'id' => 1,
+      'root' => true,
+      'type' => 'capture',
+      'name' => 'Capture number 1',
+      'store' => 'foo',
+      'instructions_message' => { "name" => 'First Capture', 'type' => 'text' },
+      'invalid_message' => {
+        "name" => "An invalid key was pressed",
+        "type" => "text"
+      },
+      'valid_values' => '1,2-4,10-20',
+      'finish_on_key' => '#',
+      'min_input_length' => 1,
+      'max_input_length' => 2,
+      'timeout' => 10,
+      'next' => 2 },
+
+    {
+      'id' => 2,
+      'root' => false,
+      'type' => 'capture',
+      'name' => 'Capture number 2',
+      'store' => 'some_variable',
+      'instructions_message' => { "name" => 'First Capture', 'type' => 'text' },
+      'invalid_message' => {
+        "name" => "An invalid key was pressed",
+        "type" => "text"
+      },
+      'valid_values' => '1,2-4,10-20',
+      'finish_on_key' => '#',
+      'min_input_length' => 1,
+      'max_input_length' => 2,
+      'timeout' => 10 }]
+
+      project.reload.defined_variables.should eq(['some_variable', 'foo'])
     end
   end
 

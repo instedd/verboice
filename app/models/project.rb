@@ -47,6 +47,14 @@ class Project < ActiveRecord::Base
   end
 
   def defined_variables
-    call_flows.pluck(:variables).flatten.uniq
+    project_variables.collect(&:name)
+  end
+
+  def update_variables_with variable_names
+    variable_names.each do |variable_name|
+      unless project_variables.any? {|var| var.name == variable_name}
+        project_variables.create! name: variable_name
+      end
+    end
   end
 end

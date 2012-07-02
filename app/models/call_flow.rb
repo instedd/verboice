@@ -81,8 +81,9 @@ class CallFlow < ActiveRecord::Base
     if user_flow.presence && user_flow_changed?
       parser  = Parsers::UserFlow.new self, user_flow
       self.flow = parser.equivalent_flow
-      self.variables = parser.variables.to_a
+      self.variables = parser.variables.to_a.uniq
       self.external_service_guids = parser.external_service_guids.to_a
+      self.project.update_variables_with self.variables
     end
     true
   end
