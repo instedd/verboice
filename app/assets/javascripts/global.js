@@ -20,6 +20,11 @@ $(function() {
   $(".ux-custom-datetimepicker:not([readonly])")
     .click(function(){ $(this).datepicker("show"); })
     .datetimepicker({showButtonPanel: false, dateFormat: 'yy-mm-dd'});
+
+  $(".ux-custom-datepicker:not([readonly])")
+    .click(function(){ if(!$(this).is('[readonly]')) {$(this).datepicker("show");} return false; })
+    .datepicker({showButtonPanel: false, dateFormat: 'yy-mm-dd'});
+
 });
 
 function create_channel(select) {
