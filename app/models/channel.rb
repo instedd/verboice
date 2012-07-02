@@ -21,7 +21,7 @@ class Channel < ActiveRecord::Base
   belongs_to :call_flow
   has_one :project, :through => :call_flow
 
-  has_many :call_logs, :dependent => :destroy
+  has_many :call_logs, :dependent => :nullify
   has_many :queued_calls, :dependent => :destroy
 
   validates_presence_of :account
