@@ -6,22 +6,24 @@
   overflow:auto;
 }
 .tablewrapp.contacts {
-  padding-right: 3px;
+  padding-right: 7px;
   white-space: nowrap;
 
-  tr td {
-    height: 36px;
+  .fixed-height {
+    height: 26px;
+    padding-top: 10px !important;
   }
 
   tr td.fade {
     width: 80px;
     padding: 2px 6px !important;
-    line-height: 36px;
+    line-height: 18px;
   }
 
   span{
     display: inline-block;
     width: 10%;
+    vertical-align: top;
 
     td.fade:before{
       top: 10px;
@@ -39,5 +41,6 @@
 
   span + span {
    width: 90%;
+   margin-left: 2px;
   }
 }

@@ -32,7 +32,8 @@
         %th{colspan: 2} Phone number
       - @contacts.each do |contact|
         %tr.link{'data-url' => edit_contact_path(contact)}
-          %td.fade= contact.address
+          %td.fade
+            .fixed-height= contact.address
           %td= link_to '', contact, :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
   %span.scroll
     %table.GralTable
@@ -48,9 +49,11 @@
             - variable = contact.persisted_variables.detect do |variable|
               - variable.project_variable == project_variable
             - if variable
-              %td= variable.value
+              %td
+                .fixed-height= variable.value
             - else
               %td
+                .fixed-height
           - @recorded_audio_descriptions.each do |audio_description|
             - audios = contact.recorded_audios.collect do |audio|
               - audio.description == audio_description
