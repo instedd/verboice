@@ -53,7 +53,7 @@ describe Channel do
       let (:queued_call) { channel.reload.queued_calls.first }
 
       it "call ok" do
-        broker_client.should_receive(:notify_call_queued).with(channel.id)
+        broker_client.should_receive(:notify_call_queued).with(channel.id, anything)
 
         call_log = channel.call 'foo'
         call_log.state.should == :queued
@@ -66,7 +66,7 @@ describe Channel do
       end
 
       it "call raises" do
-        broker_client.should_receive(:notify_call_queued).with(channel.id).and_raise("Oh no!")
+        broker_client.should_receive(:notify_call_queued).with(channel.id, anything).and_raise("Oh no!")
 
         call_log = channel.call 'foo'
         call_log.state.should == :failed
@@ -137,6 +137,15 @@ describe Channel do
         channel.call_flow.project.update_attribute :time_zone, 'Buenos Aires'
         channel.reload.call 'foo', :not_before => '2012-12-20T10:00:00'
         queued_call.not_before.should eq(Time.parse('2012-12-20T13:00:00 UTC'))
+      end
+
+      it "uses project's time zone when not before is nil" do
+        Timecop.freeze(Time.local(2012,12,20,13))
+        broker_client.should_receive(:notify_call_queued)
+        channel.call_flow.project.update_attribute :time_zone, 'Buenos Aires'
+        channel.reload.call 'foo'
+        queued_call.not_before.should eq(Time.parse('2012-12-20T16:00:00 UTC'))
+        Timecop.return
       end
 
     end
