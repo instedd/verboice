@@ -214,3 +214,7 @@ button.fhelp { vertical-align:middle }
 }
 .fmovedown { background:url(http://resmap-stg.instedd.org/assets/moveDown.png) no-repeat; position:absolute; bottom:1px }
 .fmoveup { background:url(http://resmap-stg.instedd.org/assets/moveUp.png) no-repeat; position:absolute; top:0 }
+
+/* ------------ Elipsis/Fade Out ------------------- */
+td.fade { white-space:nowrap; overflow:hidden; display:block; vertical-align:middle; float:left; position:relative; width:215px; padding-top:8px !important; }
+td.fade:before { position:absolute;right:0px;display:block;width:32px;background:white;background:-webkit-gradient(linear,0% 50%,100% 50%,color-stop(0%,rgba(255,255,255,0)),color-stop(100%,#fff));background:-webkit-linear-gradient(left,rgba(255,255,255,0),#fff);background:-moz-linear-gradient(left,rgba(255,255,255,0),#fff);background:-o-linear-gradient(left,rgba(255,255,255,0),#fff);background:-ms-linear-gradient(left,rgba(255,255,255,0),#fff);background:linear-gradient(left,rgba(255,255,255,0),#fff); color:transparent;content:"."}
