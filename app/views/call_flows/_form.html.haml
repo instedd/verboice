@@ -24,14 +24,14 @@
     %br/
     = f.password_field :callback_url_password, :class => "w30"
 
-  - if OAuth2::Client.service_configured?(:google)
+  - if OAuth2::Client.service_configured?(:google) && !call_flow.new_record?
     %hr
     %p Fusion Tables
     %p.desc Enter a fusion table name and Verboice will create the table and store call results in real-time to it. Note that in case that the flow definition changes, Verboice might need to generate a fresh table with the new structure to store new results; in such case, Verboice will generate new tables using the name you provided and revision number.
     %p
       = f.check_box :store_in_fusion_tables, :class => "store_in_fusion_tables"
       = f.label "Store results of this call flow"
-    .fusion_tables_settings
+    .fusion_tables_settings{:style => "display: #{call_flow.store_in_fusion_tables ? 'block' : 'none'};"}
       = f.label :fusion_table_name, "Fusion Table name"
       %br
       = f.text_field :fusion_table_name, :class => 'w30'
