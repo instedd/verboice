@@ -29,7 +29,7 @@ p + p.desc { font-size:11px !important; color:#555555; margin-top:-15px !importa
 .workflow-content-container { overflow:auto; max-width:100% }
 .workflow-container { position:relative; white-space:nowrap }
 .workflow-container p { margin:0; padding:0 }
-.workflow-container div { display:inline-block; margin:0 35px 10px 0; vertical-align:top; text-align:center; width:55px; height:80px; position:relative }
+/*.workflow-container div { display:inline-block; margin:0 35px 10px 0; vertical-align:top; text-align:center; width:55px; height:80px; position:relative }*/
 .workflow-container div p { font-size:11px; line-height:12px; margin:3px 0 0 0; padding:0; white-space:normal }
 .workflow-container div.ha span { background:url(http://theme.instedd.org/theme/images/workflow/arrow-hor.png) no-repeat; width:32px; height:8px; position:absolute; left:-34px; top:25px; display:block }
 .workflow-container div.ha2 span { background:url(arrow-hor2.png) no-repeat; width:32px; height:8px; position:absolute; left:-34px; top:25px; display:block }
@@ -72,14 +72,14 @@ p + p.desc { font-size:11px !important; color:#555555; margin-top:-15px !importa
 ul.oplist { margin:0; padding:0; list-style:none }
 ul.oplist select { width:60px }
 
-.ux-oplist { border-color:white !important; -webkit-box-shadow: none !important; -moz-box-shadow: none !important; box-shadow: none !important; width:178px !important }
+.ux-oplist { border-color:white !important; -webkit-box-shadow: none !important; -moz-box-shadow: none !important; box-shadow: none !important; width:170px !important }
 .ux-oplist:focus { border:2px solid #dddddd !important; -webkit-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.3) inset;  -moz-box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.3) inset; box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.3) inset }
 
 .ux-oplist:disabled { background-color:white !important; color:#999999; border:1px solid transparent !important; -webkit-box-shadow: none; -moz-box-shadow: none; box-shadow: none; }
 
-ul.oplist .ux-text { width:238px !important }
+ul.oplist .ux-text { width:230px !important }
 
-span.validation { display:inline-block; width:135px; margin:6px 0 !important }
+span.validation { display:inline-block; width:125px; margin:6px 0 !important }
 span.forwardto { display:inline-block; width:66px; margin:6px 0 !important }
 
 span.alert-orange { background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat right; padding-right:18px; color:#ff6600; display:inline-block }
@@ -158,13 +158,12 @@ ul.call-properties li div span { display:inline-block; width:90px; padding-top:8
 input+label { color:#000 }
 
 .response { margin-bottom:8px }
-.response input[type="text"] { width:265px }
+.response input[type="text"] { width:95% }
 .response label { color:#555555 }
 
 .w01 { width:10px }
 .w05 { width:50px }
 .w17 { width:172px !important }
-.w25 { width:254px !important }
 .w26 { width:260px !important }
 .w28 { width:285px }
 .w64 { width:640px }
@@ -195,7 +194,7 @@ button.fhelp { vertical-align:middle }
 .steps div span { display:block; color:#000000 }
 
 /* ------------ Buttons Up/Down ------------------- */
-.btupdn { display: inline-block; vertical-align:middle; width:24px; height:24px; position:relative }
+.btupdn { display: inline-block; vertical-align:middle; width:24px; height:32px; position:relative }
 .fmoveup, .fmovedown {
     background-color: transparent;
     background-position: 0 0;
@@ -214,6 +213,8 @@ button.fhelp { vertical-align:middle }
 }
 .fmovedown { background:url(http://resmap-stg.instedd.org/assets/moveDown.png) no-repeat; position:absolute; bottom:1px }
 .fmoveup { background:url(http://resmap-stg.instedd.org/assets/moveUp.png) no-repeat; position:absolute; top:0 }
+
+
 
 /* ------------ Elipsis/Fade Out ------------------- */
 td.fade { white-space:nowrap; overflow:hidden; display:block; vertical-align:middle; float:left; position:relative; width:215px; padding-top:8px !important; }

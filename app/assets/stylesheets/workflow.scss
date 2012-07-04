@@ -193,7 +193,7 @@ ul.oplist {
   }
 
   .ux-text {
-    width: 242px !important;
+    width: 228px !important;
     display: inline-block;
   }
 }
@@ -206,7 +206,7 @@ span.oplist {
 .ux-oplist {
 /*  border-color: white !important;*/
 /*  @include all-box-shadow(none !important);*/
-  width: 178px !important;
+  width: 164px !important;
   display: inline-block;
 }
 
@@ -302,5 +302,5 @@ th.orange, td.orange, li.orange, span.orange, label.orange {
 }
 
 .response { margin-bottom:8px; }
-.response input[type="text"] { width:265px; }
+.response input[type="text"] { width:95%; }
 .response label { color:#555555; }
