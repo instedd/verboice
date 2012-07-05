@@ -47,6 +47,7 @@ Verboice::Application.routes.draw do
           post :import
           get :export
           get :download_results
+          get :oauth
         end
       end
 

@@ -10,4 +10,15 @@ $(function() {
     $('.fusion_tables_settings', call_flow).toggle($(this).is(':checked'));
   }).change();
 
+  $('.link_to_oauth').live('click', function(){
+    var self = $(this);
+    var url = self.attr('href');
+    var fusion_table_name = self.siblings('.fusion_table_name').val();
+    if (fusion_table_name) {
+      url = url + '?fusion_table_name=' + fusion_table_name;
+    }
+    window.location = url;
+    return false;
+  });
+
 });

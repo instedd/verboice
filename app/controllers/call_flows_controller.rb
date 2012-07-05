@@ -21,7 +21,7 @@ class CallFlowsController < ApplicationController
 
   before_filter :authenticate_account!
   before_filter :load_call_flow_and_project, :only => [
-    :download_results, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import, :export
+    :download_results, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import, :export, :oauth
   ]
   before_filter :load_all_call_flows, :only => [:index, :update, :create]
   before_filter :load_recording_data, :only => [:play_recording, :save_recording, :play_result]
@@ -133,6 +133,12 @@ class CallFlowsController < ApplicationController
       out.write request.body.read
     end
     render text: @step_id
+  end
+
+  def oauth
+    options = {:call_flow_id => @call_flow.id}
+    options[:fusion_table_name] = params[:fusion_table_name] if params[:fusion_table_name].present?
+    redirect_to google_oauth_path(:redirect_back_to => project_call_flows_path(@project, options))
   end
 
   private

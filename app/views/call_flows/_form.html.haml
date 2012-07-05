@@ -1,3 +1,6 @@
+- if params[:call_flow_id] == call_flow.id.to_s
+  - call_flow.fusion_table_name = params[:fusion_table_name] if params[:fusion_table_name].present?
+  - call_flow.store_in_fusion_tables = true
 = form_for [call_flow.project, call_flow], :remote => true do |f|
   .field
     = f.label :name
@@ -34,8 +37,8 @@
     .fusion_tables_settings{:style => "display: #{call_flow.store_in_fusion_tables ? 'block' : 'none'};"}
       = f.label :fusion_table_name, "Fusion Table name"
       %br
-      = f.text_field :fusion_table_name, :class => 'w30'
-      = link_to current_account.google_oauth_token.nil? ? 'Set your Google Account' : 'Change your Google Account', google_oauth_path(:redirect_back_to => project_call_flows_path(@project)), :class => 'button farrow'
+      = f.text_field :fusion_table_name, :class => 'w30 fusion_table_name'
+      = link_to current_account.google_oauth_token.nil? ? 'Set your Google Account' : 'Change your Google Account', oauth_call_flow_path(call_flow), :class => 'button farrow link_to_oauth'
   %hr
   - if call_flow.new_record?
     %button.white{:type => "submit"} Save
