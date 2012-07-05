@@ -94,7 +94,7 @@ module Parsers
             Assign "current_step", 1
             Assign "current_step_name", "'Branch number one'"
             RetrieveVariable 'some_name'
-            If "(value_3 == 6) && (var_some_name >= 5)" do
+            If "(typeof(value_3) != 'undefined' && typeof(6) != 'undefined' && value_3 == 6) && (typeof(var_some_name) != 'undefined' && typeof(5) != 'undefined' && var_some_name >= 5)" do
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
               Label 10
               Assign "current_step", 10
@@ -105,7 +105,7 @@ module Parsers
             end
             RetrieveVariable 'another_name'
             RetrieveVariable 'some_name'
-            If "(value_1 <= var_another_name) && (var_some_name <= var_another_name)" do
+            If "(typeof(value_1) != 'undefined' && typeof(var_another_name) != 'undefined' && value_1 <= var_another_name) && (typeof(var_some_name) != 'undefined' && typeof(var_another_name) != 'undefined' && var_some_name <= var_another_name)" do
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
               Label 14
               Assign "current_step", 14
