@@ -1,10 +1,10 @@
 <div class="field">
   <%= f.label :username %>
-  <%= f.text_field :username %>
+  <%= f.text_field :username, :autocomplete => 'off' %>
 </div>
 <div class="field">
   <%= f.label :password %>
-  <%= f.password_field :password, :value => @channel.config['password'] %>
+  <%= f.password_field :password, :value => @channel.config['password'], :autocomplete => 'off' %>
 </div>
 <div class="field">
   <%= f.label :limit %>
