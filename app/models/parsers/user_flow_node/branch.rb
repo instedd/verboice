@@ -81,7 +81,7 @@ module Parsers
               lhs = InputSetting.new(variable: condition['variable'], response: condition['response'], step: condition['step'])
               rhs = InputSetting.new(variable: condition['rhs_variable'], response: condition['rhs_response'], step: condition['rhs_step'], value: (condition['rhs_value'] || condition['value']))
               variables << lhs.variable << rhs.variable
-              "(#{lhs.expression()} #{condition['operator']} #{rhs.expression()})"
+              "(typeof(#{lhs.expression()}) != 'undefined' && typeof(#{rhs.expression()}) != 'undefined' && #{lhs.expression()} #{condition['operator']} #{rhs.expression()})"
             end
           end.join(' && ')
           variables.compact.uniq.each do |variable|
