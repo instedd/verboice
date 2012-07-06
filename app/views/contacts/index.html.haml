@@ -26,7 +26,31 @@
 %br
 
 .tablewrapp.contacts
-  %span
+  .contentwrapper
+    .contentcolumn.scroll
+      %table.GralTable
+        %tr
+          - @project_variables.each do |variable|
+            %th=variable.name
+          - @recorded_audio_descriptions.each do |audio_description|
+            %th=audio_description
+
+        - @contacts.each do |contact|
+          %tr.link{'data-url' => edit_contact_path(contact)}
+            - @project_variables.each do |project_variable|
+              - variable = contact.persisted_variables.detect do |variable|
+                - variable.project_variable == project_variable
+              - if variable
+                %td
+                  .fixed-height= variable.value
+              - else
+                %td
+                  .fixed-height
+            - @recorded_audio_descriptions.each do |audio_description|
+              - audios = contact.recorded_audios.collect do |audio|
+                - audio.description == audio_description
+              %td= audios.size
+  .leftcolumn
     %table.GralTable
       %tr
         %th{colspan: 2} Phone number
@@ -35,29 +59,7 @@
           %td.fade
             .fixed-height= contact.address
           %td= link_to '', contact, :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
-  %span.scroll
-    %table.GralTable
-      %tr
-        - @project_variables.each do |variable|
-          %th=variable.name
-        - @recorded_audio_descriptions.each do |audio_description|
-          %th=audio_description
-
-      - @contacts.each do |contact|
-        %tr.link{'data-url' => edit_contact_path(contact)}
-          - @project_variables.each do |project_variable|
-            - variable = contact.persisted_variables.detect do |variable|
-              - variable.project_variable == project_variable
-            - if variable
-              %td
-                .fixed-height= variable.value
-            - else
-              %td
-                .fixed-height
-          - @recorded_audio_descriptions.each do |audio_description|
-            - audios = contact.recorded_audios.collect do |audio|
-              - audio.description == audio_description
-            %td= audios.size
+  .clear
 
 %br
 
