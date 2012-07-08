@@ -26,5 +26,6 @@ class Commands::PauseCommand < Command
     session.trace "Starting a pause for #{@length} seconds.", command: 'pause', action: 'start'
     session.pbx.pause @length
     session.trace "Pause for #{@length} seconds finished.", command: 'pause', action: 'finish'
+    super
   end
 end
