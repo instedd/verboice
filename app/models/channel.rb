@@ -97,15 +97,12 @@ class Channel < ActiveRecord::Base
     schedule ||= options.has_key?(:schedule) ? project.schedules.find_by_name!(options[:schedule]) : nil
 
     time_zone = nil
-    not_before = if options[:not_before].nil? || options[:not_before].is_a?(String)
+    not_before = nil
+    if options[:not_before].nil? || options[:not_before].is_a?(String)
       time_zone = options[:time_zone].blank? ? ActiveSupport::TimeZone.new(current_call_flow.project.time_zone || 'UTC') : (ActiveSupport::TimeZone.new(options[:time_zone]) or raise "Time zone #{options[:time_zone]} not supported")
-      if options[:not_before].blank?
-        Time.now.utc.in_time_zone(time_zone)
-      else
-        time_zone.parse(options[:not_before])
-      end
+      not_before = time_zone.parse(options[:not_before]) if options[:not_before].present?
     else
-      options[:not_before]
+      not_before = options[:not_before]
     end
 
     call_log = call_logs.new :direction => :outgoing, :call_flow_id => current_call_flow.id, :project_id => project_id, :address => address, :state => :queued, :schedule => schedule, :not_before => not_before
