@@ -194,7 +194,10 @@ class BaseBroker
       queued_call = queued_call.dup
       queued_call.retries += 1
       sleep = queued_call.schedule.retry_delays[queued_call.retries - 1].to_f * (Rails.env == 'development' ? 1.second : 1.hour)
-      queued_call.not_before = queued_call.schedule.next_available_time(Time.now.utc + sleep)
+
+      queued_call.not_before = queued_call.schedule.with_time_zone(queued_call.time_zone) do |time_zoned_schedule|
+        time_zoned_schedule.next_available_time(Time.now.utc + sleep)
+      end
 
       log "Re enqueuing call for session #{session_id} with queued call #{queued_call.id} for #{queued_call.not_before}"
       finish_session_with_requeue session, message, queued_call

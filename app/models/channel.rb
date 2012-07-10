@@ -121,7 +121,8 @@ class Channel < ActiveRecord::Base
       :not_before => not_before,
       :schedule => schedule,
       :call_flow_id => current_call_flow.id,
-      :project_id => project_id
+      :project_id => project_id,
+      :time_zone => time_zone.try(:name)
     )
 
     queued_call.not_before = queued_call.schedule.with_time_zone(time_zone) do |time_zoned_schedule|

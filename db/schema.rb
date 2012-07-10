@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120628192925) do
+ActiveRecord::Schema.define(:version => 20120706184410) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -209,6 +209,7 @@ ActiveRecord::Schema.define(:version => 20120628192925) do
     t.integer  "retries",             :default => 0
     t.integer  "project_id"
     t.integer  "call_flow_id"
+    t.string   "time_zone"
   end
 
   add_index "queued_calls", ["call_flow_id"], :name => "index_queued_calls_on_call_flow_id"

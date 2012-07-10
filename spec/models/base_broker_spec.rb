@@ -128,6 +128,24 @@ describe BaseBroker do
         (queued_call.not_before - (Time.now + 2.hour)).abs.should <= 2.seconds
       end
 
+      it "requeue call using time zone" do
+        # It's 15.30 UTC, 12:30 ARG
+        Timecop.freeze(Time.utc(2012,1,1,15,30))
+        schedule = @channel.project.schedules.make :retries => '1', :time_from_str => '12:00', :time_to_str => '14:00'
+        queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 0, :time_zone => 'Buenos Aires'
+        the_session = nil
+
+        @broker.should_receive(:call).with { |session| the_session = session }
+        @broker.notify_call_queued @channel
+
+        EM.should_receive(:fiber_sleep).with 2
+        @broker.call_rejected the_session.id, :busy
+
+        queued_call = QueuedCall.last
+        queued_call.not_before.should eq(Time.utc(2012,1,1,16,30))
+        Timecop.return
+      end
+
       it "do not requeue if all retries has been used" do
         schedule = @channel.project.schedules.make :retries => '1,2,4'
         queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 3
