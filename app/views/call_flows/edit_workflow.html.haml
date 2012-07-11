@@ -24,13 +24,13 @@
 %p Use the following tool to define the application's call flow
 
 = form_tag export_call_flow_path(@call_flow), :method => :get do
-  %button.fimport Download current Call flow
+  %button.fimport Export Call flow
   = check_box_tag :export_audios
   include audio recordings
 
 .ux-collapsible.collapsed.w40.file_upload{"data-on-expanded" => "box grey"}
   %span
-    %a.button.fexport{:href => "#"} Upload a new Call Flow:
+    %a.button.fexport{:href => "#"} Import a new Call Flow:
   .ux-content
     = form_tag({:action => :import}, :multipart => true) do
       %hr
