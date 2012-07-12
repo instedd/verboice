@@ -25,8 +25,8 @@ class Commands::RetrieveVariableCommand < Command
 
   def run session
     session.trace "Retrieving '#{@variable_name}'.", command: 'retrieve_variable', action: 'start'
-    account = session.call_log.account
-    contact = account.contacts.find_by_address(session.address.presence || "Anonymous#{session.call_log.id}" )
+    project = session.call_log.project
+    contact = project.contacts.find_by_address(session.address.presence || "Anonymous#{session.call_log.id}" )
 
     if contact
       project_variable = contact.project_variables.find_by_name @variable_name
