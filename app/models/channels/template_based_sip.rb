@@ -32,6 +32,11 @@ class Channels::TemplateBasedSip < Channels::Sip
     end
   end
 
+  def server_username_uniqueness
+    conflicting_channels = Channels::TemplateBasedSip.all.select{|c| c.kind == self.kind && c.username == self.username && c.id != self.id}
+    errors.add(:base, 'Username has already been taken') unless conflicting_channels.empty?
+  end
+
   @templates = YAML::load_file("#{Rails.root}/config/sip_channel_templates.yml").with_indifferent_access
 
   templates.each do |template_name, server_url|

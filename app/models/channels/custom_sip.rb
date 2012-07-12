@@ -23,4 +23,10 @@ class Channels::CustomSip < Channels::Sip
   def self.kind
     'Sip'
   end
+
+  def server_username_uniqueness
+    conflicting_channels = Channels::CustomSip.all.select{|c| c.username == self.username && c.id != self.id && !(c.host & self.host).empty?}
+    errors.add(:base, 'Username and host have already been taken') unless conflicting_channels.empty?
+  end
+
 end
