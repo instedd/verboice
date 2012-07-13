@@ -143,6 +143,7 @@ GEM
       railties (~> 3.0)
       thor (~> 0.14)
     json (1.7.3)
+    language_list (0.0.3)
     librevox (0.3)
       eventmachine (~> 0.12.10)
     libv8 (3.11.8.0)
@@ -287,6 +288,7 @@ DEPENDENCIES
   hpricot
   instedd-rails
   jquery-rails
+  language_list
   librevox
   libv8
   licit

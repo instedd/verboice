@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120706184410) do
+ActiveRecord::Schema.define(:version => 20120713151123) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -193,6 +193,8 @@ ActiveRecord::Schema.define(:version => 20120706184410) do
     t.string   "status_callback_url"
     t.text     "encrypted_config"
     t.string   "time_zone",           :default => "UTC"
+    t.text     "languages"
+    t.string   "default_language"
   end
 
   create_table "queued_calls", :force => true do |t|

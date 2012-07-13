@@ -1,3 +1,7 @@
+- content_for :head do
+  :javascript
+    window.languages = #{languages_for_js};
+
 = form_for(@project, :builder => InsteddFormBuilder) do |f|
   - if @project.errors.any?
     #error_explanation
@@ -8,10 +12,43 @@
         - @project.errors.full_messages.each do |msg|
           %li= msg
 
+  %h1 Languages
+  %span
+
+  %p Default language
+  = collection_select :project, :default_language, @project.languages.map{|l| LanguageList::LanguageInfo.find(l)}, :iso_639_1, :name, {}, :class => 'w30'
+
+  %p Languages you will support in this project
+
+  %ul.clist.w30
+    - @project.languages.each do |iso|
+      - language = LanguageList::LanguageInfo.find(iso)
+      %li
+        = hidden_field_tag 'project[languages][]', iso
+        / %input.ux-clist{:type => 'text', :value => "#{language.name} (#{language.iso_639_1})"}
+        %span.language= "#{language.name} (#{language.iso_639_1})"
+        %button.clist-remove.remove_language
+    %li
+      %input#add_language.ux-type{:type => 'text', :placeholder => 'Add a new language'}
+      %button#add_language_button.clist-add
+    .hidden
+      %li#language_proto
+        = hidden_field_tag 'project[languages][]'
+        %span.language
+        %button.clist-remove.remove_language
+
+  %br
+  %br
+
+  %hr
+
+  %br
+  %br
+
   = f.text_field :name
   = f.text_field :status_callback_url
-  = f.text_field :status_callback_url_user
-  = f.password_field :status_callback_url_password
+  = f.text_field :status_callback_url_user, :autocomplete => 'off'
+  = f.password_field :status_callback_url_password, :autocomplete => 'off'
 
   = f.time_zone_select :time_zone, ActiveSupport::TimeZone.all
 

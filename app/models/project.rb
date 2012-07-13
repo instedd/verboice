@@ -17,6 +17,8 @@
 
 class Project < ActiveRecord::Base
 
+  serialize :languages
+
   belongs_to :account
   belongs_to :default_call_flow, :class_name => "CallFlow", :foreign_key => "call_flow_id"
 
@@ -34,7 +36,7 @@ class Project < ActiveRecord::Base
     :reject_if => lambda { |attributes| attributes[:name].blank?},
     :allow_destroy => true
 
-  attr_accessible :name, :account, :status_callback_url, :status_callback_url_user, :status_callback_url_password, :time_zone, :project_variables_attributes
+  attr_accessible :name, :account, :status_callback_url, :status_callback_url_user, :status_callback_url_password, :time_zone, :project_variables_attributes, :languages, :default_language
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
@@ -42,6 +44,10 @@ class Project < ActiveRecord::Base
   config_accessor :status_callback_url_user, :status_callback_url_password
 
   attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true
+
+  after_initialize :init
+
+  before_validation :sanitize_languages
 
   def call(address)
   end
@@ -57,4 +63,16 @@ class Project < ActiveRecord::Base
       end
     end
   end
+
+  private
+
+  def init
+    self.default_language ||= 'en'
+    self.languages ||= ['en']
+  end
+
+  def sanitize_languages
+    self.languages = Set.new(languages.reject{|l| l.blank?}).to_a
+  end
+
 end

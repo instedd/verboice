@@ -27,6 +27,7 @@ gem 'rest-client'
 gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribute.git"
 gem 'csv_builder'
 gem 'newrelic_rpm'
+gem 'language_list'
 
 group :v8 do
   gem 'libv8'
