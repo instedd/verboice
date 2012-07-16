@@ -69,6 +69,7 @@ Channels::CustomSip.blueprint do
   call_flow
   account { call_flow.project.account }
   name
+  host { [Sham.url] }
 end
 
 Channels::Voxeo.blueprint do
