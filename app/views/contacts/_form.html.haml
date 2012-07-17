@@ -13,9 +13,12 @@
     = f.fields_for :persisted_variables do |builder|
       .fields
         .field
-          = builder.label :value, builder.object.project_variable.try(:name)
+          = builder.label :value, builder.object.project_variable.try(:name) || builder.object.implicit_key
           = builder.text_field :value, :class => 'w30'
-          = builder.hidden_field :project_variable_id, :value => builder.object.project_variable.try(:id)
+          - if builder.object.implicit_key.present?
+            = builder.hidden_field :implicit_key, :value => builder.object.implicit_key
+          - else
+            = builder.hidden_field :project_variable_id, :value => builder.object.project_variable.try(:id)
 
   - if @recorded_audios.present?
     %br/

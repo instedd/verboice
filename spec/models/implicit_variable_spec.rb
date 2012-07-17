@@ -15,21 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-class PersistedVariable < ActiveRecord::Base
-  has_one :project, :through => :project_variable
-  belongs_to :contact, :inverse_of => :persisted_variables
-  belongs_to :project_variable, :inverse_of => :persisted_variables
+require 'spec_helper'
 
+describe ImplicitVariable do
 
-  validates_presence_of :contact
-  validates_presence_of :project_variable, :unless => Proc.new { |v| v.implicit_key.present? }
-  attr_accessible :contact, :value, :project_variable, :project_variable_id, :implicit_key
-
-  def typecasted_value
-    if value && value =~ /^[-+]?[0-9]+$/
-      value.to_i
-    else
-      value
-    end
+  it "should list all implicit variables" do
+    ImplicitVariable.subclasses.size.should eq(1)
+    ImplicitVariable.subclasses.should include(ImplicitVariables::Language)
   end
+
 end

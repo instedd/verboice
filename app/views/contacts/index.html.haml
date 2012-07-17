@@ -30,6 +30,8 @@
     .contentcolumn.scroll
       %table.GralTable
         %tr
+          - @implicit_variables.each do |variable|
+            %th=variable.key
           - @project_variables.each do |variable|
             %th=variable.name
           - @recorded_audio_descriptions.each do |audio_description|
@@ -37,6 +39,14 @@
 
         - @contacts.each do |contact|
           %tr.link{'data-url' => edit_contact_path(contact)}
+            - @implicit_variables.each do |implicit_variable|
+              - variable = contact.persisted_variables.detect{|v| v.implicit_key == implicit_variable.key}
+              - if variable
+                %td
+                  .fixed-height= variable.value
+              - else
+                %td
+                  .fixed-height
             - @project_variables.each do |project_variable|
               - variable = contact.persisted_variables.detect do |variable|
                 - variable.project_variable == project_variable

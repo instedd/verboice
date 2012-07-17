@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120713151123) do
+ActiveRecord::Schema.define(:version => 20120716160541) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -171,6 +171,7 @@ ActiveRecord::Schema.define(:version => 20120713151123) do
     t.datetime "updated_at",          :null => false
     t.integer  "contact_id"
     t.integer  "project_variable_id"
+    t.string   "implicit_key"
   end
 
   add_index "persisted_variables", ["contact_id"], :name => "index_persisted_variables_on_contact_id"

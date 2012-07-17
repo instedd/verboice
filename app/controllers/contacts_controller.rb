@@ -24,6 +24,7 @@ class ContactsController < ApplicationController
     @contacts = @project.contacts.includes(:recorded_audios).includes(:persisted_variables).includes(:project_variables)
     @project_variables = @project.project_variables
     @recorded_audio_descriptions = RecordedAudio.select(:description).where(:contact_id => @contacts.collect(&:id)).collect(&:description).to_set
+    @implicit_variables = ImplicitVariable.subclasses
 
     respond_to do |format|
       format.html # index.html.erb
@@ -33,6 +34,11 @@ class ContactsController < ApplicationController
 
   def new
     @contact = Contact.new
+
+    ImplicitVariable.subclasses.each do |implicit_variable|
+      @contact.persisted_variables << PersistedVariable.new(:implicit_key => implicit_variable.key)
+    end
+
     @project_variables = @project.project_variables
     @project_variables.each do |project_variable|
       @contact.persisted_variables << PersistedVariable.new(project_variable: project_variable)
@@ -48,6 +54,12 @@ class ContactsController < ApplicationController
   end
 
   def edit
+    ImplicitVariable.subclasses.each do |implicit_variable|
+      unless @contact.persisted_variables.any? { |persisted| persisted.implicit_key == implicit_variable.key }
+        @contact.persisted_variables << PersistedVariable.new(:implicit_key => implicit_variable.key)
+      end
+    end
+
     @project_variables.each do |project_variable|
       unless @contact.persisted_variables.any? { |persisted| persisted.project_variable == project_variable }
         @contact.persisted_variables << PersistedVariable.new(project_variable: project_variable)

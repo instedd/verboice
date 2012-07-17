@@ -15,21 +15,26 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-class PersistedVariable < ActiveRecord::Base
-  has_one :project, :through => :project_variable
-  belongs_to :contact, :inverse_of => :persisted_variables
-  belongs_to :project_variable, :inverse_of => :persisted_variables
+require 'spec_helper'
 
+module ImplicitVariables
+  describe Language do
 
-  validates_presence_of :contact
-  validates_presence_of :project_variable, :unless => Proc.new { |v| v.implicit_key.present? }
-  attr_accessible :contact, :value, :project_variable, :project_variable_id, :implicit_key
+    let(:contact) { Contact.make }
 
-  def typecasted_value
-    if value && value =~ /^[-+]?[0-9]+$/
-      value.to_i
-    else
-      value
+    it "should tell key" do
+      Language.key.should eq('language')
     end
+
+    it "should default to project default language" do
+      contact.project.should_receive(:default_language).and_return('default language')
+      Language.new(contact).value.should eq('default language')
+    end
+
+    it "should return persisted variable value if persisted" do
+      contact.persisted_variables.create! :implicit_key => Language.key, :value => 'persisted language'
+      Language.new(contact).value.should eq('persisted language')
+    end
+
   end
 end

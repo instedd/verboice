@@ -22,7 +22,7 @@ class Contact < ActiveRecord::Base
   has_many :project_variables, :through => :project
 
   accepts_nested_attributes_for :persisted_variables,
-    :reject_if => lambda { |attributes| attributes[:value].blank? || attributes[:project_variable_id].blank? },
+    :reject_if => lambda { |attributes| attributes[:value].blank? || (attributes[:project_variable_id].blank? && attributes[:implicit_key].blank?) },
     :allow_destroy => true
 
   attr_accessible :address, :anonymous, :persisted_variables_attributes

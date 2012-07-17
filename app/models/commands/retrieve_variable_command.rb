@@ -29,14 +29,18 @@ class Commands::RetrieveVariableCommand < Command
     contact = project.contacts.find_by_address(session.address.presence || "Anonymous#{session.call_log.id}" )
 
     if contact
-      project_variable = contact.project_variables.find_by_name @variable_name
-      if project_variable && (persisted_variable = contact.persisted_variables.find_by_project_variable_id project_variable.id)
-        set_value_to persisted_variable.typecasted_value, session
-        unless session.address.presence
-          session.trace "Caller address is unknown. For current call, variable '#{@variable_name}' has been retrieved from contact '#{contact.address}'.", command: 'retrieve_variable', action: 'retrieve'
-        end
+      if implicit_variable = ImplicitVariable.find(@variable_name)
+        set_value_to implicit_variable.new(contact).value, session
       else
-        set_value_to_nil_for session
+        project_variable = contact.project_variables.find_by_name @variable_name
+        if project_variable && (persisted_variable = contact.persisted_variables.find_by_project_variable_id project_variable.id)
+          set_value_to persisted_variable.typecasted_value, session
+          unless session.address.presence
+            session.trace "Caller address is unknown. For current call, variable '#{@variable_name}' has been retrieved from contact '#{contact.address}'.", command: 'retrieve_variable', action: 'retrieve'
+          end
+        else
+          set_value_to_nil_for session
+        end
       end
     else
       set_value_to_nil_for session
