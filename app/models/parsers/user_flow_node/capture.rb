@@ -109,7 +109,11 @@ module Parsers
           conditions << '(digits == null)' if @min_input_length == 0
           conditions.join(' || ')
         else
-          'true'
+          if @min_input_length == 0
+            'true'
+          else
+            'digits != null'
+          end
         end
       end
 
