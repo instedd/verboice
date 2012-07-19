@@ -23,9 +23,21 @@ class Schedule < ActiveRecord::Base
 
   validates_presence_of :account
   validates_presence_of :name
+  validates_presence_of :time_from
+  validates_presence_of :time_to
   validates_uniqueness_of :name, :case_sensitive => false, :scope => :project_id
   validates_format_of :retries, :with => /^[0-9\.]+(,[0-9\.]+)*$/, :allow_blank => true
   validates_format_of :weekdays, :with => /^[0-6](,[0-6])*$/, :allow_blank => true
+
+  validate :time_from_is_before_time_to
+
+  def time_from_is_before_time_to
+    if time_from && time_to
+      unless time_from < time_to
+        errors[:base] << "End time must be greater than the start time."
+      end
+    end
+  end
 
   def time_zone=(value)
     @time_zone = value
