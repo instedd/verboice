@@ -12,14 +12,29 @@
         - @project.errors.full_messages.each do |msg|
           %li= msg
 
-  %h1 Languages
-  %span
+  %br
 
-  %p Default language
+  %h1 Properties
+
+  = f.text_field :name
+  = f.time_zone_select :time_zone, ActiveSupport::TimeZone.all
+
+  %hr
+
+  %br
+  %br
+
+  %h1 Languages
+
+  = f.label :default_language
+  %br
   = collection_select :project, :default_language, @project.languages.map{|l| LanguageList::LanguageInfo.find(l)}, :iso_639_1, :name, {}, :class => 'w30'
 
-  %p Languages you will support in this project
+  %br
+  %br
 
+  = f.label :languages, "Languages you will support in this project"
+  %br
   %ul.clist.w30
     - @project.languages.each do |iso|
       - language = LanguageList::LanguageInfo.find(iso)
@@ -38,19 +53,17 @@
         %button.clist-remove.remove_language
 
   %br
-  %br
 
   %hr
 
   %br
   %br
 
-  = f.text_field :name
-  = f.text_field :status_callback_url
-  = f.text_field :status_callback_url_user, :autocomplete => 'off'
-  = f.password_field :status_callback_url_password, :autocomplete => 'off'
+  %h1 Status callback
 
-  = f.time_zone_select :time_zone, ActiveSupport::TimeZone.all
+  = f.text_field :status_callback_url, :label => 'URL'
+  = f.text_field :status_callback_url_user, :label => 'User', :autocomplete => 'off'
+  = f.password_field :status_callback_url_password, :label => 'Password', :autocomplete => 'off'
 
   %hr
 

@@ -5,8 +5,6 @@
     = link_to "Overview", project_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "call_logs"}" }
     = link_to "Calls", call_logs_path
-  %li{ :class =>"#{"active" if params[:controller] == "projects" && params[:action] == 'edit'}" }
-    = link_to "Settings", edit_project_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "call_flows"}" }
     = link_to "Call Flows", project_call_flows_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "schedules"}" }
@@ -15,4 +13,6 @@
     = link_to "Phone Book", project_contacts_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "external_services"}"}
     = link_to "External Services", project_external_services_path(project)
+  %li{ :class =>"#{"active" if params[:controller] == "projects" && params[:action] == 'edit'}" }
+    = link_to "Settings", edit_project_path(project)
 .tabsline
