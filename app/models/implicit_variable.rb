@@ -4,7 +4,7 @@ class ImplicitVariable
     @contact = contact
   end
 
-  def value
+  def value(use_default = true)
     subclass_responsibility
   end
 

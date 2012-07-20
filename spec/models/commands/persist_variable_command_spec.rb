@@ -131,5 +131,24 @@ module Commands
       persisted_variables.first.value.should eq('kh')
       persisted_variables.first.project_variable.should be_nil
     end
+
+    it "should update value of persisted implicit variables" do
+      contact  = Contact.make
+      project  = contact.project
+      call_flow = CallFlow.make project: project
+      call_log = CallLog.make call_flow: call_flow
+      session  = Session.new :pbx => mock('pbx'), :call_log => call_log
+      session.stub :address => contact.address
+      # PersistedVariable.
+
+      cmd = PersistVariableCommand.new ImplicitVariables::Language.key, "'kh'"
+      cmd.run(session)
+
+      persisted_variables = contact.reload.persisted_variables
+      persisted_variables.size.should eq(1)
+      persisted_variables.first.implicit_key.should eq(ImplicitVariables::Language.key)
+      persisted_variables.first.value.should eq('kh')
+      persisted_variables.first.project_variable.should be_nil
+    end
   end
 end

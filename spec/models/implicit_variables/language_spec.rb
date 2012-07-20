@@ -36,5 +36,9 @@ module ImplicitVariables
       Language.new(contact).value.should eq('persisted language')
     end
 
+    it "should return nil when use default is false" do
+      Language.new(contact).value(false).should be_nil
+    end
+
   end
 end

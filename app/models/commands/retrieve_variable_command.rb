@@ -19,8 +19,9 @@ class Commands::RetrieveVariableCommand < Command
 
   attr_accessor :variable_name
 
-  def initialize variable_name
+  def initialize variable_name, opts = {}
     @variable_name = variable_name
+    @opts = opts
   end
 
   def run session
@@ -30,7 +31,7 @@ class Commands::RetrieveVariableCommand < Command
 
     if contact
       if implicit_variable = ImplicitVariable.find(@variable_name)
-        set_value_to implicit_variable.new(contact).value, session
+        set_value_to implicit_variable.new(contact).value(use_default), session
       else
         project_variable = contact.project_variables.find_by_name @variable_name
         if project_variable && (persisted_variable = contact.persisted_variables.find_by_project_variable_id project_variable.id)
@@ -59,4 +60,9 @@ class Commands::RetrieveVariableCommand < Command
   def set_value_to value, session
     Commands::AssignValueCommand.new("var_#{@variable_name}", value).run(session)
   end
+
+  def use_default
+    @opts[:use_default].nil? ? true : @opts[:use_default]
+  end
+
 end

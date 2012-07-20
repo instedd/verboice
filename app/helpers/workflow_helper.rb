@@ -23,4 +23,8 @@ module WorkflowHelper
     content_tag(:input, '', :type => 'text', 'data-bind' => 'value: store, enable: defines_store, initAutocomplete: {source: workflow.all_variables()}, initMask: {mask: $.mask.masks.token}', :style => "width: 108px")
   end
 
+  def languages_for_workflow
+    @project.languages.map{|iso| {key: iso, value: LanguageList::LanguageInfo.find(iso).name} }.to_json
+  end
+
 end

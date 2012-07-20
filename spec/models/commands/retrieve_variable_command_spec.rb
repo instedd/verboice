@@ -138,6 +138,20 @@ module Commands
        session.eval("var_#{ImplicitVariables::Language.key}").should eq('en')
      end
 
+     it "should retrieve nil when implicit variable is not defined and dont use default" do
+        project             = Project.make :default_language => 'en'
+        contact             = Contact.make project: project
+        call_flow           = CallFlow.make project: project
+        call_log            = CallLog.make call_flow: call_flow
+        session             = Session.new :pbx => mock('pbx'), :call_log => call_log
+        session.stub :address => contact.address
+
+        cmd = RetrieveVariableCommand.new ImplicitVariables::Language.key, :use_default => false
+
+        cmd.run(session)
+        session.eval("var_#{ImplicitVariables::Language.key}").should be_nil
+      end
+
      it "should retrieve persisted value of implicit variable" do
         project             = Project.make :default_language => 'en'
         contact             = Contact.make project: project
