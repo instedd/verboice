@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120716160541) do
+ActiveRecord::Schema.define(:version => 20120720204333) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -155,6 +155,19 @@ ActiveRecord::Schema.define(:version => 20120716160541) do
   add_index "external_services", ["guid"], :name => "index_external_services_on_guid"
   add_index "external_services", ["project_id"], :name => "index_external_services_on_project_id"
 
+  create_table "localized_resources", :force => true do |t|
+    t.string   "language"
+    t.string   "text"
+    t.binary   "audio"
+    t.string   "url"
+    t.string   "type"
+    t.integer  "resource_id"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  add_index "localized_resources", ["resource_id"], :name => "index_localized_resources_on_resource_id"
+
   create_table "o_auth_tokens", :force => true do |t|
     t.integer  "account_id"
     t.string   "service"
@@ -229,6 +242,15 @@ ActiveRecord::Schema.define(:version => 20120716160541) do
 
   add_index "recorded_audios", ["call_log_id"], :name => "index_recorded_audios_on_call_log_id"
   add_index "recorded_audios", ["contact_id"], :name => "index_recorded_audios_on_contact_id"
+
+  create_table "resources", :force => true do |t|
+    t.string   "name"
+    t.integer  "project_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "resources", ["project_id"], :name => "index_resources_on_project_id"
 
   create_table "schedules", :force => true do |t|
     t.string   "name"

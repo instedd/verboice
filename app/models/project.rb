@@ -31,6 +31,7 @@ class Project < ActiveRecord::Base
   has_many :contacts, :dependent => :destroy
   has_many :persisted_variables, :through => :contacts
   has_many :project_variables, :dependent => :destroy, :inverse_of => :project
+  has_many :resources
 
   accepts_nested_attributes_for :project_variables,
     :reject_if => lambda { |attributes| attributes[:name].blank?},
