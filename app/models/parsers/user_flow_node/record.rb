@@ -45,7 +45,7 @@ module Parsers
         Compiler.parse do |compiler|
           compiler.Label @id
           compiler.Assign "current_step", @id
-          compiler.Assign "current_step_name", "'#{@name}'"
+          compiler.AssignValue "current_step_name", "#{@name}"
           compiler.Trace context_for %("Record message. Download link: " + record_url(#{@id}))
           compiler.append @explanation_message.equivalent_flow
           compiler.Record @id, @name, {:stop_keys => @stop_key, :timeout => @timeout}

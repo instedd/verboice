@@ -42,7 +42,7 @@ module Parsers
         Compiler.parse do |compiler|
           compiler.Label @id
           compiler.Assign "current_step", @id
-          compiler.Assign "current_step_name", "'#{@name}'"
+          compiler.AssignValue "current_step_name", "#{@name}"
           compiler.Trace context_for '"Message played."'
           compiler.append @message.equivalent_flow if @message
           compiler.append @next.equivalent_flow if @next

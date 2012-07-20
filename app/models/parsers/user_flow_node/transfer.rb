@@ -44,7 +44,7 @@ module Parsers
         Compiler.parse do |compiler|
           compiler.Label @id
           compiler.Assign "current_step", @id
-          compiler.Assign "current_step_name", "'#{@name}'"
+          compiler.AssignValue "current_step_name", "#{@name}"
           compiler.Trace context_for %("Transfer to #{@address} in #{channel_name}.")
           compiler.Dial @address, {:channel => @channel}
           compiler.append @next.equivalent_flow if @next
