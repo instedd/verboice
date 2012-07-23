@@ -114,7 +114,7 @@ describe BaseBroker do
       end
 
       it "requeue call if rejected and retries available by queue" do
-        schedule = @channel.project.schedules.make :retries => '1,2,4'
+        schedule = @channel.project.schedules.make :retries => '1,2,4', :time_to => (Time.now + 6.hour)
         queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 1
         the_session = nil
 
@@ -131,7 +131,7 @@ describe BaseBroker do
       it "requeue call using time zone" do
         # It's 15.30 UTC, 12:30 ARG
         Timecop.freeze(Time.utc(2012,1,1,15,30))
-        schedule = @channel.project.schedules.make :retries => '1', :time_from_str => '12:00', :time_to_str => '14:00'
+        schedule = @channel.project.schedules.make :retries => '1', :time_from => (Time.now.utc - 3.hour), :time_to => (Time.now.utc + 6.hour)
         queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 0, :time_zone => 'Buenos Aires'
         the_session = nil
 

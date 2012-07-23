@@ -48,7 +48,7 @@ module Parsers
           Compiler.parse do |c|
             c.Label 1
             c.Assign "current_step", 1
-            c.Assign "current_step_name", "'Capture number one'"
+            c.AssignValue "current_step_name", "Capture number one"
             c.Assign 'attempt_number1', '1'
             c.While 'attempt_number1 <= 3' do |c|
               c.Capture say: "First Capture", min: 1, max: 2, finish_on_key: '#', timeout: 10
@@ -78,12 +78,12 @@ module Parsers
         capture_flow = Compiler.parse do |c|
           c.Label 4
           c.Assign "current_step", 4
-          c.Assign "current_step_name", "'Capture'"
+          c.AssignValue "current_step_name", "Capture"
           c.Assign 'attempt_number4', '1'
           c.While 'attempt_number4 <= 3' do |c|
             c.Capture min: 1, max: 1, finish_on_key: '#', timeout: 5
             c.Assign 'value_4', 'digits'
-            c.If 'true' do |c|
+            c.If 'digits != null' do |c|
               c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + (digits ? digits : "<empty>")'
               c.Goto "end4"
             end
@@ -128,7 +128,7 @@ module Parsers
         capture_flow = Compiler.parse do |c|
           c.Label 4
           c.Assign "current_step", 4
-          c.Assign "current_step_name", "'Capture'"
+          c.AssignValue "current_step_name", "Capture"
           c.Assign 'attempt_number4', '1'
           c.While 'attempt_number4 <= 3' do |c|
             c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
@@ -165,12 +165,46 @@ module Parsers
 
         capture.equivalent_flow.first.should eq(capture_flow)
       end
+
+      it "should accept an empty input for all values" do
+        File.stub(:exists?).and_return{true}
+        capture_flow = Compiler.parse do |c|
+          c.Label 4
+          c.Assign "current_step", 4
+          c.AssignValue "current_step_name", "Capture"
+          c.Assign 'attempt_number4', '1'
+          c.While 'attempt_number4 <= 3' do |c|
+            c.Capture min: 0, max: 1, finish_on_key: '#', timeout: 5
+            c.Assign 'value_4', 'digits'
+            c.If 'true' do |c|
+              c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + (digits ? digits : "<empty>")'
+              c.Goto "end4"
+            end
+            c.Else do |c|
+              c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
+            end
+            c.Assign 'attempt_number4', 'attempt_number4 + 1'
+          end
+          c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
+          c.Label "end4"
+        end.first
+
+        capture = Capture.new call_flow,
+          'id' => 4,
+          'root' => true,
+          'type' => 'capture',
+          'name' => 'Capture',
+          'min_input_length' => 0
+
+        capture.equivalent_flow.first.should eq(capture_flow)
+      end
+
       it "should have a default next step" do
         File.stub(:exists?).and_return{true}
         capture_flow = Compiler.parse do |c|
             c.Label 4
             c.Assign "current_step", 4
-            c.Assign "current_step_name", "'Capture'"
+            c.AssignValue "current_step_name", "Capture"
             c.Assign 'attempt_number4', '1'
             c.While 'attempt_number4 <= 3' do |c|
               c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
@@ -188,7 +222,7 @@ module Parsers
             c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
             c.Label 2
             c.Assign "current_step", 2
-            c.Assign "current_step_name", "'Play'"
+            c.AssignValue "current_step_name", "Play"
             c.Trace call_flow_id: call_flow.id, step_id: 2, step_name: 'Play', store: '"Message played."'
             c.Say "Some explanation message"
             c.Label "end4"

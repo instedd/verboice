@@ -92,13 +92,13 @@ module Parsers
           Compiler.parse do
             Label 1
             Assign "current_step", 1
-            Assign "current_step_name", "'Branch number one'"
+            AssignValue "current_step_name", "Branch number one"
             RetrieveVariable 'some_name'
             If "(typeof(value_3) != 'undefined' && typeof(6) != 'undefined' && value_3 == 6) && (typeof(var_some_name) != 'undefined' && typeof(5) != 'undefined' && var_some_name >= 5)" do
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
               Label 10
               Assign "current_step", 10
-              Assign "current_step_name", "'Play 1'"
+              AssignValue "current_step_name", "Play 1"
               Trace call_flow_id: 1, step_id: 10, step_name: 'Play 1', store: '"Message played."'
               Say "Second explanation message"
               Goto "end1"
@@ -109,7 +109,7 @@ module Parsers
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
               Label 14
               Assign "current_step", 14
-              Assign "current_step_name", "'Play 2'"
+              AssignValue "current_step_name", "Play 2"
               Trace call_flow_id: 1, step_id: 14, step_name: 'Play 2', store: '"Message played."'
               Say "Third explanation message"
               Goto "end1"
@@ -118,7 +118,7 @@ module Parsers
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 3 selected: \'zzz\'"'
               Label 5
               Assign "current_step", 5
-              Assign "current_step_name", "'Play 3'"
+              AssignValue "current_step_name", "Play 3"
               Trace call_flow_id: 1, step_id: 5, step_name: 'Play 3', store: '"Message played."'
               Say "Fourth explanation message"
               Goto "end1"

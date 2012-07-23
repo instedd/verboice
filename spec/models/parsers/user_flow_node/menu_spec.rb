@@ -102,7 +102,7 @@ module Parsers
           Compiler.parse do |c|
             c.Label 1
             c.Assign "current_step", 1
-            c.Assign "current_step_name", "'Menu number one'"
+            c.AssignValue "current_step_name", "Menu number one"
             c.PlayFile "1-explanation"
             c.Assign 'attempt_number1', '1'
             c.While 'attempt_number1 <= 3' do |c|
@@ -113,7 +113,7 @@ module Parsers
                 c.PersistVariable 'some_variable', 'value_1'
                 c.Label 10
                 c.Assign "current_step", 10
-                c.Assign "current_step_name", "'Play 1'"
+                c.AssignValue "current_step_name", "Play 1"
                 c.Trace call_flow_id: call_flow.id, step_id: 10, step_name: 'Play 1', store: '"Message played."'
                 c.Say "Second explanation message"
                 c.Goto "end1"
@@ -123,7 +123,7 @@ module Parsers
                 c.PersistVariable 'some_variable', 'value_1'
                 c.Label 14
                 c.Assign "current_step", 14
-                c.Assign "current_step_name", "'Play 2'"
+                c.AssignValue "current_step_name", "Play 2"
                 c.Trace call_flow_id: call_flow.id, step_id: 14, step_name: 'Play 2', store: '"Message played."'
                 c.Say "Third explanation message"
                 c.Goto "end1"
@@ -133,7 +133,7 @@ module Parsers
                 c.PersistVariable 'some_variable', 'value_1'
                 c.Label 5
                 c.Assign "current_step", 5
-                c.Assign "current_step_name", "'Play 3'"
+                c.AssignValue "current_step_name", "Play 3"
                 c.Trace call_flow_id: call_flow.id, step_id: 5, step_name: 'Play 3', store: '"Message played."'
                 c.Say "Fourth explanation message"
                 c.Goto "end1"
@@ -151,7 +151,7 @@ module Parsers
             c.PersistVariable 'some_variable', nil
             c.Label 45
             c.Assign "current_step", 45
-            c.Assign "current_step_name", "'Play 45'"
+            c.AssignValue "current_step_name", "Play 45"
             c.Trace call_flow_id: call_flow.id, step_id: 45, step_name: 'Play 45', store: '"Message played."'
             c.Say "Fifth explanation message"
             c.Label "end1"
@@ -164,7 +164,7 @@ module Parsers
         menu.equivalent_flow.make.should eq(
           Compiler.make do |c|
             c.Assign "current_step", 27
-            c.Assign "current_step_name", "''"
+            c.AssignValue "current_step_name", ""
             c.Assign 'attempt_number27', '1'
             c.While 'attempt_number27 <= 3' do |c|
               c.Capture finish_on_key: '', timeout: 5

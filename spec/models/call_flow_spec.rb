@@ -77,7 +77,7 @@ describe CallFlow do
       Compiler.make do
         Answer()
         Assign "current_step", 1
-        Assign "current_step_name", "'Play number one'"
+        AssignValue "current_step_name", "Play number one"
         Trace call_flow_id: 4, step_id: 1, step_name: 'Play number one', store: '"Message played."'
         Say "Some explanation message"
       end

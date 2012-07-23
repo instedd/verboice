@@ -29,17 +29,14 @@ describe Schedule do
     it { should allow_value("1,2,3").for(:retries) }
     it { should allow_value("1.5").for(:retries) }
     it { should_not allow_value("1,,2").for(:retries) }
+    it { should validate_presence_of(:time_from) }
+    it { should validate_presence_of(:time_to) }
 
     it "convert time to string" do
       subject.time_from = Time.parse '10:03'
       subject.time_to = Time.parse '10:03'
       subject.time_from_str.should == '10:03'
       subject.time_to_str.should == '10:03'
-    end
-
-    it "converts nil time to empty string" do
-      subject.time_from_str.should == ''
-      subject.time_to_str.should == ''
     end
 
     it "parses time from string" do
@@ -56,10 +53,6 @@ describe Schedule do
 
       def t(x)
         Time.parse(x)
-      end
-
-      it "returns same value if range is not set" do
-        subject.next_available_time(t '2012-05-05T12:34:56').should == t('2012-05-05T12:34:56')
       end
 
       context "with range during same day" do
@@ -107,29 +100,25 @@ describe Schedule do
 
         it "returns same day if current day is in weekdays" do
           # tuesday
-          subject.next_available_time(t '2012-05-01T00:00:00Z').should == t('2012-05-01T00:00:00Z')
+          subject.next_available_time(t '2012-05-01T00:00:00Z').day.should == t('2012-05-01T00:00:00Z').day
         end
 
         it "returns next day in same week if current day is between weekdays" do
           # wednesday
-          subject.next_available_time(t '2012-05-02T00:00:00Z').should == t('2012-05-04T00:00:00Z')
+          subject.next_available_time(t '2012-05-02T00:00:00Z').day.should == t('2012-05-04T00:00:00Z').day
           # thursday
-          subject.next_available_time(t '2012-05-03T00:00:00Z').should == t('2012-05-04T00:00:00Z')
+          subject.next_available_time(t '2012-05-03T00:00:00Z').day.should == t('2012-05-04T00:00:00Z').day
         end
 
         it "returns next day in next week if current day is after weekdays" do
           # saturday
-          subject.next_available_time(t '2012-05-05T00:00:00Z').should == t('2012-05-06T00:00:00Z')
+          subject.next_available_time(t '2012-05-05T00:00:00Z').day.should == t('2012-05-06T00:00:00Z').day
         end
       end
 
       context 'with time zone GMT-3' do
         before :each do
           subject.time_zone = 'Buenos Aires'
-        end
-
-        it "returns same value if range is not set" do
-          subject.next_available_time(t '2012-05-05 12:34:56 UTC').should == t('2012-05-05 12:34:56 UTC')
         end
 
         context "and range during same day" do
@@ -150,10 +139,7 @@ describe Schedule do
             subject.next_available_time(t '2012-05-05T18:00:00Z').should == t('2012-05-06 13:00:00 UTC')
           end
         end
-
-
       end
     end
-
   end
 end

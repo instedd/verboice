@@ -44,7 +44,7 @@ describe Api::SchedulesController do
   end
 
   it "create custom schedule" do
-    data = {project_id: project.id, name: "foo"}
+    data = {project_id: project.id, name: "foo", :time_from_str => Time.now.to_s, :time_to_str => (Time.now + 1.hour).to_s}
     @request.env['RAW_POST_DATA'] = data.to_json
     post :create, format: :json
 
@@ -64,7 +64,7 @@ describe Api::SchedulesController do
 
     response = JSON.parse(@response.body).with_indifferent_access
     response[:summary].should == "There were problems creating the Schedule"
-    response[:properties].should == ["name" => "can't be blank"]
+    response[:properties].should == [{"name" => "can't be blank"}, {"time_from"=>"can't be blank"}, {"time_to"=>"can't be blank"}]
   end
 
   it "should delete an schedule" do

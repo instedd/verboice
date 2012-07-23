@@ -39,7 +39,7 @@ module Parsers
           Compiler.parse do |c|
             c.Label 1
             c.Assign "current_step", 1
-            c.Assign "current_step_name", "'Play'"
+            c.AssignValue "current_step_name", "Play"
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Play', store: '"Message played."'
             c.PlayFile "1-message"
           end.first
@@ -58,7 +58,7 @@ module Parsers
           Compiler.parse do |c|
             c.Label 27
             c.Assign "current_step", 27
-            c.Assign "current_step_name", "'Play number one'"
+            c.AssignValue "current_step_name", "Play number one"
             c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: 'Play number one', store: '"Message played."'
             c.Say "Some explanation message"
           end.first
@@ -80,7 +80,7 @@ module Parsers
           Compiler.parse do |c|
             c.Label 1
             c.Assign "current_step", 1
-            c.Assign "current_step_name", "'Play'"
+            c.AssignValue "current_step_name", "Play"
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Play', store: '"Message played."'
           end.first
         )
@@ -99,7 +99,7 @@ module Parsers
           Compiler.parse do |c|
             c.Label 27
             c.Assign "current_step", 27
-            c.Assign "current_step_name", "'Play number one'"
+            c.AssignValue "current_step_name", "Play number one"
             c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: 'Play number one', store: '"Message played."'
           end.first
         )
