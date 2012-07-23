@@ -48,3 +48,8 @@ onWorkflow ->
     $('.workflow').width(container_width - 364)
   .resize()
 
+
+  $('#workflow-page').keydown((e) ->
+    if(e.which == 13)
+      e.preventDefault()
+  )
