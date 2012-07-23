@@ -43,11 +43,14 @@ describe ProjectsController do
   end
 
   context "Call enqueue:" do
+    Timecop.freeze(Time.local(2012, 1, 1, 0, 0, 0))
 
     let!(:call_flow) { CallFlow.make :project => project }
     let!(:channel) { Channel.all_leaf_subclasses.sample.make :call_flow => call_flow, :account => account }
-    let!(:schedule) { project.schedules.make :weekdays => "1" }
+    let!(:schedule) { project.schedules.make :weekdays => "1", :time_to => (Time.now + 1.day)}
     let!(:broker_client) { double('broker_client') }
+
+    Timecop.return
 
     before(:each) do
       BrokerClient.stub(:new).and_return(broker_client)
