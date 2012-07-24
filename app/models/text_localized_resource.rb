@@ -1,0 +1,2 @@
+class TextLocalizedResource < LocalizedResource
+end

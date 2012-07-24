@@ -16,7 +16,7 @@ class ResourcesController < ApplicationController
   end
 
   def show
-    respond_with(resource)
+    respond_with(resource, :include => {:localized_resources => {:methods => :type}})
   end
 
   def create
