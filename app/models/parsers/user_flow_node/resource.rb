@@ -17,35 +17,24 @@
 
 module Parsers
   module UserFlowNode
-    class Play < UserCommand
-      attr_reader :id, :message, :name, :call_flow
-      attr_accessor :next
+    class Resource
 
-      def initialize call_flow, params
-        @id = params['id']
-        @name = params['name'] || ''
-        @resource = Resource.new params['resource']
-        @call_flow = call_flow
-        @next = params['next']
-        @root_index = params['root']
-      end
+      attr_reader :id
 
-      def is_root?
-        @root_index.present?
-      end
-
-      def root_index
-        @root_index
+      def initialize params
+        @id = params['id'] if params.presence
       end
 
       def equivalent_flow
-        Compiler.parse do |compiler|
-          compiler.Label @id
-          compiler.Assign "current_step", @id
-          compiler.AssignValue "current_step_name", "#{@name}"
-          compiler.Trace context_for '"Message played."'
-          compiler.append @resource.equivalent_flow
-          compiler.append @next.equivalent_flow if @next
+        Commands::PlayResourceCommand.new @id if @id.presence
+      end
+
+      def capture_flow
+        #TODO: Implement this capture option
+        if @id
+          { resource: @id }
+        else
+          {}
         end
       end
     end
