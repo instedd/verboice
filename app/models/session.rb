@@ -127,7 +127,7 @@ class Session
   def new_v8_context
     ctx = V8::Context.new
     ['digits', 'timeout', 'finish_key'].each { |key| ctx[key] = nil }
-    ['answer', 'assign', 'callback', 'capture', 'hangup', 'js', 'play', 'pause', 'record', 'say'].each do |func|
+    ['answer', 'assign', 'callback', 'capture', 'hangup', 'js', 'play_url', 'pause', 'record', 'say'].each do |func|
       ctx[func] = lambda do |*options|
         options.shift # First argument is always Javascript's 'this'
         if options.length == 1 && options[0].respond_to?(:to_hash)
