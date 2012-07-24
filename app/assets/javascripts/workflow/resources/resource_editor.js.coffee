@@ -40,3 +40,12 @@ onWorkflow ->
 
     replace: =>
       @resource(null)
+
+    to_hash: =>
+      if @resource()? && @resource().id()?
+        { id: @resource().id() }
+      else
+        {}
+
+    is_valid: =>
+      true

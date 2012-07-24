@@ -8,22 +8,17 @@ onWorkflow ->
       super(attrs)
 
       @next_id = attrs.next
-      @message = MessageSelector.from_hash(attrs.message).with_title('Message').with_parent(@)
-      @current_editing_message = ko.observable(null)
 
-      @is_editing_message = ko.computed () =>
-        @current_editing_message() != null
-
-      @resource =  new ResourceEditor(@)
+      @resource =  new ResourceEditor(@, attrs.resource)
       @current_editing_resource = ko.observable(null)
       @is_editing_resource = ko.computed () =>
         @current_editing_resource()?
 
-      @is_message_invalid = ko.computed () =>
-        not @message.is_valid()
+      @is_resource_invalid = ko.computed () =>
+        not @resource.is_valid()
 
       @is_invalid = ko.computed () =>
-        @is_name_invalid() or @is_message_invalid()
+        @is_name_invalid() or @is_resource_invalid()
 
     button_class: () =>
       'lsound'
@@ -37,11 +32,8 @@ onWorkflow ->
 
     to_hash: () =>
       $.extend(super,
-        message: @message.to_hash()
+        resource: @resource.to_hash()
       )
-
-    show_message: () =>
-      @current_editing_message(@message)
 
     show_resource: () =>
       @current_editing_resource(@resource)

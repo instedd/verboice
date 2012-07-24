@@ -47,9 +47,9 @@ ActiveRecord::Schema.define(:version => 20120720204333) do
     t.datetime "updated_at",              :null => false
     t.string   "mode"
     t.text     "variables"
-    t.text     "external_service_guids"
     t.string   "fusion_table_name"
     t.string   "current_fusion_table_id"
+    t.text     "external_service_guids"
     t.boolean  "store_in_fusion_tables"
   end
 

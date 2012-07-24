@@ -1,12 +1,9 @@
 %script{type: "text/html", id: "play_step_template"}
   %span
-    %div{ko(:if => "is_editing_message()")}
-      %div{ko(template: "{name: 'message_template', data: current_editing_message}")}
-
     %div{ko(:if => "is_editing_resource()")}
       %div{ko(template: "{name: 'resource_editor_template', data: current_editing_resource}")}
 
-    %div{ko(:if => "!is_editing_message() && !is_editing_resource()")}
+    %div{ko(:if => "!is_editing_resource()")}
       .feditor-sidebar.right.box.w28.iblock.h65
         .tableheader
           %span.left.i48grad-sound{ ko(css: '{ "orange": is_invalid }') }
@@ -15,12 +12,11 @@
         %table.GralTable.TwoColumn.CleanTable.NoHead
           %tr
             %tr
-              %td{ko(css: "{ orange: is_message_invalid }")}
+              %td{ko(css: "{ orange: is_resource_invalid }")}
                 Message:
-                %span{ko(css: "{ alert: is_message_invalid }")}
-                %span{ko(text: "message.name()")}
+                %span{ko(css: "{ alert: is_resource_invalid }")}
+                %span{ko(text: "resource.name()")}
               %td
-                %button.farrow{ :type => "button", 'data-bind' => 'click: show_message' }
                 %button.farrow{ :type => "button", 'data-bind' => 'click: show_resource' }
         .content
           .bottom-actions
