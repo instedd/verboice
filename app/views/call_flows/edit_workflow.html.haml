@@ -4,6 +4,7 @@
     var call_flow = #{ raw (@call_flow.user_flow || []).to_json };
     var external_steps = #{ @external_steps.to_json };
     var languages = #{ languages_for_workflow };
+    var project_id = #{ @project.id };
 
     var save_recording_path = "#{ save_recording_call_flow_path(@call_flow)}";
     var play_recording_path = "#{ play_recording_call_flow_path(@call_flow)}";
@@ -16,7 +17,7 @@
     var capture_default_minimum_input_lenght = #{Parsers::UserFlowNode::Capture.default_minimum_input_lenght};
     var capture_default_maximum_input_lenght = #{Parsers::UserFlowNode::Capture.default_maximum_input_lenght};
 
-  - %W(external_step hang_up_step workflow_step capture_step menu_step play_step transfer_step goto_step branch_step record_step language_step message recording_message text_message command_selector branch_option external_setting).each do |template|
+  - %W(external_step hang_up_step workflow_step capture_step menu_step play_step transfer_step goto_step branch_step record_step language_step message recording_message text_message command_selector branch_option external_setting resource_editor).each do |template|
     = render "call_flows/#{template}_template"
 
 = render 'shared/project_tabs_and_title', :project => @project

@@ -3,7 +3,10 @@
     %div{ko(:if => "is_editing_message()")}
       %div{ko(template: "{name: 'message_template', data: current_editing_message}")}
 
-    %div{ko(:if => "!is_editing_message()")}
+    %div{ko(:if => "is_editing_resource()")}
+      %div{ko(template: "{name: 'resource_editor_template', data: current_editing_resource}")}
+
+    %div{ko(:if => "!is_editing_message() && !is_editing_resource()")}
       .feditor-sidebar.right.box.w28.iblock.h65
         .tableheader
           %span.left.i48grad-sound{ ko(css: '{ "orange": is_invalid }') }
@@ -18,6 +21,7 @@
                 %span{ko(text: "message.name()")}
               %td
                 %button.farrow{ :type => "button", 'data-bind' => 'click: show_message' }
+                %button.farrow{ :type => "button", 'data-bind' => 'click: show_resource' }
         .content
           .bottom-actions
             %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

@@ -1,0 +1,43 @@
+%script{type: "text/html", id: "resource_editor_template"}
+
+  / ko if: resource() == null
+  Select
+
+  New:
+  %br
+  %input{:type => 'radio', :value => 'new', 'data-bind' => 'checked: type'}
+  %br
+  %input{:type => 'text', 'data-bind' => 'value: name, valueUpdate: "afterkeydown", visible: type() == "new"'}
+
+
+  %br
+  %br
+
+  Existing:
+  %br
+  %input{:type => 'radio', :value => 'existing', 'data-bind' => 'checked: type'}
+  %br
+  %input{:type => 'text', 'data-bind' => "visible: type() == 'existing', jqAuto: { autoFocus: true }, jqAutoSource: matching_resources, jqAutoQuery: get_resources, jqAutoValue: existing_resource_id, jqAutoSourceLabel: 'name', jqAutoSourceInputValue: 'name', jqAutoSourceValue: 'id'"}
+
+  %br
+  %br
+
+  %button{'data-bind' => 'click: next, enable: is_next_enabled'} Next
+  %button{'data-bind' => 'click: cancel'} Cancel
+
+  / /ko
+
+  / ko if: resource() != null
+  / ko with: resource
+
+  %input{:type => 'text', 'data-bind' => 'value: name'}
+
+  / /ko
+  %br
+  %br
+
+  %button{'data-bind' => 'click: save'} Save
+  %button{'data-bind' => 'click: cancel'} Cancel
+  %button{'data-bind' => 'click: replace'} Replace
+
+  / /ko

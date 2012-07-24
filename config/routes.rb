@@ -61,6 +61,8 @@ Verboice::Application.routes.draw do
 
       resources :contacts, except: [:show]
 
+      resources :resources
+
     end
   end
 

@@ -14,6 +14,11 @@ onWorkflow ->
       @is_editing_message = ko.computed () =>
         @current_editing_message() != null
 
+      @resource =  new ResourceEditor(@)
+      @current_editing_resource = ko.observable(null)
+      @is_editing_resource = ko.computed () =>
+        @current_editing_resource()?
+
       @is_message_invalid = ko.computed () =>
         not @message.is_valid()
 
@@ -37,3 +42,6 @@ onWorkflow ->
 
     show_message: () =>
       @current_editing_message(@message)
+
+    show_resource: () =>
+      @current_editing_resource(@resource)
