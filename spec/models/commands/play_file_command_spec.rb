@@ -25,7 +25,7 @@ module Commands
       @file_path = "/path/to/original/file"
       @target_path = '/path/to/pbx/target_path'
 
-      @session = Session.new :pbx => double('pbx'), :call_flow => double('call_flow')
+      @session = Session.new :pbx => double('pbx'), :call_flow => double('call_flow').tap { |d| d.stub(:id => 1) }
       @session.pbx.should_receive(:sound_path_for).with(@key).and_return(@target_path)
       @session.pbx.should_receive(:play).with(@target_path, anything)
       @session.recording_manager.should_receive(:recording_path_for).at_least(:once).with(@key).and_return(@file_path)

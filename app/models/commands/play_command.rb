@@ -45,11 +45,11 @@ module Commands::PlayCommand
   end
 
   def setup_file(session)
-    raise "#{self.class.name} must implement setup_file"
+    subclass_responsibility
   end
 
   def command_name
-    raise "#{self.class.name} must implement command_name"
+    subclass_responsibility
   end
 
   def should_setup_file?(session, target_path)
