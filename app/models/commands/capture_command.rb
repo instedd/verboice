@@ -44,6 +44,12 @@ class Commands::CaptureCommand < Command
       options.delete :say
     elsif options[:say].present?
       options.delete :play
+    elsif options[:resource].present?
+      options.delete :play
+      options.delete :say
+      resource = Commands::PlayResourceCommand.new(options[:resource])
+      options[resource.capture_option_name] = resource.capture_resource
+      options.delete :resource
     else
       options.delete :play
       options.delete :say

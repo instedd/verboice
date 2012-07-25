@@ -28,7 +28,18 @@ class Commands::PlayResourceCommand < Command
     text = Resource.find(@resource_id).localized_resources.first.text
     Command::SayCommand.new(text).run(session)
 
+    #TODO: Change the logs to distinguish if is play or say and to log the text or the audio name instead of the resource id
     session.info "Play Resource '#{@resource_id}' finished.", command: 'play_resource', action: 'finish'
     super
+  end
+
+  def capture_option_name
+    #TODO: Check language and resource kind and return the appropiate option name
+    :say
+  end
+
+  def capture_resource
+    #TODO: Check language and resource kind and return the appropiate text or file path
+    Resource.find(@resource_id).localized_resources.first.text
   end
 end
