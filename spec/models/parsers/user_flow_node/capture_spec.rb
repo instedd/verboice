@@ -31,17 +31,14 @@ module Parsers
           'type' => 'capture',
           'name' => 'Capture number one',
           'store' => 'some_variable',
-          'instructions_message' => { "name" => 'First Capture', 'type' => 'text' },
+          'instructions_message' => { "id" => 1 },
           'invalid_message' => {
-            "name" => "An invalid key was pressed",
-            "type" => "recording",
-            "file" => "file.wav",
-            "duration" => 5
+            "id" => 5
           },
           'valid_values' => '1,2-4,10-20',
           'finish_on_key' => '#',
-          'min_input_length' => 1,
           'max_input_length' => 2,
+          'min_input_length' => 1,
           'timeout' => 10
 
         capture.equivalent_flow.first.should eq(
@@ -51,7 +48,7 @@ module Parsers
             c.AssignValue "current_step_name", "Capture number one"
             c.Assign 'attempt_number1', '1'
             c.While 'attempt_number1 <= 3' do |c|
-              c.Capture say: "First Capture", min: 1, max: 2, finish_on_key: '#', timeout: 10
+              c.Capture resource: 1, min: 1, max: 2, finish_on_key: '#', timeout: 10
               c.Assign 'value_1', 'digits'
               c.PersistVariable 'some_variable', 'value_1'
               c.If "(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20)" do |c|
@@ -59,7 +56,7 @@ module Parsers
                 c.Goto "end1"
               end
               c.If "digits != null" do |c|
-                c.PlayFile "1-invalid"
+                c.PlayResource 5
                 c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Capture number one', store: '"Invalid key pressed"'
               end
               c.Else do |c|
@@ -138,7 +135,7 @@ module Parsers
               c.Goto "end4"
             end
             c.Else do |c|
-              c.PlayFile "4-invalid"
+              c.PlayResource 2
               c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
             end
             c.Assign 'attempt_number4', 'attempt_number4 + 1'
@@ -157,10 +154,7 @@ module Parsers
           'min_input_length' => 0,
           'max_input_length' => 2,
           'invalid_message' => {
-            "name" => "An invalid key was pressed",
-            "type" => "recording",
-            "file" => "file.wav",
-            "duration" => 5
+            "id" => 2
           }
 
         capture.equivalent_flow.first.should eq(capture_flow)
@@ -214,7 +208,7 @@ module Parsers
                 c.Goto "end4"
               end
               c.Else do |c|
-                c.PlayFile "4-invalid"
+                c.PlayResource 5
                 c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
               end
               c.Assign 'attempt_number4', 'attempt_number4 + 1'
@@ -224,7 +218,7 @@ module Parsers
             c.Assign "current_step", 2
             c.AssignValue "current_step_name", "Play"
             c.Trace call_flow_id: call_flow.id, step_id: 2, step_name: 'Play', store: '"Message played."'
-            c.Say "Some explanation message"
+            c.PlayResource 123
             c.Label "end4"
           end.first
 
@@ -238,19 +232,15 @@ module Parsers
             'min_input_length' => 0,
             'max_input_length' => 2,
             'invalid_message' => {
-              "name" => "An invalid key was pressed",
-              "type" => "recording",
-              "file" => "file.wav",
-              "duration" => 5
+              "id" => 5
             },
             'default' => 2
 
           play = Play.new call_flow, 'id' => 2,
             'type' => 'play',
             'name' => 'Play',
-            'message' => {
-              "name" => "Some explanation message",
-              "type" => "text"
+            'resource' => {
+              "id" => 123
             }
 
           capture.solve_links_with [ play ]

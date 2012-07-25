@@ -25,14 +25,14 @@ module Parsers
         @id = params['id']
         @name = params['name'] || ''
         @root_index = params['root']
-        @instructions_message = Message.for call_flow, self, :instructions, params['instructions_message']
+        @instructions_message = Resource.new params['instructions_message']
         @valid_values = params['valid_values']
         @finish_on_key = params['finish_on_key'] || self.class.default_finish_key
         @min_input_length = params['min_input_length'].try(:to_i) || self.class.default_minimum_input_lenght
         @max_input_length = params['max_input_length'].try(:to_i) || self.class.default_maximum_input_lenght
         @timeout = params['timeout'] || self.class.default_time_out_in_seconds
         @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
-        @invalid_message = Message.for call_flow, self, :invalid, params['invalid_message']
+        @invalid_message = Resource.new params['invalid_message']
         @call_flow = call_flow
         @next = params['next']
         @persisted_variable_name = params['store']
