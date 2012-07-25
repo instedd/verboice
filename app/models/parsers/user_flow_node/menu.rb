@@ -24,13 +24,13 @@ module Parsers
       def initialize call_flow, params
         @id = params['id']
         @name = params['name'] || ''
-        @explanation_message = Message.for call_flow, self, :explanation, params['explanation_message']
-        @options_message = Message.for call_flow, self, :options, params['options_message']
+        @explanation_message = Resource.new params['explanation_message']
+        @options_message = Resource.new params['options_message']
         @options = params['options'].deep_clone || []
         @root_index = params['root']
         @timeout = params['timeout'] || self.class.default_time_out_in_seconds
         @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
-        @invalid_message = Message.for call_flow, self, :invalid, params['invalid_message']
+        @invalid_message = Resource.new params['invalid_message']
         @default = params['default']
         @call_flow = call_flow
         @next = params['next']

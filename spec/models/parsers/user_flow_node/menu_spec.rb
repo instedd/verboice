@@ -29,25 +29,16 @@ module Parsers
           'name' => 'Menu number one',
           'store' => 'some_variable',
           'explanation_message' => {
-            "name" => "Some explanation message",
-            "type" => "recording",
-            "file" => "file.wav",
-            "duration" => 5
+            "id" => 5
           },
           'options_message' => {
-            "name" => "Some options message",
-            "type" => "recording",
-            "file" => "file.wav",
-            "duration" => 5
+            "id" => 7
+          },
+          'invalid_message' => {
+            "id" => 8
           },
           'timeout'=> 20,
           'number_of_attempts' => 3,
-          'invalid_message' => {
-            "name" => "An invalid key was pressed",
-            "type" => "recording",
-            "file" => "file.wav",
-            "duration" => 5
-          },
           'options' => [
             {
               'description' => 'foo',
@@ -70,30 +61,26 @@ module Parsers
         play1 = Play.new call_flow, 'id' => 10,
           'type' => 'play',
           'name' => 'Play 1',
-          'message' => {
-            "name" => "Second explanation message",
-            "type" => "text"
+          'resource' => {
+            "id" => 1
           }
         play2 = Play.new call_flow, 'id' => 14,
           'type' => 'play',
           'name' => 'Play 2',
-          'message' => {
-            "name" => "Third explanation message",
-            "type" => "text"
+          'resource' => {
+            "id" => 2
           }
         play3 = Play.new call_flow, 'id' => 5,
           'type' => 'play',
           'name' => 'Play 3',
-          'message' => {
-            "name" => "Fourth explanation message",
-            "type" => "text"
+          'resource' => {
+            "id" => 3
           }
         play4 = Play.new call_flow, 'id' => 45,
             'type' => 'play',
             'name' => 'Play 45',
-            'message' => {
-              "name" => "Fifth explanation message",
-              "type" => "text"
+            'resource' => {
+              "id" => 45
             }
 
         menu.solve_links_with [ play1, play2, play3, play4 ]
@@ -103,10 +90,10 @@ module Parsers
             c.Label 1
             c.Assign "current_step", 1
             c.AssignValue "current_step_name", "Menu number one"
-            c.PlayFile "1-explanation"
+            c.PlayResource 5
             c.Assign 'attempt_number1', '1'
             c.While 'attempt_number1 <= 3' do |c|
-              c.Capture play_file: "1-options", finish_on_key: '', timeout: 20
+              c.Capture resource: 7, finish_on_key: '', timeout: 20
               c.Assign 'value_1', 'digits'
               c.If "digits == '4'" do |c|
                 c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
@@ -115,7 +102,7 @@ module Parsers
                 c.Assign "current_step", 10
                 c.AssignValue "current_step_name", "Play 1"
                 c.Trace call_flow_id: call_flow.id, step_id: 10, step_name: 'Play 1', store: '"Message played."'
-                c.Say "Second explanation message"
+                c.PlayResource 1
                 c.Goto "end1"
               end
               c.If "digits == '6'" do |c|
@@ -125,7 +112,7 @@ module Parsers
                 c.Assign "current_step", 14
                 c.AssignValue "current_step_name", "Play 2"
                 c.Trace call_flow_id: call_flow.id, step_id: 14, step_name: 'Play 2', store: '"Message played."'
-                c.Say "Third explanation message"
+                c.PlayResource 2
                 c.Goto "end1"
               end
               c.If "digits == '2'" do |c|
@@ -135,11 +122,11 @@ module Parsers
                 c.Assign "current_step", 5
                 c.AssignValue "current_step_name", "Play 3"
                 c.Trace call_flow_id: call_flow.id, step_id: 5, step_name: 'Play 3', store: '"Message played."'
-                c.Say "Fourth explanation message"
+                c.PlayResource 3
                 c.Goto "end1"
               end
               c.If "digits != null" do |c|
-                c.PlayFile "1-invalid"
+                c.PlayResource 8
                 c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"Invalid key pressed"'
               end
               c.Else do |c|
@@ -153,7 +140,7 @@ module Parsers
             c.Assign "current_step", 45
             c.AssignValue "current_step_name", "Play 45"
             c.Trace call_flow_id: call_flow.id, step_id: 45, step_name: 'Play 45', store: '"Message played."'
-            c.Say "Fifth explanation message"
+            c.PlayResource 45
             c.Label "end1"
           end.first
         )
@@ -183,21 +170,13 @@ module Parsers
         )
       end
 
-      it "should be able to build itself from an incomming hash" do
-        menu = Menu.new call_flow, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo', 'type' => 'text'}, 'timeout' => 20, 'invalid_message' => {'name' => 'foobar', 'type' => 'text'}, 'options_message' => {}
-        menu.id.should eq(27)
-        menu.explanation_message.name.should eq('foo')
-        menu.timeout.should eq(20)
-        menu.invalid_message.name.should eq('foobar')
-      end
-
       it "should handle a menu input stream"do
         (Menu.can_handle? 'id' => 27, 'type' => 'menu').should be_true
         (Menu.can_handle? 'id' => 27, 'type' => 'answer').should be_false
       end
 
       it "should build with a collection of options" do
-        menu = Menu.new call_flow, 'id' => 27, 'type' => 'menu', 'explanation_message' => {'name' => 'foo', 'type' => 'text'},
+        menu = Menu.new call_flow, 'id' => 27, 'type' => 'menu',
           'options' => [
             {
               'description' => 'foo',
@@ -221,7 +200,6 @@ module Parsers
 
       it "should resolve it's next links from a given list of commands" do
         menu = Menu.new call_flow, 'id' => 27, 'type' => 'menu',
-          'explanation_message' => {"name" => 'foo', 'type' => 'text'},
           'options' =>[
             {
               'description' => 'foo',
@@ -235,11 +213,9 @@ module Parsers
             }
           ]
         menu_2 = Menu.new call_flow, 'id' => 10,
-          'type' => 'menu',
-          'explanation_message' => {"name"=>'foo', 'type' => 'text'}
+          'type' => 'menu'
         menu_3 = Menu.new call_flow, 'id' => 14,
-          'type' => 'menu',
-          'explanation_message' => {"name"=>'foo', 'type' => 'text'}
+          'type' => 'menu'
 
         menu.solve_links_with [ menu_2, menu_3 ]
         menu.options[0]['next'].should eq(menu_2)
@@ -249,11 +225,9 @@ module Parsers
       it "should respond if it's a root or not" do
         menu_1 = Menu.new call_flow, 'id' => 10,
           'root' => 1,
-          'type' => 'menu',
-          'explanation_message' => {"name"=>'foo', 'type' => 'text'}
+          'type' => 'menu'
         menu_2 = Menu.new call_flow, 'id' => 14,
-          'type' => 'menu',
-          'explanation_message' => {"name"=>'foo', 'type' => 'text'}
+          'type' => 'menu'
         menu_1.is_root?.should be_true
         menu_2.is_root?.should be_false
       end
