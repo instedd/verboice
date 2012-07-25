@@ -36,20 +36,18 @@
 
   / ko foreach: localized_resources
 
-
   %p
     Display name
     %span{'data-bind' => 'text: title'}
 
-  / ko with: current
-  %p
-    Language
-    %span{'data-bind' => 'text: language'}
-  %p
-    Text
-    %input{:type => 'text', 'data-bind' => 'value: text'}
+  %br
+  %select{ko(options: "options", optionsText: "'label'", value: "current")}
+  %br
 
-  / /ko
+  %div{ko(:template => "{name: current().template, data: current}")}
+
+  %hr
+
   / /ko
 
 

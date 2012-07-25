@@ -6,6 +6,8 @@ onWorkflow ->
     constructor: (hash = {}) ->
       super(hash)
 
+      @label = 'Text to speech'
+      @template = 'text_localized_resource_template'
       @text = ko.observable hash.text
 
     to_hash: =>
