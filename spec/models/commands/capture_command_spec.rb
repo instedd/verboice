@@ -133,5 +133,14 @@ module Commands
 
       session[:digits].should == digits
     end
+
+    it "capture with resource" do
+      expect_capture :say => "some text"
+      localized = LocalizedResource.make text: 'some text'
+
+      CaptureCommand.new(:resource => localized.resource.id).run session
+
+      session[:digits].should == digits
+    end
   end
 end

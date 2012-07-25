@@ -148,3 +148,12 @@ OAuthToken.blueprint do
   service { :google }
   expires_at { DateTime.now.utc + 3600.seconds }
 end
+
+Resource.blueprint do
+  name
+  project
+end
+
+LocalizedResource.blueprint do
+  resource
+end
