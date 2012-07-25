@@ -3,8 +3,7 @@ class LocalizedResource < ActiveRecord::Base
 
   attr_accessible :audio, :language, :text, :type, :url
 
-  validates_presence_of :language
-  # validates_presence_of :resource
+  validates_presence_of :language, :resource
 
   def type
     'TextLocalizedResource'

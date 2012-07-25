@@ -156,4 +156,5 @@ end
 
 LocalizedResource.blueprint do
   resource
+  language { 'English' }
 end
