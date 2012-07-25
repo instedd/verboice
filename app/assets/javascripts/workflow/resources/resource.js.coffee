@@ -1,3 +1,5 @@
+#= require workflow/resources/localized_resource_selector
+
 onWorkflow ->
   class window.Resource
 
@@ -14,11 +16,9 @@ onWorkflow ->
       unpack_localized_resources = (localized_resources) =>
         localized_resources = localized_resources or []
         _.map languages, (l) =>
-          lr = _.find localized_resources, (lr) => lr.language is l.key
-          if lr?
-            new window[lr.type]($.extend(lr, {display_name: l.value}))
-          else
-            new TextLocalizedResource {language: l.key, display_name: l.value}
+          localized_resource = _.find localized_resources, (lr) => lr.language is l.key
+          localized_resource ||= language: l.key
+          LocalizedResourceSelector.from_hash(localized_resource).with_title(l.value)
 
       @name = ko.observable hash.name
       @id = ko.observable hash.id

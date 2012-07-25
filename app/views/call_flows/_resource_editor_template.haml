@@ -36,9 +36,12 @@
 
   / ko foreach: localized_resources
 
+
   %p
     Display name
-    %span{'data-bind' => 'text: display_name'}
+    %span{'data-bind' => 'text: title'}
+
+  / ko with: current
   %p
     Language
     %span{'data-bind' => 'text: language'}
@@ -46,6 +49,7 @@
     Text
     %input{:type => 'text', 'data-bind' => 'value: text'}
 
+  / /ko
   / /ko
 
 
