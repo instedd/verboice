@@ -10,10 +10,20 @@ onWorkflow ->
         callback?((new Resource(i) for i in data))
 
     constructor: (hash = {}) ->
+
+      unpack_localized_resources = (localized_resources) =>
+        localized_resources = localized_resources or []
+        _.map languages, (l) =>
+          lr = _.find localized_resources, (lr) => lr.language is l.key
+          if lr?
+            new window[lr.type]($.extend(lr, {display_name: l.value}))
+          else
+            new TextLocalizedResource {language: l.key, display_name: l.value}
+
       @name = ko.observable hash.name
       @id = ko.observable hash.id
       @project_id = hash.project_id || project_id
-      @localized_resources = ko.observableArray (new window[h.type](h) for h in hash.localized_resources or [])
+      @localized_resources = ko.observableArray unpack_localized_resources hash.localized_resources
 
     to_hash: () =>
       id: @id()
