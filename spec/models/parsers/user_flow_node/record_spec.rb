@@ -28,12 +28,10 @@ module Parsers
           'type' => 'record',
           'name' => 'Record Step',
           'explanation_message' => {
-            "name" => "Explanation message",
-            "type" => "text"
+            "id" => 1
           },
           'confirmation_message' => {
-            "name" => "Confirmation message",
-            "type" => "text"
+            "id" => 2
           },
           'timeout' => 7,
           'stop_key' => '#'
@@ -44,9 +42,9 @@ module Parsers
             Assign "current_step", 1
             AssignValue "current_step_name", "Record Step"
             Trace call_flow_id: 5, step_id: 1, step_name: 'Record Step', store: %("Record message. Download link: " + record_url(1))
-            Say "Explanation message"
+            PlayResource 1
             Record 1, 'Record Step', {:stop_keys => '#', :timeout => 7}
-            Say "Confirmation message"
+            PlayResource 2
           end.first
         )
       end
