@@ -1,0 +1,2 @@
+class RecordLocalizedResource < LocalizedResource
+end

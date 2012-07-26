@@ -16,7 +16,7 @@ onWorkflow ->
       @current().to_hash()
 
     @from_hash: (hash) ->
-      options = (new window["#{type}LocalizedResource"](hash) for type in ['Text', 'Url'])
+      options = (new window["#{type}LocalizedResource"](hash) for type in ['Text', 'Url', 'Record'])
       selector = new LocalizedResourceSelector(options)
 
       for option in options
