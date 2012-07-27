@@ -16,6 +16,20 @@ ko.bindingHandlers.initMask = {
   },
 };
 
+/*
+  JQuery File Upload binding handler
+*/
+ko.bindingHandlers.fileupload = {
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var url = ko.utils.unwrapObservable(valueAccessor());
+    $(element).fileupload({url: url, multipart: false, formData: {method: 'post'}});
+  },
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var url = ko.utils.unwrapObservable(valueAccessor());
+    $(element).fileupload('option', 'url', url);
+  }
+}
+
 
 /*
   Jquery Autocomplete Binding Handler (not-tested)

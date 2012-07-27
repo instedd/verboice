@@ -1,4 +1,5 @@
 #= require workflow/resources/localized_resource
+#= require recorder
 
 onWorkflow ->
   class window.RecordLocalizedResource extends LocalizedResource

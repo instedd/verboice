@@ -1,0 +1,2 @@
+class UploadLocalizedResource < LocalizedResource
+end

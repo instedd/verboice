@@ -1,0 +1,6 @@
+%script{type: "text/html", id: "upload_localized_resource_template"}
+  %p{'data-bind' => 'text: language'}
+  %p
+    Upload:
+    .fexport
+      %input{:type => 'file', 'data-bind' => 'fileupload: url' }

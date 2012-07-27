@@ -1,5 +1,7 @@
 #= require workflow/resources/text_localized_resource
 #= require workflow/resources/url_localized_resource
+#= require workflow/resources/record_localized_resource
+#= require workflow/resources/upload_localized_resource
 
 onWorkflow ->
   class window.LocalizedResourceSelector
@@ -16,7 +18,7 @@ onWorkflow ->
       @current().to_hash()
 
     @from_hash: (hash) ->
-      options = (new window["#{type}LocalizedResource"](hash) for type in ['Text', 'Url', 'Record'])
+      options = (new window["#{type}LocalizedResource"](hash) for type in ['Text', 'Url', 'Record', 'Upload'])
       selector = new LocalizedResourceSelector(options)
 
       for option in options
