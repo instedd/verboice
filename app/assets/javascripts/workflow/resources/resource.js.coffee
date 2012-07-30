@@ -25,6 +25,8 @@ onWorkflow ->
       @project_id = hash.project_id || project_id
       @localized_resources = ko.observableArray unpack_localized_resources hash.localized_resources
 
+      @current_editing_localized_resource = ko.observable @localized_resources()[0]
+
     to_hash: () =>
       id: @id()
       project_id: @project_id
@@ -42,6 +44,9 @@ onWorkflow ->
         $.post "/projects/#{@project_id}/resources.json", data, (response) =>
           @id(response.id)
           callback?(@)
+
+    edit: (localized_resource) =>
+      @current_editing_localized_resource(localized_resource)
 
     pack_localized_resources: () =>
       result = {}

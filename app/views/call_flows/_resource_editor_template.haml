@@ -1,62 +1,56 @@
 %script{type: "text/html", id: "resource_editor_template"}
+  .popup
+    .courtain
+    .box.popupmessage
 
-  / ko if: resource() == null
-  Select
+      / ko if: resource() == null
+      %div Message
+      %hr
+      %div
+        %input{:type => 'radio', :value => 'new', 'data-bind' => 'checked: type'}
+        Create new message
+      .resource-name
+        %input.w22{:type => 'text', :placeholder => 'Enter message name', 'data-bind' => 'value: name, valueUpdate: "afterkeydown", visible: type() == "new"'}
+      %div
+        %input{:type => 'radio', :value => 'existing', 'data-bind' => 'checked: type'}
+        Select an existing one
+      .resource-name
+        %input.w22{:type => 'text', :placeholder => 'Enter message name', 'data-bind' => "visible: type() == 'existing', jqAuto: { autoFocus: true }, jqAutoSource: matching_resources, jqAutoQuery: get_resources, jqAutoValue: existing_resource_id, jqAutoSourceLabel: 'name', jqAutoSourceInputValue: 'name', jqAutoSourceValue: 'id'"}
+      %hr
+      %button.white{'data-bind' => 'click: next, enable: is_next_enabled'} Next
+      %a.cancel{:href => '#', 'data-bind' => 'click: cancel'} Cancel
+      / /ko
 
-  New:
-  %br
-  %input{:type => 'radio', :value => 'new', 'data-bind' => 'checked: type'}
-  %br
-  %input{:type => 'text', 'data-bind' => 'value: name, valueUpdate: "afterkeydown", visible: type() == "new"'}
+      / ko if: resource() != null
+      / ko with: resource
+      %div
+        %label Name
+        %br
+        %span.desc Enter message name
+      .w22
+        %input.ux-text{:type => 'text', 'data-bind' => 'value: name'}
+      / %div
+      /   %span.alert-orange-b Message in use in 3 other steps
+      /   %span.alert-orange
+      %hr
+      %div Languages
+      / ko foreach: localized_resources
+      %div
+        %a{:href => '#', 'data-bind' => 'click: $parent.edit'}
+          %span{'data-bind' => "css: {'arrow-col': $parent.current_editing_localized_resource() != $data, 'arrow-exp': $parent.current_editing_localized_resource() == $data}"}
+          %span{'data-bind' => 'text: title'}
+      / ko if: $parent.current_editing_localized_resource() == $data
+      .text-right
+        %select.w22{ko(options: "options", optionsText: "'label'", value: "current")}
+        %div{ko(:template => "{name: current().template, data: current}")}
+      / /ko
+      / /ko
+      / /ko
 
+      %hr
 
-  %br
-  %br
+      %button.white{'data-bind' => 'click: save'} Save
+      %a.cancel{:href => '#', 'data-bind' => 'click: cancel'} Cancel
+      %button.fsync.right{'data-bind' => 'click: replace'} Replace
 
-  Existing:
-  %br
-  %input{:type => 'radio', :value => 'existing', 'data-bind' => 'checked: type'}
-  %br
-  %input{:type => 'text', 'data-bind' => "visible: type() == 'existing', jqAuto: { autoFocus: true }, jqAutoSource: matching_resources, jqAutoQuery: get_resources, jqAutoValue: existing_resource_id, jqAutoSourceLabel: 'name', jqAutoSourceInputValue: 'name', jqAutoSourceValue: 'id'"}
-
-  %br
-  %br
-
-  %button{'data-bind' => 'click: next, enable: is_next_enabled'} Next
-  %button{'data-bind' => 'click: cancel'} Cancel
-
-  / /ko
-
-  / ko if: resource() != null
-  / ko with: resource
-
-  %input{:type => 'text', 'data-bind' => 'value: name'}
-  %br
-  %p Languages
-
-  / ko foreach: localized_resources
-
-  %p
-    Display name
-    %span{'data-bind' => 'text: title'}
-
-  %br
-  %select{ko(options: "options", optionsText: "'label'", value: "current")}
-  %br
-
-  %div{ko(:template => "{name: current().template, data: current}")}
-
-  %hr
-
-  / /ko
-
-
-  / /ko
-  %br
-  %br
-
-  %button{'data-bind' => 'click: save'} Save
-  %button{'data-bind' => 'click: cancel'} Cancel
-  %button{'data-bind' => 'click: replace'} Replace
-
-  / /ko
+      / /ko
