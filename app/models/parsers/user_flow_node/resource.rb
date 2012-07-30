@@ -30,7 +30,6 @@ module Parsers
       end
 
       def capture_flow
-        #TODO: Implement this capture option
         if @id
           { resource: @id }
         else

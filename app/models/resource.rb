@@ -19,4 +19,16 @@ class Resource < ActiveRecord::Base
     result[:localized_resources] = self.localized_resources.as_json if include_localized_resources
     result
   end
+
+  def available_resource_for language
+    resource = resource_for language
+    resource = resource_for(project.default_language) unless resource.present?
+    resource
+  end
+
+  def resource_for language
+    localized_resources.detect do |localized_resource|
+      localized_resource.language == language
+    end
+  end
 end

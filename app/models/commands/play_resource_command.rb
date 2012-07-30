@@ -24,22 +24,46 @@ class Commands::PlayResourceCommand < Command
   def run(session)
     session.info "Play Resource: '#{@resource_id}'", command: 'play_resource', action: 'start'
 
-    #TODO: Check language and resource kind and run the appropiate command
-    text = Resource.find(@resource_id).localized_resources.first.text
-    Commands::SayCommand.new(text).run(session)
+    if localized_resource.is_an? UrlLocalizedResource
+      Commands::PlayUrlCommand.new(localized_resource.url).run(session)
+    elsif localized_resource.is_a? RecordLocalizedResource
+      Commands::PlayFileCommand.new(localized_resource.audio).run(session)
+    elsif localized_resource.is_a? TextLocalizedResource
+      Commands::SayCommand.new(localized_resource.text).run(session)
+    end
 
-    #TODO: Change the logs to distinguish if is play or say and to log the text or the audio name instead of the resource id
     session.info "Play Resource '#{@resource_id}' finished.", command: 'play_resource', action: 'finish'
     super
   end
 
   def capture_option_name
-    #TODO: Check language and resource kind and return the appropiate option name
-    :say
+    if localized_resource.is_an? UrlLocalizedResource
+      :play
+    elsif localized_resource.is_a? RecordLocalizedResource
+      :play
+    elsif localized_resource.is_a? TextLocalizedResource
+      :say
+    end
   end
 
-  def capture_resource
-    #TODO: Check language and resource kind and return the appropiate text or file path
-    Resource.find(@resource_id).localized_resources.first.text
+  def capture_resource session
+    if localized_resource.is_an? UrlLocalizedResource
+      Commands::PlayUrlCommand.new(localized_resource.url).download(session)
+    elsif localized_resource.is_a? RecordLocalizedResource
+      Commands::PlayFileCommand.new(localized_resource.audio).download(session)
+    elsif localized_resource.is_a? TextLocalizedResource
+      localized_resource.text
+    end
+  end
+
+  def localized_resource
+    unless @localized_resource
+      var_name = ImplicitVariables::Language.key
+
+      RetrieveVariableCommand.new(var_name).run(session) unless session["var_#{var_name}"].present?
+
+      @localized_resource = Resource.find(@resource_id).available_resource_for(session["var_#{var_name}"])
+    end
+    @localized_resource
   end
 end
