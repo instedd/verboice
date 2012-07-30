@@ -16,7 +16,7 @@ onWorkflow ->
       @duration = ko.observable(hash.duration || (new Date).clearTime().toString('mm:ss'))
       @recording_start = null
       @update_duration_interval = null
-      @description = ko.observable null
+      @description = ko.observable hash.description
 
     to_hash: =>
       super

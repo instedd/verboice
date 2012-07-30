@@ -10,7 +10,7 @@ onWorkflow ->
       @template = 'upload_localized_resource_template'
 
       @url = ko.observable "#{save_recording_path}?#{@message_query_identifier()}"
-      @description = ko.observable null
+      @description = ko.observable hash.description
 
     message_query_identifier: () =>
       "step_id=#{1}&message=#{2}"
