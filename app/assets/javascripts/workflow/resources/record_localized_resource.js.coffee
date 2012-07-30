@@ -10,7 +10,7 @@ onWorkflow ->
       @label = 'Record message'
       @template = 'record_localized_resource_template'
 
-      @file = ko.observable hash.file
+      @has_audio = ko.observable hash.has_audio
       @recording = ko.observable false
       @playing = ko.observable false
       @duration = ko.observable(hash.duration || (new Date).clearTime().toString('mm:ss'))
@@ -40,12 +40,12 @@ onWorkflow ->
       if Wami.stopRecording # check if Wami is loaded
         Wami.stopRecording() if @recording()
         Wami.stopPlaying() if @playing()
-        @file(true)
+        @has_audio(true)
       @playing(false)
       window.clearInterval(@update_duration_interval)
 
     play: () =>
-      return if @playing() or @recording() or not @file()
+      return if @playing() or @recording() or not @has_audio()
       @recording(false)
       @playing(true)
       Wami.setup
