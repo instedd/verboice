@@ -18,7 +18,7 @@ onWorkflow ->
         _.map languages, (l) =>
           localized_resource = _.find localized_resources, (lr) => lr.language is l.key
           localized_resource ||= language: l.key
-          LocalizedResourceSelector.from_hash(localized_resource).with_title(l.value)
+          LocalizedResourceSelector.from_hash(localized_resource).with_title(l.value).with_language(l.key)
 
       @name = ko.observable hash.name
       @id = ko.observable hash.id
@@ -39,10 +39,12 @@ onWorkflow ->
       if @id()
         data._method = 'put'
         $.post "/projects/#{@project_id}/resources/#{@id()}.json", data, (response) =>
+          @save_localized_resources response.localized_resources
           callback?(@)
       else
         $.post "/projects/#{@project_id}/resources.json", data, (response) =>
           @id(response.id)
+          @save_localized_resources response.localized_resources
           callback?(@)
 
     edit: (localized_resource) =>
@@ -54,3 +56,9 @@ onWorkflow ->
         do (lr, i) ->
           result[i] = lr.to_hash()
       result
+
+    save_localized_resources: (arr = []) =>
+      for hash in arr
+        localized_resource = _.find @localized_resources(), (x) => x.language is hash.language
+        localized_resource.id(hash.id) if localized_resource?
+

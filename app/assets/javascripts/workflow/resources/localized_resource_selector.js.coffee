@@ -10,6 +10,7 @@ onWorkflow ->
       @options = ko.observableArray options
       @current = ko.observable options[0]
       @title = ko.observable ''
+      @language = null
 
       @is_valid = ko.computed =>
         @current()?.is_valid()
@@ -29,3 +30,11 @@ onWorkflow ->
     with_title: (new_title) =>
       @title(new_title)
       return @
+
+    with_language: (language) =>
+      @language = language
+      return @
+
+    id: (id) =>
+      for option in @options()
+        option.id(id) unless option.id()?

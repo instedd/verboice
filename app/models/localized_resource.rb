@@ -7,6 +7,8 @@ class LocalizedResource < ActiveRecord::Base
 
   validates_presence_of :language #, :resource
 
+  validates_uniqueness_of :language, :scope => :resource_id
+
   def has_audio
     self.audio.present?
   end

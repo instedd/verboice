@@ -12,21 +12,23 @@ class ResourcesController < ApplicationController
     else
       result = resources
     end
-    respond_with(result)
+    respond_with result
   end
 
   def show
-    respond_with(resource, :include => :localized_resources)
+    respond_with resource, :include => :localized_resources
   end
 
   def create
     resource.save
-    respond_with(resource)
+    respond_with resource, :include => :localized_resources
   end
 
   def update
     resource.save
-    respond_with(resource)
+    respond_with resource do |format|
+      format.json { render :json => resource, :include => :localized_resources }
+    end
   end
 
 end
