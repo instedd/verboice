@@ -57,19 +57,14 @@ onWorkflow ->
           Wami.startPlaying(url, null, Wami.nameCallback(window.playFinished))
       @alert_flash_required('playing')
 
-    # exit: () =>
-    #   @stop()
-    #   super
+    is_valid: () =>
+      super() and @has_audio()
 
-    # to_hash: () =>
-    #   if @file() or @name()?
-    #     $.extend(super,
-    #       file: @file()
-    #       duration: @duration()
-    #     )
-
-    # is_valid: () =>
-    #   super() and @file()
+    to_hash: () =>
+      $.extend(super,
+        description: @description(),
+        duration: @duration()
+      )
 
     # private
 

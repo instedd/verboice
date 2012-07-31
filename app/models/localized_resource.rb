@@ -3,7 +3,7 @@ class LocalizedResource < ActiveRecord::Base
 
   store :extras, accessors: [:duration, :description]
 
-  attr_accessible :audio, :language, :text, :type, :url
+  attr_accessible :audio, :language, :text, :type, :url, :description, :duration
 
   validates_presence_of :language #, :resource
 

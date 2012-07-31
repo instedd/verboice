@@ -14,3 +14,8 @@ onWorkflow ->
 
     message_query_identifier: () =>
       "step_id=#{1}&message=#{2}"
+
+    to_hash: () =>
+      $.extend(super,
+        description: @description()
+      )
