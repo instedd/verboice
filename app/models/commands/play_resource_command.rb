@@ -27,7 +27,7 @@ class Commands::PlayResourceCommand < Command
     if localized_resource.is_an? UrlLocalizedResource
       Commands::PlayUrlCommand.new(localized_resource.url).run(session)
     elsif localized_resource.is_a? RecordLocalizedResource
-      Commands::PlayFileCommand.new(localized_resource.audio).run(session)
+      Commands::PlayAudioCommand.new(localized_resource).run(session)
     elsif localized_resource.is_a? TextLocalizedResource
       Commands::SayCommand.new(localized_resource.text).run(session)
     end
