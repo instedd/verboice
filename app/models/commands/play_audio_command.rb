@@ -23,23 +23,24 @@ class Commands::PlayAudioCommand < Command
   end
 
   def run(session)
-    session.info "Play audio #{@audio_resource.id}", command: command_name, action: 'start'
+    session.info "Play audio '#{@audio_resource.description}'", command: command_name, action: 'start'
     next_command = super
-    session.info "Play audio #{@audio_resource.id} finished", command: command_name, action: 'finish'
+    session.info "Play audio '#{@audio_resource.description}' finished", command: command_name, action: 'finish'
     next_command
   end
 
   def setup_file(session)
     in_temp_dir do |path|
-      source_path = File.open("#{@audio_resource.id}.wav", 'w'){ |f| f.write(@audio_resource.audio)}
+      source_path = File.join(path,"#{@audio_resource.id}.wav")
+      File.open(source_path, 'wb'){ |f| f.write(@audio_resource.audio)}
       target_path = get_target_path(session)
-      convert_to_8000_hz_gsm File.join(path,"#{@audio_resource.id}.wav") , target_path
+      convert_to_8000_hz_gsm source_path, target_path
       target_path
     end
   end
 
   def should_setup_file?(session, target_path)
-    not File.exists?(target_path) or File.mtime(target_path) < File.mtime(file_to_convert_path(session))
+    not File.exists?(target_path) or File.mtime(target_path) < @audio_resource.updated_at
   end
 
   def command_name
