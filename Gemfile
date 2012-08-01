@@ -29,10 +29,6 @@ gem 'csv_builder'
 gem 'newrelic_rpm'
 gem 'language_list'
 
-group :v8 do
-  gem 'libv8'
-end
-
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
   gem 'coffee-rails', '~> 3.2.2'
