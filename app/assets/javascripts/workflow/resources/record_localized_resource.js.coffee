@@ -18,9 +18,6 @@ onWorkflow ->
       @update_duration_interval = null
       @description = ko.observable hash.description
 
-    to_hash: =>
-      super
-
     record: () =>
       return if @playing() or @recording()
       unless @is_saved()
@@ -84,9 +81,6 @@ onWorkflow ->
 
     wami_record_failed: () =>
       @recording(false)
-
-    message_query_identifier: () =>
-      return "step_id=#{1}&message=#{2}"
 
     now_seconds: () =>
       Math.round(+new Date()/1000)

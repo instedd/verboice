@@ -21,12 +21,10 @@ class CallFlowsController < ApplicationController
 
   before_filter :authenticate_account!
   before_filter :load_call_flow_and_project, :only => [
-    :download_results, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_recording, :save_recording, :play_result, :import, :export, :oauth
+    :download_results, :edit, :edit_workflow, :update_workflow, :update, :destroy, :play_result, :import, :export, :oauth
   ]
   before_filter :load_all_call_flows, :only => [:index, :update, :create]
-  before_filter :load_recording_data, :only => [:play_recording, :save_recording, :play_result]
-
-  skip_before_filter :verify_authenticity_token, :only => :save_recording
+  before_filter :load_recording_data, :only => [:play_result]
 
   def download_results
     @filename = "Call_results_-_#{@call_flow.name}_(#{Time.now.to_s.gsub(' ', '_')}).csv"
@@ -122,17 +120,6 @@ class CallFlowsController < ApplicationController
     else
       send_data @call_flow.user_flow.to_yaml, :filename => "Call flow #{@call_flow.id}.vrb"
     end
-  end
-
-  def play_recording
-    send_file @recording_manager.recording_path_for(RecordingManager.format_recording(@step_id, @message)), :x_sendfile=>true
-  end
-
-  def save_recording
-    @recording_manager.save_recording_for(RecordingManager.format_recording(@step_id, @message)) do |out|
-      out.write request.body.read
-    end
-    render text: @step_id
   end
 
   def oauth

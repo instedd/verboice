@@ -42,8 +42,6 @@ Verboice::Application.routes.draw do
         member do
           get :edit_workflow, path: :designer
           put :update_workflow, path: :update_flow
-          get :play_recording
-          post :save_recording
           post :import
           get :export
           get :download_results
