@@ -4,6 +4,7 @@ onWorkflow ->
     constructor: (hash = {}) ->
       @id = ko.observable hash.id
       @language = ko.observable hash.language
+      @parent = ko.observable null
 
     to_hash: =>
       id: @id()
@@ -15,3 +16,9 @@ onWorkflow ->
 
     type: () =>
       @.constructor.name
+
+    set_parent: (parent) =>
+      @parent(parent)
+
+    is_saved: () =>
+      @parent()?.id()? and @id()?

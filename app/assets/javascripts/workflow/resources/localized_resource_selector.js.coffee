@@ -35,6 +35,11 @@ onWorkflow ->
       @language = language
       return @
 
+    with_parent: (parent) =>
+      for option in @options()
+        option.set_parent(parent)
+      return @
+
     id: (id) =>
       for option in @options()
         option.id(id) unless option.id()?

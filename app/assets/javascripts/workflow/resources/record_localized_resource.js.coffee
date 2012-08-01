@@ -23,13 +23,16 @@ onWorkflow ->
 
     record: () =>
       return if @playing() or @recording()
+      unless @is_saved()
+        alert 'Please save this message before recording'
+        return
       @playing false
       @update_duration 0
       Wami.setup
         id: 'wami'
         swfUrl: '/Wami.swf'
         onReady: =>
-          Wami.startRecording("#{save_recording_path}?#{@message_query_identifier()}",
+          Wami.startRecording(@save_recording_url(),
             Wami.nameCallback(@wami_record_start), Wami.nameCallback(@wami_record_finished), Wami.nameCallback(@wami_record_failed));
           @recording_start = @now_seconds()
           @update_duration_interval = window.setInterval((() =>
@@ -53,8 +56,7 @@ onWorkflow ->
         swfUrl: '/Wami.swf'
         onReady: =>
           window.playFinished = () => @playing(false)
-          url = "#{play_recording_path}?#{@message_query_identifier()}"
-          Wami.startPlaying(url, null, Wami.nameCallback(window.playFinished))
+          Wami.startPlaying(@play_recording_url(), null, Wami.nameCallback(window.playFinished))
       @alert_flash_required('playing')
 
     is_valid: () =>
@@ -67,6 +69,12 @@ onWorkflow ->
       )
 
     # private
+
+    save_recording_url: () =>
+      "/projects/#{project_id}/resources/#{@parent().id()}/localized_resources/#{@id()}/save_recording"
+
+    play_recording_url: () =>
+      "/projects/#{project_id}/resources/#{@parent().id()}/localized_resources/#{@id()}/play_recording"
 
     wami_record_start: () =>
       @recording(true)

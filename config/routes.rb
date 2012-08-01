@@ -61,7 +61,14 @@ Verboice::Application.routes.draw do
 
       resources :contacts, except: [:show]
 
-      resources :resources
+      resources :resources do
+        resources :localized_resources do
+          member do
+            post :save_recording
+            get :play_recording
+          end
+        end
+      end
 
     end
   end

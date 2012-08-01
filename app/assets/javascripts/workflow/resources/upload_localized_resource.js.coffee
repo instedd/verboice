@@ -9,13 +9,20 @@ onWorkflow ->
       @label = 'Upload a file'
       @template = 'upload_localized_resource_template'
 
-      @url = ko.observable "#{save_recording_path}?#{@message_query_identifier()}"
       @description = ko.observable hash.description
-
-    message_query_identifier: () =>
-      "step_id=#{1}&message=#{2}"
+      @has_audio = ko.observable hash.has_audio
+      @url = ko.computed =>
+        if @is_saved()
+          "/projects/#{project_id}/resources/#{@parent().id()}/localized_resources/#{@id()}/save_recording"
+        else
+          null
 
     to_hash: () =>
       $.extend(super,
         description: @description()
       )
+
+    submit: () =>
+      unless @is_saved()
+        alert 'Please save this message before uploading a file'
+        return false

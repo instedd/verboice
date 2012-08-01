@@ -3,7 +3,7 @@
 onWorkflow ->
   class window.ResourceEditor
 
-    constructor: (parent) ->
+    constructor: (parent, hash = {}) ->
       @parent = parent
 
       @resource = ko.observable null
@@ -13,11 +13,18 @@ onWorkflow ->
       @existing_resource_id = ko.observable null
       @matching_resources = ko.observableArray()
 
+      @display_name = ko.computed =>
+        if @resource()? then @resource().name() else null
+
       @is_next_enabled = ko.computed =>
         if @type() == 'new'
           @name()? and @name() != ''
         else
           @existing_resource_id()?
+
+      if hash.id?
+        Resource.find hash.id, (result) =>
+          @resource(result)
 
     get_resources: (query, source) =>
       Resource.search query, (results) =>
@@ -42,7 +49,7 @@ onWorkflow ->
       @resource(null)
 
     to_hash: =>
-      if @resource()? && @resource().id()?
+      if @resource()?.id()?
         { id: @resource().id() }
       else
         {}

@@ -22,7 +22,11 @@ ko.bindingHandlers.initMask = {
 ko.bindingHandlers.fileupload = {
   init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
     var url = ko.utils.unwrapObservable(valueAccessor());
+    var allBindings = allBindingsAccessor();
     $(element).fileupload({url: url, multipart: false, formData: {method: 'post'}});
+    if (allBindings.fileuploadSubmit) {
+      $(element).bind('fileuploadsubmit', allBindings.fileuploadSubmit);
+    }
   },
   update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
     var url = ko.utils.unwrapObservable(valueAccessor());

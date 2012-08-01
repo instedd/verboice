@@ -18,7 +18,7 @@ onWorkflow ->
         _.map languages, (l) =>
           localized_resource = _.find localized_resources, (lr) => lr.language is l.key
           localized_resource ||= language: l.key
-          LocalizedResourceSelector.from_hash(localized_resource).with_title(l.value).with_language(l.key)
+          LocalizedResourceSelector.from_hash(localized_resource).with_title(l.value).with_language(l.key).with_parent(@)
 
       @name = ko.observable hash.name
       @id = ko.observable hash.id
