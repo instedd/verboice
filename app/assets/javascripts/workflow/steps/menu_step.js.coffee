@@ -11,20 +11,20 @@ onWorkflow ->
       @options = ko.observableArray([])
       @new_option_command = ko.observable null
 
-      @current_editing_message = ko.observable null
+      @current_editing_resource = ko.observable null
       @timeout = ko.observable(attrs.timeout ? menu_default_time_out_in_seconds)
       @number_of_attempts = ko.observable(attrs.number_of_attempts ? menu_default_number_of_attempts)
 
       @store = ko.observable attrs.store
       @defines_store = ko.observable !!attrs.store
 
-      @message_selectors =
-        invalid:     MessageSelector.from_hash(attrs.invalid_message).with_title('Invalid').with_parent(@)
-        explanation: MessageSelector.from_hash(attrs.explanation_message).with_title('Explanation').with_parent(@)
-        options:     MessageSelector.from_hash(attrs.options_message).with_title('Options').with_parent(@)
+      @resources =
+        invalid:     new ResourceEditor(@, attrs.invalid_resource)
+        explanation: new ResourceEditor(@, attrs.explanation_resource)
+        options:     new ResourceEditor(@, attrs.options_resource)
 
-      @is_editing_message = ko.computed () =>
-        @current_editing_message() != null
+      @is_editing_resource = ko.computed () =>
+        @current_editing_resource() != null
 
       @available_numbers = ko.computed () =>
         used_numbers = (opt.number() for opt in @options())
@@ -34,14 +34,14 @@ onWorkflow ->
       @default = ko.observable( new DefaultOption(attrs.default, @))
 
       # Validations
-      @is_options_message_invalid = ko.computed () =>
-        not @message_selectors['options'].is_valid()
+      @is_options_resource_invalid = ko.computed () =>
+        not @resources.options.is_valid()
 
       @are_options_invalid = ko.computed () =>
         (@options().length < 1)
 
       @is_invalid = ko.computed () =>
-        @is_name_invalid() or @are_options_invalid() or @is_options_message_invalid()
+        @is_name_invalid() or @are_options_invalid() or @is_options_resource_invalid()
 
 
     @initialize: (hash) ->
@@ -80,26 +80,26 @@ onWorkflow ->
       $.extend(super,
         store: (if @defines_store() then @store() else null)
         options: (option.to_hash() for option in @options())
-        invalid_message: @message_selectors['invalid'].to_hash()
-        explanation_message: @message_selectors['explanation'].to_hash()
-        options_message: @message_selectors['options'].to_hash()
+        invalid_resource: @resources.invalid.to_hash()
+        explanation_resource: @resources.explanation.to_hash()
+        options_resource: @resources.options.to_hash()
         timeout: @timeout()
         number_of_attempts: @number_of_attempts()
         default: @default().next_id
       )
 
-    message: (msg) =>
-      @message_selectors[msg]
+    resource: (res) =>
+      @resources[res]
 
-    show_message: (msg) =>
-      msg = @message_selectors[msg]
-      @current_editing_message(msg)
+    show_resource: (res) =>
+      resource = @resources[res]
+      @current_editing_resource(resource)
 
-    show_invalid_message: () =>
-      @show_message('invalid')
+    show_invalid_resource: () =>
+      @show_resource('invalid')
 
-    show_options_message: () =>
-      @show_message('options')
+    show_options_resource: () =>
+      @show_resource('options')
 
-    show_explanation_message: () =>
-      @show_message('explanation')
+    show_explanation_resource: () =>
+      @show_resource('explanation')

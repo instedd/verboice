@@ -1,75 +1,74 @@
 %script{type: "text/html", id: "menu_step_template"}
-  %span
-    %div{ko(:if => "is_editing_message()")}
-      %div{ko(:template => "{name: 'message_template', data: current_editing_message}")}
+  .feditor-sidebar.right.box.w28.iblock.h65
 
-    %div{ko(:if => "!is_editing_message()")}
-      .feditor-sidebar.right.box.w28.iblock.h65
-        .tableheader
-          %span.left.i48grad-dial{ ko(css: '{ "orange": is_invalid }') }
-          %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
+    %div{ko(:if => "is_editing_resource()")}
+      %div{ko(template: "{name: 'resource_editor_template', data: current_editing_resource}")}
 
-        .content.scroll
-          %table.GralTable.TwoColumn.CleanTable.NoHead
-            %tr
-              %th Messages
-              %th
-              %tr
-                %td
-                  Explanation:
-                  %span{ko(text: "message('explanation').name()")}
-                %td
-                  %button.farrow{ :type => "button", 'data-bind' => 'click: show_explanation_message' }
-              %tr
-                %td{ko(css: "{ orange: is_options_message_invalid }")}
-                  Options:
-                  %span{ko(css: "{ alert: is_options_message_invalid }")}
-                  %span{ko(text: "message('options').name()")}
-                %td
-                  %button.farrow{ :type => "button", 'data-bind' => 'click: show_options_message' }
-              %tr
-                %td
-                  Invalid:
-                  %span{ko(text: "message('invalid').name()")}
-                %td
-                  %button.farrow{ :type => "button", 'data-bind' => "click: show_invalid_message" }
-          %div{ko('instedd_init' => true)}
-            %hr
-            %label Attempts
-            %br
-            .ux-nstep.w06
-              %input{ko(value: "timeout"),:type => 'text'}
-              %button{:type => 'button', :class => 'kdown'}
-              %button{:type => 'button', :class => 'kup'}
-            secs. before repeating options
-            %br
-            .ux-nstep.w06
-              %input{ko(value: "number_of_attempts"),:type => 'text'}
-              %button{:type => 'button', :class => 'kdown'}
-              %button{:type => 'button', :class => 'kup'}
-            attempts
-            %br
-            %br
-            After final attempt fails:
-            %select.w10{'data-bind' => 'options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: default_command_selected, event: { change: change_default_option }'}
-            %hr
-            %label{ko(css: "{ orange: are_options_invalid }")}
-              Options
-              %span{ko(css: "{ alert: are_options_invalid }")}
-            %br
-            %ul.oplist
-              %span{ 'data-bind' => 'foreach: options' }
-                %li
-                  %select{ko(options: 'available_numbers', value: 'number')}
-                  %span.ux-oplist{ko(text: "next_name()", click: 'select_step')}
-                  %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option_with_confirm' }
-              %li
-                %span.ux-text
-                  Add an option:
-                  %select.w10{ko(options: 'commands()', optionsText: "function(item) { return (new window[item]({})).default_name() }", value: 'new_option_command')}
-                %button.clist-add{ 'data-bind' => 'click: add_option'}
-            %hr
-            = store_value_tags
-            %br
-        .bottom-actions
-          %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+    .tableheader
+      %span.left.i48grad-dial{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
+
+    .content.scroll
+      %table.GralTable.TwoColumn.CleanTable.NoHead
+        %tr
+          %th Messages
+          %th
+          %tr
+            %td
+              Explanation:
+              %span{ko(text: "resource('explanation').display_name()")}
+            %td
+              %button.farrow{ :type => "button", 'data-bind' => 'click: show_explanation_resource' }
+          %tr
+            %td{ko(css: "{ orange: is_options_resource_invalid }")}
+              Options:
+              %span{ko(css: "{ alert: is_options_resource_invalid }")}
+              %span{ko(text: "resource('options').display_name()")}
+            %td
+              %button.farrow{ :type => "button", 'data-bind' => 'click: show_options_resource' }
+          %tr
+            %td
+              Invalid:
+              %span{ko(text: "resource('invalid').display_name()")}
+            %td
+              %button.farrow{ :type => "button", 'data-bind' => "click: show_invalid_resource" }
+      %div{ko('instedd_init' => true)}
+        %hr
+        %label Attempts
+        %br
+        .ux-nstep.w06
+          %input{ko(value: "timeout"),:type => 'text'}
+          %button{:type => 'button', :class => 'kdown'}
+          %button{:type => 'button', :class => 'kup'}
+        secs. before repeating options
+        %br
+        .ux-nstep.w06
+          %input{ko(value: "number_of_attempts"),:type => 'text'}
+          %button{:type => 'button', :class => 'kdown'}
+          %button{:type => 'button', :class => 'kup'}
+        attempts
+        %br
+        %br
+        After final attempt fails:
+        %select.w10{'data-bind' => 'options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: default_command_selected, event: { change: change_default_option }'}
+        %hr
+        %label{ko(css: "{ orange: are_options_invalid }")}
+          Options
+          %span{ko(css: "{ alert: are_options_invalid }")}
+        %br
+        %ul.oplist
+          %span{ 'data-bind' => 'foreach: options' }
+            %li
+              %select{ko(options: 'available_numbers', value: 'number')}
+              %span.ux-oplist{ko(text: "next_name()", click: 'select_step')}
+              %button.clist-remove{ 'data-bind' => 'click: $parent.remove_option_with_confirm' }
+          %li
+            %span.ux-text
+              Add an option:
+              %select.w10{ko(options: 'commands()', optionsText: "function(item) { return (new window[item]({})).default_name() }", value: 'new_option_command')}
+            %button.clist-add{ 'data-bind' => 'click: add_option'}
+        %hr
+        = store_value_tags
+        %br
+    .bottom-actions
+      %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

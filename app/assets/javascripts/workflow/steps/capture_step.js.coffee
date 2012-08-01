@@ -22,20 +22,20 @@ onWorkflow ->
 
       @default_skip_step = null
       @default = ko.observable( new DefaultOption(attrs.default, @))
-      @current_editing_message = ko.observable null
+      @current_editing_resource = ko.observable null
 
-      @message_selectors =
-        invalid:      MessageSelector.from_hash(attrs.invalid_message).with_title('Invalid').with_parent(@)
-        instructions: MessageSelector.from_hash(attrs.instructions_message).with_title('Instructions').with_parent(@)
+      @resources =
+        invalid:      new ResourceEditor(@, attrs.invalid_resource)
+        instructions: new ResourceEditor(@, attrs.instructions_resource)
 
-      @is_editing_message = ko.computed () =>
-        @current_editing_message() != null
+      @is_editing_resource = ko.computed () =>
+        @current_editing_resource() != null
 
-      @is_instructions_message_invalid = ko.computed () =>
-        not @message_selectors['instructions'].is_valid()
+      @is_instructions_resource_invalid = ko.computed () =>
+        not @resources.instructions.is_valid()
 
       @is_invalid = ko.computed () =>
-        @is_name_invalid() or @is_instructions_message_invalid()
+        @is_name_invalid() or @is_instructions_resource_invalid()
 
 
     get_default_skip_step: () =>
@@ -64,8 +64,8 @@ onWorkflow ->
     to_hash: () =>
       $.extend(super,
         store: (if @defines_store() then @store() else null)
-        invalid_message: @message_selectors['invalid'].to_hash()
-        instructions_message: @message_selectors['instructions'].to_hash()
+        invalid_resource: @resources.invalid.to_hash()
+        instructions_resource: @resources.instructions.to_hash()
         min_input_length: @min_input_length()
         max_input_length: @max_input_length()
         valid_values: @valid_values()
@@ -75,18 +75,18 @@ onWorkflow ->
         default: @default().next_id
       )
 
-    message: (msg) =>
-      @message_selectors[msg]
+    resource: (res) =>
+      @resources[res]
 
-    show_message: (msg) =>
-      msg = @message_selectors[msg]
-      @current_editing_message(msg)
+    show_resource: (res) =>
+      resource = @resources[res]
+      @current_editing_resource(resource)
 
-    show_invalid_message: () =>
-      @show_message('invalid')
+    show_invalid_resource: () =>
+      @show_resource('invalid')
 
-    show_instructions_message: () =>
-      @show_message('instructions')
+    show_instructions_resource: () =>
+      @show_resource('instructions')
 
     default_name: () =>
       'Input'
