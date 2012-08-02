@@ -10,7 +10,7 @@ onWorkflow ->
       @label = 'Record message'
       @template = 'record_localized_resource_template'
 
-      @has_audio = ko.observable hash.has_audio
+      @has_audio = ko.observable hash.has_recorded_audio
       @recording = ko.observable false
       @playing = ko.observable false
       @duration = ko.observable(hash.duration || (new Date).clearTime().toString('mm:ss'))

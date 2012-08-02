@@ -64,6 +64,8 @@ Verboice::Application.routes.draw do
           member do
             post :save_recording
             get :play_recording
+            post :save_file
+            get :play_file
           end
         end
       end

@@ -6,9 +6,6 @@
     var languages = #{ languages_for_workflow };
     var project_id = #{ @project.id };
 
-    var save_recording_path = "#{ save_recording_call_flow_path(@call_flow)}";
-    var play_recording_path = "#{ play_recording_call_flow_path(@call_flow)}";
-
     var menu_default_time_out_in_seconds = #{Parsers::UserFlowNode::Menu.default_time_out_in_seconds};
     var menu_default_number_of_attempts = #{Parsers::UserFlowNode::Menu.default_number_of_attempts};
     var capture_default_time_out_in_seconds = #{Parsers::UserFlowNode::Capture.default_time_out_in_seconds};
@@ -16,6 +13,20 @@
     var capture_default_finish_key = "#{Parsers::UserFlowNode::Capture.default_finish_key}";
     var capture_default_minimum_input_lenght = #{Parsers::UserFlowNode::Capture.default_minimum_input_lenght};
     var capture_default_maximum_input_lenght = #{Parsers::UserFlowNode::Capture.default_maximum_input_lenght};
+
+    var downloadURL = function downloadURL(url)
+    {
+        var iframe;
+        iframe = document.getElementById("hiddenDownloader");
+        if (iframe === null)
+        {
+            iframe = document.createElement('iframe');
+            iframe.id = "hiddenDownloader";
+            iframe.style.visibility = 'hidden';
+            document.body.appendChild(iframe);
+        }
+        iframe.src = url;
+    }
 
   - %W(external_step hang_up_step workflow_step capture_step menu_step play_step transfer_step goto_step branch_step record_step language_step text_localized_resource url_localized_resource record_localized_resource upload_localized_resource command_selector branch_option external_setting resource_editor).each do |template|
     = render "call_flows/#{template}_template"

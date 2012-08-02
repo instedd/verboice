@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120801151437) do
+ActiveRecord::Schema.define(:version => 20120802152513) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -47,9 +47,9 @@ ActiveRecord::Schema.define(:version => 20120801151437) do
     t.datetime "updated_at",              :null => false
     t.string   "mode"
     t.text     "variables"
+    t.text     "external_service_guids"
     t.string   "fusion_table_name"
     t.string   "current_fusion_table_id"
-    t.text     "external_service_guids"
     t.boolean  "store_in_fusion_tables"
   end
 
@@ -158,13 +158,14 @@ ActiveRecord::Schema.define(:version => 20120801151437) do
   create_table "localized_resources", :force => true do |t|
     t.string   "language"
     t.string   "text"
-    t.binary   "audio",       :limit => 2147483647
+    t.binary   "recorded_audio", :limit => 2147483647
     t.string   "url"
     t.string   "type"
     t.integer  "resource_id"
-    t.datetime "created_at",                        :null => false
-    t.datetime "updated_at",                        :null => false
+    t.datetime "created_at",                           :null => false
+    t.datetime "updated_at",                           :null => false
     t.text     "extras"
+    t.binary   "uploaded_audio", :limit => 2147483647
   end
 
   add_index "localized_resources", ["resource_id"], :name => "index_localized_resources_on_resource_id"

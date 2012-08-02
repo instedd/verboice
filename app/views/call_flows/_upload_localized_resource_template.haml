@@ -1,5 +1,19 @@
 %script{type: "text/html", id: "upload_localized_resource_template"}
   %div
-    %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit'}
+    / ko if: has_audio() && !is_editing()
+    %span{'data-bind' => 'text: filename'}
+    %span
+      %button.fimport.right{'data-bind' => 'click: download'}
+    %span
+      %button.fsync.right{'data-bind' => 'click: replace'}
+    / /ko
+    / ko if: !has_audio() || is_editing()
+    .upload-file.fexport
+      %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit, fileuploadDone: done, fileuploadAdd: add'}
+    Upload
+    / ko if: has_audio()
+    %button.fclose.right{'data-bind' => 'click: cancel'}
+    / /ko
+    / /ko
   .w22
     %textarea{:rows => 6, :placeholder => 'Write here a description of the recording, either as a reminder for you or as a reference for the person that will record the message.', 'data-bind' => 'value: description'}

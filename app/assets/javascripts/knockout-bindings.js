@@ -24,8 +24,17 @@ ko.bindingHandlers.fileupload = {
     var url = ko.utils.unwrapObservable(valueAccessor());
     var allBindings = allBindingsAccessor();
     $(element).fileupload({url: url, multipart: false, formData: {method: 'post'}});
+    if (allBindings.fileuploadAdd) {
+      $(element).bind('fileuploadadd', allBindings.fileuploadAdd);
+    }
     if (allBindings.fileuploadSubmit) {
       $(element).bind('fileuploadsubmit', allBindings.fileuploadSubmit);
+    }
+    if (allBindings.fileuploadDone) {
+      $(element).bind('fileuploaddone', allBindings.fileuploadDone);
+    }
+    if (allBindings.fileuploadFail) {
+      $(element).bind('fileuploadfail', allBindings.fileuploadFail);
     }
   },
   update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
