@@ -16,9 +16,22 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class CallLogEntry < ActiveRecord::Base
+  include CallLogSearch
+
   belongs_to :call, :class_name => 'CallLog'
   attr_accessible :details, :severity, :call, :step_name, :step_id, :command, :action, :description
-  store :details, accessors: [ :step_name, :step_id, :command, :action, :description ]
+  serialize :details, SerializableHash
   Levels = [:error, :warn, :info, :trace]
   enum_attr :severity, Levels
+
+  [:step_name, :step_id, :command, :action, :description].each do |detail|
+    define_method("#{detail}=") do |value|
+      self.details ||= SerializableHash.new
+      self.details[detail] = value
+    end
+
+    define_method(detail) do
+      self.details[detail] if self.details
+    end
+  end
 end

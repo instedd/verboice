@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120720204333) do
+ActiveRecord::Schema.define(:version => 20120802194925) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -24,9 +24,9 @@ ActiveRecord::Schema.define(:version => 20120720204333) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "password_salt"
-    t.datetime "created_at",                                          :null => false
-    t.datetime "updated_at",                                          :null => false
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
@@ -47,9 +47,9 @@ ActiveRecord::Schema.define(:version => 20120720204333) do
     t.datetime "updated_at",              :null => false
     t.string   "mode"
     t.text     "variables"
-    t.text     "external_service_guids"
     t.string   "fusion_table_name"
     t.string   "current_fusion_table_id"
+    t.text     "external_service_guids"
     t.boolean  "store_in_fusion_tables"
   end
 
@@ -57,10 +57,10 @@ ActiveRecord::Schema.define(:version => 20120720204333) do
 
   create_table "call_log_entries", :force => true do |t|
     t.integer  "call_id"
-    t.text     "details"
     t.string   "severity"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.binary   "details"
   end
 
   add_index "call_log_entries", ["call_id"], :name => "index_call_log_entries_on_call_id"
@@ -72,8 +72,8 @@ ActiveRecord::Schema.define(:version => 20120720204333) do
     t.string   "direction"
     t.string   "address"
     t.string   "state",        :default => "active"
-    t.datetime "created_at",                         :null => false
-    t.datetime "updated_at",                         :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "channel_id"
     t.datetime "started_at"
     t.integer  "schedule_id"
@@ -89,8 +89,8 @@ ActiveRecord::Schema.define(:version => 20120720204333) do
     t.integer  "call_flow_id"
     t.string   "name"
     t.text     "config"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "type"
     t.string   "guid"
   end
@@ -201,8 +201,8 @@ ActiveRecord::Schema.define(:version => 20120720204333) do
 
   create_table "projects", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at",                             :null => false
-    t.datetime "updated_at",                             :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "account_id"
     t.string   "status_callback_url"
     t.text     "encrypted_config"
@@ -215,8 +215,8 @@ ActiveRecord::Schema.define(:version => 20120720204333) do
     t.integer  "channel_id"
     t.integer  "call_log_id"
     t.string   "address"
-    t.datetime "created_at",                         :null => false
-    t.datetime "updated_at",                         :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "callback_url"
     t.binary   "flow"
     t.string   "status_callback_url"
@@ -258,8 +258,8 @@ ActiveRecord::Schema.define(:version => 20120720204333) do
     t.time     "time_from"
     t.time     "time_to"
     t.string   "weekdays"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "project_id"
   end
 
