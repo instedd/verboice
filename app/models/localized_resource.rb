@@ -9,6 +9,10 @@ class LocalizedResource < ActiveRecord::Base
 
   validates_uniqueness_of :language, :scope => :resource_id
 
+  after_initialize do
+    self.guid ||= Guid.new.to_s
+  end
+
   def has_recorded_audio
     self.recorded_audio.present?
   end

@@ -8,6 +8,10 @@ class Resource < ActiveRecord::Base
 
   validates_presence_of :name, :project
 
+  after_initialize do
+    self.guid ||= Guid.new.to_s
+  end
+
   def as_json(options = {})
     # Fix for rails not calling as_json on includes, remove when fixed
     include_localized_resources = false
