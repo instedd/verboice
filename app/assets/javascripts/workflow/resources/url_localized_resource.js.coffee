@@ -10,6 +10,9 @@ onWorkflow ->
       @template = 'url_localized_resource_template'
       @url = ko.observable hash.url
 
+      @is_valid = ko.computed =>
+        @url()? and @url().length > 0
+
     to_hash: =>
       $.extend(super,
         url: @url()

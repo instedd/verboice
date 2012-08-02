@@ -27,6 +27,9 @@ onWorkflow ->
 
       @current_editing_localized_resource = ko.observable @localized_resources()[0]
 
+      @is_valid = ko.computed =>
+        _.all(@localized_resources(), (x) => x.is_valid());
+
     to_hash: () =>
       id: @id()
       project_id: @project_id
@@ -61,4 +64,3 @@ onWorkflow ->
       for hash in arr
         localized_resource = _.find @localized_resources(), (x) => x.language is hash.language
         localized_resource.id(hash.id) if localized_resource?
-

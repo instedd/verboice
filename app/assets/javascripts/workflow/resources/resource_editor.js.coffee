@@ -26,6 +26,9 @@ onWorkflow ->
         Resource.find hash.id, (result) =>
           @resource(result)
 
+      @is_valid = ko.computed =>
+        if @resource()? then @resource().is_valid() else false
+
     get_resources: (query, source) =>
       Resource.search query, (results) =>
         source(results)
@@ -53,6 +56,3 @@ onWorkflow ->
         { id: @resource().id() }
       else
         {}
-
-    is_valid: =>
-      true

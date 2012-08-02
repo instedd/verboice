@@ -11,9 +11,6 @@ onWorkflow ->
       language: @language()
       type: @type()
 
-    is_valid: () =>
-      true
-
     type: () =>
       @.constructor.name
 

@@ -19,6 +19,9 @@ onWorkflow ->
         else
           null
 
+      @is_valid = ko.computed =>
+        @has_audio()
+
     to_hash: () =>
       $.extend(super,
         description: @description(),

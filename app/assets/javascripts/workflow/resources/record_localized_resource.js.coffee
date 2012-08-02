@@ -18,6 +18,9 @@ onWorkflow ->
       @update_duration_interval = null
       @description = ko.observable hash.description
 
+      @is_valid = ko.computed =>
+        @has_audio()
+
     record: () =>
       return if @playing() or @recording()
       unless @is_saved()
