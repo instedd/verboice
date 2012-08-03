@@ -31,7 +31,7 @@ class VrzContainer
     audios = []
     Zip::ZipFile.open(path) do |zip|
       zip.each do |entry|
-        unless entry.name.scan(/\__MACOSX*/).present?
+        unless entry.name.scan(/__MACOSX*/).present?
           ext = File.extname entry.name
           case ext
           when '.yml'
