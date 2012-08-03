@@ -30,13 +30,13 @@
       %label Attempts
       %br
       .ux-nstep.w06
-        %input{ko(value: "timeout"),:type => 'text'}
+        %input{ko(value: "timeout"),:type => 'number'}
         %button{:type => 'button', :class => 'kdown'}
         %button{:type => 'button', :class => 'kup'}
       secs. before repeating options
       %br/
       .ux-nstep.w06
-        %input{ko(value: "number_of_attempts"),:type => 'text'}
+        %input{ko(value: "number_of_attempts"),:type => 'number'}
         %button{:type => 'button', :class => 'kdown'}
         %button{:type => 'button', :class => 'kup'}
       attempts
@@ -50,10 +50,10 @@
 
       Input length from
       .ux-nstep.w06
-        %input{'type' => 'text', 'size' => 2, 'data-min' => 1, 'data-bind' => 'value: min_input_length'}
+        %input{'type' => 'number', 'size' => 2, 'data-min' => 1, 'data-bind' => 'value: min_input_length'}
       to
       .ux-nstep.w06
-        %input{'type' => 'text', 'size' => 2, 'data-min' => 1, 'data-bind' => 'value: max_input_length'}
+        %input{'type' => 'number', 'size' => 2, 'data-min' => 1, 'data-bind' => 'value: max_input_length'}
       %br/
 
       Valid values
