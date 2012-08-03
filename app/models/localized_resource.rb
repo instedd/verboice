@@ -7,7 +7,7 @@ class LocalizedResource < ActiveRecord::Base
 
   validates_presence_of :language #, :resource
 
-  validates_uniqueness_of :language, :scope => :resource_id
+  validates_uniqueness_of :language, :scope => :resource_guid
 
   after_initialize do
     self.guid ||= Guid.new.to_s
