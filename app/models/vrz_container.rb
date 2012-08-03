@@ -28,65 +28,59 @@ class VrzContainer
   end
 
   def import path
-    p "importing!!!"
     audios = []
     Zip::ZipFile.open(path) do |zip|
       zip.each do |entry|
-        unless entry.name.scan /\.__MACOSX*/
-          ext = File.extname entry.name
-          case ext
-          when '.yml'
-            if entry.name == 'workflow.yml'
-              @call_flow.user_flow = YAML::load(zip.read(entry))
-            else
-              if entry.name.split[0] == 'Service'
-                attrs = YAML::load(zip.read(entry))
-                e = ExternalService.find_by_guid(attrs['guid'])
-                unless e
-                  e = ExternalService.new attrs
-                  e.project = @call_flow.project
-                  e.save!
-                end
-              elsif entry.name.split[0] == 'Step'
-                attrs = YAML::load(zip.read(entry))
-                e = ExternalServiceStep.find_by_guid(attrs['guid'])
-                unless e
-                  e = ExternalServiceStep.new attrs
-                  e.save!
-                end
-              elsif entry.name.split[0] == 'resource'
-                attrs = YAML::load(zip.read(entry))
-                resource = Resource.find_by_guid(attrs['guid'])
-                unless resource
-                  resource.update_attributes! attrs
-                else
-                  resource = Resource.new attrs
-                  resource.project = @call_flow.project
-                  resource.save!
-                end
-              elsif entry.name.split[0] == 'localized_resource'
-                attrs = YAML::load(zip.read(entry))
-                localized_resource = LocalizedResource.find_by_guid(attrs['guid'])
-                if localized_resource
-                  localized_resource.update_attributes! attrs
-                else
-                  localized_resource = LocalizedResource.new attrs
-                  localized_resource.save!
-                end
+        ext = File.extname entry.name
+        case ext
+        when '.yml'
+          if entry.name == 'workflow.yml'
+            @call_flow.user_flow = YAML::load(zip.read(entry))
+          else
+            if entry.name.split[0] == 'Service'
+              attrs = YAML::load(zip.read(entry))
+              e = ExternalService.find_by_guid(attrs['guid'])
+              unless e
+                e = ExternalService.new attrs
+                e.project = @call_flow.project
+                e.save!
+              end
+            elsif entry.name.split[0] == 'Step'
+              attrs = YAML::load(zip.read(entry))
+              e = ExternalServiceStep.find_by_guid(attrs['guid'])
+              unless e
+                e = ExternalServiceStep.new attrs
+                e.save!
+              end
+            elsif entry.name.split[0] == 'resource'
+              attrs = YAML::load(zip.read(entry))
+              resource = Resource.find_by_guid(attrs['guid'])
+              unless resource
+                resource.update_attributes! attrs
+              else
+                resource = Resource.new attrs
+                resource.project = @call_flow.project
+                resource.save!
+              end
+            elsif entry.name.split[0] == 'localized_resource'
+              attrs = YAML::load(zip.read(entry))
+              localized_resource = LocalizedResource.find_by_guid(attrs['guid'])
+              if localized_resource
+                localized_resource.update_attributes! attrs
+              else
+                localized_resource = LocalizedResource.new attrs
+                localized_resource.save!
               end
             end
-          when '.wav'
-            #Wait until all the resources are loaded to include the audios
-            audios << entry
           end
+        when '.wav'
+          #Wait until all the resources are loaded to include the audios
+          audios << entry
         end
       end
-      p "about to process audios #{audios}"
       audios.each do |entry|
         guid = File.basename(entry.name).split.last.gsub('.wav', '')
-        p "GUID: #{guid}"
         localized_resource = LocalizedResource.find_by_guid(guid)
-        p "resource: #{localized_resource}"
         if localized_resource
           localized_resource.audio= zip.read(entry)
           localized_resource.save!
