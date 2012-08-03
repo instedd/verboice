@@ -1,9 +1,9 @@
 class LocalizedResource < ActiveRecord::Base
-  belongs_to :resource
+  belongs_to :resource, :foreign_key => :resource_guid, :primary_key => :guid
 
   store :extras, accessors: [:duration, :description, :filename]
 
-  attr_accessible :recorded_audio, :uploaded_audio, :language, :text, :type, :url, :description, :duration, :filename
+  attr_accessible :recorded_audio, :uploaded_audio, :language, :text, :type, :url, :description, :duration, :filename, :extras
 
   validates_presence_of :language #, :resource
 

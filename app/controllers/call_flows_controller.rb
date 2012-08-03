@@ -97,6 +97,7 @@ class CallFlowsController < ApplicationController
           @call_flow.user_flow = YAML::load File.read(params[:vrb].tempfile.path)
           @call_flow.save!
         when '.vrz'
+          p 'about to import'
           VrzContainer.for(@call_flow).import params[:vrb].tempfile.path
         else
           raise 'Invalid extension'

@@ -22,11 +22,13 @@ module Parsers
       attr_reader :id
 
       def initialize params
-        @id = params['id'] if params.presence
+        @id = params['id']
       end
 
       def equivalent_flow
-        Commands::PlayResourceCommand.new @id if @id.presence
+        Compiler.parse do |c|
+         c.PlayResource @id
+        end
       end
 
       def capture_flow

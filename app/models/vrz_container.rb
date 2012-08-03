@@ -28,61 +28,69 @@ class VrzContainer
   end
 
   def import path
+    p "importing!!!"
     audios = []
     Zip::ZipFile.open(path) do |zip|
       zip.each do |entry|
-        ext = File.extname entry.name
-        case ext
-        when '.yml'
-          if entry.name == 'workflow.yml'
-            @call_flow.user_flow = YAML::load(zip.read(entry))
-          else
-            if entry.name.split[0] == 'Service'
-              attrs = YAML::load(zip.read(entry))
-              e = ExternalService.find_by_guid(attrs['guid'])
-              unless e
-                e = ExternalService.new attrs
-                e.project = @call_flow.project
-                e.save!
+        unless entry.name.scan /\.__MACOSX*/
+          ext = File.extname entry.name
+          case ext
+          when '.yml'
+            if entry.name == 'workflow.yml'
+              @call_flow.user_flow = YAML::load(zip.read(entry))
+            else
+              if entry.name.split[0] == 'Service'
+                attrs = YAML::load(zip.read(entry))
+                e = ExternalService.find_by_guid(attrs['guid'])
+                unless e
+                  e = ExternalService.new attrs
+                  e.project = @call_flow.project
+                  e.save!
+                end
+              elsif entry.name.split[0] == 'Step'
+                attrs = YAML::load(zip.read(entry))
+                e = ExternalServiceStep.find_by_guid(attrs['guid'])
+                unless e
+                  e = ExternalServiceStep.new attrs
+                  e.save!
+                end
+              elsif entry.name.split[0] == 'resource'
+                attrs = YAML::load(zip.read(entry))
+                resource = Resource.find_by_guid(attrs['guid'])
+                unless resource
+                  resource.update_attributes! attrs
+                else
+                  resource = Resource.new attrs
+                  resource.project = @call_flow.project
+                  resource.save!
+                end
+              elsif entry.name.split[0] == 'localized_resource'
+                attrs = YAML::load(zip.read(entry))
+                localized_resource = LocalizedResource.find_by_guid(attrs['guid'])
+                if localized_resource
+                  localized_resource.update_attributes! attrs
+                else
+                  localized_resource = LocalizedResource.new attrs
+                  localized_resource.save!
+                end
               end
-            elsif entry.name.split[0] == 'Step'
-              attrs = YAML::load(zip.read(entry))
-              e = ExternalServiceStep.find_by_guid(attrs['guid'])
-              unless e
-                e = ExternalServiceStep.new attrs
-                e.save!
-              end
-            elsif entry.name.split[0] == 'resource'
-              attrs = YAML::load(zip.read(entry))
-              resource = Resource.find_by_guid(attrs['guid'])
-              unless resource
-                resource = Resource.new attrs
-                resource.project = @call_flow.project
-              else
-                resource.update_attributes = attrs
-              end
-              resource.save!
-            elsif entry.name.split[0] == 'localized_resource'
-              attrs = YAML::load(zip.read(entry))
-              localized_resource = LocalidezResource.find_by_guid(attrs['guid'])
-              unless localized_resource
-                localized_resource = LocalidezResource.new attrs
-              else
-                localized_resource.update_attributes attrs
-              end
-              localized_resource.save!
             end
+          when '.wav'
+            #Wait until all the resources are loaded to include the audios
+            audios << entry
           end
-        when '.wav'
-          #Wait until all the resources are loaded to include the audios
-          audios << entry
         end
       end
-
+      p "about to process audios #{audios}"
       audios.each do |entry|
         guid = File.basename(entry.name).split.last.gsub('.wav', '')
-        localized_resource = LocalidezResource.find_by_guid(guid)
-        localized_resource.audio(zip.read(entry)) if localized_resource
+        p "GUID: #{guid}"
+        localized_resource = LocalizedResource.find_by_guid(guid)
+        p "resource: #{localized_resource}"
+        if localized_resource
+          localized_resource.audio= zip.read(entry)
+          localized_resource.save!
+        end
       end
     end
     @call_flow.save!
@@ -114,15 +122,21 @@ class VrzContainer
         #TODO Change this to export only the resources used in the call flow
         @call_flow.project.resources.each do |resource|
           resource.localized_resources.each do |localized_resource|
-            zos.put_next_entry "localized_resource #{resource.id} - #{localized_resource.language} - #{localized_resource.id}.yml"
-            zos.print localized_resource.deep_clone.tap { |resource_clone| resource_clone.audio = nil }.to_yaml #the audio is set to nil to avoid dumping the wav inside the yaml
-            if localized_resource.is_a?(RecordLocalizedResource) && localized_resource.audio.present?
-              zos.put_next_entry "resource_audio #{resource.id} - #{localized_resource.language} - #{localized_resource.guid}.wav"
+            zos.put_next_entry "localized_resource #{resource.guid} - #{localized_resource.language} - #{localized_resource.guid}.yml"
+            zos.print(localized_resource.attributes.tap do |attributes|
+                        attributes.delete 'audio'
+                        attributes.delete 'id'
+                      end.to_yaml) #the audio is set to nil to avoid dumping the wav inside the yaml
+            if (localized_resource.is_a?(RecordLocalizedResource) || localized_resource.is_a?(UploadLocalizedResource)) && localized_resource.audio.present?
+              zos.put_next_entry "resource_audio #{resource.guid} - #{localized_resource.language} - #{localized_resource.guid}.wav"
               zos.print localized_resource.audio
             end
           end
-          zos.put_next_entry "resource #{resource.id}.yml"
-          zos.print resource.to_yaml
+          zos.put_next_entry "resource #{resource.guid}.yml"
+          zos.print(resource.attributes.tap do |attributes|
+                      attributes.delete 'id'
+                      attributes.delete 'project_id'
+                    end.to_yaml)
         end
       end
     end

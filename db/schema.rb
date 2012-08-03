@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120802182529) do
+ActiveRecord::Schema.define(:version => 20120803143533) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -162,16 +162,16 @@ ActiveRecord::Schema.define(:version => 20120802182529) do
     t.binary   "recorded_audio", :limit => 2147483647
     t.string   "url"
     t.string   "type"
-    t.integer  "resource_id"
     t.datetime "created_at",                           :null => false
     t.datetime "updated_at",                           :null => false
     t.text     "extras"
     t.binary   "uploaded_audio", :limit => 2147483647
     t.string   "guid"
+    t.string   "resource_guid"
   end
 
   add_index "localized_resources", ["guid"], :name => "index_localized_resources_on_guid"
-  add_index "localized_resources", ["resource_id"], :name => "index_localized_resources_on_resource_id"
+  add_index "localized_resources", ["resource_guid"], :name => "index_localized_resources_on_resource_guid"
 
   create_table "o_auth_tokens", :force => true do |t|
     t.integer  "account_id"

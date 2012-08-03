@@ -1,6 +1,6 @@
 class Resource < ActiveRecord::Base
   belongs_to :project
-  has_many :localized_resources, :dependent => :destroy
+  has_many :localized_resources, :dependent => :destroy, :foreign_key => :resource_guid, :primary_key => :guid
 
   accepts_nested_attributes_for :localized_resources
 

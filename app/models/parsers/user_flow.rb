@@ -56,6 +56,11 @@ module Parsers
       @external_service_guids
     end
 
+    def resource_guids
+      equivalent_flow
+      @resource_guids
+    end
+
     def build_equivalent_flow
       Compiler.make do |compiler|
         compiler.Answer
@@ -65,6 +70,7 @@ module Parsers
         end
         @variables = compiler.variables.clone
         @external_service_guids = compiler.external_service_guids.clone
+        @resource_guids = compiler.resource_guids.clone
       end
     end
 
