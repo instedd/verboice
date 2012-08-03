@@ -10,7 +10,7 @@ onWorkflow ->
       @type = ko.observable 'new'
       @name = ko.observable null
       @query = ko.observable null
-      @existing_resource_id = ko.observable null
+      @existing_resource_guid = ko.observable null
       @matching_resources = ko.observableArray()
 
       @display_name = ko.computed =>
@@ -20,10 +20,10 @@ onWorkflow ->
         if @type() == 'new'
           @name()? and @name() != ''
         else
-          @existing_resource_id()?
+          @existing_resource_guid()?
 
-      if hash.id?
-        Resource.find hash.id, (result) =>
+      if hash.guid?
+        Resource.find hash.guid, (result) =>
           @resource(result)
 
       @is_valid = ko.computed =>
@@ -41,7 +41,7 @@ onWorkflow ->
         when 'new'
           @resource(new Resource(name: @name()))
         when 'existing'
-          Resource.find @existing_resource_id(), (result) =>
+          Resource.find @existing_resource_guid(), (result) =>
             @resource(result)
 
     save: =>
@@ -52,7 +52,7 @@ onWorkflow ->
       @resource(null)
 
     to_hash: =>
-      if @resource()?.id()?
-        { id: @resource().id() }
+      if @resource()?.guid()?
+        { guid: @resource().guid() }
       else
         {}

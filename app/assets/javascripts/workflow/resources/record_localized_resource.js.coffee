@@ -71,10 +71,10 @@ onWorkflow ->
     # private
 
     save_recording_url: () =>
-      "/projects/#{project_id}/resources/#{@parent().id()}/localized_resources/#{@id()}/save_recording"
+      "/projects/#{project_id}/resources/#{@parent().guid()}/localized_resources/#{@guid()}/save_recording"
 
     play_recording_url: () =>
-      "/projects/#{project_id}/resources/#{@parent().id()}/localized_resources/#{@id()}/play_recording"
+      "/projects/#{project_id}/resources/#{@parent().guid()}/localized_resources/#{@guid()}/play_recording"
 
     wami_record_start: () =>
       @recording(true)

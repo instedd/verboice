@@ -4,7 +4,7 @@ class ResourcesController < ApplicationController
 
   expose(:project) { current_account.projects.find(params[:project_id]) }
   expose(:resources) { project.resources }
-  expose(:resource)
+  expose(:resource) { resources.find_by_guid(params[:id])}
 
   def index
     if params[:q].present?

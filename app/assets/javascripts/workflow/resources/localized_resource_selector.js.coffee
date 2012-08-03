@@ -40,6 +40,6 @@ onWorkflow ->
         option.set_parent(parent)
       return @
 
-    id: (id) =>
+    guid: (guid) =>
       for option in @options()
-        option.id(id) unless option.id()?
+        option.guid(guid) unless option.guid()?

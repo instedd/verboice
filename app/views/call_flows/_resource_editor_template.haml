@@ -15,7 +15,7 @@
         %input{:type => 'radio', :value => 'existing', 'data-bind' => 'checked: type'}
         Select an existing one
       .resource-name
-        %input.w22{:type => 'text', :placeholder => 'Enter message name', 'data-bind' => "visible: type() == 'existing', jqAuto: { autoFocus: true }, jqAutoSource: matching_resources, jqAutoQuery: get_resources, jqAutoValue: existing_resource_id, jqAutoSourceLabel: 'name', jqAutoSourceInputValue: 'name', jqAutoSourceValue: 'id'"}
+        %input.w22{:type => 'text', :placeholder => 'Enter message name', 'data-bind' => "visible: type() == 'existing', jqAuto: { autoFocus: true }, jqAutoSource: matching_resources, jqAutoQuery: get_resources, jqAutoValue: existing_resource_guid, jqAutoSourceLabel: 'name', jqAutoSourceInputValue: 'name', jqAutoSourceValue: 'guid'"}
       %hr
       %button.white{'data-bind' => 'click: next, enable: is_next_enabled'} Next
       %a.cancel{:href => '#', 'data-bind' => 'click: cancel'} Cancel

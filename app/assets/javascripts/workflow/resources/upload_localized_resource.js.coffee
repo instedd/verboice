@@ -15,7 +15,7 @@ onWorkflow ->
       @is_editing = ko.observable false
       @url = ko.computed =>
         if @is_saved()
-          "/projects/#{project_id}/resources/#{@parent().id()}/localized_resources/#{@id()}/save_file?filename=#{@filename()}"
+          "/projects/#{project_id}/resources/#{@parent().guid()}/localized_resources/#{@guid()}/save_file?filename=#{@filename()}"
         else
           null
 
@@ -35,7 +35,7 @@ onWorkflow ->
       @is_editing(false)
 
     download: () =>
-      downloadURL "/projects/#{project_id}/resources/#{@parent().id()}/localized_resources/#{@id()}/play_file"
+      downloadURL "/projects/#{project_id}/resources/#{@parent().guid()}/localized_resources/#{@guid()}/play_file"
 
     # fileupload callbacks
     add: (e, data) =>

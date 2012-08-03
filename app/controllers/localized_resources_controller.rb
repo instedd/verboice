@@ -1,9 +1,9 @@
 class LocalizedResourcesController < ApplicationController
 
   expose(:project) { current_account.projects.find(params[:project_id]) }
-  expose(:resource) { project.resources.find(params[:resource_id]) }
+  expose(:resource) { project.resources.find_by_guid(params[:resource_id]) }
   expose(:localized_resources) { resource.localized_resources }
-  expose(:localized_resource)
+  expose(:localized_resource) { localized_resources.find_by_guid(params[:id])}
 
   skip_before_filter :verify_authenticity_token, :only => [:save_recording, :save_file]
 
