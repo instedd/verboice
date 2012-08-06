@@ -7,7 +7,7 @@ onWorkflow ->
       @parent = ko.observable null
 
     to_hash: =>
-      guid: @guid()
+      id: @guid()
       language: @language()
       type: @type()
 

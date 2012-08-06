@@ -31,7 +31,7 @@ onWorkflow ->
         _.all(@localized_resources(), (x) => x.is_valid());
 
     to_hash: () =>
-      guid: @guid()
+      id: @guid()
       project_id: @project_id
       resource:
         name: @name()

@@ -1,4 +1,6 @@
 class LocalizedResource < ActiveRecord::Base
+  self.primary_key = 'guid'
+  
   belongs_to :resource, :foreign_key => :resource_guid, :primary_key => :guid
 
   store :extras, accessors: [:duration, :description, :filename]
