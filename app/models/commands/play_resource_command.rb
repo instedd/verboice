@@ -17,12 +17,12 @@
 module Commands
   class PlayResourceCommand < Command
 
-    def initialize(resource_id)
-      @resource_id = resource_id
+    def initialize(resource_guid)
+      @resource_guid = resource_guid
     end
 
     def run(session)
-      session.info "Play Resource: '#{@resource_id}'", command: 'play_resource', action: 'start'
+      session.info "Play Resource: '#{@resource_guid}'", command: 'play_resource', action: 'start'
       resource = localized_resource(session)
 
       if resource.is_an? UrlLocalizedResource
@@ -33,7 +33,7 @@ module Commands
         SayCommand.new(resource.text).run(session)
       end
 
-      session.info "Play Resource '#{@resource_id}' finished.", command: 'play_resource', action: 'finish'
+      session.info "Play Resource '#{@resource_guid}' finished.", command: 'play_resource', action: 'finish'
       super
     end
 
@@ -65,7 +65,7 @@ module Commands
 
         RetrieveVariableCommand.new(var_name).run(session) unless session["var_#{var_name}"].present?
 
-        @localized_resource = Resource.find(@resource_id).available_resource_for(session["var_#{var_name}"])
+        @localized_resource = Resource.find_by_guid(@resource_guid).available_resource_for(session["var_#{var_name}"])
       end
       @localized_resource
     end
