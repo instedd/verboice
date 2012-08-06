@@ -19,21 +19,21 @@ module Parsers
   module UserFlowNode
     class Resource
 
-      attr_reader :id
+      attr_reader :guid
 
       def initialize params
-        @id = params['id']
+        @guid = params['guid']
       end
 
       def equivalent_flow
         Compiler.parse do |c|
-         c.PlayResource @id
+         c.PlayResource @guid
         end
       end
 
       def capture_flow
-        if @id
-          { resource: @id }
+        if @guid
+          { resource: @guid }
         else
           {}
         end

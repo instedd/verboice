@@ -48,7 +48,7 @@ class Commands::CaptureCommand < Command
       options.delete :play
       options.delete :say
       resource = Commands::PlayResourceCommand.new(options[:resource])
-      options[resource.capture_option_name] = resource.capture_resource(session)
+      options[resource.capture_option_name(session)] = resource.capture_resource(session)
       options.delete :resource
     else
       options.delete :play
