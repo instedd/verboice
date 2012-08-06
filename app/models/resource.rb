@@ -2,7 +2,7 @@ class Resource < ActiveRecord::Base
   self.primary_key = 'guid'
 
   belongs_to :project
-  has_many :localized_resources, :dependent => :destroy, :foreign_key => :resource_guid, :primary_key => :guid
+  has_many :localized_resources, :dependent => :destroy, :foreign_key => :resource_guid
 
   accepts_nested_attributes_for :localized_resources
 
