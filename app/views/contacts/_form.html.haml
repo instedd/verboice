@@ -1,3 +1,7 @@
+- content_for :head do
+  :javascript
+    window.languages = #{languages_for_js};
+
 = form_for [@project, @contact] do |f|
   -if @contact.errors.any?
     #error_explanation
@@ -14,7 +18,7 @@
       .fields
         .field
           = builder.label :value, builder.object.project_variable.try(:name) || builder.object.implicit_key
-          = builder.text_field :value, :class => 'w30'
+          = builder.text_field :value, :class => "w30 edit_variable #{builder.object.implicit_key}"
           - if builder.object.implicit_key.present?
             = builder.hidden_field :implicit_key, :value => builder.object.implicit_key
           - else
