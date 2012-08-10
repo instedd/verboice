@@ -53,7 +53,7 @@ module CallLogSearch
         if options[:account]
           channel = options[:account].channels.select(:id).find_by_name search[:channel]
           if channel
-            result = result.where :channel_id => channel.id
+            result = result.where 'channel_id = ?', channel.id
           else
             result = result.where '1 = 2'
           end
@@ -62,13 +62,13 @@ module CallLogSearch
         end
       end
       if search[:project_id]
-        result = result.where :project_id => search[:project_id]
+        result = result.where 'project_id = ?', search[:project_id]
       end
       if search[:project]
         if options[:account]
           app = options[:account].projects.select(:id).find_by_name search[:project]
           if app
-            result = result.where :project_id => app.id
+            result = result.where 'project_id = ?', app.id
           else
             result = result.where '1 = 2'
           end

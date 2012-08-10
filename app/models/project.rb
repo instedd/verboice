@@ -46,8 +46,6 @@ class Project < ActiveRecord::Base
 
   attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true
 
-  after_initialize :init
-
   before_validation :sanitize_languages
 
   def call(address)
@@ -65,12 +63,15 @@ class Project < ActiveRecord::Base
     end
   end
 
-  private
-
-  def init
-    self.default_language ||= 'en'
-    self.languages ||= ['en']
+  def default_language
+    self['default_language'] || 'en'
   end
+
+  def languages
+    self['languages'] || ['en']
+  end
+
+  private
 
   def sanitize_languages
     self.languages = Set.new(languages.reject{|l| l.blank?}).to_a
