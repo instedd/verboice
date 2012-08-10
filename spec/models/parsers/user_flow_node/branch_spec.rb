@@ -67,19 +67,19 @@ module Parsers
         play1 = Play.new call_flow, 'id' => 10,
           'type' => 'play',
           'name' => 'Play 1',
-          'message' => {
+          'resource' => {
             "guid" => 123
           }
         play2 = Play.new call_flow, 'id' => 14,
           'type' => 'play',
           'name' => 'Play 2',
-          'message' => {
+          'resource' => {
             "guid" => 1234
           }
         play3 = Play.new call_flow, 'id' => 5,
           'type' => 'play',
           'name' => 'Play 3',
-          'message' => {
+          'resource' => {
             "guid" => 1235
           }
 
@@ -146,10 +146,10 @@ module Parsers
           ]
         play_1 = Branch.new call_flow, 'id' => 10,
           'type' => 'play',
-          'message' => {"guid" => 123}
+          'resource' => {"guid" => 123}
         play_2 = Play.new call_flow, 'id' => 14,
           'type' => 'play',
-          'message' => {"guid" => 123}
+          'resource' => {"guid" => 123}
 
         branch.solve_links_with [ play_1, play_2 ]
         branch.options[0]['next'].should eq(play_1)
