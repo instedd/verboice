@@ -22,7 +22,7 @@ class CallFlow < ActiveRecord::Base
 
   belongs_to :project
 
-  has_many :call_logs, :dependent => :destroy
+  has_many :call_logs, :dependent => :nullify
   has_many :channels
   has_many :queued_calls, :dependent => :destroy
   has_many :traces, :dependent => :destroy
