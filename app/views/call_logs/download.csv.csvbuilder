@@ -1,9 +1,11 @@
 csv << ['Call ID', 'Phone Number', 'Time', 'Severity', 'Step name', 'Step ID', 'Command', 'Action', 'Detail']
-@logs = current_account.call_logs.includes(:entries).order('id DESC')
-@logs = @logs.search params[:search], :account => current_account if params[:search].present?
+@entries = CallLogEntry.joins(:call).where('account_id = ?', current_account.id).where('severity <> "trace"').order('call_logs.id DESC, call_log_entries.id')
+@entries = @entries.search params[:search], :account => current_account if params[:search].present?
+@entries = @entries.select('call_log_entries.created_at, severity, details, call_logs.id as call_id, call_logs.address as call_address')
 
-@logs.find_each do |call|
-  call.entries.each do |entry|
-    csv << [call.id, call.address, entry.created_at, entry.severity, entry.step_name, entry.step_id, entry.command, entry.action, entry.description]
-  end
+@entries = ActiveRecord::Base.connection.execute(@entries.to_sql)
+
+@entries.each do |entry|
+  details = SerializableHash.load(entry[2])
+  csv << [entry[3], entry[4], entry[0], entry[1], details[:step_name], details[:step_id], details[:command], details[:action], details[:description]]
 end

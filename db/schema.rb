@@ -58,10 +58,10 @@ ActiveRecord::Schema.define(:version => 20120803145851) do
 
   create_table "call_log_entries", :force => true do |t|
     t.integer  "call_id"
-    t.text     "details"
     t.string   "severity"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.binary   "details"
   end
 
   add_index "call_log_entries", ["call_id"], :name => "index_call_log_entries_on_call_id"
