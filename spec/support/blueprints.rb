@@ -152,9 +152,17 @@ end
 Resource.blueprint do
   name
   project
+  guid
 end
 
-LocalizedResource.blueprint do
+UploadLocalizedResource.blueprint do
   resource
-  language { 'English' }
+  language { 'en' }
+  guid
+end
+
+TextLocalizedResource.blueprint do
+  resource
+  language { 'en' }
+  guid
 end

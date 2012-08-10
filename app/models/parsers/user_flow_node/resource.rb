@@ -22,13 +22,13 @@ module Parsers
       attr_reader :guid
 
       def initialize params
-        @guid = params['guid']
+        @guid = params['guid'] if params.present?
       end
 
       def equivalent_flow
         Compiler.parse do |c|
          c.PlayResource @guid
-        end
+        end if @guid
       end
 
       def capture_flow

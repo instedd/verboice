@@ -20,7 +20,7 @@ require 'spec_helper'
 module Commands
   describe PlayResourceCommand do
     let(:session) { Session.new pbx: double('pbx'), call_log: CallLog.make}
-    let(:localized_resource) { LocalizedResource.make text: 'some text' }
+    let(:localized_resource) { TextLocalizedResource.make text: 'some text' }
 
     it "returns next command" do
       session.pbx.should_receive(:say).with('some text', anything).and_return(:foo)

@@ -29,13 +29,13 @@ module Parsers
           'name' => 'Menu number one',
           'store' => 'some_variable',
           'explanation_message' => {
-            "id" => 5
+            "guid" => 5
           },
           'options_message' => {
-            "id" => 7
+            "guid" => 7
           },
           'invalid_message' => {
-            "id" => 8
+            "guid" => 8
           },
           'timeout'=> 20,
           'number_of_attempts' => 3,
@@ -62,25 +62,25 @@ module Parsers
           'type' => 'play',
           'name' => 'Play 1',
           'resource' => {
-            "id" => 1
+            "guid" => 1
           }
         play2 = Play.new call_flow, 'id' => 14,
           'type' => 'play',
           'name' => 'Play 2',
           'resource' => {
-            "id" => 2
+            "guid" => 2
           }
         play3 = Play.new call_flow, 'id' => 5,
           'type' => 'play',
           'name' => 'Play 3',
           'resource' => {
-            "id" => 3
+            "guid" => 3
           }
         play4 = Play.new call_flow, 'id' => 45,
             'type' => 'play',
             'name' => 'Play 45',
             'resource' => {
-              "id" => 45
+              "guid" => 45
             }
 
         menu.solve_links_with [ play1, play2, play3, play4 ]

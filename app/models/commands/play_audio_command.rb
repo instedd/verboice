@@ -40,7 +40,11 @@ class Commands::PlayAudioCommand < Command
   end
 
   def should_setup_file?(session, target_path)
-    not File.exists?(target_path) or File.mtime(target_path) < @audio_resource.updated_at
+    not File.exist?(target_path) or File.mtime(target_path) < @audio_resource.updated_at
+  end
+
+  def get_target_path(session)
+    @target_path ||= session.pbx.sound_path_for @audio_resource.guid
   end
 
   def command_name
@@ -50,11 +54,11 @@ class Commands::PlayAudioCommand < Command
   def in_temp_dir
 
     path = File.expand_path "#{Rails.root}/tmp/data/#{Time.now.to_i}#{rand(1000)}/"
-    FileUtils.mkdir_p( path )
+    FileUtils.mkdir_p(path)
 
-    yield( path )
+    yield(path)
 
   ensure
-    FileUtils.rm_rf( path ) if File.exists?( path )
+    FileUtils.rm_rf(path) if File.exist?(path)
   end
 end

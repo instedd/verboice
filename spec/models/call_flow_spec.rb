@@ -57,6 +57,7 @@ describe CallFlow do
   end
 
   it "should update the flow when it's user flow get's updated" do
+    resource = TextLocalizedResource.make
     call_flow = CallFlow.make id: 4
     call_flow.flow.should be_nil
     call_flow.user_flow = [
@@ -65,9 +66,8 @@ describe CallFlow do
         'root' => 1,
         'type' => 'play',
         'name' => 'Play number one',
-        'message' => {
-          "name" => "Some explanation message",
-          "type" => "text"
+        'resource' => {
+          "guid" => resource.guid
         }
       }
     ]
@@ -79,7 +79,7 @@ describe CallFlow do
         Assign "current_step", 1
         AssignValue "current_step_name", "Play number one"
         Trace call_flow_id: 4, step_id: 1, step_name: 'Play number one', store: '"Message played."'
-        Say "Some explanation message"
+        PlayResource resource.guid
       end
     )
   end

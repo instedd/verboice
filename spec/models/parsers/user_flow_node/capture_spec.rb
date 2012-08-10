@@ -31,9 +31,9 @@ module Parsers
           'type' => 'capture',
           'name' => 'Capture number one',
           'store' => 'some_variable',
-          'instructions_message' => { "id" => 1 },
+          'instructions_message' => { "guid" => 1 },
           'invalid_message' => {
-            "id" => 5
+            "guid" => 5
           },
           'valid_values' => '1,2-4,10-20',
           'finish_on_key' => '#',
@@ -154,7 +154,7 @@ module Parsers
           'min_input_length' => 0,
           'max_input_length' => 2,
           'invalid_message' => {
-            "id" => 2
+            "guid" => 2
           }
 
         capture.equivalent_flow.first.should eq(capture_flow)
@@ -232,7 +232,7 @@ module Parsers
             'min_input_length' => 0,
             'max_input_length' => 2,
             'invalid_message' => {
-              "id" => 5
+              "guid" => 5
             },
             'default' => 2
 
@@ -240,7 +240,7 @@ module Parsers
             'type' => 'play',
             'name' => 'Play',
             'resource' => {
-              "id" => 123
+              "guid" => 123
             }
 
           capture.solve_links_with [ play ]

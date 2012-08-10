@@ -53,7 +53,7 @@ module Commands
       if resource.is_an? UrlLocalizedResource
         PlayUrlCommand.new(resource.url).download(session)
       elsif resource.is_a? RecordLocalizedResource
-        PlayFileCommand.new(resource.audio).download(session)
+        PlayAudioCommand.new(resource).download(session)
       elsif resource.is_a? TextLocalizedResource
         resource.text
       end
