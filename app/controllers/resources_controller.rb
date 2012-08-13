@@ -3,16 +3,17 @@ class ResourcesController < ApplicationController
   respond_to :html, :json
 
   expose(:project) { current_account.projects.find(params[:project_id]) }
-  expose(:resources) { project.resources }
+  expose(:resources) do
+    if params[:q].present?
+      project.resources.where('name LIKE ?', "%#{params[:q]}%")
+    else
+      project.resources
+    end
+  end
   expose(:resource)
 
   def index
-    if params[:q].present?
-      result = resources.where('name LIKE ?', "%#{params[:q]}%")
-    else
-      result = resources
-    end
-    respond_with result
+    respond_with resources
   end
 
   def show
