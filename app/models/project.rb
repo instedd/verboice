@@ -69,7 +69,7 @@ class Project < ActiveRecord::Base
 
   def init
     self.default_language ||= 'en'
-    self.languages ||= ['en']
+    self.languages ||= [self.default_language]
   end
 
   def sanitize_languages

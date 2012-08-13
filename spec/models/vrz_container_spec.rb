@@ -115,10 +115,10 @@ describe VrzContainer do
 
     LocalizedResource.count.should == 1
     LocalizedResource.first.guid.should == @localized_resource.guid
-    LocalizedResource.first.resource.attributes.except('id').should == @resource.attributes.except('id')
+    LocalizedResource.first.resource.attributes.except('id', 'created_at', 'updated_at').should == @resource.attributes.except('id', 'created_at', 'updated_at')
     LocalizedResource.first.audio.should == @localized_resource.audio
     LocalizedResource.first.type.should == "UploadLocalizedResource"
-    LocalizedResource.first.attributes.except('id').should == @localized_resource.attributes.except('id')
+    LocalizedResource.first.attributes.except('id', 'created_at', 'updated_at').should == @localized_resource.attributes.except('id', 'created_at', 'updated_at')
 
     ExternalService.count.should == 1
     ExternalService.first.guid.should == @external_service.guid
@@ -126,7 +126,7 @@ describe VrzContainer do
 
     ExternalServiceStep.count.should == 1
     ExternalServiceStep.first.guid.should == @external_step.guid
-    ExternalServiceStep.first.external_service.attributes.except('id').should == @external_service.attributes.except('id')
+    ExternalServiceStep.first.external_service.attributes.except('id', 'created_at', 'updated_at').should == @external_service.attributes.except('id', 'created_at', 'updated_at')
   end
 
 

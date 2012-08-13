@@ -17,8 +17,9 @@
 module Commands
   class PlayResourceCommand < Command
 
-    def initialize(resource_guid)
+    def initialize(resource_guid, language=nil)
       @resource_guid = resource_guid
+      @language = language
     end
 
     def run(session)
@@ -37,19 +38,29 @@ module Commands
       super
     end
 
-    def capture_option_name session
-      resource = localized_resource(session)
-      if resource.is_an? UrlLocalizedResource
-        :play
-      elsif resource.is_a? RecordLocalizedResource
-        :play
-      elsif resource.is_a? TextLocalizedResource
-        :say
-      end
-    end
-
     def capture_resource session
       resource = localized_resource(session)
+
+      { capture_option_name(resource) => resource_command(session, resource) }
+    end
+
+  private
+
+    def localized_resource(session)
+      if @language.present?
+        language = @language
+      else
+        var_name = ImplicitVariables::Language.key
+
+        RetrieveVariableCommand.new(var_name).run(session) unless session["var_#{var_name}"].present?
+
+        language = session["var_#{var_name}"]
+      end
+
+      Resource.find_by_guid(@resource_guid).available_resource_for(language)
+    end
+
+    def resource_command session, resource
       if resource.is_an? UrlLocalizedResource
         PlayUrlCommand.new(resource.url).download(session)
       elsif resource.is_a? RecordLocalizedResource
@@ -59,15 +70,12 @@ module Commands
       end
     end
 
-    def localized_resource(session)
-      unless @localized_resource
-        var_name = ImplicitVariables::Language.key
-
-        RetrieveVariableCommand.new(var_name).run(session) unless session["var_#{var_name}"].present?
-
-        @localized_resource = Resource.find_by_guid(@resource_guid).available_resource_for(session["var_#{var_name}"])
+    def capture_option_name resource
+      if resource.is_a? TextLocalizedResource
+        :say
+      else
+        :play
       end
-      @localized_resource
     end
   end
 end

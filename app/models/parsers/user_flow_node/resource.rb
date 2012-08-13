@@ -25,18 +25,17 @@ module Parsers
         @guid = params['guid'] if params.present?
       end
 
-      def equivalent_flow
+      def equivalent_flow(language=nil)
         Compiler.parse do |c|
-         c.PlayResource @guid
+         c.PlayResource @guid, language
         end if @guid
       end
 
-      def capture_flow
-        if @guid
-          { resource: @guid }
-        else
-          {}
-        end
+      def capture_flow(language=nil)
+        flow = {}
+        flow[:resource] = @guid if @guid
+        flow[:language] = language if language
+        flow
       end
     end
   end

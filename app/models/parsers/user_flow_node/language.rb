@@ -24,10 +24,8 @@ module Parsers
       def initialize call_flow, params
         @id = params['id']
         @name = params['name'] || ''
-        @languages = params['languages'].map do |language|
-          message = Message.for call_flow, self, LanguageList::LanguageInfo.find(language['key']).name.to_sym, language['message']
-          {key: language['key'], message: message}
-        end
+        @resource = Resource.new params['resource']
+        @languages = call_flow.project.languages
         @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
@@ -53,7 +51,7 @@ module Parsers
             c.Goto "end#{@id}"
           end
           @languages.each_with_index do |language, i|
-            compiler.Capture({finish_on_key: '', timeout: i+1 == @languages.size ? 10 : 1}.merge(language[:message].capture_flow))
+            compiler.Capture({finish_on_key: '', timeout: i+1 == @languages.size ? 10 : 1}.merge(@resource.capture_flow(language)))
             compiler.If "digits != null" do |c|
               c.Goto "set_language#{@id}"
             end
@@ -61,8 +59,8 @@ module Parsers
           compiler.Label "set_language#{@id}"
           @languages.each_with_index do |language, i|
             compiler.If "digits == #{i+1}" do |c|
-              c.Trace context_for %("User selected #{language[:key]} language.")
-              c.PersistVariable var_name, "'#{language[:key]}'"
+              c.Trace context_for %("User selected #{language} language.")
+              c.PersistVariable var_name, "'#{language}'"
             end
           end
           compiler.Label "end#{@id}"

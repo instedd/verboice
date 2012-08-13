@@ -91,14 +91,14 @@ class Compiler
     append Commands::CallbackCommand.new(url, options)
   end
 
-  def PlayResource id
+  def PlayResource id, language=nil
     # if options[:guid].present?
     #   @resource_guids << options[:guid]
     # elsif options[:id].present?
       # @resource_guids << Resource.find(options[:id]).guid
     # end
 
-    append Commands::PlayResourceCommand.new(id)
+    append Commands::PlayResourceCommand.new(id, language)
   end
 
   def Assign(*args)
