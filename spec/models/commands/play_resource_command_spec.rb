@@ -25,7 +25,7 @@ module Commands
     it "returns next command" do
       session.pbx.should_receive(:say).with('some text', anything).and_return(:foo)
 
-      cmd = PlayResourceCommand.new localized_resource.resource.id
+      cmd = PlayResourceCommand.new localized_resource.resource.guid
       cmd.next = :next
       cmd.run(session).should == :next
     end

@@ -28,10 +28,10 @@ module Parsers
           'type' => 'record',
           'name' => 'Record Step',
           'explanation_message' => {
-            "id" => 1
+            "guid" => 1
           },
           'confirmation_message' => {
-            "id" => 2
+            "guid" => 2
           },
           'timeout' => 7,
           'stop_key' => '#'

@@ -138,7 +138,7 @@ module Commands
       expect_capture :say => "some text"
       localized = TextLocalizedResource.make text: 'some text'
 
-      CaptureCommand.new(:resource => localized.resource.id).run session
+      CaptureCommand.new(:resource => localized.resource.guid).run session
 
       session[:digits].should == digits
     end
