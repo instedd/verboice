@@ -243,9 +243,8 @@ describe BaseBroker do
             'root' => 1,
             'type' => 'play',
             'name' => 'Play number one',
-            'message' => {
-              "name" => "Some explanation message",
-              "type" => "text"
+            'resource' => {
+              "guid" => TextLocalizedResource.make.guid
             }
           }
         ]

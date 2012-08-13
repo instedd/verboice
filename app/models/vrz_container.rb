@@ -19,7 +19,6 @@ class VrzContainer
 
   def initialize(call_flow, export_audios = true)
     @call_flow = call_flow
-    @recording_manager = RecordingManager.for(@call_flow)
     @export_audios = export_audios
   end
 
@@ -56,11 +55,12 @@ class VrzContainer
               elsif entry.name.split[0] == 'resource'
                 attrs = YAML::load(zip.read(entry))
                 resource = Resource.find_by_guid(attrs['guid'])
-                unless resource
+                if resource
                   resource.update_attributes! attrs
                 else
                   resource = Resource.new attrs
                   resource.project = @call_flow.project
+                  resource.guid = attrs['guid']
                   resource.save!
                 end
               elsif entry.name.split[0] == 'localized_resource'
@@ -70,6 +70,8 @@ class VrzContainer
                   localized_resource.update_attributes! attrs
                 else
                   localized_resource = LocalizedResource.new attrs
+                  localized_resource.guid = attrs['guid']
+                  localized_resource.resource_guid = attrs['resource_guid']
                   localized_resource.save!
                 end
               end

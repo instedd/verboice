@@ -29,7 +29,7 @@ module Parsers
           'type' => 'play',
           'name' => 'Play',
           'resource' => {
-            "id" => 5
+            "guid" => 5
           }
 
         play.equivalent_flow.first.should eq(
@@ -79,7 +79,7 @@ module Parsers
           'type' => 'play',
           'name' => 'Play number one',
           'resource' => {
-            "id" => nil
+            "guid" => nil
           }
 
         play.equivalent_flow.first.should eq(

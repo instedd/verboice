@@ -133,7 +133,6 @@ class CallFlowsController < ApplicationController
   def load_recording_data
     @step_id = params[:step_id]
     @message = params[:message]
-    @recording_manager = RecordingManager.for(@call_flow)
   end
 
   def load_call_flow_and_project

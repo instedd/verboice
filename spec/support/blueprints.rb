@@ -159,6 +159,7 @@ UploadLocalizedResource.blueprint do
   resource
   language { 'en' }
   guid
+  uploaded_audio { Guid.new.to_s }
 end
 
 TextLocalizedResource.blueprint do
