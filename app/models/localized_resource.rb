@@ -1,6 +1,8 @@
 class LocalizedResource < ActiveRecord::Base
 
-  belongs_to :resource, :foreign_key => :resource_guid, :primary_key => :guid
+  belongs_to :resource
+
+  has_one :project, through: :resource
 
   store :extras, accessors: [:duration, :description, :filename]
 
@@ -8,7 +10,9 @@ class LocalizedResource < ActiveRecord::Base
 
   validates_presence_of :language #, :resource
 
-  validates_uniqueness_of :language, :scope => :resource_guid
+  validates_uniqueness_of :language, :scope => :resource_id
+
+  validates :guid, :presence => true, :uniqueness => { :scope => :resource_id }
 
   after_initialize do
     self.guid ||= Guid.new.to_s

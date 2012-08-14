@@ -137,6 +137,7 @@ module Commands
     it "capture with resource" do
       expect_capture :say => "some text"
       localized = TextLocalizedResource.make text: 'some text'
+      session.call_flow = CallFlow.make project: localized.project
 
       CaptureCommand.new(:resource => localized.resource.guid).run session
 

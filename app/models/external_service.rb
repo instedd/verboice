@@ -17,9 +17,11 @@
 
 class ExternalService < ActiveRecord::Base
   belongs_to :project
-  has_many :external_service_steps, :autosave => true, :dependent => :destroy, :foreign_key => :external_service_guid, :primary_key => :guid
+  has_many :external_service_steps, :autosave => true, :dependent => :destroy
 
   attr_accessible :name, :url, :xml, :global_variables_attributes, :guid
+
+  validates :guid, :presence => true, :uniqueness => { :scope => :project_id }
 
   serialize :global_settings, Hash
 

@@ -1,13 +1,15 @@
 class Resource < ActiveRecord::Base
 
   belongs_to :project
-  has_many :localized_resources, :dependent => :destroy, :foreign_key => :resource_guid, :primary_key => :guid
+  has_many :localized_resources, :dependent => :destroy
 
   accepts_nested_attributes_for :localized_resources
 
   attr_accessible :name, :localized_resources_attributes
 
   validates_presence_of :name, :project
+
+  validates :guid, :presence => true, :uniqueness => { :scope => :project_id }
 
   after_initialize do
     self.guid ||= Guid.new.to_s

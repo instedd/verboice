@@ -19,7 +19,8 @@ require 'spec_helper'
 
 module Commands
   describe PlayResourceCommand do
-    let(:session) { Session.new pbx: double('pbx'), call_log: CallLog.make}
+    let(:call_flow) { CallFlow.make project: localized_resource.project }
+    let(:session) { Session.new pbx: double('pbx'), call_log: CallLog.make, call_flow: call_flow}
     let(:localized_resource) { TextLocalizedResource.make text: 'some text' }
 
     it "returns next command" do

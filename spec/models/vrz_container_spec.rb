@@ -62,18 +62,24 @@ describe VrzContainer do
     stream.should_receive(:print).with(@call_flow.user_flow.to_yaml)
 
     stream.should_receive(:put_next_entry).with("Service #{@external_service.guid}.yml")
-    stream.should_receive(:print).with(@external_service.attributes.tap do |a|
-      a.delete 'id'
-      a.delete 'project_id'
+    stream.should_receive(:print).with(@external_service.attributes.tap do |attributes|
+      attributes.delete 'id'
+      attributes.delete 'project_id'
     end.to_yaml)
 
     stream.should_receive(:put_next_entry).with("Step #{@external_step.guid}.yml")
-    stream.should_receive(:print).with(@external_step.attributes.tap{ |a| a.delete 'id' }.to_yaml)
+    stream.should_receive(:print).with(@external_step.attributes.tap do |attributes|
+      attributes.delete 'id'
+      attributes.delete 'external_service_id'
+      attributes['external_service_guid'] = @external_step.external_service.guid
+    end.to_yaml)
 
     stream.should_receive(:put_next_entry).with("localized_resource #{@resource.guid} - #{@localized_resource.language} - #{@localized_resource.guid}.yml")
     stream.should_receive(:print).with(@localized_resource.attributes.tap do |attributes|
       attributes.delete 'audio'
       attributes.delete 'id'
+      attributes.delete 'resource_id'
+      attributes['resource_guid'] = @localized_resource.resource.guid
     end.to_yaml)
 
     stream.should_receive(:put_next_entry).with("resource_audio #{@resource.guid} - #{@localized_resource.language} - #{@localized_resource.guid}.wav")
@@ -118,7 +124,7 @@ describe VrzContainer do
     LocalizedResource.first.resource.attributes.except('id', 'created_at', 'updated_at').should == @resource.attributes.except('id', 'created_at', 'updated_at')
     LocalizedResource.first.audio.should == @localized_resource.audio
     LocalizedResource.first.type.should == "UploadLocalizedResource"
-    LocalizedResource.first.attributes.except('id', 'created_at', 'updated_at').should == @localized_resource.attributes.except('id', 'created_at', 'updated_at')
+    LocalizedResource.first.attributes.except('id', 'created_at', 'updated_at', 'resource_id').should == @localized_resource.attributes.except('id', 'created_at', 'updated_at', 'resource_id')
 
     ExternalService.count.should == 1
     ExternalService.first.guid.should == @external_service.guid
@@ -126,9 +132,8 @@ describe VrzContainer do
 
     ExternalServiceStep.count.should == 1
     ExternalServiceStep.first.guid.should == @external_step.guid
-    ExternalServiceStep.first.external_service.attributes.except('id', 'created_at', 'updated_at').should == @external_service.attributes.except('id', 'created_at', 'updated_at')
+    ExternalServiceStep.first.external_service.attributes.except('id', 'created_at', 'updated_at', 'external_service_id').should == @external_service.attributes.except('id', 'created_at', 'updated_at', 'external_service_id')
   end
-
 
   it 'imports when resources and external services do exist' do
 
@@ -175,6 +180,81 @@ describe VrzContainer do
     ExternalServiceStep.count.should == 1
     ExternalServiceStep.first.guid.should == @external_step.guid
     ExternalServiceStep.first.name.should == 'new external service step name'
+  end
+
+  it 'doesnt overrides resources and external steps from another project' do
+
+    in_temp_dir do |path|
+      zip_path = File.join(path, 'zip_file.zip')
+
+      @vrz_container.export(zip_path)
+
+      CallFlow.first.tap do|f|
+        f.user_flow = nil
+        f.name = 'other name'
+      end.save!
+      ExternalService.first.tap {|f| f.name = 'new external service name' }.save!
+      ExternalServiceStep.first.tap {|f| f.name = 'new external service step name' }.save!
+      Resource.first.tap {|f| f.name = 'asdfgr321' }.save!
+      UploadLocalizedResource.first.tap do|f|
+        f.audio = 'some other audio'
+        f.language = 'es'
+      end.save!
+
+      @second_call_flow = CallFlow.make
+
+      VrzContainer.for(@second_call_flow).import zip_path
+
+    end
+
+    # p "project: #{@project.to_yaml}"
+    # p "first resource project: #{LocalizedResource.first.project.to_yaml}"
+    # p "last resource project: #{LocalizedResource.last.project.to_yaml}"
+    # p "original resource project: #{@localized_resource.project.to_yaml}"
+
+    CallFlow.count.should == 2
+    CallFlow.first.user_flow.should == nil
+    CallFlow.last.user_flow.should == @call_flow.user_flow
+
+    Resource.count.should == 2
+    Resource.first.project.should == @project
+    Resource.first.guid.should == @resource.guid
+
+    Resource.last.project.should == @second_call_flow.project
+    Resource.last.guid.should == @resource.guid
+
+    LocalizedResource.count.should == 2
+    LocalizedResource.first.guid.should == @localized_resource.guid
+    LocalizedResource.first.resource.should == @resource
+    LocalizedResource.first.audio.should == @localized_resource.audio
+    LocalizedResource.first.type.should == "UploadLocalizedResource"
+    LocalizedResource.first.should == @localized_resource
+    LocalizedResource.first.project.should == @project
+
+    LocalizedResource.last.guid.should == @localized_resource.guid
+    LocalizedResource.last.resource.guid.should == @resource.guid
+    LocalizedResource.last.audio.should == @localized_resource.audio
+    LocalizedResource.last.project.should == @second_call_flow.project
+    LocalizedResource.last.type.should == "UploadLocalizedResource"
+    LocalizedResource.last.attributes.except('id','updated_at', 'created_at', 'resource_id').should == @localized_resource.attributes.except('id','updated_at', 'created_at', 'resource_id')
+
+    ExternalService.count.should == 2
+    ExternalService.first.guid.should == @external_service.guid
+    ExternalService.first.project.should == @project
+    ExternalService.first.name.should == 'new external service name'
+
+    ExternalService.last.guid.should == @external_service.guid
+    ExternalService.last.project.should == @second_call_flow.project
+    ExternalService.last.name.should == 'external service name'
+
+    ExternalServiceStep.count.should == 2
+    ExternalServiceStep.first.guid.should == @external_step.guid
+    ExternalServiceStep.first.name.should == 'new external service step name'
+    ExternalServiceStep.first.project.should == @project
+
+    ExternalServiceStep.last.guid.should == @external_step.guid
+    ExternalServiceStep.last.name.should == 'external step name'
+    ExternalServiceStep.last.project.should == @second_call_flow.project
   end
 
   def in_temp_dir

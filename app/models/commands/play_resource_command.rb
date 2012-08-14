@@ -57,7 +57,7 @@ module Commands
         language = session["var_#{var_name}"]
       end
 
-      Resource.find_by_guid(@resource_guid).available_resource_for(language)
+      session.call_flow.project.resources.find_by_guid(@resource_guid).available_resource_for(language)
     end
 
     def resource_command session, resource

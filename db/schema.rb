@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120803145851) do
+ActiveRecord::Schema.define(:version => 20120814202757) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -131,15 +131,15 @@ ActiveRecord::Schema.define(:version => 20120803145851) do
     t.string   "kind"
     t.string   "callback_url"
     t.text     "variables"
-    t.datetime "created_at",            :null => false
-    t.datetime "updated_at",            :null => false
+    t.datetime "created_at",          :null => false
+    t.datetime "updated_at",          :null => false
     t.string   "response_type"
     t.text     "response_variables"
     t.string   "guid"
-    t.string   "external_service_guid"
+    t.integer  "external_service_id"
   end
 
-  add_index "external_service_steps", ["external_service_guid"], :name => "index_external_service_steps_on_external_service_guid"
+  add_index "external_service_steps", ["external_service_id"], :name => "index_external_service_steps_on_external_service_id"
   add_index "external_service_steps", ["guid"], :name => "index_external_service_steps_on_guid"
 
   create_table "external_services", :force => true do |t|
@@ -167,11 +167,11 @@ ActiveRecord::Schema.define(:version => 20120803145851) do
     t.text     "extras"
     t.binary   "uploaded_audio", :limit => 2147483647
     t.string   "guid"
-    t.string   "resource_guid"
+    t.integer  "resource_id"
   end
 
   add_index "localized_resources", ["guid"], :name => "index_localized_resources_on_guid"
-  add_index "localized_resources", ["resource_guid"], :name => "index_localized_resources_on_resource_guid"
+  add_index "localized_resources", ["resource_id"], :name => "index_localized_resources_on_resource_id"
 
   create_table "o_auth_tokens", :force => true do |t|
     t.integer  "account_id"

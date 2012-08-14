@@ -120,10 +120,11 @@ describe CallFlow do
   end
 
   it "should store its user flow's external steps" do
-    service = ExternalService.make
+    project = Project.make
+    service = ExternalService.make project: project
     step = ExternalServiceStep.make :external_service => service
 
-    call_flow = CallFlow.make
+    call_flow = CallFlow.make project: project
     call_flow.user_flow = [
       {
         "id" => '1339774522765',
