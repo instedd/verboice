@@ -96,7 +96,7 @@ class CallFlowsController < ApplicationController
         when '.vrb'
           @call_flow.user_flow = YAML::load File.read(params[:vrb].tempfile.path)
           @call_flow.save!
-        when '.vrz'
+        when '.vrz', '.zip'
           VrzContainer.for(@call_flow).import params[:vrb].tempfile.path
         else
           raise 'Invalid extension'
@@ -116,7 +116,7 @@ class CallFlowsController < ApplicationController
       ensure
         file.close
       end
-      send_file file.path, :x_sendfile => true, :filename => "Call flow #{@call_flow.id}.vrz"
+      send_file file.path, :x_sendfile => true, :filename => "Call flow #{@call_flow.id}.zip"
     else
       send_data @call_flow.user_flow.to_yaml, :filename => "Call flow #{@call_flow.id}.vrb"
     end
