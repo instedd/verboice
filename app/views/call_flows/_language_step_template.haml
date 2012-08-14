@@ -16,13 +16,12 @@
         %th
       / ko foreach: languages
       %tr
-        %td{ko(css: "{ orange: $parent.is_resource_invalid($data) }")}
-          %span{ko(css: "{ alert: $parent.is_resource_invalid($data) }")}
+        %td
           %span{ko(text: '$parent.number($index)')}
           %span .
-          %span{ko(text: '$parent.title($data)')}
+          %span{ko(text: 'value')}
         %td
-          %button.farrow{ :type => "button", 'data-bind' => 'click: $parent.show_resource' }
+          %button.farrow{ :type => "button", 'data-bind' => 'click: $parent.show_language' }
       / /ko
     .content
       .bottom-actions

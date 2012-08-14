@@ -67,3 +67,8 @@ onWorkflow ->
       for hash in arr
         localized_resource = _.find @localized_resources(), (x) => x.language is hash.language
         localized_resource.id(hash.id) if localized_resource?
+
+    show_language: (language) =>
+      for lr in @localized_resources()
+        if lr.language == language
+          @current_editing_localized_resource(lr)

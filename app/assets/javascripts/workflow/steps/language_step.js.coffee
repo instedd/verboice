@@ -7,20 +7,17 @@ onWorkflow ->
     constructor: (attrs) ->
       super(attrs)
 
-      resource_hash_for = (key) =>
-        _.find(attrs.languages, (l) => l.key == key)?.resource
+      @languages = window.languages
 
       @next_id = attrs.next
-      @languages = ({key: l.key, resource: new ResourceEditor(@, resource_hash_for(l.key))} for l in languages)
-      @languages = ko.observable(@languages)
+      @resource = new ResourceEditor(@, attrs.resource)
 
       @current_editing_resource = ko.observable(null)
-
       @is_editing_resource = ko.computed () =>
         @current_editing_resource() != null
 
       @is_invalid = ko.computed () =>
-        @is_name_invalid() or not _.all((l.resource.is_valid() for l in @languages()), _.identity)
+        @is_name_invalid() or not @resource.is_valid()
 
     button_class: () =>
       'llanguage'
@@ -34,20 +31,15 @@ onWorkflow ->
 
     to_hash: () =>
       $.extend(super,
-        languages: ({key: l.key, resource: l.resource.to_hash()} for l in @languages())
+        resource: @resource.to_hash()
       )
 
     default_name: () =>
       'Detect Language'
 
-    show_resource: (language) =>
-      @current_editing_resource(language.resource)
-
-    title: (language) =>
-      _.find(languages, (l) => l.key == language.key).value
-
-    is_resource_invalid: (language) =>
-      not language.resource.is_valid()
+    show_language: (language) =>
+      @current_editing_resource(@resource)
+      @resource.show_language(language.key)
 
     number: (index) =>
       index() + 1

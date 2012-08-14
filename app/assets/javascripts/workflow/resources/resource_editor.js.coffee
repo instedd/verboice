@@ -56,3 +56,6 @@ onWorkflow ->
         { guid: @resource().guid() }
       else
         {}
+
+    show_language: (language) =>
+      @resource().show_language(language)
