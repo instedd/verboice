@@ -20,6 +20,11 @@ class ResourcesController < ApplicationController
     respond_with resource, :include => :localized_resources
   end
 
+  def find
+    resource = resources.find_by_guid(params[:guid])
+    respond_with resource, :include => :localized_resources
+  end
+
   def create
     resource.save
     respond_with resource, :include => :localized_resources

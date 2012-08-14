@@ -4,7 +4,7 @@ onWorkflow ->
   class window.Resource
 
     @find: (guid, callback) ->
-      $.getJSON "/projects/#{project_id}/resources/#{guid}.json", (data) ->
+      $.getJSON "/projects/#{project_id}/resources/find.json?guid=#{guid}", (data) ->
         callback?(new Resource(data))
 
     @search: (q, callback) ->
@@ -20,6 +20,7 @@ onWorkflow ->
           localized_resource ||= language: l.key
           LocalizedResourceSelector.from_hash(localized_resource).with_title(l.value).with_language(l.key).with_parent(@)
 
+      @id = ko.observable hash.id
       @name = ko.observable hash.name
       @guid = ko.observable hash.guid
       @project_id = hash.project_id || project_id
@@ -31,7 +32,8 @@ onWorkflow ->
         _.all(@localized_resources(), (x) => x.is_valid());
 
     to_hash: () =>
-      id: @guid()
+      id: @id()
+      guid: @guid()
       project_id: @project_id
       resource:
         name: @name()
@@ -39,13 +41,14 @@ onWorkflow ->
 
     save: (callback) =>
       data = @to_hash()
-      if @guid()
+      if @id()
         data._method = 'put'
-        $.post "/projects/#{@project_id}/resources/#{@guid()}.json", data, (response) =>
+        $.post "/projects/#{@project_id}/resources/#{@id()}.json", data, (response) =>
           @save_localized_resources response.localized_resources
           callback?(@)
       else
         $.post "/projects/#{@project_id}/resources.json", data, (response) =>
+          @id(response.id)
           @guid(response.guid)
           @save_localized_resources response.localized_resources
           callback?(@)
@@ -63,4 +66,4 @@ onWorkflow ->
     save_localized_resources: (arr = []) =>
       for hash in arr
         localized_resource = _.find @localized_resources(), (x) => x.language is hash.language
-        localized_resource.guid(hash.guid) if localized_resource?
+        localized_resource.id(hash.id) if localized_resource?

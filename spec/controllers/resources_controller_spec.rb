@@ -40,6 +40,13 @@ describe ResourcesController do
     end
   end
 
+  describe "GET find" do
+    it "finds resources by guid" do
+      get :find, :project_id => @project.id, :guid => resource1.guid, :format => :json
+      response.body.should eq(resource1.to_json(:include => :localized_resources))
+    end
+  end
+
   describe "POST create" do
     describe "with valid params" do
       it "creates a new Resource" do

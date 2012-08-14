@@ -18,12 +18,12 @@ class LocalizedResource < ActiveRecord::Base
     self.recorded_audio.present?
   end
 
-  def has_uploded_audio
+  def has_uploaded_audio
     self.uploaded_audio.present?
   end
 
   def as_json(options = {})
-    super options.merge(:methods => [:type, :has_recorded_audio, :has_uploded_audio, :duration, :description, :filename],
+    super options.merge(:methods => [:type, :has_recorded_audio, :has_uploaded_audio, :duration, :description, :filename],
       :except => [:recorded_audio, :uploaded_audio, :extras])
   end
 end

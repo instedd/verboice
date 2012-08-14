@@ -2,12 +2,12 @@ onWorkflow ->
   class window.LocalizedResource
 
     constructor: (hash = {}) ->
-      @guid = ko.observable hash.guid
+      @id = ko.observable hash.id
       @language = ko.observable hash.language
       @parent = ko.observable null
 
     to_hash: =>
-      id: @guid()
+      id: @id()
       language: @language()
       type: @type()
 
@@ -18,4 +18,4 @@ onWorkflow ->
       @parent(parent)
 
     is_saved: () =>
-      @parent()?.guid()? and @guid()?
+      @parent()?.id()? and @id()?
