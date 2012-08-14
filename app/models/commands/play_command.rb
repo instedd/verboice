@@ -41,7 +41,11 @@ module Commands::PlayCommand
   end
 
   def get_target_path(session)
-    @target_path ||= session.pbx.sound_path_for @file_id
+    @target_path ||= if session.call_flow
+      session.pbx.sound_path_for "#{session.call_flow.id}-#{@file_id}"
+    else
+      session.pbx.sound_path_for @file_id
+    end
   end
 
   def setup_file(session)
