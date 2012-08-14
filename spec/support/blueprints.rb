@@ -160,10 +160,18 @@ UploadLocalizedResource.blueprint do
   language { 'en' }
   guid
   uploaded_audio { Guid.new.to_s }
+  filename { Faker::Name.name }
 end
 
 TextLocalizedResource.blueprint do
   resource
   language { 'en' }
   guid
+end
+
+RecordLocalizedResource.blueprint do
+  resource
+  language { 'en' }
+  guid
+  recorded_audio { Guid.new.to_s }
 end
