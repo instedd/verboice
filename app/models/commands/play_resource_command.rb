@@ -26,22 +26,56 @@ module Commands
       session.info "Play Resource: '#{@resource_guid}'", command: 'play_resource', action: 'start'
       resource = localized_resource(session)
 
-      if resource.is_an? UrlLocalizedResource
-        PlayUrlCommand.new(resource.url).run(session)
-      elsif resource.is_a? RecordLocalizedResource
-        PlayAudioCommand.new(resource).run(session)
-      elsif resource.is_a? TextLocalizedResource
-        SayCommand.new(resource.text).run(session)
-      end
+      resource.play_command_for(self).run(session)
 
       session.info "Play Resource '#{@resource_guid}' finished.", command: 'play_resource', action: 'finish'
       super
     end
 
-    def capture_resource session
+    def capture_resource_hash session
       resource = localized_resource(session)
 
-      { capture_option_name(resource) => resource_command(session, resource) }
+      { capture_option_name(resource) => capture_resource(session, resource) }
+    end
+
+    def play_url_command_for resource
+      PlayUrlCommand.new(resource.url)
+    end
+
+    def play_upload_command_for resource
+      play_audio_command_for resource
+    end
+
+    def play_text_command_for resource
+      SayCommand.new(resource.text)
+    end
+
+    def play_record_command_for resource
+      play_audio_command_for resource
+    end
+
+    def play_audio_command_for resource
+      PlayAudioCommand.new(resource)
+    end
+
+    def url_capture_resource_for resource, session
+      PlayUrlCommand.new(resource.url).download(session)
+    end
+
+    def upload_capture_resource_for resource, session
+      play_capture_resource_for resource, session
+    end
+
+    def text_capture_resource_for resource, session
+      resource.text
+    end
+
+    def record_capture_resource_for resource, session
+      play_capture_resource_for resource, session
+    end
+
+    def play_capture_resource_for resource, session
+      PlayAudioCommand.new(resource).download(session)
     end
 
   private
@@ -60,14 +94,8 @@ module Commands
       session.call_flow.project.resources.find_by_guid(@resource_guid).available_resource_for(language)
     end
 
-    def resource_command session, resource
-      if resource.is_an? UrlLocalizedResource
-        PlayUrlCommand.new(resource.url).download(session)
-      elsif resource.is_a? RecordLocalizedResource
-        PlayAudioCommand.new(resource).download(session)
-      elsif resource.is_a? TextLocalizedResource
-        resource.text
-      end
+    def capture_resource session, resource
+      resource.capture_resource_for self, session
     end
 
     def capture_option_name resource

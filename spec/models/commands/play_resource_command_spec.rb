@@ -19,17 +19,63 @@ require 'spec_helper'
 
 module Commands
   describe PlayResourceCommand do
-    let(:call_flow) { CallFlow.make project: localized_resource.project }
-    let(:session) { Session.new pbx: double('pbx'), call_log: CallLog.make, call_flow: call_flow}
-    let(:localized_resource) { TextLocalizedResource.make text: 'some text' }
 
-    it "returns next command" do
+    it "should work with TextLocalizedResource" do
+      text_localized_resource = TextLocalizedResource.make text: 'some text'
+      call_flow = CallFlow.make project: text_localized_resource.project
+      session = Session.new pbx: double('pbx'), call_log: CallLog.make, call_flow: call_flow
+
       session.pbx.should_receive(:say).with('some text', anything).and_return(:foo)
+
+      cmd = PlayResourceCommand.new text_localized_resource.resource.guid
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
+
+
+    it "should work with UploadLocalizedResource" do
+      localized_resource = UploadLocalizedResource.make
+      call_flow = CallFlow.make project: localized_resource.project
+      session = Session.new pbx: double('pbx'), call_log: CallLog.make, call_flow: call_flow
+
+      play_command = double('play_command')
+      PlayAudioCommand.stub(:new).with(anything).and_return(play_command)
+      play_command.stub(:should_setup_file?).with(anything).and_return(false)
+      play_command.stub(:run).and_return(:foo)
 
       cmd = PlayResourceCommand.new localized_resource.resource.guid
       cmd.next = :next
       cmd.run(session).should == :next
     end
 
+    it "should work with RecordLocalizedResource" do
+      localized_resource = RecordLocalizedResource.make
+      call_flow = CallFlow.make project: localized_resource.project
+      session = Session.new pbx: double('pbx'), call_log: CallLog.make, call_flow: call_flow
+
+      play_command = double('play_command')
+      PlayAudioCommand.stub(:new).with(anything).and_return(play_command)
+      play_command.stub(:should_setup_file?).with(anything).and_return(false)
+      play_command.stub(:run).and_return(:foo)
+
+      cmd = PlayResourceCommand.new localized_resource.resource.guid
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
+
+    it "should work with UrlLocalizedResource" do
+      localized_resource = UrlLocalizedResource.make
+      call_flow = CallFlow.make project: localized_resource.project
+      session = Session.new pbx: double('pbx'), call_log: CallLog.make, call_flow: call_flow
+
+      play_command = double('play_command')
+      PlayUrlCommand.stub(:new).with(anything).and_return(play_command)
+      play_command.stub(:should_setup_file?).with(anything).and_return(false)
+      play_command.stub(:run).and_return(:foo)
+
+      cmd = PlayResourceCommand.new localized_resource.resource.guid
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
   end
 end

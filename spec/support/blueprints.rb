@@ -175,3 +175,10 @@ RecordLocalizedResource.blueprint do
   guid
   recorded_audio { Guid.new.to_s }
 end
+
+UrlLocalizedResource.blueprint do
+  resource
+  language { 'en' }
+  guid
+  url
+end

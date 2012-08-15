@@ -45,7 +45,7 @@ class Commands::CaptureCommand < Command
       options.delete :play
       options.delete :say
       resource = Commands::PlayResourceCommand.new(options[:resource], options[:language])
-      options.merge! resource.capture_resource(session)
+      options.merge! resource.capture_resource_hash(session)
       options.delete :resource
     else
       options.delete :play
