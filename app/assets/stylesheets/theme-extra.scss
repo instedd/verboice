@@ -83,6 +83,7 @@ span.validation { display:inline-block; width:125px; margin:6px 0 !important }
 span.forwardto { display:inline-block; width:66px; margin:6px 0 !important }
 
 span.alert-orange { background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat right; padding-right:18px; color:#ff6600; display:inline-block }
+span.alert-orange-b { background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat left; padding-left:18px; color:#ff6600; display:inline-block }
 
 
 .content-header { padding:10px 50px; text-align:center }
@@ -161,6 +162,9 @@ input+label { color:#000 }
 .response input[type="text"] { width:95% }
 .response label { color:#555555 }
 
+.resource-name { margin-bottom:3px; text-align:right }
+
+
 .w01 { width:10px }
 .w05 { width:50px }
 .w17 { width:172px !important }
@@ -187,6 +191,9 @@ button.power.on:active { background-position:right -60px }
 button.fhelp { vertical-align:middle }
 
 .greytext { color:#555555 !important }
+.lightgreytext { color:#d0d0d0 !important }
+.orange { color:#ff6600 }
+.text-right { text-align:right }
 
 .steps div { display:inline-block; width:45%; margin:0 8px 10px 0 }
 .steps div button { float:left; margin-right:10px }
@@ -214,8 +221,16 @@ button.fhelp { vertical-align:middle }
 .fmovedown { background:url(http://resmap-stg.instedd.org/assets/moveDown.png) no-repeat; position:absolute; bottom:1px }
 .fmoveup { background:url(http://resmap-stg.instedd.org/assets/moveUp.png) no-repeat; position:absolute; top:0 }
 
-
+.box.inset {
+  -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3) inset !important;
+  -moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3) inset !important;
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3 ) inset !important;
+}
+.box.inset.disabled {
+  color:#d0d0d0;
+  font-style:italic;
+}
 
 /* ------------ Elipsis/Fade Out ------------------- */
 td.fade { white-space:nowrap; overflow:hidden; display:block; vertical-align:middle; float:left; position:relative; width:215px; padding-top:8px !important; }
-td.fade:before { position:absolute;right:0px;display:block;width:32px;background:white;background:-webkit-gradient(linear,0% 50%,100% 50%,color-stop(0%,rgba(255,255,255,0)),color-stop(100%,#fff));background:-webkit-linear-gradient(left,rgba(255,255,255,0),#fff);background:-moz-linear-gradient(left,rgba(255,255,255,0),#fff);background:-o-linear-gradient(left,rgba(255,255,255,0),#fff);background:-ms-linear-gradient(left,rgba(255,255,255,0),#fff);background:linear-gradient(left,rgba(255,255,255,0),#fff); color:transparent;content:"."}
+td.fade:before { position:absolute;right:0px;display:block;width:32px;background:white;background:-webkit-gradient(linear,0% 50%,100% 50%,color-stop(0%,rgba(255,255,255,0)),color-stop(100%,#fff));background:-webkit-linear-gradient(left,rgba(255,255,255,0),#fff);background:-moz-linear-gradient(left,rgba(255,255,255,0),#fff);background:-o-linear-gradient(left,rgba(255,255,255,0),#fff);background:-ms-linear-gradient(left,rgba(255,255,255,0),#fff);background:linear-gradient(left,rgba(255,255,255,0),#fff); color:#FFF;content:"."}

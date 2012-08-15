@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120802194925) do
+ActiveRecord::Schema.define(:version => 20120815162114) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -24,9 +24,9 @@ ActiveRecord::Schema.define(:version => 20120802194925) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at"
-    t.datetime "updated_at"
     t.string   "password_salt"
+    t.datetime "created_at",                                          :null => false
+    t.datetime "updated_at",                                          :null => false
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
@@ -47,10 +47,11 @@ ActiveRecord::Schema.define(:version => 20120802194925) do
     t.datetime "updated_at",              :null => false
     t.string   "mode"
     t.text     "variables"
+    t.text     "external_service_guids"
     t.string   "fusion_table_name"
     t.string   "current_fusion_table_id"
-    t.text     "external_service_guids"
     t.boolean  "store_in_fusion_tables"
+    t.text     "resource_guids"
   end
 
   add_index "call_flows", ["project_id"], :name => "index_call_flows_on_project_id"
@@ -72,8 +73,8 @@ ActiveRecord::Schema.define(:version => 20120802194925) do
     t.string   "direction"
     t.string   "address"
     t.string   "state",        :default => "active"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
     t.integer  "channel_id"
     t.datetime "started_at"
     t.integer  "schedule_id"
@@ -89,8 +90,8 @@ ActiveRecord::Schema.define(:version => 20120802194925) do
     t.integer  "call_flow_id"
     t.string   "name"
     t.text     "config"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
     t.string   "type"
     t.string   "guid"
   end
@@ -130,15 +131,15 @@ ActiveRecord::Schema.define(:version => 20120802194925) do
     t.string   "kind"
     t.string   "callback_url"
     t.text     "variables"
-    t.datetime "created_at",            :null => false
-    t.datetime "updated_at",            :null => false
+    t.datetime "created_at",          :null => false
+    t.datetime "updated_at",          :null => false
     t.string   "response_type"
     t.text     "response_variables"
     t.string   "guid"
-    t.string   "external_service_guid"
+    t.integer  "external_service_id"
   end
 
-  add_index "external_service_steps", ["external_service_guid"], :name => "index_external_service_steps_on_external_service_guid"
+  add_index "external_service_steps", ["external_service_id"], :name => "index_external_service_steps_on_external_service_id"
   add_index "external_service_steps", ["guid"], :name => "index_external_service_steps_on_guid"
 
   create_table "external_services", :force => true do |t|
@@ -158,14 +159,18 @@ ActiveRecord::Schema.define(:version => 20120802194925) do
   create_table "localized_resources", :force => true do |t|
     t.string   "language"
     t.string   "text"
-    t.binary   "audio"
+    t.binary   "recorded_audio", :limit => 2147483647
     t.string   "url"
     t.string   "type"
+    t.datetime "created_at",                           :null => false
+    t.datetime "updated_at",                           :null => false
+    t.text     "extras"
+    t.binary   "uploaded_audio", :limit => 2147483647
+    t.string   "guid"
     t.integer  "resource_id"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
   end
 
+  add_index "localized_resources", ["guid"], :name => "index_localized_resources_on_guid"
   add_index "localized_resources", ["resource_id"], :name => "index_localized_resources_on_resource_id"
 
   create_table "o_auth_tokens", :force => true do |t|
@@ -201,8 +206,8 @@ ActiveRecord::Schema.define(:version => 20120802194925) do
 
   create_table "projects", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                             :null => false
+    t.datetime "updated_at",                             :null => false
     t.integer  "account_id"
     t.string   "status_callback_url"
     t.text     "encrypted_config"
@@ -215,8 +220,8 @@ ActiveRecord::Schema.define(:version => 20120802194925) do
     t.integer  "channel_id"
     t.integer  "call_log_id"
     t.string   "address"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
     t.string   "callback_url"
     t.binary   "flow"
     t.string   "status_callback_url"
@@ -248,8 +253,10 @@ ActiveRecord::Schema.define(:version => 20120802194925) do
     t.integer  "project_id"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.string   "guid"
   end
 
+  add_index "resources", ["guid"], :name => "index_resources_on_guid"
   add_index "resources", ["project_id"], :name => "index_resources_on_project_id"
 
   create_table "schedules", :force => true do |t|
@@ -258,8 +265,8 @@ ActiveRecord::Schema.define(:version => 20120802194925) do
     t.time     "time_from"
     t.time     "time_to"
     t.string   "weekdays"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
     t.integer  "project_id"
   end
 

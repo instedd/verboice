@@ -148,3 +148,37 @@ OAuthToken.blueprint do
   service { :google }
   expires_at { DateTime.now.utc + 3600.seconds }
 end
+
+Resource.blueprint do
+  name
+  project
+  guid
+end
+
+UploadLocalizedResource.blueprint do
+  resource
+  language { 'en' }
+  guid
+  uploaded_audio { Guid.new.to_s }
+  filename { Faker::Name.name }
+end
+
+TextLocalizedResource.blueprint do
+  resource
+  language { 'en' }
+  guid
+end
+
+RecordLocalizedResource.blueprint do
+  resource
+  language { 'en' }
+  guid
+  recorded_audio { Guid.new.to_s }
+end
+
+UrlLocalizedResource.blueprint do
+  resource
+  language { 'en' }
+  guid
+  url
+end

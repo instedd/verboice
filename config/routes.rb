@@ -42,8 +42,6 @@ Verboice::Application.routes.draw do
         member do
           get :edit_workflow, path: :designer
           put :update_workflow, path: :update_flow
-          get :play_recording
-          post :save_recording
           post :import
           get :export
           get :download_results
@@ -60,6 +58,21 @@ Verboice::Application.routes.draw do
       resources :schedules
 
       resources :contacts, except: [:show]
+
+      resources :resources do
+        collection do
+          get :find
+        end
+
+        resources :localized_resources do
+          member do
+            post :save_recording
+            get :play_recording
+            post :save_file
+            get :play_file
+          end
+        end
+      end
 
     end
   end

@@ -83,6 +83,7 @@ class CallFlow < ActiveRecord::Base
       self.flow = parser.equivalent_flow
       self.variables = parser.variables.to_a.uniq
       self.external_service_guids = parser.external_service_guids.to_a
+      self.resource_guids = parser.resource_guids.to_a
       self.project.update_variables_with self.variables
     end
     true

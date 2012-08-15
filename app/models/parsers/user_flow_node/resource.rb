@@ -15,25 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-class Parsers::UserFlowNode::Message
+module Parsers
+  module UserFlowNode
+    class Resource
 
-  def self.can_handle? params
-    subclass_responsibility
-  end
+      attr_reader :guid
 
-  def self.for call_flow, parent_step, action, params
-    (SuitableClassFinder.find_direct_subclass_of self, suitable_for: (params || {})).new call_flow, parent_step, action, (params || {})
-  end
+      def initialize params
+        @guid = params['guid'] if params.present?
+      end
 
-  def name
-    subclass_responsibility
-  end
+      def equivalent_flow(language=nil)
+        Compiler.parse do |c|
+         c.PlayResource @guid, language
+        end if @guid
+      end
 
-  def equivalent_flow
-    subclass_responsibility
-  end
-
-  def capture_flow
-    subclass_responsibility
+      def capture_flow(language=nil)
+        flow = {}
+        flow[:resource] = @guid if @guid
+        flow[:language] = language if language
+        flow
+      end
+    end
   end
 end

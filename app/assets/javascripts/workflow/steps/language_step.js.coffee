@@ -7,20 +7,17 @@ onWorkflow ->
     constructor: (attrs) ->
       super(attrs)
 
-      message_for = (key) =>
-        _.find(attrs.languages, (l) => l.key == key)?.message
+      @languages = window.languages
 
       @next_id = attrs.next
-      @languages = ({key: l.key, message: MessageSelector.from_hash(message_for(l.key)).with_title(l.value).with_parent(@)} for l in languages)
-      @languages = ko.observable(@languages)
+      @resource = new ResourceEditor(@, attrs.resource)
 
-      @current_editing_message = ko.observable(null)
-
-      @is_editing_message = ko.computed () =>
-        @current_editing_message() != null
+      @current_editing_resource = ko.observable(null)
+      @is_editing_resource = ko.computed () =>
+        @current_editing_resource() != null
 
       @is_invalid = ko.computed () =>
-        @is_name_invalid() or not _.all((l.message.is_valid() for l in @languages()), _.identity)
+        @is_name_invalid() or not @resource.is_valid()
 
     button_class: () =>
       'llanguage'
@@ -34,20 +31,15 @@ onWorkflow ->
 
     to_hash: () =>
       $.extend(super,
-        languages: ({key: l.key, message: l.message.to_hash()} for l in @languages())
+        resource: @resource.to_hash()
       )
 
     default_name: () =>
       'Detect Language'
 
-    show_message: (language) =>
-      @current_editing_message(language.message)
-
-    title: (language) =>
-      _.find(languages, (l) => l.key == language.key).value
-
-    is_message_invalid: (language) =>
-      not language.message.is_valid()
+    show_language: (language) =>
+      @current_editing_resource(@resource)
+      @resource.show_language(language.key)
 
     number: (index) =>
       index() + 1

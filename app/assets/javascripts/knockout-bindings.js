@@ -16,6 +16,33 @@ ko.bindingHandlers.initMask = {
   },
 };
 
+/*
+  JQuery File Upload binding handler
+*/
+ko.bindingHandlers.fileupload = {
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var url = ko.utils.unwrapObservable(valueAccessor());
+    var allBindings = allBindingsAccessor();
+    $(element).fileupload({url: url, multipart: false, formData: {method: 'post'}});
+    if (allBindings.fileuploadAdd) {
+      $(element).bind('fileuploadadd', allBindings.fileuploadAdd);
+    }
+    if (allBindings.fileuploadSubmit) {
+      $(element).bind('fileuploadsubmit', allBindings.fileuploadSubmit);
+    }
+    if (allBindings.fileuploadDone) {
+      $(element).bind('fileuploaddone', allBindings.fileuploadDone);
+    }
+    if (allBindings.fileuploadFail) {
+      $(element).bind('fileuploadfail', allBindings.fileuploadFail);
+    }
+  },
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var url = ko.utils.unwrapObservable(valueAccessor());
+    $(element).fileupload('option', 'url', url);
+  }
+}
+
 
 /*
   Jquery Autocomplete Binding Handler (not-tested)
@@ -36,9 +63,10 @@ ko.bindingHandlers.jqAuto = {
             unwrap = ko.utils.unwrapObservable,
             modelValue = allBindings.jqAutoValue,
             source = allBindings.jqAutoSource,
+            query = allBindings.jqAutoQuery,
             valueProp = allBindings.jqAutoSourceValue,
             inputValueProp = allBindings.jqAutoSourceInputValue || valueProp,
-            labelProp = allBindings.jqAutoSourceLabel || valueProp;
+            labelProp = allBindings.jqAutoSourceLabel || inputValueProp;
 
         //function that is shared by both select and change event handlers
         function writeValueToModel(valueToWrite) {
@@ -59,7 +87,7 @@ ko.bindingHandlers.jqAuto = {
         options.change = function(event, ui) {
             var currentValue = $(element).val();
             var matchingItem =  ko.utils.arrayFirst(unwrap(source), function(item) {
-               return unwrap(inputValueProp ? item[inputValueProp] : item) === currentValue;
+               return unwrap(item[inputValueProp]) === currentValue;
             });
 
             if (!matchingItem) {
@@ -67,25 +95,43 @@ ko.bindingHandlers.jqAuto = {
             }
         }
 
+        //hold the autocomplete current response
+        var currentResponse = null;
 
         //handle the choices being updated in a DO, to decouple value updates from source (options) updates
-        var mappedSource = ko.dependentObservable(function() {
-                mapped = ko.utils.arrayMap(unwrap(source), function(item) {
-                    var result = {};
-                    result.label = labelProp ? unwrap(item[labelProp]) : unwrap(item).toString();  //show in pop-up choices
-                    result.value = inputValueProp ? unwrap(item[inputValueProp]) : unwrap(item).toString();  //show in input box
-                    result.actualValue = valueProp ? unwrap(item[valueProp]) : item;  //store in model
-                    return result;
-            });
-            return mapped;
-        }, null, { disposeWhenNodeIsRemoved: element });
-
-        //whenever the items that make up the source are updated, make sure that autocomplete knows it
-        mappedSource.subscribe(function(newValue) {
-           $(element).autocomplete("option", "source", newValue);
+        var mappedSource = ko.dependentObservable({
+            read: function() {
+                    mapped = ko.utils.arrayMap(unwrap(source), function(item) {
+                        var result = {};
+                        result.label = labelProp ? unwrap(item[labelProp]) : unwrap(item).toString();  //show in pop-up choices
+                        result.value = inputValueProp ? unwrap(item[inputValueProp]) : unwrap(item).toString();  //show in input box
+                        result.actualValue = valueProp ? unwrap(item[valueProp]) : item;  //store in model
+                        return result;
+                });
+                return mapped;
+            },
+            write: function(newValue) {
+                source(newValue);  //update the source observableArray, so our mapped value (above) is correct
+                if (currentResponse) {
+                    currentResponse(mappedSource());
+                }
+            }
         });
 
-        options.source = mappedSource();
+        if (query) {
+            options.source = function(request, response) {
+                currentResponse = response;
+                query.call(this, request.term, mappedSource);
+            }
+        } else {
+            //whenever the items that make up the source are updated, make sure that autocomplete knows it
+            mappedSource.subscribe(function(newValue) {
+               $(element).autocomplete("option", "source", newValue);
+            });
+
+            options.source = mappedSource();
+        }
+
 
         //initialize autocomplete
         $(element).autocomplete(options);
@@ -103,7 +149,7 @@ ko.bindingHandlers.jqAuto = {
            var source = unwrap(allBindings.jqAutoSource) || [];
            var modelValue = ko.utils.arrayFirst(source, function(item) {
                  return unwrap(item[valueProp]) === modelValue;
-           }) || {};  //probably don't need the || {}, but just protect against a bad value
+           }) || {};
        }
 
        //update the element with the value that should be shown in the input

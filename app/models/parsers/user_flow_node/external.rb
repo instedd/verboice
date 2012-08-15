@@ -41,7 +41,7 @@ module Parsers
       end
 
       def equivalent_flow
-        service_step = ExternalServiceStep.find_by_guid(@external_step_guid)
+        service_step = @call_flow.project.external_service_steps.find_by_guid(@external_step_guid)
         service = service_step.external_service
         Compiler.parse do |compiler|
           compiler.Label @id

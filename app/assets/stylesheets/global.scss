@@ -121,3 +121,17 @@ span.language {
   display: inline-block;
   width: 270px !important;
 }
+
+.upload-file {
+  padding: 0 !important;
+  overflow: hidden;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.upload-file input {
+  opacity: 0;
+  width: 24px;
+  height: 24px;
+}

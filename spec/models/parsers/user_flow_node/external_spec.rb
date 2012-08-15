@@ -21,7 +21,7 @@ module Parsers
   module UserFlowNode
     describe External do
 
-      let(:call_flow) { CallFlow.make }
+      let(:call_flow) { CallFlow.make project: external_service.project }
       let(:external_service) { external_service_step.external_service }
 
       describe "variables type" do

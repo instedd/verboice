@@ -28,11 +28,8 @@ module Parsers
         play = Play.new call_flow, 'id' => 1,
           'type' => 'play',
           'name' => 'Play',
-          'message' => {
-            "name" => "Some explanation message",
-            "type" => "recording",
-            "file" => "file.wav",
-            "duration" => 5
+          'resource' => {
+            "guid" => 5
           }
 
         play.equivalent_flow.first.should eq(
@@ -41,18 +38,31 @@ module Parsers
             c.Assign "current_step", 1
             c.AssignValue "current_step_name", "Play"
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Play', store: '"Message played."'
-            c.PlayFile "1-message"
+            c.PlayResource 5
           end.first
         )
       end
-      it "should compile a tts message as well" do
+
+      it "shouldn't compile the resource command if there is no resource provided" do
+        play = Play.new call_flow, 'id' => 1,
+          'type' => 'play',
+          'name' => 'Play'
+
+        play.equivalent_flow.first.should eq(
+          Compiler.parse do |c|
+            c.Label 1
+            c.Assign "current_step", 1
+            c.AssignValue "current_step_name", "Play"
+            c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Play', store: '"Message played."'
+          end.first
+        )
+      end
+
+      it "shouldn't compile the resource command if there is no resource id provided" do
         play = Play.new call_flow, 'id' => 27,
           'type' => 'play',
           'name' => 'Play number one',
-          'message' => {
-            "name" => "Some explanation message",
-            "type" => "text"
-          }
+          'resource' => {}
 
         play.equivalent_flow.first.should eq(
           Compiler.parse do |c|
@@ -60,39 +70,16 @@ module Parsers
             c.Assign "current_step", 27
             c.AssignValue "current_step_name", "Play number one"
             c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: 'Play number one', store: '"Message played."'
-            c.Say "Some explanation message"
           end.first
         )
       end
 
-      it "shouldn't compile the message playing if the file doesn't exist" do
-        play = Play.new call_flow, 'id' => 1,
-          'type' => 'play',
-          'name' => 'Play',
-          'message' => {
-            "name" => "Some explanation message",
-            "type" => "recording",
-            "file" => "file.wav",
-            "duration" => 5
-          }
-
-        play.equivalent_flow.first.should eq(
-          Compiler.parse do |c|
-            c.Label 1
-            c.Assign "current_step", 1
-            c.AssignValue "current_step_name", "Play"
-            c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Play', store: '"Message played."'
-          end.first
-        )
-      end
-
-      it "shouldn't compile the message say if there is no text to read" do
+      it "shouldn't compile the resource command if the resource id provided is nil" do
         play = Play.new call_flow, 'id' => 27,
           'type' => 'play',
           'name' => 'Play number one',
-          'message' => {
-            "name" => "",
-            "type" => "text"
+          'resource' => {
+            "guid" => nil
           }
 
         play.equivalent_flow.first.should eq(

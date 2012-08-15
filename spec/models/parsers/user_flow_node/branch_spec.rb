@@ -67,23 +67,20 @@ module Parsers
         play1 = Play.new call_flow, 'id' => 10,
           'type' => 'play',
           'name' => 'Play 1',
-          'message' => {
-            "name" => "Second explanation message",
-            "type" => "text"
+          'resource' => {
+            "guid" => 123
           }
         play2 = Play.new call_flow, 'id' => 14,
           'type' => 'play',
           'name' => 'Play 2',
-          'message' => {
-            "name" => "Third explanation message",
-            "type" => "text"
+          'resource' => {
+            "guid" => 1234
           }
         play3 = Play.new call_flow, 'id' => 5,
           'type' => 'play',
           'name' => 'Play 3',
-          'message' => {
-            "name" => "Fourth explanation message",
-            "type" => "text"
+          'resource' => {
+            "guid" => 1235
           }
 
         branch.solve_links_with [ play1, play2, play3 ]
@@ -100,7 +97,7 @@ module Parsers
               Assign "current_step", 10
               AssignValue "current_step_name", "Play 1"
               Trace call_flow_id: 1, step_id: 10, step_name: 'Play 1', store: '"Message played."'
-              Say "Second explanation message"
+              PlayResource 123
               Goto "end1"
             end
             RetrieveVariable 'another_name'
@@ -111,7 +108,7 @@ module Parsers
               Assign "current_step", 14
               AssignValue "current_step_name", "Play 2"
               Trace call_flow_id: 1, step_id: 14, step_name: 'Play 2', store: '"Message played."'
-              Say "Third explanation message"
+              PlayResource 1234
               Goto "end1"
             end
             If "true" do
@@ -120,7 +117,7 @@ module Parsers
               Assign "current_step", 5
               AssignValue "current_step_name", "Play 3"
               Trace call_flow_id: 1, step_id: 5, step_name: 'Play 3', store: '"Message played."'
-              Say "Fourth explanation message"
+              PlayResource 1235
               Goto "end1"
             end
             Trace(call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"No branch was selected."')
@@ -136,7 +133,7 @@ module Parsers
 
       it "should resolve it's next links from a given list of commands" do
         branch = Branch.new call_flow, 'id' => 27, 'type' => 'branch',
-          'explanation_message' => {"name" => 'foo', 'type' => 'text'},
+          'explanation_message' => {"guid" => 123},
           'options' =>[
             {
               'description' => 'foo',
@@ -149,10 +146,10 @@ module Parsers
           ]
         play_1 = Branch.new call_flow, 'id' => 10,
           'type' => 'play',
-          'message' => {"name"=>'foo', 'type' => 'text'}
+          'resource' => {"guid" => 123}
         play_2 = Play.new call_flow, 'id' => 14,
           'type' => 'play',
-          'message' => {"name"=>'foo', 'type' => 'text'}
+          'resource' => {"guid" => 123}
 
         branch.solve_links_with [ play_1, play_2 ]
         branch.options[0]['next'].should eq(play_1)
@@ -163,10 +160,10 @@ module Parsers
         branch_1 = Branch.new call_flow, 'id' => 10,
           'root' => 1,
           'type' => 'branch',
-          'explanation_message' => {"name"=>'foo', 'type' => 'text'}
+          'explanation_message' => {"guid" => 123}
         branch_2 = Branch.new call_flow, 'id' => 14,
           'type' => 'branch',
-          'explanation_message' => {"name"=>'foo', 'type' => 'text'}
+          'explanation_message' => {"guid" => 123}
         branch_1.is_root?.should be_true
         branch_2.is_root?.should be_false
       end

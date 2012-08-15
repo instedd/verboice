@@ -31,18 +31,15 @@ describe Parsers::UserFlow do
         'root' => 2,
         'type' => 'play',
         'name' => 'Play number 27',
-        'message' => {
-          "name" => "Some explanation message",
-          "type" => "recording",
-          "file" => "file.wav",
-          "duration" => 5
+        'resource' => {
+          "guid" => "resource 27 guid"
         }
       },
       {
         'id' => 3,
         'type' => 'menu',
         'name' => 'Menu number one',
-        'explanation_message' => { "name" => 'First Menu', 'type' => 'text' },
+        'explanation_message' => { "guid" => "resource of menu 3" },
         'options_message' => {},
         'invalid_message' => {},
         'timeout' => 20,
@@ -64,9 +61,8 @@ describe Parsers::UserFlow do
         'id' => 4,
         'type' => 'play',
         'name' => 'Say number 4',
-        'message' => {
-          "name" => "Say 4",
-          "type" => "text"
+        'resource' => {
+          "guid" => "resource 4 guid"
         }
       },
       {
@@ -74,11 +70,8 @@ describe Parsers::UserFlow do
         'root' => 1,
         'type' => 'play',
         'name' => 'Play number one',
-        'message' => {
-          "name" => "Some explanation message",
-          "type" => "recording",
-          "file" => "file.wav",
-          "duration" => 5
+        'resource' => {
+          "guid" => "resource 1 guid"
         },
         'next' => 2
       },
@@ -86,18 +79,12 @@ describe Parsers::UserFlow do
         'id' => 2,
         'type' => 'capture',
         'name' => 'Capture number one',
-        'instructions_message' => { "name" => 'First Capture', 'type' => 'text' },
+        'instructions_message' => { "guid" => 'First Capture message guid' },
         'invalid_message' => {
-          "name" => "An invalid key was pressed",
-          "type" => "recording",
-          "file" => "file.wav",
-          "duration" => 5
+          "guid" => "resource 2 invalid guid"
         },
         'end_call_message' => {
-          "name" => "This call will end now",
-          "type" => "recording",
-          "file" => "file.wav",
-          "duration" => 5
+          "guid" => "resource 2 end call guid"
         },
         'valid_values' => '1-10',
         'finish_on_key' => '#',
@@ -110,18 +97,16 @@ describe Parsers::UserFlow do
         'id' => 6,
         'type' => 'play',
         'name' => 'Say number 6',
-        'message' => {
-          "name" => "Say 6",
-          "type" => "text"
+        'resource' => {
+          "guid" => "resource 6 guid"
         }
       },
       {
         'id' => 5,
         'type' => 'play',
         'name' => 'Say number 5',
-        'message' => {
-          "name" => "Say 5",
-          "type" => "text"
+        'resource' => {
+          "guid" => "resource 5 guid"
         },
         'next' => 7
       },
@@ -135,11 +120,8 @@ describe Parsers::UserFlow do
         'root' => 3,
         'type' => 'play',
         'name' => 'Play number 33',
-        'message' => {
-          "name" => "Some explanation message",
-          "type" => "recording",
-          "file" => "file.wav",
-          "duration" => 5
+        'resource' => {
+          "guid" => "resource 33 guid"
         },
         'next' => 34
       },
@@ -186,20 +168,16 @@ describe Parsers::UserFlow do
         'id' => 10,
         'type' => 'play',
         'name' => 'Play number 10',
-        'message' => {
-          "name" => "Some explanation message",
-          "type" => "recording",
-          "file" => "file.wav",
-          "duration" => 5
+        'resource' => {
+          "guid" => "resource 10 guid"
         }
       },
       {
         'id' => 14,
         'type' => 'play',
         'name' => 'Say 14',
-        'message' => {
-          "name" => "Say 14",
-          "type" => "text"
+        'resource' => {
+          "guid" => "resource 14 guid"
         },
         'next' => 15
       },
@@ -213,11 +191,8 @@ describe Parsers::UserFlow do
         'root' => 4,
         'type' => 'play',
         'name' => 'Play number 44',
-        'message' => {
-          "name" => "Some explanation message",
-          "type" => "recording",
-          "file" => "file.wav",
-          "duration" => 5
+        'resource' => {
+          "guid" => "resource 44 guid"
         }
       }
     ]
@@ -231,19 +206,19 @@ describe Parsers::UserFlow do
         Assign "current_step", 1
         AssignValue "current_step_name", "Play number one"
         Trace call_flow_id: 5, step_id: 1, step_name: 'Play number one', store: '"Message played."'
-        PlayFile "1-message"
+        PlayResource "resource 1 guid"
         Assign "current_step", 2
         AssignValue "current_step_name", "Capture number one"
         Assign 'attempt_number2', '1'
         While 'attempt_number2 <= 3' do
-          Capture say: "First Capture", min: 1, max: 10, finish_on_key: '#', timeout: 10
+          Capture resource: "First Capture message guid", min: 1, max: 10, finish_on_key: '#', timeout: 10
           Assign 'value_2', 'digits'
           If "(digits >= 1 && digits <= 10)" do
             Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"User pressed: " + (digits ? digits : "<empty>")'
             Goto "end2"
           end
           If "digits != null" do
-            PlayFile "2-invalid"
+            PlayResource "resource 2 invalid guid"
             Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Invalid key pressed"'
           end
           Else do
@@ -255,7 +230,7 @@ describe Parsers::UserFlow do
         Label "end2"
         Assign "current_step", 3
         AssignValue "current_step_name", "Menu number one"
-        Say 'First Menu'
+        PlayResource "resource of menu 3"
         Assign 'attempt_number3', '1'
         While 'attempt_number3 <= 3' do
           Capture finish_on_key: '', timeout: 20
@@ -265,7 +240,7 @@ describe Parsers::UserFlow do
             Assign "current_step", 4
             AssignValue "current_step_name", "Say number 4"
             Trace call_flow_id: 5, step_id: 4, step_name: 'Say number 4', store: '"Message played."'
-            Say "Say 4"
+            PlayResource "resource 4 guid"
             Goto "end3"
           end
           If "digits == '1'" do
@@ -273,7 +248,7 @@ describe Parsers::UserFlow do
             Assign "current_step", 6
             AssignValue "current_step_name", "Say number 6"
             Trace call_flow_id: 5, step_id: 6, step_name: 'Say number 6', store: '"Message played."'
-            Say "Say 6"
+            PlayResource "resource 6 guid"
             Goto "end3"
           end
           If "digits != null" do
@@ -289,11 +264,11 @@ describe Parsers::UserFlow do
         Assign "current_step", 5
         AssignValue "current_step_name", "Say number 5"
         Trace call_flow_id: 5, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
-        Say "Say 5"
+        PlayResource "resource 5 guid"
         Assign "current_step", 33
         AssignValue "current_step_name", "Play number 33"
         Trace call_flow_id: 5, step_id: 33, step_name: 'Play number 33', store: '"Message played."'
-        PlayFile "33-message"
+        PlayResource "resource 33 guid"
         Assign "current_step", 34
         AssignValue "current_step_name", "Branch number one"
         If "(typeof(value_3) != 'undefined' && typeof(6) != 'undefined' && value_3 == 6) && (typeof(value_2) != 'undefined' && typeof(30) != 'undefined' && value_2 < 30) && (typeof(value_2) != 'undefined' && typeof(5) != 'undefined' && value_2 >= 5)" do
@@ -302,7 +277,7 @@ describe Parsers::UserFlow do
           Assign "current_step", 10
           AssignValue "current_step_name", "Play number 10"
           Trace call_flow_id: 5, step_id: 10, step_name: 'Play number 10', store: '"Message played."'
-          PlayFile "10-message"
+          PlayResource "resource 10 guid"
           Goto "end34"
         end
         If "(typeof(value_3) != 'undefined' && typeof(5) != 'undefined' && value_3 <= 5)" do
@@ -311,7 +286,7 @@ describe Parsers::UserFlow do
           Assign "current_step", 14
           AssignValue "current_step_name", "Say 14"
           Trace call_flow_id: 5, step_id: 14, step_name: 'Say 14', store: '"Message played."'
-          Say "Say 14"
+          PlayResource "resource 14 guid"
           Label 15
           Assign "current_step", 15
           AssignValue "current_step_name", "Hanged up!"

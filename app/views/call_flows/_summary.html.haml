@@ -5,3 +5,4 @@
 .bottom
   = link_to 'Edit', '#', :class => 'farrow collapse_trigger'
   = link_to 'Download call results as CSV', download_results_call_flow_path(call_flow, :format => :csv), :class => "button fimport" unless call_flow.new_record? || call_flow.mode_callback_url? || call_flow.user_flow.nil?
+  = link_to "Go to Designer", edit_workflow_call_flow_path(call_flow), :class => 'button farrow flow_settings flow_settings' unless call_flow.new_record? || call_flow.mode_callback_url?

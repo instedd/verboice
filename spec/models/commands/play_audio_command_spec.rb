@@ -18,45 +18,44 @@
 require 'spec_helper'
 
 module Commands
-  describe PlayFileCommand do
+  describe PlayAudioCommand do
 
     before(:each) do
-      @key = 'file_key'
-      @file_path = "/path/to/original/file"
       @target_path = '/path/to/pbx/target_path'
 
       @session = Session.new :pbx => double('pbx'), :call_flow => double('call_flow').tap { |d| d.stub(:id => 1) }
-      @session.pbx.should_receive(:sound_path_for).with("1-#{@key}").and_return(@target_path)
+      @session.pbx.should_receive(:sound_path_for).with(resource.guid).and_return(@target_path)
       @session.pbx.should_receive(:play).with(@target_path, anything)
-      @session.recording_manager.should_receive(:recording_path_for).at_least(:once).with(@key).and_return(@file_path)
       @session.stub(:info)
       @session.stub(:trace)
     end
 
+    let(:resource) { UploadLocalizedResource.make }
+
     let(:command) do
-      PlayFileCommand.new @key
+      PlayAudioCommand.new resource
     end
 
     it "should convert the file if not present in target path" do
-      File.should_receive(:exists?).with(@target_path).and_return(false)
+      # File.should_receive(:exist?).with(@target_path).and_return(false)
 
-      command.should_receive(:convert_to_8000_hz_gsm).with(@file_path, @target_path)
+      command.should_receive(:convert_to_8000_hz_gsm).with(anything, @target_path)
       command.run(@session)
     end
 
     it "should convert the file if target path is older" do
-      File.should_receive(:exists?).with(@target_path).and_return(true)
+      File.stub(:exist?).with(anything).and_return(true)
       File.should_receive(:mtime).with(@target_path).and_return(Time.now.utc - 10.hours)
-      File.should_receive(:mtime).with(@file_path).and_return(Time.now.utc)
+      resource.should_receive(:updated_at).and_return(Time.now.utc)
 
-      command.should_receive(:convert_to_8000_hz_gsm).with(@file_path, @target_path)
+      command.should_receive(:convert_to_8000_hz_gsm).with(anything, @target_path)
       command.run(@session)
     end
 
     it "should not convert the file if target path is newer" do
-      File.should_receive(:exists?).with(@target_path).and_return(true)
+      File.should_receive(:exist?).with(@target_path).and_return(true)
       File.should_receive(:mtime).with(@target_path).and_return(Time.now.utc)
-      File.should_receive(:mtime).with(@file_path).and_return(Time.now.utc - 10.hours)
+      resource.should_receive(:updated_at).and_return(Time.now.utc - 10.hours)
 
       command.should_not_receive(:convert_to_8000_hz_gsm)
       command.run(@session)

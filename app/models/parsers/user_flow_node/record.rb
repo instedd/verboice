@@ -24,8 +24,8 @@ module Parsers
       def initialize call_flow, params
         @id = params['id']
         @name = params['name'] || ''
-        @explanation_message = Message.for call_flow, self, :explanation, params['explanation_message']
-        @confirmation_message = Message.for call_flow, self, :confirmation, params['confirmation_message']
+        @explanation_message = Resource.new params['explanation_message']
+        @confirmation_message = Resource.new params['confirmation_message']
         @timeout = params['timeout']
         @stop_key = params['stop_key']
         @call_flow = call_flow

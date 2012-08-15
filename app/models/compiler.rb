@@ -20,11 +20,13 @@ class Compiler
   attr_accessor :labels
   attr_accessor :variables
   attr_accessor :external_service_guids
+  attr_accessor :resource_guids
 
   def initialize
     @labels = {}
     @variables = Set.new
     @external_service_guids = Set.new
+    @resource_guids = Set.new
   end
 
   def parse &blk
@@ -87,6 +89,16 @@ class Compiler
   def Callback url=nil, options={}
     @external_service_guids.add options[:external_service_guid] if options[:external_service_guid].present?
     append Commands::CallbackCommand.new(url, options)
+  end
+
+  def PlayResource id, language=nil
+    # if options[:guid].present?
+    #   @resource_guids << options[:guid]
+    # elsif options[:id].present?
+      # @resource_guids << Resource.find(options[:id]).guid
+    # end
+
+    append Commands::PlayResourceCommand.new(id, language)
   end
 
   def Assign(*args)
@@ -161,6 +173,7 @@ class Compiler
       @labels.merge! block.labels
       @variables.merge block.variables
       @external_service_guids.merge block.external_service_guids
+      @resource_guids.merge block.resource_guids
       block.first
     else
       block

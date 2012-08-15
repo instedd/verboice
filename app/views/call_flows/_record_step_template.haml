@@ -1,48 +1,46 @@
 %script{type: "text/html", id: "record_step_template"}
-  %span
-    %div{ko(:if => "is_editing_message()")}
-      %div{ko(:template => "{name: 'message_template', data: current_editing_message}")}
+  .feditor-sidebar.right.box.w28.iblock.h65
 
-    %div{ko(:if => "!is_editing_message()")}
-      .feditor-sidebar.right.box.w28.iblock.h65
+    %div{ko(:if => "is_editing_resource()")}
+      %div{ko(template: "{name: 'resource_editor_template', data: current_editing_resource}")}
 
-        .tableheader
-          %span.left.i48grad-microphone{ ko(css: '{ "orange": is_invalid }') }
-          %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
+    .tableheader
+      %span.left.i48grad-microphone{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
 
-        %table.GralTable.TwoColumn.CleanTable.NoHead
-          %tr
-            %th Messages
-            %th
-          %tr
-            %td{ko(css: "{ orange: is_explanation_message_invalid }")}
-              Explanation:
-              %span{ko(css: "{ alert: is_explanation_message_invalid }")}
-              %span{ko(text: "message('explanation').name()")}
-            %td
-              %button.farrow{:type => "button", 'data-bind' => 'click: show_explanation_message'}
-          %tr
-            %td{ko(css: "{ orange: is_confirmation_message_invalid }")}
-              Confirmation:
-              %span{ko(css: "{ alert: is_confirmation_message_invalid }")}
-              %span{ko(text: "message('confirmation').name()")}
-            %td
-              %button.farrow{:type => "button", 'data-bind' => 'click: show_confirmation_message'}
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %th Messages
+        %th
+      %tr
+        %td{ko(css: "{ orange: is_explanation_resource_invalid }")}
+          Explanation:
+          %span{ko(css: "{ alert: is_explanation_resource_invalid }")}
+          %span{ko(text: "resource('explanation').display_name()")}
+        %td
+          %button.farrow{:type => "button", 'data-bind' => 'click: show_explanation_resource'}
+      %tr
+        %td{ko(css: "{ orange: is_confirmation_resource_invalid }")}
+          Confirmation:
+          %span{ko(css: "{ alert: is_confirmation_resource_invalid }")}
+          %span{ko(text: "resource('confirmation').display_name()")}
+        %td
+          %button.farrow{:type => "button", 'data-bind' => 'click: show_confirmation_resource'}
 
-        .content
-          %hr
-          %label Time
-          %br
-          .ux-nstep.w06
-            %input{:type => 'text', :size => '2', 'data-bind' => 'value: timeout'}
-          %span Maximum recording time in secs.
-          %br
-          %hr
-          %label Properties
-          %br
-          Stop recording audio with key:
-          %select{'data-bind' => 'value: stop_key, options: available_keys()'}
-          %hr
+    .content
+      %hr
+      %label Time
+      %br
+      .ux-nstep.w06
+        %input{:type => 'number', :size => '2', 'data-bind' => 'value: timeout'}
+      %span Maximum recording time in secs.
+      %br
+      %hr
+      %label Properties
+      %br
+      Stop recording audio with key:
+      %select{'data-bind' => 'value: stop_key, options: available_keys()'}
+      %hr
 
-        .bottom-actions
-          %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+    .bottom-actions
+      %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

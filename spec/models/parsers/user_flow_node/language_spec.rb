@@ -21,16 +21,14 @@ module Parsers
   module UserFlowNode
     describe Language do
 
-      let(:call_flow) { CallFlow.make }
+      let(:project) { Project.make :languages => ['en', 'es'] }
+      let(:call_flow) { CallFlow.make :project => project }
 
       it "should compile to a verboice equivalent flow" do
         language = Language.new call_flow, 'id' => 1,
           'type' => 'language',
           'name' => 'Detect Language',
-          'languages' => [
-            {'key' => 'en', 'message' => {'name' => 'Message in english', 'type' => 'text'}},
-            {'key' => 'es', 'message' => {'name' => 'Message in spanish', 'type' => 'text'}}
-          ]
+          'resource' => {'guid' => '12349'}
 
         language.equivalent_flow.first.should eq(
           Compiler.parse do |c|
@@ -41,11 +39,11 @@ module Parsers
             c.If "var_language != null" do |c|
               c.Goto "end1"
             end
-            c.Capture({finish_on_key: '', timeout: 1, say: 'Message in english'})
+            c.Capture({finish_on_key: '', timeout: 1, resource: '12349', language: 'en'})
             c.If "digits != null" do |c|
               c.Goto "set_language1"
             end
-            c.Capture({finish_on_key: '', timeout: 10, say: 'Message in spanish'})
+            c.Capture({finish_on_key: '', timeout: 10, resource: '12349', language: 'es'})
             c.If "digits != null" do |c|
               c.Goto "set_language1"
             end

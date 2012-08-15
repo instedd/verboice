@@ -24,7 +24,7 @@ module Parsers
       def initialize call_flow, params
         @id = params['id']
         @name = params['name'] || ''
-        @message = Message.for call_flow, self, :message, params['message']
+        @resource = Resource.new params['resource']
         @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
@@ -44,7 +44,7 @@ module Parsers
           compiler.Assign "current_step", @id
           compiler.AssignValue "current_step_name", "#{@name}"
           compiler.Trace context_for '"Message played."'
-          compiler.append @message.equivalent_flow if @message
+          compiler.append @resource.equivalent_flow
           compiler.append @next.equivalent_flow if @next
         end
       end

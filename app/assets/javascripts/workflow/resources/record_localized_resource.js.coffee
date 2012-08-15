@@ -1,27 +1,38 @@
-#= require workflow/messages/message
+#= require workflow/resources/localized_resource
+#= require recorder
 
 onWorkflow ->
-  class window.RecordedMessage extends Message
-    constructor: (hash={}) ->
+  class window.RecordLocalizedResource extends LocalizedResource
+
+    constructor: (hash = {}) ->
       super(hash)
-      @file = ko.observable hash.file
+
+      @label = 'Record message'
+      @template = 'record_localized_resource_template'
+
+      @has_audio = ko.observable hash.has_recorded_audio
       @recording = ko.observable false
       @playing = ko.observable false
       @duration = ko.observable(hash.duration || (new Date).clearTime().toString('mm:ss'))
-      @type = 'recording'
-      @label = 'Record message'
       @recording_start = null
       @update_duration_interval = null
+      @description = ko.observable hash.description
+
+      @is_valid = ko.computed =>
+        @has_audio()
 
     record: () =>
       return if @playing() or @recording()
+      unless @is_saved()
+        alert 'Please save this message before recording'
+        return
       @playing false
       @update_duration 0
       Wami.setup
         id: 'wami'
         swfUrl: '/Wami.swf'
         onReady: =>
-          Wami.startRecording("#{save_recording_path}?#{@message_query_identifier()}",
+          Wami.startRecording(@save_recording_url(),
             Wami.nameCallback(@wami_record_start), Wami.nameCallback(@wami_record_finished), Wami.nameCallback(@wami_record_failed));
           @recording_start = @now_seconds()
           @update_duration_interval = window.setInterval((() =>
@@ -32,12 +43,12 @@ onWorkflow ->
       if Wami.stopRecording # check if Wami is loaded
         Wami.stopRecording() if @recording()
         Wami.stopPlaying() if @playing()
-        @file(true)
+        @has_audio(true)
       @playing(false)
       window.clearInterval(@update_duration_interval)
 
     play: () =>
-      return if @playing() or @recording() or not @file()
+      return if @playing() or @recording() or not @has_audio()
       @recording(false)
       @playing(true)
       Wami.setup
@@ -45,25 +56,25 @@ onWorkflow ->
         swfUrl: '/Wami.swf'
         onReady: =>
           window.playFinished = () => @playing(false)
-          url = "#{play_recording_path}?#{@message_query_identifier()}"
-          Wami.startPlaying(url, null, Wami.nameCallback(window.playFinished))
+          Wami.startPlaying(@play_recording_url(), null, Wami.nameCallback(window.playFinished))
       @alert_flash_required('playing')
 
-    exit: () =>
-      @stop()
-      super
+    is_valid: () =>
+      super() and @has_audio()
 
     to_hash: () =>
-      if @file() or @name()?
-        $.extend(super,
-          file: @file()
-          duration: @duration()
-        )
-
-    is_valid: () =>
-      super() and @file()
+      $.extend(super,
+        description: @description(),
+        duration: @duration()
+      )
 
     # private
+
+    save_recording_url: () =>
+      "/projects/#{project_id}/resources/#{@parent().id()}/localized_resources/#{@id()}/save_recording"
+
+    play_recording_url: () =>
+      "/projects/#{project_id}/resources/#{@parent().id()}/localized_resources/#{@id()}/play_recording"
 
     wami_record_start: () =>
       @recording(true)
@@ -73,9 +84,6 @@ onWorkflow ->
 
     wami_record_failed: () =>
       @recording(false)
-
-    message_query_identifier: () =>
-      return "step_id=#{@parent.id}&message=#{@title}"
 
     now_seconds: () =>
       Math.round(+new Date()/1000)
@@ -87,3 +95,4 @@ onWorkflow ->
       if $('.flash-required').length
         $('.flash-required').html('')
         alert "Adobe Flash Player version 10.0.0 or higher is required for #{action} a message.\nDownload it from https://get.adobe.com/flashplayer/ and reload this page."
+

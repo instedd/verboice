@@ -1,30 +1,28 @@
 %script{type: "text/html", id: "language_step_template"}
-  %span
-    %div{ko(:if => "is_editing_message()")}
-      %div{ko(template: "{name: 'message_template', data: current_editing_message}")}
+  .feditor-sidebar.right.box.w28.iblock.h65
 
-    %div{ko(:if => "!is_editing_message()")}
-      .feditor-sidebar.right.box.w28.iblock.h65
-        .tableheader
-          %span.left.i48grad-sound{ ko(css: '{ "orange": is_invalid }') }
-          %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
-        .content
-          %label Record one message for each supported language. Callers will hear each message and will be asked to type the number associated with the language. Make sure you include a reference to that number, for example: "For english, press 2".
-        %br
-        %table.GralTable.TwoColumn.CleanTable.NoHead
-          %tr
-            %th Languages
-            %th
-          / ko foreach: languages
-          %tr
-            %td{ko(css: "{ orange: $parent.is_message_invalid($data) }")}
-              %span{ko(css: "{ alert: $parent.is_message_invalid($data) }")}
-              %span{ko(text: '$parent.number($index)')}
-              %span .
-              %span{ko(text: '$parent.title($data)')}
-            %td
-              %button.farrow{ :type => "button", 'data-bind' => 'click: $parent.show_message' }
-          / /ko
-        .content
-          .bottom-actions
-            %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+    %div{ko(:if => "is_editing_resource()")}
+      %div{ko(template: "{name: 'resource_editor_template', data: current_editing_resource}")}
+
+    .tableheader
+      %span.left.i48grad-sound{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
+    .content
+      %label Record one message for each supported language. Callers will hear each message and will be asked to type the number associated with the language. Make sure you include a reference to that number, for example: "For english, press 2".
+    %br
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %th Languages
+        %th
+      / ko foreach: languages
+      %tr
+        %td
+          %span{ko(text: '$parent.number($index)')}
+          %span .
+          %span{ko(text: 'value')}
+        %td
+          %button.farrow{ :type => "button", 'data-bind' => 'click: $parent.show_language' }
+      / /ko
+    .content
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
