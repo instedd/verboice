@@ -6,6 +6,6 @@ csv << ['Call ID', 'Phone Number', 'Time', 'Severity', 'Step name', 'Step ID', '
 @entries = ActiveRecord::Base.connection.execute(@entries.to_sql)
 
 @entries.each do |entry|
-  details = SerializableHash.load(entry[2])
+  details = SerializableHash.load(entry[2]) || {}
   csv << [entry[3], entry[4], entry[0], entry[1], details[:step_name], details[:step_id], details[:command], details[:action], details[:description]]
 end
