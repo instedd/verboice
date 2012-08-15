@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120814202757) do
+ActiveRecord::Schema.define(:version => 20120815162114) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -47,9 +47,9 @@ ActiveRecord::Schema.define(:version => 20120814202757) do
     t.datetime "updated_at",              :null => false
     t.string   "mode"
     t.text     "variables"
+    t.text     "external_service_guids"
     t.string   "fusion_table_name"
     t.string   "current_fusion_table_id"
-    t.text     "external_service_guids"
     t.boolean  "store_in_fusion_tables"
     t.text     "resource_guids"
   end
