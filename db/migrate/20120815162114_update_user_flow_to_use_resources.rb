@@ -50,14 +50,15 @@ class UpdateUserFlowToUseResources < ActiveRecord::Migration
     resource.project = call_flow.project
     resource.save
 
-    language['resource'] = {'guid' => resource.guid}
+    step['resource'] = {'guid' => resource.guid}
 
     step['languages'].each do |language|
       next if language['message'].nil?
       action = LanguageList::LanguageInfo.find(language['key']).name
-      update_localized_resource(call_flow, resource, step, language['message'], action)
-      language.delete 'message'
+      update_localized_resource(call_flow, resource, step, language['message'], action, language['key'])
     end
+
+    step.delete 'languages'
   end
 
   # Shared
@@ -80,10 +81,10 @@ class UpdateUserFlowToUseResources < ActiveRecord::Migration
     resource
   end
 
-  def update_localized_resource(call_flow, resource, step, message, action)
+  def update_localized_resource(call_flow, resource, step, message, action, language = nil)
     localized_resource = LocalizedResource.new
     localized_resource.resource = resource
-    localized_resource.language = call_flow.project.default_language
+    localized_resource.language = language || call_flow.project.default_language
     localized_resource.text = message['name']
     localized_resource.type = message['type'] == 'recording' ? 'RecordLocalizedResource' : 'TextLocalizedResource'
     if message['type'] == 'recording'
