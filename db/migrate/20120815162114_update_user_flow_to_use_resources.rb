@@ -89,7 +89,7 @@ class UpdateUserFlowToUseResources < ActiveRecord::Migration
     localized_resource.type = message['type'] == 'recording' ? 'RecordLocalizedResource' : 'TextLocalizedResource'
     if message['type'] == 'recording'
       localized_resource.duration = message['duration']
-      localized_resource.recorded_audio = read_file call_flow.id, "#{step['id']}-#{action}.wav"
+      localized_resource.recorded_audio = read_file call_flow.id, "#{step['id']}-#{action}.wav" rescue nil
     end
     localized_resource.save!
   end
