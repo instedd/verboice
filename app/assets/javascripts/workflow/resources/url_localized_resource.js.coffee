@@ -17,3 +17,6 @@ onWorkflow ->
       $.extend(super,
         url: @url()
       )
+
+    type: () =>
+      'UrlLocalizedResource'

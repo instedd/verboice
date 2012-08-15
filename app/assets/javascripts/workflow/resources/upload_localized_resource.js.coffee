@@ -27,6 +27,9 @@ onWorkflow ->
         description: @description(),
         filename: @filename()
       )
+      
+    type: () =>
+      'UploadLocalizedResource'
 
     replace: () =>
       @is_editing(true)

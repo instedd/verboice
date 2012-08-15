@@ -17,3 +17,6 @@ onWorkflow ->
       $.extend(super,
         text: @text()
       )
+
+    type: () =>
+      'TextLocalizedResource'

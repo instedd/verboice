@@ -68,6 +68,9 @@ onWorkflow ->
         duration: @duration()
       )
 
+    type: () =>
+      'RecordLocalizedResource'
+
     # private
 
     save_recording_url: () =>

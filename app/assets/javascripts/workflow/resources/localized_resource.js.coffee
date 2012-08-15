@@ -11,9 +11,6 @@ onWorkflow ->
       language: @language()
       type: @type()
 
-    type: () =>
-      @.constructor.name
-
     set_parent: (parent) =>
       @parent(parent)
 
