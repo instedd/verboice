@@ -71,6 +71,39 @@ class CallFlow < ActiveRecord::Base
     self.push_to_fusion_tables(call_log)
   end
 
+  def clean_external_service(external_service)
+    return unless user_flow.present?
+    step_guids = external_service.steps.pluck(:guid)
+    ancestors = {}
+    deleted_steps = []
+    user_flow.each do |step|
+      ancestors[step['next']] = step['id'] if step['next'].present?
+    end
+    user_flow.delete_if do |step|
+      if step['type'] == 'external' && step_guids.include?(step['external_step_guid'])
+        # link steps
+        ancestor_id = ancestors[step['id']]
+        if ancestor_id
+          ancestor = user_flow.detect{|s| s['id'] == ancestor_id}
+          ancestor['next'] = step['next']
+        end
+        # update root
+        if step['root'] && step['next'].present?
+          next_step = user_flow.detect{|s| s['id'] == step['next']}
+          next_step['root'] = true
+        end
+        deleted_steps << step['id']
+        # delete
+        true
+      else
+        # dont delete
+        false
+      end
+    end
+    # remove link in gotos
+    user_flow.select{|s| s['type'] == 'goto' && deleted_steps.include?(s['jump'])}.each{|s| s['jump'] = nil}
+  end
+
   private
 
   def set_name_to_callback_url

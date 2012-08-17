@@ -164,4 +164,98 @@ describe CallFlow do
     call_flow.reload
     call_flow.external_service_guids.should eq([service.guid])
   end
+
+  describe "clean external service" do
+    let!(:call_flow) { CallFlow.make }
+    let!(:external_service) { ExternalService.make project: call_flow.project }
+    let!(:external_step_1) { ExternalServiceStep.make external_service: external_service }
+    let!(:external_step_2) { ExternalServiceStep.make external_service: external_service }
+
+    it "should do nothing if no user flow is present" do
+      call_flow.user_flow.should be_nil
+      call_flow.clean_external_service external_service
+      call_flow.user_flow.should be_nil
+    end
+
+    context "only external step" do
+      before(:each) do
+        call_flow.user_flow = [{"id"=>1, "type"=>"external", "root"=>true, "next"=>nil, "external_step_guid"=>external_step_2.guid}]
+      end
+
+      it "should remove external step" do
+        call_flow.clean_external_service external_service
+        call_flow.user_flow.should eq([])
+      end
+    end
+
+    context "external step after normal step" do
+      before(:each) do
+        call_flow.user_flow = [
+          {"id"=>1, "type"=>"external", "root"=>false, "next"=>nil, "external_step_guid"=>external_step_1.guid},
+          {"id"=>2, "type"=>"play", "root"=>true, "next"=>1}
+        ]
+        call_flow.clean_external_service external_service
+      end
+
+      it "should remove external step" do
+        call_flow.user_flow.select{|s| s['type'] == 'external'}.should be_empty
+      end
+
+      it "should preserve the other step removing the next link" do
+        call_flow.user_flow.should == [{"id"=>2, "type"=>"play", "root"=>true, "next"=>nil}]
+      end
+    end
+
+    context "external step before normal step" do
+      before(:each) do
+        call_flow.user_flow = [
+          {"id"=>1, "type"=>"external", "root"=>true, "next"=>2, "external_step_guid"=>external_step_1.guid},
+          {"id"=>2, "type"=>"play", "root"=>false, "next"=>nil}
+        ]
+        call_flow.clean_external_service external_service
+      end
+
+      it "should remove external step" do
+        call_flow.user_flow.select{|s| s['type'] == 'external'}.should be_empty
+      end
+
+      it "should preserve the other step, setting the root to true" do
+        call_flow.user_flow.should == [{"id"=>2, "type"=>"play", "root"=>true, "next"=>nil}]
+      end
+    end
+
+    context "external step between normal steps" do
+      before(:each) do
+        call_flow.user_flow = [
+          {"id"=>1, "type"=>"play", "root"=>true, "next"=>2},
+          {"id"=>2, "type"=>"external", "root"=>false, "next"=>3, "external_step_guid"=>external_step_2.guid},
+          {"id"=>3, "type"=>"play", "root"=>false, "next"=>nil}
+        ]
+        call_flow.clean_external_service external_service
+      end
+
+      it "should remove external step" do
+        call_flow.user_flow.select{|s| s['type'] == 'external'}.should be_empty
+      end
+
+      it "should preserve the other steps, linking them" do
+        call_flow.user_flow.should == [{"id"=>1, "type"=>"play", "root"=>true, "next"=>3}, {"id"=>3, "type"=>"play", "root"=>false, "next"=>nil}]
+      end
+    end
+
+    context "goto" do
+      before(:each) do
+        call_flow.user_flow = [
+          {"id"=>1, "type"=>"external", "root"=>false, "next"=>nil, "external_step_guid"=>external_step_1.guid},
+          {"id"=>2, "type"=>"goto", "root"=>true, "next"=>nil, "jump"=>1},
+        ]
+        call_flow.clean_external_service external_service
+      end
+
+      it "should remove goto link" do
+        call_flow.user_flow.should == [{"id"=>2, "type"=>"goto", "root"=>true, "next"=>nil, "jump"=>nil}]
+      end
+    end
+  end
+
 end
