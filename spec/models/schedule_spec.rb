@@ -140,6 +140,21 @@ describe Schedule do
           end
         end
       end
+
+      context 'destroy' do
+        let!(:queued_call) { QueuedCall.make schedule: subject}
+
+        it 'should destroy queued calls' do
+          expect {
+            subject.destroy
+          }.to change(QueuedCall, :count).by(-1)
+        end
+
+        it 'should cancel call of queued call' do
+          QueuedCall.any_instance.should_receive(:cancel_call!)
+          subject.destroy
+        end
+      end
     end
   end
 end

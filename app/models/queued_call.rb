@@ -46,4 +46,9 @@ class QueuedCall < ActiveRecord::Base
 
     channel.new_session options
   end
+
+  def cancel_call!
+    call_log.state = :cancelled
+    call_log.save!
+  end
 end
