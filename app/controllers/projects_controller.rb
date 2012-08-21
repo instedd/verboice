@@ -54,6 +54,8 @@ class ProjectsController < ApplicationController
   end
 
   def enqueue_call
+    redirect_to project_path(params[:id]), flash: {error: 'You need to select a Call Flow'} and return unless params[:call_flow_id].present?
+
     @channel = current_account.channels.find_by_id(params[:channel_id])
     redirect_to project_path(params[:id]), flash: {error: 'You need to select a channel'} and return unless @channel
 
