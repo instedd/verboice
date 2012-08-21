@@ -22,6 +22,7 @@
         %th Channel
         %th Queue
         %th Project
+        %th Call Flow
         %th State
         %th
       - @logs.each do |log|
@@ -38,6 +39,7 @@
           %td= log.channel.try(:name)
           %td= log.schedule.try(:name)
           %td= log.project.try(:name)
+          %td= log.call_flow.try(:name)
           %td
             = log.state
             - if log.fail_reason.present?
