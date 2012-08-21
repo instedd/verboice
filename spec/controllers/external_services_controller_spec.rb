@@ -127,6 +127,11 @@ describe ExternalServicesController do
         delete :update, {:id => other_external_service.to_param, :external_service => ExternalService.plan, :project_id => other_external_service.project.to_param}
       }.should raise_error
     end
+
+    it "cleans external_service call flows before destroy" do
+      ExternalService.any_instance.should_receive(:clean_call_flows)
+      delete :destroy, {:id => external_service.to_param, :project_id => project.to_param}
+    end
   end
 
 

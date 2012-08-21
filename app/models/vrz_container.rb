@@ -122,8 +122,7 @@ class VrzContainer
       zos.print @call_flow.user_flow.to_yaml
 
       #external services
-      @call_flow.external_service_guids.each do |external_service_guid|
-        service = ExternalService.find_by_guid(external_service_guid)
+      @call_flow.external_services.all.each do |service|
         zos.put_next_entry "Service #{service.guid}.yml"
         zos.print(service.attributes.tap do |attributes|
                     attributes.delete 'id'

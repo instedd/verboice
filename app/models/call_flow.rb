@@ -18,7 +18,7 @@
 class CallFlow < ActiveRecord::Base
   include FusionTablesPush
 
-  attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url, :mode, :callback_url_user, :callback_url_password, :external_service_guids, :store_in_fusion_tables, :fusion_table_name, :current_fusion_table_id
+  attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url, :mode, :callback_url_user, :callback_url_password, :store_in_fusion_tables, :fusion_table_name, :current_fusion_table_id
 
   belongs_to :project
 
@@ -26,6 +26,8 @@ class CallFlow < ActiveRecord::Base
   has_many :channels
   has_many :queued_calls, :dependent => :destroy
   has_many :traces, :dependent => :destroy
+  has_many :call_flow_external_services, :dependent => :destroy
+  has_many :external_services, :through => :call_flow_external_services
 
   has_one :account, :through => :project
   has_one :google_oauth_token, :through => :account
@@ -33,7 +35,6 @@ class CallFlow < ActiveRecord::Base
   serialize :flow,      Command
   serialize :user_flow, SerializableArray
   serialize :variables, Array
-  serialize :external_service_guids, Array
 
   before_validation :set_name_to_callback_url, :unless => :name?
 
@@ -115,7 +116,7 @@ class CallFlow < ActiveRecord::Base
       parser  = Parsers::UserFlow.new self, user_flow
       self.flow = parser.equivalent_flow
       self.variables = parser.variables.to_a.uniq
-      self.external_service_guids = parser.external_service_guids.to_a
+      link_external_services(parser.external_service_guids.to_a)
       self.resource_guids = parser.resource_guids.to_a
       self.project.update_variables_with self.variables
     end
@@ -130,6 +131,13 @@ class CallFlow < ActiveRecord::Base
   def clear_callback_url
     self.callback_url = self.callback_url_user = self.callback_url_password = nil
     true
+  end
+
+  def link_external_services(guids)
+    external_services = ExternalService.where('guid in (?)', guids)
+    external_services.each do |external_service|
+      self.call_flow_external_services.build external_service: external_service
+    end
   end
 
 end

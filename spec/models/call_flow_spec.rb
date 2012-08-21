@@ -162,7 +162,7 @@ describe CallFlow do
     call_flow.save!
 
     call_flow.reload
-    call_flow.external_service_guids.should eq([service.guid])
+    call_flow.external_services.pluck(:guid).should eq([service.guid])
   end
 
   describe "clean external service" do

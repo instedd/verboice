@@ -38,7 +38,7 @@ describe VrzContainer do
 
     @external_service = ExternalService.make project: @project, name: 'external service name'
     @external_step = ExternalServiceStep.make external_service: @external_service, name: 'external step name'
-    @call_flow.external_service_guids = [@external_service.guid]
+    CallFlowExternalService.make call_flow: @call_flow, external_service: @external_service
 
     @localized_resource = UploadLocalizedResource.make resource: @resource, language: 'en', audio: 'some audio'
 

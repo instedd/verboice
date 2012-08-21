@@ -6,7 +6,7 @@
         - external_service.errors.full_messages.each do |msg|
           %li= msg
   .rightbuttons
-    = link_to '', [project, external_service], :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless external_service.new_record?
+    = link_to '', [project, external_service], :confirm => destroy_message_for(external_service), :method => :delete , :class => "fdelete" unless external_service.new_record?
   .summary
     = render 'summary', :external_service => external_service
 

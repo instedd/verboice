@@ -182,3 +182,8 @@ UrlLocalizedResource.blueprint do
   guid
   url
 end
+
+CallFlowExternalService.blueprint do
+  call_flow
+  external_service
+end

@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -55,6 +55,21 @@ describe ExternalService do
     it 'should return global variables value' do
       external_service.global_variable_value_for('var_name_1').should eq('var_value_1')
       external_service.global_variable_value_for('var_name_2').should be_nil
+    end
+  end
+
+  describe 'clean call flows' do
+    before(:each) do
+      external_service.stub(:call_flows).and_return([double('call_flow_1'), double('call_flow_2')])
+    end
+
+    it 'should clean associated call flows' do
+      external_service.call_flows.each do |call_flow|
+        call_flow.should_receive(:clean_external_service).with(external_service)
+        call_flow.should_receive(:save!)
+      end
+
+      external_service.clean_call_flows
     end
   end
 

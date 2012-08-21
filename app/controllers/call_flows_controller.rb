@@ -109,7 +109,7 @@ class CallFlowsController < ApplicationController
   end
 
   def export
-    if params[:export_audios] || @call_flow.external_service_guids.any?
+    if params[:export_audios] || @call_flow.call_flow_external_services.count > 0
       file = Tempfile.new(@call_flow.id.to_s)
       begin
         VrzContainer.for(@call_flow, params[:export_audios]).export file.path

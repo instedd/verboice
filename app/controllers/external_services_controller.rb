@@ -44,6 +44,7 @@ class ExternalServicesController < ApplicationController
   end
 
   def destroy
+    external_service.clean_call_flows
     external_service.destroy
     render :action => "index"
   end
