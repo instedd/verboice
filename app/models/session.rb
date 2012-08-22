@@ -44,6 +44,10 @@ class Session
     call_log.try(:id)
   end
 
+  def address
+    @address || @call_log.address
+  end
+
   def js
     @js ||= new_v8_context
   end
