@@ -1,12 +1,22 @@
 onResources(function(){
-  window['Resource']= function Resource(project){
+  window['Resource']= function Resource(hash, project){
 
+    var self = this;
     this.id = ko.observable(null);
     this.guid = ko.observable(null);
     this.name = ko.observable(null);
     this.editing = ko.observable(false);
     this.saving = ko.observable(false);
-    this.localizedResources = ko.observableArray([]);
+
+    var existing_localized_resources = hash['localized_resources'] || [];
+    this.localizedResources = ko.observableArray(
+      _.map(project.languages(), function(language){
+        var localizedResource = _.detect(existing_localized_resources, function(resource){ return resource.language == language.iso()});
+        localizedResource = localizedResource || { language: language.iso() };
+        debugger;
+        return LocalizedResourceSelector.fromHash(localizedResource, self);
+      })
+    );
 
     this.firstResource = ko.computed(function() {
       return _.detect(this.localizedResources(), function(res) { return project.firstLanguage().iso() == res.language() })
@@ -17,15 +27,11 @@ onResources(function(){
   }
 
   Resource.fromHash = function(hash, project){
-    var resource = new Resource(project);
+    var resource = new Resource(hash, project);
 
     resource.id(hash['id']);
     resource.guid(hash['guid']);
     resource.name(hash['name']);
-
-    resource.localizedResources(
-      _.map(hash['localized_resources'], function(hash){ return LocalizedResourceSelector.fromHash(hash, resource)})
-    );
 
     return resource;
   }

@@ -17,7 +17,7 @@
         iframe.src = url;
     }
 
-  - %W(resource localized_resource_selector text_localized_resource url_localized_resource record_localized_resource upload_localized_resource).each do |template|
+  - %W(resource localized_resource_selector text_localized_resource url_localized_resource record_localized_resource upload_localized_resource undefined_localized_resource).each do |template|
     = render "resources/#{template}_template"
 
 

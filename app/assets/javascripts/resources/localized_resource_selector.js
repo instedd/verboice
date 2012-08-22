@@ -26,10 +26,10 @@ onResources(function(){
   }
 
   LocalizedResourceSelector.fromHash = function(hash, resource){
-    options = _.map(['Text', 'Url', 'Record', 'Upload'], function(type){ return new window[type + "LocalizedResource"](hash, resource) });
+    options = _.map(['Undefined', 'Text', 'Url', 'Record', 'Upload'], function(type){ return new window[type + "LocalizedResource"](hash, resource) });
     selector = new LocalizedResourceSelector(options, resource);
 
-    selector.current(_.detect(options, function(option){ return option.type() == hash.type }));
+    selector.current(_.detect(options, function(option){ return option.type() == hash.type }) || _.detect(options, function(option){ return option.type() == 'UndefinedLocalizedResource' }));
 
     return selector
   }
