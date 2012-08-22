@@ -64,6 +64,7 @@ onResources(function(){
   Resource.prototype.cancel = function(){
     this.editing(false);
     this.revertToPreservedValues();
+    if (! this.id() ) { this.remove() };
   }
 
   Resource.prototype.preserveCurrentValues= function() {
