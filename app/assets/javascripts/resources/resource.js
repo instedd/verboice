@@ -6,14 +6,12 @@ onResources(function(){
     this.guid = ko.observable(null);
     this.name = ko.observable(null);
     this.editing = ko.observable(false);
-    this.saving = ko.observable(false);
 
     var existing_localized_resources = hash['localized_resources'] || [];
     this.localizedResources = ko.observableArray(
       _.map(project.languages(), function(language){
         var localizedResource = _.detect(existing_localized_resources, function(resource){ return resource.language == language.iso()});
         localizedResource = localizedResource || { language: language.iso() };
-        debugger;
         return LocalizedResourceSelector.fromHash(localizedResource, self);
       })
     );
@@ -41,6 +39,7 @@ onResources(function(){
       return true;
     } else {
       this.editing(true);
+      this.preserveCurrentValues();
     }
   }
 
@@ -63,8 +62,18 @@ onResources(function(){
   }
 
   Resource.prototype.cancel = function(){
-    this.saving(false);
     this.editing(false);
+    this.revertToPreservedValues();
+  }
+
+  Resource.prototype.preserveCurrentValues= function() {
+    this.original_name = this.name();
+    _.each(this.localizedResources(), function(localized) {localized.preserveCurrentValues()})
+  }
+
+  Resource.prototype.revertToPreservedValues= function() {
+    this.name(this.original_name);
+    _.each(this.localizedResources(), function(localized) {localized.revertToPreservedValues()})
   }
 
   Resource.prototype.toHash= function(){

@@ -22,4 +22,9 @@ onResources(function(){
     return true
   }
 
+  UndefinedLocalizedResource.prototype.preserveCurrentValues= function() {
+  }
+
+  UndefinedLocalizedResource.prototype.revertToPreservedValues= function() {
+  }
 })

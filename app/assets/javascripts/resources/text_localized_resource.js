@@ -19,4 +19,12 @@ onResources(function(){
   TextLocalizedResource.prototype.type= function(){
     return 'TextLocalizedResource'
   }
+
+  TextLocalizedResource.prototype.preserveCurrentValues= function() {
+    this.original_text = this.text();
+  }
+
+  TextLocalizedResource.prototype.revertToPreservedValues= function() {
+    this.text(this.original_text);
+  }
 })

@@ -108,6 +108,13 @@ onResources(function(){
     }
   }
 
+  RecordLocalizedResource.prototype.preserveCurrentValues= function() {
+    this.original_description = this.description();
+  }
+
+  RecordLocalizedResource.prototype.revertToPreservedValues= function() {
+    this.description(this.original_description);
+  }
 })
 
 

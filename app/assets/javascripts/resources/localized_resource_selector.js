@@ -7,7 +7,6 @@ onResources(function(){
   window['LocalizedResourceSelector']= function LocalizedResourceSelector(options, resource){
     this.options = ko.observableArray(options);
     this.current = ko.observable(options[0]);
-    this.title = ko.observable('');
     this.parent = resource;
     this.language = ko.computed(function(){
       return this.current() && this.current().language()
@@ -38,4 +37,13 @@ onResources(function(){
     return 'localized_resource_selector_template'
   }
 
+  LocalizedResourceSelector.prototype.preserveCurrentValues= function() {
+    this.original_current = this.current();
+    _.each(this.options(), function(localized) {localized.preserveCurrentValues()})
+  }
+
+  LocalizedResourceSelector.prototype.revertToPreservedValues= function() {
+    this.current(this.original_current);
+    _.each(this.options(), function(localized) {localized.revertToPreservedValues()})
+  }
 })

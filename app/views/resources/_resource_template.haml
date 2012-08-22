@@ -2,7 +2,7 @@
   %tr{ko(click: 'edit', css: '{ clickable: !editing() }')}
     %td
       %span.name{'data-bind' => 'visible: !editing(), text: name'}
-      = text_field_tag :name, '', :class => '', 'data-bind' => 'visible: editing, value: name, disable: saving', :placeholder => 'Enter resource name'
+      = text_field_tag :name, '', :class => '', 'data-bind' => 'visible: editing, value: name', :placeholder => 'Enter resource name'
     / ko with: firstResource
     %td{ko(template: '{name: template}')}
     / /ko

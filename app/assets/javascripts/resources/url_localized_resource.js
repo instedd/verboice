@@ -19,4 +19,12 @@ onResources(function(){
   UrlLocalizedResource.prototype.type= function(){
     return 'UrlLocalizedResource'
   }
+
+  UrlLocalizedResource.prototype.preserveCurrentValues= function() {
+    this.original_url = this.url();
+  }
+
+  UrlLocalizedResource.prototype.revertToPreservedValues= function() {
+    this.url(this.original_url);
+  }
 })

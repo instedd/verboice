@@ -54,5 +54,13 @@ onResources(function(){
   UploadLocalizedResource.prototype.done= function(){
     return this.hasAudio(true);
   }
+
+  UploadLocalizedResource.prototype.preserveCurrentValues= function() {
+    this.original_description = this.description();
+  }
+
+  UploadLocalizedResource.prototype.revertToPreservedValues= function() {
+    this.description(this.original_description);
+  }
 })
 
