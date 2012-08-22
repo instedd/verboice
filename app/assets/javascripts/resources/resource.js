@@ -31,7 +31,11 @@ onResources(function(){
   }
 
   Resource.prototype.edit = function(){
-    this.editing(true);
+    if (this.editing()) {
+      return true;
+    } else {
+      this.editing(true);
+    }
   }
 
   Resource.prototype.save = function(){
