@@ -61,7 +61,7 @@
     #workflow-page
       %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
       %div.right
-        = hidden_field_tag 'flow'
+        = hidden_field_tag 'flow', (@call_flow.user_flow || []).to_json
         %button.grey{:type => "submit"} Save
         = link_to 'Back', project_call_flows_path(@project), :class => "button white cancel", :style => 'top: 1px; margin-right: 15px'
       .clear
