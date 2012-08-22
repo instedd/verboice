@@ -1,0 +1,18 @@
+%script{type: "text/html", id: "resource_template"}
+  %tr{ko(click: 'edit', css: '{ clickable: !editing() }')}
+    %td
+      %span.name{'data-bind' => 'visible: !editing(), text: name'}
+      = text_field_tag :name, '', :class => '', 'data-bind' => 'visible: editing, value: name, disable: saving', :placeholder => 'Enter resource name'
+    / ko with: firstResource
+    %td{ko(template: '{name: template}')}
+    / /ko
+    / ko with: secondResource
+    %td{ko(template: '{name: template}')}
+    / /ko
+  %tr{ko(visible: 'editing')}
+    %td
+      %button.white{ko(click: 'save')} Save
+      %a.cancel{ko(click: 'cancel', visible: 'editing'), href: '#'} Cancel
+    %td
+    %td.text-right
+      %button.fdelete{ 'data-bind' => 'click: removeWithConfirm' } Remove this resource

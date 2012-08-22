@@ -41,6 +41,14 @@ function onWorkflow(callback) {
   });
 }
 
+function onResources(callback) {
+  $(function() {
+    if($('#resources').length > 0) {
+      callback();
+    }
+  });
+}
+
 function remove_fields(link) {
   $(link).prev("input[type=hidden]").val("1");
   $(link).closest(".fields").hide();

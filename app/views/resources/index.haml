@@ -1,0 +1,44 @@
+- content_for :head do
+  :javascript
+    var project_languages = #{ project.languages.map{|iso| {key: iso, value: LanguageList::LanguageInfo.find(iso).name} }.to_json };
+    var project_id = #{ project.id };
+
+    var downloadURL = function downloadURL(url)
+    {
+        var iframe;
+        iframe = document.getElementById("hiddenDownloader");
+        if (iframe === null)
+        {
+            iframe = document.createElement('iframe');
+            iframe.id = "hiddenDownloader";
+            iframe.style.visibility = 'hidden';
+            document.body.appendChild(iframe);
+        }
+        iframe.src = url;
+    }
+
+  - %W(resource localized_resource_selector text_localized_resource url_localized_resource record_localized_resource upload_localized_resource).each do |template|
+    = render "resources/#{template}_template"
+
+
+
+= render 'shared/project_tabs_and_title', :project => project
+
+%h1 Resources
+%p.desc You can translate the content of your call flows to other languages
+
+%br
+= link_to 'Create Resource', '#', :class => 'cadd', 'data-bind' => 'click: addResource'
+%br
+#wami
+#resources
+  .tablewrapp
+    %table.GralTable
+      %tr
+        %th.w30p Name
+        %th.w30p
+          %select.w100(data-bind= "options: languages, value: firstLanguage, optionsText: 'label'")
+        %th.w30p
+          %select.w100(data-bind= "options: languages, value: secondLanguage, optionsText: 'label'")
+      / ko template: { name: 'resource_template', foreach: resources }
+      / /ko

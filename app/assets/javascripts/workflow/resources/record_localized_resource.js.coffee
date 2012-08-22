@@ -32,8 +32,12 @@ onWorkflow ->
         id: 'wami'
         swfUrl: '/Wami.swf'
         onReady: =>
-          Wami.startRecording(@save_recording_url(),
-            Wami.nameCallback(@wami_record_start), Wami.nameCallback(@wami_record_finished), Wami.nameCallback(@wami_record_failed));
+          Wami.startRecording(
+            @save_recording_url(),
+            Wami.nameCallback(@wami_record_start),
+            Wami.nameCallback(@wami_record_finished),
+            Wami.nameCallback(@wami_record_failed)
+          )
           @recording_start = @now_seconds()
           @update_duration_interval = window.setInterval((() =>
             @update_duration(@now_seconds() - @recording_start)), 100)

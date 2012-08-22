@@ -1,0 +1,4 @@
+%script{type: "text/html", id: "text_localized_resource_template"}
+  %textarea.w100{:rows => 6, :placeholder => 'Write here the text you want the user to hear', 'data-bind' => 'value: text, valueUpdate: "afterkeydown", visible: $parent.editing'}
+  %span.i18b-robot{ko(visible: '! $parent.editing()')}
+  %span{ko(text: 'text', visible: '! $parent.editing()')}

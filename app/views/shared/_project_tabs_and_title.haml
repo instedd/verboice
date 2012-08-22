@@ -7,6 +7,8 @@
     = link_to "Calls", call_logs_path
   %li{ :class =>"#{"active" if params[:controller] == "call_flows"}" }
     = link_to "Call Flows", project_call_flows_path(project)
+  %li{ :class =>"#{"active" if params[:controller] == "resources"}" }
+    = link_to "Resources", project_resources_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "schedules"}" }
     = link_to "Schedules", project_schedules_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "contacts"}" }

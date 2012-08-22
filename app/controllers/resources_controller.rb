@@ -7,13 +7,15 @@ class ResourcesController < ApplicationController
     if params[:q].present?
       project.resources.where('name LIKE ?', "%#{params[:q]}%")
     else
-      project.resources
+      project.resources.includes(:localized_resources)
     end
   end
   expose(:resource)
 
   def index
-    respond_with resources
+    respond_with resource do |format|
+      format.json { render :json => resources.map{|res| res.as_json(:include => :localized_resources)} }
+    end
   end
 
   def show
@@ -35,6 +37,11 @@ class ResourcesController < ApplicationController
     respond_with resource do |format|
       format.json { render :json => resource, :include => :localized_resources }
     end
+  end
+
+  def destroy
+    resource.destroy
+    render action: :index
   end
 
 end

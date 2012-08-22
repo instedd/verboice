@@ -1,0 +1,5 @@
+%script{type: "text/html", id: "url_localized_resource_template"}
+  .w100
+    %textarea{:rows => 6, :placeholder => 'Write here the URL that holds the audio file you want the user to hear', 'data-bind' => 'value: url, valueUpdate: "afterkeydown", visible: $parent.editing'}
+  %span.i18b-internet{ko(visible: '! $parent.editing()')}
+  %span{ko(text: 'url', visible: '! $parent.editing()')}

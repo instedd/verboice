@@ -78,8 +78,6 @@ module Commands
       PlayAudioCommand.new(resource).download(session)
     end
 
-  private
-
     def localized_resource(session)
       if @language.present?
         language = @language
