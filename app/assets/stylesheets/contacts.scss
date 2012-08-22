@@ -6,45 +6,6 @@
   overflow:auto;
 }
 
-.tablewrapp.contacts {
+.tablewrapp.no-wrap {
   white-space: nowrap;
-
-  .fixed-height {
-    height: 26px;
-    padding-top: 10px !important;
-  }
-
-  tr td.fade {
-    width: 110px;
-    padding: 2px 6px !important;
-    line-height: 18px;
-  }
-
-  td.fade:before{
-    top: 10px;
-  }
-
-  tr:hover>td.fade:before{
-    background:-webkit-gradient(linear,0% 50%,100% 50%,color-stop(0%,rgba(234,234,234,0)),color-stop(100%,#EAEAEA));
-    background:-webkit-linear-gradient(left,rgba(234,234,234,0),#EAEAEA);
-    background:-moz-linear-gradient(left,rgba(234,234,234,0),#EAEAEA);
-    background:-o-linear-gradient(left,rgba(234,234,234,0),#EAEAEA);
-    background:-ms-linear-gradient(left,rgba(234,234,234,0),#EAEAEA);
-    background:linear-gradient(left,rgba(234,234,234,0),#EAEAEA)
-  }
-
-  .contentwrapper{
-    float: left;
-    width: 100%;
-  }
-
-  .contentcolumn{
-    margin-left: 160px; /*Set left margin to LeftColumnWidth*/
-  }
-
-  .leftcolumn{
-    float: left;
-    width: 160px; /*Width of left column*/
-    margin-left: -100%;
-  }
 }
