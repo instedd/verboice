@@ -2,8 +2,8 @@
 
 onResources(function(){
   window['UploadLocalizedResource']= function UploadLocalizedResource(hash, resource){
-
     LocalizedResource.call( this, hash, resource );
+
     this.label = 'Upload a file';
     this.template = 'upload_localized_resource_template';
 
@@ -20,7 +20,7 @@ onResources(function(){
     }, this);
 
     this.isValid = ko.computed(function(){
-      return this.hasAudio() && this.text().length > 0;
+      return this.hasAudio();
     }, this)
   }
 
@@ -35,12 +35,13 @@ onResources(function(){
   }
 
   UploadLocalizedResource.prototype.download= function(){
-    downloadURL("/projects/" + project_id + "/resources/" + this.parent().id() + "/localized_resources/" + this.id() + "/play_file");
+    return downloadURL("/projects/" + project_id + "/resources/" + this.parent().id() + "/localized_resources/" + this.id() + "/play_file");
   }
+
   // fileupload callbacks
   UploadLocalizedResource.prototype.add= function(e, data){
     this.filename(data.files[0].name);
-    data.url = this.url()
+    return data.url = this.url();
   }
 
   UploadLocalizedResource.prototype.submit= function(){
@@ -51,7 +52,7 @@ onResources(function(){
   }
 
   UploadLocalizedResource.prototype.done= function(){
-    this.hasAudio(true);
+    return this.hasAudio(true);
   }
 })
 

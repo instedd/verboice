@@ -39,9 +39,9 @@ onResources(function(){
       onReady: function(){
         Wami.startRecording(
           self.saveRecordingUrl(),
-          Wami.nameCallback(self.wamiRecordStart),
-          Wami.nameCallback(self.wamiRecordFinished),
-          Wami.nameCallback(self.wamiRecordFailed)
+          Wami.nameCallback(function(){self.recording(true)}), // record started
+          Wami.nameCallback(function(){self.recording(false)}), // record finished
+          Wami.nameCallback(function(){self.recording(false)}) // record failed
         );
         self.recordingStart = self.nowSeconds();
         self.updateDurationInterval = window.setInterval( function(){ return self.updateDuration(self.nowSeconds() - self.recordingStart)}, 100 );
@@ -91,21 +91,6 @@ onResources(function(){
 
   RecordLocalizedResource.prototype.playRecordingUrl= function(){
     return "/projects/" + project_id + "/resources/" + this.parent().id() + "/localized_resources/" + this.id() + "/play_recording";
-  }
-
-  RecordLocalizedResource.prototype.wamiRecordStart= function(){
-    console.log('recording');
-    return this.recording(true);
-  }
-
-  RecordLocalizedResource.prototype.wamiRecordFinished= function(){
-    console.log('record finished');
-    return this.recording(false);
-  }
-
-  RecordLocalizedResource.prototype.wamiRecordFailed= function(){
-    console.log('record failed');
-    return this.recording(false);
   }
 
   RecordLocalizedResource.prototype.nowSeconds= function(){

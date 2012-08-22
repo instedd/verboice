@@ -40,12 +40,10 @@ onResources(function(){
     if(this.id()) {
       data._method = 'put'
       $.post("/projects/" + project_id + "/resources/" + this.id() + ".json", data, function(response){
-        console.log(response);
         self.updateLocalizedResources(response.localized_resources);
       })
     } else {
       $.post("/projects/" + project_id + "/resources.json", data, function(response){
-        console.log(response);
         self.id(response.id);
         self.guid(response.guid);
         self.updateLocalizedResources(response.localized_resources);
