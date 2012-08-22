@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<verboice-service>
+  <name>Health Center</name>
+  <global-settings>
+    <variable name="service_domain" display-name="Service Domain" type="string"/>
+  </global-settings>
+  <steps>
+    <step name="results"
+      display-name="Analysis Results"
+      icon="medicalkit"
+      type="callback"
+      callback-url="http://{service_domain}/results">
+      <settings>
+        <variable name="pin" display-name="Patient pin" type="string"/>
+      </settings>
+      <response type="variables">
+        <variable name="result" display-name="Result" type="string"/>
+      </response>
+    </step>
+  </steps>
+  <steps>
+    <step name="available_dates"
+      display-name="Available Appointment Dates"
+      icon="medicalkit"
+      type="callback"
+      callback-url="http://{service_domain}/available_dates">
+      <settings/>
+      <response type="flow"/>
+    </step>
+  </steps>
+  <steps>
+    <step name="make_appointment"
+      display-name="Make Appoinment"
+      icon="medicalkit"
+      type="callback"
+      callback-url="http://{service_domain}/make_appointment">
+      <settings>
+        <variable name="pin" display-name="Patient pin" type="string"/>
+        <variable name="date_option" display-name="Date option" type="numeric"/>
+      </settings>
+      <response type="none"/>
+    </step>
+  </steps>
+  <steps>
+    <step name="appointments"
+      display-name="Booked Appoinment"
+      icon="medicalkit"
+      type="callback"
+      callback-url="http://{service_domain}/appointments">
+      <settings>
+        <variable name="pin" display-name="Patient pin" type="string"/>
+      </settings>
+      <response type="flow"/>
+    </step>
+  </steps>
+</verboice-service>

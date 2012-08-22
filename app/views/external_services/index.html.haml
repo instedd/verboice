@@ -3,6 +3,9 @@
 %h2 External services
 %p Use the following tool to define your application's external services
 
+%a.button.fimport{:href => "/docs/sample_manifest.xml", :target=>"_blank"}
+  Download a sample manifest (4 KB)
+
 - external_services.each do |external_service|
   = render 'box', :external_service => external_service, :expanded => external_service.errors.any?
 
