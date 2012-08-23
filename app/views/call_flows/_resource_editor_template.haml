@@ -41,7 +41,7 @@
           %span{'data-bind' => 'text: title'}
       / ko if: $parent.current_editing_localized_resource() == $data
       .text-right
-        %select.w22{ko(options: "options", optionsText: "'label'", value: "current")}
+        %select.w100{ko(options: "options", optionsText: "'label'", value: "current")}
         %div{ko(:template => "{name: current().template, data: current}")}
       / /ko
       / /ko

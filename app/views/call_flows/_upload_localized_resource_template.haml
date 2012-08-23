@@ -1,19 +1,22 @@
 %script{type: "text/html", id: "upload_localized_resource_template"}
-  %div
-    / ko if: has_audio() && !is_editing()
-    %span{'data-bind' => 'text: filename'}
-    %span
-      %button.fimport.right{'data-bind' => 'click: download'}
-    %span
-      %button.fsync.right{'data-bind' => 'click: replace'}
+  .file-name
+    / ko ifnot: has_audio()
+    %span.alert-orange-b No file uploaded yet
     / /ko
-    / ko if: !has_audio() || is_editing()
-    .upload-file.fexport
-      %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit, fileuploadDone: done, fileuploadAdd: add'}
-    Upload
     / ko if: has_audio()
-    %button.fclose.right{'data-bind' => 'click: cancel'}
+    %span.clickable{'data-bind' => 'text: filename, click: download'}
     / /ko
-    / /ko
+    %span.fade
+  / ko ifnot: has_audio()
+  .upload-file.fexport
+    %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit, fileuploadDone: done, fileuploadAdd: add'}
+  Upload
+  / /ko
+  / ko if: has_audio()
+  .upload-file.fsync
+    %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit, fileuploadDone: done, fileuploadAdd: add'}
+  Replace
+  / /ko
+  %br{clear: 'all'}
   .w22
     %textarea{:rows => 6, :placeholder => 'Write here a description of the recording, either as a reminder for you or as a reference for the person that will record the message.', 'data-bind' => 'value: description'}

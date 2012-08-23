@@ -10,9 +10,8 @@ onWorkflow ->
       @template = 'upload_localized_resource_template'
 
       @description = ko.observable hash.description
-      @has_audio = ko.observable hash.has_uploaded_audio?
+      @has_audio = ko.observable hash.has_uploaded_audio
       @filename = ko.observable hash.filename
-      @is_editing = ko.observable false
       @url = ko.computed =>
         if @is_saved()
           "/projects/#{project_id}/resources/#{@parent().id()}/localized_resources/#{@id()}/save_file?filename=#{@filename()}"
@@ -27,15 +26,9 @@ onWorkflow ->
         description: @description(),
         filename: @filename()
       )
-      
+
     type: () =>
       'UploadLocalizedResource'
-
-    replace: () =>
-      @is_editing(true)
-
-    cancel: () =>
-      @is_editing(false)
 
     download: () =>
       downloadURL "/projects/#{project_id}/resources/#{@parent().id()}/localized_resources/#{@id()}/play_file"
@@ -52,4 +45,3 @@ onWorkflow ->
 
     done: () =>
       @has_audio(true)
-      @is_editing(false)

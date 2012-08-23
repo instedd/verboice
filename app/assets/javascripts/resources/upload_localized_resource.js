@@ -10,7 +10,6 @@ onResources(function(){
     this.description = ko.observable(hash.description);
     this.hasAudio = ko.observable(hash.has_uploaded_audio);
     this.filename = ko.observable(hash.filename);
-    this.isEditing = ko.observable(false);
 
     this.url = ko.computed(function(){
       if(this.isSaved()) {
@@ -39,7 +38,6 @@ onResources(function(){
 
     this.done= function(){
       self.hasAudio(true);
-      return self.isEditing(false)
     }
 
   }
@@ -56,15 +54,6 @@ onResources(function(){
 
   UploadLocalizedResource.prototype.download= function(){
     return downloadURL("/projects/" + project_id + "/resources/" + this.parent().id() + "/localized_resources/" + this.id() + "/play_file");
-  }
-
-
-  UploadLocalizedResource.prototype.replace= function(){
-    this.isEditing(true)
-  }
-
-  UploadLocalizedResource.prototype.cancel= function(){
-    this.isEditing(false)
   }
 
   // fileupload callbacks

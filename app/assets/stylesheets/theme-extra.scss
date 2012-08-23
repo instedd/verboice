@@ -117,6 +117,7 @@ span.arrow-exp.orange { background: url(http://theme.instedd.org/theme/images/ic
 
 div.player span { color:#cf490c; display:inline-block; vertical-align:middle }
 div.player button { vertical-align:middle }
+div.browse { height: 32px }
 
 ul.call-log-details li { list-style-type:none; border-bottom:1px solid #dddddd; padding:3px 2px 3px 5px }
 ul.call-log-details li:last-child { border-bottom:none }
@@ -164,6 +165,10 @@ input+label { color:#000 }
 
 .resource-name { margin-bottom:3px; text-align:right }
 
+.file-name { width:148px; overflow:hidden; float:left; text-align:left; margin:3px 0; padding-top:7px; position:relative }
+.file-name span.fade { position:absolute; right:0; top:0; width:28px; height:28px; display:block; background:white;background:-webkit-gradient(linear,0% 50%,100% 50%,color-stop(0%,rgba(255,255,255,0)),color-stop(100%,#fff));background:-webkit-linear-gradient(left,rgba(255,255,255,0),#fff);background:-moz-linear-gradient(left,rgba(255,255,255,0),#fff);background:-o-linear-gradient(left,rgba(255,255,255,0),#fff);background:-ms-linear-gradient(left,rgba(255,255,255,0),#fff);background:linear-gradient(left,rgba(255,255,255,0),#fff); z-index:10 }
+span.alert-orange-b + span.fade { display:none }
+.file-name + button { float:right; margin:8px 0 }
 
 .w01 { width:10px }
 .w05 { width:50px }
@@ -175,10 +180,13 @@ input+label { color:#000 }
 .w70p { width:70% }
 .w30p { width:26% }
 
+.h07 { height:70px }
+.h10 { height:100px }
 .h40 { height:400px }
 .h50 { height:500px }
 .h60 { height:600px }
 .h65 { height:650px }
+.h08m { min-height:80px }
 
 
 button.power.off { background: url(http://theme.instedd.org/theme/images/buttons/other/power.png) no-repeat left top; display:inline-block; height:20px; width:50px; border:none; cursor:pointer }
