@@ -3,13 +3,14 @@
 onResources(function(){
   window['UploadLocalizedResource']= function UploadLocalizedResource(hash, resource){
     LocalizedResource.call( this, hash, resource );
-
+    var self = this;
     this.label = 'Upload a file';
     this.template = 'upload_localized_resource_template';
 
     this.description = ko.observable(hash.description);
     this.hasAudio = ko.observable(hash.has_uploaded_audio);
     this.filename = ko.observable(hash.filename);
+    this.isEditing = ko.observable(false);
 
     this.url = ko.computed(function(){
       if(this.isSaved()) {
@@ -22,6 +23,25 @@ onResources(function(){
     this.isValid = ko.computed(function(){
       return this.hasAudio();
     }, this)
+
+    // fileupload callbacks
+    this.add= function(e, data){
+      self.filename(data.files[0].name);
+      return data.url = self.url();
+    }
+
+    this.submit= function(){
+      if (!self.isSaved()) {
+        alert('Please save this message before uploading a file');
+        return false;
+      }
+    }
+
+    this.done= function(){
+      self.hasAudio(true);
+      return self.isEditing(false)
+    }
+
   }
 
   UploadLocalizedResource.prototype = new LocalizedResource();
@@ -38,22 +58,31 @@ onResources(function(){
     return downloadURL("/projects/" + project_id + "/resources/" + this.parent().id() + "/localized_resources/" + this.id() + "/play_file");
   }
 
+
+  UploadLocalizedResource.prototype.replace= function(){
+    this.isEditing(true)
+  }
+
+  UploadLocalizedResource.prototype.cancel= function(){
+    this.isEditing(false)
+  }
+
   // fileupload callbacks
-  UploadLocalizedResource.prototype.add= function(e, data){
-    this.filename(data.files[0].name);
-    return data.url = this.url();
-  }
+  // UploadLocalizedResource.prototype.add= function(e, data){
+  //   this.filename(data.files[0].name);
+  //   return data.url = this.url();
+  // }
 
-  UploadLocalizedResource.prototype.submit= function(){
-    if (!isSaved()) {
-      alert('Please save this message before uploading a file');
-      return false;
-    }
-  }
+  // UploadLocalizedResource.prototype.submit= function(){
+  //   if (!this.isSaved()) {
+  //     alert('Please save this message before uploading a file');
+  //     return false;
+  //   }
+  // }
 
-  UploadLocalizedResource.prototype.done= function(){
-    return this.hasAudio(true);
-  }
+  // UploadLocalizedResource.prototype.done= function(){
+  //   return this.hasAudio(true);
+  // }
 
   UploadLocalizedResource.prototype.preserveCurrentValues= function() {
     this.original_description = this.description();

@@ -1,13 +1,13 @@
 %script{type: "text/html", id: "upload_localized_resource_template"}
   %div{ko(visible: '$parent.editing')}
-    / ko if: hasAudio()
+    / ko if: hasAudio() && !isEditing()
     %span{'data-bind' => 'text: filename'}
     %span
       %button.fimport.right{'data-bind' => 'click: download'}
     %span
       %button.fsync.right{'data-bind' => 'click: replace'}
     / /ko
-    / ko if: !hasAudio()
+    / ko if: !hasAudio() || isEditing()
     .upload-file.fexport
       %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit, fileuploadDone: done, fileuploadAdd: add'}
     Upload
