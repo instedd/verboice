@@ -12,7 +12,7 @@ onResources(function(){
   UndefinedLocalizedResource.prototype.constructor = UndefinedLocalizedResource;
 
   UndefinedLocalizedResource.prototype.toHash= function(){
-    return {}
+    return undefined;
   }
   UndefinedLocalizedResource.prototype.type= function(){
     return 'UndefinedLocalizedResource'

@@ -47,16 +47,27 @@ onResources(function(){
     var self = this;
     var data = this.toHash();
     if(this.id()) {
-      data._method = 'put'
-      $.post("/projects/" + project_id + "/resources/" + this.id() + ".json", data, function(response){
-        self.updateLocalizedResources(response.localized_resources);
-      })
+      $.ajax({
+        type: 'PUT',
+        url: "/projects/" + project_id + "/resources/" + this.id() + ".json",
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response){
+          self.updateLocalizedResources(response.localized_resources);
+        }
+      });
     } else {
-      $.post("/projects/" + project_id + "/resources.json", data, function(response){
-        self.id(response.id);
-        self.guid(response.guid);
-        self.updateLocalizedResources(response.localized_resources);
-      })
+      $.ajax({
+        type: 'POST',
+        url: "/projects/" + project_id + "/resources.json",
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response){
+          self.id(response.id);
+          self.guid(response.guid);
+          self.updateLocalizedResources(response.localized_resources);
+        }
+      });
     };
     this.editing(false);
   }

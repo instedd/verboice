@@ -42,16 +42,25 @@ onWorkflow ->
     save: (callback) =>
       data = @to_hash()
       if @id()
-        data._method = 'put'
-        $.post "/projects/#{@project_id}/resources/#{@id()}.json", data, (response) =>
-          @save_localized_resources response.localized_resources
-          callback?(@)
+        $.ajax
+          type: 'PUT'
+          url: "/projects/#{@project_id}/resources/#{@id()}.json"
+          contentType: 'application/json'
+          data: JSON.stringify(data)
+          success: (response) =>
+            @save_localized_resources response.localized_resources
+            callback?(@)
       else
-        $.post "/projects/#{@project_id}/resources.json", data, (response) =>
-          @id(response.id)
-          @guid(response.guid)
-          @save_localized_resources response.localized_resources
-          callback?(@)
+        $.ajax
+          type: 'POST'
+          url: "/projects/#{@project_id}/resources.json"
+          contentType: 'application/json',
+          data: JSON.stringify(data),
+          success: (response) =>
+            @id(response.id)
+            @guid(response.guid)
+            @save_localized_resources response.localized_resources
+            callback?(@)
 
     edit: (localized_resource) =>
       @current_editing_localized_resource(localized_resource)
