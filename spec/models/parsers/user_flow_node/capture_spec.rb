@@ -31,8 +31,8 @@ module Parsers
           'type' => 'capture',
           'name' => 'Capture number one',
           'store' => 'some_variable',
-          'instructions_message' => { "guid" => 1 },
-          'invalid_message' => {
+          'instructions_resource' => { "guid" => 1 },
+          'invalid_resource' => {
             "guid" => 5
           },
           'valid_values' => '1,2-4,10-20',
@@ -153,7 +153,7 @@ module Parsers
           'finish_on_key' => '#',
           'min_input_length' => 0,
           'max_input_length' => 2,
-          'invalid_message' => {
+          'invalid_resource' => {
             "guid" => 2
           }
 
@@ -231,7 +231,7 @@ module Parsers
             'finish_on_key' => '#',
             'min_input_length' => 0,
             'max_input_length' => 2,
-            'invalid_message' => {
+            'invalid_resource' => {
               "guid" => 5
             },
             'default' => 2

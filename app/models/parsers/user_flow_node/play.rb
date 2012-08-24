@@ -18,7 +18,7 @@
 module Parsers
   module UserFlowNode
     class Play < UserCommand
-      attr_reader :id, :message, :name, :call_flow
+      attr_reader :id, :name, :call_flow
       attr_accessor :next
 
       def initialize call_flow, params

@@ -28,13 +28,13 @@ module Parsers
           'type' => 'menu',
           'name' => 'Menu number one',
           'store' => 'some_variable',
-          'explanation_message' => {
+          'explanation_resource' => {
             "guid" => 5
           },
-          'options_message' => {
+          'options_resource' => {
             "guid" => 7
           },
-          'invalid_message' => {
+          'invalid_resource' => {
             "guid" => 8
           },
           'timeout'=> 20,

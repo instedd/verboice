@@ -39,9 +39,9 @@ describe Parsers::UserFlow do
         'id' => 3,
         'type' => 'menu',
         'name' => 'Menu number one',
-        'explanation_message' => { "guid" => "resource of menu 3" },
-        'options_message' => {},
-        'invalid_message' => {},
+        'explanation_resource' => { "guid" => "resource of menu 3" },
+        'options_resource' => {},
+        'invalid_resource' => {},
         'timeout' => 20,
         'options' =>[
           {
@@ -79,11 +79,11 @@ describe Parsers::UserFlow do
         'id' => 2,
         'type' => 'capture',
         'name' => 'Capture number one',
-        'instructions_message' => { "guid" => 'First Capture message guid' },
-        'invalid_message' => {
+        'instructions_resource' => { "guid" => 'First Capture message guid' },
+        'invalid_resource' => {
           "guid" => "resource 2 invalid guid"
         },
-        'end_call_message' => {
+        'end_call_resource' => {
           "guid" => "resource 2 end call guid"
         },
         'valid_values' => '1-10',

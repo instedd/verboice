@@ -25,14 +25,14 @@ module Parsers
         @id = params['id']
         @name = params['name'] || ''
         @root_index = params['root']
-        @instructions_message = Resource.new params['instructions_message']
+        @instructions_resource = Resource.new params['instructions_resource']
         @valid_values = params['valid_values']
         @finish_on_key = params['finish_on_key'] || self.class.default_finish_key
         @min_input_length = params['min_input_length'].try(:to_i) || self.class.default_minimum_input_lenght
         @max_input_length = params['max_input_length'].try(:to_i) || self.class.default_maximum_input_lenght
         @timeout = params['timeout'] || self.class.default_time_out_in_seconds
         @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
-        @invalid_message = Resource.new params['invalid_message']
+        @invalid_resource = Resource.new params['invalid_resource']
         @call_flow = call_flow
         @next = params['next']
         @persisted_variable_name = params['store']
@@ -64,7 +64,7 @@ module Parsers
                 max: @max_input_length,
                 finish_on_key: @finish_on_key,
                 timeout: @timeout
-              }.merge( @instructions_message.capture_flow ))
+              }.merge( @instructions_resource.capture_flow ))
             c.Assign "value_#{@id}", 'digits'
             c.PersistVariable @persisted_variable_name, "value_#{@id}" if @persisted_variable_name
             c.If valid_digits_condition do |c|
@@ -72,16 +72,16 @@ module Parsers
               c.Goto "end#{@id}"
             end
 
-            invalid_message_block = lambda { |c|
-              c.append @invalid_message.equivalent_flow
+            invalid_resource_block = lambda { |c|
+              c.append @invalid_resource.equivalent_flow
               c.Trace context_for '"Invalid key pressed"'
             }
 
             if @min_input_length == 0
-              c.Else &invalid_message_block
+              c.Else &invalid_resource_block
             else
               unless @valid_values.blank?
-                c.If "digits != null", &invalid_message_block
+                c.If "digits != null", &invalid_resource_block
               end
               c.Else do |c|
                 c.Trace context_for '"No key was pressed. Timeout."'

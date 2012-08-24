@@ -24,8 +24,8 @@ module Parsers
       def initialize call_flow, params
         @id = params['id']
         @name = params['name'] || ''
-        @explanation_message = Resource.new params['explanation_message']
-        @confirmation_message = Resource.new params['confirmation_message']
+        @explanation_resource = Resource.new params['explanation_resource']
+        @confirmation_resource = Resource.new params['confirmation_resource']
         @timeout = params['timeout']
         @stop_key = params['stop_key']
         @call_flow = call_flow
@@ -47,9 +47,9 @@ module Parsers
           compiler.Assign "current_step", @id
           compiler.AssignValue "current_step_name", "#{@name}"
           compiler.Trace context_for %("Record message. Download link: " + record_url(#{@id}))
-          compiler.append @explanation_message.equivalent_flow
+          compiler.append @explanation_resource.equivalent_flow
           compiler.Record @id, @name, {:stop_keys => @stop_key, :timeout => @timeout}
-          compiler.append @confirmation_message.equivalent_flow
+          compiler.append @confirmation_resource.equivalent_flow
           compiler.append @next.equivalent_flow if @next
         end
       end

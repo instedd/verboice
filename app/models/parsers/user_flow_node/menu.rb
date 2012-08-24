@@ -18,19 +18,19 @@
 module Parsers
   module UserFlowNode
     class Menu < UserCommand
-      attr_reader :id, :explanation_message, :options, :timeout, :invalid_message, :end_call_message, :name, :call_flow
+      attr_reader :id, :explanation_resource, :options, :timeout, :invalid_resource, :end_call_resource, :name, :call_flow
       attr_accessor :next
 
       def initialize call_flow, params
         @id = params['id']
         @name = params['name'] || ''
-        @explanation_message = Resource.new params['explanation_message']
-        @options_message = Resource.new params['options_message']
+        @explanation_resource = Resource.new params['explanation_resource']
+        @options_resource = Resource.new params['options_resource']
         @options = params['options'].deep_clone || []
         @root_index = params['root']
         @timeout = params['timeout'] || self.class.default_time_out_in_seconds
         @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
-        @invalid_message = Resource.new params['invalid_message']
+        @invalid_resource = Resource.new params['invalid_resource']
         @default = params['default']
         @call_flow = call_flow
         @next = params['next']
@@ -58,10 +58,10 @@ module Parsers
           c.Label @id
           c.Assign "current_step", @id
           c.AssignValue "current_step_name", "#{@name}"
-          c.append @explanation_message.equivalent_flow
+          c.append @explanation_resource.equivalent_flow
           c.Assign "attempt_number#{@id}", '1'
           c.While "attempt_number#{@id} <= #{@number_of_attempts}" do |c|
-            c.Capture({finish_on_key: '', timeout: @timeout}.merge(@options_message.capture_flow))
+            c.Capture({finish_on_key: '', timeout: @timeout}.merge(@options_resource.capture_flow))
             c.Assign "value_#{@id}", 'digits'
             @options.each do |an_option|
               c.If "digits == '#{an_option['number']}'" do |c|
@@ -72,7 +72,7 @@ module Parsers
               end
             end
             c.If "digits != null" do |c|
-              c.append @invalid_message.equivalent_flow
+              c.append @invalid_resource.equivalent_flow
               c.Trace context_for '"Invalid key pressed"'
             end
             c.Else do |c|

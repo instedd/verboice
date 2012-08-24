@@ -27,10 +27,10 @@ module Parsers
         record = Record.new call_flow, 'id' => 1,
           'type' => 'record',
           'name' => 'Record Step',
-          'explanation_message' => {
+          'explanation_resource' => {
             "guid" => 1
           },
-          'confirmation_message' => {
+          'confirmation_resource' => {
             "guid" => 2
           },
           'timeout' => 7,
