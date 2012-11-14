@@ -7,13 +7,13 @@
       %div Message
       %hr
       %div
-        %input{:type => 'radio', :value => 'new', 'data-bind' => 'checked: type'}
-        Create new message
+        %input#create-new-message{:type => 'radio', :value => 'new', 'data-bind' => 'checked: type'}
+        %label{:for => 'create-new-message'} Create new message
       .resource-name
         %input.w22{:type => 'text', :placeholder => 'Enter message name', 'data-bind' => 'value: name, valueUpdate: "afterkeydown", visible: type() == "new"'}
       %div
-        %input{:type => 'radio', :value => 'existing', 'data-bind' => 'checked: type'}
-        Select an existing one
+        %input#select-an-existing-one{:type => 'radio', :value => 'existing', 'data-bind' => 'checked: type'}
+        %label{:for => 'select-an-existing-one'} Select an existing one
       .resource-name
         %input.w22{:type => 'text', :placeholder => 'Enter message name', 'data-bind' => "visible: type() == 'existing', jqAuto: { autoFocus: true }, jqAutoSource: matching_resources, jqAutoQuery: get_resources, jqAutoValue: existing_resource_guid, jqAutoSourceLabel: 'name', jqAutoSourceInputValue: 'name', jqAutoSourceValue: 'guid'"}
       %hr
