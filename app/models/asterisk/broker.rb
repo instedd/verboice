@@ -17,9 +17,6 @@
 
 module Asterisk
   class Broker < BaseBroker
-    ConfigDir = Rails.configuration.asterisk_configuration[:config_dir]
-    SipConf = "#{ConfigDir}/sip.conf"
-
     def call(session)
       check_asterisk_available!
 
@@ -86,8 +83,8 @@ module Asterisk
     end
 
     def regenerate_config options = {}
-      File.open("#{ConfigDir}/sip_verboice_registrations.conf", 'w') do |f_reg|
-        File.open("#{ConfigDir}/sip_verboice_channels.conf", 'w') do |f_channels|
+      File.open("#{Asterisk::ConfigDir}/sip_verboice_registrations.conf", 'w') do |f_reg|
+        File.open("#{Asterisk::ConfigDir}/sip_verboice_channels.conf", 'w') do |f_channels|
           Channels::Sip.all.each do |channel|
             next if channel == options[:delete]
             section = "verboice_#{channel.id}"
