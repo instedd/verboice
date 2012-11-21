@@ -1,6 +1,7 @@
 - content_for :head do
   :javascript
     window.languages = #{languages_for_js};
+    $(function() { initProjectSettings(#{@project.languages.to_json}); });
 
 = form_for(@project, :builder => InsteddFormBuilder) do |f|
   - if @project.errors.any?
@@ -30,7 +31,6 @@
   %br
   = collection_select :project, :default_language, @project.languages.map{|l| LanguageList::LanguageInfo.find(l)}, :iso_639_1, :name, {}, :class => 'w30'
 
-
   %br
   %br
   = f.select :tts_engine, options_for_select([['Built in', 'built-in'], ['iSpeech', 'ispeech']], @project.tts_engine), label: 'Text-to-speech Engine'
@@ -38,22 +38,17 @@
 
   = f.label :languages, "Languages you will support in this project"
   %br
+
   %ul.clist.w30
-    - @project.languages.each do |iso|
-      - language = LanguageList::LanguageInfo.find(iso)
-      %li
-        = hidden_field_tag 'project[languages][]', iso
-        / %input.ux-clist{:type => 'text', :value => "#{language.name} (#{language.iso_639_1})"}
-        %span.language= "#{language.name} (#{language.iso_639_1})"
-        %button.clist-remove.remove_language
+    /ko foreach: languages
     %li
-      %input#add_language.ux-type{:type => 'text', :placeholder => 'Add a new language'}
-      %button#add_language_button.clist-add
-    .hidden
-      %li#language_proto
-        = hidden_field_tag 'project[languages][]'
-        %span.language
-        %button.clist-remove.remove_language
+      %input{ko(value: 'value'), type: 'hidden', name: 'project[languages][]'}
+      %span.language{ko(text: 'description()')}
+      %button.clist-remove{ko(click: '$root.removeLanguage')}
+    //ko
+    %li
+      %input#add_language.ux-type{ko(value: 'newLanguage', valueUpdate: 'afterkeydown', event: {keydown: 'keydown'}), type: 'text', placeholder: 'Add a new language'}
+      %button#add_language_button.clist-add{ko(click: 'addLanguage')}
 
   %br
 

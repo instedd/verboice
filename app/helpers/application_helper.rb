@@ -36,7 +36,16 @@ module ApplicationHelper
   end
 
   def kov(hash = {})
-    hash.map{|k, v| "#{k}:#{v}"}.join(',')
+    hash.map do |k, v|
+      k = "'#{k}'" if k =~ /\-/
+      if v.respond_to? :to_hash
+        "#{k}:{#{kov(v)}}"
+      elsif k.to_s == 'valueUpdate'
+        "#{k}:'#{v}'"
+      else
+        "#{k}:#{v}"
+      end
+    end.join(',')
   end
 
   def with_callback_url_fields(type = nil)
