@@ -30,8 +30,11 @@
   %br
   = collection_select :project, :default_language, @project.languages.map{|l| LanguageList::LanguageInfo.find(l)}, :iso_639_1, :name, {}, :class => 'w30'
 
+
   %br
   %br
+  = f.select :tts_engine, options_for_select([['Built in', 'built-in'], ['iSpeech', 'ispeech']], @project.tts_engine), label: 'Text-to-speech Engine'
+  = f.text_field :tts_ispeech_api_key, label: 'iSpeech API key'
 
   = f.label :languages, "Languages you will support in this project"
   %br
@@ -58,13 +61,6 @@
 
   %br
   %br
-
-  %h1 Text to Speech
-
-  %hr
-
-  = f.select :tts_engine, options_for_select([['Built in', 'built-in'], ['iSpeech', 'ispeech']]), label: 'Engine'
-  = f.text_field :tts_ispeech_api_key, label: 'iSpeech API key'
 
   %h1 Status callback
 
