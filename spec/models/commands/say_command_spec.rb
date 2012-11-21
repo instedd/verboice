@@ -27,5 +27,10 @@ module Commands
       Commands::SayCommand.new('some text').run session
     end
 
+    it "runs with interpolated string" do
+      session['var_foo'] = 'world'
+      session.pbx.should_receive(:say).with('hello world', anything)
+      Commands::SayCommand.new('hello {foo}').run session
+    end
   end
 end

@@ -94,6 +94,12 @@ class Session
     self['var_language']
   end
 
+  def expand_vars(string)
+    string.gsub(/\{([^\{]*)\}/) do
+      self["var_#{$1}"]
+    end
+  end
+
   def run
     raise "Answering machine detected" if call_log.outgoing? && pbx.is_answering_machine?
 

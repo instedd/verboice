@@ -65,13 +65,16 @@ describe Session do
     @session.resume
   end
 
-  context "javascript evaluation" do
+  it "expands vars" do
+    @session['var_foo'] = 'world'
+    @session.expand_vars('hello {foo}').should eq('hello world')
+  end
 
+  context "javascript evaluation" do
     it "alert calls info" do
       @session.should_receive(:info).with('foo')
       @session.eval %q(alert('foo'))
     end
-
   end
 
   context "sending status notification for an project" do
