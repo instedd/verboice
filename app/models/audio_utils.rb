@@ -1,22 +1,22 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 module AudioUtils
-  
+
   def convert_to_wav(file)
     FileUtils.mv file, "#{file}.mp3"
     `lame --decode #{file}.mp3 #{file}.wav`
@@ -35,17 +35,17 @@ module AudioUtils
     end
   end
 
-  def download_url_to(target_path)
-    download_url_to_temporary_location do |file|
+  def download_url_to(url, target_path)
+    download_url_to_temporary_location(url) do |file|
       convert_to_wav file if File.is_mpeg? file
       convert_to_8000_hz_gsm file, target_path
     end
   end
 
-  def download_url_to_temporary_location
+  def download_url_to_temporary_location(url)
     tmp_file = File.new "#{Rails.root}/tmp/#{@file_id}.#{Random.rand(1000000000)}", "wb"
 
-    http = EventMachine::HttpRequest.new(@url).get
+    http = EventMachine::HttpRequest.new(url).get
     http.stream { |chunk| tmp_file.print chunk }
 
     f = Fiber.current
@@ -68,5 +68,5 @@ module AudioUtils
     http.errback { f.resume Exception.new(http.error) }
     Fiber.yield
   end
-  
+
 end

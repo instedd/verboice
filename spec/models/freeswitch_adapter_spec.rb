@@ -1,17 +1,17 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -20,8 +20,6 @@ require 'spec_helper'
 describe Freeswitch::Adapter do
   before(:each) do
     @context = mock('context')
-    @synthesizer = double('synthesizer')
-    Synthesizer.should_receive(:new).and_return(@synthesizer)
     @adapter = Freeswitch::Adapter.new @context
   end
 
@@ -47,16 +45,21 @@ describe Freeswitch::Adapter do
     @context.should_receive(:playback).with(:url)
     @adapter.play :url
   end
-  
+
   it 'pauses' do
     EM.should_receive(:fiber_sleep).with(13)
     @adapter.pause(13)
   end
-  
+
   it 'say' do
-    @synthesizer.should_receive(:synth).with('some text').and_return(:filename)
+    synthesizer = mock('synthesizer')
+    synthesizer.should_receive(:synth).with('some text').and_return(:filename)
+
+    session = stub('session', synthesizer: synthesizer)
+
+    @adapter.session = session
     @adapter.should_receive(:play).with(:filename)
-    
+
     @adapter.say 'some text'
   end
 

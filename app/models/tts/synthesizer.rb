@@ -15,30 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-class Commands::PlayUrlCommand < Command
-  include Commands::PlayCommand
-  attr_accessor :url
+class TTS::Synthesizer
+  include AudioUtils
 
-  def initialize(url)
-    @url = url
-    super Digest::MD5.hexdigest @url
+  def initialize(pbx)
+    @pbx = pbx
   end
 
-  def run(session)
-    session.info "Play #{@url}", command: command_name, action: 'start'
-    next_command = super
-    session.info "Play #{@url} finished", command: command_name, action: 'finish'
-    next_command
-  end
-
-  def setup_file(session)
-    target_path = get_target_path(session)
-    session.trace "Download #{@url}", command: command_name, action: 'download_file'
-    download_url_to @url, target_path
+  def synth(text)
+    @file_id = Digest::MD5.hexdigest text
+    target_path = @pbx.sound_path_for @file_id
+    unless File.exists? target_path
+      do_synth(text, target_path)
+    end
     target_path
-  end
-
-  def command_name
-    'play_url'
   end
 end

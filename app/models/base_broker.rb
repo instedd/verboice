@@ -135,6 +135,7 @@ class BaseBroker
       store_session session
     end
     session.pbx = pbx
+    pbx.session = session
     session
   end
 

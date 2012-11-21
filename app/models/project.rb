@@ -44,6 +44,7 @@ class Project < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :account_id
 
   config_accessor :status_callback_url_user, :status_callback_url_password
+  config_accessor :tts_engine, :tts_ispeech_api_key, :tts_ispeech_voice
 
   attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true
 

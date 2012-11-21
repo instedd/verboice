@@ -19,6 +19,7 @@ module Voxeo
   class CallManager
 
     attr_reader :session_id, :voxeo_session_id, :channel_id, :caller_id
+    attr_accessor :session
 
     def initialize channel_id, voxeo_session_id, opts = {}
       @channel_id = channel_id

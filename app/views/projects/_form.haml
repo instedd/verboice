@@ -59,6 +59,13 @@
   %br
   %br
 
+  %h1 Text to Speech
+
+  %hr
+
+  = f.select :tts_engine, options_for_select([['Built in', 'built-in'], ['iSpeech', 'ispeech']]), label: 'Engine'
+  = f.text_field :tts_ispeech_api_key, label: 'iSpeech API key'
+
   %h1 Status callback
 
   = f.text_field :status_callback_url, :label => 'URL'

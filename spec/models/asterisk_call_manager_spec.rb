@@ -66,9 +66,12 @@ describe Asterisk::CallManager do
   end
 
   it 'say' do
-    synthesizer = double('synthesizer')
+    synthesizer = mock('synthesizer')
     synthesizer.should_receive(:synth).with('some text').and_return(:filename)
-    @call_manager.instance_eval { @synthesizer = synthesizer }
+
+    session = stub('session', synthesizer: synthesizer)
+
+    @call_manager.session = session
     @call_manager.should_receive(:play).with(:filename, {})
 
     @call_manager.say 'some text'

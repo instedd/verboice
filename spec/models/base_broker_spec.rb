@@ -258,6 +258,7 @@ describe BaseBroker do
         @broker.notify_call_queued @channel
 
         pbx = stub 'pbx', :session_id => the_session.id
+        pbx.should_receive :session=
         pbx.should_receive :answer
         pbx.should_receive :hangup
 
@@ -321,6 +322,7 @@ describe BaseBroker do
         @broker.notify_call_queued @channel
 
         pbx = stub 'pbx', :session_id => the_session.id
+        pbx.should_receive :session=
         pbx.should_receive :answer
         pbx.should_receive(:hangup).twice
 
@@ -339,6 +341,7 @@ describe BaseBroker do
         @channel.call_flow.save!
 
         pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
+        pbx.should_receive :session=
         pbx.should_receive :answer
         pbx.should_receive(:hangup).twice
 
@@ -362,6 +365,7 @@ describe BaseBroker do
         @broker.sessions['id'] = session
 
         pbx = stub 'pbx', :session_id => 'id'
+        pbx.should_receive :session=
 
         session.should_receive(:resume)
         @broker.accept_call pbx
@@ -372,6 +376,7 @@ describe BaseBroker do
         @channel.call_flow.save!
 
         pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
+        pbx.should_receive :session=
 
         f = Fiber.new do
           @broker.accept_call pbx
@@ -389,6 +394,7 @@ describe BaseBroker do
         f.resume
 
         pbx2 = stub 'pbx2', :session_id => session.id, :channel_id => nil, :caller_id => '1234'
+        pbx2.should_receive(:session=)
         pbx2.should_receive(:hangup).twice
         EM.should_receive(:fiber_sleep).with 2
 
@@ -409,6 +415,7 @@ describe BaseBroker do
         end
 
         pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
+        pbx.should_receive :session=
         pbx.should_receive :answer
         pbx.should_receive :hangup
 
