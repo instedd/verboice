@@ -26,7 +26,7 @@ class Commands::PersistVariableCommand < Command
 
   def run session
     session.trace "Saving '#{@variable_name}'", command: 'persist_variable', action: 'start'
-    contact            = contact_from session
+    contact = contact_from session
     if implicit_variable = ImplicitVariable.find(@variable_name)
       persisted_variable = contact.persisted_variables.find_by_implicit_key(implicit_variable.key)
       if persisted_variable
@@ -68,16 +68,8 @@ class Commands::PersistVariableCommand < Command
   end
 
   def contact_from session
-
-    project = session.call_log.project
-
-    contact = if session.address.presence
-      project.contacts.where(:address => session.address).first_or_create!
-    else
-      project.contacts.where(:address => "Anonymous#{session.call_log.id}", :anonymous => true).first_or_create!
-    end
+    contact = session.contact
     session.trace "Caller address is unknown. Variable '#{@variable_name}' will be saved for contact '#{contact.address}'.", command: 'persist_variable', action: 'contact_unknown' unless session.address.presence
-
     contact
   end
 end

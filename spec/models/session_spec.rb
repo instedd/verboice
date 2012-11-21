@@ -115,27 +115,22 @@ describe Session do
   end
 
   context "answering machine detection" do
-    before(:each) do
-      @call_log = mock('call_log')
-      @session.call_log = @call_log
-    end
-
     it "run ok if call is incoming" do
-      @call_log.should_receive(:outgoing?).and_return(false)
+      @session.call_log = CallLog.make direction: :incoming
       @session.commands = nil
       @session.run
     end
 
     it "run ok if call is outgoing but not an answeing machine" do
+      @session.call_log = CallLog.make direction: :outgoing
       @pbx.should_receive(:is_answering_machine?).and_return(false)
-      @call_log.should_receive(:outgoing?).and_return(true)
       @session.commands = nil
       @session.run
     end
 
     it "fail if call is outgoing and an answeing machine" do
+      @session.call_log = CallLog.make direction: :outgoing
       @pbx.should_receive(:is_answering_machine?).and_return(true)
-      @call_log.should_receive(:outgoing?).and_return(true)
       @session.commands = nil
       begin
         @session.run

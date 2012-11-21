@@ -35,7 +35,6 @@ module Parsers
             c.Label 1
             c.Assign "current_step", 1
             c.AssignValue "current_step_name", "Detect Language"
-            c.RetrieveVariable 'language'
             c.If "var_language != null" do |c|
               c.Goto "end1"
             end

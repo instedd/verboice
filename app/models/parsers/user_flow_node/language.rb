@@ -46,7 +46,6 @@ module Parsers
           compiler.Label @id
           compiler.Assign "current_step", @id
           compiler.AssignValue "current_step_name", @name
-          compiler.RetrieveVariable var_name
           compiler.If "var_#{var_name} != null" do |c|
             c.Goto "end#{@id}"
           end

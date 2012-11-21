@@ -79,16 +79,9 @@ module Commands
     end
 
     def localized_resource(session)
-      if @language.present?
-        language = @language
-      else
-        var_name = ImplicitVariables::Language.key
+      language = @language.presence || session.language
 
-        RetrieveVariableCommand.new(var_name).run(session) unless session["var_#{var_name}"].present?
-
-        language = session["var_#{var_name}"]
-      end
-
+      # TODO: basta demeter puntos
       session.call_flow.project.resources.find_by_guid(@resource_guid).available_resource_for(language)
     end
 

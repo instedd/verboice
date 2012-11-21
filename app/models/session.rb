@@ -48,6 +48,18 @@ class Session
     @address || @call_log.address
   end
 
+  def project
+    call_log.project
+  end
+
+  def contact
+    @contact ||= if address.present?
+                   project.contacts.where(address: address).first_or_create!
+                 else
+                   project.contacts.where(address: "Anonymous#{call_log.id}", anonymous: true).create!
+                 end
+  end
+
   def js
     @js ||= new_v8_context
   end
@@ -78,8 +90,14 @@ class Session
     call_flow.project.try(:status_callback_url)
   end
 
+  def language
+    self['var_language']
+  end
+
   def run
     raise "Answering machine detected" if call_log.outgoing? && pbx.is_answering_machine?
+
+    load_variables
 
     loop do
       begin
@@ -178,5 +196,17 @@ class Session
 
   def recording_manager
     @recording_manager ||= RecordingManager.for(call_flow)
+  end
+
+  private
+
+  def load_variables
+    self["var_language"] = project.default_language
+    unless contact.anonymous?
+      contact.persisted_variables.includes(:project_variable).each do |var|
+        name = var.implicit_key || var.project_variable.name
+        self["var_#{name}"] = var.typecasted_value
+      end
+    end
   end
 end

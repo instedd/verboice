@@ -30,10 +30,6 @@ module Parsers
         self.response = options['response']
       end
 
-      def and_return_expression()
-        expression
-      end
-
       def expression()
         if step.present?
           "value_#{step}"
@@ -47,12 +43,6 @@ module Parsers
           'null'
         end
       end
-
-      def retrieve_if_needed(compiler)
-        compiler.RetrieveVariable variable if variable.present?
-        self
-      end
-
     end
   end
 end

@@ -79,23 +79,6 @@ module Commands
       RecordedAudio.first.contact.should eq(Contact.first)
     end
 
-    it "should use an existing anonymous contact if the contact address is unknown but the contact is already created" do
-      contact   = Contact.make address: 'Anonymous34', anonymous: true
-      project   = contact.project
-      call_flow = CallFlow.make project: project
-      call_log  = CallLog.make call_flow: call_flow, id: 34
-      session   = Session.new :pbx => pbx, :call_log => call_log
-      session.stub :address => nil
-
-      cmd = RecordCommand.new 2, 'foo'
-      cmd.next = :next
-      cmd.run(session).should == :next
-      Contact.all.size.should eq(1)
-      Contact.first.address.should eq('Anonymous34')
-      RecordedAudio.first.contact.should eq(Contact.first)
-    end
-
-
     describe 'pbx' do
 
       let(:call_log) { CallLog.make }
