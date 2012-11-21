@@ -13,7 +13,9 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+# along with Verboioce.  If not, see <http://www.gnu.org/licenses/>.
+
+require 'tempfile'
 
 module AudioUtils
 
@@ -43,7 +45,7 @@ module AudioUtils
   end
 
   def download_url_to_temporary_location(url)
-    tmp_file = File.new "#{Rails.root}/tmp/#{@file_id}.#{Random.rand(1000000000)}", "wb"
+    tmp_file = Tempfile.new "url", Rails.root.join('tmp')
 
     http = EventMachine::HttpRequest.new(url).get
     http.stream { |chunk| tmp_file.print chunk }

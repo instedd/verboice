@@ -89,6 +89,10 @@ Verboice::Application.routes.draw do
     end
   end
 
+  resource :synthesizer do
+    get :voices
+  end
+
   namespace :api do
     match "call" => "calls#call"
     resources :calls, only: [] do

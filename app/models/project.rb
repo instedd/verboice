@@ -74,6 +74,10 @@ class Project < ActiveRecord::Base
     self['languages'] || ['en']
   end
 
+  def synthesizer
+    @synthesizer ||= TTS::Synthesizer.for(tts_engine || 'builtin')
+  end
+
   private
 
   def sanitize_languages

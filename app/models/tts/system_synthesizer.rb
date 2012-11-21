@@ -1,15 +1,15 @@
 class TTS::SystemSynthesizer < TTS::Synthesizer
   if RUBY_PLATFORM =~ /darwin/
-    def self.for(*args)
-      TTS::MacSynthesizer.new(*args)
+    def self.instance
+      TTS::MacSynthesizer.new
     end
   else
-    def self.for(*args)
-      TTS::FestivalSynthesizer.new(*args)
+    def self.instance
+      TTS::FestivalSynthesizer.new
     end
   end
 
-  def do_synth(text, target_path)
+  def synth(text, target_path)
     wav_file = "#{target_path}.wave"
 
     if is_available?

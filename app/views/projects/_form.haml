@@ -1,7 +1,7 @@
 - content_for :head do
   :javascript
     window.languages = #{languages_for_js};
-    $(function() { initProjectSettings(#{@project.languages.to_json}); });
+    $(function() { initProjectSettings(#{@project.languages.to_json}, #{@project.synthesizer.voices.to_json}); });
 
 = form_for(@project, :builder => InsteddFormBuilder) do |f|
   - if @project.errors.any?
@@ -43,7 +43,8 @@
     /ko foreach: languages
     %li
       %input{ko(value: 'value'), type: 'hidden', name: 'project[languages][]'}
-      %span.language{ko(text: 'description()')}
+      %span.w15{ko(text: 'description')}
+      %select.w15{ko(value: 'voice', options: 'voices()')}
       %button.clist-remove{ko(click: '$root.removeLanguage')}
     //ko
     %li

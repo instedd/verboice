@@ -94,8 +94,13 @@ class Session
     self['var_language']
   end
 
-  def synthesizer
-    @synthesizer ||= create_synthesizer
+  def synth(text)
+    file_id = Digest::MD5.hexdigest text
+    target_path = pbx.sound_path_for file_id
+    unless File.exists? target_path
+      project.synthesizer.synth text, target_path
+    end
+    target_path
   end
 
   def expand_vars(string)
@@ -217,15 +222,6 @@ class Session
         name = var.implicit_key || var.project_variable.name
         self["var_#{name}"] = var.typecasted_value
       end
-    end
-  end
-
-  def create_synthesizer
-    config = Rails.configuration.verboice_configuration
-    if config[:tts] == 'ispeech'
-      TTS::ISpeechSynthesizer.new(pbx)
-    else
-      TTS::SystemSynthesizer.for(pbx)
     end
   end
 end

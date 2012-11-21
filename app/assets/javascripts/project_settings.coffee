@@ -1,17 +1,23 @@
-window.initProjectSettings = (languages) ->
+window.initProjectSettings = (languages, voices) ->
   class Language
-    constructor: (value) ->
+    constructor: (model, value) ->
+      @model = model
       @value = value
       @label = _.find(window.languages, (lang) -> lang.value == value).label
+      @description = "#{@label} (#{@value})"
+      @voice = ko.observable()
 
-    description: =>
-      "#{@label} (#{@value})"
+    voices: =>
+      @model.voicesForLanguage(@value)
 
   class ProjectSettingsViewModel
-    constructor: (languages) ->
-      @languages = ko.observableArray(_.map(languages, (value) -> new Language(value)))
+    constructor: (languages, voices) ->
+      @voices = voices
+      @languages = ko.observableArray(_.map(languages, (value) => new Language(@, value)))
       @newLanguage = ko.observable('')
       @initAutocomplete()
+      @hookToTtsEngine()
+      @setIspeechOptionsVisibility()
 
     addLanguage: =>
       search = @newLanguage().toLowerCase()
@@ -20,12 +26,15 @@ window.initProjectSettings = (languages) ->
         @addLanguageByValue matches[0].value
 
     addLanguageByValue: (value) =>
-      @languages.push new Language(value)
+      @languages.push new Language(@, value) unless _.find(@languages(), (lang) -> lang.value == value)
       @newLanguage('')
       $('#add_language').autocomplete('close');
 
     removeLanguage: (language) =>
       @languages.remove language
+
+    voicesForLanguage: (language) =>
+      @voices[language]
 
     keydown: =>
       if event.keyCode == 13
@@ -42,15 +51,18 @@ window.initProjectSettings = (languages) ->
             @addLanguageByValue ui.item.value
           false
 
-  ko.applyBindings new ProjectSettingsViewModel(languages)
+    hookToTtsEngine: =>
+      $("#project_tts_engine").change @ttsEngineChanged
 
-  set_ispeech_options_visibility = (speed) ->
-    if $("#project_tts_engine").val() is "ispeech"
-      $("#project_tts_ispeech_api_key").parent().show speed
-    else
-      $("#project_tts_ispeech_api_key").parent().hide speed
+    setIspeechOptionsVisibility: (speed) =>
+      if $("#project_tts_engine").val() is "ispeech"
+        $("#project_tts_ispeech_api_key").parent().show speed
+      else
+        $("#project_tts_ispeech_api_key").parent().hide speed
 
-  $("#project_tts_engine").change ->
-    set_ispeech_options_visibility('fast')
+    ttsEngineChanged: =>
+      @setIspeechOptionsVisibility('fast')
+      $.get '/synthesizer/voices', {engine: $("#project_tts_engine").val()}, (voices) =>
+        @voices = voices
 
-  set_ispeech_options_visibility()
+  ko.applyBindings new ProjectSettingsViewModel(languages, voices)

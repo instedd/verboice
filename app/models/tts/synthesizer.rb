@@ -18,16 +18,11 @@
 class TTS::Synthesizer
   include AudioUtils
 
-  def initialize(pbx)
-    @pbx = pbx
-  end
-
-  def synth(text)
-    @file_id = Digest::MD5.hexdigest text
-    target_path = @pbx.sound_path_for @file_id
-    unless File.exists? target_path
-      do_synth(text, target_path)
+  def self.for(engine)
+    if engine == 'ispeech'
+      TTS::ISpeechSynthesizer.new
+    else
+      TTS::SystemSynthesizer.instance
     end
-    target_path
   end
 end
