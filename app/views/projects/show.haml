@@ -21,22 +21,22 @@
     .i48grad-call-flow
     %div
       %span="#{pluralize @call_flows.size, 'Call flow'} in this project"
-    = link_to "Edit Call Flows", project_call_flows_path(@project), :class => "button faccept"
+    = link_to "Edit Call Flows", project_call_flows_path(@project), :class => "button farrow"
   %li
     .i48grad-channel
     %div
       %span= "#{pluralize @project_channels.size, 'channel'} in this project"
-    = link_to "Manage channels", channels_path, :class => "button faccept"
+    = link_to "Manage channels", channels_path, :class => "button farrow"
 
   %li
     .i48grad-time
     %div
       %span= pluralize @queued_calls.size, 'queued call'
-    = link_to "View calls", queued_call_logs_path, :class => "button faccept"
+    = link_to "View calls", queued_call_logs_path, :class => "button farrow"
 
 %br{ :clear => 'left'}
 
-= link_to 'Edit settings', edit_project_path(@project), :class => "button faccept"
+= link_to 'Edit settings', edit_project_path(@project), :class => "button farrow"
 %hr
 
 = link_to 'Delete this project', @project, :confirm => "Are you sure you want to delete the project #{@project.name}?", :method => :delete, :class => "button fdelete"
