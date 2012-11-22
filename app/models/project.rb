@@ -51,6 +51,8 @@ class Project < ActiveRecord::Base
 
   before_validation :sanitize_languages
 
+  validates_presence_of :tts_ispeech_api_key, :if => ->{ tts_engine == 'ispeech' }
+
   def call(address)
   end
 
@@ -75,7 +77,13 @@ class Project < ActiveRecord::Base
   end
 
   def synthesizer
-    @synthesizer ||= TTS::Synthesizer.for(tts_engine || 'builtin')
+    @synthesizer ||= begin
+      if tts_engine == 'ispeech'
+        TTS::ISpeechSynthesizer.new(api_key: tts_ispeech_api_key)
+      else
+        TTS::SystemSynthesizer.instance
+      end
+    end
   end
 
   private

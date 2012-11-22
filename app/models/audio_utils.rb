@@ -46,6 +46,7 @@ module AudioUtils
 
   def download_url_to_temporary_location(url)
     tmp_file = Tempfile.new "url", Rails.root.join('tmp')
+    tmp_file.binmode
 
     http = EventMachine::HttpRequest.new(url).get
     http.stream { |chunk| tmp_file.print chunk }
