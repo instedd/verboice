@@ -71,7 +71,7 @@ class Project < ActiveRecord::Base
   end
 
   def languages
-    self['languages'] || ['en']
+    self['languages'] || [{'language' => 'en'}]
   end
 
   def synthesizer
