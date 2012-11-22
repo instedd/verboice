@@ -46,7 +46,7 @@ describe Api::SchedulesController do
   it "create custom schedule" do
     data = {project_id: project.id, name: "foo", :time_from_str => Time.now.to_s, :time_to_str => (Time.now + 1.hour).to_s}
     @request.env['RAW_POST_DATA'] = data.to_json
-    post :create, format: :json
+    post :create, project_id: project.id, format: :json
 
     assert_response :ok
     schedules = project.schedules.all
@@ -57,7 +57,7 @@ describe Api::SchedulesController do
   it "should response with the creation errors" do
     data = { project_id: project.id }
     @request.env['RAW_POST_DATA'] = data.to_json
-    post :create, format: :json
+    post :create, project_id: project.id, format: :json
     assert_response :ok
 
     project.schedules.count.should == 0
