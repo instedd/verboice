@@ -97,7 +97,7 @@ class Session
   def voice
     search = self.language
     match = project.languages.find { |lang| lang['language'] == search }
-    match['voice'].presence
+    match && match['voice'].presence
   end
 
   def synth(text)
