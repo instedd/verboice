@@ -44,7 +44,7 @@ module Freeswitch
     end
 
     def say(text)
-      filename = session.synthesizer.synth text
+      filename = session.synth text
       play filename
     end
 
@@ -53,7 +53,7 @@ module Freeswitch
     end
 
     def capture(options)
-      options[:play] = session.synthesizer.synth(options[:say]) if options[:say]
+      options[:play] = session.synth(options[:say]) if options[:say]
       file = options[:play] || 'silence_stream://1'
       freeswitch_options = {
         :min => options[:min],

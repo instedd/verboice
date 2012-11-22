@@ -1,5 +1,5 @@
 class TTS::FestivalSynthesizer < TTS::SystemSynthesizer
-  def command_for(wav_file)
+  def command_for(voice, wav_file)
     "text2wave -o #{wav_file}"
   end
 

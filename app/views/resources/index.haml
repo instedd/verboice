@@ -1,6 +1,6 @@
 - content_for :head do
   :javascript
-    var project_languages = #{ project.languages.map{|iso| {key: iso, value: LanguageList::LanguageInfo.find(iso).name} }.to_json };
+    var project_languages = #{project_languages_json(project)};
     var project_id = #{ project.id };
 
     var downloadURL = function downloadURL(url)

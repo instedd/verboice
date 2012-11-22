@@ -1,6 +1,9 @@
 class TTS::MacSynthesizer < TTS::SystemSynthesizer
-  def command_for(wav_file)
-    "say -o #{wav_file}"
+  def command_for(voice, wav_file)
+    cmd = "say"
+    cmd << " -v #{voice}" if voice
+    cmd << " -o #{wav_file}"
+    cmd
   end
 
   def is_available?

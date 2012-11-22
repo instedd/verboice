@@ -94,11 +94,18 @@ class Session
     self['var_language']
   end
 
+  def voice
+    search = self.language
+    match = project.languages.find { |lang| lang['language'] == search }
+    match['voice'].presence
+  end
+
   def synth(text)
-    file_id = Digest::MD5.hexdigest text
+    voice = voice()
+    file_id = Digest::MD5.hexdigest "#{text}#{voice}"
     target_path = pbx.sound_path_for file_id
     unless File.exists? target_path
-      project.synthesizer.synth text, target_path
+      project.synthesizer.synth text, voice, target_path
     end
     target_path
   end

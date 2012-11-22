@@ -1,4 +1,4 @@
-window.initProjectSettings = (languages, voices) ->
+window.initProjectSettings = (defaultLanguage, languages, voices) ->
   class Language
     constructor: (model, value, voice) ->
       @model = model
@@ -11,9 +11,10 @@ window.initProjectSettings = (languages, voices) ->
       @model.voicesForLanguage(@value)
 
   class ProjectSettingsViewModel
-    constructor: (languages, voices) ->
+    constructor: (defaultLanguage, languages, voices) ->
       @voices = voices
       @languages = ko.observableArray(_.map(languages, (value) => new Language(@, value['language'], value['voice'])))
+      @defaultLanguage = ko.observable(defaultLanguage)
       @newLanguage = ko.observable('')
       @initAutocomplete()
       @hookToTtsEngine()
@@ -68,4 +69,4 @@ window.initProjectSettings = (languages, voices) ->
           voices = lang.voices()
           lang.voice(if voices?.length > 0 then voices[0] else null)
 
-  ko.applyBindings new ProjectSettingsViewModel(languages, voices)
+  ko.applyBindings new ProjectSettingsViewModel(defaultLanguage, languages, voices)

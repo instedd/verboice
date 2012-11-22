@@ -69,7 +69,7 @@ module Asterisk
     end
 
     def say(text, options = {})
-      filename = session.synthesizer.synth text
+      filename = session.synth text
       play filename, options
     end
 
@@ -106,7 +106,7 @@ module Asterisk
 
     def capture(options)
       [:min, :max, :timeout].each { |key| options[key] = options[key].to_i rescue nil }
-      options[:play] = session.synthesizer.synth(options[:say]) if options[:say]
+      options[:play] = session.synth(options[:say]) if options[:say]
 
       digits = ''
 

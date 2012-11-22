@@ -3,7 +3,7 @@
 # This file is part of Verboice.
 #
 # Verboice is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU General PubliceLicense as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
@@ -21,10 +21,6 @@ module WorkflowHelper
     content_tag(:input, '', :type => 'checkbox', 'data-bind' => 'checked: defines_store', :id => 'store-this-result-as') +\
     content_tag(:label, "Store this result as: ", :for => 'store-this-result-as') +\
     content_tag(:input, '', :type => 'text', 'data-bind' => 'value: store, enable: defines_store, initAutocomplete: {source: workflow.all_variables()}, initMask: {mask: $.mask.masks.token}', :style => "width: 108px")
-  end
-
-  def languages_for_workflow
-    @project.languages.map{|iso| {key: iso, value: LanguageList::LanguageInfo.find(iso).name} }.to_json
   end
 
 end

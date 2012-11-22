@@ -9,11 +9,11 @@ class TTS::SystemSynthesizer < TTS::Synthesizer
     end
   end
 
-  def synth(text, target_path)
+  def synth(text, voice, target_path)
     wav_file = "#{target_path}.wave"
 
     if is_available?
-      say = IO.popen command_for(wav_file), 'w'
+      say = IO.popen command_for(voice, wav_file), 'w'
       say.write text
       say.close
       convert_to_8000_hz_gsm wav_file, target_path

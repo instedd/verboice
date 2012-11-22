@@ -1,7 +1,7 @@
 - content_for :head do
   :javascript
     window.languages = #{languages_for_js};
-    $(function() { initProjectSettings(#{@project.languages.to_json}, #{@project.synthesizer.voices.to_json}); });
+    $(function() { initProjectSettings(#{@project.default_language.to_json}, #{@project.languages.to_json}, #{@project.synthesizer.voices.to_json}); });
 
 = form_for(@project, :builder => InsteddFormBuilder) do |f|
   - if @project.errors.any?
@@ -29,7 +29,7 @@
 
   = f.label :default_language
   %br
-  = collection_select :project, :default_language, @project.languages.map{|l| LanguageList::LanguageInfo.find(l['language'])}, :iso_639_1, :name, {}, :class => 'w30'
+  %select.w30{ko(value: 'defaultLanguage', options: 'languages', optionsText: "'label'", optionsValue: "'value'"), name: 'project[default_language]'}
 
   %br
   %br
