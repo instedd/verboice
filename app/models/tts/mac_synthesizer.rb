@@ -18,7 +18,7 @@ class TTS::MacSynthesizer < TTS::SystemSynthesizer
   	voices = Hash.new { |h, k| h[k] = [] }
   	say_output.lines.each do |line|
   	  if line =~ /(\w+(\s\w+)*)\s+(\w{2})_\w{2}/
-  	    voices[$3] << $1
+  	    voices[$3] << {id: $1, description: $1}
   	  end
   	end
     voices

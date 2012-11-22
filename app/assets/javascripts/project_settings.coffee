@@ -1,11 +1,11 @@
 window.initProjectSettings = (languages, voices) ->
   class Language
-    constructor: (model, value) ->
+    constructor: (model, value, voice) ->
       @model = model
       @value = value
       @label = _.find(window.languages, (lang) -> lang.value == value).label
       @description = "#{@label} (#{@value})"
-      @voice = ko.observable()
+      @voice = ko.observable(voice)
 
     voices: =>
       @model.voicesForLanguage(@value)
@@ -13,7 +13,7 @@ window.initProjectSettings = (languages, voices) ->
   class ProjectSettingsViewModel
     constructor: (languages, voices) ->
       @voices = voices
-      @languages = ko.observableArray(_.map(languages, (value) => new Language(@, value)))
+      @languages = ko.observableArray(_.map(languages, (value) => new Language(@, value['language'], value['voice'])))
       @newLanguage = ko.observable('')
       @initAutocomplete()
       @hookToTtsEngine()

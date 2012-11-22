@@ -29,7 +29,7 @@
 
   = f.label :default_language
   %br
-  = collection_select :project, :default_language, @project.languages.map{|l| LanguageList::LanguageInfo.find(l)}, :iso_639_1, :name, {}, :class => 'w30'
+  = collection_select :project, :default_language, @project.languages.map{|l| LanguageList::LanguageInfo.find(l['language'])}, :iso_639_1, :name, {}, :class => 'w30'
 
   %br
   %br
@@ -42,9 +42,9 @@
   %ul.clist.w30
     /ko foreach: languages
     %li
-      %input{ko(value: 'value'), type: 'hidden', name: 'project[languages][]'}
+      %input{ko(value: 'value'), type: 'hidden', name: 'project[languages][][language]'}
       %span.w15{ko(text: 'description')}
-      %select.w15{ko(value: 'voice', options: 'voices()')}
+      %select.w15{ko(value: 'voice', options: 'voices()', optionsText: "'description'", optionsValue: "'id'"), name: 'project[languages][][voice]'}
       %button.clist-remove{ko(click: '$root.removeLanguage')}
     //ko
     %li
