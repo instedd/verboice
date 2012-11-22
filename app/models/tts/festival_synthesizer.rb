@@ -1,6 +1,9 @@
 class TTS::FestivalSynthesizer < TTS::SystemSynthesizer
   def command_for(voice, wav_file)
-    "text2wave -o #{wav_file}"
+    cmd = "text2wave"
+    cmd << " -o #{wav_file}"
+    cmd << " -eval \"(voice.select '#{voice})\"" if voice
+    cmd
   end
 
   def is_available?
