@@ -64,5 +64,8 @@ window.initProjectSettings = (languages, voices) ->
       @setIspeechOptionsVisibility('fast')
       $.get '/synthesizer/voices', {engine: $("#project_tts_engine").val()}, (voices) =>
         @voices = voices
+        for lang in @languages()
+          voices = lang.voices()
+          lang.voice(if voices?.length > 0 then voices[0] else null)
 
   ko.applyBindings new ProjectSettingsViewModel(languages, voices)
