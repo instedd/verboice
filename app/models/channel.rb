@@ -66,7 +66,6 @@ class Channel < ActiveRecord::Base
   end
 
   def call(address, options = {})
-
     queued_call = enqueue_call_to address, options
     call_log = queued_call.call_log
 
@@ -85,7 +84,6 @@ class Channel < ActiveRecord::Base
   end
 
   def enqueue_call_to address, options
-
     via = options.fetch(:via, 'API')
 
     current_call_flow = (CallFlow.find(options[:call_flow_id].presence) rescue nil) || call_flow
@@ -119,7 +117,8 @@ class Channel < ActiveRecord::Base
       :schedule => schedule,
       :call_flow_id => current_call_flow.id,
       :project_id => project_id,
-      :time_zone => time_zone.try(:name)
+      :time_zone => time_zone.try(:name),
+      :variables => options[:vars],
     )
 
     queued_call.not_before = queued_call.schedule.with_time_zone(time_zone) do |time_zoned_schedule|

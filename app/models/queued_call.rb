@@ -23,6 +23,7 @@ class QueuedCall < ActiveRecord::Base
   belongs_to :call_flow
 
   serialize :flow, Command
+  serialize :variables, Hash
 
   def start
     call_log.start_outgoing address

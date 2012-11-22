@@ -146,6 +146,11 @@ describe Channel do
         queued_call.time_zone.should eq('Buenos Aires')
       end
 
+      it "calls with variables" do
+        broker_client.should_receive(:notify_call_queued)
+        call_log = channel.call 'foo', vars: {'bar' => '1'}
+        queued_call.variables.should eq({'bar' => '1'})
+      end
     end
 
     it "call create_channel on broker_client when create" do
