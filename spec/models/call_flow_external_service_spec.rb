@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe CallFlowExternalService do
 
-  before(:all) do
+  before(:each) do
     CallFlowExternalService.make
   end
 

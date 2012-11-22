@@ -45,6 +45,8 @@ class QueuedCall < ActiveRecord::Base
       options[:call_flow].project = Project.new status_callback_url: status_callback_url
     end
 
+    options[:call_variables] = variables if variables
+
     channel.new_session options
   end
 

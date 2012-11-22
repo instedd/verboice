@@ -37,6 +37,13 @@ describe QueuedCall do
     session.status_callback_url.should == 'http://foo.com'
   end
 
+  it 'creates new session with variables' do
+    qcall = QueuedCall.make :flow => Compiler.make { Answer(); Hangup() }, :variables => {'foo' => '1'}
+    session = qcall.new_session
+    session.load_variables
+    session['var_foo'].should eq('1')
+  end
+
   it 'should cancel call log' do
     qcall = QueuedCall.make
     call_log = qcall.call_log

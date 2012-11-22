@@ -116,6 +116,10 @@ class Session
     end
   end
 
+  def call_variables=(variables)
+    @call_variables = variables
+  end
+
   def run
     raise "Answering machine detected" if call_log.outgoing? && pbx.is_answering_machine?
 
@@ -220,14 +224,17 @@ class Session
     @recording_manager ||= RecordingManager.for(call_flow)
   end
 
-  private
-
   def load_variables
     self["var_language"] = project.default_language
     unless contact.anonymous?
       contact.persisted_variables.includes(:project_variable).each do |var|
         name = var.implicit_key || var.project_variable.name
         self["var_#{name}"] = var.typecasted_value
+      end
+    end
+    if @call_variables
+      @call_variables.each do |name, value|
+        self["var_#{name}"] = value
       end
     end
   end

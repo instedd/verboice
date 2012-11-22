@@ -52,10 +52,8 @@ describe Freeswitch::Adapter do
   end
 
   it 'say' do
-    synthesizer = mock('synthesizer')
-    synthesizer.should_receive(:synth).with('some text').and_return(:filename)
-
-    session = stub('session', synthesizer: synthesizer)
+    session = stub('session')
+    session.should_receive(:synth).with('some text').and_return(:filename)
 
     @adapter.session = session
     @adapter.should_receive(:play).with(:filename)
