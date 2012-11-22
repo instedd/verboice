@@ -234,7 +234,7 @@ class Session
     end
     if @call_variables
       @call_variables.each do |name, value|
-        self["var_#{name}"] = value
+        self["var_#{name}"] = value if value.present?
       end
     end
   end

@@ -67,6 +67,7 @@ class ProjectsController < ApplicationController
     options[:time_zone] = params[:time_zone] if params[:time_zone].present?
     options[:call_flow_id] = params[:call_flow_id] if params[:call_flow_id].present?
     options[:project_id] = params[:id]
+    options[:vars] = params[:vars]
 
     DateTime.parse(options[:not_before]) rescue redirect_to project_path(params[:id]), flash: {error: 'Enter a valid date'} and return if options[:not_before]
 
