@@ -24,7 +24,9 @@ class TTS::FestivalSynthesizer < TTS::SystemSynthesizer
       festival.readlines.each do |line|
         voice, language, gender, dialect = line.chomp!.split('|')
         lang_code = LanguageList::LanguageInfo.find_by_name(language.titleize).iso_639_1
-        voices[lang_code] << {id: voice, description: "#{dialect.titleize} #{language.titleize} #{gender.titleize} (#{voice})"}
+        description = "#{language.titleize} #{gender.titleize} (#{voice})"
+        description = "#{dialect.titleize} #{description}" unless dialect == 'none'
+        voices[lang_code] << {id: voice, description: description}
       end
     end
     voices
