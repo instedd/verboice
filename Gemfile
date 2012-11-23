@@ -46,19 +46,12 @@ group :development, :test do
   gem 'equivalent-xml'
   gem 'debugger', '~> 1.2.0'
   gem 'syntax'
+  gem 'timecop'
 end
 
 group :development do
-  gem 'hpricot'
-  gem 'ruby_parser'
   gem 'capistrano'
   gem 'rvm'
   gem 'rvm-capistrano'
   gem 'licit'
-end
-
-group :test do
-  gem 'capybara'
-  gem 'timecop'
-  gem 'webmock'
 end

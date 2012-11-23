@@ -119,9 +119,7 @@ class BaseBroker
       finish_session_without_error session
     ensure
       session.pbx.hangup rescue nil
-
       EM.fiber_sleep 2
-
       notify_call_queued session.channel
     end
   end
@@ -198,6 +196,9 @@ class BaseBroker
     log "Call for session #{session_id} rejected: #{reason}"
 
     handle_failed_call session, message, reason
+
+    EM.fiber_sleep 2
+    notify_call_queued session.channel
   end
 
   def handle_failed_call(session, message, reason)
@@ -217,9 +218,6 @@ class BaseBroker
       log "Dropping call for session #{session.id}"
       finish_session_with_error session, message, reason.to_s.dasherize
     end
-
-    EM.fiber_sleep 2
-    notify_call_queued session.channel
   end
 
   def channels
