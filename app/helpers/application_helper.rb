@@ -40,7 +40,7 @@ module ApplicationHelper
       k = "'#{k}'" if k =~ /\-/
       if v.respond_to? :to_hash
         "#{k}:{#{kov(v)}}"
-      elsif k.to_s == 'valueUpdate'
+      elsif k.to_s == 'valueUpdate' && v[0] != "'" && v[0] != '"'
         "#{k}:'#{v}'"
       else
         "#{k}:#{v}"
