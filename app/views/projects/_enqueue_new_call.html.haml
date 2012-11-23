@@ -24,15 +24,18 @@
       = label_tag :time_zone, 'On time zone'
       %br/
       = select_tag :time_zone, time_zone_options_for_select(project.time_zone), :class => 'w30'
-    - if project.project_variables.present?
-      %p
-        = label_tag :variables
+    %p
+      = label_tag :variables
+      %br/
+      %br/
+      = label_tag :language, 'language'
+      %br/
+      = select_tag :language, options_for_select(project.languages.map { |lang| [LanguageList::LanguageInfo.find(lang['language']).name, lang['language']] }), prompt: 'None specified', name: 'vars[language]'
+      - project.project_variables.each do |var|
         %br/
-        - project.project_variables.each do |var|
-          %br/
-          = label_tag var.name, var.name.downcase
-          %br/
-          = text_field_tag var.name, '', name: "vars[#{var.name}]"
+        = label_tag var.name, var.name.downcase
+        %br/
+        = text_field_tag var.name, '', name: "vars[#{var.name}]"
     %p
       = label_tag :addresses, 'Phone numbers'
       %br/
