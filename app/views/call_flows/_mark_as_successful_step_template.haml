@@ -1,0 +1,17 @@
+%script{type: "text/html", id: "mark_as_successful_step_template"}
+  .feditor-sidebar.right.box.w28.iblock.h65
+    .tableheader
+      %span.left.i48grad-phone{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
+
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %th Mark as successful
+        %th
+      %tr
+        %td This call will be considered successful after this step.
+        %td
+
+    .content
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
