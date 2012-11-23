@@ -114,8 +114,7 @@ class BaseBroker
       log "Call #{session.call_id} is now in progress" and session.notify_status 'in-progress'
       session.run
     rescue Exception => ex
-      log "Error in call #{session.call_id}: #{ex.message}\n#{ex.backtrace.join("\n")}"
-      finish_session_with_error session, error_message_for(ex)
+      handle_failed_call session, ex.message, :error
     else
       log "Call #{session.call_id} finished successfully"
       finish_session_successfully session
@@ -190,7 +189,11 @@ class BaseBroker
 
     log "Call for session #{session_id} rejected: #{reason}"
 
-    queued_call = active_queued_calls[session_id]
+    handle_failed_call session, message, reason
+  end
+
+  def handle_failed_call(session, message, reason)
+    queued_call = active_queued_calls[session.id]
     if queued_call && queued_call.schedule && queued_call.schedule.retry_delays.count > queued_call.retries
       queued_call = queued_call.dup
       queued_call.retries += 1
@@ -200,10 +203,10 @@ class BaseBroker
         time_zoned_schedule.next_available_time(Time.now.utc + sleep)
       end
 
-      log "Re enqueuing call for session #{session_id} with queued call #{queued_call.id} for #{queued_call.not_before}"
+      log "Re enqueuing call for session #{session.id} with queued call #{queued_call.id} for #{queued_call.not_before}"
       finish_session_with_requeue session, message, queued_call
     else
-      log "Dropping call for session #{session_id}"
+      log "Dropping call for session #{session.id}"
       finish_session_with_error session, message, reason.to_s.dasherize
     end
 
