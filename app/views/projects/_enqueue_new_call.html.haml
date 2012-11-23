@@ -36,6 +36,12 @@
         = label_tag var.name, var.name.downcase
         %br/
         = text_field_tag var.name, '', name: "vars[#{var.name}]"
+      - project.external_services.each do |service|
+        - service.global_variables.each do |var|
+          %br/
+          = label_tag var.name, var.display_name
+          %br/
+          = text_field_tag var.name, '', name: "vars[#{var.name}]"
     %p
       = label_tag :addresses, 'Phone numbers'
       %br/

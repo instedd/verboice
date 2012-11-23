@@ -138,7 +138,9 @@ class Commands::CallbackCommand < Command
       if @variables[$1].present?
         session.eval @variables[$1]
       else
-        external_service(session).global_variable_value_for $1
+        value = session["var_#{$1}"]
+        value = external_service(session).global_variable_value_for $1 unless value
+        value
       end
     end
   end
