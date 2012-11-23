@@ -114,10 +114,9 @@ class BaseBroker
       log "Call #{session.call_id} is now in progress" and session.notify_status 'in-progress'
       session.run
     rescue Exception => ex
-      handle_failed_call session, ex.message, :error
+      handle_failed_call session, ex.message, :failed
     else
-      log "Call #{session.call_id} finished successfully"
-      finish_session_successfully session
+      finish_session_without_error session
     ensure
       session.pbx.hangup rescue nil
 
@@ -146,7 +145,16 @@ class BaseBroker
     sessions.values.select {|x| x.call_log.id == id}.first
   end
 
+  def finish_session_without_error(session)
+    if session['status'] == 'failed'
+      handle_failed_call session, "Call was marked as failed", :failed
+    else
+      finish_session_successfully(session)
+    end
+  end
+
   def finish_session_successfully(session)
+    log "Call #{session.call_id} finished successfully"
     session = find_session session unless session.is_a? Session
     session.notify_status 'completed'
     session.finish_successfully

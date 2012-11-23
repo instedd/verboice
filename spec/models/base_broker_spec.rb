@@ -182,6 +182,19 @@ describe BaseBroker do
         the_session.call_log.state.should == :completed
       end
 
+      it "finish session successfully with status failed" do
+        queued_call = @channel.queued_calls.make
+        the_session = nil
+
+        @broker.should_receive(:call).with { |session| the_session = session }
+        @broker.notify_call_queued @channel
+
+        @broker.finish_session_successfully the_session
+        @broker.sessions.length.should == 0
+        @broker.active_calls[@channel.id].length.should == 0
+        the_session.call_log.state.should == :completed
+      end
+
       it "finish session with error" do
         queued_call = @channel.queued_calls.make
         the_session = nil
