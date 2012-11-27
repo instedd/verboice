@@ -202,6 +202,11 @@ class BaseBroker
   end
 
   def handle_failed_call(session, message, reason)
+    if session['status'] == 'successful'
+      finish_session_successfully(session)
+      return
+    end
+
     queued_call = active_queued_calls[session.id]
     if queued_call && queued_call.schedule && queued_call.schedule.retry_delays.count > queued_call.retries
       queued_call = queued_call.dup

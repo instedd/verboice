@@ -44,6 +44,7 @@ module Parsers
           compiler.AssignValue "current_step_name", "#{@name}"
           compiler.Trace context_for '"Marked as successful."'
           compiler.AssignValue "status", "successful"
+          compiler.append @next.equivalent_flow if @next
         end
       end
     end
