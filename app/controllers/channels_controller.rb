@@ -21,7 +21,7 @@ class ChannelsController < ApplicationController
   # GET /channels
   def index
     @channels = current_account.channels.includes(:call_flow).all
-    @channel_kinds = [['Create new...', '']] + (Channel.all_leaf_subclasses.map(&:kinds).flatten 1)
+    @channel_kinds = Channel.all_leaf_subclasses.map(&:kinds).flatten(1).sort_by{|x| x[0]}
   end
 
   # GET /channels/1
