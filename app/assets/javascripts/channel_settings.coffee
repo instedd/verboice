@@ -17,6 +17,9 @@ window.initChannelSettings = (newChannel, servers) ->
       @valid = ko.computed => $.trim(@host()).length > 0
 
     edit: =>
+      @originalHost = @host()
+      @originalRegister = @register()
+      @originalDirection = @direction()
       @expanded(true)
 
     save: =>
@@ -24,6 +27,9 @@ window.initChannelSettings = (newChannel, servers) ->
       @expanded(false)
 
     cancel: =>
+      @host(@originalHost)
+      @register(@originalRegister)
+      @direction(@originalDirection)
       @expanded(false)
 
   class ChannelSettingsViewModel
