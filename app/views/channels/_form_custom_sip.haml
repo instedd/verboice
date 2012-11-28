@@ -9,22 +9,6 @@
   = f.text_field :limit
 %hr/
 %h2 Servers
-/ %table#servers.table
-/   %tr
-/     %th Host
-/     %th Register?
-/     %th Direction
-/     %th
-/   - @channel.servers.each do |server|
-/     %tr{:align => "center"}
-/       %td= text_field_tag "channel[host][]", server.host
-/       %td
-/         = hidden_field_tag "channel[register][]", server.register
-/         <input class="register_dummy" type="checkbox" #{server.register? ? 'checked="checked"' : ''}/>
-/       %td= select_tag "channel[direction][]", options_for_select(['inbound', 'outbound', 'both'], server.direction)
-/       %td= link_to_function 'Remove this server', 'remove_server(this)'
-/   %tr{:align => "center"}
-/     %td{:colspan => "4"}= link_to_function 'Add another server...', 'add_server()'
 
 /ko foreach: servers
 .collapsible_crud_box_container
