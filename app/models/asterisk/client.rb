@@ -28,6 +28,7 @@ module Asterisk
         else
           puts response
           $asterisk_client = self
+          self.events eventmask: 'on'
           EM.fiber_sleep 5
           $asterisk_client_connect_handler.call if $asterisk_client_connect_handler
         end

@@ -23,6 +23,7 @@ module Asterisk
 
     def start
       super
+
       EM.add_periodic_timer(30) do
         Fiber.new do
           check_channels_status
@@ -180,6 +181,9 @@ module Asterisk
 
     def check_channels_status
       return unless pbx_available?
+      return if @checking_channel_status
+
+      @checking_channel_status = true
 
       @channel_status_cache = {}
       @new_channel_status = {}
@@ -205,6 +209,7 @@ module Asterisk
 
     def on_registrations_complete
       @channel_status = @new_channel_status
+      @checking_channel_status = false
     end
 
     def handle_events
@@ -227,6 +232,8 @@ module Asterisk
           on_registry_entry event
         when 'RegistrationsComplete'
           on_registrations_complete
+        when 'Registry'
+          check_channels_status
         end
       end
     end
