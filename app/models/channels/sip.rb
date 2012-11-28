@@ -1,5 +1,4 @@
 class Channels::Sip < Channel
-
   validate :server_username_uniqueness
 
   def port
@@ -14,4 +13,8 @@ class Channels::Sip < Channel
     subclass_responsibility
   end
 
+  def errors_count
+    status = broker_client.channel_status(id)[id]
+    status && !status[:ok] ? status[:messages].length : 0
+  end
 end

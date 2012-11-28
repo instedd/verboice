@@ -28,6 +28,7 @@ class ChannelsController < ApplicationController
   # GET /channels/1
   def show
     @channel = current_account.channels.find(params[:id])
+    @errors_count = @channel.errors_count
   end
 
   # GET /channels/new

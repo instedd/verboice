@@ -182,6 +182,10 @@ class Channel < ActiveRecord::Base
     subclass_responsibility
   end
 
+  def errors_count
+    0
+  end
+
   def self.can_handle? a_kind
     subclass_responsibility
   end
