@@ -17,6 +17,19 @@
 
 module Asterisk
   class Broker < BaseBroker
+    def initialize
+      handle_events
+    end
+
+    def start
+      super
+      EM.add_periodic_timer(30) do
+        Fiber.new do
+          check_channels_status
+        end.resume
+      end
+    end
+
     def call(session)
       check_asterisk_available!
 
@@ -46,6 +59,8 @@ module Asterisk
       check_asterisk_available!
       regenerate_config
       reload!
+      @channel_status ||= {}
+      @channel_status[channel.id] = {ok: false, messages: ["Connecting..."]}
     end
 
     def delete_channel(channel)
@@ -74,6 +89,17 @@ module Asterisk
 
     def queued_calls
       QueuedCall.where('not_before IS NULL OR not_before <= ?', Time.now.utc).order(:not_before).select([:id, :channel_id]).includes(:channel).where('channels.type != "Channels::Voxeo" ')
+    end
+
+    def channel_status(*channel_ids)
+      response_status = {}
+      if @channel_status
+        channel_ids.each do |channel_id|
+          channel_status = @channel_status[channel_id]
+          response_status[channel_id] = channel_status if channel_status
+        end
+      end
+      response_status
     end
 
     private
@@ -150,6 +176,59 @@ module Asterisk
 
     def check_asterisk_available!
       raise PbxUnavailableException.new("Asterisk is not available") unless pbx_available?
+    end
+
+    def check_channels_status
+      return unless pbx_available?
+
+      @channel_status_cache = {}
+      @new_channel_status = {}
+      Channels::Sip.all.each do |channel|
+        channel.servers.select(&:register?).each do |server|
+          @channel_status_cache[[channel.username, server.host]] = channel.id
+        end
+      end
+
+      $asterisk_client.sipshowregistry
+    end
+
+    def on_registry_entry(event)
+      channel_id = @channel_status_cache[[event[:username], event[:host]]]
+      if channel_id
+        @new_channel_status[channel_id] ||= { ok: true, messages: [] }
+        if event[:state] != 'Registered'
+          @new_channel_status[channel_id][:ok] = false
+          @new_channel_status[channel_id][:messages] << "Host #{event[:host]}, status: #{event[:state]}"
+        end
+      end
+    end
+
+    def on_registrations_complete
+      @channel_status = @new_channel_status
+    end
+
+    def handle_events
+      Asterisk::Client.on_connect do
+        wake_up_queued_calls
+      end
+
+      Asterisk::Client.on_event do |event|
+        case event[:event]
+        when 'OriginateResponse'
+          if event[:response] == 'Failure'
+            reason = case event[:reason]
+                     when '3' then :no_answer
+                     when '5' then :busy
+                     else :failed
+                     end
+            call_rejected event[:actionid], reason
+          end
+        when 'RegistryEntry'
+          on_registry_entry event
+        when 'RegistrationsComplete'
+          on_registrations_complete
+        end
+      end
     end
   end
 end

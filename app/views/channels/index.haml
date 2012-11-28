@@ -1,5 +1,4 @@
 %h2 Channels
-
 %br
 .tablewrapp.w60
   %table.GralTable.TwoColumn.CleanTable.ItemsTable{:class => ('empty' if @channels.empty?)}
@@ -17,6 +16,17 @@
     - else
       - @channels.each do |channel|
         %tr.link{'data-url' => channel_path(channel)}
-          %td= channel.name
+          %td
+            - status = @channel_status[channel.id]
+            - status_ok = status.nil? || status[:ok]
+            %span{style: "display: inline-block; width: 10px; height: 10px; background-color: #{ status ? (status_ok ? '#6BD346' : '#FF642A') : '#D0D0D0' }"}
+            = channel.name
+            - unless status_ok
+              %br
+              - status[:messages].each do |message|
+                %label.error
+                  = message
+                %br
           %td
             %button.farrow{:type => :button}
+    %tr

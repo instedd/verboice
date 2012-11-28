@@ -44,4 +44,7 @@ class BrokerFacade < MagicObjectProtocol::Server
     BaseBroker.instance.redirect session_id, options
   end
 
+  def channel_status(*channel_ids)
+    BaseBroker.instance.channel_status *channel_ids
+  end
 end
