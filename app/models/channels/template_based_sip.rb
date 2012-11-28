@@ -8,7 +8,7 @@ class Channels::TemplateBasedSip < Channels::Sip
   end
 
   def servers
-    [Server.new(server_url, true, 'both')]
+    [Server.new(server_url, nil, true, 'both')]
   end
 
   def self.kinds

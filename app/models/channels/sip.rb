@@ -1,5 +1,6 @@
 class Channels::Sip < Channel
   validate :server_username_uniqueness
+  config_accessor :number
 
   def port
     Rails.configuration.verboice_configuration[:local_pbx_broker_port].to_i

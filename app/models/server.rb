@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-class Server < Struct.new(:host, :register, :direction, :port)
+class Server < Struct.new(:host, :ip, :register, :direction, :port)
   def register?
     case register
     when String then register == '1'

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121122174811) do
+ActiveRecord::Schema.define(:version => 20121128195507) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false

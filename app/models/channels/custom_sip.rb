@@ -11,7 +11,7 @@ class Channels::CustomSip < Channels::Sip
     hosts = config['host'] || []
     servers = []
     hosts.each_with_index do |host, i|
-      servers << Server.new(host, config['register'][i], config['direction'][i])
+      servers << Server.new(host, nil, config['register'][i], config['direction'][i])
     end
     servers.length == 0 ? [Server.new] : servers
   end

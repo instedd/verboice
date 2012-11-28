@@ -127,12 +127,17 @@ class BaseBroker
   def find_or_create_session(pbx)
     session = find_session pbx.session_id
     unless session
-      session = Channel.find(pbx.channel_id).new_session
+      channel = find_channel(pbx)
+      session = channel.new_session
       store_session session
     end
     session.pbx = pbx
     pbx.session = session
     session
+  end
+
+  def find_channel(pbx)
+    Channel.find(pbx.channel_id)
   end
 
   def find_session(id)

@@ -28,6 +28,8 @@ module Asterisk
     def agi_post_init
       FileUtils.mkdir_p SoundsPath
       @log = Rails.logger
+      @peer_ip = send_command('GET VARIABLE', 'CHANNEL(peerip)').parenthetical
+      @sip_to = send_command('GET VARIABLE', 'SIP_HEADER(To)').parenthetical
       BaseBroker.instance.accept_call self
     end
 
@@ -41,6 +43,19 @@ module Asterisk
 
     def caller_id
       self['callerid']
+    end
+
+    def peer_ip
+      @peer_ip
+    end
+
+    def sip_to
+      @sip_to
+    end
+
+    def number
+      @sip_to =~ /<sip:(\d+)/
+      $1
     end
 
     def hangup

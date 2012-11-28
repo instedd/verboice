@@ -59,7 +59,6 @@ module Asterisk
     def create_channel(channel)
       check_asterisk_available!
       regenerate_config
-      reload!
       @channel_status ||= {}
       @channel_status[channel.id] = {ok: false, messages: ["Connecting..."]}
     end
@@ -67,7 +66,6 @@ module Asterisk
     def delete_channel(channel)
       check_asterisk_available!
       regenerate_config :delete => channel
-      reload!
     end
 
     def get_dial_address(channel, address)
@@ -103,6 +101,11 @@ module Asterisk
       response_status
     end
 
+    def find_channel(pbx)
+      channel_id = @channel_registry[[pbx.peer_ip, pbx.number]]
+      Channel.find(channel_id)
+    end
+
     private
 
     def reload!
@@ -110,6 +113,7 @@ module Asterisk
     end
 
     def regenerate_config options = {}
+      new_channel_registry = {}
       File.open("#{Asterisk::ConfigDir}/sip_verboice_registrations.conf", 'w') do |f_reg|
         File.open("#{Asterisk::ConfigDir}/sip_verboice_channels.conf", 'w') do |f_channels|
           Channels::Sip.all.each do |channel|
@@ -138,6 +142,7 @@ module Asterisk
             end
 
             expand_servers(channel.servers).each_with_index do |server, i|
+              new_channel_registry[[server.ip, channel.number]] = channel.id
               f_channels.puts "[#{section}-inbound-#{i}](#{section})"
               f_channels.puts "host=#{server.host}"
               f_channels.puts "port=#{server.port}" if server.port
@@ -148,11 +153,13 @@ module Asterisk
             end
 
             channel.servers.each do |server|
-              f_reg.puts "register => #{channel.username}:#{channel.password}@#{server.host}/#{channel.id}" if server.register?
+              f_reg.puts "register => #{channel.username}:#{channel.password}@#{server.host}" if server.register?
             end
           end
         end
       end
+      reload!
+      @channel_registry = new_channel_registry
     end
 
     def expand_servers(servers)
@@ -164,7 +171,8 @@ module Asterisk
             yielder << server
           else
             resources.each do |resource|
-              yielder << Server.new(resource.target.to_s, server.register, server.direction, resource.port)
+              ip = dns.getaddress(resource.target).to_s
+              yielder << Server.new(resource.target.to_s, ip, server.register, server.direction, resource.port)
             end
           end
         end
@@ -214,6 +222,7 @@ module Asterisk
 
     def handle_events
       Asterisk::Client.on_connect do
+        regenerate_config
         wake_up_queued_calls
       end
 
