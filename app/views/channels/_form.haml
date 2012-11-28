@@ -1,0 +1,24 @@
+= form_for(@channel, :html => {:autocomplete => 'off'}) do |f|
+  - if @channel.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@channel.errors.count, "error")
+        prohibited this channel from being saved:
+      %ul
+        - @channel.errors.full_messages.each do |msg|
+          %li= msg
+  .field
+    = f.label :name
+    = f.text_field :name
+  .field
+    = f.label :call_flow_id
+    = f.select :call_flow_id, options_from_collection_for_select(current_account.call_flows, :id, :name, @channel.call_flow_id)
+  = f.hidden_field :type
+  = render "form_#{@channel.class.name.split('::').last.underscore}", :f => f
+  .actions
+    %hr
+    - if @channel.new_record?
+      %button.white{:type => "submit"} Save
+    - else
+      %button.white{:type => "submit"} Update
+    = link_to 'Cancel', '#', :class => "button white cancel #{@channel.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'

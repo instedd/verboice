@@ -9,44 +9,74 @@
   = f.text_field :limit
 %hr/
 %h2 Servers
-%table#servers.table
-  %tr
-    %th Host
-    %th Register?
-    %th Direction
-    %th
-  - @channel.servers.each do |server|
-    %tr{:align => "center"}
-      %td= text_field_tag "channel[host][]", server.host
-      %td
-        = hidden_field_tag "channel[register][]", server.register
-        <input class="register_dummy" type="checkbox" #{server.register? ? 'checked="checked"' : ''}/>
-      %td= select_tag "channel[direction][]", options_for_select(['inbound', 'outbound', 'both'], server.direction)
-      %td= link_to_function 'Remove this server', 'remove_server(this)'
-  %tr{:align => "center"}
-    %td{:colspan => "4"}= link_to_function 'Add another server...', 'add_server()'
+/ %table#servers.table
+/   %tr
+/     %th Host
+/     %th Register?
+/     %th Direction
+/     %th
+/   - @channel.servers.each do |server|
+/     %tr{:align => "center"}
+/       %td= text_field_tag "channel[host][]", server.host
+/       %td
+/         = hidden_field_tag "channel[register][]", server.register
+/         <input class="register_dummy" type="checkbox" #{server.register? ? 'checked="checked"' : ''}/>
+/       %td= select_tag "channel[direction][]", options_for_select(['inbound', 'outbound', 'both'], server.direction)
+/       %td= link_to_function 'Remove this server', 'remove_server(this)'
+/   %tr{:align => "center"}
+/     %td{:colspan => "4"}= link_to_function 'Add another server...', 'add_server()'
+
+/ko foreach: servers
+.collapsible_crud_box_container
+  .box.grey.w60.collapsible_crud_box{ko(css: {expanded: 'expanded()', collapsed: '!expanded()'})}
+    .rightbuttons
+      %a.fdelete{ko(click: '$root.deleteServer'), href: 'javascript:void(0)'}
+    /ko if: expanded()
+    .content
+      .field
+        %label Host name
+        %input{ko(value: 'host', valueUpdate: "'afterkeydown'", hasfocus: 'hasfocus'), type: 'text', name: 'channel[host][]'}
+      .field
+        %input#register{ko(checked: 'register'), type: 'checkbox', name: 'channel[register][]'}
+        %label{for: 'register', style: 'display: inline-block'} Register
+      .field
+        %label Direction
+        %input#incoming{ko(checked: "direction"), type: 'radio', name: 'direction', value: 'inbound'}
+        %label{for: 'incoming', style: 'display: inline-block'} Incoming
+        %br/
+        %input#outgoing{ko(checked: "direction"), type: 'radio', name: 'direction', value: 'outbound'}
+        %label{for: 'outgoing', style: 'display: inline-block'} Outgoing
+        %br/
+        %input#both{ko(checked: "direction"), type: 'radio', name: 'direction', value: 'both'}
+        %label{for: 'both', style: 'display: inline-block'} Both directions
+        %input{ko(value: 'direction'), type: 'hidden', name: 'channel[direction][]'}
+      %hr
+        %button.white{ko(click: '$root.saveServer', enable: 'valid', text: 'saveText'), type: "submit"}
+        %a.button.white.cancel{ko(click: '$root.cancelServer'), href: 'javascript:void(0)', style: 'top: 1px;'} Cancel
+    //ko
+    /ko if: !expanded()
+    .summary
+      .toptitle
+        %span.title{ko(text: 'host')}
+      .middle
+        %span{ko(text: 'description')}
+      .bottom
+        %a.farrow.collapse_trigger{ko(click: '$root.editServer'), href: 'javascript:void(0)'} Edit
+      %input{ko(value: 'host'), type: 'hidden', name: 'channel[host][]'}
+      %input{ko(value: 'register'), type: 'hidden', name: 'channel[register][]'}
+      %input{ko(value: 'direction'), type: 'hidden', name: 'channel[direction][]'}
+    //ko
+    .clear
+//ko
+
+/ko if: !editingServer()
+.box.grey.w60.addqueue
+  %span
+    %a.add_fields{ko(click: 'addServer'), href: 'javascript:void(0)'} Add Server
+  %button.cadd.right{:type => "button"}
+  .clear
+//ko
+%br/
 
 :javascript
-  function add_server() {
-    $servers = $('#servers');
-    $trs = $('#servers tr');
-    $tr = $($trs[$trs.length - 2]).clone();
-    $tr.insertBefore($trs[$trs.length - 1]);
-  }
-
-  function remove_server(elem) {
-    $servers = $('#servers');
-    $trs = $('#servers tr');
-    if ($trs.length == 3) return;
-
-    $tr = $(elem).parents('tr');
-    $tr.remove();
-  }
-
-  $(function() {
-    $('.register_dummy').live('change', function() {
-      $this = $(this);
-      $hidden = $($this.prev());
-      $hidden.val($this.is(':checked') ? '1' : '0');
-    });
-  });
+  initChannelSettings(#{@channel.new_record?.to_json}, #{@channel.servers.to_json});
