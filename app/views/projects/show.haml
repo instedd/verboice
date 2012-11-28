@@ -3,7 +3,7 @@
 = render 'enqueue_new_call', :project => @project, :call_flows => @call_flows, :channels => @channels, :schedules => @schedules
 
 %h1 Calls
-%p.desc Total number of calls made and received
+%p Total number of calls made and received
 
 .sbox.grey.StateDisplay.w30
   .values
@@ -12,7 +12,9 @@
       %span= "#{@call_logs.size == 1 ? 'call' : 'calls'} registered"
   = link_to 'Download as CSV', download_call_logs_path(:format => :csv, :search => "project_id:\"#{@project.id}\""), :class => "button white"
 
+%br/
 %hr/
+%br/
 
 %h1 Properties
 

@@ -1,0 +1,38 @@
+= render 'shared/channel_tabs_and_title', :channel => @channel
+
+%h1 Calls
+%p Total number of calls made and received
+
+.sbox.grey.StateDisplay.w30
+  .values
+    .U
+      %span.big= @channel.call_logs.size
+      %span= "#{@channel.call_logs.size == 1 ? 'call' : 'calls'} registered"
+  = link_to 'Download as CSV', download_call_logs_path(:format => :csv, :search => "channel_id:\"#{@channel.id}\""), :class => "button white"
+
+%br/
+%hr/
+%br/
+
+%h1 Properties
+
+%ul.call-properties.left
+  %li
+    .i48grad-call-flow
+    %div{style: 'overflow: hidden'}
+      %span
+        %nobr Default Call flow
+        %nobr= @channel.call_flow.name
+    = link_to "Manage Call Flow", project_call_flows_path(@channel.project), :class => "button farrow"
+  %li
+    .i48grad-time
+    %div
+      %span= pluralize @channel.queued_calls.size, 'queued call'
+    = link_to "View calls", queued_call_logs_path, :class => "button farrow"
+
+%br{ :clear => 'left'}
+
+%hr
+
+= link_to 'Delete this channel', @channel, :confirm => "Are you sure you want to delete the channel #{@channel.name}?", :method => :delete, :class => "button fdelete"
+.clear

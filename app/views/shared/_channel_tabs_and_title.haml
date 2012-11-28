@@ -1,0 +1,8 @@
+%h1 #{channel.name} (#{channel.kind})
+
+%ul.tabs.top
+  %li{ :class =>"#{"active" if params[:controller] == "channels" && params[:action] == 'show'}" }
+    = link_to "Overview", channel_path(channel)
+  %li{ :class =>"#{"active" if params[:controller] == "channels" && params[:action] == 'edit'}" }
+    = link_to "Settings", edit_channel_path(channel)
+.tabsline
