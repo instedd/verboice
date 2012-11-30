@@ -119,6 +119,7 @@ module Asterisk
 
     def regenerate_config
       new_channel_registry = {}
+      domains_cache = {}
       File.open("#{Asterisk::ConfigDir}/sip_verboice_registrations.conf", 'w') do |f_reg|
         File.open("#{Asterisk::ConfigDir}/sip_verboice_channels.conf", 'w') do |f_channels|
           Channels::Sip.all.each do |channel|
@@ -145,7 +146,7 @@ module Asterisk
               f_channels.puts
             end
 
-            expand_domain(channel.domain).each_with_index do |server, i|
+            expand_domain(channel.domain, domains_cache).each_with_index do |server, i|
               server[:ips].each do |ip|
                 new_channel_registry[[ip, channel.number]] = channel.id
               end
@@ -169,20 +170,25 @@ module Asterisk
       @channel_registry = new_channel_registry
     end
 
-    def expand_domain(domain)
+    def expand_domain(domain, cache = {})
+      return servers if servers = cache[domain]
+
       dns = Resolv::DNS.new
-      Enumerator.new do |yielder|
-        resources = dns.getresources "_sip._udp.#{domain}", Resolv::DNS::Resource::IN::SRV
-        if resources.empty?
-          ips = dns.getaddresses(domain).map(&:to_s)
-          yielder << {host: domain, ips: ips}
-        else
-          resources.each do |resource|
-            ips = dns.getaddresses(resource.target).map(&:to_s)
-            yielder << {host: resource.target.to_s, ips: ips, port: resource.port}
-          end
+
+      servers = []
+      resources = dns.getresources "_sip._udp.#{domain}", Resolv::DNS::Resource::IN::SRV
+      if resources.empty?
+        ips = dns.getaddresses(domain).map(&:to_s)
+        servers << {host: domain, ips: ips}
+      else
+        resources.each do |resource|
+          ips = dns.getaddresses(resource.target).map(&:to_s)
+          servers << {host: resource.target.to_s, ips: ips, port: resource.port}
         end
       end
+      cache[domain] = servers
+
+      servers
     end
 
     def pbx_available?
