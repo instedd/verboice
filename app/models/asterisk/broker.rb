@@ -171,7 +171,9 @@ module Asterisk
     end
 
     def expand_domain(domain, cache = {})
-      return servers if servers = cache[domain]
+      if servers = cache[domain]
+        return servers
+      end
 
       dns = Resolv::DNS.new
 
