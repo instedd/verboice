@@ -56,16 +56,20 @@ module Asterisk
       })
     end
 
-    def create_channel(channel)
+    def create_channel(channel_id)
+      update_channel(channel_id)
+    end
+
+    def update_channel(channel_id)
       check_asterisk_available!
       regenerate_config
       @channel_status ||= {}
-      @channel_status[channel.id] = {ok: false, messages: ["Connecting..."]}
+      @channel_status[channel_id] = {ok: false, messages: ["Connecting..."]}
     end
 
-    def delete_channel(channel)
+    def destroy_channel(channel_id)
       check_asterisk_available!
-      regenerate_config :delete => channel
+      regenerate_config
     end
 
     def get_dial_address(channel, address)
@@ -111,12 +115,11 @@ module Asterisk
       $asterisk_client.command :command => 'sip reload'
     end
 
-    def regenerate_config options = {}
+    def regenerate_config
       new_channel_registry = {}
       File.open("#{Asterisk::ConfigDir}/sip_verboice_registrations.conf", 'w') do |f_reg|
         File.open("#{Asterisk::ConfigDir}/sip_verboice_channels.conf", 'w') do |f_channels|
           Channels::Sip.all.each do |channel|
-            next if channel == options[:delete]
             section = "verboice_#{channel.id}"
 
             f_channels.puts "[#{section}](!)"

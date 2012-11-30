@@ -26,13 +26,15 @@ class BrokerFacade < MagicObjectProtocol::Server
   end
 
   def create_channel(channel_id)
-    channel = Channel.find channel_id
-    BaseBroker.instance.create_channel channel
+    BaseBroker.instance.create_channel channel_id
   end
 
-  def delete_channel(channel_id)
-    channel = Channel.find channel_id
-    BaseBroker.instance.delete_channel channel
+  def update_channel(channel_id)
+    BaseBroker.instance.update_channel channel_id
+  end
+
+  def destroy_channel(channel_id)
+    BaseBroker.instance.destroy_channel channel_id
   end
 
   def active_calls_count_for(channel_id)

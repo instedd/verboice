@@ -30,9 +30,9 @@ class Channel < ActiveRecord::Base
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
 
-  after_commit :call_broker_create_channel, :if => :persisted?
-  before_update :call_broker_delete_channel
-  before_destroy :call_broker_delete_channel
+  after_commit :call_broker_create_channel, :on => :create
+  after_commit :call_broker_update_channel, :on => :update
+  after_commit :call_broker_destroy_channel, :on => :destroy
 
   serialize :config, Hash
 
@@ -152,11 +152,15 @@ class Channel < ActiveRecord::Base
   end
 
   def call_broker_create_channel
-    broker_client.create_channel self.id
+    broker_client.create_channel id
   end
 
-  def call_broker_delete_channel
-    broker_client.delete_channel self.id
+  def call_broker_update_channel
+    broker_client.create_channel id
+  end
+
+  def call_broker_destroy_channel
+    broker_client.destroy_channel id
   end
 
   def kind

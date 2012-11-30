@@ -36,7 +36,7 @@
         - if @errors_count == 0
           %span No errors
         - else
-          %span.orange #{pluralize @errors_count, 'errors'}
+          %span.orange #{pluralize @errors_count, 'error'}
       = link_to "Edit settings", edit_channel_path(@channel), :class => "button farrow"
 
 %br{ :clear => 'left'}
