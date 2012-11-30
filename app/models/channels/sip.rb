@@ -17,10 +17,28 @@
 
 class Channels::Sip < Channel
   validate :server_username_uniqueness
+
+  config_accessor :username
+  config_accessor :password
+  config_accessor :domain
+  config_accessor :direction
+  config_accessor :register
   config_accessor :number
 
   def port
     Rails.configuration.verboice_configuration[:local_pbx_broker_port].to_i
+  end
+
+  def register?
+    register
+  end
+
+  def outbound?
+    direction == 'outbound' || direction == 'both'
+  end
+
+  def inbound?
+    direction == 'inbound' || direction == 'both'
   end
 
   def asterisk_address_string_for broker, address
@@ -28,7 +46,8 @@ class Channels::Sip < Channel
   end
 
   def server_username_uniqueness
-    subclass_responsibility
+    conflicting_channels = Channels::CustomSip.where('id != ?', id).all.any? { |c| c.username == self.username && c.domain == self.domain }
+    errors.add(:base, 'Username and domain have already been taken') if conflicting_channels
   end
 
   def errors_count

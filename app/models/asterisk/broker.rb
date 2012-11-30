@@ -73,9 +73,8 @@ module Asterisk
     end
 
     def sip_address_string_for channel, address
-      count = channel.servers.count { |c| c.is_outbound? }
-      raise "There is no available outbound server" if count == 0
-      "SIP/verboice_#{channel.id}-outbound-#{rand(count)}/#{address}"
+      raise "There is no available outbound server" unless channel.outbound?
+      "SIP/verboice_#{channel.id}-outbound/#{address}"
     end
 
     def custom_address_string_for channel, address
@@ -132,28 +131,31 @@ module Asterisk
             f_channels.puts "context=verboice"
             f_channels.puts
 
-            channel.servers.select {|c| c.is_outbound? }.each_with_index do |server, i|
-              f_channels.puts "[#{section}-outbound-#{i}](#{section})"
-              f_channels.puts "host=#{server.host}"
-              f_channels.puts "domain=#{server.host}"
-              f_channels.puts "fromdomain=#{server.host}"
+            if channel.outbound?
+              f_channels.puts "[#{section}-outbound](#{section})"
+              f_channels.puts "host=#{channel.domain}"
+              f_channels.puts "domain=#{channel.domain}"
+              f_channels.puts "fromdomain=#{channel.domain}"
               f_channels.puts "type=peer"
               f_channels.puts
             end
 
-            expand_servers(channel.servers).each_with_index do |server, i|
-              new_channel_registry[[server.ip, channel.number]] = channel.id
+            expand_domain(channel.domain).each_with_index do |server, i|
+              server[:ips].each do |ip|
+                new_channel_registry[[ip, channel.number]] = channel.id
+              end
+
               f_channels.puts "[#{section}-inbound-#{i}](#{section})"
-              f_channels.puts "host=#{server.host}"
-              f_channels.puts "port=#{server.port}" if server.port
-              f_channels.puts "domain=#{server.host}"
-              f_channels.puts "fromdomain=#{server.host}"
+              f_channels.puts "host=#{server[:host]}"
+              f_channels.puts "port=#{server[:port]}" if server[:port]
+              f_channels.puts "domain=#{server[:host]}"
+              f_channels.puts "fromdomain=#{server[:host]}"
               f_channels.puts "type=user"
               f_channels.puts
             end
 
-            channel.servers.each do |server|
-              f_reg.puts "register => #{channel.username}:#{channel.password}@#{server.host}" if server.register?
+            if channel.register?
+              f_reg.puts "register => #{channel.username}:#{channel.password}@#{channel.domain}"
             end
           end
         end
@@ -162,18 +164,17 @@ module Asterisk
       @channel_registry = new_channel_registry
     end
 
-    def expand_servers(servers)
+    def expand_domain(domain)
       dns = Resolv::DNS.new
       Enumerator.new do |yielder|
-        servers.each do |server|
-          resources = dns.getresources "_sip._udp.#{server.host}", Resolv::DNS::Resource::IN::SRV
-          if resources.empty?
-            yielder << server
-          else
-            resources.each do |resource|
-              ip = dns.getaddress(resource.target).to_s
-              yielder << Server.new(resource.target.to_s, ip, server.register, server.direction, resource.port)
-            end
+        resources = dns.getresources "_sip._udp.#{domain}", Resolv::DNS::Resource::IN::SRV
+        if resources.empty?
+          ips = dns.getaddresses(domain).map(&:to_s)
+          yielder << {host: domain, ips: ips}
+        else
+          resources.each do |resource|
+            ips = dns.getaddresses(resource.target).map(&:to_s)
+            yielder << {host: resource.target.to_s, ips: ips, port: resource.port}
           end
         end
       end
@@ -196,8 +197,8 @@ module Asterisk
       @channel_status_cache = {}
       @new_channel_status = {}
       Channels::Sip.all.each do |channel|
-        channel.servers.select(&:register?).each do |server|
-          @channel_status_cache[[channel.username, server.host]] = channel.id
+        if channel.register?
+          @channel_status_cache[[channel.username, channel.domain]] = channel.id
         end
       end
 

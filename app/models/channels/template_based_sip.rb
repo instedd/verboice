@@ -18,14 +18,17 @@
 class Channels::TemplateBasedSip < Channels::Sip
 
   config_accessor :kind
-  config_accessor :server_url
 
-  class<<self
+  class << self
     attr_reader :templates
   end
 
-  def servers
-    [Server.new(server_url, nil, true, 'both')]
+  def domain
+    self.class.templates[kind]
+  end
+
+  def direction
+    'both'
   end
 
   def self.kinds
@@ -49,18 +52,12 @@ class Channels::TemplateBasedSip < Channels::Sip
     end
   end
 
-  def server_username_uniqueness
-    conflicting_channels = Channels::TemplateBasedSip.all.select{|c| c.kind == self.kind && c.username == self.username && c.id != self.id}
-    errors.add(:base, 'Username has already been taken') unless conflicting_channels.empty?
-  end
-
   @templates = YAML::load_file("#{Rails.root}/config/sip_channel_templates.yml").with_indifferent_access
 
-  templates.each do |template_name, server_url|
+  templates.each do |template_name, domain|
     define_singleton_method "new_#{template_name.underscore}_channel" do
       template = Channels::TemplateBasedSip.new
       template.kind = template_name
-      template.server_url = server_url
       template
     end
   end

@@ -40,9 +40,6 @@ class Channel < ActiveRecord::Base
     self[:config] ||= {}
   end
 
-  config_accessor :username
-  config_accessor :password
-
   def self.inherited(child)
     # force all subclass to have :channel as model name
     child.instance_eval do
@@ -142,10 +139,6 @@ class Channel < ActiveRecord::Base
     end
   end
 
-  def register?
-    config['register'] == '1'
-  end
-
   def has_limit?
     limit.present?
   end
@@ -193,8 +186,6 @@ class Channel < ActiveRecord::Base
   def self.from_json(json)
     channel = (SuitableClassFinder.find_leaf_subclass_of self, suitable_for: (json[:kind])).new
     channel.name = json[:name]
-    channel.username = json[:username]
-    channel.password = json[:password]
     channel
   end
 end

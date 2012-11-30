@@ -16,6 +16,7 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'machinist/active_record'
+require 'machinist/object'
 require 'sham'
 require 'ffaker'
 
@@ -69,7 +70,9 @@ Channels::CustomSip.blueprint do
   call_flow
   account { call_flow.project.account }
   name
-  host { [Sham.url] }
+  domain { Sham.url }
+  direction { 'both' }
+  register { true }
 end
 
 Channels::Voxeo.blueprint do
@@ -82,7 +85,7 @@ Channels::TemplateBasedSip.blueprint do
   call_flow
   account { call_flow.project.account }
   name
-  server_url { Sham.url }
+  domain { Sham.url }
   kind { name }
 end
 
@@ -187,3 +190,4 @@ CallFlowExternalService.blueprint do
   call_flow
   external_service
 end
+

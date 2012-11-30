@@ -177,9 +177,16 @@ describe Channel do
       channel.destroy
     end
 
-    it "register? and_return true" do
-      channel = a_channel.new :config => { 'register' => '1' }
-      channel.register?.should_not be_nil
+    if a_channel.is_a?(Channels::Sip)
+      it "register? and_return true" do
+        channel = a_channel.new :config => { 'register' => 'true' }
+        channel.register?.should_not be_nil
+      end
+
+      it "register? and_return false" do
+        channel = a_channel.new
+        channel.register?.should be_false
+      end
     end
 
     context "poll call" do
@@ -213,17 +220,6 @@ describe Channel do
       session.call_log.direction.should == :incoming
       session.call_log.state.should == :active
     end
-  end
-  Channel.all_leaf_subclasses.reject{|a_channel| a_channel == Channels::TemplateBasedSip}.each do |a_channel|
-    it "register? and_return false" do
-      channel = a_channel.new :config => { 'register' => '0' }
-      channel.register?.should be_false
-    end
-  end
-
-  it "should allways register" do
-    channel = Channels::TemplateBasedSip.new :config => { 'register' => '0' }
-    channel.register?.should be_true
   end
 
   it "should assign a guid" do

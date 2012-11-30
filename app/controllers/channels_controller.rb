@@ -74,7 +74,6 @@ class ChannelsController < ApplicationController
   # PUT /channels/1
   def update
     @channel = current_account.channels.find(params[:id])
-
     if @channel.update_attributes(params[:channel])
       redirect_to(channels_path, :notice => "Channel #{@channel.name} successfully updated.")
     else

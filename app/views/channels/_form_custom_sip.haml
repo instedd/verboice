@@ -3,64 +3,19 @@
   = f.text_field :username, :autocomplete => 'off'
 .field
   = f.label :password
-  = f.password_field :password, :value => @channel.config['password'], :autocomplete => 'off'
+  = f.password_field :password, :value => @channel.password, :autocomplete => 'off'
+.field
+  = f.label :number
+  = f.text_field :number
 .field
   = f.label :limit
   = f.text_field :limit
-%hr/
-%h2 Servers
-
-/ko foreach: servers
-.collapsible_crud_box_container
-  .box.grey.w60.collapsible_crud_box{ko(css: {expanded: 'expanded()', collapsed: '!expanded()'})}
-    .rightbuttons
-      %a.fdelete{ko(click: '$root.deleteServer'), href: 'javascript:void(0)'}
-    /ko if: expanded()
-    .content
-      .field
-        %label Host name
-        %input{ko(value: 'host', valueUpdate: "'afterkeydown'", hasfocus: 'hasfocus'), type: 'text', name: 'channel[host][]'}
-      .field
-        %input#register{ko(checked: 'register'), type: 'checkbox', name: 'channel[register][]'}
-        %label{for: 'register', style: 'display: inline-block'} Register
-      .field
-        %label Direction
-        %input#incoming{ko(checked: "direction"), type: 'radio', name: 'direction', value: 'inbound'}
-        %label{for: 'incoming', style: 'display: inline-block'} Incoming
-        %br/
-        %input#outgoing{ko(checked: "direction"), type: 'radio', name: 'direction', value: 'outbound'}
-        %label{for: 'outgoing', style: 'display: inline-block'} Outgoing
-        %br/
-        %input#both{ko(checked: "direction"), type: 'radio', name: 'direction', value: 'both'}
-        %label{for: 'both', style: 'display: inline-block'} Both directions
-        %input{ko(value: 'direction'), type: 'hidden', name: 'channel[direction][]'}
-      %hr
-        %button.white{ko(click: '$root.saveServer', enable: 'valid', text: 'saveText'), type: "submit"}
-        %a.button.white.cancel{ko(click: '$root.cancelServer'), href: 'javascript:void(0)', style: 'top: 1px;'} Cancel
-    //ko
-    /ko if: !expanded()
-    .summary
-      .toptitle
-        %span.title{ko(text: 'host')}
-      .middle
-        %span{ko(text: 'description')}
-      .bottom
-        %a.farrow.collapse_trigger{ko(click: '$root.editServer'), href: 'javascript:void(0)'} Edit
-      %input{ko(value: 'host'), type: 'hidden', name: 'channel[host][]'}
-      %input{ko(value: 'register'), type: 'hidden', name: 'channel[register][]'}
-      %input{ko(value: 'direction'), type: 'hidden', name: 'channel[direction][]'}
-    //ko
-    .clear
-//ko
-
-/ko if: !editingServer()
-.box.grey.w60.addqueue
-  %span
-    %a.add_fields{ko(click: 'addServer'), href: 'javascript:void(0)'} Add Server
-  %button.cadd.right{:type => "button"}
-  .clear
-//ko
-%br/
-
-:javascript
-  initChannelSettings(#{@channel.new_record?.to_json}, #{@channel.servers.to_json});
+.field
+  = f.label :domain
+  = f.text_field :domain
+.field
+  = f.label :direction
+  = f.select :direction, options_for_select([['Incoming', 'inbound'], ['Outgoing', 'outbound'], ['Both directions', 'both']])
+.field
+  = f.label :register, style: 'display:inline-block'
+  = f.check_box :register

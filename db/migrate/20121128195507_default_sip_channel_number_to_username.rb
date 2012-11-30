@@ -2,6 +2,13 @@ class DefaultSipChannelNumberToUsername < ActiveRecord::Migration
   def up
     Channels::Sip.all.each do |channel|
       channel.config['number'] = channel.config['username']
+
+      def channel.call_broker_create_channel
+      end
+
+      def channel.call_broker_delete_channel
+      end
+
       channel.save
     end
   end
@@ -9,6 +16,13 @@ class DefaultSipChannelNumberToUsername < ActiveRecord::Migration
   def down
     Channels::Sip.all.each do |channel|
       channel.config.delete 'number'
+
+      def channel.call_broker_create_channel
+      end
+
+      def channel.call_broker_delete_channel
+      end
+
       channel.save
     end
   end

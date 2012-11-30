@@ -29,14 +29,14 @@
     %div
       %span= pluralize @channel.queued_calls.size, 'queued call'
     = link_to "View calls", queued_call_logs_path, :class => "button farrow"
-  - if @channel.respond_to?(:servers)
+  - if @channel.is_a?(Channels::Sip)
     %li
       .i48grad-dataBase
       %div
-        %span= pluralize @channel.servers.size, 'server'
-        - if @errors_count > 0
-          %br/
-          %span.orange{style: 'padding-top:0'} #{@errors_count} with error
+        - if @errors_count == 0
+          %span No errors
+        - else
+          %span.orange #{pluralize @errors_count, 'errors'}
       = link_to "Edit settings", edit_channel_path(@channel), :class => "button farrow"
 
 %br{ :clear => 'left'}

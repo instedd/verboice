@@ -30,7 +30,7 @@ describe Api::ChannelsController do
     call_flow = CallFlow.make project: project
     project.default_call_flow = call_flow
 
-    data = {kind: "custom", name: "foo", call_flow: call_flow.name, username: 'xyz', password: 'pass'}
+    data = {kind: "custom", name: "foo", call_flow: call_flow.name}
     @request.env['RAW_POST_DATA'] = data.to_json
     post :create, format: :json
     assert_response :ok
@@ -41,15 +41,13 @@ describe Api::ChannelsController do
     channels[0].call_flow_id.should == call_flow.id
     channels[0].name.should == data[:name]
     channels[0].class.should == Channels::Custom
-    channels[0].username.should == data[:username]
-    channels[0].password.should == data[:password]
   end
 
   it "create custom channel errors" do
     project = @account.projects.make
     call_flow = CallFlow.make project: project
 
-    data = {kind: "custom", call_flow: call_flow.name, username: 'xyz', password: 'pass'}
+    data = {kind: "custom", call_flow: call_flow.name}
     @request.env['RAW_POST_DATA'] = data.to_json
     post :create, format: :json
     assert_response :ok

@@ -15,12 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-class Server < Struct.new(:host, :ip, :register, :direction, :port)
+class Server
+  attr_accessor :domain
+  attr_accessor :port
+  attr_accessor :direction
+  attr_accessor :register
+
+  def initialize(fields = {})
+    @domain = fields['domain']
+    @port = fields['port'].try(:to_i)
+    @direction = fields['direction']
+    @register = fields['register'] == 'true'
+  end
+
   def register?
-    case register
-    when String then register == '1'
-    else register
-    end
+    @register
   end
 
   def is_outbound?
