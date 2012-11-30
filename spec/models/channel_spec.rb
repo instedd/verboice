@@ -231,8 +231,8 @@ describe Channel do
 
   context 'broker client' do
 
-    let(:local_pbx_port) { Rails.configuration.verboice_configuration[:local_pbx_broker_port].to_i }
-    let(:voxeo_port) { Rails.configuration.verboice_configuration[:voxeo_broker_port].to_i }
+    let(:local_pbx_port) { Asterisk::Broker::PORT }
+    let(:voxeo_port) { Voxeo::Broker::PORT }
 
     it 'should return voxeo broker client for Channels::Voxeo' do
       channel = Channels::Voxeo.new

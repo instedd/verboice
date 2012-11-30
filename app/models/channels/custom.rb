@@ -23,7 +23,7 @@ class Channels::Custom < Channel
   config_accessor :limit
 
   def port
-    Rails.configuration.verboice_configuration[:local_pbx_broker_port].to_i
+    Asterisk::Broker::PORT
   end
 
   def asterisk_address_string_for broker, address

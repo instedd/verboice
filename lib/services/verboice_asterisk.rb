@@ -27,7 +27,7 @@ Rails.logger = Logger.new(STDOUT) if STDOUT.tty?
 
 BaseBroker.instance = Asterisk::Broker.new
 
-broker_port = Rails.configuration.verboice_configuration[:local_pbx_broker_port].to_i
+broker_port = Asterisk::Broker::PORT
 
 EM.error_handler do |err|
   p err

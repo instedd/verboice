@@ -26,7 +26,7 @@ class Channels::Sip < Channel
   config_accessor :number
 
   def port
-    Rails.configuration.verboice_configuration[:local_pbx_broker_port].to_i
+    Asterisk::Broker::PORT
   end
 
   def register?

@@ -17,6 +17,8 @@
 
 module Asterisk
   class Broker < BaseBroker
+    PORT = Rails.configuration.verboice_configuration[:local_pbx_broker_port].to_i
+
     def initialize
       handle_events
     end

@@ -28,7 +28,7 @@ class Channels::Voxeo < Channel
   before_create :create_guid
 
   def port
-    Rails.configuration.verboice_configuration[:voxeo_broker_port].to_i
+    Voxeo::Broker::PORT
   end
 
   def create_guid
