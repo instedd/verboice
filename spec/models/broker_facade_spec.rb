@@ -23,9 +23,16 @@ describe BrokerFacade do
     let(:facade) { BrokerFacade.new 1 }
     let(:channel) { a_channel.make }
 
-    [:notify_call_queued, :create_channel, :delete_channel].each do |method|
+    [:notify_call_queued].each do |method|
       it "#{method} for" do
         BaseBroker.instance.should_receive(method).with channel
+        facade.send method, channel.id
+      end
+    end
+
+    [:create_channel, :update_channel, :destroy_channel].each do |method|
+      it "#{method} for" do
+        BaseBroker.instance.should_receive(method).with channel.id
         facade.send method, channel.id
       end
     end

@@ -18,7 +18,10 @@ class UpgradeSipChannelsConfig < ActiveRecord::Migration
       def channel.call_broker_create_channel
       end
 
-      def channel.call_broker_delete_channel
+      def channel.call_broker_update_channel
+      end
+
+      def channel.call_broker_destroy_channel
       end
 
       channel.save

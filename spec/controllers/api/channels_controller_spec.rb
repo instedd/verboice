@@ -60,10 +60,6 @@ describe Api::ChannelsController do
   end
 
   it "delete channel" do
-    broker_client = double('broker_client')
-    BrokerClient.stub(:new).and_return(broker_client)
-    broker_client.should_receive(:delete_channel)
-
     project = @account.projects.make
     call_flow = CallFlow.make project: project
 

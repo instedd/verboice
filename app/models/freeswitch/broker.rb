@@ -60,7 +60,7 @@ EOF
       end
     end
 
-    def delete_channel(channel)
+    def destroy_channel(channel)
       check_freeswitch_available!
 
       # TODO

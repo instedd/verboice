@@ -29,7 +29,7 @@ describe Channel do
   end
 
   after(:each) do
-    broker_client.stub(:delete_channel)
+    broker_client.stub(:destroy_channel)
     [Account, Channel.all_leaf_subclasses, CallLog, Schedule, QueuedCall].flatten.each &:destroy_all
     Timecop.return
   end
@@ -161,19 +161,9 @@ describe Channel do
       channel.save!
     end
 
-    it "call delete_channel and create_channel on broker_client when update" do
-      broker_client.should_receive(:create_channel)
+    it "call destroy_channel on broker_client when destroy" do
       channel = a_channel.make
-
-      broker_client.should_receive(:delete_channel).with(channel.id).ordered
-      broker_client.should_receive(:create_channel).with(channel.id).ordered
-
-      channel.save!
-    end
-
-    it "call delete_channel on broker_client when destroy" do
-      channel = a_channel.make
-      broker_client.should_receive(:delete_channel).with(channel.id)
+      broker_client.should_receive(:destroy_channel).with(channel.id)
       channel.destroy
     end
 
