@@ -64,14 +64,14 @@ module Asterisk
 
     def update_channel(channel_id)
       check_asterisk_available!
-      regenerate_config
+      trigger_regenerate_config
       @channel_status ||= {}
       @channel_status[channel_id] = {ok: false, messages: ["Connecting..."]}
     end
 
     def destroy_channel(channel_id)
       check_asterisk_available!
-      regenerate_config
+      trigger_regenerate_config
     end
 
     def get_dial_address(channel, address)
@@ -115,6 +115,21 @@ module Asterisk
 
     def reload!
       $asterisk_client.command :command => 'sip reload'
+    end
+
+    def trigger_regenerate_config
+      @must_regenerate_config = true
+
+      unless @regenerating_config
+        Thread.new do
+          while @must_regenerate_config
+            @must_regenerate_config = false
+            @regenerating_config = true
+            regenerate_config
+            @regenerating_config = false
+          end
+        end
+      end
     end
 
     def regenerate_config
@@ -166,7 +181,9 @@ module Asterisk
           end
         end
       end
-      reload!
+      EM.schedule do
+        Fiber.new { reload! }.resume
+      end
       @channel_registry = new_channel_registry
     end
 
@@ -236,7 +253,7 @@ module Asterisk
 
     def handle_events
       Asterisk::Client.on_connect do
-        regenerate_config
+        trigger_regenerate_config
         wake_up_queued_calls
       end
 
