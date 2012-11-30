@@ -27,7 +27,7 @@ Rails.logger = Logger.new(STDOUT) if STDOUT.tty?
 
 BaseBroker.instance = Voxeo::Broker.new
 
-broker_port = Voxeo::Brokeo::PORT
+broker_port = Voxeo::Broker::PORT
 
 EM.error_handler do |err|
   p err
