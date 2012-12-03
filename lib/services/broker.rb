@@ -18,16 +18,12 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
-$log_path = File.expand_path '../../../log/asterisk.log', __FILE__
+$log_path = File.expand_path '../../../log/broker.log', __FILE__
 
 require(File.expand_path '../../../config/boot.rb', __FILE__)
 require(File.expand_path '../../../config/environment.rb', __FILE__)
 
 Rails.logger = Logger.new(STDOUT) if STDOUT.tty?
-
-BaseBroker.instance = Asterisk::Broker.new
-
-broker_port = Asterisk::Broker::PORT
 
 EM.error_handler do |err|
   p err
@@ -36,10 +32,19 @@ end
 
 EM::run do
   EM.schedule do
+    # Asterisk
     EM::connect 'localhost', Asterisk::Client::Port, Asterisk::Client
-    EM::start_server 'localhost', broker_port, BrokerFacade
     EM::start_server 'localhost', Asterisk::CallManager::Port, Asterisk::CallManager
-    BaseBroker.instance.start
+
+    # Voxeo
+    EM.start_server '0.0.0.0', Voxeo::Server::Port, Voxeo::Server
+
+    # Generic
+    EM::start_server 'localhost', BrokerFacade::PORT, BrokerFacade
+
+    Asterisk::Broker.instance.start
+    Voxeo::Broker.instance.start
+
     puts 'Ready'
   end
 end

@@ -33,7 +33,7 @@ class Commands::DialCommand < Command
       channel = session.channel
     end
 
-    address = BaseBroker.instance.get_dial_address channel, @number
+    address = session.broker.get_dial_address channel, @number
     session.info "Dialing #{address}", command: 'dial', action: 'start'
 
     @options = {}

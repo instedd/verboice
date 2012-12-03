@@ -17,8 +17,6 @@
 
 module Voxeo
   class Broker < BaseBroker
-    PORT = Rails.configuration.verboice_configuration[:voxeo_broker_port].to_i
-
     # Voxeo calls up to 3 times and waits the user to pick up
     # the call before sending the response, set a large timeout
     TIMEOUT = 120

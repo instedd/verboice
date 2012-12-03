@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 # Copyright (C) 2010-2012, InSTEDD
 #
 # This file is part of Verboice.
@@ -17,29 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-ENV["RAILS_ENV"] = ARGV[0] unless ARGV.empty?
-$log_path = File.expand_path '../../../log/voxeo.log', __FILE__
-
-require(File.expand_path '../../../config/boot.rb', __FILE__)
-require(File.expand_path '../../../config/environment.rb', __FILE__)
-
-Rails.logger = Logger.new(STDOUT) if STDOUT.tty?
-
-BaseBroker.instance = Voxeo::Broker.new
-
-broker_port = Voxeo::Broker::PORT
-
-EM.error_handler do |err|
-  p err
-  p err.backtrace
-end
-
-EM::run do
-  EM.schedule do
-    EM::start_server 'localhost', broker_port, BrokerFacade
-    EM.start_server '0.0.0.0', Voxeo::Server::Port, Voxeo::Server
-    BaseBroker.instance.start
-    puts 'Ready'
-  end
-end
-EM.reactor_thread.join
+#!/usr/bin/env ruby
+require(File.expand_path '../generic_ctl.rb', __FILE__)
+run('broker')

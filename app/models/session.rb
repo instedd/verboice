@@ -60,6 +60,10 @@ class Session
                  end
   end
 
+  def broker
+    channel.broker.instance
+  end
+
   def js
     @js ||= new_v8_context
   end

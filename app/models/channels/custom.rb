@@ -22,10 +22,6 @@ class Channels::Custom < Channel
   config_accessor :dial_string
   config_accessor :limit
 
-  def port
-    Asterisk::Broker::PORT
-  end
-
   def asterisk_address_string_for broker, address
     broker.custom_address_string_for self, address
   end

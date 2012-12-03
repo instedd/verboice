@@ -19,7 +19,7 @@ require 'spec_helper'
 
 describe Voxeo::Broker do
 
-  let(:broker) { Voxeo::Broker.new }
+  let(:broker) { Voxeo::Broker.instance }
   let!(:channel) { Channels::Voxeo.make }
 
   it "returns channels" do

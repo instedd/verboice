@@ -25,10 +25,6 @@ class Channels::Sip < Channel
   config_accessor :register
   config_accessor :number
 
-  def port
-    Asterisk::Broker::PORT
-  end
-
   def register?
     register
   end
@@ -51,7 +47,7 @@ class Channels::Sip < Channel
   end
 
   def errors_count
-    status = broker_client.channel_status(id)[id]
+    status = BrokerClient.channel_status(id)[id]
     status && !status[:ok] ? status[:messages].length : 0
   end
 end

@@ -18,10 +18,13 @@
 require 'spec_helper'
 
 describe BaseBroker do
+  before(:each) do
+    #BaseBroker.instance.sessions.clear
+  end
 
   Channel.all_leaf_subclasses.reject{|a_subclass| a_subclass == Channels::TemplateBasedSip}.each do |a_channel|
     it "shouldn't call if call limit is reached" do
-      @broker = BaseBroker.new
+      @broker = BaseBroker.instance
       @broker.stub(:pbx_available? => true)
       @channel = a_channel.make
 
@@ -39,7 +42,7 @@ describe BaseBroker do
   end
 
   it "shouldn't call if call limit is reached" do
-    @broker = BaseBroker.new
+    @broker = BaseBroker.instance
     @broker.stub(:pbx_available? => true)
     @channel = Channels::TemplateBasedSip.make
 
@@ -54,387 +57,391 @@ describe BaseBroker do
   end
 
   Channel.all_leaf_subclasses.each do |a_channel|
-    before(:each) do
-      @broker = BaseBroker.new
-      @broker.stub(:pbx_available? => true)
-      @channel = a_channel.make
-    end
-
-    context "notify call queued" do
-      it "not call if there is no queued call" do
-        @broker.should_receive(:call).never
-        @broker.notify_call_queued @channel
+    context "channel #{a_channel}" do
+      before(:each) do
+        @broker = BaseBroker.instance
+        @broker.sessions.clear
+        @broker.stub(:pbx_available? => true)
+        @channel = a_channel.make
       end
 
-      it "call if there is a queued call" do
-        queued_call = @channel.queued_calls.make
-        the_session = nil
+      context "notify call queued" do
+        it "not call if there is no queued call" do
+          @broker.should_receive(:call).never
+          @broker.notify_call_queued @channel
+        end
 
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
+        it "call if there is a queued call" do
+          queued_call = @channel.queued_calls.make
+          the_session = nil
 
-        @broker.sessions.length.should == 1
-        @broker.sessions[the_session.id].should == the_session
-        @broker.active_calls_count_for(@channel).should == 1
-        @broker.active_calls[@channel.id][the_session.id].should == the_session
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
+
+          @broker.sessions.length.should == 1
+          @broker.sessions[the_session.id].should == the_session
+          @broker.active_calls_count_for(@channel).should == 1
+          @broker.active_calls[@channel.id][the_session.id].should == the_session
+        end
+
+        it "send ringing notification" do
+          queued_call = @channel.queued_calls.make
+
+          @broker.should_receive(:call).with { |session| session.should_receive(:notify_status).with('ringing') }
+          @broker.notify_call_queued @channel
+        end
+
+        it "close session if call fails" do
+          queued_call = @channel.queued_calls.make
+          the_session = nil
+
+          @broker.should_receive(:call).with { |session| the_session = session }.and_raise Exception.new
+          @broker.notify_call_queued @channel
+
+          @broker.sessions.length.should == 0
+          @broker.active_calls_count_for(@channel).should == 0
+        end
+
+        it "requeue call if pbx unavailable on call" do
+          queued_call = @channel.queued_calls.make
+          the_session = nil
+
+          @broker.should_receive(:call).with { |session| the_session = session }.and_raise PbxUnavailableException.new
+          @broker.notify_call_queued @channel
+
+          assert_equal [queued_call.attributes.except('id', 'created_at', 'updated_at')], @channel.queued_calls.all.map{|x| x.attributes.except('id', 'created_at', 'updated_at')}.to_a
+
+          queued_call = @channel.queued_calls.first
+          queued_call.call_log.state.should == :queued
+
+          @broker.sessions.length.should == 0
+          @broker.active_calls_count_for(@channel).should == 0
+        end
+
+        it "requeue call if rejected and retries available by queue" do
+          schedule = @channel.project.schedules.make :retries => '1,2,4', :time_to => (Time.now + 6.hour)
+          queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 1
+          the_session = nil
+
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
+
+          EM.should_receive(:fiber_sleep).with 2
+          @broker.call_rejected the_session.id, :busy
+
+          queued_call = QueuedCall.last
+          (queued_call.not_before - (Time.now + 2.hour)).abs.should <= 2.seconds
+        end
+
+        it "requeue call using time zone" do
+          # It's 15.30 UTC, 12:30 ARG
+          Timecop.freeze(Time.utc(2012,1,1,15,30))
+          schedule = @channel.project.schedules.make :retries => '1', :time_from => (Time.now.utc - 3.hour), :time_to => (Time.now.utc + 6.hour)
+          queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 0, :time_zone => 'Buenos Aires'
+          the_session = nil
+
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
+
+          EM.should_receive(:fiber_sleep).with 2
+          @broker.call_rejected the_session.id, :busy
+
+          queued_call = QueuedCall.last
+          queued_call.not_before.should eq(Time.utc(2012,1,1,16,30))
+          Timecop.return
+        end
+
+        it "do not requeue if all retries has been used" do
+          schedule = @channel.project.schedules.make :retries => '1,2,4'
+          queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 3
+          the_session = nil
+
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
+
+          EM.should_receive(:fiber_sleep).with 2
+          @broker.call_rejected the_session.id, :busy
+
+          QueuedCall.last.should be_nil
+        end
+
+        it "not call if scheduled for the future" do
+          @channel.queued_calls.make :not_before => Time.now + 1.hour
+
+          @broker.should_receive(:call).never
+          @broker.notify_call_queued @channel
+        end
       end
 
-      it "send ringing notification" do
-        queued_call = @channel.queued_calls.make
+      context "finish session" do
+        it "finish session successfully" do
+          queued_call = @channel.queued_calls.make
+          the_session = nil
 
-        @broker.should_receive(:call).with { |session| session.should_receive(:notify_status).with('ringing') }
-        @broker.notify_call_queued @channel
-      end
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
 
-      it "close session if call fails" do
-        queued_call = @channel.queued_calls.make
-        the_session = nil
+          @broker.finish_session_successfully the_session
+          @broker.sessions.length.should == 0
+          @broker.active_calls[@channel.id].length.should == 0
+          the_session.call_log.state.should == :completed
+        end
 
-        @broker.should_receive(:call).with { |session| the_session = session }.and_raise Exception.new
-        @broker.notify_call_queued @channel
+        it "finish session successfully with status failed" do
+          queued_call = @channel.queued_calls.make
+          the_session = nil
 
-        @broker.sessions.length.should == 0
-        @broker.active_calls_count_for(@channel).should == 0
-      end
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
 
-      it "requeue call if pbx unavailable on call" do
-        queued_call = @channel.queued_calls.make
-        the_session = nil
+          @broker.finish_session_successfully the_session
+          @broker.sessions.length.should == 0
+          @broker.active_calls[@channel.id].length.should == 0
+          the_session.call_log.state.should == :completed
+        end
 
-        @broker.should_receive(:call).with { |session| the_session = session }.and_raise PbxUnavailableException.new
-        @broker.notify_call_queued @channel
+        it "finish session with error" do
+          queued_call = @channel.queued_calls.make
+          the_session = nil
 
-        assert_equal [queued_call.attributes.except('id', 'created_at', 'updated_at')], @channel.queued_calls.all.map{|x| x.attributes.except('id', 'created_at', 'updated_at')}.to_a
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
 
-        queued_call = @channel.queued_calls.first
-        queued_call.call_log.state.should == :queued
+          @broker.finish_session_with_error the_session, 'A foobar error'
+          @broker.sessions.length.should == 0
+          @broker.active_calls[@channel.id].length.should == 0
+          assert_match /A foobar error/, the_session.call_log.entries.last.description
+          the_session.call_log.state.should == :failed
+        end
 
-        @broker.sessions.length.should == 0
-        @broker.active_calls_count_for(@channel).should == 0
-      end
+        it "send status callback on successfull" do
+          queued_call = @channel.queued_calls.make
+          the_session = nil
 
-      it "requeue call if rejected and retries available by queue" do
-        schedule = @channel.project.schedules.make :retries => '1,2,4', :time_to => (Time.now + 6.hour)
-        queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 1
-        the_session = nil
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
 
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
+          the_session.call_flow.project.status_callback_url = 'http://foo'
+          the_session.pbx = mock('pbx')
+          the_session.should_receive(:notify_status).with('completed')
+          @broker.finish_session_successfully the_session
+        end
 
-        EM.should_receive(:fiber_sleep).with 2
-        @broker.call_rejected the_session.id, :busy
+        it "send status callback on failure" do
+          queued_call = @channel.queued_calls.make
+          the_session = nil
 
-        queued_call = QueuedCall.last
-        (queued_call.not_before - (Time.now + 2.hour)).abs.should <= 2.seconds
-      end
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
 
-      it "requeue call using time zone" do
-        # It's 15.30 UTC, 12:30 ARG
-        Timecop.freeze(Time.utc(2012,1,1,15,30))
-        schedule = @channel.project.schedules.make :retries => '1', :time_from => (Time.now.utc - 3.hour), :time_to => (Time.now.utc + 6.hour)
-        queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 0, :time_zone => 'Buenos Aires'
-        the_session = nil
+          the_session.call_flow.project.status_callback_url = 'http://foo'
+          the_session.pbx = mock('pbx')
+          the_session.should_receive(:notify_status).with('failed')
+          @broker.finish_session_with_error the_session, 'An error'
+        end
 
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
+        it "send status callback on failure with custom status" do
+          queued_call = @channel.queued_calls.make
+          the_session = nil
 
-        EM.should_receive(:fiber_sleep).with 2
-        @broker.call_rejected the_session.id, :busy
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
 
-        queued_call = QueuedCall.last
-        queued_call.not_before.should eq(Time.utc(2012,1,1,16,30))
-        Timecop.return
-      end
+          the_session.call_flow.project.status_callback_url = 'http://foo'
+          the_session.pbx = mock('pbx')
+          the_session.should_receive(:notify_status).with('busy')
+          @broker.finish_session_with_error the_session, 'An error', 'busy'
+        end
 
-      it "do not requeue if all retries has been used" do
-        schedule = @channel.project.schedules.make :retries => '1,2,4'
-        queued_call = @channel.queued_calls.make :schedule => schedule, :retries => 3
-        the_session = nil
-
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
-
-        EM.should_receive(:fiber_sleep).with 2
-        @broker.call_rejected the_session.id, :busy
-
-        QueuedCall.last.should be_nil
-      end
-
-      it "not call if scheduled for the future" do
-        @channel.queued_calls.make :not_before => Time.now + 1.hour
-
-        @broker.should_receive(:call).never
-        @broker.notify_call_queued @channel
-      end
-    end
-
-    context "finish session" do
-      it "finish session successfully" do
-        queued_call = @channel.queued_calls.make
-        the_session = nil
-
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
-
-        @broker.finish_session_successfully the_session
-        @broker.sessions.length.should == 0
-        @broker.active_calls[@channel.id].length.should == 0
-        the_session.call_log.state.should == :completed
-      end
-
-      it "finish session successfully with status failed" do
-        queued_call = @channel.queued_calls.make
-        the_session = nil
-
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
-
-        @broker.finish_session_successfully the_session
-        @broker.sessions.length.should == 0
-        @broker.active_calls[@channel.id].length.should == 0
-        the_session.call_log.state.should == :completed
-      end
-
-      it "finish session with error" do
-        queued_call = @channel.queued_calls.make
-        the_session = nil
-
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
-
-        @broker.finish_session_with_error the_session, 'A foobar error'
-        @broker.sessions.length.should == 0
-        @broker.active_calls[@channel.id].length.should == 0
-        assert_match /A foobar error/, the_session.call_log.entries.last.description
-        the_session.call_log.state.should == :failed
-      end
-
-      it "send status callback on successfull" do
-        queued_call = @channel.queued_calls.make
-        the_session = nil
-
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
-
-        the_session.call_flow.project.status_callback_url = 'http://foo'
-        the_session.pbx = mock('pbx')
-        the_session.should_receive(:notify_status).with('completed')
-        @broker.finish_session_successfully the_session
-      end
-
-      it "send status callback on failure" do
-        queued_call = @channel.queued_calls.make
-        the_session = nil
-
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
-
-        the_session.call_flow.project.status_callback_url = 'http://foo'
-        the_session.pbx = mock('pbx')
-        the_session.should_receive(:notify_status).with('failed')
-        @broker.finish_session_with_error the_session, 'An error'
-      end
-
-      it "send status callback on failure with custom status" do
-        queued_call = @channel.queued_calls.make
-        the_session = nil
-
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
-
-        the_session.call_flow.project.status_callback_url = 'http://foo'
-        the_session.pbx = mock('pbx')
-        the_session.should_receive(:notify_status).with('busy')
-        @broker.finish_session_with_error the_session, 'An error', 'busy'
-      end
-
-      it "should create a Trace logging that the call has ended" do
-
-        @channel.call_flow.user_flow = [
-          {
-            'id' => 1,
-            'root' => 1,
-            'type' => 'play',
-            'name' => 'Play number one',
-            'resource' => {
-              "guid" => TextLocalizedResource.make.guid
+        it "should create a Trace logging that the call has ended" do
+          @channel.call_flow.user_flow = [
+            {
+              'id' => 1,
+              'root' => 1,
+              'type' => 'play',
+              'name' => 'Play number one',
+              'resource' => {
+                "guid" => TextLocalizedResource.make.guid
+              }
             }
-          }
-        ]
-        @channel.call_flow.save!
-        @channel.call_flow.reload
+          ]
+          @channel.call_flow.save!
+          @channel.call_flow.reload
 
-        queued_call = @channel.queued_calls.make
-        the_session = nil
+          queued_call = @channel.queued_calls.make
+          the_session = nil
 
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
 
-        pbx = stub 'pbx', :session_id => the_session.id
-        pbx.should_receive :session=
-        pbx.should_receive :answer
-        pbx.should_receive :hangup
+          pbx = stub 'pbx', :session_id => the_session.id
+          pbx.should_receive :session=
+          pbx.should_receive :answer
+          pbx.should_receive :hangup
 
-        EM.should_receive(:fiber_sleep).with 2
+          EM.should_receive(:fiber_sleep).with 2
 
-        @broker.accept_call pbx
+          @broker.accept_call pbx
 
-        Trace.all.size.should eq(2)
-        Trace.first.result.should eq('Message played.')
-        Trace.first.call_flow_id.should eq(@channel.call_flow.id)
-        Trace.first.step_id.to_i.should eq(1)
-        Trace.first.step_name.should eq('Play number one')
+          puts Trace.all.map(&:result)
 
-        Trace.last.result.should eq('User hung up.')
-        Trace.last.call_flow_id.should eq(@channel.call_flow.id)
-        Trace.last.step_id.to_i.should eq(1)
-        Trace.last.step_name.should eq('')
-      end
-    end
+          Trace.all.size.should eq(2)
+          Trace.first.result.should eq('Message played.')
+          Trace.first.call_flow_id.should eq(@channel.call_flow.id)
+          Trace.first.step_id.to_i.should eq(1)
+          Trace.first.step_name.should eq('Play number one')
 
-    context "reject call" do
-      it "reject with busy status" do
-        session = Session.new
-        @broker.should_receive(:find_session).with(123).and_return(session)
-        @broker.should_receive(:finish_session_with_error).with(session, 'Remote end is busy', 'busy')
-        EM.should_receive(:fiber_sleep).with 2
-        @broker.should_receive(:notify_call_queued)
-
-        @broker.call_rejected 123, :busy
+          Trace.last.result.should eq('User hung up.')
+          Trace.last.call_flow_id.should eq(@channel.call_flow.id)
+          Trace.last.step_id.to_i.should eq(1)
+          Trace.last.step_name.should eq('')
+        end
       end
 
-      it "reject with no answer status" do
-        session = Session.new
-        @broker.should_receive(:find_session).with(123).and_return(session)
-        @broker.should_receive(:finish_session_with_error).with(session, 'Remote end do not answer', 'no-answer')
-        EM.should_receive(:fiber_sleep).with 2
-        @broker.should_receive(:notify_call_queued)
+      context "reject call" do
+        it "reject with busy status" do
+          session = Session.new
+          @broker.should_receive(:find_session).with(123).and_return(session)
+          @broker.should_receive(:finish_session_with_error).with(session, 'Remote end is busy', 'busy')
+          EM.should_receive(:fiber_sleep).with 2
+          @broker.should_receive(:notify_call_queued)
 
-        @broker.call_rejected 123, :no_answer
+          @broker.call_rejected 123, :busy
+        end
+
+        it "reject with no answer status" do
+          session = Session.new
+          @broker.should_receive(:find_session).with(123).and_return(session)
+          @broker.should_receive(:finish_session_with_error).with(session, 'Remote end do not answer', 'no-answer')
+          EM.should_receive(:fiber_sleep).with 2
+          @broker.should_receive(:notify_call_queued)
+
+          @broker.call_rejected 123, :no_answer
+        end
+
+        it "reject with unknown reason" do
+          session = Session.new
+          @broker.should_receive(:find_session).with(123).and_return(session)
+          @broker.should_receive(:finish_session_with_error).with(session, 'Failed to establish the communication', 'failed')
+          EM.should_receive(:fiber_sleep).with 2
+          @broker.should_receive(:notify_call_queued)
+
+          @broker.call_rejected 123, :failed
+        end
       end
 
-      it "reject with unknown reason" do
-        session = Session.new
-        @broker.should_receive(:find_session).with(123).and_return(session)
-        @broker.should_receive(:finish_session_with_error).with(session, 'Failed to establish the communication', 'failed')
-        EM.should_receive(:fiber_sleep).with 2
-        @broker.should_receive(:notify_call_queued)
+      context "accept call" do
+        it "run when there is already a session" do
+          @channel.call_flow.flow = Compiler.make { Answer(); Hangup() }
+          @channel.call_flow.save!
 
-        @broker.call_rejected 123, :failed
-      end
-    end
+          queued_call = @channel.queued_calls.make
+          the_session = nil
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
 
-    context "accept call" do
-      it "run when there is already a session" do
-        @channel.call_flow.flow = Compiler.make { Answer(); Hangup() }
-        @channel.call_flow.save!
+          pbx = stub 'pbx', :session_id => the_session.id
+          pbx.should_receive :session=
+          pbx.should_receive :answer
+          pbx.should_receive(:hangup).twice
 
-        queued_call = @channel.queued_calls.make
-        the_session = nil
-        @broker.should_receive(:call).with { |session| the_session = session }
-        @broker.notify_call_queued @channel
+          EM.should_receive(:fiber_sleep).with 2
 
-        pbx = stub 'pbx', :session_id => the_session.id
-        pbx.should_receive :session=
-        pbx.should_receive :answer
-        pbx.should_receive(:hangup).twice
+          @broker.accept_call pbx
 
-        EM.should_receive(:fiber_sleep).with 2
+          the_session.call_log.address.should == queued_call.address
+          the_session.call_log.state.should == :completed
+          @broker.sessions.length.should == 0
+          @broker.active_calls[@channel.id].length.should == 0
+        end
 
-        @broker.accept_call pbx
+        it "run when there is no session" do
+          @channel.call_flow.flow = Compiler.make { Answer(); Hangup() }
+          @channel.call_flow.save!
 
-        the_session.call_log.address.should == queued_call.address
-        the_session.call_log.state.should == :completed
-        @broker.sessions.length.should == 0
-        @broker.active_calls[@channel.id].length.should == 0
-      end
+          pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
+          pbx.should_receive :session=
+          pbx.should_receive :answer
+          pbx.should_receive(:hangup).twice
 
-      it "run when there is no session" do
-        @channel.call_flow.flow = Compiler.make { Answer(); Hangup() }
-        @channel.call_flow.save!
+          EM.should_receive(:fiber_sleep).with 2
 
-        pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
-        pbx.should_receive :session=
-        pbx.should_receive :answer
-        pbx.should_receive(:hangup).twice
+          @broker.accept_call pbx
 
-        EM.should_receive(:fiber_sleep).with 2
+          call_logs = CallLog.all
+          call_logs.length.should == 1
+          call_log = call_logs.first
 
-        @broker.accept_call pbx
+          call_log.address.should == '1234'
+          call_log.state.should == :completed
+          @broker.sessions.length.should == 0
+          @broker.active_calls[@channel.id].length.should == 0
+        end
 
-        call_logs = CallLog.all
-        call_logs.length.should == 1
-        call_log = call_logs.first
+        it "resume when there is a suspended session" do
+          session = Session.new
+          session.suspend
+          @broker.sessions['id'] = session
 
-        call_log.address.should == '1234'
-        call_log.state.should == :completed
-        @broker.sessions.length.should == 0
-        @broker.active_calls[@channel.id].length.should == 0
-      end
+          pbx = stub 'pbx', :session_id => 'id'
+          pbx.should_receive :session=
 
-      it "resume when there is a suspended session" do
-        session = Session.new
-        session.suspend
-        @broker.sessions['id'] = session
-
-        pbx = stub 'pbx', :session_id => 'id'
-        pbx.should_receive :session=
-
-        session.should_receive(:resume)
-        @broker.accept_call pbx
-      end
-
-      it "resume and close pbx connection" do
-        @channel.call_flow.flow = Compiler.make { Yield(); Hangup() }
-        @channel.call_flow.save!
-
-        pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
-        pbx.should_receive :session=
-
-        f = Fiber.new do
+          session.should_receive(:resume)
           @broker.accept_call pbx
         end
 
-        # This will start the session and yield at the YieldCommand
-        f.resume
+        it "resume and close pbx connection" do
+          @channel.call_flow.flow = Compiler.make { Yield(); Hangup() }
+          @channel.call_flow.save!
 
-        pbx.should_receive :close_connection
-        session = @broker.sessions.values.first
-        @broker.should_receive(:restart).with(session)
-        @broker.redirect session.call_log.id, :flow => Compiler.make { Hangup() }
+          pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
+          pbx.should_receive :session=
 
-        # Resume the session and yields because it is suspended
-        f.resume
-
-        pbx2 = stub 'pbx2', :session_id => session.id, :channel_id => nil, :caller_id => '1234'
-        pbx2.should_receive(:session=)
-        pbx2.should_receive(:hangup).twice
-        EM.should_receive(:fiber_sleep).with 2
-
-        @broker.accept_call pbx2
-      end
-
-      it "send 'in-progress' status notification" do
-        @channel.call_flow.flow = Compiler.make { Answer() }
-        @channel.call_flow.save!
-
-        class << @broker
-          def find_or_create_session(pbx)
-            session = super
-            session.should_receive(:notify_status).with('in-progress')
-            session.should_receive(:notify_status).with('completed')
-            session
+          f = Fiber.new do
+            @broker.accept_call pbx
           end
+
+          # This will start the session and yield at the YieldCommand
+          f.resume
+
+          pbx.should_receive :close_connection
+          session = @broker.sessions.values.first
+          @broker.should_receive(:restart).with(session)
+          @broker.redirect session.call_log.id, :flow => Compiler.make { Hangup() }
+
+          # Resume the session and yields because it is suspended
+          f.resume
+
+          pbx2 = stub 'pbx2', :session_id => session.id, :channel_id => nil, :caller_id => '1234'
+          pbx2.should_receive(:session=)
+          pbx2.should_receive(:hangup).twice
+          EM.should_receive(:fiber_sleep).with 2
+
+          @broker.accept_call pbx2
         end
 
-        pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
-        pbx.should_receive :session=
-        pbx.should_receive :answer
-        pbx.should_receive :hangup
+        it "send 'in-progress' status notification" do
+          @channel.call_flow.flow = Compiler.make { Answer() }
+          @channel.call_flow.save!
 
-        EM.should_receive(:fiber_sleep).with 2
+          class << @broker
+            def find_or_create_session(pbx)
+              session = super
+              session.should_receive(:notify_status).with('in-progress')
+              session.should_receive(:notify_status).with('completed')
+              session
+            end
+          end
 
-        @broker.accept_call pbx
+          pbx = stub 'pbx', :session_id => nil, :channel_id => @channel.id, :caller_id => '1234'
+          pbx.should_receive :session=
+          pbx.should_receive :answer
+          pbx.should_receive :hangup
+
+          EM.should_receive(:fiber_sleep).with 2
+
+          @broker.accept_call pbx
+        end
       end
     end
   end

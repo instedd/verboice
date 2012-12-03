@@ -31,11 +31,8 @@ describe Api::CallsController do
   end
 
   context "call" do
-    let(:broker_client) { double('broker_client') }
-
     before(:each) do
-      BrokerClient.stub(:new).and_return(broker_client)
-      broker_client.stub(:notify_call_queued)
+      BrokerClient.stub(:notify_call_queued)
     end
 
     it "calls" do

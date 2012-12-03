@@ -44,7 +44,7 @@ module Api
       end
 
       channel = CallLog.find(params[:id]).channel
-      channel.broker_client.redirect options
+      BrokerClient.redirect options
 
       render :text => 'OK'
     end

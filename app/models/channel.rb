@@ -16,7 +16,6 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Channel < ActiveRecord::Base
-
   belongs_to :account
   belongs_to :call_flow
   has_one :project, :through => :call_flow
@@ -68,9 +67,9 @@ class Channel < ActiveRecord::Base
 
     begin
       if queued_call.not_before?
-        broker_client.notify_call_queued id, queued_call.not_before
+        BrokerClient.notify_call_queued id, queued_call.not_before
       else
-        broker_client.notify_call_queued id
+        BrokerClient.notify_call_queued id
       end
     rescue Exception => ex
       call_log.finish_with_error ex.message
@@ -128,7 +127,7 @@ class Channel < ActiveRecord::Base
   end
 
   def active_calls_count
-    broker_client.active_calls_count_for id
+    BrokerClient.active_calls_count_for id
   end
 
   def poll_call
@@ -143,24 +142,24 @@ class Channel < ActiveRecord::Base
     limit.present?
   end
 
+  def broker
+    Asterisk::Broker
+  end
+
   def limit
     subclass_responsibility
   end
 
-  def broker_client
-    @broker_client ||= BrokerClient.new port
-  end
-
   def call_broker_create_channel
-    broker_client.create_channel id
+    BrokerClient.create_channel id, broker.name
   end
 
   def call_broker_update_channel
-    broker_client.create_channel id
+    BrokerClient.create_channel id, broker.name
   end
 
   def call_broker_destroy_channel
-    broker_client.destroy_channel id
+    BrokerClient.destroy_channel id, broker.name
   end
 
   def kind
@@ -173,10 +172,6 @@ class Channel < ActiveRecord::Base
 
   def self.kinds
     [["#{kind} channel", "#{name}-#{kind}"]]
-  end
-
-  def port
-    subclass_responsibility
   end
 
   def errors_count

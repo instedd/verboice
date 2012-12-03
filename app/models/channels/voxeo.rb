@@ -27,15 +27,15 @@ class Channels::Voxeo < Channel
 
   before_create :create_guid
 
-  def port
-    Voxeo::Broker::PORT
-  end
-
   def create_guid
     self.guid ||= Guid.new.to_s
   end
 
   def self.can_handle? a_kind
     a_kind == 'voxeo'
+  end
+
+  def broker
+    Voxeo::Broker
   end
 end

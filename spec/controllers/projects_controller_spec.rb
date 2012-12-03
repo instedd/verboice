@@ -48,13 +48,11 @@ describe ProjectsController do
     let!(:call_flow) { CallFlow.make :project => project }
     let!(:channel) { Channel.all_leaf_subclasses.sample.make :call_flow => call_flow, :account => account }
     let!(:schedule) { project.schedules.make :weekdays => "1", :time_to => (Time.now + 1.day)}
-    let!(:broker_client) { double('broker_client') }
 
     Timecop.return
 
     before(:each) do
-      BrokerClient.stub(:new).and_return(broker_client)
-      broker_client.stub(:notify_call_queued)
+      BrokerClient.stub(:notify_call_queued)
     end
 
     it 'should enqueue a call' do
@@ -67,7 +65,7 @@ describe ProjectsController do
     it 'should ignore the not before date if not before check is not set' do
       not_before = DateTime.new(2012, 1, 1, 16, 0, 0)
 
-      broker_client.should_receive(:notify_call_queued).with(channel.id, anything)
+      BrokerClient.should_receive(:notify_call_queued).with(channel.id, anything)
 
       expect {
         post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id, :not_before_date => not_before
@@ -84,7 +82,7 @@ describe ProjectsController do
     it 'should enqueue a call not before specific date' do
       not_before = DateTime.new(2012, 1, 1, 16, 0, 0)
 
-      broker_client.should_receive(:notify_call_queued).with(channel.id,not_before + 1)
+      BrokerClient.should_receive(:notify_call_queued).with(channel.id,not_before + 1)
 
       expect {
         post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id, :not_before_date => not_before, :not_before => true
@@ -106,7 +104,7 @@ describe ProjectsController do
       schedule.time_to = '18:00'
       schedule.save!
 
-      broker_client.should_receive(:notify_call_queued).with(channel.id, expected_not_before)
+      BrokerClient.should_receive(:notify_call_queued).with(channel.id, expected_not_before)
 
       expect {
         post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id, :not_before_date => '2012-01-01 4:00:00', :not_before => true, :time_zone => 'Buenos Aires'

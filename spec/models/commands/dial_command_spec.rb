@@ -19,16 +19,12 @@ require 'spec_helper'
 
 module Commands
   describe DialCommand do
-    before(:each) do
-      BaseBroker.instance = mock('broker')
-    end
-
     it "run" do
       dial = DialCommand.new '1234'
       dial.next = :next
       session = Session.new :channel => Channels::CustomSip.make
 
-      BaseBroker.instance.should_receive(:get_dial_address).with(session.channel, '1234').and_return('SIP/1234')
+      session.broker.should_receive(:get_dial_address).with(session.channel, '1234').and_return('SIP/1234')
       session.call_log = CallLog.make
       session.pbx = mock('pbx')
       session.pbx.should_receive(:dial).with('SIP/1234', {}).and_return(:completed)
@@ -42,7 +38,7 @@ module Commands
       session = Session.new :channel => channel
       dial = DialCommand.new '1234', :channel => channel.name
 
-      BaseBroker.instance.should_receive(:get_dial_address).with(channel, '1234').and_return('SIP/1234')
+      session.broker.should_receive(:get_dial_address).with(channel, '1234').and_return('SIP/1234')
       session.call_log = CallLog.make
       session.pbx = mock('pbx')
       session.pbx.should_receive(:dial).with('SIP/1234', {})
@@ -53,7 +49,7 @@ module Commands
       dial = DialCommand.new '1234', :caller_id => 'foo'
       session = Session.new :channel => Channels::CustomSip.make
 
-      BaseBroker.instance.should_receive(:get_dial_address).with(session.channel, '1234').and_return('SIP/1234')
+      session.broker.should_receive(:get_dial_address).with(session.channel, '1234').and_return('SIP/1234')
       session.call_log = CallLog.make
       session.pbx = mock('pbx')
       session.pbx.should_receive(:dial).with('SIP/1234', {:caller_id => 'foo'}).and_return(:completed)

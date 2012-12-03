@@ -30,7 +30,7 @@ module Asterisk
       @log = Rails.logger
       @peer_ip = send_command('GET VARIABLE', 'CHANNEL(peerip)').parenthetical
       @sip_to = send_command('GET VARIABLE', 'SIP_HEADER(To)').parenthetical
-      BaseBroker.instance.accept_call self
+      Asterisk::Broker.instance.accept_call self
     end
 
     def channel_id

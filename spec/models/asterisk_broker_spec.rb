@@ -22,7 +22,7 @@ describe Asterisk::Broker do
     $asterisk_client = mock('asterisk_client')
   end
 
-  let(:broker) { Asterisk::Broker.new }
+  let(:broker) { Asterisk::Broker.instance }
   let!(:channel) { Channels::Custom.make :config => {'dial_string' => 'SIP/{number}'} }
 
   it "returns channels" do
