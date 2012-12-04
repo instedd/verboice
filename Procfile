@@ -1,5 +1,4 @@
 web: bundle exec rails s
-asterisk_adapter: lib/services/verboice_asterisk.rb
-voxeo_adapter: lib/services/verboice_voxeo.rb
+broker: lib/services/broker.rb
 asterisk: /usr/local/asterisk/sbin/asterisk
 delayed: bundle exec rake jobs:work
