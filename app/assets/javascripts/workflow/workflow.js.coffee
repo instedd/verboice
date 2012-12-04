@@ -46,11 +46,13 @@ onWorkflow ->
 
     call_from_browser: =>
       @old_sidebar_content = @sidebar_content()
+      @old_current_step = @current_step()
       @sidebar_content(@call_simulator)
       @call_simulator.start()
 
     call_simulator_ended: =>
       @sidebar_content(@old_sidebar_content)
+      @current_step(@old_current_step)
 
     show_command_selector: (requestor) =>
       @sidebar_content(@command_selector.with_requestor(requestor or new AddRootRequestor))

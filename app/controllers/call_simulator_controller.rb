@@ -22,23 +22,25 @@ class CallSimulatorController < ApplicationController
       {command: :hangup}
     end
 
-    $call_simulator_sessions[session.id] = fiber
+    $call_simulator_sessions[session.id] = [session, fiber]
 
-    reply_command session.id, fiber
+    reply_command session.id
   end
 
   def resume
     reply_command params[:session_id]
   end
 
-  def reply_command(session_id, fiber = $call_simulator_sessions[session_id])
+  def reply_command(session_id)
+    session, fiber = $call_simulator_sessions[session_id]
+
     command = fiber.resume
 
     if command[:command] == :hangup
       $call_simulator_sessions.delete session_id
     end
 
-    render json: command.merge(session_id: session_id)
+    render json: command.merge(session_id: session_id, current_step: session['current_step'])
   end
 
   class VirtualPbx
@@ -53,6 +55,10 @@ class CallSimulatorController < ApplicationController
     def say(text, options = {})
       puts "SAY: #{text}"
       Fiber.yield command: :say, text: text
+    end
+
+    def capture(options = {})
+      Fiber.yield options.merge(command: :capture)
     end
   end
 
