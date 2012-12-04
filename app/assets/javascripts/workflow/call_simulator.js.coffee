@@ -3,7 +3,7 @@ onWorkflow ->
     constructor: (@workflow) ->
       @display = ko.observable()
       @duration = ko.observable(0)
-      @duration_text = ko.computed => "Call duration: #{@duration()}"
+      @duration_text = ko.computed => "Call duration: #{@toHHMMSS(@duration())}"
 
     display_template_id: () ->
       'call_simulator_template'
@@ -29,6 +29,7 @@ onWorkflow ->
         when 'hangup'
           @display('Call ended...')
           setTimeout @workflow.call_simulator_ended, 3000
+          clearInterval @duration_timer
 
     digit_pressed: (model, event) =>
       return unless @capture
@@ -40,4 +41,11 @@ onWorkflow ->
       if @digits.length == @capture.max || digit == @capture.finish_on_key
         $.post "/call_simulator/resume", {session_id: @capture.session_id, digits: @digits}, @callback
         @capture = null
+
+    toHHMMSS: (seconds) ->
+      minutes = Math.floor(seconds / 60)
+      seconds = seconds - (minutes * 60)
+      minutes = "0" + minutes  if minutes < 10
+      seconds = "0" + seconds  if seconds < 10
+      minutes + ":" + seconds
 
