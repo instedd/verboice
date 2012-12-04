@@ -16,22 +16,19 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class BaseBroker
-  def start
+  def self.start
+    Asterisk::Broker.instance.start
+    Voxeo::Broker.instance.start
+
+    EM::start_server 'localhost', BrokerFacade::PORT, BrokerFacade
+
     EM.add_periodic_timer(20) do
-      Fiber.new do
-        queued_calls.each do |queued_call|
-          if queued_call.channel
-            begin
-              notify_call_queued queued_call.channel
-            rescue Exception => ex
-              log "Error notifying queued call #{queued_call.id}: #{ex}"
-            end
-          else
-            queued_call.delete
-          end
-        end
-      end.resume
+      Fiber.new { queued_calls.each &:notify_broker }.resume
     end
+  end
+
+  def self.queued_calls
+    QueuedCall.where('not_before IS NULL OR not_before <= ?', Time.now.utc).order(:not_before).select([:id, :channel_id]).includes(:channel)
   end
 
   def wake_up_queued_calls
@@ -227,10 +224,6 @@ class BaseBroker
   end
 
   def channels
-    subclass_responsibility
-  end
-
-  def queued_calls
     subclass_responsibility
   end
 

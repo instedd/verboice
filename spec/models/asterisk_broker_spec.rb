@@ -68,12 +68,5 @@ describe Asterisk::Broker do
       ex = assert_raise(RuntimeError) { broker.call session }
       ex.message.should == 'Oops'
     end
-
-    it "shouln't take other broker's queued calls " do
-      call = QueuedCall.make :channel => channel
-      QueuedCall.make :channel => Channels::Voxeo.make
-
-      broker.queued_calls.should == [call]
-    end
   end
 end

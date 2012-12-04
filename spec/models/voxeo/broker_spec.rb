@@ -18,7 +18,6 @@
 require 'spec_helper'
 
 describe Voxeo::Broker do
-
   let(:broker) { Voxeo::Broker.new }
   let!(:channel) { Channels::Voxeo.make }
 
@@ -32,19 +31,11 @@ describe Voxeo::Broker do
   end
 
   context "call" do
-
     let(:session) { Session.new :channel => channel, :address => 'foo' }
 
     it "should make a call request" do
       expect_em_http :get, channel.url, :with => {:timeout => Voxeo::Broker::TIMEOUT,:query => {:tokenid => channel.token, :callsid => session.id, :numbertodial => session.address}}
       broker.call session
-    end
-
-    it "shouln't take other broker's queued calls " do
-      call = QueuedCall.make :channel => channel
-      QueuedCall.make :channel => Channels::Custom.make
-
-      broker.queued_calls.should == [call]
     end
   end
 end

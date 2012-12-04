@@ -26,12 +26,11 @@ module Asterisk
     end
 
     def start
-      super
+      EM::connect 'localhost', Asterisk::Client::Port, Asterisk::Client
+      EM::start_server 'localhost', Asterisk::CallManager::Port, Asterisk::CallManager
 
       EM.add_periodic_timer(30) do
-        Fiber.new do
-          check_channels_status
-        end.resume
+        Fiber.new { check_channels_status }.resume
       end
     end
 
@@ -91,10 +90,6 @@ module Asterisk
 
     def channels
       Channel.where("type != '#{Channels::Voxeo.name}'")
-    end
-
-    def queued_calls
-      QueuedCall.where('not_before IS NULL OR not_before <= ?', Time.now.utc).order(:not_before).select([:id, :channel_id]).includes(:channel).where('channels.type != "Channels::Voxeo" ')
     end
 
     def channel_status(*channel_ids)

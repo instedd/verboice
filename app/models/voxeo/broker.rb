@@ -25,6 +25,10 @@ module Voxeo
       $voxeo_broker ||= new
     end
 
+    def start
+      EM.start_server '0.0.0.0', Voxeo::Server::Port, Voxeo::Server
+    end
+
     def call session
       http = EventMachine::HttpRequest.new(session.channel.url)
       http = http.get :timeout => TIMEOUT, :query => {:tokenid => session.channel.token, :callsid => session.id, :numbertodial => session.address} #TODO AR: we can add a callerid param here
@@ -67,10 +71,6 @@ module Voxeo
 
     def channels
       Channels::Voxeo.scoped
-    end
-
-    def queued_calls
-      QueuedCall.where('not_before IS NULL OR not_before <= ?', Time.now.utc).order(:not_before).select([:id, :channel_id]).includes(:channel).where('channels.type = "Channels::Voxeo" ')
     end
 
     private

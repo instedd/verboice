@@ -146,6 +146,10 @@ class Channel < ActiveRecord::Base
     Asterisk::Broker
   end
 
+  def notify_broker
+    broker.instance.notify_call_queued self
+  end
+
   def limit
     subclass_responsibility
   end

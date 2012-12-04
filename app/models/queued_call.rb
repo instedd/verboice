@@ -54,4 +54,16 @@ class QueuedCall < ActiveRecord::Base
     call_log.state = :cancelled
     call_log.save!
   end
+
+  def notify_broker
+    if channel
+      begin
+        channel.notify_broker
+      rescue Exception => ex
+        Rails.logger.info "Error notifying queued call #{id}: #{ex}"
+      end
+    else
+      destroy
+    end
+  end
 end
