@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'singleton'
-
 class BaseBroker
   def start
     EM.add_periodic_timer(20) do
