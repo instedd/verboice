@@ -30,6 +30,7 @@ class Session
   def initialize(options = {})
     @vars = {}
     @log_level = :trace
+    @trace_enabled = true
 
     options.each do |key, value|
       send "#{key}=", value
@@ -38,6 +39,14 @@ class Session
 
   def id
     @id ||= Guid.new.to_s
+  end
+
+  def trace_enabled=(value)
+    @trace_enabled = value
+  end
+
+  def trace_enabled?
+    @trace_enabled
   end
 
   def call_id

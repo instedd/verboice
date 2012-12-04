@@ -28,7 +28,7 @@
         iframe.src = url;
     }
 
-  - %W(external_step hang_up_step workflow_step capture_step menu_step play_step mark_as_failed_step mark_as_successful_step transfer_step goto_step branch_step record_step language_step text_localized_resource url_localized_resource record_localized_resource upload_localized_resource command_selector branch_option external_setting resource_editor).each do |template|
+  - %W(external_step hang_up_step workflow_step capture_step menu_step play_step mark_as_failed_step mark_as_successful_step transfer_step goto_step branch_step record_step language_step text_localized_resource url_localized_resource record_localized_resource upload_localized_resource command_selector call_simulator branch_option external_setting resource_editor).each do |template|
     = render "call_flows/#{template}_template"
 
 = render 'shared/project_tabs_and_title', :project => @project
@@ -60,6 +60,8 @@
   #workflow
     #workflow-page
       %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
+      %p.left.title &nbsp; |
+      %p.left.title.clickable{ 'data-bind' => 'click: call_from_browser' } | Try it now!
       %div.right
         = hidden_field_tag 'flow', (@call_flow.user_flow || []).to_json
         %button.grey{:type => "submit"} Save
@@ -70,3 +72,9 @@
           .workflow-content-container.h65{ ko(workflow_steps: 'steps') }
       %span{ko(template: '{name: display_template_for, data: sidebar_content}')}
       .clear
+
+#call-flow-simulator{style: 'display: none'}
+  HOLA!
+
+:javascript
+  window.callFlowId = #{@call_flow.id}

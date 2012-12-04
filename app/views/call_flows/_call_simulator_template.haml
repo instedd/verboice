@@ -1,0 +1,11 @@
+%script{type: "text/html", id: "call_simulator_template"}
+  .feditor-sidebar.box.w28.iblock.h65.addstep.right
+    .content-header
+      %h1 Call simulator
+      %span Try here the call flow
+    %div
+      #call-simulator-display{ko(text: '$root.call_simulator.display'), style: 'margin:10px; border: 1px solid grey; padding: 10px'}
+    .content-buttons
+      - [1, 2, 3, 4, 5, 6, 7, 8, 9, '*', 0, '#'].each do |digit|
+        %div
+          %button{ko(click: '$root.call_simulator.digit_pressed')}= digit

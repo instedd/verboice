@@ -17,6 +17,7 @@
 
 class Commands::HangupCommand < Command
   def run(session)
+    puts "HANGUP COMMAND"
     session.info 'Hangup', command: 'hang_up', action: 'start'
     session.pbx.hangup
     session.trace 'Hangup', command: 'hang_up', action: 'finish'
