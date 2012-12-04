@@ -2,7 +2,8 @@
   .feditor-sidebar.box.w28.iblock.h65.addstep.right
     .content-header
       %h1 Call simulator
-      %span Try here the call flow
+      %span{ko(text: '$root.call_simulator.duration_text')}
+    %div
     %div
       #call-simulator-display{ko(text: '$root.call_simulator.display'), style: 'margin:10px; border: 1px solid grey; padding: 10px'}
     .content-buttons

@@ -2,12 +2,18 @@ onWorkflow ->
   class window.CallSimulator
     constructor: (@workflow) ->
       @display = ko.observable()
+      @duration = ko.observable(0)
+      @duration_text = ko.computed => "Call duration: #{@duration()}"
 
     display_template_id: () ->
       'call_simulator_template'
 
     start: (workflow) =>
       serialized = @workflow.serialize()
+
+      @duration(0)
+      @duration_timer = setInterval((=> @duration(@duration() + 1)), 1000)
+
       $.post "/call_simulator/start", {call_flow_id: window.callFlowId, flow: serialized}, @callback
 
     callback: (response) =>
