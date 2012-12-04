@@ -18,8 +18,6 @@
 require 'singleton'
 
 class BaseBroker
-  include Singleton
-
   def start
     EM.add_periodic_timer(20) do
       Fiber.new do

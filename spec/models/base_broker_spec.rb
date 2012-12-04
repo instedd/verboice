@@ -18,13 +18,9 @@
 require 'spec_helper'
 
 describe BaseBroker do
-  before(:each) do
-    #BaseBroker.instance.sessions.clear
-  end
-
   Channel.all_leaf_subclasses.reject{|a_subclass| a_subclass == Channels::TemplateBasedSip}.each do |a_channel|
     it "shouldn't call if call limit is reached" do
-      @broker = BaseBroker.instance
+      @broker = BaseBroker.new
       @broker.stub(:pbx_available? => true)
       @channel = a_channel.make
 
@@ -42,7 +38,7 @@ describe BaseBroker do
   end
 
   it "shouldn't call if call limit is reached" do
-    @broker = BaseBroker.instance
+    @broker = BaseBroker.new
     @broker.stub(:pbx_available? => true)
     @channel = Channels::TemplateBasedSip.make
 
@@ -59,8 +55,7 @@ describe BaseBroker do
   Channel.all_leaf_subclasses.each do |a_channel|
     context "channel #{a_channel}" do
       before(:each) do
-        @broker = BaseBroker.instance
-        @broker.sessions.clear
+        @broker = BaseBroker.new
         @broker.stub(:pbx_available? => true)
         @channel = a_channel.make
       end
@@ -282,8 +277,6 @@ describe BaseBroker do
           EM.should_receive(:fiber_sleep).with 2
 
           @broker.accept_call pbx
-
-          puts Trace.all.map(&:result)
 
           Trace.all.size.should eq(2)
           Trace.first.result.should eq('Message played.')

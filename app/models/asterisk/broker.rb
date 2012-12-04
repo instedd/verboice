@@ -17,6 +17,10 @@
 
 module Asterisk
   class Broker < BaseBroker
+    def self.instance
+      $asterisk_broker ||= new
+    end
+
     def initialize
       handle_events
     end

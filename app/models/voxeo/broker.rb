@@ -21,6 +21,10 @@ module Voxeo
     # the call before sending the response, set a large timeout
     TIMEOUT = 120
 
+    def self.instance
+      $voxeo_broker ||= new
+    end
+
     def call session
       http = EventMachine::HttpRequest.new(session.channel.url)
       http = http.get :timeout => TIMEOUT, :query => {:tokenid => session.channel.token, :callsid => session.id, :numbertodial => session.address} #TODO AR: we can add a callerid param here

@@ -19,7 +19,7 @@ require 'spec_helper'
 
 describe Freeswitch::Broker do
   before(:each) do
-    @broker = Freeswitch::Broker.instance
+    @broker = Freeswitch::Broker.new
     @broker.sessions.clear
     @broker.freeswitch_client = mock 'freeswitch_client'
     @channel = Channels::Custom.make

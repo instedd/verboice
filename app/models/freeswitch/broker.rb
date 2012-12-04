@@ -21,6 +21,10 @@ module Freeswitch
 
     attr_accessor :freeswitch_client
 
+    def self.instance
+      $freeswitch_broker ||= new
+    end
+
     def call(queued_call)
       check_freeswitch_available!
 
