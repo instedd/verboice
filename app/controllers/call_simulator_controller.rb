@@ -28,13 +28,13 @@ class CallSimulatorController < ApplicationController
   end
 
   def resume
-    reply_command params[:session_id]
+    reply_command params[:session_id], params[:data]
   end
 
-  def reply_command(session_id)
+  def reply_command(session_id, data = nil)
     session, fiber = $call_simulator_sessions[session_id]
 
-    command = fiber.resume
+    command = fiber.resume data
 
     if command[:command] == :hangup
       $call_simulator_sessions.delete session_id

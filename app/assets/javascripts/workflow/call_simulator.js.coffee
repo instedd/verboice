@@ -39,7 +39,7 @@ onWorkflow ->
       @display(@digits)
 
       if @digits.length == @capture.max || digit == @capture.finish_on_key
-        $.post "/call_simulator/resume", {session_id: @capture.session_id, digits: @digits}, @callback
+        $.post "/call_simulator/resume", {session_id: @capture.session_id, data: @digits}, @callback
         @capture = null
 
     toHHMMSS: (seconds) ->
