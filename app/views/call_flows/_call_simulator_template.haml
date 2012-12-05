@@ -10,3 +10,4 @@
       - [1, 2, 3, 4, 5, 6, 7, 8, 9, '*', 0, '#'].each do |digit|
         %div
           %button{ko(click: '$root.call_simulator.digit_pressed')}= digit
+    %audio#call-simulator-audio{autobuffer: true}

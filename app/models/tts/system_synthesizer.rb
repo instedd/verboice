@@ -26,14 +26,19 @@ class TTS::SystemSynthesizer < TTS::Synthesizer
     end
   end
 
-  def synth(text, voice, target_path)
+  def synth(text, voice, target_path, options = {})
     wav_file = "#{target_path}.wave"
 
     if is_available?
       say = IO.popen command_for(voice, wav_file), 'w'
       say.write text
       say.close
-      convert_to_8000_hz_gsm wav_file, target_path
+
+      if options[:convert_to_gsm] == false
+        FileUtils.mv wav_file, target_path
+      else
+        convert_to_8000_hz_gsm wav_file, target_path
+      end
     else
       raise "No available TTS engine. Can't execute the console command: #{command_name}"
     end

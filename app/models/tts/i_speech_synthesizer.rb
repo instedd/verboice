@@ -20,7 +20,7 @@ class TTS::ISpeechSynthesizer < TTS::Synthesizer
     @api_key = options[:api_key]
   end
 
-  def synth(text, voice, target_path)
+  def synth(text, voice, target_path, options = {})
     url = "http://api.ispeech.org/api/rest?apikey=#{@api_key}&action=convert&voice=#{voice}&format=mp3&text=#{CGI.escape text}"
     download_url_to url, target_path
   end

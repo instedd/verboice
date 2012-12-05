@@ -113,12 +113,12 @@ class Session
     match && match['voice'].presence
   end
 
-  def synth(text)
+  def synth(text, options = {})
     voice = voice()
     file_id = Digest::MD5.hexdigest "#{text}#{voice}"
     target_path = pbx.sound_path_for file_id
     unless File.exists? target_path
-      project.synthesizer.synth text, voice, target_path
+      project.synthesizer.synth text, voice, target_path, options
     end
     target_path
   end

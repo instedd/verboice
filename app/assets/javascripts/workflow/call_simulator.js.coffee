@@ -21,8 +21,15 @@ onWorkflow ->
       switch response.command
         when 'say'
           @display(response.text)
-          setTimeout (=> $.post "/call_simulator/resume", {session_id: response.session_id}, @callback), 3000
+
+          audio = $('#call-simulator-audio')[0]
+          audio.src = response.path
+          audio.play()
+
+          # audio.onended =>
+          #   $.post "/call_simulator/resume", {session_id: response.session_id}, @callback
         when 'capture'
+          console.log response
           @display(response.say) if response.say
           @capture = response
           @digits = ''
