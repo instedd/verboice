@@ -82,6 +82,7 @@ class CallSimulatorController < ApplicationController
     CallLogEntry::Levels.each do | severity |
       class_eval %Q(
         def #{severity}(description, options = {})
+          puts "[#{severity}] " + description
         end
       )
     end
