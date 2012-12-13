@@ -72,7 +72,7 @@ module Asterisk
 
     def dial(address, options = {})
       set_callerid options[:caller_id] if options[:caller_id]
-      exec 'Dial', [address, 30, "m"].join(AgiSeparator)
+      exec 'Dial', [address, 60, "m"].join(AgiSeparator)
       status = get_variable 'DIALSTATUS'
       case status.note
       when 'ANSWER' then :completed
