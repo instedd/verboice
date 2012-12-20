@@ -21,11 +21,19 @@ onWorkflow ->
       switch response.command
         when 'say'
           @display(response.text)
-          setTimeout (=> $.post "/call_simulator/resume", {session_id: response.session_id}, @callback), 3000
+
+          audio = $('#call-simulator-audio')[0]
+          audio.src = response.path
+          audio.play()
+
+          # audio.onended =>
+          #   $.post "/call_simulator/resume", {session_id: response.session_id}, @callback
         when 'capture'
+          console.log response
           @display(response.say) if response.say
           @capture = response
           @digits = ''
+          @reset_capture_timer()
         when 'hangup'
           @display('Call ended...')
           setTimeout @workflow.call_simulator_ended, 3000
@@ -35,12 +43,41 @@ onWorkflow ->
       return unless @capture
 
       digit = event.target.textContent
-      @digits += digit
+      is_finish_key = digit == @capture.finish_on_key
+
+      if is_finish_key && @digits.length == 0
+        @post_finish_key()
+        return
+
+      @digits += digit unless is_finish_key
       @display(@digits)
 
-      if @digits.length == @capture.max || digit == @capture.finish_on_key
-        $.post "/call_simulator/resume", {session_id: @capture.session_id, data: @digits}, @callback
-        @capture = null
+      @reset_capture_timer()
+
+      if @digits.length == @capture.max || is_finish_key
+        @post_digits()
+
+    reset_capture_timer: =>
+      clearInterval(@capture_timer) if @capture_timer
+      @capture_timer = setTimeout(@capture_time_expired, 1000 * @capture.timeout) if @capture.timeout
+
+    clear_capture_timer: =>
+      clearInterval(@capture_timer) if @capture_timer
+      @capture_timer = null
+
+    capture_time_expired: =>
+      @post_digits()
+
+    post_digits: =>
+      @clear_capture_timer()
+      data = if @digits.length < @capture.min then 'timeout' else @digits
+      $.post "/call_simulator/resume", {session_id: @capture.session_id, data: data}, @callback
+      @capture = null
+
+    post_finish_key: =>
+      @clear_capture_timer()
+      $.post "/call_simulator/resume", {session_id: @capture.session_id, data: 'finish_key'}, @callback
+      @capture = null
 
     toHHMMSS: (seconds) ->
       minutes = Math.floor(seconds / 60)

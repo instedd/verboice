@@ -107,7 +107,7 @@ Verboice::Application.routes.draw do
         delete ":name", :action => "destroy"
       end
     end
-    resources :projects, only: [] do
+    resources :projects, only: [:index] do
       resources :schedules, only: [:index, :create] do
         collection do
           get ':name', :action => "show"

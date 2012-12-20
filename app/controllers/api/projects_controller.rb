@@ -14,35 +14,23 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
-
-class TTS::SystemSynthesizer < TTS::Synthesizer
-  if RUBY_PLATFORM =~ /darwin/
-    def self.instance
-      TTS::MacSynthesizer.new
-    end
-  else
-    def self.instance
-      TTS::FestivalSynthesizer.new
-    end
-  end
-
-  def synth(text, voice, target_path, options = {})
-    wav_file = "#{target_path}.wave"
-
-    if is_available?
-      say = IO.popen command_for(voice, wav_file), 'w'
-      say.write text
-      say.close
-
-      if options[:convert_to_gsm] == false
-        FileUtils.mv wav_file, target_path
-      else
-        convert_to_8000_hz_gsm wav_file, target_path
+module Api
+  class ProjectsController < ApiController
+    def index
+      projects = current_account.projects.includes(:call_flows, :schedules).map do |project|
+        {
+          id: project.id,
+          name: project.name,
+          call_flows: project.call_flows.map do |call_flow|
+            {
+              id: call_flow.id,
+              name: call_flow.name,
+            }
+          end,
+          schedules: project.schedules.map(&:name),
+        }
       end
-    else
-      raise "No available TTS engine. Can't execute the console command: #{command_name}"
+      render json: projects
     end
-  ensure
-    File.delete wav_file rescue nil
   end
 end

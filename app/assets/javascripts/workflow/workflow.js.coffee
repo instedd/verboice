@@ -45,6 +45,8 @@ onWorkflow ->
       @set_as_current(null)
 
     call_from_browser: =>
+      return if @sidebar_content() == @call_simulator
+
       @old_sidebar_content = @sidebar_content()
       @old_current_step = @current_step()
       @sidebar_content(@call_simulator)

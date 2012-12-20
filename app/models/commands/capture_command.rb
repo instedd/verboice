@@ -78,10 +78,10 @@ class Commands::CaptureCommand < Command
     when nil
       session.info("User didn't press enough digits", command: 'capture', action: 'timeout')
       session[:timeout] = true
-    when :timeout
+    when :timeout, 'timeout'
       session.info("User timeout", command: 'capture', action: 'timeout')
       session[:timeout] = true
-    when :finish_key
+    when :finish_key, 'finish_key'
       session.info("User pressed the finish key", command: 'capture', action: 'finish_key')
       session[:finish_key] = true
     else

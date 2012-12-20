@@ -14,7 +14,7 @@ class CallSimulatorController < ApplicationController
     session.call_flow = call_flow
     session.call_log = VirtualCallLog.new(call_flow)
     session.channel = VirtualChannel.new
-    session.pbx = VirtualPbx.new
+    session.pbx = VirtualPbx.new(session)
     session.commands = flow
 
     fiber = Fiber.new do
@@ -44,6 +44,10 @@ class CallSimulatorController < ApplicationController
   end
 
   class VirtualPbx
+    def initialize(session)
+      @session = session
+    end
+
     def answer
       puts "ANSWER"
     end
@@ -53,12 +57,26 @@ class CallSimulatorController < ApplicationController
     end
 
     def say(text, options = {})
-      puts "SAY: #{text}"
-      Fiber.yield command: :say, text: text
+      # filename = @session.synth text, convert_to_gsm: false
+
+      # `lame --decode #{filename} #{filename}.mp3`
+
+      # filename = filename["#{Rails.root}/public".length .. -1]
+      # filename = "#{filename}.mp3"
+
+      Fiber.yield command: :say, text: text, path: filename
     end
 
     def capture(options = {})
       Fiber.yield options.merge(command: :capture)
+    end
+
+    def sound_path_for(basename)
+      "#{Rails.root}/public/#{basename}.wav"
+    end
+
+    def method_missing(name, *args)
+      "METHOD MISSING! #{name} #{args}"
     end
   end
 
@@ -82,6 +100,7 @@ class CallSimulatorController < ApplicationController
     CallLogEntry::Levels.each do | severity |
       class_eval %Q(
         def #{severity}(description, options = {})
+          puts "[#{severity}] " + description
         end
       )
     end
