@@ -17,7 +17,7 @@
 module Api
   class ProjectsController < ApiController
     def index
-      projects = current_account.projects.includes(:call_flows).map do |project|
+      projects = current_account.projects.includes(:call_flows, :schedules).map do |project|
         {
           id: project.id,
           name: project.name,
@@ -27,6 +27,7 @@ module Api
               name: call_flow.name,
             }
           end,
+          schedules: project.schedules.map(&:name),
         }
       end
       render json: projects

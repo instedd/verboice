@@ -26,6 +26,7 @@ describe Api::ProjectsController do
   let!(:account) { Account.make }
   let!(:project) { account.projects.make }
   let!(:call_flow) { project.call_flows.make }
+  let!(:schedule) { project.schedules.make }
 
   it "should list all projects" do
     get :index
@@ -37,5 +38,7 @@ describe Api::ProjectsController do
     response[0]['call_flows'].length.should eq(1)
     response[0]['call_flows'][0]['id'].should eq(call_flow.id)
     response[0]['call_flows'][0]['name'].should eq(call_flow.name)
+    response[0]['schedules'].length.should eq(1)
+    response[0]['schedules'][0].should eq(schedule.name)
   end
 end
