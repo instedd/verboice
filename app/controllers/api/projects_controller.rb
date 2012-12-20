@@ -17,17 +17,17 @@
 module Api
   class ProjectsController < ApiController
     def index
-      projects = current_account.projects.includes(:call_flows, :schedules).map do |project|
+      projects = current_account.projects.includes(:call_flows, :schedules).sort_by { |p| p.name.downcase }.map do |project|
         {
           id: project.id,
           name: project.name,
-          call_flows: project.call_flows.map do |call_flow|
+          call_flows: project.call_flows.sort_by { |c| c.name.downcase }.map do |call_flow|
             {
               id: call_flow.id,
               name: call_flow.name,
             }
           end,
-          schedules: project.schedules.map(&:name),
+          schedules: project.schedules.map(&:name).sort_by { |n| n.downcase },
         }
       end
       render json: projects
