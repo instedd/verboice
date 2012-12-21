@@ -51,7 +51,7 @@ module Parsers
             compiler.Trace context_for %("Calling External Service #{service.name}.")
             compiler.Callback service_step.callback_url, {
               response_type: (service_step.response_type.present? ? service_step.response_type.to_sym : :flow),
-              variables: build_variables_map(compiler),
+              variables: build_variables_map(compiler, service_step),
               external_service_guid: service.guid
             }
             assign_responses(compiler, service_step)
@@ -70,13 +70,19 @@ module Parsers
 
       private
 
-      def build_variables_map(compiler)
-        return nil unless @settings.present?
+      def build_variables_map(compiler, service_step)
         HashWithIndifferentAccess.new.tap do |hash|
-          @settings.each do |setting|
-            hash[setting['name']] = InputSetting.new(setting).expression
+          if @settings.present?
+            @settings.each do |setting|
+              hash[setting['name']] = InputSetting.new(setting).expression
+            end
           end
-        end
+          if service_step.session_variables.present?
+            service_step.session_variables.each do |session_variable|
+              hash[session_variable] = session_variable
+            end
+          end
+        end.presence
       end
 
       def assign_responses(compiler, service_step)
