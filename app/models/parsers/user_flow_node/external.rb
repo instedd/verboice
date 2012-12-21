@@ -46,13 +46,19 @@ module Parsers
         Compiler.parse do |compiler|
           compiler.Label @id
           compiler.Assign "current_step", @id
-          compiler.Trace context_for %("Calling External Service #{service.name}.")
-          compiler.Callback service_step.callback_url, {
-            response_type: (service_step.response_type.present? ? service_step.response_type.to_sym : :flow),
-            variables: build_variables_map(compiler),
-            external_service_guid: service.guid
-          }
-          assign_responses(compiler, service_step)
+          case service_step.kind
+          when 'callback'
+            compiler.Trace context_for %("Calling External Service #{service.name}.")
+            compiler.Callback service_step.callback_url, {
+              response_type: (service_step.response_type.present? ? service_step.response_type.to_sym : :flow),
+              variables: build_variables_map(compiler),
+              external_service_guid: service.guid
+            }
+            assign_responses(compiler, service_step)
+          when 'script'
+            compiler.Trace context_for %("Executing External Service #{service.name}.")
+            compiler.Js service_step.script
+          end
           compiler.append @next.equivalent_flow if @next
         end
       end

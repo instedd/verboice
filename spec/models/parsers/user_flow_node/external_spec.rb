@@ -139,6 +139,25 @@ module Parsers
         end
       end
 
+      describe "script kind" do
+        let(:external_service_step) { ExternalServiceStep.make :kind => 'script', :script => '1'}
+
+        it "should compile to an equivalent flow" do
+          external = External.new call_flow, 'id' => 1,
+            'type' => 'external',
+            'name' => 'External Service',
+            'external_step_guid' => external_service_step.guid
+
+          external.equivalent_flow.first.should eq(
+            Compiler.parse do |c|
+              c.Label 1
+              c.Assign 'current_step', 1
+              c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Executing External Service #{external_service.name}.")
+              c.Js '1'
+            end.first
+          )
+        end
+      end
     end
   end
 end
