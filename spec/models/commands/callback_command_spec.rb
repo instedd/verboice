@@ -82,6 +82,15 @@ module Commands
       end
     end
 
+    it "runs with hash variable" do
+      @session.eval 'bar = {"a": {"b": 1}}'
+      options = {:variables => {'foo' => 'bar'}}
+      result = expect_em_http :post, url, :with => {:body => @default_body.merge(:CallSid => @session.call_id, "foo[a][b]" => 1)}, :and_return => '<Response><Hangup/></Response>', :content_type => 'application/xml' do
+        CallbackCommand.new(url, options).run @session
+      end
+      result.should == Commands::HangupCommand.new
+    end
+
     context "running with an app which has http basic authentication for the callback url", :focus => true do
       before do
         apply_call_flow("user", "password")

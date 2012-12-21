@@ -45,11 +45,11 @@ class Commands::CallbackCommand < Command
     body[:LastEntry] = last_entry.id if last_entry.present?
 
     @params.each do |name, key|
-      body[name] = session[key]
+      assign_from_v8(body, name, session[key])
     end if @params
 
     @variables.each do |name, expr|
-      body[name] = session.eval expr
+      assign_from_v8(body, name, session.eval(expr))
     end if @variables
 
     session.trace "Callback #{method} #{url} with #{body.to_query}", command: 'callback', action: method
@@ -85,6 +85,16 @@ class Commands::CallbackCommand < Command
   end
 
   private
+
+  def assign_from_v8(hash, prefix, value)
+    if value.is_a?(V8::Object)
+      value.to_hash.each do |key, value|
+        assign_from_v8(hash, "#{prefix}[#{key}]", value)
+      end
+    else
+      hash[prefix] = value
+    end
+  end
 
   def flow(content_type, body, session)
      next_command = case content_type
