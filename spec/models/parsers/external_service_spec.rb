@@ -84,6 +84,7 @@ describe Parsers::ExternalService do
               <settings>
                 <variable name="myvar1" display-name="Variable One" type="string"/>
                 <variable name="myvar2" display-name="Variable Two" type="numeric"/>
+                <session_variable name="myvar3" />
               </settings>
             </step>
           </steps>
@@ -106,6 +107,9 @@ describe Parsers::ExternalService do
       var_2.name.should eq('myvar2')
       var_2.display_name.should eq('Variable Two')
       var_2.type.should eq('numeric')
+
+      step.should have(1).session_variables
+      step.session_variables.first.should eq('myvar3')
     end
 
     it "should create a new external service with a callback step with several responses" do

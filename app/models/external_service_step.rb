@@ -23,6 +23,7 @@ class ExternalServiceStep < ActiveRecord::Base
 
   serialize :variables, Array
   serialize :response_variables, Array
+  serialize :session_variables, Array
 
   validates :name, :presence => true, :uniqueness => { :scope => :external_service_id }
 
