@@ -70,6 +70,7 @@ module Parsers
       step.display_name = node.attr('display-name') if node.attr('display-name')
       step.icon = node.attr('icon') if node.attr('icon')
       step.kind = node.attr('type') if node.attr('type')
+      step.script = node.xpath('script').first.text rescue nil
       step.callback_url = node.attr('callback-url') if node.attr('callback-url')
 
       response_type = node.at_xpath('./response').attr('type') rescue nil
