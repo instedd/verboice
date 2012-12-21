@@ -157,6 +157,28 @@ module Parsers
             end.first
           )
         end
+
+        it "should compile to an equivalent flow with settings" do
+          external = External.new call_flow, 'id' => 1,
+            'type' => 'external',
+            'name' => 'External Service',
+            'external_step_guid' => external_service_step.guid,
+            'settings' => [
+              {'name' => 'variable_with_step', 'step' => 20},
+              {'name' => 'variable_with_variable', 'variable' => 'foobar'},
+              {'name' => 'variable_with_value', 'value' => 'fixed value'}
+            ]
+
+          external.equivalent_flow.first.should eq(
+            Compiler.parse do |c|
+              c.Label 1
+              c.Assign 'current_step', 1
+              c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Executing External Service #{external_service.name}.")
+              c.Js "settings = {};settings['variable_with_step'] = value_20;settings['variable_with_variable'] = var_foobar;settings['variable_with_value'] = 'fixed value'"
+              c.Js '1'
+            end.first
+          )
+        end
       end
     end
   end

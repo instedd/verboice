@@ -57,6 +57,11 @@ module Parsers
             assign_responses(compiler, service_step)
           when 'script'
             compiler.Trace context_for %("Executing External Service #{service.name}.")
+            if @settings.present?
+              js = 'settings = {};'
+              js << (@settings.map { |setting| "settings['#{setting['name']}'] = #{InputSetting.new(setting).expression}" }.join ';')
+              compiler.Js js
+            end
             compiler.Js service_step.script
           end
           compiler.append @next.equivalent_flow if @next
