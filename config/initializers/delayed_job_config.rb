@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-Delayed::Worker.delay_jobs = Rails.env.production?
+Delayed::Worker.delay_jobs = true
 Delayed::Worker.destroy_failed_jobs = true
 Delayed::Worker.sleep_delay = Rails.env.production? ? 60 : 1
 Delayed::Worker.max_attempts = 5

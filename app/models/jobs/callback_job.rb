@@ -11,5 +11,7 @@ class Jobs::CallbackJob
     else
       RestClient.post @url, @body
     end
+  rescue Exception => ex
+    Delayed::Job.enqueue Jobs::CallbackJob.new(@url, @method, @body), run_at: 15.minutes.from_now
   end
 end
