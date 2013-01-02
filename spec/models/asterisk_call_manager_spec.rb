@@ -195,42 +195,42 @@ describe Asterisk::CallManager do
 
   context "dial" do
     it "dial number and return successfully" do
-      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,30,m')
+      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,60,m')
       @call_manager.should_receive(:get_variable).ordered.with('DIALSTATUS').and_return(asterisk_response('ANSWER'))
       value = @call_manager.dial '1234'
       value.should == :completed
     end
 
     it "dial number and return busy" do
-      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,30,m')
+      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,60,m')
       @call_manager.should_receive(:get_variable).ordered.with('DIALSTATUS').and_return(asterisk_response('BUSY'))
       value = @call_manager.dial '1234'
       value.should == :busy
     end
 
     it "dial number and return no answer" do
-      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,30,m')
+      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,60,m')
       @call_manager.should_receive(:get_variable).ordered.with('DIALSTATUS').and_return(asterisk_response('NOANSWER'))
       value = @call_manager.dial '1234'
       value.should == :no_answer
     end
 
     it "dial number and return failed" do
-      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,30,m')
+      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,60,m')
       @call_manager.should_receive(:get_variable).ordered.with('DIALSTATUS').and_return(asterisk_response('XXXX'))
       value = @call_manager.dial '1234'
       value.should == :failed
     end
 
     it "raise exception when user hangs up" do
-      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,30,m')
+      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,60,m')
       @call_manager.should_receive(:get_variable).ordered.with('DIALSTATUS').and_return(asterisk_response('CANCEL'))
       assert_raise(Exception) { @call_manager.dial '1234' }
     end
 
     it "dial with custom caller id" do
       @call_manager.should_receive(:set_callerid).ordered.with('"foo" <1234>')
-      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,30,m')
+      @call_manager.should_receive(:exec).ordered.with('Dial', '1234,60,m')
       @call_manager.should_receive(:get_variable).ordered.with('DIALSTATUS').and_return(asterisk_response('ANSWER'))
       @call_manager.dial '1234', :caller_id => '"foo" <1234>'
     end
