@@ -68,6 +68,36 @@ describe Parsers::ExternalService do
       step.icon.should eq('http://example.com/icon.png')
       step.kind.should eq('callback')
       step.callback_url.should eq('http://example.com/callback/')
+      step.should_not be_async
+    end
+
+    it "should create a new external service with an async callback step" do
+      parse <<-XML
+        <verboice-service>
+          <name>My service</name>
+          <steps>
+            <step name="my-step"
+              display-name="My step"
+              icon="http://example.com/icon.png"
+              type="callback"
+              callback-url="http://example.com/callback/"
+              async="true">
+            </step>
+          </steps>
+        <verboice-service>
+      XML
+
+      service.name.should eq('My service')
+      service.steps.should have(1).item
+      service.should be_valid
+
+      step = service.steps.first
+      step.name.should eq('my-step')
+      step.display_name.should eq('My step')
+      step.icon.should eq('http://example.com/icon.png')
+      step.kind.should eq('callback')
+      step.callback_url.should eq('http://example.com/callback/')
+      step.should be_async
     end
 
 

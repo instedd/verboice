@@ -19,7 +19,7 @@ class ExternalServiceStep < ActiveRecord::Base
   belongs_to :external_service
 
   has_one :project, through: :external_service
-  attr_accessible :callback_url, :display_name, :icon, :name, :kind, :variables, :guid, :script, :external_service_id
+  attr_accessible :callback_url, :display_name, :icon, :name, :kind, :variables, :response_variables, :session_variables, :guid, :script, :external_service_id, :async
 
   serialize :variables, Array
   serialize :response_variables, Array

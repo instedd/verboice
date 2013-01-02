@@ -29,6 +29,7 @@ class Commands::CallbackCommand < Command
     @response_type = options[:response_type] || :flow
     @variables = options[:variables] || {}
     @external_service_guid = options[:external_service_guid]
+    @async = options[:async]
   end
 
   def run(session)
@@ -52,7 +53,13 @@ class Commands::CallbackCommand < Command
       assign_from_v8(body, name, session.eval(expr))
     end if @variables
 
-    session.trace "Callback #{method} #{url} with #{body.to_query}", command: 'callback', action: method
+    if @async
+      session.trace "Enqueued callback #{method} #{url} with #{body.to_query}", command: 'callback', action: method
+      Delayed::Job.enqueue Jobs::CallbackJob.new(url, method, body)
+      return
+    end
+
+    session.trace "Executing callback #{method} #{url} with #{body.to_query}", command: 'callback', action: method
 
     http = http_request(url, method, body, authorization)
 

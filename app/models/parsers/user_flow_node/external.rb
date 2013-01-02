@@ -49,11 +49,13 @@ module Parsers
           case service_step.kind
           when 'callback'
             compiler.Trace context_for %("Calling External Service #{service.name}.")
-            compiler.Callback service_step.callback_url, {
+            options = {
               response_type: (service_step.response_type.present? ? service_step.response_type.to_sym : :flow),
               variables: build_variables_map(compiler, service_step),
-              external_service_guid: service.guid
+              external_service_guid: service.guid,
             }
+            options[:async] = true if service_step.async
+            compiler.Callback service_step.callback_url, options
             assign_responses(compiler, service_step)
           when 'script'
             compiler.Trace context_for %("Executing External Service #{service.name}.")

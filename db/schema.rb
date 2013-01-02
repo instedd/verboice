@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121221192919) do
+ActiveRecord::Schema.define(:version => 20130102175540) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -148,6 +148,7 @@ ActiveRecord::Schema.define(:version => 20121221192919) do
     t.integer  "external_service_id"
     t.text     "script"
     t.text     "session_variables"
+    t.boolean  "async"
   end
 
   add_index "external_service_steps", ["external_service_id"], :name => "index_external_service_steps_on_external_service_id"
