@@ -242,7 +242,7 @@ class Session
     unless contact.anonymous?
       contact.persisted_variables.includes(:project_variable).each do |var|
         name = var.implicit_key || var.project_variable.name
-        self["var_#{name}"] = var.typecasted_value
+        self["var_#{name}"] = var.typecasted_value if var.value.present?
       end
     end
     if @call_variables
