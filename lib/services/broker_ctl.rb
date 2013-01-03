@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # Copyright (C) 2010-2012, InSTEDD
 #
 # This file is part of Verboice.
@@ -15,6 +16,5 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-#!/usr/bin/env ruby
 require(File.expand_path '../generic_ctl.rb', __FILE__)
 run('broker')
