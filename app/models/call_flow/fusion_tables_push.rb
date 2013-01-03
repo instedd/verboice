@@ -23,7 +23,7 @@ module CallFlow::FusionTablesPush
 
   class Pusher < Struct.new(:call_flow_id, :call_log_id)
 
-    API_URL = "https://www.google.com/fusiontables/api/query"
+    API_URL = "https://www.googleapis.com/fusiontables/v1/query"
 
     attr_accessor :call_flow, :call_log, :access_token
 
@@ -109,11 +109,11 @@ module CallFlow::FusionTablesPush
     private
 
     def post_sql_query(query)
-      RestClient.post API_URL, {:sql => query}, {:params => {:access_token => access_token}}
+      RestClient.post API_URL, {:sql => query, :alt => 'csv'}, {:params => {:access_token => access_token}}
     end
 
     def get_sql_query(query)
-      RestClient.get API_URL, {:params => {:sql => query, :access_token => access_token}}
+      RestClient.get API_URL, {:params => {:sql => query, :alt => 'csv', :access_token => access_token}}
     end
 
     def csv_parse(csv)
