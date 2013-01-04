@@ -1,5 +1,6 @@
 (define (print_voice voice)
-  (let (
+  (if voice
+    (let (
            (name (car voice))
            (desc (cadr voice))
          )
@@ -11,6 +12,7 @@
               (format t "%s|%s|%s|%s\n" name (cadr language) (cadr gender) (cadr dialect))
          )
     )
+  )
 )
 
 (define (print_voices voices)

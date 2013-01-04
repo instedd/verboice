@@ -39,7 +39,9 @@ class TTS::FestivalSynthesizer < TTS::SystemSynthesizer
       festival.write File.read(File.expand_path('../list_festival_voices.scm', __FILE__))
       festival.close_write
       festival.readlines.each do |line|
-        voice, language, gender, dialect = line.chomp!.split('|')
+        parts = line.chomp!.split('|')
+        next unless parts.length == 4
+        voice, language, gender, dialect = parts
         lang_code = LanguageList::LanguageInfo.find_by_name(language.titleize).iso_639_1
         description = "#{language.titleize} #{gender.titleize} (#{voice})"
         description = "#{dialect.titleize} #{description}" unless dialect == 'none'
