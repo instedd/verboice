@@ -23,6 +23,7 @@ class Session
   attr_accessor :call_log
   attr_accessor :address
   attr_accessor :suspended
+  attr_accessor :start
 
   delegate :finish_successfully, :to => :call_log
   CallLogEntry::Levels.each { |severity| delegate severity, :to => :call_log }
@@ -217,6 +218,7 @@ class Session
       request = EventMachine::HttpRequest.new status_callback_url
       query = { :CallSid => call_id, :CallStatus => status }
       query[:From] = pbx.caller_id if pbx
+      query[:CallDuration] = Time.now - start if start
       request.get({:query => query}.merge(authentication))
     end
   end

@@ -100,6 +100,7 @@ class BaseBroker
 
   def accept_call(pbx)
     session = find_or_create_session pbx
+    session.start = Time.now
     log "Accepting call from PBX with call id #{session.call_id}"
     log "Session for call #{session.call_id} is suspended" and return session.resume if session.suspended
     session.call_log.address = pbx.caller_id unless session.call_log.address.present?
