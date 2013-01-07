@@ -41,8 +41,8 @@ class QueuedCall < ActiveRecord::Base
       options[:call_flow] = CallFlow.new :flow => flow
     end
 
-    if status_callback_url.present? && options[:call_flow]
-      options[:call_flow].project = Project.new status_callback_url: status_callback_url
+    if status_callback_url.present?
+      options[:status_callback_url] = status_callback_url
     end
 
     options[:call_variables] = variables if variables

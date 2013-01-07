@@ -24,6 +24,7 @@ class Session
   attr_accessor :address
   attr_accessor :suspended
   attr_accessor :start
+  attr_accessor :status_callback_url
 
   delegate :finish_successfully, :to => :call_log
   CallLogEntry::Levels.each { |severity| delegate severity, :to => :call_log }
@@ -101,7 +102,7 @@ class Session
   end
 
   def status_callback_url
-    call_flow.project.try(:status_callback_url)
+    @status_callback_url || call_flow.project.try(:status_callback_url)
   end
 
   def language
