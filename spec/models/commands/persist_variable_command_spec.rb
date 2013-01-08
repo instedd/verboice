@@ -37,6 +37,7 @@ module Commands
       ProjectVariable.first.name.should eq('foo')
       PersistedVariable.first.project_variable.should eq(ProjectVariable.first)
       PersistedVariable.first.contact.should eq(contact)
+      session["var_foo"].should eq(2)
     end
 
     it "should create a Contact if it doesn't exist" do
