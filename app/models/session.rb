@@ -85,7 +85,7 @@ class Session
   end
 
   def [](key)
-    @vars[key]
+    @vars[key] || js[key.to_s]
   end
 
   def delete(key)
