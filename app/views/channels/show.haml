@@ -22,8 +22,12 @@
     %div{style: 'overflow: hidden'}
       %span
         %nobr Default Call flow
-        %nobr= @channel.call_flow.name
-    = link_to "Manage Call Flow", project_call_flows_path(@channel.project), :class => "button farrow"
+        - if @channel.call_flow
+          %nobr= @channel.call_flow.name
+        - else
+          None
+    - if @channel.project
+      = link_to "Manage Call Flow", project_call_flows_path(@channel.project), :class => "button farrow"
   %li
     .i48grad-time
     %div
