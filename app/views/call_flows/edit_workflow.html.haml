@@ -60,8 +60,8 @@
   #workflow
     #workflow-page
       %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
-      %p.left.title &nbsp; |
-      %p.left.title.clickable{ 'data-bind' => 'click: call_from_browser' } | Try it now!
+      -# %p.left.title &nbsp; |
+      -# %p.left.title.clickable{ 'data-bind' => 'click: call_from_browser' } | Try it now!
       %div.right
         = hidden_field_tag 'flow', (@call_flow.user_flow || []).to_json
         %button.grey{:type => "submit"} Save
