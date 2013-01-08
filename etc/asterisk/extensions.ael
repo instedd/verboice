@@ -1,6 +1,6 @@
 context verboice {
     h => NoOp();
-    _X! => AGI(agi://localhost:19000,,${EXTEN});
+    _. => AGI(agi://localhost:19000,,${EXTEN});
 }
 
 context verboice-restart {
