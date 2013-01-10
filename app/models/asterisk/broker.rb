@@ -122,8 +122,13 @@ module Asterisk
           while @must_regenerate_config
             @must_regenerate_config = false
             @regenerating_config = true
-            regenerate_config
-            @regenerating_config = false
+            begin
+              regenerate_config
+            rescue Exception => ex
+              puts ex.message
+            ensure
+              @regenerating_config = false
+            end
           end
         end
       end
@@ -185,6 +190,8 @@ module Asterisk
     end
 
     def expand_domain(domain, cache = {})
+      return [] unless domain
+
       if servers = cache[domain]
         return servers
       end
