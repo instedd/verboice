@@ -12,3 +12,4 @@ spec/reports/*
 public/assets
 public/applications
 data
+config/oauth.yml
