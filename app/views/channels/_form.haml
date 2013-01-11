@@ -21,4 +21,4 @@
       %button.white{:type => "submit"} Save
     - else
       %button.white{:type => "submit"} Update
-    = link_to 'Cancel', '#', :class => "button white cancel #{@channel.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'
+    = link_to 'Cancel', @channel, :class => "button white cancel #{@channel.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'
