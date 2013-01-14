@@ -56,7 +56,7 @@ module Commands
     def test_download_wav_converts_to_gsm
       setup_for_url 'http://foo.wav'
 
-      File.should_receive(:exists?).with(:target_path).and_return(false)
+      File.stub(:exists? => false)
 
       cmd = PlayUrlCommand.new @url
       cmd.should_receive(:download_url_to_temporary_location).and_yield(:tmp_file)
@@ -72,8 +72,6 @@ module Commands
     it "download gsm still converts to gsm to make it 8000 hz" do
       test_download_wav_converts_to_gsm
       setup_for_url 'http://foo.gsm'
-
-      File.should_receive(:exists?).with(:target_path).and_return(false)
 
       cmd = PlayUrlCommand.new @url
       cmd.should_receive(:download_url_to_temporary_location).and_yield(:tmp_file)
