@@ -1,0 +1,113 @@
+---
+zh:
+- :id: chchinesefemale
+  :description: Hong Kong Chinese Female Voice
+- :description: Hong Kong Chinese Female Voice
+  :id: hkchinesefemale
+- :id: chchinesemale
+  :description: Hong Kong Chinese Male Voice
+- :description: Taiwanese Chinese Female
+  :id: twchinesefemale
+en:
+- :description: Canadian English Female Voice
+  :id: caenglishfemale
+- :description: United States English Female Voice
+  :id: usenglishfemale
+- :id: usenglishmale
+  :description: United States English Male Voice
+- :id: ukenglishmale
+  :description: United Kingdom English Male Voice
+- :description: Australian English Female Voice
+  :id: auenglishfemale
+- :description: United Kingdom English Female Voice
+  :id: ukenglishfemale
+ru:
+- :id: rurussianfemale
+  :description: Russian Female Voice
+- :id: rurussianmale
+  :description: Russian Male Voice
+de:
+- :description: German Male Voice
+  :id: eurgermanmale
+- :description: German Female Voice
+  :id: eurgermanfemale
+tr:
+- :description: Turkish Female Voice
+  :id: eurturkishfemale
+- :description: Turkish Male Voice
+  :id: eurturkishmale
+nl:
+- :description: Dutch Male Voice
+  :id: eurdutchmale
+- :id: eurdutchfemale
+  :description: Dutch Female Voice
+es:
+- :description: Spain Spanish Female Voice
+  :id: eurspanishfemale
+- :description: Spain Spanish Male Voice
+  :id: eurspanishmale
+- :description: Mexican Spanish Male Voice
+  :id: usspanishmale
+- :id: usspanishfemale
+  :description: Spanish Female Voice
+sv:
+- :id: swswedishfemale
+  :description: Swedish Female Voice
+pt:
+- :description: Portugal Portuguese Female Voice
+  :id: eurportuguesefemale
+- :description: Portugal Portuguese Male Voice
+  :id: eurportuguesemale
+- :id: brportuguesefemale
+  :description: Brazil Portuguese Female Voice
+it:
+- :id: euritalianfemale
+  :description: Italian Female Voice
+- :description: Italian Male Voice
+  :id: euritalianmale
+hu:
+- :id: huhungarianfemale
+  :description: Hungarian Female Voice
+ko:
+- :id: krkoreanmale
+  :description: Korean Male Voice
+- :id: krkoreanfemale
+  :description: Korean Female Voice
+fr:
+- :description: French Female Voice
+  :id: eurfrenchmale
+- :description: European French Female Voice
+  :id: eurfrenchfemale
+- :id: cafrenchmale
+  :description: Canadian French Male Voice
+- :id: cafrenchfemale
+  :description: Canadian French Female Voice
+'no':
+- :id: eurnorwegianfemale
+  :description: Norwegian Female Voice
+ca:
+- :id: eurcatalanfemale
+  :description: Spain Catalan Female Voice
+fi:
+- :id: eurfinnishfemale
+  :description: Finnish Female Voice
+el:
+- :id: eurgreekfemale
+  :description: Greek Female Voice
+da:
+- :id: eurdanishfemale
+  :description: Denmark Danish Female Voice
+ja:
+- :description: Japanese Female Voice
+  :id: jpjapanesefemale
+- :description: Japanese Male Voice
+  :id: jpjapanesemale
+pl:
+- :id: eurpolishfemale
+  :description: Polish Female Voice
+cs:
+- :id: eurczechfemale
+  :description: Czech Republic Czech Female Voice
+ar:
+- :description: Arabic Male Voice
+  :id: arabicmale
