@@ -13,13 +13,6 @@ GIT
     batphone (0.2.0)
 
 GIT
-  remote: https://github.com/talentnest/shared-mime-info.git
-  revision: baf7913f9b5f118fe91fc7c073248b272f0e5bae
-  specs:
-    shared-mime-info (0.2.1)
-      mime-types
-
-GIT
   remote: https://github.com/tbuehl/machinist.git
   revision: 2b6ea4c2e876d4e9b3b22cc975057268788c7ff5
   branch: 1.0-maintenance
@@ -297,7 +290,6 @@ DEPENDENCIES
   rvm
   rvm-capistrano
   sass-rails (~> 3.2.5)
-  shared-mime-info!
   shoulda-matchers
   syntax
   therubyracer
