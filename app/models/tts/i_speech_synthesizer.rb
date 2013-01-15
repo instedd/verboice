@@ -16,12 +16,14 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class TTS::ISpeechSynthesizer < TTS::Synthesizer
+  AUDIO_FORMAT = Rails.configuration.verboice_configuration[:ispeech_format] || "mp3"
+
   def initialize(options = {})
     @api_key = options[:api_key]
   end
 
   def synth(text, voice, target_path, options = {})
-    url = "http://api.ispeech.org/api/rest?apikey=#{@api_key}&action=convert&voice=#{voice}&format=mp3&text=#{CGI.escape text}"
+    url = "http://api.ispeech.org/api/rest?apikey=#{@api_key}&action=convert&voice=#{voice}&format=#{AUDIO_FORMAT}&text=#{CGI.escape text}"
     download_url_to url, target_path
   end
 
