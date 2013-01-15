@@ -28,7 +28,6 @@ gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribu
 gem 'csv_builder'
 gem 'newrelic_rpm'
 gem 'language_list'
-gem 'shared-mime-info', git: "https://github.com/talentnest/shared-mime-info.git"
 
 group :v8 do
   gem 'libv8', '~> 3.11.8'
