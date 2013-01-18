@@ -145,8 +145,8 @@ describe Channel do
 
       it "calls with variables" do
         BrokerClient.should_receive(:notify_call_queued)
-        call_log = channel.call 'foo', vars: {'bar' => '1'}
-        queued_call.variables.should eq({'bar' => '1'})
+        call_log = channel.call 'foo', vars: {'bar' => '1', 'baz' => 'eee'}
+        queued_call.variables.should eq({'bar' => 1, 'baz' => 'eee'})
       end
     end
 

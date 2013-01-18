@@ -103,6 +103,13 @@ class Channel < ActiveRecord::Base
     call_log.info "Received via #{via}: call #{address}"
     call_log.save!
 
+    if options[:vars].is_a?(Hash)
+      variables = {}
+      options[:vars].each do |name, value|
+        variables[name] = (value =~ /^\d+$/ ? value.to_i : value)
+      end
+    end
+
     queued_call = queued_calls.new(
       :call_log => call_log,
       :address => address,
@@ -114,7 +121,7 @@ class Channel < ActiveRecord::Base
       :call_flow_id => current_call_flow.id,
       :project_id => project_id,
       :time_zone => time_zone.try(:name),
-      :variables => options[:vars],
+      :variables => variables,
     )
 
     queued_call.not_before = queued_call.schedule.with_time_zone(time_zone) do |time_zoned_schedule|
