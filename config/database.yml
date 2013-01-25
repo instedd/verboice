@@ -11,6 +11,7 @@ development:
   pool: 5
   username: root
   password:
+  reconnect: true
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -26,7 +27,7 @@ test:
 production:
   adapter: mysql2
   encoding: utf8
-  reconnect: false
+  reconnect: true
   database: verboice
   pool: 5
   username: root

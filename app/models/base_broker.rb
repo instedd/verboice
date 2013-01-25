@@ -23,7 +23,11 @@ class BaseBroker
     EM::start_server 'localhost', BrokerFacade::PORT, BrokerFacade
 
     EM.add_periodic_timer(20) do
-      Fiber.new { queued_calls.each &:notify_broker }.resume
+      begin
+        Fiber.new { queued_calls.each &:notify_broker }.resume
+      rescue Exception => ex
+        puts ex
+      end
     end
   end
 
