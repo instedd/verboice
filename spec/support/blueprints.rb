@@ -81,6 +81,12 @@ Channels::Voxeo.blueprint do
   name
 end
 
+Channels::Twilio.blueprint do
+  call_flow
+  account { call_flow.project.account }
+  name
+end
+
 Channels::TemplateBasedSip.blueprint do
   call_flow
   account { call_flow.project.account }

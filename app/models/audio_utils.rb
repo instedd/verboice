@@ -18,7 +18,6 @@
 require 'tempfile'
 
 module AudioUtils
-
   def convert_to_wav(file)
     FileUtils.mv file, "#{file}.mp3"
     `lame --decode #{file}.mp3 #{file}.wav`
@@ -71,5 +70,4 @@ module AudioUtils
     http.errback { f.resume Exception.new(http.error) }
     Fiber.yield
   end
-
 end

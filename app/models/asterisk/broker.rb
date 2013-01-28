@@ -89,7 +89,7 @@ module Asterisk
     end
 
     def channels
-      Channel.where("type != '#{Channels::Voxeo.name}'")
+      Channel.where("type != '#{Channels::Voxeo.name}' && type != '#{Channels::Twilio.name}'")
     end
 
     def channel_status(*channel_ids)

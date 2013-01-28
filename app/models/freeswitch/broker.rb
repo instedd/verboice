@@ -75,7 +75,7 @@ EOF
     end
 
     def channels
-      Channel.where("type != '#{Channels::Voxeo.name}'")
+      Channel.where("type != '#{Channels::Voxeo.name}' && type != '#{Channels::Twilio.name}'")
     end
   end
 end

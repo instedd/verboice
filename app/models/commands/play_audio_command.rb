@@ -31,9 +31,10 @@ class Commands::PlayAudioCommand < Command
 
   def setup_file(session)
     in_temp_dir do |path|
-      source_path = File.join(path,"#{@audio_resource.id}.wav")
-      File.open(source_path, 'wb'){ |f| f.write(@audio_resource.audio)}
+      source_path = File.join(path, "#{@audio_resource.id}")
+      File.open(source_path, 'wb') { |f| f.write(@audio_resource.audio) }
       target_path = get_target_path(session)
+      convert_to_wav source_path if File.is_mpeg?(source_path)
       convert_to_8000_hz_gsm source_path, target_path
       target_path
     end

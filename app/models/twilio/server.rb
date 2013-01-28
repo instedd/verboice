@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-module Voxeo
+module Twilio
   class Server < EM::Connection
-    Port = Rails.configuration.voxeo_configuration[:http_server_port].to_i
+    Port = Rails.configuration.twilio_configuration[:http_server_port].to_i
 
     include EM::HttpServer
 
@@ -32,18 +32,18 @@ module Voxeo
       if @http_request_uri =~ %r(^/audio/(.+)$)
         send_audio(response, $1)
       else
-        send_vxml(response)
+        send_twiml(response)
       end
     end
 
-    def send_vxml(response)
-      session = store.session_for voxeo_session_id
+    def send_twiml(response)
+      session = store.session_for twilio_session_id
       fiber = session.get_fiber
 
       unless fiber
         fiber = Fiber.new do |context|
-          opts = {:session_id => session_id, :caller_id => caller_id, :context => context}
-          Voxeo::Broker.instance.accept_call Voxeo::CallManager.new(channel_id, voxeo_session_id, opts)
+          opts = {:caller_id => caller_id, :context => context}
+          Twilio::Broker.instance.accept_call Twilio::CallManager.new(channel_id, twilio_session_id, opts)
         end
         session.store_fiber fiber
       end
@@ -53,7 +53,7 @@ module Voxeo
       elsif params[:disconnect]
         xml = fiber.resume Exception.new("User hung up.")
       else
-        xml = fiber.resume context
+        xml = fiber.resume self
       end
 
       response.status = 200
@@ -63,7 +63,7 @@ module Voxeo
     end
 
     def send_audio(response, key)
-      path = store.session_for(voxeo_session_id).get(key)
+      path = store.session_for(twilio_session_id).get(key)
 
       begin
         if File.exists? path
@@ -83,14 +83,16 @@ module Voxeo
       response.send_response
     end
 
-    private
-
-    def context
-      @context ||= HttpBroker::HttpContext.new @http_headers, @http_query_string
+    def params
+      @params ||= begin
+        params = Rack::Utils.parse_nested_query(@http_query_string)
+        params.merge(Rack::Utils.parse_nested_query(@http_content)) if @http && @http[:content_type] =~ %r(application/x-www-form-urlencoded)
+        params.with_indifferent_access
+      end
     end
 
-    def params
-      context.params
+    def headers
+      @http || {}
     end
 
     def store
@@ -102,17 +104,12 @@ module Voxeo
       @channel.id
     end
 
-    def voxeo_session_id
-      params['session.sessionid'] || params['sessionid']
-    end
-
-    def session_id
-      params[:callsid]
+    def twilio_session_id
+      params['CallSid']
     end
 
     def caller_id
-      params['session.callerid']
+      params['From']
     end
-
   end
 end

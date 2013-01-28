@@ -15,21 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-module Voxeo
+module Twilio
   class CallManager
 
-    attr_reader :session_id, :voxeo_session_id, :channel_id, :caller_id
+    attr_reader :session_id, :twilio_session_id, :channel_id, :caller_id
     attr_accessor :session
 
-    def initialize channel_id, voxeo_session_id, opts = {}
+    def initialize channel_id, twilio_session_id, opts = {}
       @channel_id = channel_id
-      @voxeo_session_id = voxeo_session_id
+      @twilio_session_id = twilio_session_id
       @session_id = opts[:session_id]
       @caller_id = opts[:caller_id]
       @context = opts[:context]
-      @builder = Builders::Vxml.new callback_url, "sessionid" => voxeo_session_id
+      @builder = Builders::Twiml.new callback_url, "sessionid" => twilio_session_id
       @hangup = false
-      @config = Rails.configuration.voxeo_configuration
     end
 
     def answer
@@ -55,11 +54,10 @@ module Voxeo
 
       options[:play] = sounds_url_for(options[:play]) if options[:play]
 
-      @builder.capture options
-      @builder.callback callback_url
+      @builder.gather options
 
       flush
-      @context.params[:digits]
+      @context.params[:Digits]
     end
 
     def hangup
@@ -103,7 +101,7 @@ module Voxeo
       @builder.hangup
 
       # End the session from the store
-      HttpBroker::SessionStore.instance.session_for(@voxeo_session_id).end!
+      HttpBroker::SessionStore.instance.session_for(@twilio_session_id).end!
 
       # Enqueue operation to resume the fiber so the session can end
       current_fiber = Fiber.current
@@ -116,7 +114,7 @@ module Voxeo
       @hangup = true
 
       # End the session from the store
-      HttpBroker::SessionStore.instance.session_for(@voxeo_session_id).end!
+      HttpBroker::SessionStore.instance.session_for(@twilio_session_id).end!
 
       # Enqueue operation to resume the fiber so the session can end
       current_fiber = Fiber.current
@@ -126,7 +124,7 @@ module Voxeo
     end
 
     def sounds_path
-      File.join(Rails.root, 'data', 'voxeo')
+      File.join(Rails.root, 'data', 'twilio')
     end
 
     def callback_url
@@ -135,8 +133,8 @@ module Voxeo
 
     def sounds_url_for(filename)
       key = Guid.new.to_s
-      HttpBroker::SessionStore.instance.session_for(@voxeo_session_id).store(key, filename)
-      Voxeo::UrlHelper.audio_url key, :sessionid => @voxeo_session_id, :host => @context.headers[:Host]
+      HttpBroker::SessionStore.instance.session_for(@twilio_session_id).store(key, filename)
+      "/audio/#{key}?CallSid=#{@twilio_session_id}"
     end
 
   end

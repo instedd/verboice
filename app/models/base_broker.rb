@@ -18,6 +18,7 @@
 class BaseBroker
   def self.start
     Asterisk::Broker.instance.start
+    Twilio::Broker.instance.start
     Voxeo::Broker.instance.start
 
     EM::start_server 'localhost', BrokerFacade::PORT, BrokerFacade

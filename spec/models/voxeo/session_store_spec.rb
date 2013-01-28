@@ -1,33 +1,33 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'spec_helper'
 
-describe Voxeo::SessionStore do
+describe HttpBroker::SessionStore do
 
-  let(:store) { Voxeo::SessionStore.clone.instance }
+  let(:store) { HttpBroker::SessionStore.clone.instance }
   let(:session) { double('session') }
 
   before(:each) do
-    Voxeo::Session.stub(:new).and_return(session)
+    HttpBroker::Session.stub(:new).and_return(session)
   end
 
   it 'should create session if not found and return the same on later calls' do
-    Voxeo::Session.should_receive(:new).once.and_return(session)
+    HttpBroker::Session.should_receive(:new).once.and_return(session)
     store.should_receive(:renew_em_timer).with(:key).twice
     store.session_for(:key).should eq(session)
     store.session_for(:key).should eq(session)
@@ -35,7 +35,7 @@ describe Voxeo::SessionStore do
 
   context 'timers' do
     it 'should add timer when getting session' do
-      EM.should_receive(:add_timer).with(Voxeo::SessionStore::Timeout)
+      EM.should_receive(:add_timer).with(HttpBroker::SessionStore::Timeout)
       EM.should_not_receive(:cancel_timer)
 
       store.session_for(:key)
@@ -74,9 +74,9 @@ describe Voxeo::SessionStore do
 
 end
 
-describe Voxeo::Session do
+describe HttpBroker::Session do
 
-  let(:session) { Voxeo::Session.new }
+  let(:session) { HttpBroker::Session.new }
 
   it 'should be empty' do
     session.get_fiber.should be_nil

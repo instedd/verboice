@@ -31,7 +31,7 @@ describe Voxeo::CallManager do
 
   before(:each) do
     Builders::Vxml.should_receive(:new).and_return(builder)
-    Voxeo::SessionStore.stub(:instance).and_return(store)
+    HttpBroker::SessionStore.stub(:instance).and_return(store)
     store.stub(:session_for).with(voxeo_session_id).and_return(session)
     context.stub(:headers).and_return(:Host => 'requesthost.com')
   end
