@@ -105,7 +105,11 @@ module Asterisk
 
     def find_channel(pbx)
       channel_id = @channel_registry[[pbx.peer_ip, pbx.number]]
-      Channel.find(channel_id)
+      if channel_id
+        Channel.find(channel_id)
+      else
+        Channel.find(pbx.channel_id)
+      end
     end
 
     private

@@ -153,7 +153,7 @@ class Session
     end
   end
 
-  def suspend
+def suspend
     @suspended = true
   end
 

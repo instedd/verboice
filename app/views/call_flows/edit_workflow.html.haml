@@ -28,7 +28,7 @@
         iframe.src = url;
     }
 
-  - %W(external_step hang_up_step workflow_step capture_step menu_step play_step mark_as_failed_step mark_as_successful_step transfer_step goto_step branch_step record_step language_step text_localized_resource url_localized_resource record_localized_resource upload_localized_resource command_selector call_simulator branch_option external_setting resource_editor).each do |template|
+  - %W(external_step hang_up_step workflow_step capture_step menu_step play_step mark_as_failed_step mark_as_successful_step transfer_step goto_step branch_step record_step language_step text_localized_resource url_localized_resource record_localized_resource upload_localized_resource command_selector call_simulator branch_option external_setting resource_editor hang_up_and_call_back).each do |template|
     = render "call_flows/#{template}_template"
 
 = render 'shared/project_tabs_and_title', :project => @project

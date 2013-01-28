@@ -50,9 +50,14 @@ class BaseBroker
     queued_call = channel.poll_call
     log "No queued calls for channel #{channel.id}" and return unless queued_call
 
-    session = queued_call.start
-    store_session session, queued_call
-    log "Starting new call #{session.call_id} from queued call #{queued_call.id} on channel #{channel.id}"
+    if queued_call.session_id
+      session = find_session(queued_call.session_id)
+      log "Resuming call #{session.call_id} from queued call #{queued_call.id} on channel #{channel.id}"
+    else
+      session = queued_call.start
+      store_session session, queued_call
+      log "Starting new call #{session.call_id} from queued call #{queued_call.id} on channel #{channel.id}"
+    end
 
     begin
       call session
@@ -79,7 +84,7 @@ class BaseBroker
   end
 
   def active_calls_count_for(channel)
-    active_calls[channel.id].length
+    active_calls[channel.id].count { |session_id, session| !session.suspended }
   end
 
   def redirect(session_id, options = {})

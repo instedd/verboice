@@ -52,6 +52,24 @@ describe BaseBroker do
     @broker.notify_call_queued @channel
   end
 
+  it "should call if call limit is reached but session is suspended" do
+    @broker = BaseBroker.new
+    @broker.stub(:pbx_available? => true)
+    @channel = Channels::TemplateBasedSip.make
+
+    queued_call_1 = @channel.queued_calls.make
+    queued_call_2 = @channel.queued_calls.make
+
+    the_session = nil
+    @broker.should_receive(:call).twice.with { |session| the_session = session }
+
+    @broker.notify_call_queued @channel
+
+    the_session.suspend
+
+    @broker.notify_call_queued @channel
+  end
+
   Channel.all_leaf_subclasses.each do |a_channel|
     context "channel #{a_channel}" do
       before(:each) do
@@ -77,6 +95,25 @@ describe BaseBroker do
           @broker.sessions[the_session.id].should == the_session
           @broker.active_calls_count_for(@channel).should == 1
           @broker.active_calls[@channel.id][the_session.id].should == the_session
+        end
+
+        it "resumes a suspended session" do
+          queued_call = @channel.queued_calls.make
+          the_session = nil
+
+          @broker.should_receive(:call).twice.with do |session|
+            if the_session
+              session.equal?(the_session)
+            else
+              the_session = session
+            end
+          end
+          @broker.notify_call_queued @channel
+
+          the_session.suspend
+
+          queued_call = @channel.queued_calls.make session_id: the_session.id
+          @broker.notify_call_queued @channel
         end
 
         it "send ringing notification" do

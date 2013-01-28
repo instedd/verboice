@@ -31,6 +31,7 @@ module Parsers
         (UserCommand.for self, 'id' => 27, 'type' => 'record').class.should eq(Record)
         (UserCommand.for self, 'id' => 27, 'type' => 'external').class.should eq(External)
         (UserCommand.for self, 'id' => 27, 'type' => 'mark_as_failed').class.should eq(MarkAsFailed)
+        (UserCommand.for self, 'id' => 27, 'type' => 'hang_up_and_call_back').class.should eq(HangUpAndCallBack)
         (UserCommand.for self, 'id' => 27, 'type' => 'mark_as_successful').class.should eq(MarkAsSuccessful)
       end
     end
