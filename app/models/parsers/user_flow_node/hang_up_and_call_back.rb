@@ -37,6 +37,10 @@ module Parsers
         @root_index
       end
 
+      def needs_call_to_be_answered?
+        false
+      end
+
       def equivalent_flow
         Compiler.parse do |compiler|
           compiler.Label @id

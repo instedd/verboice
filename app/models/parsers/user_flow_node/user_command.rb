@@ -61,6 +61,10 @@ class Parsers::UserFlowNode::UserCommand
     subclass_responsibility
   end
 
+  def needs_call_to_be_answered?
+    true
+  end
+
   def context_for message
     {
       call_flow_id: call_flow.id,

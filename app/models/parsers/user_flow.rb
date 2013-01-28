@@ -62,9 +62,14 @@ module Parsers
     end
 
     def build_equivalent_flow
+      answered = false
+
       Compiler.make do |compiler|
-        compiler.Answer
-        @roots.collect do |a_root_node|
+        @roots.each do |a_root_node|
+          if a_root_node.needs_call_to_be_answered?
+            compiler.Answer
+            answered = false
+          end
           compiler.append a_root_node.equivalent_flow
           compiler.End
         end
