@@ -101,9 +101,13 @@ class Channel < ActiveRecord::Base
 
     session_id = options[:session_id]
 
-    call_log = call_logs.new :direction => :outgoing, :call_flow_id => current_call_flow.id, :project_id => project_id, :address => address, :state => :queued, :schedule => schedule, :not_before => not_before
-    call_log.info "Received via #{via}: call #{address}"
-    call_log.save!
+    if session_id
+      call_log = nil
+    else
+      call_log = call_logs.new :direction => :outgoing, :call_flow_id => current_call_flow.id, :project_id => project_id, :address => address, :state => :queued, :schedule => schedule, :not_before => not_before
+      call_log.info "Received via #{via}: call #{address}"
+      call_log.save!
+    end
 
     if options[:vars].is_a?(Hash)
       variables = {}
