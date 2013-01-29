@@ -155,10 +155,12 @@ class Session
 
 def suspend
     @suspended = true
+    call_log.update_attributes state: :suspended if call_log
   end
 
   def resume
     @suspended = false
+    call_log.update_attributes state: :active if call_log
     @suspend_fiber.resume
   end
 
