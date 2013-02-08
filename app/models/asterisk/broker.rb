@@ -32,6 +32,10 @@ module Asterisk
       EM.add_periodic_timer(30) do
         Fiber.new { check_channels_status }.resume
       end
+
+      EM.add_periodic_timer(30) do
+        Fiber.new { check_sessions_status }.resume
+      end
     end
 
     def call(session)
@@ -259,29 +263,63 @@ module Asterisk
       @checking_channel_status = false
     end
 
+    def check_sessions_status
+      return unless pbx_available?
+      return if @checking_sessions_status
+
+      @checking_sessions_status = true
+      @active_session_channels = []
+      $asterisk_client.status
+    end
+
+    def on_status(event)
+      @active_session_channels << event[:channel]
+    end
+
+    def on_status_complete
+      sessions.each do |id, session|
+        if session.pbx
+          finish_session(session) unless @active_session_channels.include?(session.pbx['channel'])
+        else
+          finish_session(session) if (Time.now - session.created_at) > 120
+        end
+      end
+      @checking_sessions_status = false
+    end
+
     def handle_events
       Asterisk::Client.on_connect do
+        @checking_sessions_status = false
         trigger_regenerate_config
         wake_up_queued_calls
       end
 
       Asterisk::Client.on_event do |event|
-        case event[:event]
-        when 'OriginateResponse'
-          if event[:response] == 'Failure'
-            reason = case event[:reason]
-                     when '3' then :no_answer
-                     when '5' then :busy
-                     else :failed
-                     end
-            call_rejected event[:actionid], reason
+        begin
+          case event[:event]
+          when 'OriginateResponse'
+            if event[:response] == 'Failure'
+              reason = case event[:reason]
+                       when '3' then :no_answer
+                       when '5' then :busy
+                       else :failed
+                       end
+              call_rejected event[:actionid], reason
+            end
+          when 'RegistryEntry'
+            on_registry_entry event
+          when 'RegistrationsComplete'
+            on_registrations_complete
+          when 'Registry'
+            check_channels_status
+          when 'Status'
+            on_status event
+          when 'StatusComplete'
+            on_status_complete
           end
-        when 'RegistryEntry'
-          on_registry_entry event
-        when 'RegistrationsComplete'
-          on_registrations_complete
-        when 'Registry'
-          check_channels_status
+        rescue Exception => ex
+          puts ex.message
+          puts ex.backtrace
         end
       end
     end
