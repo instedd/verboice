@@ -48,11 +48,15 @@ module Asterisk
     end
 
     def resume_fiber_with(packet)
-      @fiber.resume @packet
+      fiber_queue.shift.resume @packet
+    end
+
+    def fiber_queue
+      @fiber_queue ||= []
     end
 
     def method_missing(name, *args)
-      @fiber = Fiber.current
+      fiber_queue << Fiber.current
 
       send_data "action: #{name}\n"
       args[0].each { |key, value| send_data "#{key}: #{value}\n" } if args[0]
