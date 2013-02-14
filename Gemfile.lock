@@ -132,7 +132,7 @@ GEM
       railties (~> 3.0)
       thor (~> 0.14)
     json (1.7.6)
-    language_list (0.0.3)
+    language_list (0.1.0)
     librevox (0.3)
       eventmachine (~> 0.12.10)
     libv8 (3.11.8.13)
