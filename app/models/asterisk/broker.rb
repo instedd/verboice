@@ -155,9 +155,11 @@ module Asterisk
             f_channels.puts "canreinvite=no"
             f_channels.puts "nat=yes"
             f_channels.puts "qualify=yes"
-            f_channels.puts "fromuser=#{channel.username}"
-            f_channels.puts "defaultuser=#{channel.username}"
-            f_channels.puts "secret=#{channel.password}"
+            if channel.username.present? && channel.password.present?
+              f_channels.puts "fromuser=#{channel.username}"
+              f_channels.puts "defaultuser=#{channel.username}"
+              f_channels.puts "secret=#{channel.password}"
+            end
             f_channels.puts "insecure=invite,port"
             f_channels.puts "context=verboice"
             f_channels.puts
