@@ -26,7 +26,7 @@ class Channels::Sip < Channel
   config_accessor :number
 
   def register?
-    register
+    register == true || register == "1"
   end
 
   def outbound?
