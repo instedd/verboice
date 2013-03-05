@@ -15,7 +15,7 @@
   = f.text_field :domain
 .field
   = f.label :direction
-  = f.select :direction, options_for_select([['Incoming', 'inbound'], ['Outgoing', 'outbound'], ['Both directions', 'both']])
+  = f.select :direction, [['Incoming', 'inbound'], ['Outgoing', 'outbound'], ['Both directions', 'both']]
 .field
   = f.label :register, style: 'display:inline-block'
   = f.check_box :register
