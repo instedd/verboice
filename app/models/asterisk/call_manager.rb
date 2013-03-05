@@ -31,6 +31,9 @@ module Asterisk
       @peer_ip = send_command('GET VARIABLE', 'CHANNEL(peerip)').parenthetical
       @sip_to = send_command('GET VARIABLE', 'SIP_HEADER(To)').parenthetical
       Asterisk::Broker.instance.accept_call self
+    rescue Exception => ex
+      Rails.logger.error ex.to_s
+      hangup
     end
 
     def channel_id
