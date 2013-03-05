@@ -212,6 +212,7 @@ module Asterisk
       resources = dns.getresources "_sip._udp.#{domain}", Resolv::DNS::Resource::IN::SRV
       if resources.empty?
         ips = dns.getaddresses(domain).map(&:to_s)
+        ips = [domain] if ips.empty?
         servers << {host: domain, ips: ips}
       else
         resources.each do |resource|
