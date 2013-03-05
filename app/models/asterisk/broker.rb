@@ -259,6 +259,21 @@ module Asterisk
     end
 
     def on_registrations_complete
+      $asterisk_client.sippeers
+    end
+
+    def on_peer_entry(event)
+      if event[:channeltype] == 'SIP' && event[:objectname] =~ /verboice_(\d+)-.*/
+        channel_id = $1.to_i
+        @new_channel_status[channel_id] ||= { ok: true, messages: [] }
+        unless event[:status].start_with?('OK')
+          @new_channel_status[channel_id][:ok] = false
+          @new_channel_status[channel_id][:messages] << "Host #{event[:ipaddress]}, status: #{event[:status]}"
+        end
+      end
+    end
+
+    def on_peer_list_complete
       @channel_status = @new_channel_status
       @checking_channel_status = false
     end
@@ -312,6 +327,10 @@ module Asterisk
             on_registrations_complete
           when 'Registry'
             check_channels_status
+          when 'PeerEntry'
+            on_peer_entry event
+          when 'PeerlistComplete'
+            on_peer_list_complete
           when 'Status'
             on_status event
           when 'StatusComplete'
