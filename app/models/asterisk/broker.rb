@@ -188,7 +188,7 @@ module Asterisk
             end
 
             if channel.register?
-              f_reg.puts "register => #{channel.username}:#{channel.password}@#{channel.domain}"
+              f_reg.puts "register => #{channel.username}:#{channel.password}@#{channel.domain}/#{channel.number}"
             end
           end
         end
