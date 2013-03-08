@@ -76,7 +76,7 @@ class CallLog < ActiveRecord::Base
     self.save!
 
     begin
-      call_flow.try(:push_results, self)
+      call_flow.try(:push_results, self) if call_flow.store_in_fusion_tables
     rescue Exception => ex
       logger.error "Error pushing call flow results #{ex.message}\n#{ex.backtrace.join("\n")}"
     end
