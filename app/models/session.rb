@@ -196,7 +196,7 @@ class Session
       Thread.new do
         loop do
           requesting_fiber, session = $context_factory_queue.pop
-          session.create_v8_context
+          ctx = session.create_v8_context
           EM.schedule { requesting_fiber.resume ctx }
         end
       end
