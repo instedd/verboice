@@ -67,11 +67,13 @@ describe CallLog do
   context "finishing call" do
 
     let(:call_flow) do
-      CallFlow.make :fusion_table_name => "my_table"
+      call_flow = CallFlow.make :fusion_table_name => "my_table"
     end
 
     let(:call_log) do
       call_log = CallLog.make :call_flow => call_flow
+      call_log.call_flow.store_in_fusion_tables = true
+      call_log
     end
 
     before(:each) do
