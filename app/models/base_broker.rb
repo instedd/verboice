@@ -118,6 +118,7 @@ class BaseBroker
       log "Call #{session.call_id} is now in progress" and session.notify_status 'in-progress'
       session.run
     rescue Exception => ex
+      log "Call #{session.call_id} failed with exception: #{ex.message}\n#{ex.backtrace}"
       handle_failed_call session, ex.message, :failed
     else
       finish_session_without_error session
