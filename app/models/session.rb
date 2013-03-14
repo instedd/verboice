@@ -192,7 +192,27 @@ def suspend
   end
 
   def new_v8_context
+    return create_v8_context if Rails.env == 'test'
+
+    unless $context_factory_queue
+      require 'thread'
+      $context_factory_queue = Queue.new
+      Thread.new do
+        loop do
+          requesting_fiber, session = $context_factory_queue.pop
+          session.create_v8_context
+          EM.schedule { requesting_fiber.resume ctx }
+        end
+      end
+    end
+
+    $context_factory_queue.push [Fiber.current, self]
+    Fiber.yield
+  end
+
+  def create_v8_context
     ctx = V8::Context.new
+
     ['digits', 'timeout', 'finish_key'].each { |key| ctx[key] = nil }
     ['answer', 'assign', 'callback', 'capture', 'hangup', 'js', 'play_url', 'pause', 'record', 'say'].each do |func|
       ctx[func] = lambda do |*options|
