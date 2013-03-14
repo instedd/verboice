@@ -33,7 +33,6 @@ class Session
   def initialize(options = {})
     @created_at = Time.now
     @vars = {}
-    @log_level = :trace
     @trace_enabled = true
 
     options.each do |key, value|
@@ -155,7 +154,7 @@ class Session
     end
   end
 
-def suspend
+  def suspend
     @suspended = true
     call_log.update_attributes state: :suspended if call_log
   end
@@ -178,11 +177,8 @@ def suspend
     )
   end
 
-  def log(options)
-    if @log_level == :trace
-      call_log.trace options[:trace]
-    else
-      call_log.info options[:info]
+  if Rails.env == 'production'
+    def trace(*)
     end
   end
 
