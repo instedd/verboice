@@ -37,4 +37,8 @@ class Commands::TraceCommand < Command
     session.trace "Result recorded.", command: 'trace', action: 'finish'
     super
   end
+
+  def serialize_parameters
+    {call_flow_id: @call_flow_id, step_id: @step_id, step_name: @step_name, expression: @expression}
+  end
 end

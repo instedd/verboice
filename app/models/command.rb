@@ -1,24 +1,33 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Command
   attr_accessor :next
 
-  include MarshalZipSerializable
+  # include MarshalZipSerializable
+  def self.dump(x)
+    Zlib.deflate(x.to_a.to_yaml)
+  end
+
+  def self.load(x)
+    YAML.load(Zlib.inflate(x))
+  rescue Exception => ex
+    Marshal.load(Zlib.inflate(x))
+  end
 
   def self.inherited(subclass)
     subclass.instance_eval { @spec = [] }
@@ -70,4 +79,58 @@ class Command
 
     true
   end
+
+  def serialize_parameters
+    nil
+  end
+
+  def to_a
+    out = []
+    # symbols = []
+    queue = [self]
+    visited = {}
+    index = 0
+
+    # def find_or_create(symbols, x)
+    #   i = symbols.index x
+    #   return i unless i.nil?
+    #   symbols << x
+    #   symbols.length - 1
+    # end
+
+    # out << symbols
+
+    until queue.empty?
+      current = queue.shift
+      until current.nil?
+        if visited.include? current
+          out << [:goto, visited[current]]
+          break
+        end
+
+        visited[current] = index
+        index += 1
+
+        command = current.class.name.split('::').last.sub('Command', '').underscore.to_sym
+        parameters = current.serialize_parameters
+
+        if parameters
+          parameters.values.select {|x| x.is_a?(Command)}.each do |cmd|
+            queue << cmd
+          end
+          out << [command, parameters]
+        else
+          out << command
+        end
+
+        current = current.next
+      end
+      out << :stop
+      index += 1
+    end
+    out
+
+
+  end
+
 end

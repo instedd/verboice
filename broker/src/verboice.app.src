@@ -1,0 +1,13 @@
+{application, verboice,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {included_applications, [eastrisk]},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { verboice_app, []}},
+  {env, []}
+ ]}.

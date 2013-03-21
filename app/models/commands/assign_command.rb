@@ -40,4 +40,8 @@ class Commands::AssignCommand < Command
   def assign_data(session)
     subclass_responsibility
   end
+
+  def serialize_parameters
+    {name: name, data: data, try: try}
+  end
 end
