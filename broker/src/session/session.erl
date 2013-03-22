@@ -9,7 +9,7 @@ start_link(SessionId, Pbx) ->
 
 %% @private
 init({SessionId, Pbx}) ->
-  {data, Result} = mysql:fetch(db, "SELECT flow FROM call_flows LIMIT 1"),
+  {data, Result} = mysql:fetch(db, "SELECT flow FROM call_flows ORDER BY id DESC LIMIT 1"),
   [[Row]] = mysql:get_result_rows(Result),
   Z = zlib:open(),
   zlib:inflateInit(Z),
@@ -17,7 +17,7 @@ init({SessionId, Pbx}) ->
   {ok, [Flow]} = yaml:load(FlowYaml, [{schema, yaml_schema_ruby}]),
   io:format("~p~n", [Flow]),
 
-  {ok, {SessionId, Pbx, [answer, [play_resource, [{resource_guid, "813482510aca741a243c46d2e4b6f02b"}]], [goto, 2], hangup]}}.
+  {ok, {SessionId, Pbx, Flow}}.
 
 %% @private
 handle_call(_Request, _From, State) ->
@@ -65,10 +65,5 @@ run(SessionId, Pbx, Flow, Ptr) ->
     finish -> finish
   end.
 
-eval(answer, Pbx) -> Pbx:answer(), next;
-eval(hangup, Pbx) -> Pbx:hangup(), next;
-eval([goto, N], _Pbx) -> {goto, N};
-
-eval([play_resource, Args], Pbx) ->
-  Guid = proplists:get_value(resource_guid, Args),
-  Pbx:play(Guid), next.
+eval([Command, Args], Pbx) -> Command:run(Args, Pbx);
+eval(Command, Pbx) -> Command:run(Pbx).
