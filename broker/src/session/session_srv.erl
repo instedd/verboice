@@ -21,12 +21,17 @@ init({}) ->
 %% @private
 handle_call({start, Pbx}, _From, State) ->
   SessionId = make_ref(),
-  {ok, Pid} = supervisor:start_child(session_sup, {SessionId, {session, start_link, [SessionId, Pbx]}, temporary, 5000, worker, [session]}),
-  gen_server:cast(Pid, run),
-  {reply, ok, State};
+  SessionSpec = {SessionId, {session, start_link, [SessionId, Pbx]}, temporary, 5000, worker, [session]},
+  case supervisor:start_child(session_sup, SessionSpec) of
+    {ok, Pid} ->
+      gen_server:cast(Pid, run),
+      {reply, {ok, SessionId}, State};
+    Error = {error, _} ->
+      {reply, Error, State}
+  end;
 
-handle_call({stop, Pbx}, _From, State) ->
-  supervisor:terminate_child(session_sup, Pbx),
+handle_call({stop, SessionId}, _From, State) ->
+  supervisor:terminate_child(session_sup, SessionId),
   {reply, ok, State}.
 
 
@@ -49,5 +54,5 @@ code_change(_OldVsn, State, _Extra) ->
 start(Pbx) ->
   gen_server:call(?SERVER, {start, Pbx}).
 
-stop(Pbx) ->
-  gen_server:call(?SERVER, {stop, Pbx}).
+stop(SessionId) ->
+  gen_server:call(?SERVER, {stop, SessionId}).
