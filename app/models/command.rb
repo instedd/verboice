@@ -86,19 +86,8 @@ class Command
 
   def to_a
     out = []
-    # symbols = []
     queue = [self]
     visited = {}
-    index = 0
-
-    # def find_or_create(symbols, x)
-    #   i = symbols.index x
-    #   return i unless i.nil?
-    #   symbols << x
-    #   symbols.length - 1
-    # end
-
-    # out << symbols
 
     until queue.empty?
       current = queue.shift
@@ -108,8 +97,7 @@ class Command
           break
         end
 
-        visited[current] = index
-        index += 1
+        visited[current] = out.length
 
         command = current.class.name.split('::').last.sub('Command', '').underscore.to_sym
         parameters = current.serialize_parameters
@@ -126,11 +114,19 @@ class Command
         current = current.next
       end
       out << :stop
-      index += 1
     end
+
+    out.each do |item|
+      if item.is_a?(Array) && (parameters = item[1]).is_a?(Hash)
+        parameters.each do |key, value|
+          if value.is_a?(Command)
+            parameters[key] = visited[value]
+          end
+        end
+      end
+    end
+
     out
-
-
   end
 
 end

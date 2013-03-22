@@ -42,6 +42,8 @@ class Commands::AssignCommand < Command
   end
 
   def serialize_parameters
-    {name: name, data: data, try: try}
+    {name: @name, data: @data}.tap do |parameters|
+      parameters[:try] = @try if @try
+    end
   end
 end
