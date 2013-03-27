@@ -48,7 +48,7 @@ module Parsers
       def equivalent_flow
         Compiler.parse do |c|
           c.Label @id
-          c.Assign "current_step", @id
+          c.AssignValue "current_step", @id
           c.AssignValue "current_step_name", "#{@name}"
           @options.each_with_index do |an_option, index|
             c.If(merge_conditions_from(an_option['conditions'], c)) do |c|

@@ -16,12 +16,13 @@ start_link() ->
 
 %% @private
 init({}) ->
-  {ok, undefined}.
+  {ok, mozjs:new_runtime()}.
 
 %% @private
 handle_call({start, Pbx}, _From, State) ->
   SessionId = make_ref(),
-  SessionSpec = {SessionId, {session, start_link, [SessionId, Pbx]}, temporary, 5000, worker, [session]},
+  JsRuntime = State,
+  SessionSpec = {SessionId, {session, start_link, [SessionId, Pbx, JsRuntime]}, temporary, 5000, worker, [session]},
   case supervisor:start_child(session_sup, SessionSpec) of
     {ok, Pid} ->
       gen_server:cast(Pid, run),

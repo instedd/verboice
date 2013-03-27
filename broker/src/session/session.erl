@@ -1,14 +1,15 @@
 -module(session).
--export([start_link/2]).
+-export([start_link/3]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+-include("session.hrl").
 
-start_link(SessionId, Pbx) ->
-  gen_server:start_link(?MODULE, {SessionId, Pbx}, []).
+start_link(SessionId, Pbx, JsRuntime) ->
+  gen_server:start_link(?MODULE, {SessionId, Pbx, JsRuntime}, []).
 
 %% @private
-init({SessionId, Pbx}) ->
+init({SessionId, Pbx, JsRuntime}) ->
   {data, Result} = mysql:fetch(db, "SELECT flow FROM call_flows ORDER BY id DESC LIMIT 1"),
   [[Row]] = mysql:get_result_rows(Result),
   Z = zlib:open(),
@@ -17,16 +18,16 @@ init({SessionId, Pbx}) ->
   {ok, [Flow]} = yaml:load(FlowYaml, [{schema, yaml_schema_ruby}]),
   io:format("~p~n", [Flow]),
 
-  {ok, {SessionId, Pbx, Flow}}.
+  {ok, #session{session_id = SessionId, pbx = Pbx, flow = Flow, js_runtime = JsRuntime}}.
 
 %% @private
 handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast(run, State = {SessionId, Pbx, Flow}) ->
+handle_cast(run, State) ->
   io:format("Starting!~n"),
-  Pid = spawn_link(fun() -> run(SessionId, Pbx, Flow) end),
+  Pid = spawn_link(fun() -> run(State) end),
   monitor(process, Pid),
   {noreply, State}.
 
@@ -45,8 +46,10 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
 
-run(SessionId, Pbx, Flow) ->
-  try run(SessionId, Pbx, Flow, 1) of
+run(State = #session{pbx = Pbx, js_runtime = JsRuntime}) ->
+  JsContext = mozjs:new_context(JsRuntime),
+  RunState = State#session{js_context = JsContext},
+  try run(RunState, 1) of
     _ -> ok
   catch
     hangup -> hangup
@@ -54,16 +57,18 @@ run(SessionId, Pbx, Flow) ->
     Pbx:terminate()
   end.
 
-run(_, _, Flow, Ptr) when Ptr > length(Flow) -> finish;
-run(SessionId, Pbx, Flow, Ptr) ->
+run(#session{flow = Flow}, Ptr) when Ptr > length(Flow) -> finish;
+run(State = #session{flow = Flow}, Ptr) ->
   Command = lists:nth(Ptr, Flow),
-  case eval(Command, Pbx) of
+  case eval(Command, State) of
     next ->
-      run(SessionId, Pbx, Flow, Ptr + 1);
+      run(State, Ptr + 1);
     {goto, N} ->
-      run(SessionId, Pbx, Flow, N);
+      run(State, N + 1);
     finish -> finish
   end.
 
-eval([Command, Args], Pbx) -> Command:run(Args, Pbx);
-eval(Command, Pbx) -> Command:run(Pbx).
+eval(stop, _) -> finish;
+eval(['if', Args], State) -> if_command:run(Args, State);
+eval([Command, Args], State) -> Command:run(Args, State);
+eval(Command, State) -> Command:run(State).

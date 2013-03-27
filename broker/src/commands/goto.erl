@@ -1,5 +1,6 @@
 -module(goto).
 -export([run/2]).
+-include("session.hrl").
 
-run(N, _Pbx) ->
-  {goto, N + 1}.
+run(N, _Session) ->
+  {goto, N}.
