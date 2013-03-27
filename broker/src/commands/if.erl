@@ -1,4 +1,4 @@
--module(if_command).
+-module('if').
 -export([run/2]).
 -include("session.hrl").
 

@@ -69,6 +69,5 @@ run(State = #session{flow = Flow}, Ptr) ->
   end.
 
 eval(stop, _) -> finish;
-eval(['if', Args], State) -> if_command:run(Args, State);
 eval([Command, Args], State) -> Command:run(Args, State);
 eval(Command, State) -> Command:run(State).
