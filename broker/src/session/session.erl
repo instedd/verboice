@@ -14,7 +14,7 @@ init({SessionId, Pbx, JsRuntime}) ->
   [[Row]] = mysql:get_result_rows(Result),
   Z = zlib:open(),
   zlib:inflateInit(Z),
-  [FlowYaml] = zlib:inflate(Z, binary_to_list(Row)),
+  FlowYaml = iolist_to_binary(zlib:inflate(Z, binary_to_list(Row))),
   {ok, [Flow]} = yaml:load(FlowYaml, [{schema, yaml_schema_ruby}]),
   io:format("~p~n", [Flow]),
 
