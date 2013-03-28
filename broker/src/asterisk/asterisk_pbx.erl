@@ -28,7 +28,7 @@ capture(FileName, Timeout, FinishOnKey, Min, Max, Pbx = {?MODULE, Pid}) ->
   case Key of
     FinishOnKey -> finish_key;
     0 -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, "");
-    _ -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, Key)
+    _ -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, [Key])
   end.
 
 capture_digits(_Timeout, _FinishOnKey, _Min, Max, _Pid, Keys) when length(Keys) >= Max ->
