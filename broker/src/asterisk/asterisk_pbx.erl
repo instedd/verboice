@@ -25,9 +25,10 @@ play(FileName, EscapeDigits, {?MODULE, Pid}) ->
 
 capture(FileName, Timeout, FinishOnKey, Min, Max, Pbx = {?MODULE, Pid}) ->
   {ok, {Key, _}} = play(FileName, "0123456789#*", Pbx = {?MODULE, Pid}),
-  case Key of
-    FinishOnKey -> finish_key;
-    0 -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, "");
+  IsFinishKey = lists:member(Key, FinishOnKey),
+  case {IsFinishKey, Key} of
+    {true, _} -> finish_key;
+    {_, 0} -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, "");
     _ -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, [Key])
   end.
 
@@ -35,15 +36,17 @@ capture_digits(_Timeout, _FinishOnKey, _Min, Max, _Pid, Keys) when length(Keys) 
   {digits, Keys};
 
 capture_digits(Timeout, FinishOnKey, Min, Max, Pid, Keys) ->
-
-  {ok, Digit} = agi:wait_for_digit(Pid, Timeout * 1000),
-  io:format("~p~n", [Digit]),
-  case Digit of
-    -1 -> throw(hangup);
-    0 when length(Keys) >= Min -> {digits, Keys};
-    0 -> timeout;
-    FinishOnKey when length(Keys) == 0 -> finish_key;
-    FinishOnKey when length(Keys) < Min -> short_entry;
-    FinishOnKey -> {digits, Keys};
-    Key -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, Keys ++ [Key])
+  {ok, Key} = agi:wait_for_digit(Pid, Timeout * 1000),
+  IsFinishKey = lists:member(Key, FinishOnKey),
+  case {IsFinishKey, Key} of
+    {_, -1} -> throw(hangup);
+    {_, 0} when length(Keys) >= Min -> {digits, Keys};
+    {_, 0} -> timeout;
+    {true, _} ->
+      if
+        length(Keys) == 0 -> finish_key;
+        length(Keys) < Min -> short_entry;
+        true -> {digits, Keys}
+      end;
+    _ -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, Keys ++ [Key])
   end.

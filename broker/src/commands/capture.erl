@@ -6,7 +6,7 @@ run(Args, #session{pbx = Pbx, js_context = JS}) ->
   Min = proplists:get_value(min, Args),
   Max = proplists:get_value(max, Args),
   Timeout = proplists:get_value(timeout, Args),
-  [FinishOnKey] = proplists:get_value(finish_on_key, Args),
+  FinishOnKey = proplists:get_value(finish_on_key, Args),
   ResourceGuid = proplists:get_value(resource, Args),
 
   ResourcePath = resource:prepare(ResourceGuid, Pbx),
