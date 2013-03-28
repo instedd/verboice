@@ -26,5 +26,22 @@ prepare_text_resource(Text, Pbx) ->
   Name.
 
 synthesize(Text, TargetPath) ->
-  os:cmd("echo " ++ binary_to_list(Text) ++ " | say -v Paulina -o " ++ TargetPath ++ ".wave"),
-  os:cmd("sox " ++ TargetPath ++ ".wave -r 8000 -c1 " ++ TargetPath).
+  TempFile = TargetPath ++ ".wave",
+  try
+    Port = open_port({spawn, "say -v Paulina -o " ++ TempFile}, [binary]),
+    port_command(Port, Text),
+    port_close(Port),
+    ok = wait_for_file(TempFile),
+    os:cmd("sox " ++ TempFile ++ " -r 8000 -c1 " ++ TargetPath)
+  after
+    file:delete(TempFile)
+  end.
+
+
+wait_for_file(FilePath) -> wait_for_file(FilePath, 5).
+wait_for_file(_, 0) -> timeout;
+wait_for_file(FilePath, N) ->
+  case filelib:is_file(FilePath) of
+    true -> ok;
+    false -> timer:sleep(50), wait_for_file(FilePath, N - 1)
+  end.
