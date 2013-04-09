@@ -8,6 +8,7 @@
 
 -record(state, {channels}).
 -include_lib("kernel/include/inet.hrl").
+-include("db.hrl").
 
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
@@ -48,21 +49,20 @@ code_change(_OldVsn, State, _Extra) ->
 
 
 generate_config() ->
-  Channels = db:select("SELECT id, config FROM channels WHERE type IN ('Channels::Sip', 'Channels::CustomSip', 'Channels::TemplateBasedSip')"),
+  Channels = channel:find_all_sip(),
   ChannelRegistry = generate_config(Channels, dict:new()),
   gen_server:cast(?MODULE, {set_channels, ChannelRegistry}).
 
 generate_config([], ChannelRegistry) -> ChannelRegistry;
-generate_config([[Id, YamlConfig] | Rest], ChannelRegistry) ->
-  {ok, [Config]} = yaml:load(YamlConfig),
-  NewRegistry = case proplists:get_value(<<"domain">>, Config) of
+generate_config([Channel | Rest], ChannelRegistry) ->
+  NewRegistry = case channel:domain(Channel) of
     <<>> -> ChannelRegistry;
     Domain ->
       Expanded = expand_domain(Domain),
-      Number = binary_to_list(proplists:get_value(<<"number">>, Config)),
+      Number = channel:number(Channel),
       lists:foldl(fun ({_Host, IPs, _Port}, R1) ->
         lists:foldl(fun (IP, R2) ->
-          dict:store({binary_to_list(IP), Number}, Id, R2)
+          dict:store({binary_to_list(IP), Number}, Channel#channel.id, R2)
         end, R1, IPs)
       end, ChannelRegistry, Expanded)
   end,

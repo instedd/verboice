@@ -2,4 +2,5 @@
 -compile([export_all]).
 
 -include("session.hrl").
+-include("db.hrl").
 -include_lib("kernel/include/inet.hrl").
