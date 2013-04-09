@@ -201,8 +201,16 @@ class Channel < ActiveRecord::Base
   end
 
   def self.from_json(json)
-    channel = (SuitableClassFinder.find_leaf_subclass_of self, suitable_for: (json[:kind])).new
-    channel.name = json[:name]
-    channel
+    channel = (SuitableClassFinder.find_leaf_subclass_of self, suitable_for: json[:kind]).new
+    channel.from_json(json)
+  end
+
+  def from_json(json)
+    self.name = json[:name]
+    json_config = json[:config] || {}
+    self.class.config_attrs.each do |attr|
+      self.send("#{attr}=", json_config[attr])
+    end
+    self
   end
 end
