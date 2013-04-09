@@ -21,7 +21,7 @@ handle_event({new_channel, Pid, Env}, State) ->
   io:format("New call ~p~n", [Env]),
   {ok, {1, PeerIp}} = agi:get_variable(Pid, "CHANNEL(peerip)"),
   SipTo = Env#agi_env.dnid,
-  ChannelId = gen_server:call(asterisk_channel_srv, {find_channel, PeerIp, SipTo}),
+  ChannelId = asterisk_channel_srv:find_channel(PeerIp, SipTo),
   Pbx = asterisk_pbx:new(Pid),
   try session_srv:start(Pbx, ChannelId) of
     {ok, SessionId} ->
