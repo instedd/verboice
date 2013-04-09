@@ -24,7 +24,7 @@ play(FileName, EscapeDigits, {?MODULE, Pid}) ->
   end.
 
 capture(FileName, Timeout, FinishOnKey, Min, Max, Pbx = {?MODULE, Pid}) ->
-  {ok, {Key, _}} = Pbx:play(FileName, "0123456789#*"),
+  {ok, {Key, _}} = play(FileName, "0123456789#*", Pbx = {?MODULE, Pid}),
   IsFinishKey = lists:member(Key, FinishOnKey),
   case {IsFinishKey, Key} of
     {true, _} -> finish_key;

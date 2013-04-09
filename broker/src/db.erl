@@ -1,12 +1,18 @@
 -module(db).
--export([select_one/1, select_one/2]).
+-export([select/1, select/2, select_one/1, select_one/2]).
+
+select(Query) ->
+  select(Query, []).
+
+select(Query, Params) ->
+  SQL = format_query(Query, Params),
+  {data, Result} = mysql:fetch(db, SQL),
+  mysql:get_result_rows(Result).
 
 select_one(Query) -> select_one(Query, []).
 
 select_one(Query, Params) ->
-  SQL = format_query(Query, Params),
-  {data, Result} = mysql:fetch(db, SQL),
-  [Row] = mysql:get_result_rows(Result),
+  [Row] = select(Query, Params),
   Row.
 
 format_query(Query, Params) ->

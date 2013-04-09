@@ -1,20 +1,20 @@
 -module(session).
--export([start_link/3]).
+-export([start_link/4]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -include("session.hrl").
 
-start_link(SessionId, Pbx, JsRuntime) ->
-  gen_server:start_link(?MODULE, {SessionId, Pbx, JsRuntime}, []).
+start_link(SessionId, Pbx, ChannelId, JsRuntime) ->
+  gen_server:start_link(?MODULE, {SessionId, Pbx, ChannelId, JsRuntime}, []).
 
 %% @private
-init({SessionId, Pbx, JsRuntime}) ->
-  {data, Result} = mysql:fetch(db, "SELECT flow FROM call_flows ORDER BY id DESC LIMIT 1"),
-  [[Row]] = mysql:get_result_rows(Result),
+init({SessionId, Pbx, ChannelId, JsRuntime}) ->
+  [CallFlowId] = db:select_one("SELECT call_flow_id FROM channels WHERE id = ~p", [ChannelId]),
+  [CompFlow] = db:select_one("SELECT flow FROM call_flows WHERE id = ~p", [CallFlowId]),
   Z = zlib:open(),
   zlib:inflateInit(Z),
-  FlowYaml = iolist_to_binary(zlib:inflate(Z, binary_to_list(Row))),
+  FlowYaml = iolist_to_binary(zlib:inflate(Z, binary_to_list(CompFlow))),
   {ok, [Flow]} = yaml:load(FlowYaml, [{schema, yaml_schema_ruby}]),
   io:format("~p~n", [Flow]),
 

@@ -3,7 +3,7 @@
 %   start/0,
 %   next/1
 % ]).
--export([start/1, stop/1]).
+-export([start/2, stop/1]).
 -export([start_link/0]).
 
 -behaviour(gen_server).
@@ -19,10 +19,10 @@ init({}) ->
   {ok, mozjs:new_runtime()}.
 
 %% @private
-handle_call({start, Pbx}, _From, State) ->
+handle_call({start, Pbx, ChannelId}, _From, State) ->
   SessionId = make_ref(),
   JsRuntime = State,
-  SessionSpec = {SessionId, {session, start_link, [SessionId, Pbx, JsRuntime]}, temporary, 5000, worker, [session]},
+  SessionSpec = {SessionId, {session, start_link, [SessionId, Pbx, ChannelId, JsRuntime]}, temporary, 5000, worker, [session]},
   case supervisor:start_child(session_sup, SessionSpec) of
     {ok, Pid} ->
       gen_server:cast(Pid, run),
@@ -52,8 +52,8 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
 
-start(Pbx) ->
-  gen_server:call(?SERVER, {start, Pbx}).
+start(Pbx, ChannelId) ->
+  gen_server:call(?SERVER, {start, Pbx, ChannelId}).
 
 stop(SessionId) ->
   gen_server:call(?SERVER, {stop, SessionId}).
