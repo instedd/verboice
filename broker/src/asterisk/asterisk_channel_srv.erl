@@ -76,20 +76,22 @@ expand_domain(Domain) ->
   Query = binary_to_list(iolist_to_binary(["_sip._udp.", Domain])),
   case inet_res:getbyname(Query, srv) of
     {ok, #hostent{h_addr_list = AddrList}} ->
-      lists:map(fun ({_, _, Port, Host}) ->
+      [
         case inet_res:gethostbyname(Host) of
           {ok, #hostent{h_addr_list = IpList}} ->
-            IPs = lists:map(fun ({A,B,C,D}) -> iolist_to_binary(io_lib:format("~B.~B.~B.~B", [A,B,C,D])) end, IpList),
+            IPs = map_ips(IpList),
             {Host, IPs, Port};
           _ -> {Host, [], Port}
         end
-      end, AddrList);
+      || {_, _, Port, Host} <- AddrList];
     _ ->
       case inet_res:gethostbyname(Domain) of
         {ok, #hostent{h_addr_list = IpList}} ->
-          IPs = lists:map(fun ({A,B,C,D}) -> iolist_to_binary(io_lib:format("~B.~B.~B.~B", [A,B,C,D])) end, IpList),
+          IPs = map_ips(IpList),
           [{Domain, IPs, undefined}];
         _ -> [{Domain, [Domain], undefined}]
       end
   end.
 
+map_ips(IpList) ->
+  [iolist_to_binary(io_lib:format("~B.~B.~B.~B", [A,B,C,D])) || {A,B,C,D} <- IpList].
