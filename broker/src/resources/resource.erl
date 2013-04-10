@@ -1,5 +1,5 @@
 -module(resource).
--export([prepare/2]).
+-export([prepare/2, prepare_url_resource/2]).
 
 prepare(Guid, Pbx) ->
   case get_resource(Guid) of
@@ -25,6 +25,17 @@ prepare_text_resource(Text, Pbx) ->
   end,
   Name.
 
+prepare_url_resource(Url, Pbx) ->
+  Hash = crypto:md5(Url),
+  Name = lists:flatten([io_lib:format("~2.16.0b", [B]) || <<B>> <= Hash]),
+
+  TargetPath = Pbx:sound_path_for(Name),
+  case filelib:is_file(TargetPath) of
+    true -> ok;
+    false -> download(Url, TargetPath)
+  end,
+  Name.
+
 synthesize(Text, TargetPath) ->
   TempFile = TargetPath ++ ".wave",
   try
@@ -36,6 +47,12 @@ synthesize(Text, TargetPath) ->
   after
     file:delete(TempFile)
   end.
+
+download(Url, TargetPath) ->
+  {ok, {_, _, Body}} = httpc:request(Url),
+  file:write_file(TargetPath ++ ".mp3", Body),
+  os:cmd("lame --decode " ++ TargetPath ++ ".mp3 " ++ TargetPath ++ ".wav"),
+  os:cmd("sox " ++ TargetPath ++ ".wav " ++ TargetPath).
 
 
 wait_for_file(FilePath) -> wait_for_file(FilePath, 5).

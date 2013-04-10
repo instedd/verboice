@@ -11,11 +11,7 @@ start_link(SessionId, Pbx, ChannelId, JsRuntime) ->
 %% @private
 init({SessionId, Pbx, ChannelId, JsRuntime}) ->
   [CallFlowId] = db:select_one("SELECT call_flow_id FROM channels WHERE id = ~p", [ChannelId]),
-  [CompFlow] = db:select_one("SELECT flow FROM call_flows WHERE id = ~p", [CallFlowId]),
-  Z = zlib:open(),
-  zlib:inflateInit(Z),
-  FlowYaml = iolist_to_binary(zlib:inflate(Z, binary_to_list(CompFlow))),
-  {ok, [Flow]} = yaml:load(FlowYaml, [{schema, yaml_schema_ruby}]),
+  Flow = call_flow:get_commands(CallFlowId),
   io:format("~p~n", [Flow]),
 
   {ok, #session{session_id = SessionId, pbx = Pbx, flow = Flow, js_runtime = JsRuntime}}.
@@ -65,6 +61,8 @@ run(State = #session{flow = Flow}, Ptr) ->
       run(State, Ptr + 1);
     {goto, N} ->
       run(State, N + 1);
+    {exec, NewFlow} ->
+      run(State#session{flow = NewFlow}, 1);
     finish -> finish
   end.
 

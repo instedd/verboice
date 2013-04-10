@@ -6,7 +6,8 @@
   {included_applications, [eastrisk]},
   {applications, [
                   kernel,
-                  stdlib
+                  stdlib,
+                  inets
                  ]},
   {mod, { verboice_app, []}},
   {env, []}

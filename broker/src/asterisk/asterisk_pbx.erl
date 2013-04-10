@@ -1,5 +1,5 @@
 -module(asterisk_pbx).
--export([new/1, answer/1, play/2, capture/6, terminate/1, sound_path_for/2]).
+-export([new/1, answer/1, hangup/1, play/2, capture/6, terminate/1, sound_path_for/2]).
 
 new(Pid) ->
   {?MODULE, Pid}.
@@ -13,6 +13,9 @@ terminate({?MODULE, Pid}) ->
 answer({?MODULE, Pid}) ->
   io:format("PID: ~p~n", [Pid]),
   agi:answer(Pid).
+
+hangup({?MODULE, Pid}) ->
+  agi:hangup(Pid).
 
 play(FileName, Pbx = {?MODULE, _Pid}) ->
   play(FileName, "", Pbx).

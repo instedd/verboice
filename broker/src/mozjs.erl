@@ -3,7 +3,9 @@
 -on_load(init/0).
 
 init() ->
-  ok = erlang:load_nif("priv/verboice_drv", 0).
+  Ebin = filename:dirname(code:which(?MODULE)),
+  File = filename:join(filename:dirname(Ebin), "priv/verboice_drv"),
+  ok = erlang:load_nif(File, 0).
 
 new_runtime() ->
   exit(nif_library_not_loaded).
