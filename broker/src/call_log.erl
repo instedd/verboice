@@ -1,0 +1,3 @@
+-module(call_log).
+-define(TABLE_NAME, "call_logs").
+-include("model.hrl").
