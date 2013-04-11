@@ -1,5 +1,9 @@
 -include("db.hrl").
--export([create/0, create/1, find/1, update/1, delete/1]).
+-export([create/0, create/1, find/1, find_all/1, update/1, delete/1]).
+
+-ifndef(MAP).
+-define(MAP(Record), Record).
+-endif.
 
 create() -> create(#?MODULE{}).
 
@@ -9,9 +13,20 @@ create(Record = #?MODULE{}) ->
   Id = db:insert(insert_query(RecordToInsert)),
   RecordToInsert#?MODULE{id = Id}.
 
-find(Id) ->
-  Row = db:select_one(select_query(Id)),
-  list_to_tuple([?MODULE | Row]).
+find(Id) when is_number(Id) ->
+  find({id, Id});
+
+find(Criteria) ->
+  Row = db:select_one(select_query(Criteria)),
+  Record = list_to_tuple([?MODULE | Row]),
+  ?MAP(Record).
+
+find_all(Criteria) ->
+  Rows = db:select(select_query(Criteria)),
+  lists:map(fun(Row) ->
+    Record = list_to_tuple([?MODULE | Row]),
+    ?MAP(Record)
+  end, Rows).
 
 update(Record = #?MODULE{}) ->
   Now = {datetime, calendar:universal_time()},
@@ -38,13 +53,25 @@ insert_values(Record, Index, Count) when Index =:= Count ->
 insert_values(Record, Index, Count) ->
   [mysql:encode(element(Index, Record)), ", " | insert_values(Record, Index + 1, Count)].
 
-select_query(Id) ->
-  ["SELECT " | select_fields(Id, record_info(fields, ?MODULE))].
+select_query(Criteria) ->
+  ["SELECT " | select_fields(Criteria, record_info(fields, ?MODULE))].
 
-select_fields(Id, [Field]) ->
-  [atom_to_list(Field), " FROM ", ?TABLE_NAME, " WHERE id = ", mysql:encode(Id)];
-select_fields(Id, [Field | Rest]) ->
-  [atom_to_list(Field), ", " | select_fields(Id, Rest)].
+select_fields(Criteria, [Field]) ->
+  [atom_to_list(Field), " FROM ", ?TABLE_NAME, " WHERE " | select_criteria(Criteria)];
+select_fields(Criteria, [Field | Rest]) ->
+  [atom_to_list(Field), ", " | select_fields(Criteria, Rest)].
+
+select_criteria({Field, Value}) ->
+  [atom_to_list(Field), " = ", mysql:encode(Value)];
+
+select_criteria({Field, in, Values}) ->
+  [atom_to_list(Field), " IN (", value_list(Values), ")"];
+
+select_criteria([Filter]) ->
+  select_criteria(Filter);
+
+select_criteria([Filter | Rest]) ->
+  [select_criteria(Filter), " AND " | select_criteria(Rest)].
 
 update_query(Record) ->
   ["UPDATE ", ?TABLE_NAME, " SET " | update_fields(Record, 2, record_info(fields, ?MODULE))].
@@ -59,3 +86,9 @@ update_fields(Record, Index, [Field | Rest]) ->
 
 delete_query(Record) ->
   ["DELETE FROM ", ?TABLE_NAME, " WHERE id = ", mysql:encode(Record#?MODULE.id)].
+
+value_list([]) -> [];
+value_list([Value]) ->
+  [mysql:encode(Value)];
+value_list([Value | Rest]) ->
+  [mysql:encode(Value), ", " | value_list(Rest)].

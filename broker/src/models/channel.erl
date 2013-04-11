@@ -1,22 +1,16 @@
 -module(channel).
 -export([find_all_sip/0, domain/1, number/1]).
+-define(TABLE_NAME, "channels").
 
--include("db.hrl").
+-define(MAP(Channel),
+  {ok, [Config]} = yaml:load(Channel#channel.config),
+  Channel#channel{config = Config}
+  ).
+
+-include("model.hrl").
 
 find_all_sip() ->
-  Rows = db:select("SELECT id, account_id, call_flow_id, name, config, type FROM channels " ++
-    "WHERE type IN ('Channels::Sip', 'Channels::CustomSip', 'Channels::TemplateBasedSip')"),
-  lists:map(fun([Id, AccountId, CallFlowId, Name, Config, Type]) ->
-    {ok, [RealConfig]} = yaml:load(Config),
-    #channel{
-      id = Id,
-      account_id = AccountId,
-      call_flow_id = CallFlowId,
-      name = Name,
-      config = RealConfig,
-      type = Type
-    }
-  end, Rows).
+  find_all({type, in, ["Channels::Sip", "Channels::CustomSip", "Channels::TemplateBasedSip"]}).
 
 domain(Channel = #channel{type = <<"Channels::TemplateBasedSip">>}) ->
   case proplists:get_value(<<"kind">>, Channel#channel.config) of
@@ -27,7 +21,6 @@ domain(Channel = #channel{type = <<"Channels::TemplateBasedSip">>}) ->
 
 domain(#channel{config = Config}) ->
   proplists:get_value(<<"domain">>, Config).
-
 
 number(#channel{config = Config}) ->
   binary_to_list(proplists:get_value(<<"number">>, Config)).

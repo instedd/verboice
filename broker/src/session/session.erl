@@ -11,7 +11,8 @@ start_link(SessionId, Pbx, ChannelId, JsRuntime) ->
 %% @private
 init({SessionId, Pbx, ChannelId, JsRuntime}) ->
   [CallFlowId] = db:select_one("SELECT call_flow_id FROM channels WHERE id = ~p", [ChannelId]),
-  Flow = call_flow:get_commands(CallFlowId),
+  CallFlow = call_flow:find(CallFlowId),
+  Flow = CallFlow:commands(),
   io:format("~p~n", [Flow]),
 
   {ok, #session{session_id = SessionId, pbx = Pbx, flow = Flow, js_runtime = JsRuntime}}.

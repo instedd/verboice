@@ -1,8 +1,10 @@
 -module(call_flow).
--export([get_commands/1]).
+-export([commands/1]).
 
-get_commands(Id) ->
-  [CallbackUrl, CompFlow] = db:select_one("SELECT callback_url, flow FROM call_flows WHERE id = ~p", [Id]),
+-define(TABLE_NAME, "call_flows").
+-include("model.hrl").
+
+commands(#call_flow{callback_url = CallbackUrl, flow = CompFlow}) ->
   case CallbackUrl of
     undefined ->
       Z = zlib:open(),
