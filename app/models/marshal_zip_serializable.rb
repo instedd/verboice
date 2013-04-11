@@ -34,7 +34,13 @@ module MarshalZipSerializable
 
       # Marshal.load fails with large flows when run inside a Fiber (Fiber stacks are 4k only)
       # Run the unmarshaling in a thread so we can use a full stack
-      Thread.new { data = Marshal.load(Zlib.inflate(x)) rescue nil }.join
+      Thread.new {
+        begin
+          data = Marshal.load(Zlib.inflate(x))
+        rescue
+          data = YAML.load(x) rescue nil
+        end
+      }.join
       data
     end
   end

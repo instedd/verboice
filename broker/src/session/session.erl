@@ -4,18 +4,28 @@
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -include("session.hrl").
+-include("db.hrl").
 
 start_link(SessionId, Pbx, ChannelId, JsRuntime) ->
   gen_server:start_link(?MODULE, {SessionId, Pbx, ChannelId, JsRuntime}, []).
 
 %% @private
 init({SessionId, Pbx, ChannelId, JsRuntime}) ->
-  [CallFlowId] = db:select_one("SELECT call_flow_id FROM channels WHERE id = ~p", [ChannelId]),
-  CallFlow = call_flow:find(CallFlowId),
+  Channel = channel:find(ChannelId),
+  CallFlow = call_flow:find(Channel#channel.call_flow_id),
+  CallLog = call_log:create(#call_log{
+    account_id = Channel#channel.account_id,
+    project_id = CallFlow#call_flow.project_id,
+    state = "active",
+    direction = "incoming",
+    channel_id = ChannelId,
+    started_at = calendar:universal_time(),
+    call_flow_id = CallFlow#call_flow.id
+  }),
   Flow = CallFlow:commands(),
   io:format("~p~n", [Flow]),
 
-  {ok, #session{session_id = SessionId, pbx = Pbx, flow = Flow, js_runtime = JsRuntime}}.
+  {ok, #session{session_id = SessionId, pbx = Pbx, flow = Flow, js_runtime = JsRuntime, call_log = CallLog}}.
 
 %% @private
 handle_call(_Request, _From, State) ->
@@ -36,7 +46,8 @@ handle_info(Info, State) ->
   {noreply, State}.
 
 %% @private
-terminate(_Reason, _State) ->
+terminate(_Reason, #session{call_log = CallLog}) ->
+  call_log:update(CallLog#call_log{state = "completed", finished_at = calendar:universal_time()}),
   ok.
 
 %% @private
