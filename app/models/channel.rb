@@ -67,9 +67,9 @@ class Channel < ActiveRecord::Base
 
     begin
       if queued_call.not_before?
-        BrokerClient.notify_call_queued id, queued_call.not_before
+        # BrokerClient.notify_call_queued id, queued_call.not_before
       else
-        BrokerClient.notify_call_queued id
+        # BrokerClient.notify_call_queued id
       end
     rescue Exception => ex
       call_log.finish_with_error ex.message
@@ -82,18 +82,31 @@ class Channel < ActiveRecord::Base
   def enqueue_call_to address, options
     via = options.fetch(:via, 'API')
 
-    current_call_flow = (CallFlow.find(options[:call_flow_id].presence) rescue nil) || call_flow
-    flow = options[:flow] || current_call_flow.commands
-    project_id = options[:project_id].presence || (CallFlow.find(options[:call_flow_id].presence) rescue nil).try(:project).try(:id) || call_flow.project.id
+    if options[:call_flow_id]
+      current_call_flow = account.call_flows.find(options[:call_flow_id])
+    elsif options[:flow]
+      flow = options[:flow]
+    elsif options[:callback_url]
+      callback_url = options[:callback_url]
+    else
+      current_call_flow = call_flow
+    end
 
-    project = Project.find(project_id)
+    if current_call_flow
+      project = current_call_flow.project
+    elsif options[:project_id]
+      project = account.projects.find(options[:project_id])
+    else
+      project = self.project
+    end
+
     schedule = options.has_key?(:schedule_id) ? project.schedules.find(options[:schedule_id]) : nil
     schedule ||= options.has_key?(:schedule) ? project.schedules.find_by_name!(options[:schedule]) : nil
 
     time_zone = nil
     not_before = nil
     if options[:not_before].nil? || options[:not_before].is_a?(String)
-      time_zone = options[:time_zone].blank? ? ActiveSupport::TimeZone.new(current_call_flow.project.time_zone || 'UTC') : (ActiveSupport::TimeZone.new(options[:time_zone]) or raise "Time zone #{options[:time_zone]} not supported")
+      time_zone = options[:time_zone].blank? ? ActiveSupport::TimeZone.new(project.time_zone || 'UTC') : (ActiveSupport::TimeZone.new(options[:time_zone]) or raise "Time zone #{options[:time_zone]} not supported")
       not_before = time_zone.parse(options[:not_before]) if options[:not_before].present?
     else
       not_before = options[:not_before]
@@ -104,7 +117,16 @@ class Channel < ActiveRecord::Base
     if session_id
       call_log = nil
     else
-      call_log = call_logs.new :direction => :outgoing, :call_flow_id => current_call_flow.id, :project_id => project_id, :address => address, :state => :queued, :schedule => schedule, :not_before => not_before
+      call_log = call_logs.new(
+        :account => account,
+        :direction => :outgoing,
+        :call_flow => current_call_flow,
+        :project => project,
+        :address => address,
+        :state => :queued,
+        :schedule => schedule,
+        :not_before => not_before
+      )
       call_log.info "Received via #{via}: call #{address}"
       call_log.save!
     end
@@ -119,13 +141,13 @@ class Channel < ActiveRecord::Base
     queued_call = queued_calls.new(
       :call_log => call_log,
       :address => address,
-      :callback_url => options[:callback_url],
+      :callback_url => callback_url,
       :status_callback_url => options[:status_callback_url],
       :flow => flow,
       :not_before => not_before,
       :schedule => schedule,
-      :call_flow_id => current_call_flow.id,
-      :project_id => project_id,
+      :call_flow => current_call_flow,
+      :project => project,
       :time_zone => time_zone.try(:name),
       :variables => variables,
       :session_id => session_id,
@@ -217,7 +239,7 @@ class Channel < ActiveRecord::Base
   def as_json(options = {})
     options = { only: [:name, :config] }.merge(options)
     super(options).merge({
-      kind: kind.try(:downcase), 
+      kind: kind.try(:downcase),
       call_flow: call_flow.try(:name)
     })
   end
