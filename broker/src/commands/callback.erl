@@ -2,7 +2,8 @@
 -export([run/2]).
 -include("session.hrl").
 
-run(Args, #session{session_id = SessionId, js_context = JS}) ->
+run(Args, #session{session_id = SessionId, js_context = JS, call_log = CallLog}) ->
+  CallLog:info("Callback started", [{command, "callback"}, {action, "start"}]),
   Url = proplists:get_value(url, Args, "http://localhost:4567/"),
   Params = proplists:get_value(params, Args, []),
   QueryString = prepare_params(Params, "CallSid=" ++ erlang:ref_to_list(SessionId), JS),
@@ -10,6 +11,8 @@ run(Args, #session{session_id = SessionId, js_context = JS}) ->
   Response = httpc:request(post, {Url, [], "application/x-www-form-urlencoded", QueryString}, [], []),
 
   {ok, {_StatusLine, _Headers, Body}} = Response,
+
+  CallLog:trace(["Callback returned: ", Body], [{command, "callback"}, {action, "return"}]),
 
   Commands = twiml:parse(Body),
   io:format("~p~n", [Commands]),
