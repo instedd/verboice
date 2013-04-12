@@ -25,9 +25,9 @@ start_link() ->
 
 init([]) ->
     {ok, { {one_for_one, 5, 10}, [
-      ?CHILD(asterisk_sup, supervisor),
-      ?CHILD(session_sup, supervisor),
       {mysql, {mysql, start_link, [db, "localhost", undefined, "root", "", "verboice_development", undefined, utf8]},
-        permanent, 5000, worker, [mysql]}
+        permanent, 5000, worker, [mysql]},
+      ?CHILD(asterisk_sup, supervisor),
+      ?CHILD(session_sup, supervisor)
     ]} }.
 

@@ -18,7 +18,7 @@ find_channel(PeerIp, SipTo) ->
 
 %% @private
 init({}) ->
-  spawn_link(fun() -> timer:sleep(2000), generate_config() end),
+  spawn_link(fun() -> generate_config() end),
   {ok, #state{channels = dict:new()}}.
 
 %% @private
