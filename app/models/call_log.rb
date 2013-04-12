@@ -31,7 +31,6 @@ class CallLog < ActiveRecord::Base
   validates_presence_of :account
   validates_presence_of :project
   validates_presence_of :channel
-  validates_presence_of :call_flow
 
   def state
     read_attribute(:state).try(:to_sym)

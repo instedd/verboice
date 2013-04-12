@@ -81,6 +81,7 @@ describe Channel do
 
         channel.call 'foo', :callback_url => 'bar'
         queued_call.callback_url.should == 'bar'
+        queued_call.call_flow.should be_nil
       end
 
       it "call with custom flow" do

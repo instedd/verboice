@@ -17,6 +17,16 @@
 module Api
   class ChannelsController < ApiController
 
+    def get
+      channel = current_account.channels.find_by_name params[:name]
+
+      if channel.present?
+        render :json => channel
+      else
+        head :not_found
+      end
+    end
+
     def create
       data = request.raw_post
       data = JSON.parse(data).with_indifferent_access
@@ -30,18 +40,38 @@ module Api
       end
     end
 
+    def update
+      channel = current_account.channels.find_by_name params[:name]
+
+      if channel.present?
+        data = request.raw_post
+        data = JSON.parse(data).with_indifferent_access
+        channel.from_json data
+        if channel.save
+          render :json => channel
+        else
+          render :json => errors_to_json(channel, 'updating')
+        end
+      else
+        head :not_found
+      end
+    end
+
     def destroy
-      chan = current_account.channels.find_by_name params[:name]
+      channel = current_account.channels.find_by_name params[:name]
 
-      return head :not_found unless chan
-
-      chan.destroy
-      head :ok
+      if channel.present?
+        channel.destroy
+        head :ok
+      else
+        head :not_found
+      end
     end
 
     def list
-      channel_names = current_account.channels.map &:name
+      channel_names = current_account.channels.map(&:name)
       render :json => channel_names
     end
+
   end
 end
