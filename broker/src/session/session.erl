@@ -1,5 +1,5 @@
 -module(session).
--export([start_link/4]).
+-export([start_link/4, stop/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -7,7 +7,10 @@
 -include("db.hrl").
 
 start_link(SessionId, Pbx, ChannelId, JsRuntime) ->
-  gen_server:start_link(?MODULE, {SessionId, Pbx, ChannelId, JsRuntime}, []).
+  gen_server:start_link({global, SessionId}, ?MODULE, {SessionId, Pbx, ChannelId, JsRuntime}, []).
+
+stop(SessionId) ->
+  gen_server:cast({global, SessionId}, stop).
 
 %% @private
 init({SessionId, Pbx, ChannelId, JsRuntime}) ->
@@ -34,13 +37,17 @@ handle_call(_Request, _From, State) ->
 %% @private
 handle_cast(run, State) ->
   io:format("Starting!~n"),
-  Pid = spawn_link(fun() -> run(State) end),
-  monitor(process, Pid),
-  {noreply, State}.
+  spawn_monitor(fun() -> run(State) end),
+  {noreply, State};
+
+handle_cast(stop, State) ->
+  {stop, normal, State}.
 
 %% @private
 handle_info({'DOWN', _Ref, process, _Pid, _}, State) ->
+  io:format("DOWN!!!!!~n"),
   {stop, normal, State};
+
 handle_info(Info, State) ->
   io:format("~p~n", [Info]),
   {noreply, State}.

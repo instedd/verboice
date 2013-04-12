@@ -32,7 +32,7 @@ handle_call({start, Pbx, ChannelId}, _From, State) ->
   end;
 
 handle_call({stop, SessionId}, _From, State) ->
-  supervisor:terminate_child(session_sup, SessionId),
+  session:stop(SessionId),
   {reply, ok, State}.
 
 
