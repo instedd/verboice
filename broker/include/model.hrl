@@ -1,5 +1,5 @@
 -include("db.hrl").
--export([create/0, create/1, find/1, find_all/1, update/1, delete/1]).
+-export([create/0, create/1, find/1, find_all/0, find_all/1, find_all/2, update/1, delete/1]).
 
 -ifndef(MAP).
 -define(MAP(Record), Record).
@@ -17,12 +17,16 @@ find(Id) when is_number(Id) ->
   find({id, Id});
 
 find(Criteria) ->
-  Row = db:select_one(select_query(Criteria)),
+  Row = db:select_one(iolist_to_binary(select_query(Criteria, []))),
   Record = list_to_tuple([?MODULE | Row]),
   ?MAP(Record).
 
-find_all(Criteria) ->
-  Rows = db:select(select_query(Criteria)),
+find_all() -> find_all([], []).
+
+find_all(Criteria) -> find_all(Criteria, []).
+
+find_all(Criteria, Options) ->
+  Rows = db:select(iolist_to_binary(select_query(Criteria, Options))),
   lists:map(fun(Row) ->
     Record = list_to_tuple([?MODULE | Row]),
     ?MAP(Record)
@@ -53,25 +57,45 @@ insert_values(Record, Index, Count) when Index =:= Count ->
 insert_values(Record, Index, Count) ->
   [mysql:encode(element(Index, Record)), ", " | insert_values(Record, Index + 1, Count)].
 
-select_query(Criteria) ->
-  ["SELECT " | select_fields(Criteria, record_info(fields, ?MODULE))].
+select_query(Criteria, Options) ->
+  ["SELECT " | select_fields(Criteria, Options, record_info(fields, ?MODULE))].
 
-select_fields(Criteria, [Field]) ->
-  [atom_to_list(Field), " FROM ", ?TABLE_NAME, " WHERE " | select_criteria(Criteria)];
-select_fields(Criteria, [Field | Rest]) ->
-  [atom_to_list(Field), ", " | select_fields(Criteria, Rest)].
+select_fields(Criteria, Options, [Field]) ->
+  [atom_to_list(Field), " FROM ", ?TABLE_NAME | select_criteria(Criteria, Options)];
+select_fields(Criteria, Options, [Field | Rest]) ->
+  [atom_to_list(Field), ", " | select_fields(Criteria, Options, Rest)].
 
-select_criteria({Field, Value}) ->
-  [atom_to_list(Field), " = ", mysql:encode(Value)];
+select_criteria([], Options) -> select_options(Options);
+select_criteria(Criteria, Options) ->
+  [" WHERE ", select_criteria(Criteria) | select_options(Options)].
 
 select_criteria({Field, in, Values}) ->
   [atom_to_list(Field), " IN (", value_list(Values), ")"];
+
+select_criteria({C1, 'or', C2}) ->
+  ["(", select_criteria(C1), " OR ", select_criteria(C2), ")"];
+
+select_criteria({Field, '<', Value}) ->
+  [atom_to_list(Field), " < ", mysql:encode(Value)];
+
+select_criteria({Field, '<=', Value}) ->
+  [atom_to_list(Field), " <= ", mysql:encode(Value)];
+
+select_criteria({Field, null}) ->
+  [atom_to_list(Field), " IS NULL"];
+
+select_criteria({Field, Value}) ->
+  [atom_to_list(Field), " = ", mysql:encode(Value)];
 
 select_criteria([Filter]) ->
   select_criteria(Filter);
 
 select_criteria([Filter | Rest]) ->
   [select_criteria(Filter), " AND " | select_criteria(Rest)].
+
+select_options([]) -> [];
+select_options([{order_by, Field} | Rest]) ->
+  [" ORDER BY ", atom_to_list(Field) | select_options(Rest)].
 
 update_query(Record) ->
   ["UPDATE ", ?TABLE_NAME, " SET " | update_fields(Record, 2, record_info(fields, ?MODULE))].

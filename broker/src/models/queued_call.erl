@@ -1,0 +1,3 @@
+-module(queued_call).
+-define(TABLE_NAME, "queued_calls").
+-include("model.hrl").
