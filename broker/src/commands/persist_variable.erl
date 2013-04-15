@@ -2,8 +2,8 @@
 -export([run/2]).
 -include("session.hrl").
 
-run(Args, #session{js_context = JS}) ->
+run(Args, Session = #session{js_context = JS}) ->
   Name = proplists:get_value(name, Args),
   Expression = proplists:get_value(expression, Args),
-  _Value = mozjs:eval(JS, binary_to_list(iolist_to_binary(io_lib:format("var_~s = ~s", [Name, Expression])))),
-  next.
+  {_, JS2} = erjs:eval(iolist_to_binary(["var_", Name, " = ", Expression]), JS),
+  {next, Session#session{js_context = JS2}}.

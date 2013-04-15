@@ -2,6 +2,6 @@
 -export([run/1]).
 -include("session.hrl").
 
-run(#session{pbx = Pbx}) ->
+run(Session = #session{pbx = Pbx}) ->
   Pbx:hangup(),
-  next.
+  {next, Session}.

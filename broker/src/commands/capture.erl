@@ -2,24 +2,24 @@
 -export([run/2]).
 -include("session.hrl").
 
-run(Args, #session{pbx = Pbx, js_context = JS, call_log = CallLog}) ->
+run(Args, Session = #session{pbx = Pbx, js_context = JS, call_log = CallLog}) ->
   Min = proplists:get_value(min, Args),
   Max = proplists:get_value(max, Args),
   Timeout = proplists:get_value(timeout, Args, 5),
   FinishOnKey = proplists:get_value(finish_on_key, Args, "#"),
 
   ResourcePath = prepare_resource(Args, Pbx),
-  mozjs:eval(JS, "digits = timeout = finish_key = null"),
+  {_, JS2} = erjs:eval("digits = timeout = finish_key = null", JS),
 
   CallLog:info("Waiting user input", [{command, "capture"}, {action, "waiting"}]),
 
-  case Pbx:capture(ResourcePath, Timeout, FinishOnKey, Min, Max) of
-    finish_key -> mozjs:eval(JS, "finish_key = true");
-    timeout -> mozjs:eval(JS, "timeout = true");
-    short_entry -> mozjs:eval(JS, "finish_key = true");
-    {digits, Digits} -> mozjs:eval(JS, "digits = '" ++ Digits ++ "'")
+  JS3 = case Pbx:capture(ResourcePath, Timeout, FinishOnKey, Min, Max) of
+    finish_key -> erjs_object:set(finish_key, true, JS2);
+    timeout -> erjs_object:set(timeout, true, JS2);
+    short_entry -> erjs_object:set(finish_key, true, JS2);
+    {digits, Digits} -> erjs_object:set(digits, Digits, JS2)
   end,
-  next.
+  {next, Session#session{js_context = JS3}}.
 
 prepare_resource(Args, Pbx) ->
   parepare_localized_resource(Args, Pbx).

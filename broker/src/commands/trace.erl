@@ -2,8 +2,8 @@
 -export([run/2]).
 -include("session.hrl").
 
-run(Args, #session{js_context = JS}) ->
+run(Args, Session = #session{js_context = JS}) ->
   Expression = proplists:get_value(expression, Args),
-  Result = mozjs:eval(JS, Expression),
+  {Result, _} = erjs:eval(Expression, JS),
   io:format("~s~n", [Result]),
-  next.
+  {next, Session}.

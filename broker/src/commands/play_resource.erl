@@ -2,9 +2,9 @@
 -export([run/2]).
 -include("session.hrl").
 
-run(Args, #session{pbx = Pbx}) ->
+run(Args, Session = #session{pbx = Pbx}) ->
   Guid = proplists:get_value(resource_guid, Args),
   FileName = resource:prepare(Guid, Pbx),
   Pbx:play(FileName),
-  next.
+  {next, Session}.
 

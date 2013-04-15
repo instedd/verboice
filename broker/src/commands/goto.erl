@@ -2,5 +2,5 @@
 -export([run/2]).
 -include("session.hrl").
 
-run(N, _Session) ->
-  {goto, N}.
+run(N, Session) ->
+  {{goto, N}, Session}.

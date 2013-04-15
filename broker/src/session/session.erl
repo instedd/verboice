@@ -1,19 +1,19 @@
 -module(session).
--export([start_link/4, stop/1]).
+-export([start_link/3, stop/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -include("session.hrl").
 -include("db.hrl").
 
-start_link(SessionId, Pbx, ChannelId, JsRuntime) ->
-  gen_server:start_link({global, SessionId}, ?MODULE, {SessionId, Pbx, ChannelId, JsRuntime}, []).
+start_link(SessionId, Pbx, ChannelId) ->
+  gen_server:start_link({global, SessionId}, ?MODULE, {SessionId, Pbx, ChannelId}, []).
 
 stop(SessionId) ->
   gen_server:cast({global, SessionId}, stop).
 
 %% @private
-init({SessionId, Pbx, ChannelId, JsRuntime}) ->
+init({SessionId, Pbx, ChannelId}) ->
   Channel = channel:find(ChannelId),
   CallFlow = call_flow:find(Channel#channel.call_flow_id),
   CallLog = call_log:create(#call_log{
@@ -28,7 +28,7 @@ init({SessionId, Pbx, ChannelId, JsRuntime}) ->
   Flow = CallFlow:commands(),
   io:format("~p~n", [Flow]),
 
-  {ok, #session{session_id = SessionId, pbx = Pbx, flow = Flow, js_runtime = JsRuntime, call_log = CallLog}}.
+  {ok, #session{session_id = SessionId, pbx = Pbx, flow = Flow, call_log = CallLog}}.
 
 %% @private
 handle_call(_Request, _From, State) ->
@@ -44,9 +44,9 @@ handle_cast(stop, State) ->
   {stop, normal, State}.
 
 %% @private
-handle_info({'DOWN', _Ref, process, _Pid, _}, State) ->
+handle_info({'DOWN', _Ref, process, _Pid, Reason}, State) ->
   io:format("DOWN!!!!!~n"),
-  {stop, normal, State};
+  {stop, Reason, State};
 
 handle_info(Info, State) ->
   io:format("~p~n", [Info]),
@@ -61,8 +61,8 @@ terminate(_Reason, #session{call_log = CallLog}) ->
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
 
-run(State = #session{pbx = Pbx, js_runtime = JsRuntime}) ->
-  JsContext = mozjs:new_context(JsRuntime),
+run(State = #session{pbx = Pbx}) ->
+  JsContext = erjs_object:new(),
   RunState = State#session{js_context = JsContext},
   try run(RunState, 1) of
     _ -> ok
@@ -75,16 +75,17 @@ run(State = #session{pbx = Pbx, js_runtime = JsRuntime}) ->
 run(#session{flow = Flow}, Ptr) when Ptr > length(Flow) -> finish;
 run(State = #session{flow = Flow}, Ptr) ->
   Command = lists:nth(Ptr, Flow),
-  case eval(Command, State) of
+  {Action, NewState} = eval(Command, State),
+  case Action of
     next ->
-      run(State, Ptr + 1);
+      run(NewState, Ptr + 1);
     {goto, N} ->
-      run(State, N + 1);
+      run(NewState, N + 1);
     {exec, NewFlow} ->
-      run(State#session{flow = NewFlow}, 1);
+      run(NewState#session{flow = NewFlow}, 1);
     finish -> finish
   end.
 
-eval(stop, _) -> finish;
+eval(stop, State) -> {finish, State};
 eval([Command, Args], State) -> Command:run(Args, State);
 eval(Command, State) -> Command:run(State).
