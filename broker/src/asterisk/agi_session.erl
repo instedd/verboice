@@ -32,7 +32,7 @@ hangup(Pid) ->
   ok.
 
 stream_file(Pid, File, EscapeDigits) ->
-  case gen_server:call(Pid, {execute, ["STREAM FILE \"", File, "\" \"", EscapeDigits, "\""]}) of
+  case gen_server:call(Pid, {execute, ["STREAM FILE \"", File, "\" \"", EscapeDigits, "\""]}, infinity) of
     hangup -> hangup;
     #response{result = "-1", endpos = EndPos} -> {hangup, EndPos};
     #response{result = "0", endpos = "0"} -> error;
@@ -41,7 +41,7 @@ stream_file(Pid, File, EscapeDigits) ->
   end.
 
 wait_for_digit(Pid, Timeout) ->
-  case gen_server:call(Pid, {execute, ["WAIT FOR DIGIT ", integer_to_list(Timeout)]}) of
+  case gen_server:call(Pid, {execute, ["WAIT FOR DIGIT ", integer_to_list(Timeout)]}, Timeout + 1000) of
     hangup -> hangup;
     #response{result = "-1"} -> error;
     #response{result = "0"} -> timeout;
