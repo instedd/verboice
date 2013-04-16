@@ -67,7 +67,8 @@ run(State = #session{pbx = Pbx}) ->
   try run(RunState, 1) of
     _ -> ok
   catch
-    hangup -> hangup
+    hangup -> hangup;
+    A:Err -> io:format("ERROR: ~p~p~p~n", [A, Err, erlang:get_stacktrace()])
   after
     Pbx:terminate()
   end.

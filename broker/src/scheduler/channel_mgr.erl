@@ -7,26 +7,36 @@
 -define(SERVER, ?MODULE).
 -include("db.hrl").
 
+-record(state, {channel_queues}).
+
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
+
+get_channel_queue(ChannelId) ->
+  gen_server:call(?SERVER, {get_channel_queue, ChannelId}).
 
 %% @private
 init({}) ->
   gen_server:cast(?SERVER, load_channels),
-  {ok, undefined}.
+  {ok, #state{channel_queues = dict:new()}}.
 
 %% @private
+handle_call({get_channel_queue, ChannelId}, _From, State = #state{channel_queues = Queues}) ->
+  {ok, Pid} = dict:find(ChannelId, Queues),
+  {reply, Pid, State};
+
 handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast(load_channels, State) ->
+handle_cast(load_channels, State = #state{channel_queues = Queues}) ->
   Channels = channel:find_all(),
-  lists:foreach(fun (Channel = #channel{id = Id}) ->
+  NewQueues = lists:foldl(fun (Channel = #channel{id = Id}, Q) ->
     ChannelSpec = {{channel, Id}, {channel_queue, start_link, [Channel]}, transient, 5000, worker, [channel_queue]},
-    supervisor:start_child(scheduler_sup, ChannelSpec)
-  end, Channels),
-  {noreply, State};
+    {ok, Pid} = supervisor:start_child(scheduler_sup, ChannelSpec),
+    dict:store(Id, Pid, Q)
+  end, Queues, Channels),
+  {noreply, State#state{channel_queues = NewQueues}};
 
 handle_cast(_Msg, State) ->
   {noreply, State}.

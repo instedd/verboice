@@ -3,7 +3,6 @@
   {description, ""},
   {vsn, "1"},
   {registered, []},
-  {included_applications, [eastrisk]},
   {applications, [
                   kernel,
                   stdlib,

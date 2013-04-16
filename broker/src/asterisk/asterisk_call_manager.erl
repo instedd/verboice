@@ -1,8 +1,6 @@
 -module(asterisk_call_manager).
 -behaviour(gen_event).
 
--include_lib("eastrisk/include/agi.hrl").
-
 -export([
   code_change/3,
   handle_call/2,
@@ -17,10 +15,12 @@ handle_call(_, _) -> {error}.
 init(_) -> {ok, dict:new()}.
 terminate(_, _) -> ok.
 
-handle_event({new_channel, Pid, Env}, State) ->
+handle_event({new_session, Pid, Env}, State) ->
   io:format("New call ~p~n", [Env]),
-  {ok, {1, PeerIp}} = agi:get_variable(Pid, "CHANNEL(peerip)"),
-  SipTo = Env#agi_env.dnid,
+  {ok, PeerIp} = agi_session:get_variable(Pid, "CHANNEL(peerip)"),
+  io:format("~p~n", [PeerIp]),
+  {ok, Arg} = agi_session:get_variable(Pid, "session_id"),
+  SipTo = binary_to_list(proplists:get_value(dnid, Env)),
   ChannelId = asterisk_channel_srv:find_channel(PeerIp, SipTo),
   Pbx = asterisk_pbx:new(Pid),
   try session_srv:start(Pbx, ChannelId) of
@@ -28,11 +28,11 @@ handle_event({new_channel, Pid, Env}, State) ->
       monitor(process, Pid),
       {ok, dict:store(Pid, SessionId, State)};
     {error, _Reason} ->
-      agi_channel:close(Pid),
+      agi_session:close(Pid),
       {ok, State}
   catch
     _:_ ->
-      agi_channel:close(Pid),
+      agi_session:close(Pid),
       {ok, State}
   end;
 

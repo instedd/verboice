@@ -1,5 +1,5 @@
 -module(channel).
--export([find_all_sip/0, domain/1, number/1]).
+-export([find_all_sip/0, domain/1, number/1, limit/1, broker/1]).
 -define(TABLE_NAME, "channels").
 
 -define(MAP(Channel),
@@ -24,3 +24,9 @@ domain(#channel{config = Config}) ->
 
 number(#channel{config = Config}) ->
   binary_to_list(proplists:get_value(<<"number">>, Config)).
+
+limit(_) ->
+  1.
+
+broker(_) ->
+  asterisk_broker.

@@ -15,8 +15,8 @@
 %% ===================================================================
 
 start_link() ->
-  application:start(eastrisk),
-  agi_events:add_agi_handler(asterisk_call_manager, nil),
+  % application:start(eastrisk),
+  % agi_events:add_agi_handler(asterisk_call_manager, nil),
   supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 %% ===================================================================
@@ -24,7 +24,11 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, [
+    {ok, { {one_for_all, 5, 10}, [
+      ?CHILD(ami_client, worker),
+      ?CHILD(agi_session_sup, supervisor),
+      ?CHILD(agi_events, worker),
+      ?CHILD(agi_server, worker),
       ?CHILD(asterisk_channel_srv, worker)
     ]} }.
 

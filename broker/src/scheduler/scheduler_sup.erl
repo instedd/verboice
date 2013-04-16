@@ -13,6 +13,7 @@ start_link() ->
 %% @private
 init({}) ->
   Children = [
+    ?CHILD(asterisk_broker, worker),
     ?CHILD(channel_mgr, worker),
     ?CHILD(scheduler, worker)
   ],

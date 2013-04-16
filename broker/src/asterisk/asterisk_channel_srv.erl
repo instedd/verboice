@@ -18,6 +18,7 @@ find_channel(PeerIp, SipTo) ->
 
 %% @private
 init({}) ->
+  agi_events:add_handler(asterisk_call_manager, []),
   spawn_link(fun() -> generate_config() end),
   {ok, #state{channels = dict:new()}}.
 
