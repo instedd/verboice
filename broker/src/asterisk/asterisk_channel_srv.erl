@@ -7,8 +7,6 @@
 -define(SERVER, ?MODULE).
 
 -record(state, {channels, config_job_state = idle}).
--include_lib("kernel/include/inet.hrl").
--include("db.hrl").
 
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
@@ -39,7 +37,13 @@ handle_call(_Request, _From, State) ->
 handle_cast(regenerate_config, State = #state{config_job_state = JobState}) ->
   NewState = case JobState of
     idle ->
-      spawn_link(fun() -> generate_config() end),
+      spawn_link(fun() ->
+        RegFilePath = "/usr/local/asterisk/etc/asterisk/sip_verboice_registrations.conf",
+        ChannelsFilePath = "/usr/local/asterisk/etc/asterisk/sip_verboice_channels.conf",
+        ChannelRegistry = asterisk_config:generate(RegFilePath, ChannelsFilePath),
+        ami_client:sip_reload(),
+        gen_server:cast(?MODULE, {set_channels, ChannelRegistry})
+      end),
       State#state{config_job_state = working};
     working ->
       State#state{config_job_state = must_regenerate};
@@ -70,70 +74,3 @@ terminate(_Reason, _State) ->
 %% @private
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
-
-
-generate_config() ->
-  Channels = channel:find_all_sip(),
-  ChannelRegistry = generate_config(Channels, dict:new(), dict:new()),
-  gen_server:cast(?MODULE, {set_channels, ChannelRegistry}).
-
-generate_config([], _ResolvCache, ChannelRegistry) -> ChannelRegistry;
-generate_config([Channel | Rest], ResolvCache, ChannelRegistry) ->
-  NewRegistry = case channel:domain(Channel) of
-    <<>> ->
-      NewCache = ResolvCache,
-      ChannelRegistry;
-    Domain ->
-      {Expanded, NewCache} = expand_domain(Domain, ResolvCache),
-      Number = channel:number(Channel),
-      lists:foldl(fun ({_Host, IPs, _Port}, R1) ->
-        lists:foldl(fun (IP, R2) ->
-          dict:store({binary_to_list(IP), Number}, Channel#channel.id, R2)
-        end, R1, IPs)
-      end, ChannelRegistry, Expanded)
-  end,
-  generate_config(Rest, NewCache, NewRegistry).
-
-expand_domain(<<>>, ResolvCache) -> {[], ResolvCache};
-expand_domain(Domain, ResolvCache) ->
-  case dict:find(Domain, ResolvCache) of
-    {ok, Expanded} -> {Expanded, ResolvCache};
-    _ ->
-      case is_ip(Domain) of
-        true -> {[{Domain, [Domain], undefined}], ResolvCache};
-        _ ->
-          Expanded = expand_domain(Domain),
-          NewCache = dict:store(Domain, Expanded, ResolvCache),
-          {Expanded, NewCache}
-      end
-  end.
-
-expand_domain(Domain) ->
-  Query = binary_to_list(iolist_to_binary(["_sip._udp.", Domain])),
-  case inet_res:getbyname(Query, srv) of
-    {ok, #hostent{h_addr_list = AddrList}} ->
-      [
-        case inet_res:gethostbyname(Host) of
-          {ok, #hostent{h_addr_list = IpList}} ->
-            IPs = map_ips(IpList),
-            {Host, IPs, Port};
-          _ -> {Host, [], Port}
-        end
-      || {_, _, Port, Host} <- AddrList];
-    _ ->
-      case inet_res:gethostbyname(Domain) of
-        {ok, #hostent{h_addr_list = IpList}} ->
-          IPs = map_ips(IpList),
-          [{Domain, IPs, undefined}];
-        _ -> [{Domain, [Domain], undefined}]
-      end
-  end.
-
-is_ip(Address) ->
-  case re:run(Address, "^(\\d+\\.){3}\\d+$") of
-    {match, _} -> true;
-    _ -> false
-  end.
-
-map_ips(IpList) ->
-  [iolist_to_binary(io_lib:format("~B.~B.~B.~B", [A,B,C,D])) || {A,B,C,D} <- IpList].

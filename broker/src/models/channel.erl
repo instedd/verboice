@@ -1,5 +1,5 @@
 -module(channel).
--export([find_all_sip/0, domain/1, number/1, limit/1, broker/1]).
+-export([find_all_sip/0, domain/1, number/1, limit/1, broker/1, username/1, password/1, is_outbound/1, register/1]).
 -define(TABLE_NAME, "channels").
 
 -define(MAP(Channel),
@@ -24,6 +24,32 @@ domain(#channel{config = Config}) ->
 
 number(#channel{config = Config}) ->
   binary_to_list(proplists:get_value(<<"number">>, Config)).
+
+username(#channel{config = Config}) ->
+  binary_to_list(proplists:get_value(<<"username">>, Config)).
+
+password(#channel{config = Config}) ->
+  binary_to_list(proplists:get_value(<<"password">>, Config)).
+
+is_outbound(#channel{type = <<"Channels::TemplateBasedSip">>}) ->
+  true;
+
+is_outbound(#channel{config = Config}) ->
+  case proplists:get_value(<<"password">>, Config) of
+    <<"outbound">> -> true;
+    <<"both">> -> true;
+    _ -> false
+  end.
+
+register(#channel{type = <<"Channels::TemplateBasedSip">>}) ->
+  true;
+
+register(#channel{config = Config}) ->
+  case proplists:get_value(<<"register">>, Config) of
+    <<"true">> -> true;
+    <<"1">> -> true;
+    _ -> false
+  end.
 
 limit(_) ->
   1.

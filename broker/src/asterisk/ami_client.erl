@@ -1,5 +1,5 @@
 -module(ami_client).
--export([start_link/0, send_command/2, login/2, originate/1, decode_packet/1]).
+-export([start_link/0, send_command/2, login/2, originate/1, sip_reload/0, decode_packet/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -15,6 +15,9 @@ login(Username, Secret) ->
 
 originate(Parameters) ->
   send_command("Originate", Parameters).
+
+sip_reload() ->
+  send_command("Command", [{command, "sip reload"}]).
 
 send_command(Action, Parameters) ->
   gen_server:call(?SERVER, {send_command, Action, Parameters}).
