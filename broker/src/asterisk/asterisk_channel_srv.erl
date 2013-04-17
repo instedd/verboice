@@ -38,8 +38,9 @@ handle_cast(regenerate_config, State = #state{config_job_state = JobState}) ->
   NewState = case JobState of
     idle ->
       spawn_link(fun() ->
-        RegFilePath = "/usr/local/asterisk/etc/asterisk/sip_verboice_registrations.conf",
-        ChannelsFilePath = "/usr/local/asterisk/etc/asterisk/sip_verboice_channels.conf",
+        {ok, BaseConfigPath} = application:get_env(asterisk_config_dir),
+        RegFilePath = filename:join(BaseConfigPath, "sip_verboice_registrations.conf"),
+        ChannelsFilePath = filename:join(BaseConfigPath, "sip_verboice_channels.conf"),
         ChannelRegistry = asterisk_config:generate(RegFilePath, ChannelsFilePath),
         ami_client:sip_reload(),
         gen_server:cast(?MODULE, {set_channels, ChannelRegistry})
