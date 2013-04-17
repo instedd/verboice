@@ -1,3 +1,5 @@
+.PHONY: deps
+
 all: compile
 
 compile:

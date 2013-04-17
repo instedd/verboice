@@ -67,9 +67,8 @@ handle_call({execute, Cmd}, From, State = #state{sock = Sock}) ->
   gen_tcp:send(Sock, [Cmd | "\n"]),
   {noreply, State#state{caller = From}};
 
-handle_call(close, _From, #state{sock = Sock}) ->
-  gen_tcp:close(Sock),
-  {reply, ok, #state{closed = true}};
+handle_call(close, _From, State = #state{sock = Sock}) ->
+  {stop, normal, ok, State#state{closed = true}};
 
 handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
