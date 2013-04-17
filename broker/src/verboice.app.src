@@ -6,7 +6,9 @@
   {applications, [
                   kernel,
                   stdlib,
-                  inets
+                  inets,
+                  lager,
+                  ernie_server
                  ]},
   {mod, { verboice_app, []}},
   {env, []}
