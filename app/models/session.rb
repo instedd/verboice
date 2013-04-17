@@ -103,7 +103,7 @@ class Session
   end
 
   def status_callback_url
-    @status_callback_url || call_flow.project.try(:status_callback_url)
+    @status_callback_url || project.try(:status_callback_url)
   end
 
   def language
@@ -227,8 +227,8 @@ class Session
 
   def notify_status(status)
     if status_callback_url.present?
-      status_callback_url_user = call_flow.project.status_callback_url_user
-      status_callback_url_password = call_flow.project.status_callback_url_password
+      status_callback_url_user = project.status_callback_url_user
+      status_callback_url_password = project.status_callback_url_password
 
       authentication = if (status_callback_url_user.present? || status_callback_url_password.present?)
         {:head => {'authorization' => [status_callback_url_user, status_callback_url_password]}}
