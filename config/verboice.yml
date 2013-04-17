@@ -1,4 +1,4 @@
-broker_port: 8787
+broker_port: 9999
 ispeech_format: mp3
 asset_host: http://default-domain.com
 default_url_options:

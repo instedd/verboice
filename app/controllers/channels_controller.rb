@@ -22,7 +22,7 @@ class ChannelsController < ApplicationController
   def index
     @channels = current_account.channels.includes(:call_flow).all
     @channel_kinds = Channel.all_leaf_subclasses.map(&:kinds).flatten(1).sort_by{|x| x[0]}
-    @channel_status = {} #BrokerClient.channel_status *@channels.map(&:id)
+    @channel_status = BrokerClient.channel_status @channels.map(&:id)
   end
 
   # GET /channels/1
