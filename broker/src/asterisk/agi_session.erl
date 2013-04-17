@@ -5,6 +5,8 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
+-define(TIMEOUT, 2000).
+
 -record(state, {sock, caller, closed}).
 -record(response, {code, result, parent, endpos}).
 
@@ -55,7 +57,7 @@ init(Sock) ->
       io:format("~p~n", [Params]),
       inet:setopts(Sock, [{active, true}]),
       agi_events:notify_new_session(self(), Params),
-      {ok, #state{sock = Sock}};
+      {ok, #state{sock = Sock}, ?TIMEOUT};
     Error -> {stop, Error}
   end.
 
@@ -67,7 +69,7 @@ handle_call({execute, Cmd}, From, State = #state{sock = Sock}) ->
   gen_tcp:send(Sock, [Cmd | "\n"]),
   {noreply, State#state{caller = From}};
 
-handle_call(close, _From, State = #state{sock = Sock}) ->
+handle_call(close, _From, State) ->
   {stop, normal, ok, State#state{closed = true}};
 
 handle_call(_Request, _From, State) ->
@@ -85,7 +87,10 @@ handle_info({tcp, _, <<"HANGUP", _/binary>>}, State = #state{sock = Sock}) ->
 handle_info({tcp, _, Line}, State = #state{caller = From}) ->
   Response = parse_response(Line),
   gen_server:reply(From, Response),
-  {noreply, State#state{caller = undefined}};
+  {noreply, State#state{caller = undefined}, ?TIMEOUT};
+
+handle_info(timeout, State) ->
+  {stop, timeout, State#state{closed = true}};
 
 handle_info(Info, State) ->
   io:format("Info: ~p~n", [Info]),
