@@ -15,8 +15,6 @@
 %% ===================================================================
 
 start_link() ->
-  % application:start(eastrisk),
-  % agi_events:add_agi_handler(asterisk_call_manager, nil),
   supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 %% ===================================================================
