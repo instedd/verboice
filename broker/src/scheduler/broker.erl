@@ -1,5 +1,5 @@
 -module(broker).
--export([start_link/1, notify/2, dispatch/2]).
+-export([start_link/1, dispatch/2]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -17,10 +17,6 @@ start_link(RealBroker) ->
 init(RealBroker) ->
   {ok, #state{real_broker = RealBroker, ready_channels = sets:new()}}.
 
-notify(Channel, Queue) ->
-  Broker = channel:broker(Channel),
-  gen_server:cast(Broker, {notify, Queue}).
-
 dispatch(Channel, QueuedCall) ->
   Broker = channel:broker(Channel),
   gen_server:call(Broker, {dispatch, Channel, QueuedCall}).
@@ -35,9 +31,9 @@ handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast({notify, Queue}, State = #state{ready_channels = ReadyChannels}) ->
-  channel_queue:dispatch(Queue),
-  {noreply, State#state{ready_channels = sets:add_element(Queue, ReadyChannels)}};
+% handle_cast({notify, Queue}, State = #state{ready_channels = ReadyChannels}) ->
+%   channel_queue:dispatch(Queue),
+%   {noreply, State#state{ready_channels = sets:add_element(Queue, ReadyChannels)}};
 
 handle_cast(_Msg, State) ->
   {noreply, State}.

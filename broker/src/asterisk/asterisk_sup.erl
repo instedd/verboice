@@ -27,6 +27,7 @@ init([]) ->
       ?CHILD(agi_session_sup, supervisor),
       ?CHILD(agi_events, worker),
       ?CHILD(agi_server, worker),
-      ?CHILD(asterisk_channel_srv, worker)
+      ?CHILD(asterisk_channel_srv, worker),
+      ?CHILD(asterisk_broker, worker)
     ]} }.
 

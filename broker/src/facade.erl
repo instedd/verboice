@@ -7,16 +7,16 @@ channel_status(ChannelIds) ->
   Status = [{Id, proplist_to_bert_dict([{ok,true},{messages,[]}])} || Id <- ChannelIds],
   proplist_to_bert_dict(Status).
 
-notify_call_queued(ChannelId) ->
+notify_call_queued(_ChannelId) ->
   ok.
 
-notify_call_queued(ChannelId, NotBefore) ->
+notify_call_queued(_ChannelId, _NotBefore) ->
   ok.
 
-create_channel(Id, Broker) ->
+create_channel(_Id, _Broker) ->
   ok.
 
-destroy_channel(Id, Broker) ->
+destroy_channel(_Id, _Broker) ->
   ok.
 
 proplist_to_bert_dict(List) ->

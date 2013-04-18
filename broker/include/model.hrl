@@ -81,6 +81,12 @@ select_criteria({Field, '<', Value}) ->
 select_criteria({Field, '<=', Value}) ->
   [atom_to_list(Field), " <= ", mysql:encode(Value)];
 
+select_criteria({Field, '>', Value}) ->
+  [atom_to_list(Field), " > ", mysql:encode(Value)];
+
+select_criteria({Field, '>=', Value}) ->
+  [atom_to_list(Field), " >= ", mysql:encode(Value)];
+
 select_criteria({Field, null}) ->
   [atom_to_list(Field), " IS NULL"];
 

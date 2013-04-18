@@ -7,16 +7,18 @@
 -define(QUEUE(ChannelId), {global, {channel, ChannelId}}).
 -include("db.hrl").
 
--record(state, {self, channel, current_calls = 0, max_calls, queued_calls}).
+-record(state, {self, active = true, channel, current_calls = 0, max_calls, queued_calls}).
 
 start_link(Channel = #channel{id = Id}) ->
   gen_server:start_link(?QUEUE(Id), ?MODULE, Channel, []).
 
+%% Enqueue a new ready call. The queue will immediatelly dispatch to broker unless it's busy
 enqueue(QueuedCall = #queued_call{channel_id = ChannelId}) ->
   gen_server:cast(?QUEUE(ChannelId), {enqueue, QueuedCall}).
 
-dispatch(Queue) ->
-  gen_server:cast(Queue, dispatch).
+%% Notify the queue that it can now dispatch ready calls to the broker
+dispatch(ChannelId) ->
+  gen_server:cast(?QUEUE(ChannelId), dispatch).
 
 %% @private
 init(Channel) ->
@@ -27,9 +29,9 @@ handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast({enqueue, QueuedCall}, State = #state{self = Self, channel = Channel, queued_calls = Queue}) ->
-  broker:notify(Channel, Self),
-  {noreply, State#state{queued_calls = queue:in(QueuedCall, Queue)}};
+handle_cast({enqueue, QueuedCall}, State = #state{queued_calls = Queue}) ->
+  Queue2 = queue:in(QueuedCall, Queue),
+  {noreply, do_dispatch(State#state{queued_calls = Queue2})};
 
 handle_cast(dispatch, State) ->
   {noreply, do_dispatch(State)};
@@ -49,6 +51,7 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
 
+do_dispatch(State = #state{active = false}) -> State;
 do_dispatch(State = #state{current_calls = C, max_calls = M}) when C >= M -> State;
 do_dispatch(State = #state{current_calls = C, queued_calls = Q}) ->
   case queue:out(Q) of
