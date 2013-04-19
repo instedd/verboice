@@ -1,6 +1,19 @@
 -module(session).
 -export([start_link/1, new/0, answer/2, answer/3, dial/4, stop/1]).
 
+% FSM Description
+% Possible states: ready, dialing, in_progress, suspended, completed
+% Initial state: ready
+%
+% ready(dial) -> dialing
+% ready(answer) -> in_progress
+% dialing(answer) -> in_progress
+% dialing(error | no_answer | busy) -> failed
+% in_progress(error | hangup) -> failed
+% in_progress(done) -> completed
+% in_progress(suspend) -> suspended
+% suspended(resume) -> in_progress
+
 -behaviour(gen_fsm).
 -export([init/1, handle_event/3, handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).
 -export([ready/2, dialing/2]).
