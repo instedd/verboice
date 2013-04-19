@@ -23,8 +23,14 @@ handle_event({new_session, Pid, Env}, State) ->
     Arg1 when is_binary(Arg1), Arg1 =/= <<>> ->
       % Outgoing call
       SessionId = binary_to_list(Arg1),
-      session:answer(SessionId, Pbx), % TODO: what if session does not exist?
-      {ok, State};
+      case session:find(SessionId) of
+        undefined ->
+          agi_session:close(Pid),
+          {ok, State};
+        SessionPid ->
+          session:answer(SessionPid, Pbx),
+          {ok, dict:store(Pid, SessionPid, State)}
+      end;
 
     _ ->
       % Incoming call
@@ -33,11 +39,11 @@ handle_event({new_session, Pid, Env}, State) ->
       ChannelId = asterisk_channel_srv:find_channel(PeerIp, SipTo),
 
       case session:new() of
-        {ok, SessionId} ->
+        {ok, SessionPid} ->
           io:format("Answering..."),
           monitor(process, Pid), % TODO: let the session monitor the pbx pid
-          session:answer(SessionId, Pbx, ChannelId),
-          {ok, dict:store(Pid, SessionId, State)};
+          session:answer(SessionPid, Pbx, ChannelId),
+          {ok, dict:store(Pid, SessionPid, State)};
         {error, _Reason} ->
           agi_session:close(Pid),
           {ok, State}
@@ -50,8 +56,8 @@ handle_event(Event, State) ->
 
 handle_info({'DOWN', _Ref, process, Pid, _}, State) ->
   case dict:find(Pid, State) of
-    {ok, SessionId} ->
-      session_srv:stop(SessionId),
+    {ok, SessionPid} ->
+      session_srv:stop(SessionPid),
       {ok, dict:erase(Pid, State)};
     _ -> {ok, State}
   end;

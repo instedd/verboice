@@ -1,5 +1,5 @@
 -module(session).
--export([start_link/1, new/0, answer/2, answer/3, dial/4, stop/1]).
+-export([start_link/1, new/0, find/1, answer/2, answer/3, dial/4, stop/1]).
 
 % FSM Description
 % Possible states: ready, dialing, in_progress, suspended, completed
@@ -18,36 +18,33 @@
 -export([init/1, handle_event/3, handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).
 -export([ready/2, dialing/2]).
 
--define(SESSION(Id), {global, Id}).
+-define(SESSION(Id), {session, Id}).
 
 -include("session.hrl").
 -include("db.hrl").
 
 start_link(SessionId) ->
-  gen_fsm:start_link(?SESSION(SessionId), ?MODULE, SessionId, []).
+  gen_fsm:start_link({global, ?SESSION(SessionId)}, ?MODULE, SessionId, []).
 
 new() ->
   SessionId = erlang:ref_to_list(make_ref()),
   SessionSpec = {SessionId, {session, start_link, [SessionId]}, temporary, 5000, worker, [session]},
-  case supervisor:start_child(session_sup, SessionSpec) of
-    {ok, _Pid} ->
-      {ok, SessionId};
-    Error = {error, _} ->
-      Error
-  end.
+  supervisor:start_child(session_sup, SessionSpec).
 
-answer(SessionId, Pbx, ChannelId) ->
-  gen_fsm:send_event(?SESSION(SessionId), {answer, Pbx, ChannelId}).
+find(SessionId) ->
+  global:whereis_name(?SESSION(SessionId)).
 
-answer(SessionId, Pbx) ->
-  io:format("answer(~p, ~p)~n", [SessionId, Pbx]),
-  gen_fsm:send_event(?SESSION(SessionId), {answer, Pbx}).
+answer(SessionPid, Pbx, ChannelId) ->
+  gen_fsm:send_event(SessionPid, {answer, Pbx, ChannelId}).
 
-dial(SessionId, RealBroker, Channel, QueuedCall) ->
-  gen_fsm:send_event(?SESSION(SessionId), {dial, RealBroker, Channel, QueuedCall}).
+answer(SessionPid, Pbx) ->
+  gen_fsm:send_event(SessionPid, {answer, Pbx}).
 
-stop(SessionId) ->
-  gen_fsm:send_all_state_event(?SESSION(SessionId), stop).
+dial(SessionPid, RealBroker, Channel, QueuedCall) ->
+  gen_fsm:send_event(SessionPid, {dial, RealBroker, Channel, QueuedCall}).
+
+stop(SessionPid) ->
+  gen_fsm:send_all_state_event(SessionPid, stop).
 
 %% @private
 
@@ -113,7 +110,7 @@ handle_info(Info, _StateName, State) ->
   {noreply, State}.
 
 %% @private
-terminate(_Reason, _, #session{call_log = CallLog}) ->
+terminate(_Reason, _, #session{call_log = _CallLog}) ->
   % call_log:update(CallLog#call_log{state = "completed", finished_at = calendar:universal_time()}),
   ok.
 

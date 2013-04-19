@@ -7,7 +7,7 @@
 -define(QUEUE(ChannelId), {global, {channel, ChannelId}}).
 -include("db.hrl").
 
--record(state, {self, active = true, channel, current_calls = 0, max_calls, queued_calls}).
+-record(state, {self, active = true, channel, current_calls = 0, sessions, max_calls, queued_calls}).
 
 start_link(Channel = #channel{id = Id}) ->
   gen_server:start_link(?QUEUE(Id), ?MODULE, Channel, []).
@@ -22,7 +22,13 @@ dispatch(ChannelId) ->
 
 %% @private
 init(Channel) ->
-  {ok, #state{self = ?QUEUE(Channel#channel.id), channel = Channel, max_calls = Channel:limit(), queued_calls = queue:new()}}.
+  {ok, #state{
+    self = ?QUEUE(Channel#channel.id),
+    channel = Channel,
+    max_calls = Channel:limit(),
+    queued_calls = queue:new(),
+    sessions = ordsets:new()
+  }}.
 
 %% @private
 handle_call(_Request, _From, State) ->
@@ -40,7 +46,18 @@ handle_cast(_Msg, State) ->
   {noreply, State}.
 
 %% @private
-handle_info(_Info, State) ->
+handle_info({'DOWN', _, process, Pid, _}, State = #state{current_calls = C, sessions = Sessions}) ->
+  case ordsets:is_element(Pid, Sessions) of
+    true ->
+      NewSessions = ordsets:del_element(Pid, Sessions),
+      NewState = do_dispatch(State#state{sessions = NewSessions, current_calls = C - 1}),
+      {noreply, NewState};
+    false ->
+      {noreply, State}
+  end;
+
+handle_info(Info, State) ->
+  io:format("Channel queue info: ~p", [Info]),
   {noreply, State}.
 
 %% @private
@@ -53,12 +70,14 @@ code_change(_OldVsn, State, _Extra) ->
 
 do_dispatch(State = #state{active = false}) -> State;
 do_dispatch(State = #state{current_calls = C, max_calls = M}) when C >= M -> State;
-do_dispatch(State = #state{current_calls = C, queued_calls = Q}) ->
+do_dispatch(State = #state{current_calls = C, queued_calls = Q, sessions = S}) ->
   case queue:out(Q) of
     {empty, _} -> State;
     {{value, Call}, Q2} ->
-      io:format("Dispatching ~p~n", [Call]),
-      broker:dispatch(State#state.channel, Call),
-      do_dispatch(State#state{current_calls = C + 1, queued_calls = Q2})
+      Call:delete(),
+      {ok, SessionPid} = broker:dispatch(State#state.channel, Call),
+      monitor(process, SessionPid),
+      NewSessions = ordsets:add_element(SessionPid, S),
+      do_dispatch(State#state{current_calls = C + 1, queued_calls = Q2, sessions = NewSessions})
   end.
 

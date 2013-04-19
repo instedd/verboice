@@ -11,7 +11,6 @@ terminate({?MODULE, Pid}) ->
   agi_session:close(Pid).
 
 answer({?MODULE, Pid}) ->
-  io:format("PID: ~p~n", [Pid]),
   agi_session:answer(Pid).
 
 hangup({?MODULE, Pid}) ->
