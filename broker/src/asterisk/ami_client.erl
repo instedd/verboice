@@ -90,8 +90,7 @@ handle_info({tcp_closed, _}, _State) ->
   gen_server:cast(?SERVER, connect),
   {noreply, #state{connected = false}};
 
-handle_info(Info, State) ->
-  io:format("Info: ~p~n", [Info]),
+handle_info(_Info, State) ->
   {noreply, State}.
 
 %% @private

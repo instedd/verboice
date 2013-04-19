@@ -38,7 +38,5 @@ code_change(_OldVsn, State, _Extra) ->
 
 server(ListenSock) ->
   {ok, Sock} = gen_tcp:accept(ListenSock),
-  % inet:setopts(Sock, [{linger, false, 0}]),
-  io:format("~p~n", [Sock]),
   agi_session_sup:start_session(Sock),
   server(ListenSock).

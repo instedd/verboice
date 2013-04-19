@@ -54,7 +54,6 @@ wait_for_digit(Pid, Timeout) ->
 init(Sock) ->
   case read_params(Sock, []) of
     {ok, Params} ->
-      io:format("~p~n", [Params]),
       inet:setopts(Sock, [{active, true}]),
       agi_events:notify_new_session(self(), Params),
       {ok, #state{sock = Sock}, ?TIMEOUT};
@@ -92,8 +91,7 @@ handle_info({tcp, _, Line}, State = #state{caller = From}) ->
 handle_info(timeout, State) ->
   {stop, timeout, State#state{closed = true}};
 
-handle_info(Info, State) ->
-  io:format("Info: ~p~n", [Info]),
+handle_info(_Info, State) ->
   {noreply, State}.
 
 %% @private

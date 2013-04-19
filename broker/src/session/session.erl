@@ -52,6 +52,7 @@ init(SessionId) ->
   {ok, ready, #session{session_id = SessionId}}.
 
 ready({answer, Pbx, ChannelId}, Session) ->
+  error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),
   Channel = channel:find(ChannelId),
   CallFlow = call_flow:find(Channel#channel.call_flow_id),
   CallLog = call_log:create(#call_log{
@@ -72,6 +73,7 @@ ready({answer, Pbx, ChannelId}, Session) ->
   {next_state, in_progress, NewSession};
 
 ready({dial, RealBroker, Channel, QueuedCall}, Session) ->
+  error_logger:info_msg("Session (~p) dial", [Session#session.session_id]),
   CallLog = call_log:find(QueuedCall#queued_call.call_log_id),
   NewSession = Session#session{
     channel = Channel,
@@ -84,7 +86,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, Session) ->
   {next_state, dialing, NewSession}.
 
 dialing({answer, Pbx}, Session) ->
-  io:format("ANSWER!"),
+  error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),
   CallFlow = call_flow:find(Session#session.queued_call#queued_call.call_flow_id),
   NewSession = Session#session{pbx = Pbx, flow = CallFlow:commands()},
   spawn_monitor(fun() -> run(NewSession) end),
@@ -101,16 +103,16 @@ handle_sync_event(_Event, _From, StateName, Session) ->
   {reply, ok, StateName, Session}.
 
 %% @private
-handle_info({'DOWN', _Ref, process, _Pid, Reason}, _, State) ->
-  io:format("DOWN!!!!!~n"),
-  {stop, Reason, State};
+handle_info({'DOWN', _Ref, process, _Pid, Reason}, _, Session) ->
+  {stop, Reason, Session};
 
 handle_info(Info, _StateName, State) ->
   io:format("~p~n", [Info]),
   {noreply, State}.
 
 %% @private
-terminate(_Reason, _, #session{call_log = _CallLog}) ->
+terminate(_Reason, _, #session{session_id = Id, call_log = _CallLog}) ->
+  error_logger:info_msg("Session (~p) terminated", [Id]),
   % call_log:update(CallLog#call_log{state = "completed", finished_at = calendar:universal_time()}),
   ok.
 

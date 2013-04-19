@@ -56,8 +56,7 @@ handle_info({'DOWN', _, process, Pid, _}, State = #state{current_calls = C, sess
       {noreply, State}
   end;
 
-handle_info(Info, State) ->
-  io:format("Channel queue info: ~p", [Info]),
+handle_info(_Info, State) ->
   {noreply, State}.
 
 %% @private

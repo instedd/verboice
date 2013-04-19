@@ -16,5 +16,4 @@ dispatch(Session = #session{session_id = SessionId}) ->
     {data, "agi://localhost:6666," ++ SessionId},
     {async, true},
     {actionid, SessionId}
-  ]),
-  io:format("~p~n", [Address]).
+  ]).

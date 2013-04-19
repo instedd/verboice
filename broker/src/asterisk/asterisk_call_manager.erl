@@ -50,8 +50,7 @@ handle_event({new_session, Pid, Env}, State) ->
       end
   end;
 
-handle_event(Event, State) ->
-  io:format("Unhandled event: ~p~n", Event),
+handle_event(_Event, State) ->
   {ok, State}.
 
 handle_info({'DOWN', _Ref, process, Pid, _}, State) ->
