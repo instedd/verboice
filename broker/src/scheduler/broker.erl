@@ -23,8 +23,8 @@ dispatch(Channel, QueuedCall) ->
 
 %% @private
 handle_call({dispatch, Channel, QueuedCall}, _From, State = #state{real_broker = RealBroker}) ->
-  Session = #session{channel = Channel, address = QueuedCall#queued_call.address, session_id = make_ref()},
-  RealBroker:dispatch(Session),
+  {ok, SessionId} = session:new(),
+  session:dial(SessionId, RealBroker, Channel, QueuedCall),
   {reply, ok, State};
 
 handle_call(_Request, _From, State) ->

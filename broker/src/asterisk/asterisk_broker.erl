@@ -13,8 +13,8 @@ dispatch(Session = #session{session_id = SessionId}) ->
   ami_client:originate([
     {channel, Address},
     {application, "AGI"},
-    {data, "agi://localhost:6666," ++ erlang:ref_to_list(SessionId)},
+    {data, "agi://localhost:6666," ++ SessionId},
     {async, true},
-    {actionid, erlang:ref_to_list(SessionId)}
+    {actionid, SessionId}
   ]),
   io:format("~p~n", [Address]).

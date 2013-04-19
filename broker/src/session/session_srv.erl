@@ -1,8 +1,4 @@
 -module(session_srv).
-% -export([
-%   start/0,
-%   next/1
-% ]).
 -export([start/2, stop/1]).
 -export([start_link/0]).
 

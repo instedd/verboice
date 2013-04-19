@@ -17,29 +17,36 @@ terminate(_, _) -> ok.
 
 handle_event({new_session, Pid, Env}, State) ->
   io:format("New call ~p~n", [Env]),
-  {ok, PeerIp} = agi_session:get_variable(Pid, "CHANNEL(peerip)"),
-  io:format("~p~n", [PeerIp]),
-  {ok, Arg} = agi_session:get_variable(Pid, "session_id"),
-  SipTo = binary_to_list(proplists:get_value(dnid, Env)),
-  ChannelId = asterisk_channel_srv:find_channel(PeerIp, SipTo),
   Pbx = asterisk_pbx:new(Pid),
-  try session_srv:start(Pbx, ChannelId) of
-    {ok, SessionId} ->
-      monitor(process, Pid),
-      {ok, dict:store(Pid, SessionId, State)};
-    {error, _Reason} ->
-      agi_session:close(Pid),
-      {ok, State}
-  catch
-    _:_ ->
-      agi_session:close(Pid),
-      {ok, State}
+
+  case proplists:get_value(arg_1, Env) of
+    Arg1 when is_binary(Arg1), Arg1 =/= <<>> ->
+      % Outgoing call
+      SessionId = binary_to_list(Arg1),
+      session:answer(SessionId, Pbx), % TODO: what if session does not exist?
+      {ok, State};
+
+    _ ->
+      % Incoming call
+      {ok, PeerIp} = agi_session:get_variable(Pid, "CHANNEL(peerip)"),
+      SipTo = binary_to_list(proplists:get_value(dnid, Env)),
+      ChannelId = asterisk_channel_srv:find_channel(PeerIp, SipTo),
+
+      case session:new() of
+        {ok, SessionId} ->
+          io:format("Answering..."),
+          monitor(process, Pid), % TODO: let the session monitor the pbx pid
+          session:answer(SessionId, Pbx, ChannelId),
+          {ok, dict:store(Pid, SessionId, State)};
+        {error, _Reason} ->
+          agi_session:close(Pid),
+          {ok, State}
+      end
   end;
 
 handle_event(Event, State) ->
   io:format("Unhandled event: ~p~n", Event),
   {ok, State}.
-
 
 handle_info({'DOWN', _Ref, process, Pid, _}, State) ->
   case dict:find(Pid, State) of
@@ -51,6 +58,4 @@ handle_info({'DOWN', _Ref, process, Pid, _}, State) ->
 
 handle_info(_, State) ->
   {ok, State}.
-
-
 
