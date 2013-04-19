@@ -79,7 +79,8 @@ handle_info({tcp, _, <<"\r\n">>}, State = #state{state = receiving, reply_queue 
         _ ->
           {noreply, State#state{state = waiting, packet = undefined}}
       end;
-    _ ->
+    {event, Event, Data} ->
+      ami_events:notify_event({Event, Data}),
       {noreply, State#state{state = waiting, packet = undefined}}
   end;
 

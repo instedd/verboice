@@ -1,11 +1,16 @@
 -module(asterisk_broker).
--export([start_link/0, dispatch/1]).
+-export([start_link/0, init/0, dispatch/1]).
+
+-behaviour(broker).
 
 -include("session.hrl").
 -include("db.hrl").
 
 start_link() ->
   broker:start_link(?MODULE).
+
+init() ->
+  ami_events:add_handler(asterisk_event_handler, []).
 
 dispatch(Session = #session{session_id = SessionId}) ->
   ChannelId = integer_to_list(Session#session.channel#channel.id),

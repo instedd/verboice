@@ -24,6 +24,7 @@ start_link() ->
 init([]) ->
     {ok, { {one_for_all, 5, 10}, [
       ?CHILD(ami_client, worker),
+      ?CHILD(ami_events, worker),
       ?CHILD(agi_session_sup, supervisor),
       ?CHILD(agi_events, worker),
       ?CHILD(agi_server, worker),

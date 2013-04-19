@@ -1,5 +1,5 @@
 -module(session).
--export([start_link/1, new/0, find/1, answer/2, answer/3, dial/4, stop/1]).
+-export([start_link/1, new/0, find/1, answer/2, answer/3, dial/4, reject/2, stop/1]).
 
 % FSM Description
 % Possible states: ready, dialing, in_progress, suspended, completed
@@ -16,7 +16,7 @@
 
 -behaviour(gen_fsm).
 -export([init/1, handle_event/3, handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).
--export([ready/2, dialing/2]).
+-export([ready/2, dialing/2, in_progress/2]).
 
 -define(SESSION(Id), {session, Id}).
 
@@ -42,6 +42,9 @@ answer(SessionPid, Pbx) ->
 
 dial(SessionPid, RealBroker, Channel, QueuedCall) ->
   gen_fsm:send_event(SessionPid, {dial, RealBroker, Channel, QueuedCall}).
+
+reject(SessionPid, Reason) ->
+  gen_fsm:send_event(SessionPid, {reject, Reason}).
 
 stop(SessionPid) ->
   gen_fsm:send_all_state_event(SessionPid, stop).
@@ -93,8 +96,16 @@ dialing({answer, Pbx}, Session) ->
 
   {next_state, in_progress, NewSession};
 
+dialing({reject, Reason}, Session = #session{session_id = SessionId}) ->
+  error_logger:info_msg("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
+  {stop, normal, Session};
+
 dialing(timeout, Session) ->
   {stop, timeout, Session}.
+
+in_progress(done, Session = #session{call_log = CallLog}) ->
+  NewCallLog = call_log:update(CallLog#call_log{state = "completed", finished_at = calendar:universal_time()}),
+  {stop, normal, Session#session{call_log = NewCallLog}}.
 
 handle_event(stop, _, Session) ->
   {stop, normal, Session}.
@@ -111,9 +122,8 @@ handle_info(Info, _StateName, State) ->
   {noreply, State}.
 
 %% @private
-terminate(_Reason, _, #session{session_id = Id, call_log = _CallLog}) ->
+terminate(_Reason, _, #session{session_id = Id}) ->
   error_logger:info_msg("Session (~p) terminated", [Id]),
-  % call_log:update(CallLog#call_log{state = "completed", finished_at = calendar:universal_time()}),
   ok.
 
 %% @private
@@ -124,7 +134,8 @@ run(State = #session{pbx = Pbx}) ->
   JsContext = erjs_object:new(),
   RunState = State#session{js_context = JsContext},
   try run(RunState, 1) of
-    _ -> ok
+    _ ->
+      gen_fsm:send_event({global, ?SESSION(State#session.session_id)}, done)
   catch
     hangup -> hangup;
     A:Err -> io:format("ERROR: ~p~p~p~n", [A, Err, erlang:get_stacktrace()])

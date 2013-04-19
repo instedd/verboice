@@ -1,5 +1,5 @@
 -module(broker).
--export([start_link/1, dispatch/2]).
+-export([start_link/1, dispatch/2, behaviour_info/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -13,8 +13,12 @@
 start_link(RealBroker) ->
   gen_server:start_link({local, RealBroker}, ?MODULE, RealBroker, []).
 
+behaviour_info(callbacks) -> [{init, 0}, {dispatch, 1}];
+behaviour_info(_) -> undefined.
+
 %% @private
 init(RealBroker) ->
+  RealBroker:init(),
   {ok, #state{real_broker = RealBroker, ready_channels = sets:new()}}.
 
 dispatch(Channel, QueuedCall) ->
