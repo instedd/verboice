@@ -16,7 +16,7 @@
 
 -behaviour(gen_fsm).
 -export([init/1, handle_event/3, handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).
--export([ready/2, dialing/2, in_progress/2]).
+-export([ready/2, ready/3, dialing/2, in_progress/2]).
 
 -define(SESSION(Id), {session, Id}).
 
@@ -41,7 +41,7 @@ answer(SessionPid, Pbx) ->
   gen_fsm:send_event(SessionPid, {answer, Pbx}).
 
 dial(SessionPid, RealBroker, Channel, QueuedCall) ->
-  gen_fsm:send_event(SessionPid, {dial, RealBroker, Channel, QueuedCall}).
+  gen_fsm:sync_send_event(SessionPid, {dial, RealBroker, Channel, QueuedCall}).
 
 reject(SessionPid, Reason) ->
   gen_fsm:send_event(SessionPid, {reject, Reason}).
@@ -73,9 +73,9 @@ ready({answer, Pbx, ChannelId}, Session) ->
   NewSession = Session#session{pbx = Pbx, flow = Flow, call_log = CallLog},
   spawn_monitor(fun() -> run(NewSession) end),
 
-  {next_state, in_progress, NewSession};
+  {next_state, in_progress, NewSession}.
 
-ready({dial, RealBroker, Channel, QueuedCall}, Session) ->
+ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
   error_logger:info_msg("Session (~p) dial", [Session#session.session_id]),
   CallLog = call_log:find(QueuedCall#queued_call.call_log_id),
   NewSession = Session#session{
@@ -85,8 +85,10 @@ ready({dial, RealBroker, Channel, QueuedCall}, Session) ->
     queued_call = QueuedCall
   },
 
-  RealBroker:dispatch(NewSession),
-  {next_state, dialing, NewSession}.
+  case RealBroker:dispatch(NewSession) of
+    {error, _} -> {stop, normal, unavailable, Session};
+    _ -> {reply, ok, dialing, NewSession}
+  end.
 
 dialing({answer, Pbx}, Session) ->
   error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),

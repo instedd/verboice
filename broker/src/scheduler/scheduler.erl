@@ -36,10 +36,10 @@ handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast(load, State = #state{waiting_calls = WaitingCalls}) ->
-  LoadedCalls = queued_call:find_all([{id, '>', State#state.last_id}], [{order_by, not_before}]),
-  LastId = case LoadedCalls of
-    [] -> 0;
+handle_cast(load, State = #state{last_id = LastId, waiting_calls = WaitingCalls}) ->
+  LoadedCalls = queued_call:find_all([{id, '>', LastId}], [{order_by, not_before}]),
+  NewLastId = case LoadedCalls of
+    [] -> LastId;
     _ -> (lists:max(LoadedCalls))#queued_call.id
   end,
 
@@ -54,7 +54,7 @@ handle_cast(load, State = #state{waiting_calls = WaitingCalls}) ->
     end
   end, WaitingCalls, LoadedCalls),
 
-  {noreply, State#state{last_id = LastId, waiting_calls = WaitingCalls2}};
+  {noreply, State#state{last_id = NewLastId, waiting_calls = WaitingCalls2}};
 
 handle_cast(_Msg, State) ->
   {noreply, State}.

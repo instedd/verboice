@@ -7,7 +7,13 @@ init(_) ->
   {ok, undefined}.
 
 %% @private
+handle_event(connected, State) ->
+  ami_client:login("verboice", "verboice"),
+  timer:apply_after(timer:seconds(5), asterisk_broker, notify_ready, []),
+  {ok, State};
+
 handle_event({originateresponse, Packet}, State) ->
+  io:format("~p~n", [Packet]),
   OriginateResponse = ami_client:decode_packet(Packet),
   case proplists:get_value(response, OriginateResponse) of
     <<"Failure">> ->
@@ -29,7 +35,7 @@ handle_event({originateresponse, Packet}, State) ->
   end,
   {ok, State};
 
-handle_event(Event, State) ->
+handle_event(_Event, State) ->
   % io:format("EVENT: ~p~n", [Event]),
   {ok, State}.
 

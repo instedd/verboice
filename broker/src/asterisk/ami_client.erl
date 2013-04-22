@@ -1,5 +1,5 @@
 -module(ami_client).
--export([start_link/0, send_command/2, login/2, originate/1, sip_reload/0, decode_packet/1]).
+-export([start_link/0, connect/0, send_command/2, login/2, originate/1, sip_reload/0, decode_packet/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -9,6 +9,9 @@
 
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
+
+connect() ->
+  gen_server:cast(?SERVER, connect).
 
 login(Username, Secret) ->
   send_command("Login", [{"Username", Username}, {"Secret", Secret}]).
@@ -31,7 +34,6 @@ decode_packet([Line | Rest], Decoded) ->
 
 %% @private
 init({}) ->
-  gen_server:cast(?SERVER, connect),
   {ok, #state{connected = false}}.
 
 %% @private
@@ -54,10 +56,9 @@ handle_call(_Request, _From, State) ->
 handle_cast(connect, State = #state{connected = false}) ->
   case gen_tcp:connect("localhost", 5038, [binary, {packet, line}], 1000) of
     {ok, Sock} ->
-      spawn(fun() -> ami_client:login("verboice", "verboice") end),
+      ami_events:notify_event(connected),
       {noreply, #state{sock = Sock, connected = true, state = initial, reply_queue = queue:new()}};
-    Err ->
-      io:format("~p~n", [Err]),
+    _ ->
       {ok, _} = timer:apply_after(1000, gen_server, cast, [?SERVER, connect]),
       {noreply, State}
   end;
