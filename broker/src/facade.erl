@@ -8,9 +8,11 @@ channel_status(ChannelIds) ->
   proplist_to_bert_dict(Status).
 
 notify_call_queued(_ChannelId) ->
+  scheduler:load(),
   ok.
 
 notify_call_queued(_ChannelId, _NotBefore) ->
+  scheduler:load(),
   ok.
 
 create_channel(_Id, _Broker) ->

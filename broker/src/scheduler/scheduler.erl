@@ -1,5 +1,5 @@
 -module(scheduler).
--export([start_link/0, dispatch/0]).
+-export([start_link/0, load/0]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -13,12 +13,13 @@
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
 
-dispatch() ->
-  gen_server:cast(?SERVER, dispatch).
+load() ->
+  gen_server:cast(?SERVER, load).
 
 %% @private
 init({}) ->
-  timer:apply_after(1000, ?MODULE, dispatch, []),
+  timer:apply_after(timer:seconds(1), ?MODULE, load, []),
+  timer:send_interval(timer:seconds(10), dispatch),
   {ok, #state{last_id = 0, waiting_calls = ordsets:new()}}.
 
 %% @private
@@ -26,14 +27,14 @@ handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast(dispatch, State) ->
-  QueuedCalls = queued_call:find_all([{id, '>', State#state.last_id}], [{order_by, not_before}]),
-  LastId = case QueuedCalls of
+handle_cast(load, State = #state{waiting_calls = WaitingCalls}) ->
+  LoadedCalls = queued_call:find_all([{id, '>', State#state.last_id}], [{order_by, not_before}]),
+  LastId = case LoadedCalls of
     [] -> 0;
-    _ -> (lists:max(QueuedCalls))#queued_call.id
+    _ -> (lists:max(LoadedCalls))#queued_call.id
   end,
 
-  WaitingCalls = lists:foldl(fun(Call, Queue) ->
+  WaitingCalls2 = lists:foldl(fun(Call, Queue) ->
     case should_trigger(Call) of
       true ->
         channel_queue:enqueue(Call),
@@ -42,14 +43,18 @@ handle_cast(dispatch, State) ->
         {datetime, NotBefore} = Call#queued_call.not_before,
         ordsets:add_element({NotBefore, Call}, Queue)
     end
-  end, State#state.waiting_calls, QueuedCalls),
+  end, WaitingCalls, LoadedCalls),
 
-  {noreply, State#state{last_id = LastId, waiting_calls = WaitingCalls}};
+  {noreply, State#state{last_id = LastId, waiting_calls = WaitingCalls2}};
 
 handle_cast(_Msg, State) ->
   {noreply, State}.
 
 %% @private
+handle_info(dispatch, State = #state{waiting_calls = WaitingCalls}) ->
+  WaitingCalls2 = dispatch(WaitingCalls),
+  {noreply, State#state{waiting_calls = WaitingCalls2}};
+
 handle_info(_Info, State) ->
   {noreply, State}.
 
@@ -61,6 +66,15 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
 
+dispatch([]) -> [];
+dispatch(Queue = [{_, Call} | Rest]) ->
+  case should_trigger(Call) of
+    true ->
+      channel_queue:enqueue(Call),
+      dispatch(Rest);
+    false ->
+      Queue
+  end.
 
 should_trigger(#queued_call{not_before = undefined}) -> true;
 should_trigger(#queued_call{not_before = {datetime, NotBefore}}) ->
