@@ -18,8 +18,17 @@ load() ->
 
 %% @private
 init({}) ->
+  % Initial load after 1 second (wait for channels to start)
+  % TODO: create channel queues on demand so this timer is not neede
   timer:apply_after(timer:seconds(1), ?MODULE, load, []),
+
+  % Load queued calls every 1 minute, just in case the broker misses a notification
+  % about new queued calls.
+  timer:apply_interval(timer:minutes(1), ?MODULE, load, []),
+
+  % Check every 10 seconds for due calls
   timer:send_interval(timer:seconds(10), dispatch),
+
   {ok, #state{last_id = 0, waiting_calls = ordsets:new()}}.
 
 %% @private
