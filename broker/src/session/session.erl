@@ -78,16 +78,19 @@ ready({answer, Pbx, ChannelId}, Session) ->
 ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
   error_logger:info_msg("Session (~p) dial", [Session#session.session_id]),
   CallLog = call_log:find(QueuedCall#queued_call.call_log_id),
+
   NewSession = Session#session{
     channel = Channel,
     address = QueuedCall#queued_call.address,
-    call_log = CallLog,
+    call_log = call_log:update(CallLog#call_log{state = "active"}),
     queued_call = QueuedCall
   },
 
   case RealBroker:dispatch(NewSession) of
     {error, _} -> {stop, normal, unavailable, Session};
-    _ -> {reply, ok, dialing, NewSession}
+    _ ->
+      CallLog:info(["Dialing to ", QueuedCall#queued_call.address, " through channel ", Channel#channel.name], []),
+      {reply, ok, dialing, NewSession}
   end.
 
 dialing({answer, Pbx}, Session) ->
@@ -98,8 +101,9 @@ dialing({answer, Pbx}, Session) ->
 
   {next_state, in_progress, NewSession};
 
-dialing({reject, Reason}, Session = #session{session_id = SessionId}) ->
+dialing({reject, Reason}, Session = #session{session_id = SessionId, call_log = CallLog}) ->
   error_logger:info_msg("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
+  CallLog:error(["Call was rejected. (Reason: ", atom_to_list(Reason),")"], []),
   {stop, normal, Session};
 
 dialing(timeout, Session) ->
@@ -107,6 +111,11 @@ dialing(timeout, Session) ->
 
 in_progress(done, Session = #session{call_log = CallLog}) ->
   NewCallLog = call_log:update(CallLog#call_log{state = "completed", finished_at = calendar:universal_time()}),
+  {stop, normal, Session#session{call_log = NewCallLog}};
+
+in_progress(hangup, Session = #session{call_log = CallLog}) ->
+  CallLog:info("The user hang up", []),
+  NewCallLog = call_log:update(CallLog#call_log{state = "failed", fail_reason = "hangup", finished_at = calendar:universal_time()}),
   {stop, normal, Session#session{call_log = NewCallLog}}.
 
 handle_event(stop, _, Session) ->
@@ -132,14 +141,16 @@ terminate(_Reason, _, #session{session_id = Id}) ->
 code_change(_OldVsn, _StateName, State, _Extra) ->
   {ok, State}.
 
-run(State = #session{pbx = Pbx}) ->
+run(State = #session{pbx = Pbx, session_id = SessionId}) ->
   JsContext = erjs_object:new(),
   RunState = State#session{js_context = JsContext},
   try run(RunState, 1) of
     _ ->
-      gen_fsm:send_event({global, ?SESSION(State#session.session_id)}, done)
+      gen_fsm:send_event({global, ?SESSION(SessionId)}, done)
   catch
-    hangup -> hangup;
+    hangup ->
+      gen_fsm:send_event({global, ?SESSION(SessionId)}, hangup),
+      hangup;
     A:Err -> io:format("ERROR: ~p~p~p~n", [A, Err, erlang:get_stacktrace()])
   after
     Pbx:terminate()

@@ -36,7 +36,7 @@ update(Record = #?MODULE{}) ->
   Now = {datetime, calendar:universal_time()},
   RecordToUpdate = Record#?MODULE{updated_at = Now},
   1 = db:update(update_query(RecordToUpdate)),
-  ok.
+  RecordToUpdate.
 
 delete(Record = #?MODULE{}) ->
   1 = db:update(delete_query(Record)),
