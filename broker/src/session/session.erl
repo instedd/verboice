@@ -71,7 +71,7 @@ ready({answer, Pbx, ChannelId}, Session) ->
   io:format("~p~n", [Flow]),
 
   NewSession = Session#session{pbx = Pbx, flow = Flow, call_log = CallLog},
-  spawn_monitor(fun() -> run(NewSession) end),
+  spawn_run(NewSession),
 
   {next_state, in_progress, NewSession}.
 
@@ -97,7 +97,7 @@ dialing({answer, Pbx}, Session) ->
   error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),
   CallFlow = call_flow:find(Session#session.queued_call#queued_call.call_flow_id),
   NewSession = Session#session{pbx = Pbx, flow = CallFlow:commands()},
-  spawn_monitor(fun() -> run(NewSession) end),
+  spawn_run(NewSession),
 
   {next_state, in_progress, NewSession};
 
@@ -109,13 +109,12 @@ dialing({reject, Reason}, Session = #session{session_id = SessionId, call_log = 
 dialing(timeout, Session) ->
   {stop, timeout, Session}.
 
-in_progress(done, Session = #session{call_log = CallLog}) ->
+in_progress({completed, ok}, Session = #session{call_log = CallLog}) ->
   NewCallLog = call_log:update(CallLog#call_log{state = "completed", finished_at = calendar:universal_time()}),
   {stop, normal, Session#session{call_log = NewCallLog}};
 
-in_progress(hangup, Session = #session{call_log = CallLog}) ->
-  CallLog:info("The user hang up", []),
-  NewCallLog = call_log:update(CallLog#call_log{state = "failed", fail_reason = "hangup", finished_at = calendar:universal_time()}),
+in_progress({completed, {error, Reason}}, Session = #session{call_log = CallLog}) ->
+  NewCallLog = call_log:update(CallLog#call_log{state = "failed", fail_reason = Reason, finished_at = calendar:universal_time()}),
   {stop, normal, Session#session{call_log = NewCallLog}}.
 
 handle_event(stop, _, Session) ->
@@ -141,33 +140,44 @@ terminate(_Reason, _, #session{session_id = Id}) ->
 code_change(_OldVsn, _StateName, State, _Extra) ->
   {ok, State}.
 
-run(State = #session{pbx = Pbx, session_id = SessionId}) ->
+spawn_run(State) ->
+  SessionPid = self(),
+  spawn_monitor(fun() ->
+    {Result, _NewState} = run(State),
+    gen_fsm:send_event(SessionPid, {completed, Result})
+  end).
+
+run(State = #session{pbx = Pbx}) ->
   JsContext = erjs_object:new(),
   RunState = State#session{js_context = JsContext},
   try run(RunState, 1) of
-    _ ->
-      gen_fsm:send_event({global, ?SESSION(SessionId)}, done)
-  catch
-    hangup ->
-      gen_fsm:send_event({global, ?SESSION(SessionId)}, hangup),
-      hangup;
-    A:Err -> io:format("ERROR: ~p~p~p~n", [A, Err, erlang:get_stacktrace()])
+    X -> X
   after
     Pbx:terminate()
   end.
 
-run(#session{flow = Flow}, Ptr) when Ptr > length(Flow) -> finish;
-run(State = #session{flow = Flow}, Ptr) ->
+run(State = #session{flow = Flow}, Ptr) when Ptr > length(Flow) -> {ok, State};
+run(State = #session{flow = Flow, call_log = CallLog}, Ptr) ->
   Command = lists:nth(Ptr, Flow),
-  {Action, NewState} = eval(Command, State),
-  case Action of
-    next ->
-      run(NewState, Ptr + 1);
-    {goto, N} ->
-      run(NewState, N + 1);
-    {exec, NewFlow} ->
-      run(NewState#session{flow = NewFlow}, 1);
-    finish -> finish
+  try eval(Command, State) of
+    {Action, NewState} ->
+      case Action of
+        next ->
+          run(NewState, Ptr + 1);
+        {goto, N} ->
+          run(NewState, N + 1);
+        {exec, NewFlow} ->
+          run(NewState#session{flow = NewFlow}, 1);
+        finish ->
+          {ok, NewState}
+      end
+  catch
+    hangup ->
+      CallLog:info("The user hang up", []),
+      {{error, hangup}, State};
+    Class:Error ->
+      CallLog:error(["Error: ", io_lib:format("~p:~p", [Class, Error])], []),
+      {{error, error}, State}
   end.
 
 eval(stop, State) -> {finish, State};
