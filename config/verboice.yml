@@ -1,6 +1,6 @@
 broker_port: 8787
 ispeech_format: mp3
-asset_host: http://default-domain.com
+asset_host: "http://default-domain.com"
 default_url_options:
-  host: default-domain.com
-  protocol:
+  host: "default-domain.com"
+  protocol: ""
