@@ -176,7 +176,9 @@ run(State = #session{flow = Flow, call_log = CallLog}, Ptr) ->
       CallLog:info("The user hang up", []),
       {{error, hangup}, State};
     Class:Error ->
-      CallLog:error(["Error: ", io_lib:format("~p:~p", [Class, Error])], []),
+      CallLog:error(["Error ", io_lib:format("~p:~p", [Class, Error])], []),
+      error_logger:error_msg("Error during session ~p, call log ~p: ~p:~p~n~p~n",
+        [State#session.session_id, CallLog#call_log.id, Class, Error, erlang:get_stacktrace()]),
       {{error, error}, State}
   end.
 
