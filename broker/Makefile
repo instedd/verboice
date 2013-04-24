@@ -30,6 +30,9 @@ deps:
 	./rebar get-deps
 	./rebar compile
 
+eunit:
+	./rebar eunit skip_deps=true
+
 run:
 	erl -pa ebin/ deps/*/ebin -boot start_sasl -s main -config verboice
 

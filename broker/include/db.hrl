@@ -5,3 +5,4 @@
 -record(call_flow, {id, callback_url, flow, project_id, created_at, updated_at}).
 -record(queued_call, {id, channel_id, call_log_id, address, callback_url, flow, call_flow_id, status_callback_url,
   schedule_id, not_before, retries, project_id, time_zone, variables, session_id, created_at, updated_at}).
+-record(schedule, {id, name, retries, time_from, time_to, weekdays, project_id, created_at, updated_at}).
