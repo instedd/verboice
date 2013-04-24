@@ -115,6 +115,10 @@ in_progress({completed, ok}, Session = #session{call_log = CallLog}) ->
 
 in_progress({completed, {error, Reason}}, Session = #session{call_log = CallLog}) ->
   NewCallLog = call_log:update(CallLog#call_log{state = "failed", fail_reason = Reason, finished_at = calendar:universal_time()}),
+  case Session#session.queued_call of
+    undefined -> ok;
+    QueuedCall -> QueuedCall:reschedule()
+  end,
   {stop, normal, Session#session{call_log = NewCallLog}}.
 
 handle_event(stop, _, Session) ->
