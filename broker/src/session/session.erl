@@ -137,8 +137,8 @@ terminate(_Reason, _, #session{session_id = Id}) ->
   ok.
 
 %% @private
-code_change(_OldVsn, _StateName, State, _Extra) ->
-  {ok, State}.
+code_change(_OldVsn, StateName, State, _Extra) ->
+  {ok, StateName, State}.
 
 spawn_run(State) ->
   SessionPid = self(),

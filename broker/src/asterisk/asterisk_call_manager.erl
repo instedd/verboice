@@ -1,20 +1,13 @@
 -module(asterisk_call_manager).
+
 -behaviour(gen_event).
+-export([init/1, handle_event/2, handle_call/2, handle_info/2, terminate/2, code_change/3]).
 
--export([
-  code_change/3,
-  handle_call/2,
-  handle_event/2,
-  handle_info/2,
-  init/1,
-  terminate/2
-]).
+%% @private
+init(_) ->
+  {ok, dict:new()}.
 
-code_change(_, _, _) -> {error}.
-handle_call(_, _) -> {error}.
-init(_) -> {ok, dict:new()}.
-terminate(_, _) -> ok.
-
+%% @private
 handle_event({new_session, Pid, Env}, State) ->
   io:format("New call ~p~n", [Env]),
   Pbx = asterisk_pbx:new(Pid),
@@ -53,6 +46,11 @@ handle_event({new_session, Pid, Env}, State) ->
 handle_event(_Event, State) ->
   {ok, State}.
 
+%% @private
+handle_call(_Request, _State) ->
+  {remove_handler, {error, unknown_call}}.
+
+%% @private
 handle_info({'DOWN', _Ref, process, Pid, _}, State) ->
   case dict:find(Pid, State) of
     {ok, SessionPid} ->
@@ -64,3 +62,10 @@ handle_info({'DOWN', _Ref, process, Pid, _}, State) ->
 handle_info(_, State) ->
   {ok, State}.
 
+%% @private
+terminate(_Reason, _State) ->
+  ok.
+
+%% @private
+code_change(_OldVsn, State, _Extra) ->
+  {ok, State}.

@@ -12,19 +12,12 @@
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
 
-get_channel_queue(ChannelId) ->
-  gen_server:call(?SERVER, {get_channel_queue, ChannelId}).
-
 %% @private
 init({}) ->
   gen_server:cast(?SERVER, load_channels),
   {ok, #state{channel_queues = dict:new()}}.
 
 %% @private
-handle_call({get_channel_queue, ChannelId}, _From, State = #state{channel_queues = Queues}) ->
-  {ok, Pid} = dict:find(ChannelId, Queues),
-  {reply, Pid, State};
-
 handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
 

@@ -5,8 +5,8 @@
 -include("db.hrl").
 
 generate(RegFilePath, ChannelsFilePath) ->
-  {ok, RegFile} = file:open(RegFilePath, write),
-  try file:open(ChannelsFilePath, write) of
+  {ok, RegFile} = file:open(RegFilePath, [write]),
+  try file:open(ChannelsFilePath, [write]) of
     {ok, ChannelsFile} ->
       try generate_config(RegFile, ChannelsFile) of
         R -> R
@@ -103,14 +103,15 @@ expand_domain(Domain) ->
   Query = binary_to_list(iolist_to_binary(["_sip._udp.", Domain])),
   case inet_res:getbyname(Query, srv) of
     {ok, #hostent{h_addr_list = AddrList}} ->
-      [
-        case inet_res:gethostbyname(Host) of
+      lists:foldl(fun({_, _, Port, Host}, Out) ->
+        New = case inet_res:gethostbyname(Host) of
           {ok, #hostent{h_addr_list = IpList}} ->
             IPs = map_ips(IpList),
             {Host, IPs, Port};
           _ -> {Host, [], Port}
-        end
-      || {_, _, Port, Host} <- AddrList];
+        end,
+        [New | Out]
+      end, [], AddrList);
     _ ->
       case inet_res:gethostbyname(Domain) of
         {ok, #hostent{h_addr_list = IpList}} ->

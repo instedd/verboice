@@ -18,3 +18,4 @@ config/oauth.yml
 broker/deps
 broker/ebin
 broker/.eunit
+broker/*.plt
