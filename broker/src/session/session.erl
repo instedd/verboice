@@ -82,7 +82,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
   NewSession = Session#session{
     channel = Channel,
     address = QueuedCall#queued_call.address,
-    call_log = call_log:update(CallLog#call_log{state = "active"}),
+    call_log = CallLog,
     queued_call = QueuedCall
   },
 
@@ -90,7 +90,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
     {error, _} -> {stop, normal, unavailable, Session};
     _ ->
       CallLog:info(["Dialing to ", QueuedCall#queued_call.address, " through channel ", Channel#channel.name], []),
-      {reply, ok, dialing, NewSession}
+      {reply, ok, dialing, NewSession#session{call_log = call_log:update(CallLog#call_log{state = "active", fail_reason = undefined})}}
   end.
 
 dialing({answer, Pbx}, Session) ->
@@ -104,22 +104,16 @@ dialing({answer, Pbx}, Session) ->
 dialing({reject, Reason}, Session = #session{session_id = SessionId, call_log = CallLog}) ->
   error_logger:info_msg("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
   CallLog:error(["Call was rejected. (Reason: ", atom_to_list(Reason),")"], []),
-  {stop, normal, Session};
+  finalize({failed, Reason}, Session);
 
 dialing(timeout, Session) ->
   {stop, timeout, Session}.
 
-in_progress({completed, ok}, Session = #session{call_log = CallLog}) ->
-  NewCallLog = call_log:update(CallLog#call_log{state = "completed", finished_at = calendar:universal_time()}),
-  {stop, normal, Session#session{call_log = NewCallLog}};
+in_progress({completed, ok}, Session) ->
+  finalize(completed, Session);
 
-in_progress({completed, {error, Reason}}, Session = #session{call_log = CallLog}) ->
-  NewCallLog = call_log:update(CallLog#call_log{state = "failed", fail_reason = Reason, finished_at = calendar:universal_time()}),
-  case Session#session.queued_call of
-    undefined -> ok;
-    QueuedCall -> QueuedCall:reschedule()
-  end,
-  {stop, normal, Session#session{call_log = NewCallLog}}.
+in_progress({completed, {error, Reason}}, Session) ->
+  finalize({failed, Reason}, Session).
 
 handle_event(stop, _, Session) ->
   {stop, normal, Session}.
@@ -136,13 +130,33 @@ handle_info(Info, _StateName, State) ->
   {noreply, State}.
 
 %% @private
-terminate(_Reason, _, #session{session_id = Id}) ->
-  error_logger:info_msg("Session (~p) terminated", [Id]),
+terminate(Reason, _, #session{session_id = Id}) ->
+  error_logger:info_msg("Session (~p) terminated with reason: ~p", [Id, Reason]),
   ok.
 
 %% @private
 code_change(_OldVsn, StateName, State, _Extra) ->
   {ok, StateName, State}.
+
+finalize(completed, Session = #session{call_log = CallLog}) ->
+  NewCallLog = call_log:update(CallLog#call_log{state = "completed", finished_at = calendar:universal_time()}),
+  {stop, normal, Session#session{call_log = NewCallLog}};
+
+finalize({failed, Reason}, Session = #session{call_log = CallLog}) ->
+  NewState = case Session#session.queued_call of
+    undefined -> "failed";
+    QueuedCall ->
+      case QueuedCall:reschedule() of
+        max_retries ->
+          CallLog:error("Max retries exceeded", []),
+          "failed";
+        #queued_call{not_before = NotBefore} ->
+          CallLog:info(["Call rescheduled to start at ", httpd_util:rfc1123_date(calendar:universal_time_to_local_time(NotBefore))], []),
+          "queued"
+      end
+  end,
+  NewCallLog = call_log:update(CallLog#call_log{state = NewState, fail_reason = Reason, finished_at = calendar:universal_time()}),
+  {stop, normal, Session#session{call_log = NewCallLog}}.
 
 spawn_run(State) ->
   SessionPid = self(),

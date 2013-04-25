@@ -6,13 +6,12 @@
 reschedule(#queued_call{schedule_id = undefined}) -> no_schedule;
 reschedule(QueuedCall = #queued_call{schedule_id = ScheduleId}) ->
   Schedule = schedule:find(ScheduleId),
-  NewQueuedCall = reschedule(QueuedCall, Schedule),
-  NewQueuedCall:create().
+  reschedule(QueuedCall, Schedule).
 
 reschedule(_, #schedule{retries = undefined}) -> max_retries;
 reschedule(Q, S) when Q#queued_call.retries >= length(S#schedule.retries) -> max_retries;
 reschedule(Q = #queued_call{retries = Retries}, S) ->
   NextRetryOffset = lists:nth(Retries + 1, S#schedule.retries) * 60 * 60,
   NextRetry = calendar:datetime_to_gregorian_seconds(calendar:universal_time()) + NextRetryOffset,
-  RetryTime = S:next_available_time(calendar:gregorian_seconds_to_datetime(NextRetry)),
-  Q#queued_call{not_before = RetryTime, retries = Retries + 1}.
+  RetryTime = S:next_available_time(calendar:gregorian_seconds_to_datetime(trunc(NextRetry))),
+  queued_call:create(Q#queued_call{not_before = RetryTime, retries = Retries + 1}).
