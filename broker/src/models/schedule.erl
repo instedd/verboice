@@ -47,7 +47,7 @@ next_weekday(AvailableDays, [_ | Rest], WDay) -> next_weekday(AvailableDays, Res
 parse_weekdays(undefined) -> undefined;
 parse_weekdays(<<>>) -> undefined;
 parse_weekdays(Weekdays) ->
-  lists:sort([ruby_to_erlang_weekday(binary_to_integer(X)) || X <- binary:split(Weekdays, <<",">>, [global])]).
+  lists:sort([ruby_to_erlang_weekday(util:binary_to_integer(X)) || X <- binary:split(Weekdays, <<",">>, [global])]).
 
 parse_retries(undefined) -> undefined;
 parse_retries(<<>>) -> undefined;
