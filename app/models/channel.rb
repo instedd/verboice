@@ -72,8 +72,7 @@ class Channel < ActiveRecord::Base
         BrokerClient.notify_call_queued id
       end
     rescue Exception => ex
-      call_log.finish_with_error ex.message
-      queued_call.destroy
+      call_log.warn "Unable to notify the broker about this new call. The call might be delayed"
     end
 
     call_log
