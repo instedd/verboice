@@ -1,0 +1,3 @@
+-module(project).
+-define(TABLE_NAME, "projects").
+-include("model.hrl").

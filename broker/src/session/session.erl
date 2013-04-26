@@ -78,18 +78,21 @@ ready({answer, Pbx, ChannelId}, Session) ->
 ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
   error_logger:info_msg("Session (~p) dial", [Session#session.session_id]),
   CallLog = call_log:find(QueuedCall#queued_call.call_log_id),
+  Project = project:find(QueuedCall#queued_call.project_id),
 
   NewSession = Session#session{
     channel = Channel,
     address = QueuedCall#queued_call.address,
     call_log = CallLog,
-    queued_call = QueuedCall
+    queued_call = QueuedCall,
+    project = Project
   },
 
   case RealBroker:dispatch(NewSession) of
     {error, _} -> {stop, normal, unavailable, Session};
     _ ->
       CallLog:info(["Dialing to ", QueuedCall#queued_call.address, " through channel ", Channel#channel.name], []),
+      notify_status(ringing, NewSession),
       {reply, ok, dialing, NewSession#session{call_log = call_log:update(CallLog#call_log{state = "active", fail_reason = undefined})}}
   end.
 
@@ -97,6 +100,7 @@ dialing({answer, Pbx}, Session) ->
   error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),
   CallFlow = call_flow:find(Session#session.queued_call#queued_call.call_flow_id),
   NewSession = Session#session{pbx = Pbx, flow = CallFlow:commands()},
+  notify_status('in-progress', NewSession),
   spawn_run(NewSession),
 
   {next_state, in_progress, NewSession};
@@ -104,16 +108,31 @@ dialing({answer, Pbx}, Session) ->
 dialing({reject, Reason}, Session = #session{session_id = SessionId, call_log = CallLog}) ->
   error_logger:info_msg("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
   CallLog:error(["Call was rejected. (Reason: ", atom_to_list(Reason),")"], []),
+  notify_status('no-answer', Session),
   finalize({failed, Reason}, Session);
 
 dialing(timeout, Session) ->
+  notify_status(busy, Session),
   {stop, timeout, Session}.
 
 in_progress({completed, ok}, Session) ->
+  notify_status('completed', Session),
   finalize(completed, Session);
 
 in_progress({completed, {error, Reason}}, Session) ->
+  notify_status('failed', Session),
   finalize({failed, Reason}, Session).
+
+notify_status(Status, Session = #session{session_id = SessionId}) ->
+  Project = Session#session.project,
+  case Project#project.status_callback_url of
+    undefined -> ok;
+    <<>> -> ok;
+    Url ->
+      StatusCallbackUrl = binary_to_list(Url),
+      QueryString = "CallSid=" ++ http_uri:encode(SessionId) ++ "&CallStatus=" ++ atom_to_list(Status),
+      spawn(fun() -> httpc:request(get, {StatusCallbackUrl ++ "?" ++ QueryString, []}, [], [{full_result, false}]) end)
+  end.
 
 handle_event(stop, _, Session) ->
   {stop, normal, Session}.
