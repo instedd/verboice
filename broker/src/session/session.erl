@@ -123,14 +123,16 @@ in_progress({completed, {error, Reason}}, Session) ->
   notify_status('failed', Session),
   finalize({failed, Reason}, Session).
 
-notify_status(Status, Session = #session{session_id = SessionId}) ->
+notify_status(Status, Session = #session{session_id = SessionId, address = Address}) ->
   Project = Session#session.project,
   case Project#project.status_callback_url of
     undefined -> ok;
     <<>> -> ok;
     Url ->
       StatusCallbackUrl = binary_to_list(Url),
-      QueryString = "CallSid=" ++ http_uri:encode(SessionId) ++ "&CallStatus=" ++ atom_to_list(Status),
+      QueryString = "CallSid=" ++ http_uri:encode(SessionId) ++
+                    "&CallStatus=" ++ atom_to_list(Status) ++
+                    "&From=" ++ binary_to_list(Address),
       spawn(fun() -> httpc:request(get, {StatusCallbackUrl ++ "?" ++ QueryString, []}, [], [{full_result, false}]) end)
   end.
 
