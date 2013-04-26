@@ -19,10 +19,11 @@ notify_ready() ->
 dispatch(Session = #session{session_id = SessionId}) ->
   ChannelId = integer_to_list(Session#session.channel#channel.id),
   Address = "SIP/verboice_" ++ ChannelId ++ "-outbound/" ++ binary_to_list(Session#session.address),
+  {ok, BrokerPort} = application:get_env(broker_port),
   ami_client:originate([
     {channel, Address},
     {application, "AGI"},
-    {data, "agi://localhost:6666," ++ SessionId},
+    {data, "agi://localhost:" ++ integer_to_list(BrokerPort) ++ "," ++ SessionId},
     {async, true},
     {actionid, SessionId}
   ]).

@@ -11,7 +11,8 @@ start_link() ->
 
 %% @private
 init({}) ->
-  {ok, ListenSock} = gen_tcp:listen(6666, [{active, false}, {reuseaddr, true}, binary, {packet, line}]),
+  {ok, BrokerPort} = application:get_env(broker_port),
+  {ok, ListenSock} = gen_tcp:listen(BrokerPort, [{active, false}, {reuseaddr, true}, binary, {packet, line}]),
   spawn_link(fun() -> server(ListenSock) end),
   {ok, ListenSock}.
 
