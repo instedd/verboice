@@ -54,7 +54,7 @@ handle_info(_Info, Port) ->
 
 %% @private
 terminate(_Reason, Port) ->
-  case erlang:port_info(Port) of
+  case erlang:port_info(Port, connected) of
     {connected, _} -> port_close(Port);
     _ -> ok
   end.
