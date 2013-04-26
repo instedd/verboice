@@ -10,7 +10,13 @@
 
 -include("model.hrl").
 
-next_available_time(T, Schedule = #schedule{}) ->
+next_available_time(Seconds, Schedule) when is_integer(Seconds) ->
+  T = calendar:gregorian_seconds_to_datetime(Seconds),
+  Offset1 = offset_for_time(T, Schedule),
+  Offset2 = offset_for_date(T, Schedule),
+  Seconds + Offset1 + Offset2;
+
+next_available_time(T, Schedule) ->
   Offset1 = offset_for_time(T, Schedule),
   Offset2 = offset_for_date(T, Schedule),
 
