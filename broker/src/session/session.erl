@@ -58,6 +58,7 @@ ready({answer, Pbx, ChannelId}, Session) ->
   error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),
   Channel = channel:find(ChannelId),
   CallFlow = call_flow:find(Channel#channel.call_flow_id),
+  Project = project:find(CallFlow#call_flow.project_id),
   CallLog = call_log:create(#call_log{
     account_id = Channel#channel.account_id,
     project_id = CallFlow#call_flow.project_id,
@@ -70,7 +71,7 @@ ready({answer, Pbx, ChannelId}, Session) ->
   Flow = CallFlow:commands(),
   io:format("~p~n", [Flow]),
 
-  NewSession = Session#session{pbx = Pbx, flow = Flow, call_log = CallLog},
+  NewSession = Session#session{pbx = Pbx, flow = Flow, call_log = CallLog, project = Project},
   spawn_run(NewSession),
 
   {next_state, in_progress, NewSession}.
