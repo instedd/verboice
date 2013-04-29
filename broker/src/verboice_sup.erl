@@ -24,12 +24,15 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, [
-      {mysql, {mysql, start_link, [db, "localhost", undefined, "root", "", "verboice_development", undefined, utf8]},
-        permanent, 5000, worker, [mysql]},
-      ?CHILD(tz_server, worker),
-      ?CHILD(asterisk_sup, supervisor),
-      ?CHILD(session_sup, supervisor),
-      ?CHILD(scheduler_sup, supervisor)
-    ]} }.
+  {ok, { {one_for_one, 5, 10}, [
+    {mysql, {mysql, start_link, [db, "localhost", undefined, "root", "", "verboice_development", fun log/4, utf8]},
+      permanent, 5000, worker, [mysql]},
+    ?CHILD(tz_server, worker),
+    ?CHILD(asterisk_sup, supervisor),
+    ?CHILD(session_sup, supervisor),
+    ?CHILD(scheduler_sup, supervisor)
+  ]} }.
 
+log(Module, Line, Level, FormatFun) ->
+  {Format, Arguments} = FormatFun(),
+  lager:log(Level, self(), "~w:~b: "++ Format ++ "~n", [Module, Line] ++ Arguments).
