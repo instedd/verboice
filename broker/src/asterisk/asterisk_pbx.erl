@@ -1,5 +1,5 @@
 -module(asterisk_pbx).
--export([new/1, answer/1, hangup/1, play/2, capture/6, terminate/1, sound_path_for/2]).
+-export([new/1, answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2]).
 
 new(Pid) ->
   {?MODULE, Pid}.
@@ -16,17 +16,21 @@ answer({?MODULE, Pid}) ->
 hangup({?MODULE, Pid}) ->
   agi_session:hangup(Pid).
 
-play(FileName, Pbx = {?MODULE, _Pid}) ->
-  play(FileName, "", Pbx).
+can_play(url, _) -> false;
+can_play(text, _) -> false;
+can_play(file, _) -> true.
 
-play(FileName, EscapeDigits, {?MODULE, Pid}) ->
+play(Resource, Pbx = {?MODULE, _Pid}) ->
+  play(Resource, "", Pbx).
+
+play({file, FileName}, EscapeDigits, {?MODULE, Pid}) ->
   case agi_session:stream_file(Pid, "verboice/" ++ FileName, EscapeDigits) of
     {hangup, _} -> throw(hangup);
     Ret -> Ret
   end.
 
-capture(FileName, Timeout, FinishOnKey, Min, Max, Pbx = {?MODULE, Pid}) ->
-  case play(FileName, "0123456789#*", Pbx = {?MODULE, Pid}) of
+capture(Caption, Timeout, FinishOnKey, Min, Max, Pbx = {?MODULE, Pid}) ->
+  case play(Caption, "0123456789#*", Pbx = {?MODULE, Pid}) of
     {ok, _} -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, "");
     {digit, Key, _} ->
       case lists:member(Key, FinishOnKey) of

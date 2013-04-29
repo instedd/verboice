@@ -15,15 +15,20 @@ get_resource(Guid) ->
   end.
 
 prepare_text_resource(Text, Pbx) ->
-  Hash = crypto:md5(Text),
-  Name = lists:flatten([io_lib:format("~2.16.0b", [B]) || <<B>> <= Hash]),
+  case Pbx:can_play(text) of
+    false ->
+      Hash = crypto:md5(Text),
+      Name = lists:flatten([io_lib:format("~2.16.0b", [B]) || <<B>> <= Hash]),
 
-  TargetPath = Pbx:sound_path_for(Name),
-  case filelib:is_file(TargetPath) of
-    true -> ok;
-    false -> synthesize(Text, TargetPath)
-  end,
-  Name.
+      TargetPath = Pbx:sound_path_for(Name),
+      case filelib:is_file(TargetPath) of
+        true -> ok;
+        false -> synthesize(Text, TargetPath)
+      end,
+      {file, Name};
+    true ->
+      {text, Text}
+  end.
 
 prepare_url_resource(Url, Pbx) ->
   Hash = crypto:md5(Url),
@@ -34,7 +39,7 @@ prepare_url_resource(Url, Pbx) ->
     true -> ok;
     false -> download(Url, TargetPath)
   end,
-  Name.
+  {file, Name}.
 
 synthesize(Text, TargetPath) ->
   TempFile = TargetPath ++ ".wave",

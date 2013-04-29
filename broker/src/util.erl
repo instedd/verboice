@@ -1,5 +1,5 @@
 -module(util).
--export([to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1]).
+-export([to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1]).
 
 to_string(Value) when is_atom(Value) -> atom_to_list(Value);
 to_string(Value) -> Value.
@@ -18,3 +18,16 @@ strip_nl(Binary) ->
     <<Bytes:NLSize/binary, "\n">> ->
       Bytes
   end.
+
+parse_qs(QS) ->
+  parse_qs(QS, QS).
+
+parse_qs([], OrigQS) ->
+  httpd:parse_query(OrigQS);
+parse_qs([$? | Rest], _) ->
+  httpd:parse_query(Rest);
+parse_qs([_ | Rest], OrigQS) ->
+  parse_qs(Rest, OrigQS).
+
+normalize_phone_number(Phone) ->
+  iolist_to_binary(re:replace(Phone, "[\\+\\s-]", "", [global])).
