@@ -34,7 +34,7 @@ eunit:
 	./rebar eunit skip_deps=true
 
 run:
-	erl -pa ebin/ deps/*/ebin -boot start_sasl -s main -config verboice
+	erl -pa ebin/ deps/*/ebin -boot start_sasl -s reloader -s main -config verboice
 
 dialyzer: compile .apps.plt .deps.plt
 	@dialyzer $(DIALYZER_OPTS) --plts .apps.plt .deps.plt -r ebin -Wno_undefined_callbacks --no_native --no_check_plt
