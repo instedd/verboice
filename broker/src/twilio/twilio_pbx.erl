@@ -38,10 +38,13 @@ play(Resource, ?PBX) ->
   gen_server:call(Pid, {play, Resource}, timer:minutes(5)).
 
 capture(Caption, Timeout, FinishOnKey, Min, Max, ?PBX(Pid)) ->
-  gen_server:call(Pid, {capture, Caption, Timeout, FinishOnKey, Min, Max}, timer:minutes(5)).
+  case gen_server:call(Pid, {capture, Caption, Timeout, FinishOnKey, Min, Max}, timer:minutes(5)) of
+    hangup -> throw(hangup);
+    X -> X
+  end.
 
 terminate(?PBX) ->
-  gen_server:call(Pid, terminate).
+  catch gen_server:call(Pid, terminate).
 
 sound_path_for(Name, ?PBX(_)) ->
   "/usr/local/asterisk/var/lib/asterisk/sounds/verboice/" ++ Name ++ ".gsm".
@@ -82,6 +85,10 @@ handle_call({capture, {text, Text}, Timeout, FinishOnKey, Min, Max}, From, State
       [{'Say', [binary_to_list(Text)]}]
     },
   flush(From, append_with_callback(Command, State#state{waiting = {capture, Min}}));
+
+handle_call(terminate, _From, State = #state{session = Session}) ->
+  gen_server:reply(Session, hangup),
+  {stop, normal, ok, State};
 
 handle_call(terminate, _From, State) ->
   {stop, normal, ok, State};

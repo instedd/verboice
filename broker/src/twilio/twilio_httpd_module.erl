@@ -7,23 +7,28 @@
 do(#mod{absolute_uri = AbsoluteUri, request_uri = "/", method = "POST", entity_body = Body}) ->
   Params = util:parse_qs(Body),
   CallSid = proplists:get_value("CallSid", Params),
-  Pbx = case twilio_pbx:find(CallSid) of
+
+  ResponseBody = case twilio_pbx:find(CallSid) of
     undefined ->
       AccountSid = list_to_binary(proplists:get_value("AccountSid", Params)),
       Number = util:normalize_phone_number(proplists:get_value("To", Params)),
       Channel = find_channel(AccountSid, Number),
       CallbackUrl = "http://" ++ AbsoluteUri,
 
-      NewPbx = twilio_pbx:new(CallSid, CallbackUrl),
+      Pbx = twilio_pbx:new(CallSid, CallbackUrl),
       {ok, SessionPid} = session:new(),
       % FIX this may lead to a race condition if the session reaches a flush before the resume is called
-      session:answer(SessionPid, NewPbx, Channel#channel.id),
-      NewPbx;
-    ExistingPbx ->
-      ExistingPbx
+      session:answer(SessionPid, Pbx, Channel#channel.id),
+      Pbx:resume(Params);
+    Pbx ->
+      CallStatus = proplists:get_value("CallStatus", Params),
+      case CallStatus of
+        "completed" -> Pbx:terminate(), "OK";
+        _ -> Pbx:resume(Params)
+      end
   end,
 
-  Response = [{response, {200, Pbx:resume(Params)}}],
+  Response = [{response, {200, ResponseBody}}],
   {proceed, Response};
 
 do(_) ->
