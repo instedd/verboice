@@ -12,7 +12,7 @@ do(#mod{absolute_uri = AbsoluteUri, request_uri = "/", method = "POST", entity_b
       AccountSid = list_to_binary(proplists:get_value("AccountSid", Params)),
       Number = util:normalize_phone_number(proplists:get_value("To", Params)),
       Channel = find_channel(AccountSid, Number),
-      CallbackUrl = iolist_to_binary(["http://" | AbsoluteUri]),
+      CallbackUrl = "http://" ++ AbsoluteUri,
 
       NewPbx = twilio_pbx:new(CallSid, CallbackUrl),
       {ok, SessionPid} = session:new(),
@@ -23,7 +23,7 @@ do(#mod{absolute_uri = AbsoluteUri, request_uri = "/", method = "POST", entity_b
       ExistingPbx
   end,
 
-  Response = [{response, {200, Pbx:resume()}}],
+  Response = [{response, {200, Pbx:resume(Params)}}],
   {proceed, Response};
 
 do(_) ->
