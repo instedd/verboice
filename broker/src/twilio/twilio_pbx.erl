@@ -86,10 +86,6 @@ handle_call({capture, {text, Text}, Timeout, FinishOnKey, Min, Max}, From, State
     },
   flush(From, append_with_callback(Command, State#state{waiting = {capture, Min}}));
 
-handle_call(terminate, _From, State = #state{session = Session}) ->
-  gen_server:reply(Session, hangup),
-  {stop, normal, ok, State};
-
 handle_call(terminate, _From, State) ->
   {stop, normal, ok, State};
 
@@ -105,11 +101,15 @@ handle_info(_Info, State) ->
   {noreply, State}.
 
 %% @private
-terminate(_Reason, State = #state{awaiter = Awaiter}) when Awaiter =/= undefined ->
-  flush(nobody, append('Hangup', State));
-
-terminate(_Reason, _State) ->
-  ok.
+terminate(_Reason, State) ->
+  case State#state.awaiter of
+    undefined -> ok;
+    _ -> flush(nobody, append('Hangup', State))
+  end,
+  case State#state.session of
+    undefined -> ok;
+    Session -> gen_server:reply(Session, hangup)
+  end.
 
 %% @private
 code_change(_OldVsn, State, _Extra) ->
