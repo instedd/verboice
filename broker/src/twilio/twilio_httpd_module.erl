@@ -31,8 +31,8 @@ do(#mod{absolute_uri = AbsoluteUri, request_uri = "/", method = "POST", entity_b
   Response = [{response, {200, ResponseBody}}],
   {proceed, Response};
 
-do(_) ->
-  {proceed, [{response, {404, "Not Found"}}]}.
+do(ModData) ->
+  {proceed, [ModData]}.
 
 find_channel(AccountSid, Number) ->
   Channels = channel:find_all_twilio(),
