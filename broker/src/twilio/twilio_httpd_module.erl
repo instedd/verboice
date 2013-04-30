@@ -4,7 +4,7 @@
 -include_lib("inets/include/httpd.hrl").
 -include("db.hrl").
 
-do(ModData = #mod{request_uri = "/", method = "POST", entity_body = Body}) ->
+do(#mod{request_uri = "/", method = "POST", entity_body = Body}) ->
   Params = util:parse_qs(Body),
   CallSid = proplists:get_value("CallSid", Params),
   Pbx = case twilio_pbx:find(CallSid) of
