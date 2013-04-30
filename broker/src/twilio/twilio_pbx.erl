@@ -47,7 +47,8 @@ terminate(?PBX) ->
   catch gen_server:call(Pid, terminate).
 
 sound_path_for(Name, ?PBX(_)) ->
-  "/usr/local/asterisk/var/lib/asterisk/sounds/verboice/" ++ Name ++ ".gsm".
+  {ok, Dir} = file:get_cwd(),
+  filename:join([Dir, "tmp/www", Name ++ ".wav"]).
 
 resume(Params, ?PBX) ->
   gen_server:call(Pid, {resume, Params}).
@@ -79,6 +80,9 @@ handle_call({resume, _Params}, From, State = #state{session = Session}) ->
 handle_call({play, {text, Text}}, _From, State) ->
   {reply, ok, append({'Say', [binary_to_list(Text)]}, State)};
 
+handle_call({play, {file, Name}}, _From, State = #state{callback_url = CallbackUrl}) ->
+  {reply, ok, append({'Play', [[CallbackUrl, Name, ".wav"]]}, State)};
+
 handle_call({capture, {text, Text}, Timeout, FinishOnKey, Min, Max}, From, State) ->
   Command =
     {'Gather', [{timeout, Timeout}, {finishOnKey, FinishOnKey}, {numDigits, Max}],
@@ -87,10 +91,7 @@ handle_call({capture, {text, Text}, Timeout, FinishOnKey, Min, Max}, From, State
   flush(From, append_with_callback(Command, State#state{waiting = {capture, Min}}));
 
 handle_call(terminate, _From, State) ->
-  {stop, normal, ok, State};
-
-handle_call(_Request, _From, State) ->
-  {reply, {error, unknown_call}, State}.
+  {stop, normal, ok, State}.
 
 %% @private
 handle_cast(_Msg, State) ->

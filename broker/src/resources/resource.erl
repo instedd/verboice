@@ -3,15 +3,17 @@
 
 prepare(Guid, Pbx) ->
   case get_resource(Guid) of
-    {text, Text} -> prepare_text_resource(Text, Pbx)
+    {text, Text} -> prepare_text_resource(Text, Pbx);
+    {blob, Blob} -> prepare_blob_resource(Guid, Blob, Pbx)
   end.
 
 get_resource(Guid) ->
   [Id] = db:select_one("SELECT id FROM resources WHERE guid = ~p", [Guid]),
-  [Type, Text] = db:select_one("SELECT type, text FROM localized_resources WHERE resource_id = ~p AND language = 'es'", [Id]),
+  [Type, Text, Blob] = db:select_one("SELECT type, text, uploaded_audio FROM localized_resources WHERE resource_id = ~p AND language = 'es'", [Id]),
 
   case Type of
-    <<"TextLocalizedResource">> -> {text, Text}
+    <<"TextLocalizedResource">> -> {text, Text};
+    <<"UploadLocalizedResource">> -> {blob, Blob}
   end.
 
 prepare_text_resource(Text, Pbx) ->
@@ -29,6 +31,13 @@ prepare_text_resource(Text, Pbx) ->
     true ->
       {text, Text}
   end.
+
+prepare_blob_resource(Name, Blob, Pbx) ->
+  TargetPath = Pbx:sound_path_for(Name),
+  io:format("Target Path: ~s~n", [TargetPath]),
+  file:write_file(TargetPath, Blob),
+  {file, Name}.
+
 
 prepare_url_resource(Url, Pbx) ->
   Hash = crypto:md5(Url),
