@@ -1,5 +1,5 @@
 -module(twilio_pbx_sup).
--export([start_link/0, start_session/1]).
+-export([start_link/0, start_session/2]).
 
 -behaviour(supervisor).
 -export([init/1]).
@@ -9,8 +9,8 @@
 start_link() ->
   supervisor:start_link({local, ?SERVER}, ?MODULE, {}).
 
-start_session(CallSid) ->
-  supervisor:start_child(?SERVER, [CallSid]).
+start_session(CallSid, CallbackUrl) ->
+  supervisor:start_child(?SERVER, [CallSid, CallbackUrl]).
 
 %% @private
 init({}) ->

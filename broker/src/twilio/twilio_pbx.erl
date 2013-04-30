@@ -2,7 +2,7 @@
 -export([answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2]).
 -behaviour(pbx).
 
--export([start_link/1, find/1, new/1, resume/1]).
+-export([start_link/2, find/1, new/2, resume/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -11,10 +11,10 @@
 -define(PBX(Pid), {?MODULE, Pid}).
 -define(PBX, ?PBX(Pid)).
 
--record(state, {awaiter, session, response = <<>>}).
+-record(state, {callback_url, awaiter, session, response = <<>>}).
 
-start_link(CallSid) ->
-  gen_server:start_link({global, {twilio_pbx, CallSid}}, ?MODULE, {}, []).
+start_link(CallSid, CallbackUrl) ->
+  gen_server:start_link({global, {twilio_pbx, CallSid}}, ?MODULE, CallbackUrl, []).
 
 find(CallSid) ->
   case global:whereis_name({twilio_pbx, CallSid}) of
@@ -22,8 +22,8 @@ find(CallSid) ->
     Pid -> {?MODULE, Pid}
   end.
 
-new(CallSid) ->
-  {ok, Pid} = twilio_pbx_sup:start_session(CallSid),
+new(CallSid, CallbackUrl) ->
+  {ok, Pid} = twilio_pbx_sup:start_session(CallSid, CallbackUrl),
   {?MODULE, Pid}.
 
 answer(?PBX(_)) -> ok.
@@ -49,8 +49,8 @@ resume(?PBX) ->
   gen_server:call(Pid, resume).
 
 %% @private
-init({}) ->
-  {ok, #state{}}.
+init(CallbackUrl) ->
+  {ok, #state{callback_url = CallbackUrl}}.
 
 %% @private
 handle_call(resume, From, State = #state{session = undefined}) ->
@@ -61,7 +61,7 @@ handle_call(resume, From, State = #state{session = Session}) ->
   {noreply, State#state{awaiter = From}};
 
 handle_call({play, {text, Text}}, From, State) ->
-  flush(From, append(<<"<Say>", Text/binary, "</Say>">>, State));
+  flush(From, append_with_callback(<<"<Say>", Text/binary, "</Say>">>, State));
 
 handle_call(terminate, _From, State) ->
   {stop, normal, ok, State};
@@ -91,7 +91,10 @@ code_change(_OldVsn, State, _Extra) ->
 append(Command, State = #state{response = Response}) ->
   State#state{response = <<Response/binary, Command/binary>>}.
 
-flush(From, #state{awaiter = Awaiter, response = Response}) ->
+append_with_callback(Command, State = #state{callback_url = CallbackUrl}) ->
+  append(<<"<Redirect>", CallbackUrl/binary, "</Redirect>">>, append(Command, State)).
+
+flush(From, State = #state{awaiter = Awaiter, response = Response}) ->
   gen_server:reply(Awaiter, binary_to_list(<<"<Response>", Response/binary, "</Response>">>)),
-  {noreply, #state{session = From}}.
+  {noreply, State#state{session = From, awaiter = undefined, response = <<>>}}.
 

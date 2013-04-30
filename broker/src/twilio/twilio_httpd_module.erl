@@ -4,7 +4,7 @@
 -include_lib("inets/include/httpd.hrl").
 -include("db.hrl").
 
-do(#mod{request_uri = "/", method = "POST", entity_body = Body}) ->
+do(#mod{absolute_uri = AbsoluteUri, request_uri = "/", method = "POST", entity_body = Body}) ->
   Params = util:parse_qs(Body),
   CallSid = proplists:get_value("CallSid", Params),
   Pbx = case twilio_pbx:find(CallSid) of
@@ -12,9 +12,9 @@ do(#mod{request_uri = "/", method = "POST", entity_body = Body}) ->
       AccountSid = list_to_binary(proplists:get_value("AccountSid", Params)),
       Number = util:normalize_phone_number(proplists:get_value("To", Params)),
       Channel = find_channel(AccountSid, Number),
-      io:format("~p~n", [Channel]),
+      CallbackUrl = iolist_to_binary(["http://" | AbsoluteUri]),
 
-      NewPbx = twilio_pbx:new(CallSid),
+      NewPbx = twilio_pbx:new(CallSid, CallbackUrl),
       {ok, SessionPid} = session:new(),
       % FIX this may lead to a race condition if the session reaches a flush before the resume is called
       session:answer(SessionPid, NewPbx, Channel#channel.id),
