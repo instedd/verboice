@@ -16,16 +16,14 @@ do(ModData = #mod{request_uri = "/", method = "POST", entity_body = Body}) ->
 
       NewPbx = twilio_pbx:new(CallSid),
       {ok, SessionPid} = session:new(),
+      % FIX this may lead to a race condition if the session reaches a flush before the resume is called
       session:answer(SessionPid, NewPbx, Channel#channel.id),
       NewPbx;
     ExistingPbx ->
-      ExistingPbx:resume(),
       ExistingPbx
   end,
 
-
-
-  Response = [{response, {200, Pbx:await_response()}}],
+  Response = [{response, {200, Pbx:resume()}}],
   {proceed, Response};
 
 do(_) ->

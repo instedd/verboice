@@ -2,7 +2,7 @@
 -export([answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2]).
 -behaviour(pbx).
 
--export([start_link/1, find/1, new/1, await_response/1, resume/1]).
+-export([start_link/1, find/1, new/1, resume/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -45,9 +45,6 @@ terminate(?PBX) ->
 sound_path_for(Name, ?PBX(_)) ->
   "/usr/local/asterisk/var/lib/asterisk/sounds/verboice/" ++ Name ++ ".gsm".
 
-await_response(?PBX) ->
-  gen_server:call(Pid, await_response).
-
 resume(?PBX) ->
   gen_server:call(Pid, resume).
 
@@ -56,12 +53,12 @@ init({}) ->
   {ok, #state{}}.
 
 %% @private
-handle_call(await_response, From, State) ->
+handle_call(resume, From, State = #state{session = undefined}) ->
   {noreply, State#state{awaiter = From}};
 
 handle_call(resume, From, State = #state{session = Session}) ->
   gen_server:reply(Session, ok),
-  {reply, ok, State = #state{session = undefined}};
+  {noreply, State#state{awaiter = From}};
 
 handle_call({play, {text, Text}}, From, State) ->
   flush(From, append(<<"<Say>", Text/binary, "</Say>">>, State));
