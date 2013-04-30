@@ -69,7 +69,8 @@ construct_scalar('tag:yaml.org,2002:str', Value, _State) ->
       List = binary_to_list(Value),
       case string:to_integer(List) of
         {error, _} -> {ok, List};
-        {N, _} -> {ok, N}
+        {N, []} -> {ok, N};
+        _ -> {ok, List}
       end
   end;
 
