@@ -1,20 +1,18 @@
 -module(resource).
--export([prepare/2, prepare_url_resource/2]).
+-export([find_by_guid/1, localized_resource/2, prepare/2, prepare_text_resource/2, prepare_blob_resource/3, prepare_url_resource/2]).
+-define(TABLE_NAME, "resources").
+-include("model.hrl").
+
+find_by_guid(Guid) ->
+  find({guid, Guid}).
+
+localized_resource(Language, #resource{id = Id}) ->
+  localized_resource:find([{resource_id, Id}, {language, Language}]).
 
 prepare(Guid, Pbx) ->
-  case get_resource(Guid) of
-    {text, Text} -> prepare_text_resource(Text, Pbx);
-    {blob, Blob} -> prepare_blob_resource(Guid, Blob, Pbx)
-  end.
-
-get_resource(Guid) ->
-  [Id] = db:select_one("SELECT id FROM resources WHERE guid = ~p", [Guid]),
-  [Type, Text, Blob] = db:select_one("SELECT type, text, uploaded_audio FROM localized_resources WHERE resource_id = ~p AND language = 'es'", [Id]),
-
-  case Type of
-    <<"TextLocalizedResource">> -> {text, Text};
-    <<"UploadLocalizedResource">> -> {blob, Blob}
-  end.
+  Resource = find_by_guid(Guid),
+  LocalizedResource = Resource:localized_resource("es"), %FIX hardcoded!
+  LocalizedResource:prepare(Pbx).
 
 prepare_text_resource(Text, Pbx) ->
   case Pbx:can_play(text) of
@@ -34,10 +32,8 @@ prepare_text_resource(Text, Pbx) ->
 
 prepare_blob_resource(Name, Blob, Pbx) ->
   TargetPath = Pbx:sound_path_for(Name),
-  io:format("Target Path: ~s~n", [TargetPath]),
-  file:write_file(TargetPath, Blob),
+  sox:convert(Blob, TargetPath),
   {file, Name}.
-
 
 prepare_url_resource(Url, Pbx) ->
   Hash = crypto:md5(Url),
@@ -57,17 +53,14 @@ synthesize(Text, TargetPath) ->
     port_command(Port, Text),
     port_close(Port),
     ok = wait_for_file(TempFile),
-    os:cmd("sox " ++ TempFile ++ " -r 8000 -c1 " ++ TargetPath)
+    sox:convert(TempFile, TargetPath)
   after
     file:delete(TempFile)
   end.
 
 download(Url, TargetPath) ->
   {ok, {_, _, Body}} = httpc:request(Url),
-  file:write_file(TargetPath ++ ".mp3", Body),
-  os:cmd("lame --decode " ++ TargetPath ++ ".mp3 " ++ TargetPath ++ ".wav"),
-  os:cmd("sox " ++ TargetPath ++ ".wav " ++ TargetPath).
-
+  sox:convert(Body, TargetPath).
 
 wait_for_file(FilePath) -> wait_for_file(FilePath, 5).
 wait_for_file(_, 0) -> timeout;

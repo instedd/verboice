@@ -7,3 +7,5 @@
   schedule_id, not_before, retries, project_id, time_zone, variables, session_id, created_at, updated_at}).
 -record(schedule, {id, name, retries, time_from, time_to, weekdays, project_id, created_at, updated_at}).
 -record(project, {id, name, status_callback_url, created_at, updated_at}).
+-record(resource, {id, name, project_id, guid, created_at, updated_at}).
+-record(localized_resource, {id, language, text, recorded_audio, uploaded_audio, url, type, guid, resource_id, created_at, updated_at}).

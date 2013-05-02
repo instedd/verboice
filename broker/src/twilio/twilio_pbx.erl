@@ -48,7 +48,7 @@ terminate(?PBX) ->
 
 sound_path_for(Name, ?PBX(_)) ->
   {ok, Dir} = file:get_cwd(),
-  filename:join([Dir, "tmp/www", Name ++ ".wav"]).
+  filename:join([Dir, "tmp/www", Name ++ ".mp3"]).
 
 resume(Params, ?PBX) ->
   gen_server:call(Pid, {resume, Params}).
@@ -81,7 +81,7 @@ handle_call({play, {text, Text}}, _From, State) ->
   {reply, ok, append({'Say', [binary_to_list(Text)]}, State)};
 
 handle_call({play, {file, Name}}, _From, State = #state{callback_url = CallbackUrl}) ->
-  {reply, ok, append({'Play', [[CallbackUrl, Name, ".wav"]]}, State)};
+  {reply, ok, append({'Play', [[CallbackUrl, Name, ".mp3"]]}, State)};
 
 handle_call({capture, {text, Text}, Timeout, FinishOnKey, Min, Max}, From, State) ->
   Command =
