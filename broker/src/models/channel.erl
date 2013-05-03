@@ -5,7 +5,7 @@
 -define(MAP(Channel),
   {ok, [Config]} = yaml:load(Channel#channel.config),
   Channel#channel{config = Config}
-  ).
+).
 
 -include("model.hrl").
 

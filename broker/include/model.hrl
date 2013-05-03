@@ -17,9 +17,12 @@ find(Id) when is_number(Id) ->
   find({id, Id});
 
 find(Criteria) ->
-  Row = db:select_one(iolist_to_binary(select_query(Criteria, []))),
-  Record = list_to_tuple([?MODULE | Row]),
-  ?MAP(Record).
+  case db:select_one(iolist_to_binary(select_query(Criteria, []))) of
+    not_found -> not_found;
+    Row ->
+      Record = list_to_tuple([?MODULE | Row]),
+      ?MAP(Record)
+  end.
 
 find_all() -> find_all([], []).
 

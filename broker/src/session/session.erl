@@ -50,8 +50,8 @@ reject(SessionPid, Reason) ->
 stop(SessionPid) ->
   gen_fsm:send_all_state_event(SessionPid, stop).
 
-language(_Session) ->
-  "es".
+language(#session{js_context = JsContext}) ->
+  erjs_object:get(var_language, JsContext).
 
 %% @private
 
@@ -185,48 +185,61 @@ finalize({failed, Reason}, Session = #session{call_log = CallLog}) ->
   NewCallLog = call_log:update(CallLog#call_log{state = NewState, fail_reason = Reason, finished_at = calendar:universal_time()}),
   {stop, normal, Session#session{call_log = NewCallLog}}.
 
-spawn_run(State) ->
+spawn_run(Session) ->
   SessionPid = self(),
   spawn_monitor(fun() ->
-    {Result, _NewState} = run(State),
+    {Result, _NewSession} = run(Session),
     gen_fsm:send_event(SessionPid, {completed, Result})
   end).
 
-run(State = #session{pbx = Pbx}) ->
-  JsContext = erjs_object:new(),
-  RunState = State#session{js_context = JsContext},
-  try run(RunState, 1) of
+default_language(Session = #session{project = Project}) ->
+  Language = case Session#session.queued_call of
+    undefined -> Project#project.default_language;
+    #queued_call{variables = Vars} ->
+      case proplists:get_value(<<"language">>, Vars) of
+        undefined -> Project#project.default_language;
+        <<>> -> Project#project.default_language;
+        Lang -> Lang
+      end
+  end,
+  io:format("Default language: ~p~n", [Language]),
+  binary_to_list(Language).
+
+run(Session = #session{pbx = Pbx}) ->
+  JsContext = erjs_object:new([{var_language, default_language(Session)}]),
+  RunSession = Session#session{js_context = JsContext},
+  try run(RunSession, 1) of
     X -> X
   after
     Pbx:terminate()
   end.
 
-run(State = #session{flow = Flow}, Ptr) when Ptr > length(Flow) -> {ok, State};
-run(State = #session{flow = Flow, call_log = CallLog}, Ptr) ->
+run(Session = #session{flow = Flow}, Ptr) when Ptr > length(Flow) -> {ok, Session};
+run(Session = #session{flow = Flow, call_log = CallLog}, Ptr) ->
   Command = lists:nth(Ptr, Flow),
-  try eval(Command, State) of
-    {Action, NewState} ->
+  try eval(Command, Session) of
+    {Action, NewSession} ->
       case Action of
         next ->
-          run(NewState, Ptr + 1);
+          run(NewSession, Ptr + 1);
         {goto, N} ->
-          run(NewState, N + 1);
+          run(NewSession, N + 1);
         {exec, NewFlow} ->
-          run(NewState#session{flow = NewFlow}, 1);
+          run(NewSession#session{flow = NewFlow}, 1);
         finish ->
-          {ok, NewState}
+          {ok, NewSession}
       end
   catch
     hangup ->
       CallLog:info("The user hang up", []),
-      {{error, hangup}, State};
+      {{error, hangup}, Session};
     Class:Error ->
       CallLog:error(["Error ", io_lib:format("~p:~p", [Class, Error])], []),
       error_logger:error_msg("Error during session ~p, call log ~p: ~p:~p~n~p~n",
-        [State#session.session_id, CallLog#call_log.id, Class, Error, erlang:get_stacktrace()]),
-      {{error, error}, State}
+        [Session#session.session_id, CallLog#call_log.id, Class, Error, erlang:get_stacktrace()]),
+      {{error, error}, Session}
   end.
 
-eval(stop, State) -> {finish, State};
-eval([Command, Args], State) -> Command:run(Args, State);
-eval(Command, State) -> Command:run(State).
+eval(stop, Session) -> {finish, Session};
+eval([Command, Args], Session) -> Command:run(Args, Session);
+eval(Command, Session) -> Command:run(Session).

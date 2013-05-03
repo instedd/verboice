@@ -12,8 +12,11 @@ select(Query, Params) ->
 select_one(Query) -> select_one(Query, []).
 
 select_one(Query, Params) ->
-  [Row] = select(Query, Params),
-  Row.
+  case select(Query, Params) of
+    [Row] -> Row;
+    [] -> not_found;
+    [_|_] -> exit(many_rows_for_select_one)
+  end.
 
 insert(Query) ->
   {updated, Result} = mysql:fetch(db, Query),

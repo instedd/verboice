@@ -12,10 +12,12 @@ localized_resource(Language, #resource{id = Id}) ->
 
 prepare(Guid, Session) ->
   Resource = find_by_guid(Guid),
-  LocalizedResource = Resource:localized_resource(Session:language()),
-  LocalizedResource:prepare(Session).
+  case Resource:localized_resource(Session:language()) of
+    not_found -> exit(resource_not_found);
+    LocalizedResource -> LocalizedResource:prepare(Session)
+  end.
 
-prepare_text_resource(Text, #session{pbx = Pbx}) ->
+prepare_text_resource(Text, Session = #session{pbx = Pbx, project = Project}) ->
   case Pbx:can_play(text) of
     false ->
       Hash = crypto:md5(Text),
@@ -24,7 +26,7 @@ prepare_text_resource(Text, #session{pbx = Pbx}) ->
       TargetPath = Pbx:sound_path_for(Name),
       case filelib:is_file(TargetPath) of
         true -> ok;
-        false -> synthesize(Text, TargetPath)
+        false -> synthesize(Text, Project:voice(Session:language()), TargetPath)
       end,
       {file, Name};
     true ->
@@ -47,10 +49,10 @@ prepare_url_resource(Url, #session{pbx = Pbx}) ->
   end,
   {file, Name}.
 
-synthesize(Text, TargetPath) ->
+synthesize(Text, Voice, TargetPath) ->
   TempFile = TargetPath ++ ".wave",
   try
-    Port = open_port({spawn, "say -v Paulina -o " ++ TempFile}, [binary]),
+    Port = open_port({spawn, "say -v " ++ Voice ++ " -o " ++ TempFile}, [binary]),
     port_command(Port, Text),
     port_close(Port),
     ok = wait_for_file(TempFile),

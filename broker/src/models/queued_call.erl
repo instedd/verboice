@@ -1,6 +1,12 @@
 -module(queued_call).
 -export([reschedule/1]).
 -define(TABLE_NAME, "queued_calls").
+
+-define(MAP(QueuedCall),
+  {ok, [Variables]} = yaml:load(QueuedCall#queued_call.variables),
+  QueuedCall#queued_call{variables = Variables}
+).
+
 -include("model.hrl").
 
 reschedule(#queued_call{schedule_id = undefined}) -> no_schedule;
