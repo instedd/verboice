@@ -4,7 +4,7 @@
 
 run(Args, Session = #session{pbx = Pbx}) ->
   Guid = proplists:get_value(resource_guid, Args),
-  FileName = resource:prepare(Guid, Pbx),
+  FileName = resource:prepare(Guid, Session),
   Pbx:play(FileName),
   {next, Session}.
 

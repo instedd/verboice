@@ -2,6 +2,7 @@
 -export([find_by_guid/1, localized_resource/2, prepare/2, prepare_text_resource/2, prepare_blob_resource/3, prepare_url_resource/2]).
 -define(TABLE_NAME, "resources").
 -include("model.hrl").
+-include("session.hrl").
 
 find_by_guid(Guid) ->
   find({guid, Guid}).
@@ -9,12 +10,12 @@ find_by_guid(Guid) ->
 localized_resource(Language, #resource{id = Id}) ->
   localized_resource:find([{resource_id, Id}, {language, Language}]).
 
-prepare(Guid, Pbx) ->
+prepare(Guid, Session) ->
   Resource = find_by_guid(Guid),
-  LocalizedResource = Resource:localized_resource("es"), %FIX hardcoded!
-  LocalizedResource:prepare(Pbx).
+  LocalizedResource = Resource:localized_resource(Session:language()),
+  LocalizedResource:prepare(Session).
 
-prepare_text_resource(Text, Pbx) ->
+prepare_text_resource(Text, #session{pbx = Pbx}) ->
   case Pbx:can_play(text) of
     false ->
       Hash = crypto:md5(Text),
@@ -30,12 +31,12 @@ prepare_text_resource(Text, Pbx) ->
       {text, Text}
   end.
 
-prepare_blob_resource(Name, Blob, Pbx) ->
+prepare_blob_resource(Name, Blob, #session{pbx = Pbx}) ->
   TargetPath = Pbx:sound_path_for(Name),
   sox:convert(Blob, TargetPath),
   {file, Name}.
 
-prepare_url_resource(Url, Pbx) ->
+prepare_url_resource(Url, #session{pbx = Pbx}) ->
   Hash = crypto:md5(Url),
   Name = lists:flatten([io_lib:format("~2.16.0b", [B]) || <<B>> <= Hash]),
 

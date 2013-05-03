@@ -25,6 +25,7 @@ play(Resource, Pbx = {?MODULE, _Pid}) ->
 
 play({file, FileName}, EscapeDigits, {?MODULE, Pid}) ->
   case agi_session:stream_file(Pid, "verboice/" ++ FileName, EscapeDigits) of
+    hangup -> throw(hangup);
     {hangup, _} -> throw(hangup);
     Ret -> Ret
   end.

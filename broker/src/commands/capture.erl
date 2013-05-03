@@ -8,7 +8,7 @@ run(Args, Session = #session{pbx = Pbx, js_context = JS, call_log = CallLog}) ->
   Timeout = proplists:get_value(timeout, Args, 5),
   FinishOnKey = proplists:get_value(finish_on_key, Args, "#"),
 
-  Caption = prepare_caption(Args, Pbx),
+  Caption = prepare_caption(Args, Session),
   {_, JS2} = erjs:eval("digits = timeout = finish_key = null", JS),
 
   CallLog:info("Waiting user input", [{command, "capture"}, {action, "waiting"}]),
@@ -21,17 +21,17 @@ run(Args, Session = #session{pbx = Pbx, js_context = JS, call_log = CallLog}) ->
   end,
   {next, Session#session{js_context = JS3}}.
 
-prepare_caption(Args, Pbx) ->
-  parepare_localized_resource(Args, Pbx).
+prepare_caption(Args, Session) ->
+  parepare_localized_resource(Args, Session).
 
-parepare_localized_resource(Args, Pbx) ->
+parepare_localized_resource(Args, Session) ->
   case proplists:get_value(resource, Args) of
-    undefined -> prepare_url_resource(Args, Pbx);
-    ResourceGuid -> resource:prepare(ResourceGuid, Pbx)
+    undefined -> prepare_url_resource(Args, Session);
+    ResourceGuid -> resource:prepare(ResourceGuid, Session)
   end.
 
-prepare_url_resource(Args, Pbx) ->
+prepare_url_resource(Args, Session) ->
   case proplists:get_value(play, Args) of
     undefined -> throw(unknown_resource);
-    Url -> resource:prepare_url_resource(Url, Pbx)
+    Url -> resource:prepare_url_resource(Url, Session)
   end.

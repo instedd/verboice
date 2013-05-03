@@ -1,5 +1,6 @@
 -module(session).
 -export([start_link/1, new/0, find/1, answer/2, answer/3, dial/4, reject/2, stop/1]).
+-export([language/1]).
 
 % FSM Description
 % Possible states: ready, dialing, in_progress, suspended, completed
@@ -48,6 +49,9 @@ reject(SessionPid, Reason) ->
 
 stop(SessionPid) ->
   gen_fsm:send_all_state_event(SessionPid, stop).
+
+language(_Session) ->
+  "es".
 
 %% @private
 
@@ -169,6 +173,7 @@ finalize({failed, Reason}, Session = #session{call_log = CallLog}) ->
     undefined -> "failed";
     QueuedCall ->
       case QueuedCall:reschedule() of
+        no_schedule -> failed;
         max_retries ->
           CallLog:error("Max retries exceeded", []),
           "failed";
