@@ -1,5 +1,5 @@
 -module(project).
--export([voice/2, tts_engine/1]).
+-export([voice/2, tts_engine/1, ispeech_api_key/1]).
 -define(TABLE_NAME, "projects").
 
 -define(MAP(Project),
@@ -22,3 +22,6 @@ voice(Lang, [LangConfig | Rest]) ->
 
 tts_engine(#project{encrypted_config = Config}) ->
   proplists:get_value("tts_engine", Config).
+
+ispeech_api_key(#project{encrypted_config = Config}) ->
+  proplists:get_value("tts_ispeech_api_key", Config).
