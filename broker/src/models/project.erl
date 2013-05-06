@@ -1,5 +1,5 @@
 -module(project).
--export([voice/2]).
+-export([voice/2, tts_engine/1]).
 -define(TABLE_NAME, "projects").
 
 -define(MAP(Project),
@@ -19,3 +19,6 @@ voice(Lang, [LangConfig | Rest]) ->
     Lang -> proplists:get_value("voice", LangConfig);
     _ -> voice(Lang, Rest)
   end.
+
+tts_engine(#project{encrypted_config = Config}) ->
+  proplists:get_value("tts_engine", Config).

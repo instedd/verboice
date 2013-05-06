@@ -20,13 +20,11 @@ prepare(Guid, Session) ->
 prepare_text_resource(Text, Session = #session{pbx = Pbx, project = Project}) ->
   case Pbx:can_play(text) of
     false ->
-      Hash = crypto:md5(Text),
-      Name = lists:flatten([io_lib:format("~2.16.0b", [B]) || <<B>> <= Hash]),
-
+      Name = util:md5hex(Text),
       TargetPath = Pbx:sound_path_for(Name),
       case filelib:is_file(TargetPath) of
         true -> ok;
-        false -> synthesize(Text, Project:voice(Session:language()), TargetPath)
+        false -> tts:synthesize(Text, Project, Session:language(), TargetPath)
       end,
       {file, Name};
     true ->
@@ -39,9 +37,7 @@ prepare_blob_resource(Name, Blob, #session{pbx = Pbx}) ->
   {file, Name}.
 
 prepare_url_resource(Url, #session{pbx = Pbx}) ->
-  Hash = crypto:md5(Url),
-  Name = lists:flatten([io_lib:format("~2.16.0b", [B]) || <<B>> <= Hash]),
-
+  Name = util:md5hex(Url),
   TargetPath = Pbx:sound_path_for(Name),
   case filelib:is_file(TargetPath) of
     true -> ok;
@@ -49,26 +45,6 @@ prepare_url_resource(Url, #session{pbx = Pbx}) ->
   end,
   {file, Name}.
 
-synthesize(Text, Voice, TargetPath) ->
-  TempFile = TargetPath ++ ".wave",
-  try
-    Port = open_port({spawn, "say -v " ++ Voice ++ " -o " ++ TempFile}, [binary]),
-    port_command(Port, Text),
-    port_close(Port),
-    ok = wait_for_file(TempFile),
-    sox:convert(TempFile, TargetPath)
-  after
-    file:delete(TempFile)
-  end.
-
 download(Url, TargetPath) ->
   {ok, {_, _, Body}} = httpc:request(Url),
   sox:convert(Body, TargetPath).
-
-wait_for_file(FilePath) -> wait_for_file(FilePath, 5).
-wait_for_file(_, 0) -> timeout;
-wait_for_file(FilePath, N) ->
-  case filelib:is_file(FilePath) of
-    true -> ok;
-    false -> timer:sleep(50), wait_for_file(FilePath, N - 1)
-  end.

@@ -1,5 +1,9 @@
 -module(util).
--export([to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1]).
+-export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1]).
+
+md5hex(Data) ->
+  Hash = crypto:md5(Data),
+  lists:flatten([io_lib:format("~2.16.0b", [B]) || <<B>> <= Hash]).
 
 to_string(Value) when is_atom(Value) -> atom_to_list(Value);
 to_string(Value) -> Value.
