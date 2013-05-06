@@ -4,7 +4,8 @@
 
 -define(MAP(Project),
   {ok, [Languages]} = yaml:load(Project#project.languages, [{schema, yaml_schema_ruby}]),
-  Project#project{languages = Languages}
+  [Config] = marshal:decode(aes:decrypt("secret", base64:decode(Project#project.encrypted_config))),
+  Project#project{languages = Languages, encrypted_config = Config}
 ).
 
 -include("model.hrl").
