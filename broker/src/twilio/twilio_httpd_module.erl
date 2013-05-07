@@ -12,13 +12,14 @@ do(#mod{absolute_uri = AbsoluteUri, request_uri = "/", method = "POST", entity_b
     undefined ->
       AccountSid = list_to_binary(proplists:get_value("AccountSid", Params)),
       Number = util:normalize_phone_number(proplists:get_value("To", Params)),
+      CallerId = util:normalize_phone_number(proplists:get_value("From", Params)),
       Channel = find_channel(AccountSid, Number),
       CallbackUrl = "http://" ++ AbsoluteUri,
 
       Pbx = twilio_pbx:new(CallSid, CallbackUrl),
       {ok, SessionPid} = session:new(),
       % FIX this may lead to a race condition if the session reaches a flush before the resume is called
-      session:answer(SessionPid, Pbx, Channel#channel.id),
+      session:answer(SessionPid, Pbx, Channel#channel.id, CallerId),
       Pbx:resume(Params);
     Pbx ->
       CallStatus = proplists:get_value("CallStatus", Params),

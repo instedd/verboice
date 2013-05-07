@@ -1,5 +1,5 @@
 -module(session).
--export([start_link/1, new/0, find/1, answer/2, answer/3, dial/4, reject/2, stop/1]).
+-export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1]).
 -export([language/1]).
 
 % FSM Description
@@ -35,8 +35,8 @@ new() ->
 find(SessionId) ->
   global:whereis_name(?SESSION(SessionId)).
 
-answer(SessionPid, Pbx, ChannelId) ->
-  gen_fsm:send_event(SessionPid, {answer, Pbx, ChannelId}).
+answer(SessionPid, Pbx, ChannelId, CallerId) ->
+  gen_fsm:send_event(SessionPid, {answer, Pbx, ChannelId, CallerId}).
 
 answer(SessionPid, Pbx) ->
   gen_fsm:send_event(SessionPid, {answer, Pbx}).
@@ -58,7 +58,7 @@ language(#session{js_context = JsContext}) ->
 init(SessionId) ->
   {ok, ready, #session{session_id = SessionId}}.
 
-ready({answer, Pbx, ChannelId}, Session) ->
+ready({answer, Pbx, ChannelId, CallerId}, Session) ->
   error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),
   Channel = channel:find(ChannelId),
   CallFlow = call_flow:find(Channel#channel.call_flow_id),
@@ -69,13 +69,14 @@ ready({answer, Pbx, ChannelId}, Session) ->
     state = "active",
     direction = "incoming",
     channel_id = ChannelId,
+    address = CallerId,
     started_at = calendar:universal_time(),
     call_flow_id = CallFlow#call_flow.id
   }),
   Flow = CallFlow:commands(),
   io:format("~p~n", [Flow]),
 
-  NewSession = Session#session{pbx = Pbx, flow = Flow, call_log = CallLog, project = Project},
+  NewSession = Session#session{pbx = Pbx, flow = Flow, call_log = CallLog, project = Project, address = CallerId},
   spawn_run(NewSession),
 
   {next_state, in_progress, NewSession}.

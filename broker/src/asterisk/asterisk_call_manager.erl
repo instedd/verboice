@@ -30,12 +30,13 @@ handle_event({new_session, Pid, Env}, State) ->
       {ok, PeerIp} = agi_session:get_variable(Pid, "CHANNEL(peerip)"),
       SipTo = binary_to_list(proplists:get_value(dnid, Env)),
       ChannelId = asterisk_channel_srv:find_channel(PeerIp, SipTo),
+      CallerId = proplists:get_value(callerid, Env),
 
       case session:new() of
         {ok, SessionPid} ->
           io:format("Answering..."),
           monitor(process, Pid), % TODO: let the session monitor the pbx pid
-          session:answer(SessionPid, Pbx, ChannelId),
+          session:answer(SessionPid, Pbx, ChannelId, CallerId),
           {ok, dict:store(Pid, SessionPid, State)};
         {error, _Reason} ->
           agi_session:close(Pid),
