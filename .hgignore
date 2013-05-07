@@ -1,6 +1,7 @@
 syntax: glob
 .bundle
 *.log
+*.log.*
 *.sqlite3
 *.tmp*~
 *.orig
