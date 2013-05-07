@@ -17,18 +17,35 @@ prepare(Guid, Session) ->
     LocalizedResource -> LocalizedResource:prepare(Session)
   end.
 
+replace_vars(Text, Session) -> replace_vars(Text, Session, <<>>).
+
+replace_vars(<<>>, _, Output) -> Output;
+replace_vars(Text, Session, Output) ->
+  case binary:split(Text, [<<${>>]) of
+    [_] -> <<Output/binary, Text/binary>>;
+    [H1, T1] ->
+      case binary:split(T1, [<<$}>>]) of
+        [_] -> <<Output/binary, Text/binary>>;
+        [VarNameBin, T2] ->
+          VarName = binary_to_atom(<<"var_", VarNameBin/binary>>, utf8),
+          Value = list_to_binary(erjs_object:get(VarName, Session#session.js_context)),
+          replace_vars(T2, Session, <<Output/binary, H1/binary, Value/binary>>)
+      end
+  end.
+
 prepare_text_resource(Text, Session = #session{pbx = Pbx, project = Project}) ->
+  ReplacedText = replace_vars(Text, Session),
   case Pbx:can_play(text) of
     false ->
-      Name = util:md5hex(Text),
+      Name = util:md5hex(ReplacedText),
       TargetPath = Pbx:sound_path_for(Name),
       case filelib:is_file(TargetPath) of
         true -> ok;
-        false -> tts:synthesize(Text, Project, Session:language(), TargetPath)
+        false -> tts:synthesize(ReplacedText, Project, Session:language(), TargetPath)
       end,
       {file, Name};
     true ->
-      {text, Text}
+      {text, ReplacedText}
   end.
 
 prepare_blob_resource(Name, Blob, #session{pbx = Pbx}) ->
