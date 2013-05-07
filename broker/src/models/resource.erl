@@ -28,7 +28,10 @@ replace_vars(Text, Session, Output) ->
         [_] -> <<Output/binary, Text/binary>>;
         [VarNameBin, T2] ->
           VarName = binary_to_atom(<<"var_", VarNameBin/binary>>, utf8),
-          Value = list_to_binary(erjs_object:get(VarName, Session#session.js_context)),
+          Value = case erjs_object:get(VarName, Session#session.js_context) of
+            undefined -> <<>>;
+            X -> list_to_binary(X)
+          end,
           replace_vars(T2, Session, <<Output/binary, H1/binary, Value/binary>>)
       end
   end.
