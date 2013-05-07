@@ -1,9 +1,37 @@
 -include("db.hrl").
--export([create/0, create/1, find/1, find_all/0, find_all/1, find_all/2, update/1, delete/1]).
+-export([new/0, new/1, create/0, create/1, find/1, find_all/0, find_all/1, find_all/2, update/1, delete/1, save/1, find_or_new/1, find_or_create/1]).
 
 -ifndef(MAP).
 -define(MAP(Record), Record).
 -endif.
+
+new() -> #?MODULE{}.
+
+new(Fields) ->
+  set_values(Fields, new()).
+
+set_values({Field, Value}, Record) ->
+  setelement(field_index(Field), Record, Value);
+set_values([], Record) -> Record;
+set_values([Pair | Rest], Record) ->
+  set_values(Rest, set_values(Pair, Record)).
+
+save(Record = #?MODULE{id = undefined}) ->
+  create(Record);
+save(Record) ->
+  update(Record).
+
+find_or_new(Criteria) ->
+  case find(Criteria) of
+    not_found -> new(Criteria);
+    Record -> Record
+  end.
+
+find_or_create(Criteria) ->
+  case find(Criteria) of
+    not_found -> create(new(Criteria));
+    Record -> Record
+  end.
 
 create() -> create(#?MODULE{}).
 
@@ -125,3 +153,9 @@ value_list([Value]) ->
   [mysql:encode(Value)];
 value_list([Value | Rest]) ->
   [mysql:encode(Value), ", " | value_list(Rest)].
+
+field_index(Field) ->
+  field_index(Field, record_info(fields, ?MODULE), 2).
+
+field_index(Field, [Field | _], N) -> N;
+field_index(Field, [_ | Rest], N) -> field_index(Field, Rest, N + 1).
