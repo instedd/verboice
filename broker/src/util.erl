@@ -6,6 +6,7 @@ md5hex(Data) ->
   lists:flatten([io_lib:format("~2.16.0b", [B]) || <<B>> <= Hash]).
 
 to_string(Value) when is_atom(Value) -> atom_to_list(Value);
+to_string(Value) when is_binary(Value) -> binary_to_list(Value);
 to_string(Value) -> Value.
 
 binary_to_lower_atom(Bin) -> list_to_atom(string:to_lower(binary_to_list(Bin))).

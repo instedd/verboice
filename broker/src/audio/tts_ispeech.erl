@@ -10,7 +10,7 @@ ispeech_synth(Text, Voice, ApiKey, TargetPath) ->
 
   Url = "http://api.ispeech.org/api/rest?apikey=" ++ ApiKey
     ++ "&action=convert&voice=" ++ Voice
-    ++ "&format=mp3&text=" ++ httpd_util:encode_hex(Text),
+    ++ "&format=mp3&text=" ++ httpd_util:encode_hex(util:to_string(Text)),
 
   {ok, {_, _, Body}} = httpc:request(Url),
 
