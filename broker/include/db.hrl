@@ -9,3 +9,6 @@
 -record(project, {id, name, status_callback_url, default_language, languages, encrypted_config, created_at, updated_at}).
 -record(resource, {id, name, project_id, guid, created_at, updated_at}).
 -record(localized_resource, {id, language, text, recorded_audio, uploaded_audio, url, type, guid, resource_id, created_at, updated_at}).
+-record(contact, {id, project_id, address, anonymous, created_at, updated_at}).
+-record(persisted_variable, {id, contact_id, implicit_key, project_variable_id, value, created_at, updated_at}).
+-record(project_variable, {id, project_id, name, created_at, updated_at}).

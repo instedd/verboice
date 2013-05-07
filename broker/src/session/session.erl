@@ -63,6 +63,7 @@ ready({answer, Pbx, ChannelId, CallerId}, Session) ->
   Channel = channel:find(ChannelId),
   CallFlow = call_flow:find(Channel#channel.call_flow_id),
   Project = project:find(CallFlow#call_flow.project_id),
+  Contact = find_contact(CallFlow#call_flow.project_id, CallerId),
   CallLog = call_log:create(#call_log{
     account_id = Channel#channel.account_id,
     project_id = CallFlow#call_flow.project_id,
@@ -76,7 +77,7 @@ ready({answer, Pbx, ChannelId, CallerId}, Session) ->
   Flow = CallFlow:commands(),
   io:format("~p~n", [Flow]),
 
-  NewSession = Session#session{pbx = Pbx, flow = Flow, call_log = CallLog, project = Project, address = CallerId},
+  NewSession = Session#session{pbx = Pbx, flow = Flow, call_log = CallLog, project = Project, address = CallerId, contact = Contact},
   spawn_run(NewSession),
 
   {next_state, in_progress, NewSession}.
@@ -85,13 +86,15 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
   error_logger:info_msg("Session (~p) dial", [Session#session.session_id]),
   CallLog = call_log:find(QueuedCall#queued_call.call_log_id),
   Project = project:find(QueuedCall#queued_call.project_id),
+  Contact = find_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address),
 
   NewSession = Session#session{
     channel = Channel,
     address = QueuedCall#queued_call.address,
     call_log = CallLog,
     queued_call = QueuedCall,
-    project = Project
+    project = Project,
+    contact = Contact
   },
 
   case RealBroker:dispatch(NewSession) of
@@ -206,8 +209,32 @@ default_language(Session = #session{project = Project}) ->
   io:format("Default language: ~p~n", [Language]),
   binary_to_list(Language).
 
+find_contact(ProjectId, Address) ->
+  case contact:find([{project_id, ProjectId}, {address, Address}]) of
+    not_found ->
+      contact:create(#contact{project_id = ProjectId, address = Address});
+    Contact -> Contact
+  end.
+
+default_variables(Session = #session{contact = Contact, project = #project{id = ProjectId}}) ->
+  Context = erjs_object:new([{var_language, default_language(Session)}]),
+  ProjectVars = project_variable:names_for_project(ProjectId),
+  Variables = persisted_variable:find_all({contact_id, Contact#contact.id}),
+  default_variables(Context, ProjectVars, Variables).
+
+default_variables(Context, _ProjectVars, []) -> Context;
+default_variables(Context, ProjectVars, [#persisted_variable{value = undefined} | Rest]) ->
+  default_variables(Context, ProjectVars, Rest);
+default_variables(Context, ProjectVars, [Var | Rest]) ->
+  VarName = case Var#persisted_variable.implicit_key of
+    <<"language">> -> var_language;
+    undefined -> proplists:get_value(Var#persisted_variable.project_variable_id, ProjectVars)
+  end,
+  VarValue = binary_to_list(Var#persisted_variable.value),
+  default_variables(erjs_object:set(VarName, VarValue, Context), ProjectVars, Rest).
+
 run(Session = #session{pbx = Pbx}) ->
-  JsContext = erjs_object:new([{var_language, default_language(Session)}]),
+  JsContext = default_variables(Session),
   RunSession = Session#session{js_context = JsContext},
   try run(RunSession, 1) of
     X -> X

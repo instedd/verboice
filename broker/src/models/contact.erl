@@ -1,0 +1,3 @@
+-module(contact).
+-define(TABLE_NAME, "contacts").
+-include("model.hrl").
