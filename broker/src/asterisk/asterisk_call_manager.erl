@@ -10,37 +10,49 @@ init(_) ->
 %% @private
 handle_event({new_session, Pid, Env}, State) ->
   io:format("New call ~p~n", [Env]),
-  Pbx = asterisk_pbx:new(Pid),
-
-  case proplists:get_value(arg_1, Env) of
-    Arg1 when is_binary(Arg1), Arg1 =/= <<>> ->
-      % Outgoing call
-      SessionId = binary_to_list(Arg1),
-      case session:find(SessionId) of
-        undefined ->
-          agi_session:close(Pid),
-          {ok, State};
-        SessionPid ->
-          session:answer(SessionPid, Pbx),
-          {ok, dict:store(Pid, SessionPid, State)}
-      end;
+  case proplists:get_value(extension, Env) of
+    <<"h">> ->
+      % Ignore incoming calls of hangup sessions
+      agi_session:close(Pid),
+      {ok, State};
 
     _ ->
-      % Incoming call
-      {ok, PeerIp} = agi_session:get_variable(Pid, "CHANNEL(peerip)"),
-      SipTo = binary_to_list(proplists:get_value(dnid, Env)),
-      ChannelId = asterisk_channel_srv:find_channel(PeerIp, SipTo),
-      CallerId = proplists:get_value(callerid, Env),
+      Pbx = asterisk_pbx:new(Pid),
 
-      case session:new() of
-        {ok, SessionPid} ->
-          io:format("Answering..."),
-          monitor(process, Pid), % TODO: let the session monitor the pbx pid
-          session:answer(SessionPid, Pbx, ChannelId, CallerId),
-          {ok, dict:store(Pid, SessionPid, State)};
-        {error, _Reason} ->
-          agi_session:close(Pid),
-          {ok, State}
+      case proplists:get_value(arg_1, Env) of
+        Arg1 when is_binary(Arg1), Arg1 =/= <<>> ->
+          % Outgoing call
+          SessionId = binary_to_list(Arg1),
+          case session:find(SessionId) of
+            undefined ->
+              agi_session:close(Pid),
+              {ok, State};
+            SessionPid ->
+              session:answer(SessionPid, Pbx),
+              {ok, dict:store(Pid, SessionPid, State)}
+          end;
+
+        _ ->
+          % Incoming call
+          {ok, PeerIp} = agi_session:get_variable(Pid, "CHANNEL(peerip)"),
+          SipTo = binary_to_list(proplists:get_value(dnid, Env)),
+          ChannelId = asterisk_channel_srv:find_channel(PeerIp, SipTo),
+          CallerId = case proplists:get_value(callerid, Env) of
+            <<>> -> undefined;
+            <<"unknown">> -> undefined;
+            X -> X
+          end,
+
+          case session:new() of
+            {ok, SessionPid} ->
+              io:format("Answering..."),
+              monitor(process, Pid), % TODO: let the session monitor the pbx pid
+              session:answer(SessionPid, Pbx, ChannelId, CallerId),
+              {ok, dict:store(Pid, SessionPid, State)};
+            {error, _Reason} ->
+              agi_session:close(Pid),
+              {ok, State}
+          end
       end
   end;
 

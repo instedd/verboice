@@ -63,7 +63,6 @@ ready({answer, Pbx, ChannelId, CallerId}, Session) ->
   Channel = channel:find(ChannelId),
   CallFlow = call_flow:find(Channel#channel.call_flow_id),
   Project = project:find(CallFlow#call_flow.project_id),
-  Contact = find_contact(CallFlow#call_flow.project_id, CallerId),
   CallLog = call_log:create(#call_log{
     account_id = Channel#channel.account_id,
     project_id = CallFlow#call_flow.project_id,
@@ -74,6 +73,7 @@ ready({answer, Pbx, ChannelId, CallerId}, Session) ->
     started_at = calendar:universal_time(),
     call_flow_id = CallFlow#call_flow.id
   }),
+  Contact = get_contact(CallFlow#call_flow.project_id, CallerId, CallLog#call_log.id),
   Flow = CallFlow:commands(),
   io:format("~p~n", [Flow]),
 
@@ -86,7 +86,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
   error_logger:info_msg("Session (~p) dial", [Session#session.session_id]),
   CallLog = call_log:find(QueuedCall#queued_call.call_log_id),
   Project = project:find(QueuedCall#queued_call.project_id),
-  Contact = find_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address),
+  Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, CallLog#call_log.id),
 
   NewSession = Session#session{
     channel = Channel,
@@ -209,12 +209,10 @@ default_language(Session = #session{project = Project}) ->
   io:format("Default language: ~p~n", [Language]),
   binary_to_list(Language).
 
-find_contact(ProjectId, Address) ->
-  case contact:find([{project_id, ProjectId}, {address, Address}]) of
-    not_found ->
-      contact:create(#contact{project_id = ProjectId, address = Address});
-    Contact -> Contact
-  end.
+get_contact(ProjectId, undefined, CallLogId) ->
+  contact:create(#contact{project_id = ProjectId, anonymous = 1, address = "Anonymous" ++ integer_to_list(CallLogId)});
+get_contact(ProjectId, Address, _) ->
+  contact:find_or_create([{project_id, ProjectId}, {address, Address}]).
 
 default_variables(Session = #session{contact = Contact, project = #project{id = ProjectId}}) ->
   Context = erjs_object:new([{var_language, default_language(Session)}]),
