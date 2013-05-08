@@ -66,7 +66,7 @@ find_all(Criteria, Options) ->
 update(Record = #?MODULE{}) ->
   Now = {datetime, calendar:universal_time()},
   RecordToUpdate = Record#?MODULE{updated_at = Now},
-  1 = db:update(update_query(RecordToUpdate)),
+  db:update(update_query(RecordToUpdate)),
   RecordToUpdate.
 
 delete(Record = #?MODULE{}) ->

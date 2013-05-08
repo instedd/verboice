@@ -38,17 +38,18 @@ replace_vars(Text, Session, Output) ->
 
 prepare_text_resource(Text, Session = #session{pbx = Pbx, project = Project}) ->
   ReplacedText = replace_vars(Text, Session),
-  case Pbx:can_play(text) of
+  Language = Session:language(),
+  case Pbx:can_play({text, Language}) of
     false ->
       Name = util:md5hex(ReplacedText),
       TargetPath = Pbx:sound_path_for(Name),
       case filelib:is_file(TargetPath) of
         true -> ok;
-        false -> tts:synthesize(ReplacedText, Project, Session:language(), TargetPath)
+        false -> tts:synthesize(ReplacedText, Project, Language, TargetPath)
       end,
       {file, Name};
     true ->
-      {text, ReplacedText}
+      {text, Language, ReplacedText}
   end.
 
 prepare_blob_resource(Name, Blob, #session{pbx = Pbx}) ->

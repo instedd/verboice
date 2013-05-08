@@ -31,7 +31,7 @@ answer(?PBX(_)) -> ok.
 hangup(?PBX(_)) -> throw(not_implemented).
 
 can_play(url, _) -> true;
-can_play(text, _) -> true;
+can_play({text, Lang}, _) -> lists:member(Lang, ["en", "es", "fr", "de", "it"]);
 can_play(file, _) -> true.
 
 play(Resource, ?PBX) ->
@@ -113,8 +113,8 @@ terminate(_Reason, State) ->
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
 
-resource_command({text, Text}, _) ->
-  {'Say', [binary_to_list(Text)]};
+resource_command({text, Language, Text}, _) ->
+  {'Say', [{language, Language}], [binary_to_list(Text)]};
 
 resource_command({file, Name}, #state{callback_url = CallbackUrl}) ->
   {'Play', [[CallbackUrl, Name, ".mp3"]]}.
