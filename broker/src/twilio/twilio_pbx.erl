@@ -77,16 +77,13 @@ handle_call({resume, _Params}, From, State = #state{session = Session}) ->
   gen_server:reply(Session, ok),
   {noreply, State#state{awaiter = From}};
 
-handle_call({play, {text, Text}}, _From, State) ->
-  {reply, ok, append({'Say', [binary_to_list(Text)]}, State)};
+handle_call({play, Resource}, _From, State) ->
+  {reply, ok, append(resource_command(Resource, State), State)};
 
-handle_call({play, {file, Name}}, _From, State = #state{callback_url = CallbackUrl}) ->
-  {reply, ok, append({'Play', [[CallbackUrl, Name, ".mp3"]]}, State)};
-
-handle_call({capture, {text, Text}, Timeout, FinishOnKey, Min, Max}, From, State) ->
+handle_call({capture, Resource, Timeout, FinishOnKey, Min, Max}, From, State) ->
   Command =
     {'Gather', [{timeout, Timeout}, {finishOnKey, FinishOnKey}, {numDigits, Max}],
-      [{'Say', [binary_to_list(Text)]}]
+      [resource_command(Resource, State)]
     },
   flush(From, append_with_callback(Command, State#state{waiting = {capture, Min}}));
 
@@ -115,6 +112,12 @@ terminate(_Reason, State) ->
 %% @private
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
+
+resource_command({text, Text}, _) ->
+  {'Say', [binary_to_list(Text)]};
+
+resource_command({file, Name}, #state{callback_url = CallbackUrl}) ->
+  {'Play', [[CallbackUrl, Name, ".mp3"]]}.
 
 append(Command, State = #state{commands = Commands}) ->
   State#state{commands = [Command | Commands]}.
