@@ -14,10 +14,18 @@ run(Args, Session = #session{pbx = Pbx, js_context = JS, call_log = CallLog}) ->
   CallLog:info("Waiting user input", [{command, "capture"}, {action, "waiting"}]),
 
   JS3 = case Pbx:capture(Caption, Timeout, FinishOnKey, Min, Max) of
-    finish_key -> erjs_object:set(finish_key, true, JS2);
-    timeout -> erjs_object:set(timeout, true, JS2);
-    short_entry -> erjs_object:set(finish_key, true, JS2);
-    {digits, Digits} -> erjs_object:set(digits, Digits, JS2)
+    finish_key ->
+      CallLog:info("User pressed the finish key", [{command, "capture"}, {action, "finish_key"}]),
+      erjs_object:set(finish_key, true, JS2);
+    timeout ->
+      CallLog:info("User timeout", [{command, "capture"}, {action, "timeout"}]),
+      erjs_object:set(timeout, true, JS2);
+    short_entry ->
+      CallLog:info("User didn't press enough digits", [{command, "capture"}, {action, "short_entry"}]),
+      erjs_object:set(finish_key, true, JS2);
+    {digits, Digits} ->
+      CallLog:info(["User pressed: ", Digits], [{command, "capture"}, {action, "received"}]),
+      erjs_object:set(digits, Digits, JS2)
   end,
   {next, Session#session{js_context = JS3}}.
 
