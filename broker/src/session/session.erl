@@ -192,9 +192,14 @@ finalize({failed, Reason}, Session = #session{call_log = CallLog}) ->
 spawn_run(Session) ->
   SessionPid = self(),
   spawn_monitor(fun() ->
-    {Result, _NewSession} = run(Session),
-    gen_fsm:send_event(SessionPid, {completed, Result})
+    {Result, #session{js_context = JsContext}} = run(Session),
+    Status = erjs_object:get(status, JsContext),
+    gen_fsm:send_event(SessionPid, {completed, flow_result(Result, Status)})
   end).
+
+flow_result(ok, "failed") -> {error, "marked as failed"};
+flow_result({error, _}, "successful") -> ok;
+flow_result(Result, _) -> Result.
 
 default_language(Session = #session{project = Project}) ->
   Language = case Session#session.queued_call of
