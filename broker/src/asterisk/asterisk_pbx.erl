@@ -1,5 +1,5 @@
 -module(asterisk_pbx).
--export([new/1, answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2]).
+-export([new/1, answer/1, hangup/1, can_play/2, play/2, capture/6, record/4, terminate/1, sound_path_for/2]).
 
 new(Pid) ->
   {?MODULE, Pid}.
@@ -57,4 +57,20 @@ capture_digits(Timeout, FinishOnKey, Min, Max, Pid, Keys) ->
           end;
         _ -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, Keys ++ [Key])
       end
+  end.
+
+record(FileName, StopKeys, Timeout, {?MODULE, Pid}) ->
+  TempFile = filename:rootname(FileName) ++ ".gsm",
+  file:write_file(TempFile, <<>>),
+  file:change_mode(TempFile, 8#666),
+
+  try
+    case agi_session:record_file(Pid, filename:absname(filename:rootname(FileName)), "gsm", StopKeys, Timeout * 1000) of
+      hangup -> throw(hangup);
+      error -> throw(error);
+      _ ->
+        sox:convert(TempFile, FileName)
+    end
+  after
+    file:delete(TempFile)
   end.

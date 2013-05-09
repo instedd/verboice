@@ -220,7 +220,7 @@ get_contact(ProjectId, Address, _) ->
   contact:find_or_create([{project_id, ProjectId}, {address, Address}]).
 
 default_variables(Session = #session{contact = Contact, project = #project{id = ProjectId}}) ->
-  Context = erjs_object:new([{var_language, default_language(Session)}]),
+  Context = erjs_object:new([{var_language, default_language(Session)},{record_url, fun(_Key) -> "<url>" end}]),
   ProjectVars = project_variable:names_for_project(ProjectId),
   Variables = persisted_variable:find_all({contact_id, Contact#contact.id}),
   default_variables(Context, ProjectVars, Variables).

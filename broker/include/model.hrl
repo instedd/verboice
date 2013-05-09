@@ -79,9 +79,9 @@ insert_query(Record) ->
 insert_fields(Record, [id | Rest]) ->
   insert_fields(Record, Rest);
 insert_fields(Record, [Field]) ->
-  [atom_to_list(Field), ") VALUES (" | insert_values(Record, 3, record_info(size, ?MODULE))];
+  ["`", atom_to_list(Field), "`) VALUES (" | insert_values(Record, 3, record_info(size, ?MODULE))];
 insert_fields(Record, [Field | Rest]) ->
-  [atom_to_list(Field), ", " | insert_fields(Record, Rest)].
+  ["`", atom_to_list(Field), "`, " | insert_fields(Record, Rest)].
 
 insert_values(Record, Index, Count) when Index =:= Count ->
   [mysql:encode(element(Index, Record)), ")"];
@@ -92,9 +92,9 @@ select_query(Criteria, Options) ->
   ["SELECT " | select_fields(Criteria, Options, record_info(fields, ?MODULE))].
 
 select_fields(Criteria, Options, [Field]) ->
-  [atom_to_list(Field), " FROM ", ?TABLE_NAME | select_criteria(Criteria, Options)];
+  ["`", atom_to_list(Field), "` FROM ", ?TABLE_NAME | select_criteria(Criteria, Options)];
 select_fields(Criteria, Options, [Field | Rest]) ->
-  [atom_to_list(Field), ", " | select_fields(Criteria, Options, Rest)].
+  ["`", atom_to_list(Field), "`, " | select_fields(Criteria, Options, Rest)].
 
 select_criteria([], Options) -> select_options(Options);
 select_criteria(Criteria, Options) ->

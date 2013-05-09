@@ -1,5 +1,5 @@
 -module(agi_session).
--export([start_link/1, close/1, get_variable/2, answer/1, hangup/1, stream_file/3, wait_for_digit/2]).
+-export([start_link/1, close/1, get_variable/2, answer/1, hangup/1, stream_file/3, wait_for_digit/2, record_file/5]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -48,6 +48,16 @@ wait_for_digit(Pid, Timeout) ->
     #response{result = "-1"} -> error;
     #response{result = "0"} -> timeout;
     #response{result = Digit} -> {digit, list_to_integer(Digit)}
+  end.
+
+record_file(Pid, FileName, Format, StopKeys, Timeout) ->
+  case gen_server:call(Pid, {execute, ["RECORD FILE \"", FileName, "\" ", Format, " \"", StopKeys, "\" ", integer_to_list(Timeout)]}) of
+    hangup -> hangup;
+    #response{result = "-1", parent = _} -> error;
+    #response{result = "0", parent = "hangup"} -> hangup;
+    #response{result = "0", parent = "timeout"} -> timeout;
+    #response{result = Digit, parent = "dtmf"} -> {digit, list_to_integer(Digit)};
+    _ -> error
   end.
 
 %% @private

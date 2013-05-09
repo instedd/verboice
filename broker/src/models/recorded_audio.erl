@@ -1,0 +1,3 @@
+-module(recorded_audio).
+-define(TABLE_NAME, "recorded_audios").
+-include("model.hrl").
