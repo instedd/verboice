@@ -16,9 +16,8 @@ answer({?MODULE, Pid}) ->
 hangup({?MODULE, Pid}) ->
   agi_session:hangup(Pid).
 
-can_play(url, _) -> false;
-can_play(text, _) -> false;
-can_play(file, _) -> true.
+can_play(file, _) -> true;
+can_play(_, _) -> false.
 
 play(Resource, Pbx = {?MODULE, _Pid}) ->
   play(Resource, "", Pbx).
