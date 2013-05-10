@@ -62,10 +62,30 @@ prepare_url_resource(Url, #session{pbx = Pbx}) ->
   TargetPath = Pbx:sound_path_for(Name),
   case filelib:is_file(TargetPath) of
     true -> ok;
-    false -> download(Url, TargetPath)
+    false ->
+      TempFile = TargetPath ++ ".tmp",
+      try
+        {ok, {_, Headers, Body}} = httpc:request(Url),
+        file:write_file(TempFile, Body),
+        Type = guess_type(Url, Headers),
+        sox:convert(TempFile, Type, TargetPath)
+      after
+        file:delete(TempFile)
+      end
   end,
   {file, Name}.
 
-download(Url, TargetPath) ->
-  {ok, {_, _, Body}} = httpc:request(Url),
-  sox:convert(Body, TargetPath).
+guess_type(Url, Headers) ->
+  case proplists:get_value("content-type", Headers) of
+    "audio/mpeg" -> "mp3";
+    "audio/mpeg3" -> "mp3";
+    "audio/x-mpeg-3" -> "mp3";
+    "audio/wav" -> "wav";
+    "audio/x-wav" -> "wav";
+    _ -> case filename:extension(Url) of
+      ".wav" -> "wav";
+      ".mp3" -> "mp3";
+      ".gsm" -> "gsm";
+      _ -> throw("Unknown file type")
+    end
+  end.
