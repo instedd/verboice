@@ -11,7 +11,8 @@ run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log =
   end,
   ResponseType = proplists:get_value(response_type, Args, flow),
   Params = proplists:get_value(params, Args, []),
-  QueryString = prepare_params(Params, "CallSid=" ++ SessionId, JS),
+  Variables = proplists:get_value(variables, Args, []),
+  QueryString = prepare_params(Params ++ Variables, "CallSid=" ++ SessionId, JS),
 
   Response = httpc:request(post, {interpolate(Url, Args, Session), [], "application/x-www-form-urlencoded", QueryString}, [], []),
 
