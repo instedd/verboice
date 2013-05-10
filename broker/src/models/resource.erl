@@ -17,27 +17,14 @@ prepare(Guid, Session) ->
     LocalizedResource -> LocalizedResource:prepare(Session)
   end.
 
-replace_vars(Text, Session) -> replace_vars(Text, Session, <<>>).
-
-replace_vars(<<>>, _, Output) -> Output;
-replace_vars(Text, Session, Output) ->
-  case binary:split(Text, [<<${>>]) of
-    [_] -> <<Output/binary, Text/binary>>;
-    [H1, T1] ->
-      case binary:split(T1, [<<$}>>]) of
-        [_] -> <<Output/binary, Text/binary>>;
-        [VarNameBin, T2] ->
-          VarName = binary_to_atom(<<"var_", VarNameBin/binary>>, utf8),
-          Value = case erjs_object:get(VarName, Session#session.js_context) of
-            undefined -> <<>>;
-            X -> list_to_binary(X)
-          end,
-          replace_vars(T2, Session, <<Output/binary, H1/binary, Value/binary>>)
-      end
-  end.
-
-prepare_text_resource(Text, Session = #session{pbx = Pbx, project = Project}) ->
-  ReplacedText = replace_vars(Text, Session),
+prepare_text_resource(Text, Session = #session{pbx = Pbx, project = Project, js_context = JsContext}) ->
+  ReplacedText = util:interpolate(Text, fun(VarNameBin) ->
+    VarName = binary_to_atom(<<"var_", VarNameBin/binary>>, utf8),
+    case erjs_object:get(VarName, JsContext) of
+      undefined -> <<>>;
+      X -> list_to_binary(X)
+    end
+  end),
   Language = Session:language(),
   case Pbx:can_play({text, Language}) of
     false ->

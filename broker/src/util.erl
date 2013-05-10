@@ -1,5 +1,5 @@
 -module(util).
--export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1]).
+-export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1, interpolate/2]).
 
 md5hex(Data) ->
   Hash = crypto:md5(Data),
@@ -37,3 +37,18 @@ parse_qs([_ | Rest], OrigQS) ->
 
 normalize_phone_number(Phone) ->
   iolist_to_binary(re:replace(Phone, "[\\+\\s-]", "", [global])).
+
+interpolate(Text, Fun) -> interpolate(Text, Fun, <<>>).
+
+interpolate(<<>>, _, Output) -> Output;
+interpolate(Text, Fun, Output) ->
+  case binary:split(Text, [<<${>>]) of
+    [_] -> <<Output/binary, Text/binary>>;
+    [H1, T1] ->
+      case binary:split(T1, [<<$}>>]) of
+        [_] -> <<Output/binary, Text/binary>>;
+        [VarName, T2] ->
+          Value = Fun(VarName),
+          interpolate(T2, Fun, <<Output/binary, H1/binary, Value/binary>>)
+      end
+  end.
