@@ -1,12 +1,16 @@
 -module(callback).
 -export([run/2]).
 -include("session.hrl").
+-include("db.hrl").
 
-run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log = CallLog}) ->
+run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log = CallLog, call_flow = CallFlow}) ->
   CallLog:info("Callback started", [{command, "callback"}, {action, "start"}]),
-  Url = proplists:get_value(url, Args, "http://localhost:4567/"),
+  Url = case proplists:get_value(url, Args) of
+    undefined -> binary_to_list(CallFlow#call_flow.callback_url);
+    X -> X
+  end,
   Params = proplists:get_value(params, Args, []),
-  QueryString = prepare_params(Params, "CallSid=" ++ erlang:ref_to_list(SessionId), JS),
+  QueryString = prepare_params(Params, "CallSid=" ++ SessionId, JS),
 
   Response = httpc:request(post, {Url, [], "application/x-www-form-urlencoded", QueryString}, [], []),
 

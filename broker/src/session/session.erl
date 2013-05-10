@@ -77,7 +77,7 @@ ready({answer, Pbx, ChannelId, CallerId}, Session) ->
   Flow = CallFlow:commands(),
   io:format("~p~n", [Flow]),
 
-  NewSession = Session#session{pbx = Pbx, flow = Flow, call_log = CallLog, project = Project, address = CallerId, contact = Contact},
+  NewSession = Session#session{pbx = Pbx, flow = Flow, call_flow = CallFlow, call_log = CallLog, project = Project, address = CallerId, contact = Contact},
   spawn_run(NewSession),
 
   {next_state, in_progress, NewSession}.
@@ -108,7 +108,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
 dialing({answer, Pbx}, Session) ->
   error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),
   CallFlow = call_flow:find(Session#session.queued_call#queued_call.call_flow_id),
-  NewSession = Session#session{pbx = Pbx, flow = CallFlow:commands()},
+  NewSession = Session#session{pbx = Pbx, flow = CallFlow:commands(), call_flow = CallFlow},
   notify_status('in-progress', NewSession),
   spawn_run(NewSession),
 
