@@ -12,14 +12,18 @@ run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log =
   ResponseType = proplists:get_value(response_type, Args, flow),
   Params = proplists:get_value(params, Args, []),
   Variables = proplists:get_value(variables, Args, []),
+  Method = proplists:get_value(method, Args, "post"),
+
   QueryString = prepare_params(Params ++ Variables, "CallSid=" ++ SessionId, JS),
-
-  Response = httpc:request(post, {interpolate(Url, Args, Session), [], "application/x-www-form-urlencoded", QueryString}, [], []),
-
-  {ok, {_StatusLine, _Headers, Body}} = Response,
+  RequestUrl = interpolate(Url, Args, Session),
+  {ok, {_StatusLine, _Headers, Body}} = case Method of
+    "get" ->
+      httpc:request(RequestUrl ++ "?" ++ QueryString);
+    _ ->
+      httpc:request(post, {RequestUrl, [], "application/x-www-form-urlencoded", QueryString}, [], [])
+  end,
 
   CallLog:trace(["Callback returned: ", Body], [{command, "callback"}, {action, "return"}]),
-
   handle_response(ResponseType, Body, Session).
 
 handle_response(flow, Body, Session) ->
