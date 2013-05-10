@@ -29,7 +29,7 @@ run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log =
 handle_response(flow, Body, Session) ->
   Commands = twiml:parse(Body),
   io:format("~p~n", [Commands]),
-  {{goto, 0}, Session#session{flow = Commands}};
+  {{exec, Commands}, Session};
 
 handle_response(variables, Body, Session) ->
   {ok, Response} = json:decode(Body),

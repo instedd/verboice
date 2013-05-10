@@ -1,1 +1,1 @@
--record(session, {session_id, pbx, flow, call_flow, js_context, call_log, address, channel, queued_call, project, contact}).
+-record(session, {session_id, pbx, flow, stack = [], call_flow, js_context, call_log, address, channel, queued_call, project, contact}).

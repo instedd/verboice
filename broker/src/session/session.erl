@@ -245,8 +245,8 @@ run(Session = #session{pbx = Pbx}) ->
     Pbx:terminate()
   end.
 
-run(Session = #session{flow = Flow}, Ptr) when Ptr > length(Flow) -> {ok, Session};
-run(Session = #session{flow = Flow, call_log = CallLog}, Ptr) ->
+run(Session = #session{flow = Flow}, Ptr) when Ptr > length(Flow) -> end_flow(Session);
+run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
   Command = lists:nth(Ptr, Flow),
   try eval(Command, Session) of
     {Action, NewSession} ->
@@ -256,9 +256,12 @@ run(Session = #session{flow = Flow, call_log = CallLog}, Ptr) ->
         {goto, N} ->
           run(NewSession, N + 1);
         {exec, NewFlow} ->
-          run(NewSession#session{flow = NewFlow}, 1);
+          case has_ended(Flow, Ptr + 1) of
+            true -> run(NewSession#session{flow = NewFlow}, 1);
+            false -> run(NewSession#session{flow = NewFlow, stack = [{Flow, Ptr + 1} | Stack]}, 1)
+          end;
         finish ->
-          {ok, NewSession}
+          end_flow(NewSession)
       end
   catch
     hangup ->
@@ -270,6 +273,13 @@ run(Session = #session{flow = Flow, call_log = CallLog}, Ptr) ->
         [Session#session.session_id, CallLog#call_log.id, Class, Error, erlang:get_stacktrace()]),
       {{error, error}, Session}
   end.
+
+end_flow(Session = #session{stack = []}) -> {ok, Session};
+end_flow(Session = #session{stack = [{Flow, Ptr} | Rest]}) ->
+  run(Session#session{flow = Flow, stack = Rest}, Ptr).
+
+has_ended(Flow, Ptr) when Ptr > length(Flow) ->  true;
+has_ended(Flow, Ptr) -> lists:nth(Ptr, Flow) =:= stop.
 
 eval(stop, Session) -> {finish, Session};
 eval([Command, Args], Session) -> Command:run(Args, Session);
