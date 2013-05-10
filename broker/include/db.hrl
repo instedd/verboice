@@ -13,3 +13,4 @@
 -record(persisted_variable, {id, contact_id, implicit_key, project_variable_id, value, created_at, updated_at}).
 -record(project_variable, {id, project_id, name, created_at, updated_at}).
 -record(recorded_audio, {id, contact_id, call_log_id, key, description, created_at, updated_at}).
+-record(external_service, {id, project_id, guid, global_settings, created_at, updated_at}).

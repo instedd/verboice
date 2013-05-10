@@ -25,6 +25,8 @@ resolve_mapping_tag(<<"!">>)                     -> {ok, 'tag:yaml.org,2002:map'
 resolve_mapping_tag(<<"tag:yaml.org,2002:map">>) -> {ok, 'tag:yaml.org,2002:map'};
 resolve_mapping_tag(null)                        -> {ok, 'tag:yaml.org,2002:map'};
 resolve_mapping_tag(<<"!ruby/hash:ActiveSupport::HashWithIndifferentAccess">>) ->
+  {ok, 'tag:yaml.org,2002:map'};
+resolve_mapping_tag(<<"!ruby/object:", _/binary>>) ->
   {ok, 'tag:yaml.org,2002:map'}.
 
 %% @doc Construct a mapping.  Return nomatch if the tag is invalid.
