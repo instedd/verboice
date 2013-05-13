@@ -62,15 +62,14 @@ scan(Flow, [Gather = #xmlElement{name = 'Gather'} | Rest]) ->
       end
     end, {CaptureOpts1, [{params, [{"Digits", "digits"}]}]}, Gather#xmlElement.attributes),
 
+  NextIndex = case Rest of [] -> 3; _ -> 4 end,
   Commands = [
     [capture, CaptureOpts],
-    ['if', [{condition, "timeout || finish_key"}, {then, length(Flow) + 3}]],
-    [callback, CallbackOpts]
+    ['if', [{condition, "timeout || finish_key"}, {then, length(Flow) + NextIndex}]],
+    [callback, CallbackOpts],
+    stop
   ],
-  case Rest of
-    [] -> Flow ++ Commands ++ [stop];
-    _ -> scan(Flow ++ Commands, Rest)
-  end.
+  scan(Flow ++ Commands, Rest).
 
 get_attribute(#xmlElement{attributes = Attributes}, AttrName) ->
   case lists:keyfind(AttrName, #xmlAttribute.name, Attributes) of

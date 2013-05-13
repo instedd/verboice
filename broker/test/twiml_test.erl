@@ -2,37 +2,39 @@
 -include_lib("eunit/include/eunit.hrl").
 
 parse_cases() -> [
-  {"<Response><Play>http://foo</Play></Response>", [[play_url, [{url, "http://foo"}]]]},
-  {"<Response><Say>Hello</Say></Response>", [[say, [{text, "Hello"}]]]},
-  {"<Response><Hangup/></Response>", [hangup]},
-  {"<Response><Pause /></Response>", [pause]},
-  {"<Response><Pause length=\"3\"/></Response>", [[pause, [{length, 3}]]]},
-  {"<Response><Gather/></Response>", gather_commands([{min,1}, {max,infinity}])},
-  {"<Response><Gather timeout=\"3\" finishOnKey=\"*\" numDigits=\"4\"/></Response>",
+  {?LINE, "<Response><Play>http://foo</Play></Response>", [[play_url, [{url, "http://foo"}]]]},
+  {?LINE, "<Response><Say>Hello</Say></Response>", [[say, [{text, "Hello"}]]]},
+  {?LINE, "<Response><Hangup/></Response>", [hangup]},
+  {?LINE, "<Response><Pause /></Response>", [pause]},
+  {?LINE, "<Response><Pause length=\"3\"/></Response>", [[pause, [{length, 3}]]]},
+  {?LINE, "<Response><Gather/></Response>", gather_commands([{min,1}, {max,infinity}])},
+  {?LINE, "<Response><Gather timeout=\"3\" finishOnKey=\"*\" numDigits=\"4\"/></Response>",
     gather_commands([{min, 4}, {max, 4}, {finish_on_key, "*"}, {timeout, 3}])},
-  {"<Response><Gather><Play>http://foo</Play></Gather></Response>",
+  {?LINE, "<Response><Gather><Play>http://foo</Play></Gather></Response>",
     gather_commands([{play, "http://foo"}, {min, 1}, {max, infinity}])},
-  {"<Response><Gather><Say>hello</Say></Gather></Response>",
+  {?LINE, "<Response><Gather><Say>hello</Say></Gather></Response>",
     gather_commands([{say, "hello"}, {min, 1}, {max, infinity}])},
-  {"<Response><Gather/><Hangup /></Response>",
+  {?LINE, "<Response><Gather/><Hangup /></Response>",
     gather_commands([{min, 1}, {max, infinity}], [hangup])},
-  {"<Response><Gather action=\"http://foo.com\" method=\"GET\"/></Response>",
-    gather_commands([{min, 1}, {max, infinity}], [stop], [{method, get}, {url, "http://foo.com"}])},
+  {?LINE, "<Response><Gather action=\"http://foo.com\" method=\"GET\"/></Response>",
+    gather_commands([{min, 1}, {max, infinity}], [], [{method, get}, {url, "http://foo.com"}])},
 
-  {"<Response><Redirect>http://foo.com</Redirect></Response>",
+  {?LINE, "<Response><Redirect>http://foo.com</Redirect></Response>",
     [[callback, [{url, "http://foo.com"}]]]},
-  {"<Response><Redirect method=\"get\">http://foo.com</Redirect></Response>",
+  {?LINE, "<Response><Redirect method=\"get\">http://foo.com</Redirect></Response>",
     [[callback, [{url, "http://foo.com"}, {method, get}]]]}
 ].
 
-gather_commands(CaptureOptions) -> gather_commands(CaptureOptions, [stop]).
+gather_commands(CaptureOptions) -> gather_commands(CaptureOptions, []).
 gather_commands(CaptureOptions, NextCommands) -> gather_commands(CaptureOptions, NextCommands, []).
 gather_commands(CaptureOptions, NextCommands, CallbackOptions) ->
+  NextIndex = case NextCommands of [] -> 3; _ -> 4 end,
   [
     [capture, CaptureOptions],
-    ['if', [{condition, "timeout || finish_key"}, {then, 3}]],
-    [callback, CallbackOptions ++ [{params, [{"Digits", "digits"}]}]]
+    ['if', [{condition, "timeout || finish_key"}, {then, NextIndex}]],
+    [callback, CallbackOptions ++ [{params, [{"Digits", "digits"}]}]],
+    stop
   ] ++ NextCommands.
 
 parse_test_() ->
-  [?_assertEqual(Commands, twiml:parse(Xml)) || {Xml, Commands} <- parse_cases()].
+  [{Line, ?_assertEqual(Commands, twiml:parse(Xml))} || {Line, Xml, Commands} <- parse_cases()].
