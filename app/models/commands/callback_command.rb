@@ -46,11 +46,11 @@ class Commands::CallbackCommand < Command
     body[:LastEntry] = last_entry.id if last_entry.present?
 
     @params.each do |name, key|
-      assign_from_v8(body, name, session[key])
+      assign_from_js(body, name, session[key])
     end if @params
 
     @variables.each do |name, expr|
-      assign_from_v8(body, name, session.eval(expr))
+      assign_from_js(body, name, session.eval(expr))
     end if @variables
 
     if @async
@@ -93,10 +93,10 @@ class Commands::CallbackCommand < Command
 
   private
 
-  def assign_from_v8(hash, prefix, value)
-    if value.is_a?(V8::Object)
+  def assign_from_js(hash, prefix, value)
+    if value.is_a?(RKelly::JS::Object)
       value.to_hash.each do |key, value|
-        assign_from_v8(hash, "#{prefix}[#{key}]", value)
+        assign_from_js(hash, "#{prefix}[#{key}]", value)
       end
     else
       hash[prefix] = value

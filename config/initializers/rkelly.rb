@@ -1,28 +1,27 @@
 # Copyright (C) 2010-2012, InSTEDD
-# 
+#
 # This file is part of Verboice.
-# 
+#
 # Verboice is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Verboice is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-class V8::Object
+class RKelly::JS::Object
   def to_hash
     hash = {}
-    each { |key, value| hash[key] = value }
+    @properties.each do |name, property|
+      next if ["prototype", "Class", "valueOf"].include?(name)
+      hash[name] = property.value
+    end
     hash
-  end
-
-  def respond_to?(method)
-    method == :to_hash || super
   end
 end

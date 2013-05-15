@@ -77,7 +77,7 @@ class Session
   end
 
   def js
-    @js ||= new_v8_context
+    @js ||= create_js_context
   end
 
   def []=(key, value)
@@ -86,7 +86,8 @@ class Session
   end
 
   def [](key)
-    @vars[key] || js[key.to_s]
+    value = @vars[key] || js[key.to_s]
+    value == :undefined ? nil : value
   end
 
   def delete(key)
@@ -95,7 +96,9 @@ class Session
   end
 
   def eval(expr)
-    js.eval expr.to_s
+    result = js.eval expr.to_s
+    raise "undefined" if result == :undefined
+    result
   end
 
   def callback_url
@@ -187,32 +190,12 @@ class Session
     @commands = @commands.run(self)
   end
 
-  def new_v8_context
-    return create_v8_context if Rails.env == 'test'
-
-    unless $context_factory_queue
-      require 'thread'
-      $context_factory_queue = Queue.new
-      Thread.new do
-        loop do
-          requesting_fiber, session = $context_factory_queue.pop
-          ctx = session.create_v8_context
-          EM.schedule { requesting_fiber.resume ctx }
-        end
-      end
-    end
-
-    $context_factory_queue.push [Fiber.current, self]
-    Fiber.yield
-  end
-
-  def create_v8_context
-    ctx = V8::Context.new
+  def create_js_context
+    ctx = RKelly::Runtime.new
 
     ['digits', 'timeout', 'finish_key'].each { |key| ctx[key] = nil }
     ['answer', 'assign', 'callback', 'capture', 'hangup', 'js', 'play_url', 'pause', 'record', 'say'].each do |func|
       ctx[func] = lambda do |*options|
-        options.shift # First argument is always Javascript's 'this'
         if options.length == 1 && options[0].respond_to?(:to_hash)
           options[0] = options[0].to_hash
           options[0].symbolize_keys!
@@ -220,8 +203,8 @@ class Session
         "Commands::#{func.camelcase}Command".constantize.new(*options).run self
       end
     end
-    ctx['alert'] = lambda { |this, str| info str }
-    ctx['record_url'] = lambda { |this, key| record_url(key) }
+    ctx['alert'] = lambda { |str| info str }
+    ctx['record_url'] = lambda { |key| record_url(key) }
     ctx
   end
 
