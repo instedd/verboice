@@ -98,11 +98,15 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
   },
 
   case RealBroker:dispatch(NewSession) of
-    {error, _} -> {stop, normal, unavailable, Session};
+    {error, unavailable} ->
+      {stop, normal, unavailable, NewSession};
+    {error, Reason} ->
+      {_, _, NewSession2} = finalize({failed, Reason}, NewSession),
+      {stop, normal, error, NewSession2};
     _ ->
       CallLog:info(["Dialing to ", QueuedCall#queued_call.address, " through channel ", Channel#channel.name], []),
       notify_status(ringing, NewSession),
-      {reply, ok, dialing, NewSession#session{call_log = call_log:update(CallLog#call_log{state = "active", fail_reason = undefined})}}
+      {reply, ok, dialing, NewSession#session{call_log = call_log:update(CallLog#call_log{state = "active", fail_reason = undefined})}, timer:minutes(1)}
   end.
 
 dialing({answer, Pbx}, Session) ->
@@ -122,7 +126,7 @@ dialing({reject, Reason}, Session = #session{session_id = SessionId, call_log = 
 
 dialing(timeout, Session) ->
   notify_status(busy, Session),
-  {stop, timeout, Session}.
+  finalize({failed, timeout}, Session).
 
 in_progress({completed, ok}, Session) ->
   notify_status('completed', Session),

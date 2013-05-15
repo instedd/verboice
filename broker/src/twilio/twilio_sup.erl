@@ -23,6 +23,7 @@ start_link() ->
 
 init([]) ->
     {ok, { {one_for_all, 5, 10}, [
-      ?CHILD(twilio_pbx_sup, supervisor)
+      ?CHILD(twilio_pbx_sup, supervisor),
+      ?CHILD(twilio_broker, worker)
     ]} }.
 

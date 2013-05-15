@@ -3,7 +3,7 @@
 -define(TABLE_NAME, "queued_calls").
 
 -define(MAP(QueuedCall),
-  {ok, [Variables]} = yaml:load(QueuedCall#queued_call.variables),
+  {ok, [Variables]} = yaml:load(QueuedCall#queued_call.variables, [{schema, yaml_schema_ruby}]),
   QueuedCall#queued_call{variables = Variables}
 ).
 

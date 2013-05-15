@@ -1,5 +1,6 @@
 -module(channel).
 -export([find_all_sip/0, find_all_twilio/0, domain/1, number/1, limit/1, broker/1, username/1, password/1, is_outbound/1, register/1]).
+-export([account_sid/1, auth_token/1]).
 -define(TABLE_NAME, "channels").
 
 -define(MAP(Channel),
@@ -34,6 +35,12 @@ username(#channel{config = Config}) ->
 password(#channel{config = Config}) ->
   binary_to_list(proplists:get_value(<<"password">>, Config)).
 
+account_sid(#channel{config = Config}) ->
+  binary_to_list(proplists:get_value(<<"account_sid">>, Config)).
+
+auth_token(#channel{config = Config}) ->
+  binary_to_list(proplists:get_value(<<"auth_token">>, Config)).
+
 is_outbound(#channel{type = <<"Channels::TemplateBasedSip">>}) ->
   true;
 
@@ -57,5 +64,5 @@ register(#channel{config = Config}) ->
 limit(_) ->
   1.
 
-broker(_) ->
-  asterisk_broker.
+broker(#channel{type = <<"Channels::Twilio">>}) -> twilio_broker;
+broker(_) -> asterisk_broker.

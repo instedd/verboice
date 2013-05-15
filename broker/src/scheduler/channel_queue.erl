@@ -79,6 +79,9 @@ do_dispatch(State = #state{current_calls = C, queued_calls = Q, sessions = S}) -
           monitor(process, SessionPid),
           NewSessions = ordsets:add_element(SessionPid, S),
           do_dispatch(State#state{current_calls = C + 1, queued_calls = Q2, sessions = NewSessions});
+        error ->
+          Call:delete(),
+          do_dispatch(State#state{queued_calls = Q2});
         unavailable ->
           State#state{active = false}
       end

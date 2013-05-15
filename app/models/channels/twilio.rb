@@ -37,6 +37,6 @@ class Channels::Twilio < Channel
   end
 
   def broker
-    Twilio::Broker
+    :twilio_broker
   end
 end
