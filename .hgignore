@@ -20,3 +20,4 @@ broker/deps
 broker/ebin
 broker/.eunit
 broker/*.plt
+broker/rel/verboice
