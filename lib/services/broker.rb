@@ -23,8 +23,10 @@ $log_path = File.expand_path '../../../log/broker.log', __FILE__
 require(File.expand_path '../../../config/boot.rb', __FILE__)
 require(File.expand_path '../../../config/environment.rb', __FILE__)
 
-Rails.logger = Logger.new(STDOUT) if STDOUT.tty?
-Rails.logger.formatter = Logger::Formatter.new
+if STDOUT.tty?
+  Rails.logger = Logger.new(STDOUT)
+  Rails.logger.formatter = Logger::Formatter.new
+end
 
 EM.error_handler do |err|
   p err

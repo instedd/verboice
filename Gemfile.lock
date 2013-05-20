@@ -118,6 +118,8 @@ GEM
     ffaker (1.4.0)
     foreman (0.41.0)
       thor (>= 0.13.6)
+    formatted_rails_logger (0.3.0)
+      rails (~> 3.2.0)
     guid (0.1.1)
     haml (3.1.6)
     haml-rails (0.3.4)
@@ -270,6 +272,7 @@ DEPENDENCIES
   eventmachine_httpserver
   ffaker
   foreman
+  formatted_rails_logger
   guid
   haml-rails
   instedd-rails

@@ -28,6 +28,7 @@ gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribu
 gem 'csv_builder'
 gem 'newrelic_rpm'
 gem 'language_list'
+gem 'formatted_rails_logger'
 
 group :v8 do
   gem 'libv8', '~> 3.11.8'
