@@ -41,7 +41,10 @@ prepare_text_resource(Text, Session = #session{pbx = Pbx, project = Project, js_
 
 prepare_blob_resource(Name, Blob, #session{pbx = Pbx}) ->
   TargetPath = Pbx:sound_path_for(Name),
-  sox:convert(Blob, TargetPath),
+  case filelib:is_file(TargetPath) of
+    true -> ok;
+    false -> sox:convert(Blob, TargetPath)
+  end,
   {file, Name}.
 
 prepare_url_resource(Url, #session{pbx = Pbx}) ->
