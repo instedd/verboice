@@ -36,7 +36,10 @@ handle_event({new_session, Pid, Env}, State) ->
           % Incoming call
           {ok, PeerIp} = agi_session:get_variable(Pid, "CHANNEL(peerip)"),
           SipTo = binary_to_list(proplists:get_value(dnid, Env)),
-          ChannelId = asterisk_channel_srv:find_channel(PeerIp, SipTo),
+          ChannelId = case asterisk_channel_srv:find_channel(PeerIp, SipTo) of
+            not_found -> list_to_integer(binary_to_list(proplists:get_value(arg_2, Env)));
+            Found -> Found
+          end,
           CallerId = case proplists:get_value(callerid, Env) of
             <<>> -> undefined;
             <<"unknown">> -> undefined;
