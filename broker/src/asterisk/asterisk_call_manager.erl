@@ -9,7 +9,6 @@ init(_) ->
 
 %% @private
 handle_event({new_session, Pid, Env}, State) ->
-  io:format("New call ~p~n", [Env]),
   case proplists:get_value(extension, Env) of
     <<"h">> ->
       % Ignore incoming calls of hangup sessions
@@ -48,7 +47,6 @@ handle_event({new_session, Pid, Env}, State) ->
 
           case session:new() of
             {ok, SessionPid} ->
-              io:format("Answering..."),
               monitor(process, Pid), % TODO: let the session monitor the pbx pid
               session:answer(SessionPid, Pbx, ChannelId, CallerId),
               {ok, dict:store(Pid, SessionPid, State)};

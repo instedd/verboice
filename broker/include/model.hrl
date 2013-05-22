@@ -1,5 +1,5 @@
 -include("db.hrl").
--export([new/0, new/1, create/0, create/1, find/1, find_all/0, find_all/1, find_all/2, update/1, delete/1, save/1, find_or_new/1, find_or_create/1]).
+-export([new/0, new/1, create/0, create/1, find/1, find_all/0, find_all/1, find_all/2, update/1, update/2, delete/1, save/1, find_or_new/1, find_or_create/1]).
 
 -ifndef(MAP).
 -define(MAP(Record), Record).
@@ -68,6 +68,10 @@ update(Record = #?MODULE{}) ->
   RecordToUpdate = Record#?MODULE{updated_at = Now},
   db:update(update_query(RecordToUpdate)),
   RecordToUpdate.
+
+update(Fields, Record) ->
+  UpdatedRecord = set_values(Fields, Record),
+  update(UpdatedRecord).
 
 delete(Record = #?MODULE{}) ->
   1 = db:update(delete_query(Record)),

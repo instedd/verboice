@@ -10,14 +10,15 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact}) 
   Timeout = proplists:get_value(timeout, Args, 10),
 
   CallLog:info("Record user voice", [{command, "record"}, {action, "start"}]),
-  Filename = filename(CallLog, Key),
+  CallLogId = CallLog:id(),
+  Filename = filename(CallLogId, Key),
   filelib:ensure_dir(Filename),
 
   Pbx:record(Filename, StopKeys, Timeout),
 
   RecordedAudio = #recorded_audio{
     contact_id = Contact#contact.id,
-    call_log_id = CallLog#call_log.id,
+    call_log_id = CallLogId,
     key = Key,
     description = Description
   },
@@ -30,5 +31,5 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact}) 
   % create_recorded_audio(session)
 
 
-filename(#call_log{id = CallLogId}, Key) ->
+filename(CallLogId, Key) ->
   filename:join(["../data/call_logs/", util:to_string(CallLogId), "results", Key ++ ".mp3"]).

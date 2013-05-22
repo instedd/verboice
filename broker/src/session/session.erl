@@ -63,7 +63,7 @@ ready({answer, Pbx, ChannelId, CallerId}, Session) ->
   Channel = channel:find(ChannelId),
   CallFlow = call_flow:find(Channel#channel.call_flow_id),
   Project = project:find(CallFlow#call_flow.project_id),
-  CallLog = call_log:create(#call_log{
+  CallLog = call_log_srv:new(#call_log{
     account_id = Channel#channel.account_id,
     project_id = CallFlow#call_flow.project_id,
     state = "active",
@@ -73,9 +73,8 @@ ready({answer, Pbx, ChannelId, CallerId}, Session) ->
     started_at = calendar:universal_time(),
     call_flow_id = CallFlow#call_flow.id
   }),
-  Contact = get_contact(CallFlow#call_flow.project_id, CallerId, CallLog#call_log.id),
+  Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
   Flow = CallFlow:commands(),
-  io:format("~p~n", [Flow]),
 
   NewSession = Session#session{pbx = Pbx, flow = Flow, call_flow = CallFlow, call_log = CallLog, project = Project, address = CallerId, contact = Contact},
   spawn_run(NewSession),
@@ -106,7 +105,8 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
     _ ->
       CallLog:info(["Dialing to ", QueuedCall#queued_call.address, " through channel ", Channel#channel.name], []),
       notify_status(ringing, NewSession),
-      {reply, ok, dialing, NewSession#session{call_log = call_log:update(CallLog#call_log{state = "active", fail_reason = undefined})}, timer:minutes(1)}
+      CallLog:update([{state, "active"}, {fail_reason, undefined}]),
+      {reply, ok, dialing, NewSession, timer:minutes(1)}
   end.
 
 dialing({answer, Pbx}, Session) ->
@@ -173,8 +173,8 @@ code_change(_OldVsn, StateName, State, _Extra) ->
   {ok, StateName, State}.
 
 finalize(completed, Session = #session{call_log = CallLog}) ->
-  NewCallLog = call_log:update(CallLog#call_log{state = "completed", finished_at = calendar:universal_time()}),
-  {stop, normal, Session#session{call_log = NewCallLog}};
+  CallLog:update([{state, "completed"}, {finished_at, calendar:universal_time()}]),
+  {stop, normal, Session};
 
 finalize({failed, Reason}, Session = #session{call_log = CallLog}) ->
   NewState = case Session#session.queued_call of
@@ -190,8 +190,8 @@ finalize({failed, Reason}, Session = #session{call_log = CallLog}) ->
           "queued"
       end
   end,
-  NewCallLog = call_log:update(CallLog#call_log{state = NewState, fail_reason = Reason, finished_at = calendar:universal_time()}),
-  {stop, normal, Session#session{call_log = NewCallLog}}.
+  CallLog:update([{state, NewState}, {fail_reason, Reason}, {finished_at, calendar:universal_time()}]),
+  {stop, normal, Session}.
 
 spawn_run(Session) ->
   SessionPid = self(),
@@ -215,7 +215,6 @@ default_language(Session = #session{project = Project}) ->
         Lang -> Lang
       end
   end,
-  io:format("Default language: ~p~n", [Language]),
   binary_to_list(Language).
 
 get_contact(ProjectId, undefined, CallLogId) ->
