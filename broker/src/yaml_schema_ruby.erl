@@ -54,27 +54,29 @@ construct_sequence(_, _, _State) -> nomatch.
 %% @doc Resolve a scalar tag.  Return nomatch if the tag is invalid.
 -spec resolve_scalar_tag( Tag::null | binary(), Value::binary(), Style::yaml_libyaml:scalar_style(), State::term() ) ->
       {ok, ResolvedTag::term()} | nomatch.
-resolve_scalar_tag(Tag, _Value, _Style, _State) -> resolve_scalar_tag(Tag).
-resolve_scalar_tag(<<"!">>)                     -> {ok, 'tag:yaml.org,2002:str'};
-resolve_scalar_tag(<<"tag:yaml.org,2002:str">>) -> {ok, 'tag:yaml.org,2002:str'};
-resolve_scalar_tag(null)                        -> {ok, 'tag:yaml.org,2002:str'};
-resolve_scalar_tag(_)                           -> nomatch.
+resolve_scalar_tag(<<"!">>, _, _, _)                     -> {ok, 'tag:yaml.org,2002:str'};
+resolve_scalar_tag(<<"tag:yaml.org,2002:str">>, _, _, _) -> {ok, 'tag:yaml.org,2002:str'};
+
+resolve_scalar_tag(null, <<$:, _/binary>>, plain, _)     -> {ok, '!ruby/symbol'};
+resolve_scalar_tag(null, Value, plain, _) ->
+  case re:run(Value, "^\\d+$", [{capture, none}]) of
+    match   -> {ok, 'tag:yaml.org,2002:int'};
+    nomatch -> {ok, 'tag:yaml.org,2002:str'}
+  end;
+
+resolve_scalar_tag(null, _, _, _)                        -> {ok, 'tag:yaml.org,2002:str'}.
 
 %% @doc Construct a scalar.  Return nomatch if the tag is invalid.
 -spec construct_scalar(ResolvedTag::term(), Value::binary(), State::term()) ->
       {ok, ConstructedValue::term()} | nomatch.
 construct_scalar('tag:yaml.org,2002:str', Value, _State) ->
-  {ok, Compiled} = re:compile("^:.*$"),
-  case re:run(Value, Compiled, [{capture,none}]) of
-    match -> <<_,Atom/binary>> = Value, {ok, binary_to_atom(Atom, utf8)};
-    nomatch ->
-      List = binary_to_list(Value),
-      case string:to_integer(List) of
-        {error, _} -> {ok, List};
-        {N, []} -> {ok, N};
-        _ -> {ok, List}
-      end
-  end;
+  {ok, binary_to_list(Value)};
+
+construct_scalar('!ruby/symbol', <<$:, Atom/binary>>, _State) ->
+  {ok, binary_to_atom(Atom, utf8)};
+
+construct_scalar('tag:yaml.org,2002:int', Value, _State) ->
+  {ok, list_to_integer(binary_to_list(Value))};
 
 construct_scalar(_, _, _State) -> nomatch.
 
