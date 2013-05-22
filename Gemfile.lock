@@ -14,7 +14,7 @@ GIT
 
 GIT
   remote: https://github.com/manastech/rkelly.git
-  revision: 1118b7a85737dfab7de1308509c02dcd3eac89ed
+  revision: 0915736195d66b18e342d0272376369244e35b8e
   specs:
     rkelly (1.0.6.20130515120751)
 
