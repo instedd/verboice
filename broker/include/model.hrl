@@ -47,7 +47,7 @@ find(Id) when is_number(Id) ->
   find({id, Id});
 
 find(Criteria) ->
-  case ?CACHE:get(Criteria) of
+  case ?CACHE:get({?MODULE, Criteria}) of
     undefined ->
       Result = case db:select_one(iolist_to_binary(select_query(Criteria, []))) of
         not_found -> not_found;
@@ -55,7 +55,7 @@ find(Criteria) ->
           Record = list_to_tuple([?MODULE | Row]),
           ?MAP(Record)
       end,
-      ?CACHE:set(Criteria, Result),
+      ?CACHE:set({?MODULE, Criteria}, Result),
       Result;
     Cached -> Cached
   end.
