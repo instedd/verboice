@@ -5,7 +5,8 @@ new(Pid) ->
   {?MODULE, Pid}.
 
 sound_path_for(Name, _) ->
-  "/usr/local/asterisk/var/lib/asterisk/sounds/verboice/" ++ Name ++ ".gsm".
+  {ok, SoundsDir} = application:get_env(asterisk_sounds_dir),
+  filename:join([SoundsDir, "verboice", Name ++ ".gsm"]).
 
 terminate({?MODULE, Pid}) ->
   agi_session:close(Pid).
