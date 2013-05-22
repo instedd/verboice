@@ -41,6 +41,21 @@ namespace :deploy do
     run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
   end
 
+  task :prepare_broker, :roles => :app do
+    run "test -f #{shared_path}/verboice.config || cp #{release_path}/broker/verboice.config #{shared_path}"
+    run "ln -nfs #{shared_path}/verboice.config #{release_path}/broker/verboice.config"
+
+    run "test -d #{shared_path}/broker_deps || mkdir #{shared_path}/broker_deps"
+    run "ln -nfs #{shared_path}/broker_deps #{release_path}/broker/deps"
+
+    run "test -d #{shared_path}/log/broker || mkdir #{shared_path}/log/broker"
+    run "ln -nfs #{shared_path}/log/broker #{release_path}/broker/log"
+  end
+
+  task :compile_broker, :roles => :app do
+    run "cd #{release_path}/broker && make deps"
+  end
+
   task :symlink_configs, :roles => :app do
     %W(asterisk credentials freeswitch verboice voxeo newrelic oauth).each do |file|
       run "ln -nfs #{shared_path}/#{file}.yml #{release_path}/config/"
@@ -80,6 +95,8 @@ before "deploy:start", "deploy:migrate"
 before "deploy:restart", "deploy:migrate"
 after "deploy:update_code", "deploy:symlink_configs"
 after "deploy:update_code", "deploy:symlink_data"
+after "deploy:update_code", "deploy:prepare_broker"
+after "deploy:update_code", "deploy:compile_broker"
 
 after "deploy:update", "foreman:export"    # Export foreman scripts
 after "deploy:restart", "foreman:restart"   # Restart application scripts
