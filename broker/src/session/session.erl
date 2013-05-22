@@ -272,8 +272,8 @@ run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
       {{error, hangup}, Session};
     Class:Error ->
       CallLog:error(["Error ", io_lib:format("~p:~p", [Class, Error])], []),
-      error_logger:error_msg("Error during session ~p, call log ~p: ~p:~p~n~p~n",
-        [Session#session.session_id, CallLog#call_log.id, Class, Error, erlang:get_stacktrace()]),
+      error_logger:error_msg("Error during session ~p: ~p:~p~n~p~n",
+        [Session#session.session_id, Class, Error, erlang:get_stacktrace()]),
       {{error, error}, Session}
   end.
 
