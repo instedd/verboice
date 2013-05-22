@@ -4,7 +4,8 @@
 
 -define(MAP(Project),
   {ok, [Languages]} = yaml:load(Project#project.languages, [{schema, yaml_schema_ruby}]),
-  [Config] = marshal:decode(aes:decrypt("secret", base64:decode(Project#project.encrypted_config))),
+  {ok, Secret} = application:get_env(verboice, crypt_secret),
+  [Config] = marshal:decode(aes:decrypt(Secret, base64:decode(Project#project.encrypted_config))),
   Project#project{languages = Languages, encrypted_config = Config}
 ).
 
