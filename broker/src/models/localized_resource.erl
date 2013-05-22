@@ -7,4 +7,7 @@ prepare(Session, #localized_resource{type = <<"TextLocalizedResource">>, text = 
   resource:prepare_text_resource(Text, Session);
 
 prepare(Session, #localized_resource{type = <<"UploadLocalizedResource">>, uploaded_audio = Blob, guid = Guid}) ->
+  resource:prepare_blob_resource(binary_to_list(Guid), Blob, Session);
+
+prepare(Session, #localized_resource{type = <<"RecordLocalizedResource">>, recorded_audio = Blob, guid = Guid}) ->
   resource:prepare_blob_resource(binary_to_list(Guid), Blob, Session).
