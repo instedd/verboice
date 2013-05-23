@@ -44,7 +44,7 @@ prepare_blob_resource(Name, Blob, #session{pbx = Pbx}) ->
   TargetPath = Pbx:sound_path_for(Name),
   case filelib:is_file(TargetPath) of
     true -> ok;
-    false -> sox:convert(Blob, TargetPath)
+    false -> sox:convert(Blob, "wav", TargetPath)
   end,
   {file, Name}.
 
