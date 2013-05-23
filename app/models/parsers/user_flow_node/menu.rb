@@ -59,7 +59,7 @@ module Parsers
           c.AssignValue "current_step", @id
           c.AssignValue "current_step_name", "#{@name}"
           c.append @explanation_resource.equivalent_flow
-          c.AssignValue "attempt_number#{@id}", '1'
+          c.AssignValue "attempt_number#{@id}", 1
           c.While "attempt_number#{@id} <= #{@number_of_attempts}" do |c|
             c.Capture({finish_on_key: '', timeout: @timeout}.merge(@options_resource.capture_flow))
             c.Assign "value_#{@id}", 'digits'
