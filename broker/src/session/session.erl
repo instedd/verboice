@@ -74,7 +74,7 @@ ready({answer, Pbx, ChannelId, CallerId}, Session) ->
     call_flow_id = CallFlow#call_flow.id
   }),
   Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
-  Flow = CallFlow:commands(),
+  Flow = CallFlow#call_flow.flow,
 
   NewSession = Session#session{pbx = Pbx, flow = Flow, call_flow = CallFlow, call_log = CallLog, project = Project, address = CallerId, contact = Contact},
   spawn_run(NewSession),
@@ -112,7 +112,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
 dialing({answer, Pbx}, Session) ->
   error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),
   CallFlow = call_flow:find(Session#session.queued_call#queued_call.call_flow_id),
-  NewSession = Session#session{pbx = Pbx, flow = CallFlow:commands(), call_flow = CallFlow},
+  NewSession = Session#session{pbx = Pbx, flow = CallFlow#call_flow.flow, call_flow = CallFlow},
   notify_status('in-progress', NewSession),
   spawn_run(NewSession),
 
