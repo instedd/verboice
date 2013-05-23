@@ -27,13 +27,13 @@ save(Record) ->
 
 find_or_new(Criteria) ->
   case find(Criteria) of
-    not_found -> new(Criteria);
+    undefined -> new(Criteria);
     Record -> Record
   end.
 
 find_or_create(Criteria) ->
   case find(Criteria) of
-    not_found -> create(new(Criteria));
+    undefined -> create(new(Criteria));
     Record -> Record
   end.
 
