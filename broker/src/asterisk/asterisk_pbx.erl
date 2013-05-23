@@ -31,6 +31,7 @@ play({file, FileName}, EscapeDigits, {?MODULE, Pid}) ->
   end.
 
 capture(Caption, Timeout, FinishOnKey, Min, Max, Pbx = {?MODULE, Pid}) ->
+  %TODO: expect error
   case play(Caption, "0123456789#*", Pbx = {?MODULE, Pid}) of
     {ok, _} -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, "");
     {digit, Key, _} ->
