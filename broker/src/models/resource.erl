@@ -1,5 +1,6 @@
 -module(resource).
 -export([find_by_guid/1, localized_resource/2, prepare/2, prepare_text_resource/2, prepare_blob_resource/3, prepare_url_resource/2]).
+-define(CACHE, true).
 -define(TABLE_NAME, "resources").
 -include("model.hrl").
 -include("session.hrl").
@@ -13,7 +14,7 @@ localized_resource(Language, #resource{id = Id}) ->
 prepare(Guid, Session) ->
   Resource = find_by_guid(Guid),
   case Resource:localized_resource(Session:language()) of
-    not_found -> exit(resource_not_found);
+    undefined -> exit(resource_undefined);
     LocalizedResource -> LocalizedResource:prepare(Session)
   end.
 

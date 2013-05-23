@@ -1,6 +1,7 @@
 -module(channel).
 -export([find_all_sip/0, find_all_twilio/0, domain/1, number/1, limit/1, broker/1, username/1, password/1, is_outbound/1, register/1]).
 -export([account_sid/1, auth_token/1]).
+-define(CACHE, true).
 -define(TABLE_NAME, "channels").
 
 -define(MAP(Channel),

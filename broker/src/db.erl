@@ -14,7 +14,7 @@ select_one(Query) -> select_one(Query, []).
 select_one(Query, Params) ->
   case select(Query, Params) of
     [Row] -> Row;
-    [] -> not_found;
+    [] -> undefined;
     [_|_] -> exit(many_rows_for_select_one)
   end.
 

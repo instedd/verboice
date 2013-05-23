@@ -1,5 +1,6 @@
 -module(project).
 -export([voice/2, tts_engine/1, ispeech_api_key/1]).
+-define(CACHE, true).
 -define(TABLE_NAME, "projects").
 
 -define(MAP(Project),

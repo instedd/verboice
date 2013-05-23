@@ -1,3 +1,4 @@
 -module(persisted_variable).
+-define(CACHE, true).
 -define(TABLE_NAME, "persisted_variables").
 -include("model.hrl").

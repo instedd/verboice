@@ -1,5 +1,6 @@
 -module(project_variable).
 -export([names_for_project/1]).
+-define(CACHE, true).
 -define(TABLE_NAME, "project_variables").
 -include("model.hrl").
 

@@ -5,7 +5,9 @@
 -define(MAP(Record), Record).
 -endif.
 
--define(CACHE, default_cache).
+-ifndef(CACHE).
+-define(CACHE, false).
+-endif.
 
 new() -> #?MODULE{}.
 
@@ -47,17 +49,24 @@ find(Id) when is_number(Id) ->
   find({id, Id});
 
 find(Criteria) ->
-  case ?CACHE:get({?MODULE, Criteria}) of
-    undefined ->
-      Result = case db:select_one(iolist_to_binary(select_query(Criteria, []))) of
-        not_found -> not_found;
-        Row ->
-          Record = list_to_tuple([?MODULE | Row]),
-          ?MAP(Record)
-      end,
-      ?CACHE:set({?MODULE, Criteria}, Result),
-      Result;
-    Cached -> Cached
+  case ?CACHE of
+    true ->
+      cache:get({?MODULE, Criteria}, fun() ->
+        case find_without_cache(Criteria) of
+          undefined -> undefined;
+          Record -> {{?MODULE, {id, Record#?MODULE.id}}, Record}
+        end
+      end);
+    false ->
+      find_without_cache(Criteria)
+  end.
+
+find_without_cache(Criteria) ->
+  case db:select_one(iolist_to_binary(select_query(Criteria, []))) of
+    undefined -> undefined;
+    Row ->
+      Record = list_to_tuple([?MODULE | Row]),
+      ?MAP(Record)
   end.
 
 find_all() -> find_all([], []).

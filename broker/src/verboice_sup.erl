@@ -24,7 +24,6 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-  default_cache:init(),
   {ok, DbName} = application:get_env(db_name),
   {ok, DbUser} = application:get_env(db_user),
   {ok, DbPass} = application:get_env(db_pass),
@@ -33,6 +32,7 @@ init([]) ->
     {mysql, {mysql, start_link, [db, "localhost", undefined, DbUser, DbPass, DbName, fun log/4, utf8]},
       permanent, 5000, worker, [mysql]},
     ?CHILD(tz_server, worker),
+    ?CHILD(cache, worker),
     ?CHILD(asterisk_sup, supervisor),
     ?CHILD(twilio_sup, supervisor),
     ?CHILD(session_sup, supervisor),

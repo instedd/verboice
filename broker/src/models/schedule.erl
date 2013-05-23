@@ -1,5 +1,6 @@
 -module(schedule).
 -export([next_available_time/2]).
+-define(CACHE, true).
 -define(TABLE_NAME, "schedules").
 
 -define(MAP(Schedule),

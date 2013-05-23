@@ -1,5 +1,6 @@
 -module(localized_resource).
 -export([prepare/2]).
+-define(CACHE, true).
 -define(TABLE_NAME, "localized_resources").
 -include("model.hrl").
 

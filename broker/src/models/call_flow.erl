@@ -1,6 +1,6 @@
 -module(call_flow).
 -export([commands/1]).
-
+-define(CACHE, true).
 -define(TABLE_NAME, "call_flows").
 -include("model.hrl").
 
