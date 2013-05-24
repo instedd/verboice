@@ -1,6 +1,6 @@
 -module(facade).
 -export([channel_status/1, notify_call_queued/1, notify_call_queued/2,
-  create_channel/2, destroy_channel/2
+  create_channel/2, destroy_channel/2, invalidate_cache/2
 ]).
 
 channel_status(ChannelIds) ->
@@ -20,6 +20,9 @@ create_channel(_Id, _Broker) ->
 
 destroy_channel(_Id, _Broker) ->
   ok.
+
+invalidate_cache(Entity, Id) ->
+  cache:delete({Entity, {id, Id}}).
 
 proplist_to_bert_dict(List) ->
   {bert, dict, proplist_to_bert_dict(List, [])}.

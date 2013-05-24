@@ -28,6 +28,8 @@ class Resource < ActiveRecord::Base
 
   validates :guid, :presence => true, :uniqueness => { :scope => :project_id }
 
+  broker_cached
+
   after_initialize do
     self.guid ||= Guid.new.to_s
   end

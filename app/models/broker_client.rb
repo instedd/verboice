@@ -20,6 +20,10 @@ require_dependency 'pbx_unavailable_exception'
 class BrokerClient
   @client = BERTRPC::Service.new('127.0.0.1', BrokerFacade::PORT)
 
+  def self.invalidate_cache(entity, id)
+    @client.cast.facade.invalidate_cache(entity, id) rescue nil
+  end
+
   def self.method_missing(name, *args)
     @client.call.facade.send name, *args
   end

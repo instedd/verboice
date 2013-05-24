@@ -35,6 +35,8 @@ class Channel < ActiveRecord::Base
 
   serialize :config, Hash
 
+  broker_cached
+
   def config
     self[:config] ||= {}
   end

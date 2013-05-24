@@ -53,8 +53,7 @@ class Project < ActiveRecord::Base
 
   validates_presence_of :tts_ispeech_api_key, :if => ->{ tts_engine == 'ispeech' }
 
-  def call(address)
-  end
+  broker_cached
 
   def defined_variables
     project_variables.collect(&:name)

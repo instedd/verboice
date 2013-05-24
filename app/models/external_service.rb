@@ -29,6 +29,8 @@ class ExternalService < ActiveRecord::Base
 
   validates_presence_of :url
 
+  broker_cached
+
   after_initialize do
     self.guid ||= Guid.new.to_s
   end

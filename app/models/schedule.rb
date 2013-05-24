@@ -33,6 +33,8 @@ class Schedule < ActiveRecord::Base
 
   before_destroy :cancel_calls_and_destroy_queued_calls
 
+  broker_cached
+
   def time_from_is_before_time_to
     if time_from && time_to
       unless time_from < time_to
