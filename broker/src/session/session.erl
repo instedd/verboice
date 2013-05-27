@@ -28,7 +28,7 @@ start_link(SessionId) ->
   gen_fsm:start_link({global, ?SESSION(SessionId)}, ?MODULE, SessionId, []).
 
 new() ->
-  SessionId = erlang:ref_to_list(make_ref()),
+  SessionId = uuid:to_string(uuid:v4()),
   SessionSpec = {SessionId, {session, start_link, [SessionId]}, temporary, 5000, worker, [session]},
   supervisor:start_child(session_sup, SessionSpec).
 
