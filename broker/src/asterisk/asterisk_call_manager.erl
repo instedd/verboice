@@ -68,7 +68,7 @@ handle_call(_Request, _State) ->
 handle_info({'DOWN', _Ref, process, Pid, _}, State) ->
   case dict:find(Pid, State) of
     {ok, SessionPid} ->
-      session_srv:stop(SessionPid),
+      session:stop(SessionPid),
       {ok, dict:erase(Pid, State)};
     _ -> {ok, State}
   end;
