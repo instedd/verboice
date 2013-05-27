@@ -1,0 +1,3 @@
+-module(trace_record).
+-define(TABLE_NAME, "traces").
+-include("model.hrl").

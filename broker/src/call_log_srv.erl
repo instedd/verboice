@@ -1,5 +1,5 @@
 -module(call_log_srv).
--export([new/1, error/3, info/3, trace/3, update/2, id/1]).
+-export([new/1, error/3, info/3, trace/3, trace_record/5, update/2, id/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -21,6 +21,9 @@ info(Message, Details, {?MODULE, Pid}) ->
 
 trace(Message, Details, {?MODULE, Pid}) ->
   gen_server:cast(Pid, {log, trace, Message, Details}).
+
+trace_record(CallFlowId, StepId, StepName, Result, {?MODULE, Pid}) ->
+  gen_server:cast(Pid, {trace_record, CallFlowId, StepId, StepName, Result}).
 
 update(Fields, {?MODULE, Pid}) ->
   gen_server:cast(Pid, {update, Fields}).
@@ -49,7 +52,18 @@ handle_cast({log, Level, Message, Details}, State = #state{call_log = CallLog}) 
 
 handle_cast({update, Fields}, State = #state{call_log = CallLog}) ->
   NewCallLog = CallLog:update(Fields),
-  {noreply, State#state{call_log = NewCallLog}}.
+  {noreply, State#state{call_log = NewCallLog}};
+
+handle_cast({trace_record, CallFlowId, StepId, StepName, Result}, State = #state{call_log = CallLog}) ->
+  TraceRecord = #trace_record{
+    call_flow_id = CallFlowId,
+    step_id = StepId,
+    step_name = StepName,
+    call_id = CallLog#call_log.id,
+    result = Result
+  },
+  TraceRecord:save(),
+  {noreply, State}.
 
 %% @private
 handle_info({'DOWN', _Ref, process, Pid, _Reason}, State = #state{owner_pid = Pid}) ->
