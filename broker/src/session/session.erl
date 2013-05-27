@@ -17,7 +17,7 @@
 
 -behaviour(gen_fsm).
 -export([init/1, handle_event/3, handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).
--export([ready/2, ready/3, dialing/2, in_progress/2]).
+-export([ready/2, ready/3, dialing/2, in_progress/2, matches/2]).
 
 -define(SESSION(Id), {session, Id}).
 
@@ -50,6 +50,9 @@ reject(SessionPid, Reason) ->
 stop(SessionPid) ->
   gen_fsm:send_all_state_event(SessionPid, stop).
 
+matches(SessionPid, Criteria) ->
+  gen_fsm:sync_send_all_state_event(SessionPid, {matches, Criteria}).
+
 language(#session{js_context = JsContext}) ->
   erjs_object:get(var_language, JsContext).
 
@@ -76,7 +79,7 @@ ready({answer, Pbx, ChannelId, CallerId}, Session) ->
   Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
   Flow = CallFlow#call_flow.flow,
 
-  NewSession = Session#session{pbx = Pbx, flow = Flow, call_flow = CallFlow, call_log = CallLog, project = Project, address = CallerId, contact = Contact},
+  NewSession = Session#session{pbx = Pbx, channel = Channel, flow = Flow, call_flow = CallFlow, call_log = CallLog, project = Project, address = CallerId, contact = Contact},
   spawn_run(NewSession),
 
   {next_state, in_progress, NewSession}.
@@ -151,6 +154,18 @@ notify_status(Status, Session = #session{session_id = SessionId, address = Addre
 
 handle_event(stop, _, Session) ->
   {stop, normal, Session}.
+
+handle_sync_event({matches, Criteria}, _From, StateName, Session) ->
+  MatchResult = case Criteria of
+    {project, ProjectId} ->
+      Session#session.project#project.id == ProjectId;
+    {channel, ChannelId} ->
+      Session#session.channel#channel.id == ChannelId;
+    {call_flow, CallFlowId} ->
+      Session#session.call_flow#call_flow.id == CallFlowId;
+    _ -> false
+  end,
+  {reply, MatchResult, StateName, Session};
 
 handle_sync_event(_Event, _From, StateName, Session) ->
   {reply, ok, StateName, Session}.

@@ -199,6 +199,10 @@ class Channel < ActiveRecord::Base
     BrokerClient.destroy_channel id, broker
   end
 
+  def active_calls
+    BrokerClient.active_calls_by_channel(id)
+  end
+
   def kind
     self.class.kind
   end

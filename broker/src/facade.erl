@@ -1,6 +1,7 @@
 -module(facade).
 -export([channel_status/1, notify_call_queued/1, notify_call_queued/2,
-  create_channel/2, destroy_channel/2, invalidate_cache/2
+  create_channel/2, destroy_channel/2, invalidate_cache/2,
+  active_calls_by_channel/1, active_calls_by_project/1, active_calls_by_call_flow/1
 ]).
 
 channel_status(ChannelIds) ->
@@ -23,6 +24,15 @@ destroy_channel(_Id, _Broker) ->
 
 invalidate_cache(Entity, Id) ->
   cache:delete({Entity, {id, Id}}).
+
+active_calls_by_channel(ChannelId) ->
+  session_sup:count({channel, ChannelId}).
+
+active_calls_by_project(ProjectId) ->
+  session_sup:count({project, ProjectId}).
+
+active_calls_by_call_flow(CallFlowId) ->
+  session_sup:count({call_flow, CallFlowId}).
 
 proplist_to_bert_dict(List) ->
   {bert, dict, proplist_to_bert_dict(List, [])}.

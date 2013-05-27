@@ -107,6 +107,10 @@ class CallFlow < ActiveRecord::Base
     user_flow.select{|s| s['type'] == 'goto' && deleted_steps.include?(s['jump'])}.each{|s| s['jump'] = nil}
   end
 
+  def active_calls
+    BrokerClient.active_calls_by_call_flow(id)
+  end
+
   private
 
   def set_name_to_callback_url
@@ -141,5 +145,4 @@ class CallFlow < ActiveRecord::Base
       self.call_flow_external_services.build external_service: external_service
     end
   end
-
 end

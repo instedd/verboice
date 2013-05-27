@@ -85,6 +85,10 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def active_calls
+    BrokerClient.active_calls_by_project(id)
+  end
+
   private
 
   def sanitize_languages
