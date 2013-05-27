@@ -14,5 +14,5 @@ serialize_details(Details) -> iolist_to_binary(serialize_details(Details, "---\n
 
 serialize_details([], Output) -> Output;
 serialize_details([{Key, Value} | Rest], Output) ->
-  FormattedValue = re:replace(Value, "'", "''"),
+  FormattedValue = re:replace(Value, "'", "''", [global]),
   serialize_details(Rest, [Output | [":", atom_to_list(Key), ": ! '", FormattedValue, "'\n"]]).
