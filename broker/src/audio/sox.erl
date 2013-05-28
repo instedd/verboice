@@ -61,19 +61,19 @@ code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
 
 do_convert(Input, OutPath) when is_list(Input) ->
-  open_port({spawn, "sox " ++ Input ++ " -r 8000 -c1 " ++ OutPath}, [exit_status, stderr_to_stdout]);
+  open_port({spawn, "sox " ++ Input ++ " -e signed-integer -r 8000 -c1 " ++ OutPath}, [exit_status, stderr_to_stdout]);
 
 do_convert(Input, OutPath) when is_binary(Input) ->
-  Port = open_port({spawn, "sox - -r 8000 -c1 " ++ OutPath}, [binary, exit_status, stderr_to_stdout]),
+  Port = open_port({spawn, "sox - -e signed-integer -r 8000 -c1 " ++ OutPath}, [binary, exit_status, stderr_to_stdout]),
   port_command(Port, Input),
   Port.
 
 do_convert(Input, InputType, OutPath) when is_list(Input) ->
-  Port = open_port({spawn, "sox -t " ++ InputType ++ " " ++ Input ++ " -r 8000 -c1 " ++ OutPath}, [binary, exit_status, stderr_to_stdout]),
+  Port = open_port({spawn, "sox -t " ++ InputType ++ " " ++ Input ++ " -e signed-integer -r 8000 -c1 " ++ OutPath}, [binary, exit_status, stderr_to_stdout]),
   port_command(Port, Input),
   Port;
 
 do_convert(Input, InputType, OutPath) when is_binary(Input) ->
-  Port = open_port({spawn, "sox -t " ++ InputType ++ " - -r 8000 -c1 " ++ OutPath}, [binary, exit_status, stderr_to_stdout]),
+  Port = open_port({spawn, "sox -t " ++ InputType ++ " - -e signed-integer -r 8000 -c1 " ++ OutPath}, [binary, exit_status, stderr_to_stdout]),
   port_command(Port, Input),
   Port.
