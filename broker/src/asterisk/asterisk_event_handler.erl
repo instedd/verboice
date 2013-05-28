@@ -13,25 +13,21 @@ handle_event(connected, State) ->
   {ok, State};
 
 handle_event({originateresponse, Packet}, State) ->
-  io:format("~p~n", [Packet]),
   OriginateResponse = ami_client:decode_packet(Packet),
   case proplists:get_value(response, OriginateResponse) of
     <<"Failure">> ->
       SessionId = binary_to_list(proplists:get_value(actionid, OriginateResponse)),
-      io:format("Session id: ~p~n", [SessionId]),
       case session:find(SessionId) of
         undefined -> ok;
         SessionPid ->
-          io:format("Pid: ~p~n", [SessionPid]),
           Reason = case proplists:get_value(reason, OriginateResponse) of
             <<"3">> -> no_answer;
             <<"5">> -> busy;
             _       -> failed
           end,
-          io:format("Reason: ~p~n", [Reason]),
           session:reject(SessionPid, Reason)
       end;
-    X -> io:format("response: ~p~n", [X])
+    _ -> ok
   end,
   {ok, State};
 
