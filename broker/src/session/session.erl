@@ -89,9 +89,9 @@ ready({answer, Pbx, ChannelId, CallerId}, Session) ->
 
 ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
   error_logger:info_msg("Session (~p) dial", [Session#session.session_id]),
-  CallLog = call_log:find(QueuedCall#queued_call.call_log_id),
+  CallLog = call_log_srv:new(call_log:find(QueuedCall#queued_call.call_log_id)),
   Project = project:find(QueuedCall#queued_call.project_id),
-  Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, CallLog#call_log.id),
+  Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, QueuedCall#queued_call.call_log_id),
 
   NewSession = Session#session{
     channel = Channel,

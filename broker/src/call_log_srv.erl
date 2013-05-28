@@ -34,7 +34,10 @@ id({?MODULE, Pid}) ->
 %% @private
 init({CallLog, Owner}) ->
   monitor(process, Owner),
-  gen_server:cast(self(), create),
+  case CallLog#call_log.id of
+    undefined -> gen_server:cast(self(), create);
+    _ -> ok
+  end,
   {ok, #state{call_log = CallLog, owner_pid = Owner}}.
 
 %% @private
