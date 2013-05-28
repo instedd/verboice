@@ -51,7 +51,10 @@ stop(SessionPid) ->
   gen_fsm:send_all_state_event(SessionPid, stop).
 
 matches(SessionPid, Criteria) ->
-  gen_fsm:sync_send_all_state_event(SessionPid, {matches, Criteria}).
+  try gen_fsm:sync_send_all_state_event(SessionPid, {matches, Criteria}, 100)
+  catch
+    exit:_ -> false
+  end.
 
 language(#session{js_context = JsContext}) ->
   erjs_object:get(var_language, JsContext).
