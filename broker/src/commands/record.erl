@@ -26,10 +26,6 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact}) 
 
   CallLog:info("Recording saved", [{command, "record"}, {action, "finish"}]),
   {next, Session}.
-  % session.trace "Recording complete", command: 'record', action: 'complete'
-  % session.trace "Saving recording", command: 'record', action: 'save'
-  % create_recorded_audio(session)
-
 
 filename(CallLogId, Key) ->
-  filename:join(["../data/call_logs/", util:to_string(CallLogId), "results", Key ++ ".mp3"]).
+  filename:join(["../data/call_logs/", util:to_string(CallLogId), "results", Key ++ ".wav"]).
