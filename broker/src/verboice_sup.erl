@@ -39,6 +39,11 @@ init([]) ->
     ?CHILD(scheduler_sup, supervisor)
   ]} }.
 
+log(_Module, _Line, debug, _FormatFun) -> ok;
 log(Module, Line, Level, FormatFun) ->
   {Format, Arguments} = FormatFun(),
-  lager:log(Level, self(), "~w:~b: "++ Format ++ "~n", [Module, Line] ++ Arguments).
+  LagerLevel = case Level of
+    normal -> info;
+    X -> X
+  end,
+  lager:log(LagerLevel, self(), "~w:~b: "++ Format ++ "~n", [Module, Line] ++ Arguments).

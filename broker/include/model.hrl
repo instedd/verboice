@@ -95,19 +95,23 @@ delete(Record = #?MODULE{}) ->
   ok.
 
 insert_query(Record) ->
-  ["INSERT INTO ", ?TABLE_NAME, "(" | insert_fields(Record, record_info(fields, ?MODULE))].
+  insert_fields(<<"INSERT INTO ", ?TABLE_NAME, "(">>, Record, record_info(fields, ?MODULE)).
 
-insert_fields(Record, [id | Rest]) ->
-  insert_fields(Record, Rest);
-insert_fields(Record, [Field]) ->
-  ["`", atom_to_list(Field), "`) VALUES (" | insert_values(Record, 3, record_info(size, ?MODULE))];
-insert_fields(Record, [Field | Rest]) ->
-  ["`", atom_to_list(Field), "`, " | insert_fields(Record, Rest)].
+insert_fields(Query, Record, [id | Rest]) ->
+  insert_fields(Query, Record, Rest);
+insert_fields(Query, Record, [Field]) ->
+  FieldBin = atom_to_binary(Field, latin1),
+  insert_values(<<Query/binary, "`", FieldBin/binary, "`) VALUES (">>, Record, 3, record_info(size, ?MODULE));
+insert_fields(Query, Record, [Field | Rest]) ->
+  FieldBin = atom_to_binary(Field, latin1),
+  insert_fields(<<Query/binary, "`", FieldBin/binary, "`, ">>, Record, Rest).
 
-insert_values(Record, Index, Count) when Index =:= Count ->
-  [mysql:encode(element(Index, Record)), ")"];
-insert_values(Record, Index, Count) ->
-  [mysql:encode(element(Index, Record)), ", " | insert_values(Record, Index + 1, Count)].
+insert_values(Query, Record, Index, Count) when Index =:= Count ->
+  ValueBin = list_to_binary(mysql:encode(element(Index, Record))),
+  <<Query/binary, ValueBin/binary, ")">>;
+insert_values(Query, Record, Index, Count) ->
+  ValueBin = list_to_binary(mysql:encode(element(Index, Record))),
+  insert_values(<<Query/binary, ValueBin/binary, ", ">>, Record, Index + 1, Count).
 
 select_query(Criteria, Options) ->
   ["SELECT " | select_fields(Criteria, Options, record_info(fields, ?MODULE))].
