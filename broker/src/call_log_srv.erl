@@ -50,7 +50,8 @@ handle_cast(create, State = #state{call_log = CallLog}) ->
   {noreply, State#state{call_log = NewCallLog}};
 
 handle_cast({log, Level, Message, Details}, State = #state{call_log = CallLog}) ->
-  CallLog:Level(Message, Details),
+  % CallLog:Level(Message, Details),
+  call_log_entry_srv:log(CallLog#call_log.id, Level, Message, Details),
   {noreply, State};
 
 handle_cast({update, Fields}, State = #state{call_log = CallLog}) ->
@@ -58,14 +59,15 @@ handle_cast({update, Fields}, State = #state{call_log = CallLog}) ->
   {noreply, State#state{call_log = NewCallLog}};
 
 handle_cast({trace_record, CallFlowId, StepId, StepName, Result}, State = #state{call_log = CallLog}) ->
-  TraceRecord = #trace_record{
-    call_flow_id = CallFlowId,
-    step_id = StepId,
-    step_name = StepName,
-    call_id = CallLog#call_log.id,
-    result = Result
-  },
-  TraceRecord:save(),
+  % TraceRecord = #trace_record{
+  %   call_flow_id = CallFlowId,
+  %   step_id = StepId,
+  %   step_name = StepName,
+  %   call_id = CallLog#call_log.id,
+  %   result = Result
+  % },
+  % TraceRecord:save(),
+  call_log_entry_srv:trace(CallLog#call_log.id, CallFlowId, StepId, StepName, Result),
   {noreply, State}.
 
 %% @private

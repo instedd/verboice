@@ -33,6 +33,7 @@ init([]) ->
       permanent, 5000, worker, [mysql]},
     ?CHILD(tz_server, worker),
     ?CHILD(cache, worker),
+    ?CHILD(call_log_entry_srv, worker),
     ?CHILD(asterisk_sup, supervisor),
     ?CHILD(twilio_sup, supervisor),
     ?CHILD(session_sup, supervisor),
