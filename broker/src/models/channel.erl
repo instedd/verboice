@@ -46,7 +46,7 @@ is_outbound(#channel{type = <<"Channels::TemplateBasedSip">>}) ->
   true;
 
 is_outbound(#channel{config = Config}) ->
-  case proplists:get_value(<<"password">>, Config) of
+  case proplists:get_value(<<"direction">>, Config) of
     <<"outbound">> -> true;
     <<"both">> -> true;
     _ -> false
