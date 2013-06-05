@@ -6,6 +6,7 @@ syntax: glob
 *.orig
 *.pid
 *.*~
+*.swp
 .DS_Store
 tmp/*
 spec/reports/*

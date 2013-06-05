@@ -1,0 +1,40 @@
+%script{type: "text/html", id: "nuntium_step_template"}
+  .feditor-sidebar.right.box.w28.iblock.h65
+
+    %div{ko(:if => "is_editing_resource()")}
+      %div{ko(template: "{name: 'resource_editor_template', data: current_editing_resource}")}
+
+    .tableheader
+      %span.left.i48grad-message{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
+
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %tr
+          %td{ko(css: "{ orange: is_resource_invalid }")}
+            Message:
+            %span{ko(css: "{ alert: is_resource_invalid }")}
+            %span{ko(text: "resource.display_name")}
+          %td
+            %button.farrow{ :type => "button", 'data-bind' => 'click: show_resource' }
+
+    .content
+      %hr
+      %label Recipient:
+      %select.w10{ko(value: 'rcpt_type', options: 'rcpt_options')}
+      %br
+
+      / ko if: rcpt_type() == '3rdparty'
+      %br
+      %label Phone number:
+      %input.ux-text.w15{ko(value: 'rcpt_phone_number', valueUpdate: '"afterkeydown"', css: '{ "error": is_rcpt_phone_invalid }')}
+      / /ko
+
+      / ko if: rcpt_type() == 'variable'
+      %br
+      %label Variable:
+      %select.w15{ko(value: 'rcpt_variable', options: 'available_variables()', css: '{ "error": is_rcpt_variable_invalid }')}
+      / /ko
+
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
