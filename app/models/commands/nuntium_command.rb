@@ -17,15 +17,22 @@
 
 class Commands::NuntiumCommand < Command
 
-  def initialize(resource_guid, rcpt_type, rcpt_options = {})
+  def initialize(resource_guid, rcpt_type, options = {})
     @resource_guid = resource_guid
     @rcpt_type = rcpt_type
-    @rcpt_options = rcpt_options
+    # options should contain
+    # - rcpt_address if rcpt_type is '3rdparty'
+    # - rcpt_variable if rcpt_type is 'variable'
+    # - language to override localization
+    @options = options
   end
 
   def run(session)
     session.info "Send text message '#{@resource_guid}'", command: 'nuntium', action: 'start'
     # FIXME
+    # - determine the address of the recipient of the message
+    # - extract the text to send from the resource (using localized resource)
+    # - send the message through Nuntium
     session.info "Send text message '#{@resource_guid}' finished", command: 'nuntium', action: 'finish'
     super
   end
