@@ -208,7 +208,7 @@ class Session
     ctx
   end
 
-  def notify_status(status)
+  def notify_status(status, reason = nil)
     if status_callback_url.present?
       status_callback_url_user = project.status_callback_url_user
       status_callback_url_password = project.status_callback_url_password
@@ -223,6 +223,7 @@ class Session
       query = { :CallSid => call_id, :CallStatus => status }
       query[:From] = pbx.caller_id if pbx
       query[:CallDuration] = Time.now - start if start
+      query[:Reason] = reason if reason
       request.get({:query => query}.merge(authentication))
     end
   end

@@ -228,6 +228,7 @@ class BaseBroker
       end
 
       log "Re enqueuing call for session #{session.id} with queued call #{queued_call.id} for #{queued_call.not_before}"
+      session.notify_status :queued, reason.to_s.dasherize
       finish_session_with_requeue session, message, queued_call
     else
       log "Dropping call for session #{session.id}"
