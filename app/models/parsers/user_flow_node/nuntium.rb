@@ -52,9 +52,9 @@ module Parsers
             when 'caller'
               compiler.Nuntium @resource.guid, @rcpt_type
             when '3rdparty'
-              compiler.Nuntium @resource.guid, @rcpt_type, { rcpt_address: @rcpt_phone_number }
+              compiler.Nuntium @resource.guid, @rcpt_type, rcpt_address: @rcpt_phone_number
             when 'variable'
-              compiler.Nuntium @resource.guid, @rcpt_type, { rcpt_variable: @rcpt_variable }
+              compiler.Nuntium @resource.guid, @rcpt_type, rcpt_variable: @rcpt_variable
             end
           end
           compiler.append @next.equivalent_flow if @next

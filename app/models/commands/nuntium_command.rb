@@ -29,12 +29,56 @@ class Commands::NuntiumCommand < Command
 
   def run(session)
     session.info "Send text message '#{@resource_guid}'", command: 'nuntium', action: 'start'
-    # FIXME
-    # - determine the address of the recipient of the message
-    # - extract the text to send from the resource (using localized resource)
-    # - send the message through Nuntium
-    session.info "Send text message '#{@resource_guid}' finished", command: 'nuntium', action: 'finish'
+
+    # determine the address of the recipient of the message
+    recipient = rcpt_address(session)
+
+    # extract the text to send from the resource (using localized resource)
+    body = localized_resource(session).try(:text)
+
+    if recipient.blank?
+      result = "Missing recipient"
+    elsif body.blank?
+      result = "Missing text to send"
+    else
+      # send the message through Nuntium
+      begin
+        nuntium.send_ao :from => 'sms://verboice', :to => recipient, :body => body, :account_id => session.project.account_id
+        result = "OK"
+      rescue Pigeon::PigeonError => e
+        result = "Nuntium error #{e.message}"
+      end
+    end
+
+    session.info "Send text message '#{@resource_guid}' finished: #{result}", command: 'nuntium', action: 'finish'
     super
+  end
+
+  private
+
+  def nuntium
+    Pigeon::Nuntium.from_config
+  end
+
+  def rcpt_address(session)
+    address = case @rcpt_type
+              when 'caller'
+                session.pbx.caller_id if session.pbx
+              when '3rdparty'
+                @options[:rcpt_address]
+              when 'variable'
+                session[@options[:rcpt_variable]]
+              end
+    unless address.blank? || address =~ /\A\w+:\/\//
+      "sms://#{address}"
+    else
+      address
+    end
+  end
+
+  def localized_resource(session)
+    language = @options[:language].presence || session.language
+    session.project.resources.find_by_guid(@resource_guid).available_resource_for(language)
   end
 
 end
