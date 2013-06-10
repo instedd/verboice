@@ -15,7 +15,7 @@ onWorkflow ->
         @current_editing_resource()?
 
       @is_resource_invalid = ko.computed () =>
-        not @resource.is_valid()
+        not @resource.is_valid() or not @resource.is_text()
 
       @rcpt_options = ['caller', '3rdparty', 'variable']
 
