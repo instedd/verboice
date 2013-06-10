@@ -1,7 +1,7 @@
 = render partial: 'errors'
 
 = form_for @nuntium_channel do |f|
-  = hidden_field_tag :kind, @channel_schema.kind
+  = hidden_field_tag :kind, @channel.schema.kind
 
   .field
     = f.label :name

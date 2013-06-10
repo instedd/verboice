@@ -18,7 +18,7 @@
 class NuntiumChannelsController < ApplicationController
   before_filter :authenticate_account!
   before_filter :build_channel, only: [:new, :create]
-  before_filter :find_channel, only: [:edit, :update, :destroy]
+  before_filter :find_channel, only: [:edit, :update]
 
   def index
     @channels = current_account.nuntium_channels
@@ -48,6 +48,7 @@ class NuntiumChannelsController < ApplicationController
   end
 
   def destroy
+    @nuntium_channel = current_account.nuntium_channels.find(params[:id])
     @nuntium_channel.destroy
     redirect_to nuntium_channels_path, notice: 'SMS Channel deleted'
   end
@@ -59,34 +60,21 @@ class NuntiumChannelsController < ApplicationController
   end
 
   def build_channel
-    @channel = Pigeon::NuntiumChannel.new kind: params[:kind]
-    @channel.generate_name!
-    @channel_schema = @channel.schema
-    not_found if @channel_schema.nil?
-
-    @nuntium_channel = NuntiumChannel.new
+    @nuntium_channel = NuntiumChannel.new kind: params[:kind]
     @nuntium_channel.account = current_account
-    @nuntium_channel.channel_name = @channel.name
+    @channel = @nuntium_channel.channel
+    not_found if @channel.schema.nil?
   end
 
   def find_channel
     @nuntium_channel = current_account.nuntium_channels.find(params[:id])
-    @channel = Pigeon::NuntiumChannel.find(@nuntium_channel.channel_name)
-    @channel_schema = @channel.schema
+    @channel = @nuntium_channel.channel
   end
 
   def save_channel
     @nuntium_channel.assign_attributes params[:nuntium_channel]
     @channel.assign_attributes params[:channel_data]
-    begin
-      @nuntium_channel.transaction do
-        @nuntium_channel.save!
-        @channel.save!
-      end
-      true
-    rescue ActiveRecord::RecordInvalid, Pigeon::ChannelInvalid
-      false
-    end
+    @nuntium_channel.save
   end
 
 end
