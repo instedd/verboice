@@ -19,5 +19,110 @@ require 'spec_helper'
 
 module Commands
   describe NuntiumCommand do
+    let(:project) { Project.make }
+    let(:call_flow) { CallFlow.make project: project }
+    let(:call_log) { CallLog.make project: project, call_flow: call_flow }
+    let(:resource) { Resource.make project: project }
+    let(:nuntium) { double('nuntium') }
+    let(:pbx) { double('pbx') }
+    let(:session) { Session.new pbx: pbx, call_log: call_log, call_flow: call_flow }
+
+    it "should work with TextLocalizedResource" do
+      text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
+      session.pbx.should_receive(:caller_id).and_return('123')
+      nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://123', :body => 'some text', :account_id => project.account_id)
+
+      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd.should_receive(:nuntium).and_return(nuntium)
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
+
+    it "should not work with UrlLocalizedResource" do
+      url_localized_resource = UrlLocalizedResource.make resource: resource
+      session.pbx.should_receive(:caller_id).and_return('123')
+
+      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd.should_receive(:nuntium).never
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
+
+    it "should not work with UploadLocalizedResource" do
+      url_localized_resource = UploadLocalizedResource.make resource: resource
+      session.pbx.should_receive(:caller_id).and_return('123')
+
+      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd.should_receive(:nuntium).never
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
+
+    it "should not work with RecordLocalizedResource" do
+      url_localized_resource = RecordLocalizedResource.make resource: resource
+      session.pbx.should_receive(:caller_id).and_return('123')
+
+      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd.should_receive(:nuntium).never
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
+
+    it "should expand vars in the text message" do
+      text_localized_resource = TextLocalizedResource.make text: 'hello {name}', resource: resource
+      session.pbx.should_receive(:caller_id).and_return('123')
+
+      session['var_name'] = 'world'
+      nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://123', :body => 'hello world', :account_id => project.account_id)
+
+      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd.should_receive(:nuntium).and_return(nuntium)
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
+
+    it "should send to a 3rd (fixed) party" do
+      text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
+
+      nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://555', :body => 'some text', :account_id => project.account_id)
+
+      cmd = NuntiumCommand.new resource.guid, '3rdparty', rcpt_address: '555'
+      cmd.should_receive(:nuntium).and_return(nuntium)
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
+
+    it "should send to a user variable" do
+      text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
+
+      nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://456', :body => 'some text', :account_id => project.account_id)
+      session['var_rcpt'] = '456'
+
+      cmd = NuntiumCommand.new resource.guid, 'variable', rcpt_variable: 'rcpt'
+      cmd.should_receive(:nuntium).and_return(nuntium)
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
+
+    it "should not add the protocol prefix if present" do
+      text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
+
+      nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'xmpp://foo@bar', :body => 'some text', :account_id => project.account_id)
+      session['var_rcpt'] = 'xmpp://foo@bar'
+
+      cmd = NuntiumCommand.new resource.guid, 'variable', rcpt_variable: 'rcpt'
+      cmd.should_receive(:nuntium).and_return(nuntium)
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
+
+    it "should not work if there is no recipient address" do
+      text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
+
+      cmd = NuntiumCommand.new resource.guid, 'variable', rcpt_variable: 'rcpt'
+      cmd.should_receive(:nuntium).never
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
   end
 end

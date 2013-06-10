@@ -35,6 +35,7 @@ class Commands::NuntiumCommand < Command
 
     # extract the text to send from the resource (using localized resource)
     body = localized_resource(session).try(:text)
+    body = session.expand_vars(body) if body.present?
 
     if recipient.blank?
       result = "Missing recipient"
@@ -67,7 +68,7 @@ class Commands::NuntiumCommand < Command
               when '3rdparty'
                 @options[:rcpt_address]
               when 'variable'
-                session[@options[:rcpt_variable]]
+                session["var_#{@options[:rcpt_variable]}"]
               end
     unless address.blank? || address =~ /\A\w+:\/\//
       "sms://#{address}"
