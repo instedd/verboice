@@ -24,12 +24,10 @@ module Commands
     let(:call_log) { CallLog.make project: project, call_flow: call_flow }
     let(:resource) { Resource.make project: project }
     let(:nuntium) { double('nuntium') }
-    let(:pbx) { double('pbx') }
-    let(:session) { Session.new pbx: pbx, call_log: call_log, call_flow: call_flow }
+    let(:session) { Session.new address: '123', call_log: call_log, call_flow: call_flow }
 
     it "should work with TextLocalizedResource" do
       text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
-      session.pbx.should_receive(:caller_id).and_return('123')
       nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://123', :body => 'some text', :account_id => project.account_id)
 
       cmd = NuntiumCommand.new resource.guid, 'caller'
@@ -40,7 +38,6 @@ module Commands
 
     it "should not work with UrlLocalizedResource" do
       url_localized_resource = UrlLocalizedResource.make resource: resource
-      session.pbx.should_receive(:caller_id).and_return('123')
 
       cmd = NuntiumCommand.new resource.guid, 'caller'
       cmd.should_receive(:nuntium).never
@@ -50,7 +47,6 @@ module Commands
 
     it "should not work with UploadLocalizedResource" do
       url_localized_resource = UploadLocalizedResource.make resource: resource
-      session.pbx.should_receive(:caller_id).and_return('123')
 
       cmd = NuntiumCommand.new resource.guid, 'caller'
       cmd.should_receive(:nuntium).never
@@ -60,7 +56,6 @@ module Commands
 
     it "should not work with RecordLocalizedResource" do
       url_localized_resource = RecordLocalizedResource.make resource: resource
-      session.pbx.should_receive(:caller_id).and_return('123')
 
       cmd = NuntiumCommand.new resource.guid, 'caller'
       cmd.should_receive(:nuntium).never
@@ -70,7 +65,6 @@ module Commands
 
     it "should expand vars in the text message" do
       text_localized_resource = TextLocalizedResource.make text: 'hello {name}', resource: resource
-      session.pbx.should_receive(:caller_id).and_return('123')
 
       session['var_name'] = 'world'
       nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://123', :body => 'hello world', :account_id => project.account_id)

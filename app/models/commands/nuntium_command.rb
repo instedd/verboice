@@ -64,7 +64,7 @@ class Commands::NuntiumCommand < Command
   def rcpt_address(session)
     address = case @rcpt_type
               when 'caller'
-                session.pbx.caller_id if session.pbx
+                session.address
               when '3rdparty'
                 @options[:rcpt_address]
               when 'variable'
