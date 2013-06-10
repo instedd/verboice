@@ -71,6 +71,8 @@ class NuntiumChannel < ActiveRecord::Base
   end
 
   def save_nuntium_channel
+    # restrict channel to only send messages for the current account
+    channel.restrictions = [{ "name" => "account_id", "value" => account_id.to_s }]
     channel.save!
   end
 
