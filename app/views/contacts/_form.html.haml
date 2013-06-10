@@ -13,7 +13,12 @@
   .field
     = f.label :address, 'Phone number'
     = f.text_field :address, :class => 'w30'
+  .field
+    = f.label :nuntium_address, 'Alternative SMS number'
+    %p (leave blank to use the primary phone number)
+    = f.text_field :nuntium_address, :class => 'w30'
 
+  %div
     = f.fields_for :persisted_variables do |builder|
       .fields
         .field

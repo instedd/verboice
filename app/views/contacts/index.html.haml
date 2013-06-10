@@ -28,7 +28,8 @@
 .tablewrapp.no-wrap.scroll
   %table.GralTable
     %tr
-      %th{colspan: 2} Phone number
+      %th Phone number
+      %th{colspan: 2} SMS number
       - @implicit_variables.each do |variable|
         %th=variable.key
       - @project_variables.each do |variable|
@@ -39,7 +40,8 @@
     - @contacts.each do |contact|
       %tr.link{'data-url' => edit_contact_path(contact)}
         %td= contact.address
-        %td= link_to '', contact, :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
+        %td= contact.nuntium_address
+        %td.right= link_to '', contact, :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
         - @implicit_variables.each do |implicit_variable|
           - variable = contact.persisted_variables.detect{|v| v.implicit_key == implicit_variable.key}
           %td= variable.try(:value)

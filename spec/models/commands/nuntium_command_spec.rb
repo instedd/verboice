@@ -118,5 +118,16 @@ module Commands
       cmd.next = :next
       cmd.run(session).should == :next
     end
+
+    it "should use the contact's Nuntium address if present" do
+      contact = project.contacts.make address: '123', nuntium_address: '456'
+      text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
+      nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://456', :body => 'some text', :account_id => project.account_id)
+
+      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd.should_receive(:nuntium).and_return(nuntium)
+      cmd.next = :next
+      cmd.run(session).should == :next
+    end
   end
 end
