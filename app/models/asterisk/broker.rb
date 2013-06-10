@@ -47,6 +47,7 @@ module Asterisk
         :channel => address,
         :application => 'AGI',
         :data => "agi://localhost:#{Asterisk::CallManager::Port},#{session.id}",
+        :timeout => 60000,
         :async => true,
         :actionid => session.id
       })
