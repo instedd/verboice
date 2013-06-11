@@ -17,7 +17,9 @@ onWorkflow ->
       @is_resource_invalid = ko.computed () =>
         not @resource.is_valid() or not @resource.is_text()
 
-      @rcpt_options = ['caller', '3rdparty', 'variable']
+      @rcpt_options = [{ value: 'caller',   display: 'Caller' },
+                       { value: '3rdparty', display: '3rd. party' },
+                       { value: 'variable', display: 'From variable' }]
 
       @rcpt_type = ko.observable(attrs.rcpt_type || 'caller')
       @rcpt_phone_number = ko.observable(attrs.rcpt_phone_number)

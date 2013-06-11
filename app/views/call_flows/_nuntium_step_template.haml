@@ -21,7 +21,7 @@
     .content
       %hr
       %label Recipient:
-      %select.w10{ko(value: 'rcpt_type', options: 'rcpt_options')}
+      %select.w15{ko(value: 'rcpt_type', options: 'rcpt_options', optionsText: '"display"', optionsValue: '"value"')}
       %br
 
       / ko if: rcpt_type() == '3rdparty'
