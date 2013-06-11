@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130610195213) do
+ActiveRecord::Schema.define(:version => 20130611183253) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -109,11 +109,10 @@ ActiveRecord::Schema.define(:version => 20130610195213) do
 
   create_table "contacts", :force => true do |t|
     t.string   "address"
-    t.datetime "created_at",      :null => false
-    t.datetime "updated_at",      :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
     t.boolean  "anonymous"
     t.integer  "project_id"
-    t.string   "nuntium_address"
   end
 
   add_index "contacts", ["project_id"], :name => "index_contacts_on_project_id"

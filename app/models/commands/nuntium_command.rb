@@ -64,8 +64,7 @@ class Commands::NuntiumCommand < Command
   def rcpt_address(session)
     address = case @rcpt_type
               when 'caller'
-                contact = session.contact
-                contact.nuntium_address.presence || contact.address
+                session["var_sms_number"].presence || session.contact.address
               when '3rdparty'
                 @options[:rcpt_address]
               when 'variable'

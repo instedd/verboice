@@ -15,14 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'spec_helper'
+module ImplicitVariables
+  class SmsNumber < ImplicitVariable
 
-describe ImplicitVariable do
+    def value(use_default = true)
+      persisted_variable = @contact.persisted_variables.find_by_implicit_key(self.class.key)
+      if persisted_variable
+        persisted_variable.value
+      elsif use_default
+        @contact.address
+      else
+        nil
+      end
+    end
 
-  it "should list all implicit variables" do
-    ImplicitVariable.subclasses.size.should eq(2)
-    ImplicitVariable.subclasses.should include(ImplicitVariables::Language)
-    ImplicitVariable.subclasses.should include(ImplicitVariables::SmsNumber)
+    def self.key
+      'sms_number'
+    end
+
   end
-
 end

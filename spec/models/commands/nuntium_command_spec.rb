@@ -119,8 +119,11 @@ module Commands
       cmd.run(session).should == :next
     end
 
-    it "should use the contact's Nuntium address if present" do
-      contact = project.contacts.make address: '123', nuntium_address: '456'
+    it "should use the implicit variable sms_number if present" do
+      contact = project.contacts.make address: '123'
+      contact.persisted_variables.create! :implicit_key => 'sms_number', :value => '456'
+      session.load_variables
+
       text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
       nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://456', :body => 'some text', :account_id => project.account_id)
 
