@@ -1,0 +1,76 @@
+%h2 Call log details
+%table.GralTable
+  %tr
+    %td
+      %b Not Before:
+    %td= @log.not_before
+  %tr
+    %td
+      %b Started:
+    %td= @log.created_at
+  %tr
+    %td
+      %b Finished:
+    %td= @log.finished_at
+  %tr
+    %td
+      %b Duration:
+    %td= distance_of_time_in_words(@log.finished_at, @log.created_at, true) if @log.finished_at
+  %tr
+    %td
+      %b Caller ID:
+    %td= @log.address
+  %tr
+    %td
+      %b Direction:
+    %td= @log.direction
+  %tr
+    %td
+      %b Channel:
+    %td= @log.channel.try(:name)
+  %tr
+    %td
+      %b Queue:
+    %td= @log.schedule.try(:name)
+  %tr
+    %td
+      %b Project:
+    %td= @log.project.try(:name)
+  %tr
+    %td
+      %b State:
+    %td= @log.state
+  %tr
+    %td
+      %b Fail Reason:
+    %td= @log.fail_reason
+%br/
+%p
+  = link_to 'Download CSV', download_details_call_log_path(@log, :format => :csv), :class => "button fimport"
+%table.GralTable
+  %tr
+    %th Severity
+    %th When
+    %th Text
+  - @log.structured_details.each do |detail|
+    %tr{:class => detail[:severity]}
+      %td= detail[:severity]
+      %td= detail[:time]
+      %td= short_html detail[:text], 40
+%br/
+
+- if @log.pbx_logs_guid
+  %h3 Network Logs
+  %table.GralTable
+    %tr
+      %th When
+      %th Details
+    - @log.pbx_logs.each do |pbx_log|
+      %tr
+        %td= pbx_log.created_at
+        %td= pbx_log.details
+  %br
+
+
+= link_to 'Back', call_logs_path
+

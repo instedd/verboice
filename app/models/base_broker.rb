@@ -211,6 +211,11 @@ class BaseBroker
     notify_call_queued session.channel
   end
 
+  def associate_pbx_log session_id, pbx_log_id
+    session = find_session session_id
+    session.call_log.update_attributes :pbx_logs_guid => pbx_log_id
+  end
+
   def handle_failed_call(session, message, reason)
     if session['status'] == 'successful'
       finish_session_successfully(session)

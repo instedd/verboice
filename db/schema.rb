@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130128201036) do
+ActiveRecord::Schema.define(:version => 20130611142044) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -81,15 +81,16 @@ ActiveRecord::Schema.define(:version => 20130128201036) do
     t.datetime "finished_at"
     t.string   "direction"
     t.string   "address"
-    t.string   "state",        :default => "active"
-    t.datetime "created_at",                         :null => false
-    t.datetime "updated_at",                         :null => false
+    t.string   "state",         :default => "active"
+    t.datetime "created_at",                          :null => false
+    t.datetime "updated_at",                          :null => false
     t.integer  "channel_id"
     t.datetime "started_at"
     t.integer  "schedule_id"
     t.datetime "not_before"
     t.integer  "call_flow_id"
     t.string   "fail_reason"
+    t.string   "pbx_logs_guid"
   end
 
   add_index "call_logs", ["call_flow_id"], :name => "index_call_logs_on_call_flow_id"
@@ -193,6 +194,13 @@ ActiveRecord::Schema.define(:version => 20130128201036) do
     t.datetime "expires_at"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
+  end
+
+  create_table "pbx_logs", :force => true do |t|
+    t.string   "guid"
+    t.text     "details"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "persisted_variables", :force => true do |t|
