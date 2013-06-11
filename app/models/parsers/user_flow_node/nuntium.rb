@@ -25,9 +25,7 @@ module Parsers
         @id = params['id']
         @name = params['name'] || ''
         @resource = Resource.new params['resource']
-        @rcpt_type = params['rcpt_type']
-        @rcpt_phone_number = params['rcpt_phone_number']
-        @rcpt_variable = params['rcpt_variable']
+        @recipient = params['recipient']
         @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
@@ -48,13 +46,10 @@ module Parsers
           compiler.AssignValue "current_step_name", "#{@name}"
           compiler.Trace context_for '"Sent text message."'
           if @resource.guid
-            case @rcpt_type
-            when 'caller'
-              compiler.Nuntium @resource.guid, @rcpt_type
-            when '3rdparty'
-              compiler.Nuntium @resource.guid, @rcpt_type, rcpt_address: @rcpt_phone_number
-            when 'variable'
-              compiler.Nuntium @resource.guid, @rcpt_type, rcpt_variable: @rcpt_variable
+            if @recipient['caller']
+              compiler.Nuntium @resource.guid, :caller
+            else
+              compiler.Nuntium @resource.guid, :expr, InputSetting.new(@recipient).expression() 
             end
           end
           compiler.append @next.equivalent_flow if @next

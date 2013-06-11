@@ -17,14 +17,10 @@
 
 class Commands::NuntiumCommand < Command
 
-  def initialize(resource_guid, rcpt_type, options = {})
+  def initialize(resource_guid, rcpt_type, expr = nil)
     @resource_guid = resource_guid
-    @rcpt_type = rcpt_type
-    # options should contain
-    # - rcpt_address if rcpt_type is '3rdparty'
-    # - rcpt_variable if rcpt_type is 'variable'
-    # - language to override localization
-    @options = options
+    @rcpt_type = rcpt_type   # can be :caller or :expr
+    @expr = expr
   end
 
   def run(session)
@@ -63,12 +59,10 @@ class Commands::NuntiumCommand < Command
 
   def rcpt_address(session)
     address = case @rcpt_type
-              when 'caller'
+              when :caller
                 session["var_sms_number"].presence || session.contact.address
-              when '3rdparty'
-                @options[:rcpt_address]
-              when 'variable'
-                session["var_#{@options[:rcpt_variable]}"]
+              when :expr
+                session.eval(@expr) rescue nil
               end
     unless address.blank? || address =~ /\A\w+:\/\//
       "sms://#{address}"
@@ -78,8 +72,7 @@ class Commands::NuntiumCommand < Command
   end
 
   def localized_resource(session)
-    language = @options[:language].presence || session.language
-    session.project.resources.find_by_guid(@resource_guid).available_resource_for(language)
+    session.project.resources.find_by_guid(@resource_guid).available_resource_for(session.language)
   end
 
 end

@@ -25,36 +25,40 @@ module Parsers
 
       it "should compile to a verboice equivalent flow" do
         File.stub(:exists?).and_return{true}
-        play = Nuntium.new call_flow, 'id' => 1,
+        nuntium = Nuntium.new call_flow, 'id' => 1,
           'type' => 'nuntium',
           'name' => 'Nuntium',
           'resource' => {
             "guid" => 5
           },
-          'rcpt_type' => 'caller'
+          'recipient' => {
+            'caller' => true
+          }
 
-        play.equivalent_flow.first.should eq(
+        nuntium.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
             c.Assign "current_step", 1
             c.AssignValue "current_step_name", "Nuntium"
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Nuntium', store: '"Sent text message."'
-            c.Nuntium 5, 'caller'
+            c.Nuntium 5, :caller
           end.first
         )
       end
 
       it "shouldn't compile the nuntium command if no resource is given" do
         File.stub(:exists?).and_return{true}
-        play = Nuntium.new call_flow, 'id' => 1,
+        nuntium = Nuntium.new call_flow, 'id' => 1,
           'type' => 'nuntium',
           'name' => 'Nuntium',
           'resource' => {
             "guid" => nil
           },
-          'rcpt_type' => 'caller'
+          'recipient' => {
+            'caller' => true
+          }
 
-        play.equivalent_flow.first.should eq(
+        nuntium.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
             c.Assign "current_step", 1
@@ -64,48 +68,28 @@ module Parsers
         )
       end
 
-      it "should compile the nuntium command with the recipient address if 3rd party" do
-        File.stub(:exists?).and_return{true}
-        play = Nuntium.new call_flow, 'id' => 1,
-          'type' => 'nuntium',
-          'name' => 'Nuntium',
-          'resource' => {
-            "guid" => 42
-          },
-          'rcpt_type' => '3rdparty',
-          'rcpt_phone_number' => '555-1111'
+      [[{ 'value' => '555-1111' }, "'555-1111'"],
+       [{ 'step' => 20 }, 'value_20'],
+       [{ 'variable' => 'foo' }, 'var_foo'],
+       [{ 'response' => 20 }, 'external_20']].each do |recipient, expr|
+        it "should compile the nuntium command with a value recipient" do
+          File.stub(:exists?).and_return{true}
+          nuntium = Nuntium.new call_flow, 'id' => 1,
+            'type' => 'nuntium',
+            'name' => 'Nuntium',
+            'resource' => { "guid" => 42 },
+            'recipient' => recipient
 
-        play.equivalent_flow.first.should eq(
-          Compiler.parse do |c|
-            c.Label 1
-            c.Assign "current_step", 1
-            c.AssignValue "current_step_name", "Nuntium"
-            c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Nuntium', store: '"Sent text message."'
-            c.Nuntium 42, '3rdparty', { rcpt_address: '555-1111' }
-          end.first
-        )
-      end
-
-      it "should compile the nuntium command with the recipient variable if variable" do
-        File.stub(:exists?).and_return{true}
-        play = Nuntium.new call_flow, 'id' => 1,
-          'type' => 'nuntium',
-          'name' => 'Nuntium',
-          'resource' => {
-            "guid" => 42
-          },
-          'rcpt_type' => 'variable',
-          'rcpt_variable' => 'foo'
-
-        play.equivalent_flow.first.should eq(
-          Compiler.parse do |c|
-            c.Label 1
-            c.Assign "current_step", 1
-            c.AssignValue "current_step_name", "Nuntium"
-            c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Nuntium', store: '"Sent text message."'
-            c.Nuntium 42, 'variable', { rcpt_variable: 'foo' }
-          end.first
-        )
+          nuntium.equivalent_flow.first.should eq(
+            Compiler.parse do |c|
+              c.Label 1
+              c.Assign "current_step", 1
+              c.AssignValue "current_step_name", "Nuntium"
+              c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Nuntium', store: '"Sent text message."'
+              c.Nuntium 42, :expr, expr
+            end.first
+          )
+        end
       end
 
     end

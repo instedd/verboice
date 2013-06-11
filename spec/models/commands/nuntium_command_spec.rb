@@ -30,7 +30,7 @@ module Commands
       text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
       nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://123', :body => 'some text', :account_id => project.account_id)
 
-      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd = NuntiumCommand.new resource.guid, :caller
       cmd.should_receive(:nuntium).and_return(nuntium)
       cmd.next = :next
       cmd.run(session).should == :next
@@ -39,7 +39,7 @@ module Commands
     it "should not work with UrlLocalizedResource" do
       url_localized_resource = UrlLocalizedResource.make resource: resource
 
-      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd = NuntiumCommand.new resource.guid, :caller
       cmd.should_receive(:nuntium).never
       cmd.next = :next
       cmd.run(session).should == :next
@@ -48,7 +48,7 @@ module Commands
     it "should not work with UploadLocalizedResource" do
       url_localized_resource = UploadLocalizedResource.make resource: resource
 
-      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd = NuntiumCommand.new resource.guid, :caller
       cmd.should_receive(:nuntium).never
       cmd.next = :next
       cmd.run(session).should == :next
@@ -57,7 +57,7 @@ module Commands
     it "should not work with RecordLocalizedResource" do
       url_localized_resource = RecordLocalizedResource.make resource: resource
 
-      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd = NuntiumCommand.new resource.guid, :caller
       cmd.should_receive(:nuntium).never
       cmd.next = :next
       cmd.run(session).should == :next
@@ -69,30 +69,30 @@ module Commands
       session['var_name'] = 'world'
       nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://123', :body => 'hello world', :account_id => project.account_id)
 
-      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd = NuntiumCommand.new resource.guid, :caller
       cmd.should_receive(:nuntium).and_return(nuntium)
       cmd.next = :next
       cmd.run(session).should == :next
     end
 
-    it "should send to a 3rd (fixed) party" do
+    it "should send to a value recipient" do
       text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
 
       nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://555', :body => 'some text', :account_id => project.account_id)
 
-      cmd = NuntiumCommand.new resource.guid, '3rdparty', rcpt_address: '555'
+      cmd = NuntiumCommand.new resource.guid, :expr, "'555'"
       cmd.should_receive(:nuntium).and_return(nuntium)
       cmd.next = :next
       cmd.run(session).should == :next
     end
 
-    it "should send to a user variable" do
+    it "should send to a variable recipient" do
       text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
 
       nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://456', :body => 'some text', :account_id => project.account_id)
       session['var_rcpt'] = '456'
 
-      cmd = NuntiumCommand.new resource.guid, 'variable', rcpt_variable: 'rcpt'
+      cmd = NuntiumCommand.new resource.guid, :expr, 'var_rcpt'
       cmd.should_receive(:nuntium).and_return(nuntium)
       cmd.next = :next
       cmd.run(session).should == :next
@@ -104,19 +104,21 @@ module Commands
       nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'xmpp://foo@bar', :body => 'some text', :account_id => project.account_id)
       session['var_rcpt'] = 'xmpp://foo@bar'
 
-      cmd = NuntiumCommand.new resource.guid, 'variable', rcpt_variable: 'rcpt'
+      cmd = NuntiumCommand.new resource.guid, :expr, 'var_rcpt'
       cmd.should_receive(:nuntium).and_return(nuntium)
       cmd.next = :next
       cmd.run(session).should == :next
     end
 
-    it "should not work if there is no recipient address" do
-      text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
+    ['var_nonexistant', 'null', 'undefined', nil].each do |expr|
+      it "should not work if the expression is #{expr}" do
+        text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
 
-      cmd = NuntiumCommand.new resource.guid, 'variable', rcpt_variable: 'rcpt'
-      cmd.should_receive(:nuntium).never
-      cmd.next = :next
-      cmd.run(session).should == :next
+        cmd = NuntiumCommand.new resource.guid, :expr, expr
+        cmd.should_receive(:nuntium).never
+        cmd.next = :next
+        cmd.run(session).should == :next
+      end
     end
 
     it "should use the implicit variable sms_number if present" do
@@ -127,7 +129,7 @@ module Commands
       text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
       nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://456', :body => 'some text', :account_id => project.account_id)
 
-      cmd = NuntiumCommand.new resource.guid, 'caller'
+      cmd = NuntiumCommand.new resource.guid, :caller
       cmd.should_receive(:nuntium).and_return(nuntium)
       cmd.next = :next
       cmd.run(session).should == :next

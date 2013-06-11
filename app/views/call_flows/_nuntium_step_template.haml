@@ -19,21 +19,18 @@
             %button.farrow{ :type => "button", 'data-bind' => 'click: show_resource' }
 
     .content
+      / ko with: recipient
       %hr
-      %label Recipient:
-      %select.w15{ko(value: 'rcpt_type', options: 'rcpt_options', optionsText: '"display"', optionsValue: '"value"')}
+      %div
+        %label Recipient:
+        %select.w15{'data-bind' => "value: content_kind, options: content_kinds(), optionsText: 'text', optionsValue: 'value'"}
       %br
-
-      / ko if: rcpt_type() == '3rdparty'
-      %br
-      %label Phone number:
-      %input.ux-text.w15{ko(value: 'rcpt_phone_number', valueUpdate: '"afterkeydown"', css: '{ "error": is_rcpt_phone_invalid }')}
-      / /ko
-
-      / ko if: rcpt_type() == 'variable'
-      %br
-      %label Variable:
-      %select.w15{ko(value: 'rcpt_variable', options: 'available_variables()', css: '{ "error": is_rcpt_variable_invalid }')}
+      %div
+        %p{'data-bind' => 'visible: content_kind() == "caller"'} Will use the variable sms_number or the caller's phone number.
+        %input.ux-text.w22{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value", css: { error: !value() }'}
+        %select.w22{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables(), css: { error: !variable() }'}
+        %select.w22{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name", optionsValue: "value", css: { error: !step_id() }'}
+        %select.w22{'data-bind' => 'value: response, visible: content_kind() == "response", options: available_responses(), optionsText: "name", optionsValue: "value", css: { error: !response() }'}
       / /ko
 
       .bottom-actions
