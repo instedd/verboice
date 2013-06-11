@@ -25,15 +25,6 @@ GIT
   specs:
     machinist (1.0.6)
 
-PATH
-  remote: ../pigeon
-  specs:
-    instedd-pigeon (0.2.0)
-      json
-      rails (~> 3.2)
-      rest-client
-      twitter_oauth
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -140,6 +131,11 @@ GEM
     hike (1.2.1)
     httpauth (0.1)
     i18n (0.6.1)
+    instedd-pigeon (0.2.0)
+      json
+      rails (~> 3.2)
+      rest-client
+      twitter_oauth
     instedd-rails (0.0.18)
       breadcrumbs_on_rails (>= 2.2.0)
       haml-rails
@@ -289,7 +285,7 @@ DEPENDENCIES
   formatted_rails_logger
   guid
   haml-rails
-  instedd-pigeon (~> 0.2)!
+  instedd-pigeon (~> 0.2)
   instedd-rails
   jquery-rails
   language_list
