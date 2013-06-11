@@ -131,7 +131,7 @@ GEM
     hike (1.2.1)
     httpauth (0.1)
     i18n (0.6.1)
-    instedd-pigeon (0.2.0)
+    instedd-pigeon (0.2.1)
       json
       rails (~> 3.2)
       rest-client
