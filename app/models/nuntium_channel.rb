@@ -79,7 +79,7 @@ class NuntiumChannel < ActiveRecord::Base
 
   def destroy_nuntium_channel
     begin
-      Pigeon::NuntiumChannel.find(channel_name).destroy
+      channel.destroy
     rescue Pigeon::PigeonError => e
       Rails.logger.error "Error destroying associated Nuntium channel: #{e.message}"
     end

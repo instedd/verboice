@@ -21,11 +21,10 @@ class NuntiumChannelsController < ApplicationController
   before_filter :find_channel, only: [:edit, :update]
 
   def index
-    @channels = current_account.nuntium_channels
+    @channels = current_account.nuntium_channels.order(:name)
   end
 
   def new
-    add_breadcrumb 'New', new_nuntium_channel_path(:kind => params[:kind])
   end
 
   def create
