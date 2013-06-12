@@ -1,9 +1,11 @@
-%h2 SMS Channels
+%h2 Channels
+= render partial: '/shared/channels_tabs'
+
 %br
 .tablewrapp.w60
   %table.GralTable.TwoColumn.CleanTable.ItemsTable{:class => ('empty' if @channels.empty?)}
     %tr
-      %th My SMS Channels
+      %th My Channels
       %th
         = select_tag('new_channel', pigeon_nuntium_channel_kinds_for_select, onchange: 'create_nuntium_channel(this)', prompt: 'Create new...')
     - if @channels.empty?
@@ -21,7 +23,7 @@
             - unless channel.enabled
               %span.lightgreytext (disabled)
           %td
-            %button.farrow{:type => :button, :style => 'position: relative; top: 5px;'}
+            %a.farrow
             = link_to 'Delete', channel, :method => :delete, :confirm => 'Are you sure?', :class => 'fdelete'
     %tr
 

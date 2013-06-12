@@ -1,0 +1,8 @@
+- if nuntium_configured?
+  %ul.tabs.top
+    %li{ :class =>"#{"active" if params[:controller] == "channels"}" }
+      = link_to "Voice", channels_path
+    %li{ :class =>"#{"active" if params[:controller] == "nuntium_channels"}" }
+      = link_to "SMS", nuntium_channels_path
+  .tabsline
+

@@ -1,4 +1,6 @@
 %h2 Channels
+= render partial: '/shared/channels_tabs'
+
 %br
 .tablewrapp.w60
   %table.GralTable.TwoColumn.CleanTable.ItemsTable{:class => ('empty' if @channels.empty?)}
@@ -10,7 +12,7 @@
       %tr
         %td.EmptyFolder{:colspan => 100}
           %br
-          You have no channels yet.
+          You have no voice channels yet.
           %br
           = select_tag('new_channel', options_for_select(@channel_kinds), onchange: 'create_channel(this)', prompt: 'Create new...')
     - else
