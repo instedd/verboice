@@ -1,0 +1,21 @@
+defaults: &defaults
+  host: http://nuntium.instedd.org
+  account: COMPLETE
+  application: COMPLETE
+  password: COMPLETE
+
+  # Twitter channels support (optional)
+  # twitter_consumer_key: COMPLETE
+  # twitter_consumer_secret: COMPLETE
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+staging:
+  <<: *defaults
+
+production:
+  <<: *defaults

@@ -1,0 +1,19 @@
+.pigeon_wizard[data-type=qst-server] {
+  position: relative;
+  min-height: 450px;
+  img {
+    float: left;
+    margin-right: 20px;
+  }
+  .pigeon_wizard_navigation {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    margin-top: 20px;
+    button:last-child {
+      float: right;
+    }
+  }
+}
+

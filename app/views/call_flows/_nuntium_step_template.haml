@@ -1,0 +1,37 @@
+%script{type: "text/html", id: "nuntium_step_template"}
+  .feditor-sidebar.right.box.w28.iblock.h65
+
+    %div{ko(:if => "is_editing_resource()")}
+      %div{ko(template: "{name: 'resource_editor_template', data: current_editing_resource}")}
+
+    .tableheader
+      %span.left.i48grad-message{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
+
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %tr
+          %td{ko(css: "{ orange: is_resource_invalid }")}
+            Message:
+            %span{ko(css: "{ alert: is_resource_invalid }")}
+            %span{ko(text: "resource.display_name")}
+          %td
+            %button.farrow{ :type => "button", 'data-bind' => 'click: show_resource' }
+
+    .content
+      / ko with: recipient
+      %hr
+      %div
+        %label Recipient:
+        %select.w15{'data-bind' => "value: content_kind, options: content_kinds(), optionsText: 'text', optionsValue: 'value'"}
+      %br
+      %div
+        %p{'data-bind' => 'visible: content_kind() == "caller"'} Will use the variable sms_number or the caller's phone number.
+        %input.ux-text.w22{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value", css: { error: !value() }'}
+        %select.w22{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables(), css: { error: !variable() }'}
+        %select.w22{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name", optionsValue: "value", css: { error: !step_id() }'}
+        %select.w22{'data-bind' => 'value: response, visible: content_kind() == "response", options: available_responses(), optionsText: "name", optionsValue: "value", css: { error: !response() }'}
+      / /ko
+
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

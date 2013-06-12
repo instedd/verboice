@@ -304,3 +304,8 @@ th.orange, td.orange, li.orange, span.orange, label.orange {
 .response { margin-bottom:8px; }
 .response input[type="text"] { width:95%; }
 .response label { color:#555555; }
+
+select.error {
+  border: 2px solid #ff6600;
+}
+

@@ -17,12 +17,28 @@
 
 require 'spec_helper'
 
-describe ImplicitVariable do
+module ImplicitVariables
+  describe SmsNumber do
 
-  it "should list all implicit variables" do
-    ImplicitVariable.subclasses.size.should eq(2)
-    ImplicitVariable.subclasses.should include(ImplicitVariables::Language)
-    ImplicitVariable.subclasses.should include(ImplicitVariables::SmsNumber)
+    let(:contact) { Contact.make }
+
+    it "should tell key" do
+      SmsNumber.key.should eq('sms_number')
+    end
+
+    it "should default to the contact's address" do
+      contact.address = '123'
+      SmsNumber.new(contact).value.should eq('123')
+    end
+
+    it "should return persisted variable value if persisted" do
+      contact.persisted_variables.create! :implicit_key => SmsNumber.key, :value => '456'
+      SmsNumber.new(contact).value.should eq('456')
+    end
+
+    it "should return nil when use default is false" do
+      SmsNumber.new(contact).value(false).should be_nil
+    end
+
   end
-
 end

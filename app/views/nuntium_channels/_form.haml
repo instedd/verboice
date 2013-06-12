@@ -1,0 +1,24 @@
+= render partial: 'errors'
+
+= form_for @nuntium_channel do |f|
+  = hidden_field_tag :kind, @channel.schema.kind
+
+  .field
+    = f.label :name
+    = f.text_field :name
+  %p
+    = f.check_box :enabled
+    = f.label :enabled, "Enabled"
+
+  = pigeon_render_channel @channel, :channel_data
+
+  %br
+  .actions
+    %hr
+    %button.white{:type => "submit"}
+      - if @nuntium_channel.new_record?
+        Save
+      - else
+        Update
+    = link_to 'Cancel', nuntium_channels_path, :class => "button white cancel", :style => 'top: 1px;'
+

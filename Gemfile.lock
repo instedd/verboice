@@ -131,6 +131,11 @@ GEM
     hike (1.2.1)
     httpauth (0.1)
     i18n (0.6.1)
+    instedd-pigeon (0.2.1)
+      json
+      rails (~> 3.2)
+      rest-client
+      twitter_oauth
     instedd-rails (0.0.18)
       breadcrumbs_on_rails (>= 2.2.0)
       haml-rails
@@ -167,6 +172,7 @@ GEM
       net-ssh (>= 1.99.1)
     newrelic_rpm (3.3.5)
     nokogiri (1.4.4)
+    oauth (0.4.7)
     oauth2 (0.7.1)
       faraday (~> 0.8)
       httpauth (~> 0.1)
@@ -244,6 +250,10 @@ GEM
     treetop (1.4.12)
       polyglot
       polyglot (>= 0.3.1)
+    twitter_oauth (0.4.4)
+      json (>= 1.1.9)
+      mime-types (>= 1.16)
+      oauth (>= 0.4.1)
     tzinfo (0.3.35)
     uglifier (1.2.0)
       execjs (>= 0.3.0)
@@ -275,6 +285,7 @@ DEPENDENCIES
   formatted_rails_logger
   guid
   haml-rails
+  instedd-pigeon (~> 0.2)
   instedd-rails
   jquery-rails
   language_list
