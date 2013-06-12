@@ -40,8 +40,10 @@ describe Asterisk::Broker do
         :channel => "SIP/#{session.address}",
         :application => 'AGI',
         :data => "agi://localhost:#{Asterisk::CallManager::Port},#{session.id}",
+        :timeout => 60000,
         :async => true,
-        :actionid => session.id
+        :actionid => session.id,
+        :variable => "verboice_session_id=#{session.id}"
       }).and_return(:response => 'OK')
 
       result = broker.call session
@@ -61,8 +63,10 @@ describe Asterisk::Broker do
         :channel => "SIP/#{session.address}",
         :application => 'AGI',
         :data => "agi://localhost:#{Asterisk::CallManager::Port},#{session.id}",
+        :timeout => 60000,
         :async => true,
-        :actionid => session.id
+        :actionid => session.id,
+        :variable => "verboice_session_id=#{session.id}"
       }).and_return(:response => 'Error', :message => 'Oops')
 
       ex = assert_raise(RuntimeError) { broker.call session }
