@@ -110,17 +110,17 @@ class Session
   end
 
   def language
-    self['var_language']
+    self['var_language'] || project.default_language
   end
 
-  def voice
-    search = self.language
+  def voice(lang)
+    search = lang || self.language
     match = project.languages.find { |lang| lang['language'] == search }
     match && match['voice'].presence
   end
 
   def synth(text, options = {})
-    voice = voice()
+    voice = voice(options[:language])
     file_id = Digest::MD5.hexdigest "#{text}#{voice}"
     target_path = pbx.sound_path_for file_id
     unless File.exists? target_path
@@ -245,7 +245,6 @@ class Session
   end
 
   def load_variables
-    self["var_language"] = project.default_language
     unless contact.anonymous?
       contact.persisted_variables.includes(:project_variable).each do |var|
         name = var.implicit_key || var.project_variable.name

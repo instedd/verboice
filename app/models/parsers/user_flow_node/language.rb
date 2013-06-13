@@ -25,7 +25,7 @@ module Parsers
         @id = params['id']
         @name = params['name'] || ''
         @resource = Resource.new params['resource']
-        @languages = call_flow.project.languages
+        @languages = call_flow.project.languages.map { |lang| lang["language"] }
         @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
@@ -46,7 +46,7 @@ module Parsers
           compiler.Label @id
           compiler.Assign "current_step", @id
           compiler.AssignValue "current_step_name", @name
-          compiler.If "var_#{var_name} != null" do |c|
+          compiler.If "typeof(var_#{var_name}) != 'undefined'" do |c|
             c.Goto "end#{@id}"
           end
           @languages.each_with_index do |language, i|
