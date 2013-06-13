@@ -25,7 +25,9 @@ class Contact < ActiveRecord::Base
   accepts_nested_attributes_for :persisted_variables,
     :reject_if => lambda { |attributes| attributes[:value].blank? || (attributes[:project_variable_id].blank? && attributes[:implicit_key].blank?) },
     :allow_destroy => true
+  accepts_nested_attributes_for :addresses, :allow_destroy => true
 
-  attr_accessible :anonymous, :persisted_variables_attributes
+  attr_accessible :addresses_attributes, :anonymous, :persisted_variables_attributes
   validates_presence_of :project
+  validates_associated :addresses
 end

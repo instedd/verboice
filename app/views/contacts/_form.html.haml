@@ -3,7 +3,7 @@
     window.languages = #{languages_for_js};
 
 = form_for [@project, @contact] do |f|
-  -if @contact.errors.any?
+  - if @contact.errors.any?
     #error_explanation
       %h2= "#{pluralize(@contact.errors.count, "error")} prohibited this contact from being saved:"
       %ul
@@ -11,8 +11,13 @@
           %li= msg
 
   .field
-    = f.label :address, 'Phone number'
-    = f.text_field :address, :class => 'w30'
+    = f.label :address, 'Phone numbers'
+    %ul.addresses.clist.w30
+      - @contact.addresses.each do |caddr|
+        = render partial: 'address', locals: { f: f, caddr: caddr }
+      %li
+        %input.ux-text.new_address
+        %button.clist-add{ :type => "button", :'data-template' => render(partial: 'address', locals: { f: f, caddr: ContactAddress.new }) }
 
   %div
     = f.fields_for :persisted_variables do |builder|

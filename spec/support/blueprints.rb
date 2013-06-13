@@ -128,6 +128,9 @@ end
 
 Contact.blueprint do
   project
+end
+
+ContactAddress.blueprint do
   address { Sham.password }
 end
 
