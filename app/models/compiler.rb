@@ -82,7 +82,7 @@ class Compiler
   end
 
   def PersistVariable(variable, expression)
-    @variables.add variable
+    @variables.add variable unless ImplicitVariable.find(variable)
     append Commands::PersistVariableCommand.new(variable, expression)
   end
 
