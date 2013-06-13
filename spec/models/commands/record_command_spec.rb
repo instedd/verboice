@@ -27,13 +27,13 @@ module Commands
     end
 
     it "should create a recorded audio linking the saved audio file to the call log and contact" do
-      contact = Contact.make
+      contact = Contact.make(:with_address)
       project = contact.project
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow
 
       session = Session.new :pbx => pbx, :call_log => call_log
-      session.stub :address => contact.address
+      session.stub :address => contact.first_address
 
       cmd = RecordCommand.new 123, 'description'
       cmd.next = :next
@@ -59,7 +59,7 @@ module Commands
       cmd.next = :next
       cmd.run(session).should == :next
       Contact.all.size.should eq(1)
-      Contact.first.address.should eq('1234xxx')
+      Contact.first.first_address.should eq('1234xxx')
       RecordedAudio.first.contact.should eq(Contact.first)
     end
 
@@ -74,7 +74,7 @@ module Commands
       cmd.next = :next
       cmd.run(session).should == :next
       Contact.all.size.should eq(1)
-      Contact.first.address.should eq('Anonymous456')
+      Contact.first.first_address.should eq('Anonymous456')
       Contact.first.anonymous?.should eq(true)
       RecordedAudio.first.contact.should eq(Contact.first)
     end

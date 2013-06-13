@@ -27,7 +27,7 @@ module ImplicitVariables
     end
 
     it "should default to the contact's address" do
-      contact.address = '123'
+      contact.addresses.create address: '123'
       SmsNumber.new(contact).value.should eq('123')
     end
 

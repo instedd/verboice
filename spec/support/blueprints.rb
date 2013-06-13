@@ -130,6 +130,11 @@ Contact.blueprint do
   project
 end
 
+Contact.blueprint(:with_address) do
+  project
+  addresses { [ContactAddress.make(contact: object) ]}
+end
+
 ContactAddress.blueprint do
   address { Sham.password }
 end

@@ -65,11 +65,24 @@ class Session
   end
 
   def contact
-    @contact ||= if address.present?
-                   project.contacts.where(address: address).first_or_create!
-                 else
-                   project.contacts.where(address: "Anonymous#{call_log.id}", anonymous: true).create!
-                 end
+    @contact ||= find_or_create_contact
+  end
+
+  def find_or_create_contact
+    if address.present?
+      caddr = project.contact_addresses.where(address: address).first
+      if caddr.nil?
+        contact = project.contacts.create
+        contact.addresses.create address: address
+        contact
+      else
+        caddr.contact
+      end
+    else
+      contact = project.contacts.create anonymous: true
+      contact.addresses.create address: "Anonymous#{call_log.id}"
+      contact
+    end
   end
 
   def broker

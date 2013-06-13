@@ -30,4 +30,8 @@ class Contact < ActiveRecord::Base
   attr_accessible :addresses_attributes, :anonymous, :persisted_variables_attributes
   validates_presence_of :project
   validates_associated :addresses
+
+  def first_address
+    addresses.first.try(&:address)
+  end
 end

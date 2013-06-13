@@ -23,7 +23,7 @@ module ImplicitVariables
       if persisted_variable
         persisted_variable.value
       elsif use_default
-        @contact.address
+        @contact.addresses.first.try(:address)
       else
         nil
       end
