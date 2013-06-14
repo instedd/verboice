@@ -330,7 +330,7 @@ describe BaseBroker do
 
       context "reject call" do
         it "reject with busy status" do
-          session = Session.new
+          session = Session.new call_log: CallLog.make
           @broker.should_receive(:find_session).with(123).and_return(session)
           @broker.should_receive(:finish_session_with_error).with(session, 'Remote end is busy', 'busy')
           EM.should_receive(:fiber_sleep).with 2
@@ -340,7 +340,7 @@ describe BaseBroker do
         end
 
         it "reject with no answer status" do
-          session = Session.new
+          session = Session.new call_log: CallLog.make
           @broker.should_receive(:find_session).with(123).and_return(session)
           @broker.should_receive(:finish_session_with_error).with(session, 'Remote end do not answer', 'no-answer')
           EM.should_receive(:fiber_sleep).with 2
@@ -350,7 +350,7 @@ describe BaseBroker do
         end
 
         it "reject with unknown reason" do
-          session = Session.new
+          session = Session.new call_log: CallLog.make
           @broker.should_receive(:find_session).with(123).and_return(session)
           @broker.should_receive(:finish_session_with_error).with(session, 'Failed to establish the communication', 'failed')
           EM.should_receive(:fiber_sleep).with 2

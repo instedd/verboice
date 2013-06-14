@@ -68,4 +68,16 @@ class QueuedCall < ActiveRecord::Base
       destroy
     end
   end
+
+  def has_retries_left?
+    schedule && schedule.retry_delays.count > retries
+  end
+
+  def next_retry_time
+    sleep = schedule.retry_delays[retries - 1].to_f * (Rails.env == 'development' ? 1.second : 1.hour)
+
+    schedule.with_time_zone(time_zone) do |time_zoned_schedule|
+      time_zoned_schedule.next_available_time(Time.now.utc + sleep)
+    end
+  end
 end

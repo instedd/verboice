@@ -219,13 +219,16 @@ class BaseBroker
     end
 
     queued_call = session.queued_call
-    if queued_call && queued_call.schedule && queued_call.schedule.retry_delays.count > queued_call.retries
+    next_address = session.contact.next_address(session.address)
+    if queued_call && (queued_call.has_retries_left? || next_address.present?)
       queued_call = queued_call.dup
-      queued_call.retries += 1
-      sleep = queued_call.schedule.retry_delays[queued_call.retries - 1].to_f * (Rails.env == 'development' ? 1.second : 1.hour)
-
-      queued_call.not_before = queued_call.schedule.with_time_zone(queued_call.time_zone) do |time_zoned_schedule|
-        time_zoned_schedule.next_available_time(Time.now.utc + sleep)
+      if next_address.present?
+        queued_call.address = next_address
+        queued_call.not_before = 15.seconds.from_now
+      else
+        queued_call.address = session.contact.first_address
+        queued_call.retries += 1
+        queued_call.not_before = queued_call.next_retry_time
       end
 
       log "Re enqueuing call for session #{session.id} with queued call #{queued_call.id} for #{queued_call.not_before}"

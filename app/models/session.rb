@@ -71,13 +71,13 @@ class Session
 
   def find_or_create_contact
     if address.present?
-      caddr = project.contact_addresses.where(address: address).first
-      if caddr.nil?
+      contact_address = project.contact_addresses.where(address: address).first
+      if contact_address.nil?
         contact = project.contacts.create
         contact.addresses.create address: address
         contact
       else
-        caddr.contact
+        contact_address.contact
       end
     else
       contact = project.contacts.create anonymous: true

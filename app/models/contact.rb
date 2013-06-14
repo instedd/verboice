@@ -34,4 +34,9 @@ class Contact < ActiveRecord::Base
   def first_address
     addresses.first.try(&:address)
   end
+
+  def next_address(address)
+    addresses = self.addresses.order(:id).map(&:address)
+    addresses.drop_while { |addr| addr != address }.second 
+  end
 end
