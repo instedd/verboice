@@ -55,7 +55,7 @@ class BaseBroker
       log "Resuming call #{session.call_id} from queued call #{queued_call.id} on channel #{channel.id}"
     else
       session = queued_call.start
-      store_session session, queued_call
+      store_session session
       log "Starting new call #{session.call_id} from queued call #{queued_call.id} on channel #{channel.id}"
     end
 
@@ -77,10 +77,6 @@ class BaseBroker
 
   def active_calls
     @active_calls ||= Hash.new {|hash, key| hash[key] = {}}
-  end
-
-  def active_queued_calls
-    @active_queued_calls ||= {}
   end
 
   def active_calls_count_for(channel)
@@ -222,7 +218,7 @@ class BaseBroker
       return
     end
 
-    queued_call = active_queued_calls[session.id]
+    queued_call = session.queued_call
     if queued_call && queued_call.schedule && queued_call.schedule.retry_delays.count > queued_call.retries
       queued_call = queued_call.dup
       queued_call.retries += 1
@@ -247,19 +243,15 @@ class BaseBroker
 
   private
 
-  def store_session(session, queued_call = nil)
+  def store_session(session)
     sessions[session.id] = session
     active_calls[session.channel.id][session.id] = session
-    if queued_call
-      active_queued_calls[session.id] = queued_call
-    end
   end
 
   def finish_session(session)
     sessions.delete session.id
     active_calls[session.channel.id].delete session.id
     active_calls.delete session.channel.id if active_calls[session.channel.id].empty?
-    active_queued_calls.delete session.id
   end
 
   def error_message_for(exception)

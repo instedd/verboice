@@ -47,7 +47,9 @@ class QueuedCall < ActiveRecord::Base
 
     options[:call_variables] = variables if variables
 
-    channel.new_session options
+    channel.new_session(options).tap do |session|
+      session.queued_call = self
+    end
   end
 
   def cancel_call!

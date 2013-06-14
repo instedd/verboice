@@ -26,6 +26,7 @@ class Session
   attr_accessor :start
   attr_accessor :status_callback_url
   attr_accessor :created_at
+  attr_accessor :queued_call
 
   delegate :finish_successfully, :to => :call_log
   CallLogEntry::Levels.each { |severity| delegate severity, :to => :call_log }
