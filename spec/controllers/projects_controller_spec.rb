@@ -148,9 +148,10 @@ describe ProjectsController do
 
     context "contact with multiple numbers" do
       before(:each) do
-        @contact = project.contacts.make
-        @contact.addresses.make address: '1'
-        @contact.addresses.make address: '2'
+        @contact = project.contacts.new
+        @contact.addresses.build address: '1'
+        @contact.addresses.build address: '2'
+        @contact.save!
       end
 
       it 'should not enqueue multiple calls to the same contact' do

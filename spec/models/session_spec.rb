@@ -86,8 +86,9 @@ describe Session do
   end
 
   it "find a pre-existing contact for the given address" do
-    contact = @session.project.contacts.create
-    contact.addresses.create address: '123'
+    contact = @session.project.contacts.new
+    contact.addresses.build address: '123'
+    contact.save!
 
     @session.address = '123'
 

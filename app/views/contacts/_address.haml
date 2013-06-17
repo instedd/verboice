@@ -1,4 +1,4 @@
-= f.fields_for :addresses, caddr, :child_index => (caddr.new_record? ? '__INDEX__' : nil) do |builder|
+= f.fields_for :addresses, caddr, :child_index => child_index do |builder|
   %li
     = builder.text_field :address, :class => 'ux-clist'
     = builder.hidden_field :_destroy

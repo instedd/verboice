@@ -73,15 +73,17 @@ class Session
     if address.present?
       contact_address = project.contact_addresses.where(address: address).first
       if contact_address.nil?
-        contact = project.contacts.create
-        contact.addresses.create address: address
+        contact = project.contacts.new
+        contact.addresses.build address: address
+        contact.save!
         contact
       else
         contact_address.contact
       end
     else
-      contact = project.contacts.create anonymous: true
-      contact.addresses.create address: "Anonymous#{call_log.id}"
+      contact = project.contacts.new anonymous: true
+      contact.addresses.build address: "Anonymous#{call_log.id}"
+      contact.save!
       contact
     end
   end

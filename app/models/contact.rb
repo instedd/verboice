@@ -17,7 +17,7 @@
 
 class Contact < ActiveRecord::Base
   belongs_to :project
-  has_many :addresses, :dependent => :destroy, :class_name => 'ContactAddress'
+  has_many :addresses, :dependent => :destroy, :class_name => 'ContactAddress', :inverse_of => :contact
   has_many :persisted_variables, :dependent => :destroy, :inverse_of => :contact
   has_many :recorded_audios, :dependent => :destroy
   has_many :project_variables, :through => :project
@@ -28,8 +28,9 @@ class Contact < ActiveRecord::Base
   accepts_nested_attributes_for :addresses, :allow_destroy => true
 
   attr_accessible :addresses_attributes, :anonymous, :persisted_variables_attributes
+
   validates_presence_of :project
-  validates_associated :addresses
+  validate :at_least_one_address
 
   def first_address
     addresses.first.try(&:address)
@@ -38,5 +39,11 @@ class Contact < ActiveRecord::Base
   def next_address(address)
     addresses = self.addresses.order(:id).map(&:address)
     addresses.drop_while { |addr| addr != address }.second 
+  end
+
+  private
+
+  def at_least_one_address
+    errors[:base] << "You must provide at least one phone number" unless addresses.size > 0
   end
 end

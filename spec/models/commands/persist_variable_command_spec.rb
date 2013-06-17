@@ -20,7 +20,7 @@ require 'spec_helper'
 module Commands
   describe PersistVariableCommand do
     it "should create a persisted variable storing a value with a given name" do
-      contact  = Contact.make(:with_address)
+      contact  = Contact.make
       project  = contact.project
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow
@@ -54,7 +54,7 @@ module Commands
     end
 
     it "should replace the value of an existing variable" do
-      contact  = Contact.make(:with_address)
+      contact  = Contact.make
       project  = contact.project
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow
@@ -100,7 +100,7 @@ module Commands
 
 
     it "should persist implicit variables" do
-      contact  = Contact.make(:with_address)
+      contact  = Contact.make
       project  = contact.project
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow
@@ -118,7 +118,7 @@ module Commands
     end
 
     it "should update value of persisted implicit variables" do
-      contact  = Contact.make(:with_address)
+      contact  = Contact.make
       project  = contact.project
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow

@@ -14,10 +14,10 @@
     = f.label :address, 'Phone numbers'
     %ul.addresses.clist.w30
       - @contact.addresses.each do |caddr|
-        = render partial: 'address', locals: { f: f, caddr: caddr }
+        = render partial: 'address', locals: { f: f, caddr: caddr, child_index: nil }
       %li
         %input.ux-text.new_address
-        %button.clist-add{ :type => "button", :'data-template' => render(partial: 'address', locals: { f: f, caddr: ContactAddress.new }) }
+        %button.clist-add{ :type => "button", :'data-template' => render(partial: 'address', locals: { f: f, caddr: ContactAddress.new, child_index: '__INDEX__' }) }
 
   %div
     = f.fields_for :persisted_variables do |builder|

@@ -198,7 +198,7 @@ describe BaseBroker do
         end
 
         it "requeue call if rejected and the contact has more numbers to try" do
-          contact = @channel.project.contacts.make(:with_address)
+          contact = @channel.project.contacts.make
           second_address = contact.addresses.make
           contact.addresses.count.should eq(2)
 

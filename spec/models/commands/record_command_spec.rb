@@ -27,7 +27,7 @@ module Commands
     end
 
     it "should create a recorded audio linking the saved audio file to the call log and contact" do
-      contact = Contact.make(:with_address)
+      contact = Contact.make
       project = contact.project
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow
