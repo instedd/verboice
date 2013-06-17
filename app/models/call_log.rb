@@ -72,6 +72,7 @@ class CallLog < ActiveRecord::Base
   end
 
   def finish_successfully
+    self.fail_reason = ''
     finish :completed
   end
 
