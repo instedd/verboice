@@ -71,6 +71,7 @@ class ProjectsController < ApplicationController
 
     DateTime.parse(options[:not_before]) rescue redirect_to project_path(params[:id]), flash: {error: 'Enter a valid date'} and return if options[:not_before]
 
+    addresses = curated_addresses(addresses)
     addresses.each do |address|
       @channel.call(address.strip, options)
     end
@@ -107,4 +108,38 @@ class ProjectsController < ApplicationController
     @call_logs = @project.call_logs
   end
 
+  def curated_addresses(addresses)
+    # build a hash from contact_id to all his addresses 
+    # eg. { 1 => ['123','456'], 2 => ['789'] }
+    all_contacts = Hash.new { |hash,key| hash[key] = [] }
+    all_contacts = @project.contact_addresses.order(:id).inject(all_contacts) do |contacts, contact_address|
+      contacts[contact_address.contact_id] << contact_address.address
+      contacts
+    end
+    # now build a hash from every contact's addresses to all his addresses
+    # eg. { '123' => ['123', '456'], '456' => ['123', '456'], '789' => ['789'] }
+    all_addresses = all_contacts.values.inject({}) do |all_addresses, contact_addresses|
+      contact_addresses.each do |contact_address|
+        all_addresses[contact_address] = contact_addresses
+      end
+      all_addresses
+    end
+
+    # curate the addresses so that there is only one entry for each contact in
+    # the original list, and that entry is the contact's first registered address
+    known_addresses = Set.new
+    addresses.inject([]) do |curated, address|
+      unless known_addresses.include?(address)
+        contact_addresses = all_addresses[address]
+        if contact_addresses.nil?
+          known_addresses << address
+          curated << address
+        else
+          known_addresses.merge(contact_addresses)
+          curated << contact_addresses.first
+        end
+      end
+      curated
+    end
+  end
 end
