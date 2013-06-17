@@ -197,6 +197,26 @@ describe BaseBroker do
           QueuedCall.last.should be_nil
         end
 
+        it "requeue call if rejected and the contact has more numbers to try" do
+          contact = @channel.project.contacts.make(:with_address)
+          second_address = contact.addresses.make
+          contact.addresses.count.should eq(2)
+
+          queued_call = @channel.queued_calls.make :address => contact.first_address, :call_log => @channel.call_logs.make
+          the_session = nil
+
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
+
+          EM.should_receive(:fiber_sleep).with 2
+          @broker.call_rejected the_session.id, :busy
+
+          queued_call = QueuedCall.last
+          (queued_call.not_before - (Time.now + 15.seconds)).abs.should <= 2.seconds
+          queued_call.address.should eq(second_address.address)
+          queued_call.retries.should eq(0)
+        end
+
         it "not call if scheduled for the future" do
           @channel.queued_calls.make :not_before => Time.now + 1.hour
 
