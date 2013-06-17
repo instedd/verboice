@@ -45,6 +45,10 @@ class CallLog < ActiveRecord::Base
     direction == :outgoing
   end
 
+  def incoming?
+    direction == :incoming
+  end
+
   def start_incoming
     info "Answering call from #{address}"
     start
