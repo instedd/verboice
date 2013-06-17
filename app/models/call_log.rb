@@ -46,6 +46,7 @@ class CallLog < ActiveRecord::Base
   end
 
   def start_incoming
+    info "Answering call from #{address}"
     start
   end
 

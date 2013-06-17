@@ -110,6 +110,7 @@ class BaseBroker
     log "Accepting call from PBX with call id #{session.call_id}"
     log "Session for call #{session.call_id} is suspended" and return session.resume if session.suspended
     session.call_log.address = pbx.caller_id unless session.call_log.address.present?
+    session.call_log.start_incoming
     begin
       log "Call #{session.call_id} is now in progress" and session.notify_status 'in-progress'
       session.run

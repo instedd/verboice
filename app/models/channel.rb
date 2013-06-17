@@ -55,7 +55,6 @@ class Channel < ActiveRecord::Base
     session.channel = self
     unless session.call_log
       session.call_log = call_logs.new :direction => :incoming, :call_flow => session.call_flow, :account => account, :project => session.call_flow.project, :started_at => Time.now.utc
-      session.call_log.start_incoming
     end
     session.commands = session.call_flow.commands.dup
     session
