@@ -54,7 +54,7 @@ class Channel < ActiveRecord::Base
     session.call_flow ||= call_flow
     session.channel = self
     unless session.call_log
-      session.call_log = call_logs.new :direction => :incoming, :call_flow => session.call_flow, :account => account, :project => session.call_flow.project, :started_at => Time.now.utc
+      session.call_log = call_logs.create! :direction => :incoming, :call_flow => session.call_flow, :account => account, :project => session.call_flow.project, :started_at => Time.now.utc
     end
     session.commands = session.call_flow.commands.dup
     session
@@ -126,8 +126,8 @@ class Channel < ActiveRecord::Base
         :schedule => schedule,
         :not_before => not_before
       )
-      call_log.info "Received via #{via}: call #{address}"
       call_log.save!
+      call_log.info "Received via #{via}: call #{address}"
     end
 
     if options[:vars].is_a?(Hash)
