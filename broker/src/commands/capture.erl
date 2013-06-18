@@ -35,7 +35,11 @@ prepare_caption(Args, Session) ->
 parepare_localized_resource(Args, Session) ->
   case proplists:get_value(resource, Args) of
     undefined -> prepare_url_resource(Args, Session);
-    ResourceGuid -> resource:prepare(ResourceGuid, Session)
+    ResourceGuid ->
+      case proplists:get_value(language, Args) of
+        undefined -> resource:prepare(ResourceGuid, Session);
+        Language -> resource:prepare(ResourceGuid, Session, Language)
+      end
   end.
 
 prepare_url_resource(Args, Session) ->

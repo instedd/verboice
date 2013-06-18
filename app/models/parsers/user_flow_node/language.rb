@@ -44,7 +44,7 @@ module Parsers
 
         Compiler.parse do |compiler|
           compiler.Label @id
-          compiler.Assign "current_step", @id
+          compiler.AssignValue "current_step", @id
           compiler.AssignValue "current_step_name", @name
           compiler.If "typeof(var_#{var_name}) != 'undefined'" do |c|
             c.Goto "end#{@id}"

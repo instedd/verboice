@@ -1,5 +1,5 @@
 -module(resource).
--export([find_by_guid/1, localized_resource/2, prepare/2, prepare_text_resource/2, prepare_blob_resource/3, prepare_url_resource/2]).
+-export([find_by_guid/1, localized_resource/2, prepare/2, prepare/3, prepare_text_resource/2, prepare_text_resource/3, prepare_blob_resource/3, prepare_url_resource/2]).
 -define(CACHE, true).
 -define(TABLE_NAME, "resources").
 -include("model.hrl").
@@ -12,13 +12,19 @@ localized_resource(Language, #resource{id = Id}) ->
   localized_resource:find([{resource_id, Id}, {language, Language}]).
 
 prepare(Guid, Session) ->
+  prepare(Guid, Session, Session:language()).
+
+prepare(Guid, Session, Language) ->
   Resource = find_by_guid(Guid),
-  case Resource:localized_resource(Session:language()) of
+  case Resource:localized_resource(Language) of
     undefined -> exit(resource_undefined);
     LocalizedResource -> LocalizedResource:prepare(Session)
   end.
 
-prepare_text_resource(Text, Session = #session{pbx = Pbx, project = Project, js_context = JsContext}) ->
+prepare_text_resource(Text, Session) ->
+  prepare_text_resource(Text, Session:language(), Session).
+
+prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_context = JsContext}) ->
   ReplacedText = util:interpolate(Text, fun(VarNameBin) ->
     VarName = binary_to_atom(<<"var_", VarNameBin/binary>>, utf8),
     case erjs_object:get(VarName, JsContext) of
@@ -26,7 +32,6 @@ prepare_text_resource(Text, Session = #session{pbx = Pbx, project = Project, js_
       X -> list_to_binary(X)
     end
   end),
-  Language = Session:language(),
   case Pbx:can_play({text, Language}) of
     false ->
       Name = util:md5hex(ReplacedText),

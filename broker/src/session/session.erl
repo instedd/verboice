@@ -56,8 +56,11 @@ matches(SessionPid, Criteria) ->
     exit:_ -> false
   end.
 
-language(#session{js_context = JsContext}) ->
-  erjs_object:get(var_language, JsContext).
+language(#session{js_context = JsContext, default_language = DefaultLanguage}) ->
+  case erjs_object:get(var_language, JsContext) of
+    undefined -> DefaultLanguage;
+    Language -> Language
+  end.
 
 %% @private
 
@@ -241,8 +244,8 @@ get_contact(ProjectId, undefined, CallLogId) ->
 get_contact(ProjectId, Address, _) ->
   contact:find_or_create([{project_id, ProjectId}, {address, Address}]).
 
-default_variables(Session = #session{contact = Contact, project = #project{id = ProjectId}}) ->
-  Context = erjs_object:new([{var_language, default_language(Session)},{record_url, fun(_Key) -> "<url>" end}]),
+default_variables(#session{contact = Contact, project = #project{id = ProjectId}}) ->
+  Context = erjs_object:new([{record_url, fun(_Key) -> "<url>" end}]),
   ProjectVars = project_variable:names_for_project(ProjectId),
   Variables = persisted_variable:find_all({contact_id, Contact#contact.id}),
   default_variables(Context, ProjectVars, Variables).
@@ -260,7 +263,7 @@ default_variables(Context, ProjectVars, [Var | Rest]) ->
 
 run(Session = #session{pbx = Pbx}) ->
   JsContext = default_variables(Session),
-  RunSession = Session#session{js_context = JsContext},
+  RunSession = Session#session{js_context = JsContext, default_language = default_language(Session)},
   try run(RunSession, 1) of
     X -> X
   after

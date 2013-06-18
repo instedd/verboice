@@ -4,8 +4,8 @@
 -define(TABLE_NAME, "localized_resources").
 -include("model.hrl").
 
-prepare(Session, #localized_resource{type = <<"TextLocalizedResource">>, text = Text}) ->
-  resource:prepare_text_resource(Text, Session);
+prepare(Session, #localized_resource{type = <<"TextLocalizedResource">>, text = Text, language = Language}) ->
+  resource:prepare_text_resource(Text, binary_to_list(Language), Session);
 
 prepare(Session, #localized_resource{type = <<"UploadLocalizedResource">>, uploaded_audio = Blob, guid = Guid}) ->
   resource:prepare_blob_resource(binary_to_list(Guid), Blob, Session);

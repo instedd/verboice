@@ -43,6 +43,7 @@ class Commands::CaptureCommand < Command
       params[:play] = @options[:play] if @options[:play]
       params[:say] = @options[:say] if @options[:say]
       params[:resource] = @options[:resource] if @options[:resource]
+      params[:language] = @options[:language] if @options[:language]
     end
   end
 
