@@ -13,7 +13,7 @@
 start_link(RealBroker) ->
   gen_server:start_link({local, RealBroker}, ?MODULE, RealBroker, []).
 
-behaviour_info(callbacks) -> [{init, 0}, {dispatch, 1}];
+behaviour_info(callbacks) -> [{init, 0}, {dispatch, 1}, {create_channel, 1}, {destroy_channel, 1}];
 behaviour_info(_) -> undefined.
 
 %% @private

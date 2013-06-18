@@ -1,5 +1,5 @@
 -module(asterisk_broker).
--export([start_link/0, init/0, notify_ready/0, dispatch/1]).
+-export([start_link/0, init/0, notify_ready/0, dispatch/1, create_channel/1, destroy_channel/1]).
 
 -behaviour(broker).
 
@@ -15,6 +15,12 @@ init() ->
 
 notify_ready() ->
   broker:notify_ready(?MODULE).
+
+create_channel(_Id) ->
+  asterisk_channel_srv:regenerate_config().
+
+destroy_channel(_Id) ->
+  asterisk_channel_srv:regenerate_config().
 
 dial_address(#channel{type = <<"Channels::Custom">>, config = Config}, Address) ->
   DialString = proplists:get_value(<<"dial_string">>, Config),

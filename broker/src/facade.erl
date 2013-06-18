@@ -16,11 +16,11 @@ notify_call_queued(_ChannelId, _NotBefore) ->
   scheduler:load(),
   ok.
 
-create_channel(_Id, _Broker) ->
-  ok.
+create_channel(Id, Broker) ->
+  Broker:create_channel(Id).
 
-destroy_channel(_Id, _Broker) ->
-  ok.
+destroy_channel(Id, Broker) ->
+  Broker:destroy_channel(Id).
 
 invalidate_cache(Entity, Id) ->
   cache:delete({Entity, {id, Id}}).

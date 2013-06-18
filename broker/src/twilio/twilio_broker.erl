@@ -1,6 +1,7 @@
 -module(twilio_broker).
--export([start_link/0, init/0, dispatch/1]).
+-export([start_link/0, init/0, dispatch/1, create_channel/1, destroy_channel/1]).
 
+-behaviour(broker).
 -include("session.hrl").
 
 start_link() ->
@@ -8,6 +9,10 @@ start_link() ->
 
 init() ->
   ok.
+
+create_channel(_Id) -> ok.
+
+destroy_channel(_Id) -> ok.
 
 dispatch(_Session = #session{session_id = SessionId, channel = Channel, address = Address}) ->
   io:format("Channel ~p~n", [Channel]),
