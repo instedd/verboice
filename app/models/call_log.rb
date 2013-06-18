@@ -25,6 +25,7 @@ class CallLog < ActiveRecord::Base
   belongs_to :schedule
   has_many :traces, :foreign_key => 'call_id'
   has_many :entries, :foreign_key => 'call_id', :class_name => "CallLogEntry"
+  has_many :pbx_logs, :foreign_key => :guid, :primary_key => :pbx_logs_guid
 
   before_validation :set_account_to_project_account, :if => :call_flow_id?
 

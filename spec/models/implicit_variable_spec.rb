@@ -20,8 +20,9 @@ require 'spec_helper'
 describe ImplicitVariable do
 
   it "should list all implicit variables" do
-    ImplicitVariable.subclasses.size.should eq(1)
+    ImplicitVariable.subclasses.size.should eq(2)
     ImplicitVariable.subclasses.should include(ImplicitVariables::Language)
+    ImplicitVariable.subclasses.should include(ImplicitVariables::SmsNumber)
   end
 
 end

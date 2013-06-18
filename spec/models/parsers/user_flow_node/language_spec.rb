@@ -21,7 +21,7 @@ module Parsers
   module UserFlowNode
     describe Language do
 
-      let(:project) { Project.make :languages => ['en', 'es'] }
+      let(:project) { Project.make :languages => [{'language' => 'en'}, {'language' => 'es'}] }
       let(:call_flow) { CallFlow.make :project => project }
 
       it "should compile to a verboice equivalent flow" do
@@ -35,7 +35,7 @@ module Parsers
             c.Label 1
             c.Assign "current_step", 1
             c.AssignValue "current_step_name", "Detect Language"
-            c.If "var_language != null" do |c|
+            c.If "typeof(var_language) != 'undefined'" do |c|
               c.Goto "end1"
             end
             c.Capture({finish_on_key: '', timeout: 1, resource: '12349', language: 'en'})

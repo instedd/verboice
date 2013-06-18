@@ -23,10 +23,10 @@ module Asterisk
       Fiber.new do
         response = self.login :username => 'verboice', :secret => 'verboice'
         if response[:response] != 'Success'
-          puts "Login failed"
+          Rails.logger.error "Login to Asterisk AMI failed: #{response}"
           close_connection
         else
-          puts response
+          Rails.logger.info response
           $asterisk_client = self
           self.events eventmask: 'on'
           EM.fiber_sleep 5

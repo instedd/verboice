@@ -1,0 +1,11 @@
+- if @channel.errors.any? || @nuntium_channel.errors.any?
+  #error_explanation
+    %h2
+      = pluralize(@channel.errors.count + @nuntium_channel.errors.count, 'error')
+      prohibited this channel from being saved:
+    %ul
+      - @nuntium_channel.errors.full_messages.map do |msg|
+        %li= msg
+      - @channel.errors.full_messages.map do |msg|
+        %li= msg
+

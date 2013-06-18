@@ -33,6 +33,12 @@ function create_channel(select) {
   select.value = '';
 }
 
+function create_nuntium_channel(select) {
+  if (!select.value) return;
+  window.location = '/nuntium_channels/new?kind=' + select.value;
+  select.value = '';
+}
+
 function onWorkflow(callback) {
   $(function() {
     if($('#workflow').length > 0) {

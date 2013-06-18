@@ -124,7 +124,7 @@ module Asterisk
 
     def capture(options)
       [:min, :max, :timeout].each { |key| options[key] = options[key].to_i rescue nil }
-      options[:play] = session.synth(options[:say]) if options[:say]
+      options[:play] = session.synth(options[:say], options) if options[:say]
 
       digits = ''
 

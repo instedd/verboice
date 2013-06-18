@@ -29,7 +29,9 @@ onWorkflow ->
       @current_editing_localized_resource = ko.observable @localized_resources()[0]
 
       @is_valid = ko.computed =>
-        _.all(@localized_resources(), (x) => x.is_valid());
+        _.all(@localized_resources(), (x) => x.is_valid())
+      @is_text = ko.computed =>
+        _.all(@localized_resources(), (x) => x.is_text())
 
     to_hash: () =>
       id: @id()

@@ -1,7 +1,7 @@
 onWorkflow ->
   class window.CommandSelector
     constructor: (requestor) ->
-      @handlers = (new ClassBindingHandler(klass, @) for klass in step_types)
+      @handlers = (new ClassBindingHandler(klass, @) for klass in @enabled_command_types())
       @commands = ko.observableArray(@handlers)
       @requestor = requestor
 
@@ -21,6 +21,12 @@ onWorkflow ->
       else
         @commands(@handlers)
       return @
+
+    enabled_command_types: () ->
+      if nuntium_configured
+        step_types
+      else
+        klass for klass in step_types when klass isnt Nuntium
 
   class window.AddRootRequestor
     command_selected: (cmd_type) =>

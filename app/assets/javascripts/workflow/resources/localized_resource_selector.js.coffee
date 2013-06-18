@@ -14,6 +14,8 @@ onWorkflow ->
 
       @is_valid = ko.computed =>
         @current()?.is_valid()
+      @is_text = ko.computed =>
+        @current()?.type() == "TextLocalizedResource"
 
     to_hash: () =>
       @current().to_hash()

@@ -9,6 +9,7 @@ syntax: glob
 *.*~
 *.o
 *.so
+*.swp
 .DS_Store
 tmp/*
 spec/reports/*
@@ -21,3 +22,5 @@ broker/ebin
 broker/.eunit
 broker/*.plt
 broker/rel/verboice
+config/nuntium.yml
+

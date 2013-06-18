@@ -15,7 +15,7 @@ gem 'guid'
 gem 'devise'
 gem "will_paginate", "~> 3.0"
 gem "daemons"
-gem "therubyracer", :require => 'v8'
+gem 'rkelly', :git => 'https://github.com/manastech/rkelly.git'
 gem "instedd-rails"
 gem 'decent_exposure'
 gem 'attr_encrypted'
@@ -29,6 +29,8 @@ gem 'csv_builder'
 gem 'newrelic_rpm'
 gem 'language_list'
 gem 'bertrpc'
+gem 'formatted_rails_logger'
+gem 'instedd-pigeon', '~> 0.2', :require => 'pigeon'
 
 group :v8 do
   gem 'libv8', '~> 3.11.8'

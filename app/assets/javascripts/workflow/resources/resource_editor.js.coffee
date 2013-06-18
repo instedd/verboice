@@ -28,6 +28,8 @@ onWorkflow ->
 
       @is_valid = ko.computed =>
         if @resource()? then @resource().is_valid() else false
+      @is_text = ko.computed =>
+        if @resource()? then @resource().is_text() else false
 
     get_resources: (query, source) =>
       Resource.search query, (results) =>

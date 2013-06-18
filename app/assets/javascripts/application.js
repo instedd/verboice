@@ -8,5 +8,6 @@
 //= require jquery_ujs
 //= require jquery.fancybox-1.3.4.pack
 //= require underscore
+//= require pigeon
 //= require global
 //= require_directory .

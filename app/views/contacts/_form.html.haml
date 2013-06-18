@@ -14,6 +14,7 @@
     = f.label :address, 'Phone number'
     = f.text_field :address, :class => 'w30'
 
+  %div
     = f.fields_for :persisted_variables do |builder|
       .fields
         .field

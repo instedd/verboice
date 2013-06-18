@@ -22,6 +22,7 @@ module Asterisk
     end
 
     def initialize
+      @asterisk_channels = {}
       handle_events
     end
 
@@ -47,8 +48,10 @@ module Asterisk
         :channel => address,
         :application => 'AGI',
         :data => "agi://localhost:#{Asterisk::CallManager::Port},#{session.id}",
+        :timeout => 60000,
         :async => true,
-        :actionid => session.id
+        :actionid => session.id,
+        :variable => "verboice_session_id=#{session.id}"
       })
 
       result[:response] == 'Error' ? raise(result[:message]) : nil
@@ -305,6 +308,32 @@ module Asterisk
       @checking_sessions_status = false
     end
 
+    def on_new_channel(event)
+      channel = @asterisk_channels[event[:channel]] ||= {id: Guid.new.to_s, created_at: Time.now}
+      PbxLog.create! guid: channel[:id], details: "New SIP channel: #{event[:channel]}"
+    end
+
+    def on_var_set(event)
+      channel = @asterisk_channels[event[:channel]]
+      if channel
+        if event[:variable] == "verboice_session_id"
+          associate_pbx_log event[:value], channel[:id]
+        elsif event[:variable].start_with?("~HASH~SIP_CAUSE~SIP")
+          PbxLog.create! guid: channel[:id], details: event[:value]
+        else
+          PbxLog.create! guid: channel[:id], details: "#{event[:variable]} = #{event[:value]}"
+        end
+      end
+    end
+
+    def on_hangup(event)
+      channel = @asterisk_channels[event[:channel]]
+      if channel
+        PbxLog.create! guid: channel[:id], details: "Channel hangup: #{event[:channel]}, Reson: #{event[:'cause-txt']}"
+        @asterisk_channels.delete event[:channel]
+      end
+    end
+
     def handle_events
       Asterisk::Client.on_connect do
         @checking_sessions_status = false
@@ -338,6 +367,12 @@ module Asterisk
             on_status event
           when 'StatusComplete'
             on_status_complete
+          when 'Newchannel'
+            on_new_channel event
+          when 'VarSet'
+            on_var_set event
+          when 'Hangup'
+            on_hangup event
           end
         rescue Exception => ex
           puts ex.message

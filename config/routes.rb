@@ -24,6 +24,8 @@ Verboice::Application.routes.draw do
     end
   end
 
+  resources :nuntium_channels, except: [:show]
+
   match '/' => 'home#index',  :as => 'home'
 
   devise_for :accounts
