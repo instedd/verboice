@@ -47,7 +47,9 @@ class QueuedCall < ActiveRecord::Base
 
     options[:call_variables] = variables if variables
 
-    channel.new_session options
+    channel.new_session(options).tap do |session|
+      session.queued_call = self
+    end
   end
 
   def cancel_call!
@@ -64,6 +66,18 @@ class QueuedCall < ActiveRecord::Base
       end
     else
       destroy
+    end
+  end
+
+  def has_retries_left?
+    schedule && schedule.retry_delays.count > retries
+  end
+
+  def next_retry_time
+    sleep = schedule.retry_delays[retries - 1].to_f * (Rails.env == 'development' ? 1.second : 1.hour)
+
+    schedule.with_time_zone(time_zone) do |time_zoned_schedule|
+      time_zoned_schedule.next_available_time(Time.now.utc + sleep)
     end
   end
 end

@@ -15,23 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-module ImplicitVariables
-  class SmsNumber < ImplicitVariable
-
-    def value(use_default = true)
-      persisted_variable = @contact.persisted_variables.find_by_implicit_key(self.class.key)
-      if persisted_variable
-        persisted_variable.value
-      elsif use_default
-        @contact.addresses.first.try(:address)
-      else
-        nil
-      end
-    end
-
-    def self.key
-      'sms_number'
-    end
-
+module ContactHelper
+  def addresses_for_contact(contact)
+    address_count = contact.addresses.count
+    result = contact.addresses.take(2).map(&:address).join(', ')
+    result << " and #{address_count - 2} more" if address_count > 2
+    result
   end
 end
+

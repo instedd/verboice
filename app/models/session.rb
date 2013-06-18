@@ -26,6 +26,7 @@ class Session
   attr_accessor :start
   attr_accessor :status_callback_url
   attr_accessor :created_at
+  attr_accessor :queued_call
 
   delegate :finish_successfully, :to => :call_log
   CallLogEntry::Levels.each { |severity| delegate severity, :to => :call_log }
@@ -65,11 +66,26 @@ class Session
   end
 
   def contact
-    @contact ||= if address.present?
-                   project.contacts.where(address: address).first_or_create!
-                 else
-                   project.contacts.where(address: "Anonymous#{call_log.id}", anonymous: true).create!
-                 end
+    @contact ||= find_or_create_contact
+  end
+
+  def find_or_create_contact
+    if address.present?
+      contact_address = project.contact_addresses.where(address: address).first
+      if contact_address.nil?
+        contact = project.contacts.new
+        contact.addresses.build address: address
+        contact.save!
+        contact
+      else
+        contact_address.contact
+      end
+    else
+      contact = project.contacts.new anonymous: true
+      contact.addresses.build address: "Anonymous#{call_log.id}"
+      contact.save!
+      contact
+    end
   end
 
   def broker

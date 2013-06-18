@@ -44,7 +44,7 @@ class Commands::RecordCommand < Command
 
   def create_recorded_audio(session)
     contact = session.contact
-    session.trace "Caller address is unknown. Recording '#{@description}' will be saved for contact #{contact.address}.", command: 'record', action: 'contact_unknown' unless session.address.presence
+    session.trace "Caller address is unknown. Recording '#{@description}' will be saved for contact #{contact.first_address}.", command: 'record', action: 'contact_unknown' unless session.address.presence
     contact.recorded_audios.create! :call_log => session.call_log, :key => @key, :description => @description
   end
 end

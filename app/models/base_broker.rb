@@ -55,7 +55,7 @@ class BaseBroker
       log "Resuming call #{session.call_id} from queued call #{queued_call.id} on channel #{channel.id}"
     else
       session = queued_call.start
-      store_session session, queued_call
+      store_session session
       log "Starting new call #{session.call_id} from queued call #{queued_call.id} on channel #{channel.id}"
     end
 
@@ -77,10 +77,6 @@ class BaseBroker
 
   def active_calls
     @active_calls ||= Hash.new {|hash, key| hash[key] = {}}
-  end
-
-  def active_queued_calls
-    @active_queued_calls ||= {}
   end
 
   def active_calls_count_for(channel)
@@ -114,6 +110,7 @@ class BaseBroker
     log "Accepting call from PBX with call id #{session.call_id}"
     log "Session for call #{session.call_id} is suspended" and return session.resume if session.suspended
     session.call_log.address = pbx.caller_id unless session.call_log.address.present?
+    session.call_log.start_incoming if session.call_log.incoming?
     begin
       log "Call #{session.call_id} is now in progress" and session.notify_status 'in-progress'
       session.run
@@ -222,14 +219,17 @@ class BaseBroker
       return
     end
 
-    queued_call = active_queued_calls[session.id]
-    if queued_call && queued_call.schedule && queued_call.schedule.retry_delays.count > queued_call.retries
+    queued_call = session.queued_call
+    next_address = session.contact.next_address(session.address)
+    if queued_call && (queued_call.has_retries_left? || next_address.present?)
       queued_call = queued_call.dup
-      queued_call.retries += 1
-      sleep = queued_call.schedule.retry_delays[queued_call.retries - 1].to_f * (Rails.env == 'development' ? 1.second : 1.hour)
-
-      queued_call.not_before = queued_call.schedule.with_time_zone(queued_call.time_zone) do |time_zoned_schedule|
-        time_zoned_schedule.next_available_time(Time.now.utc + sleep)
+      if next_address.present?
+        queued_call.address = next_address
+        queued_call.not_before = 15.seconds.from_now
+      else
+        queued_call.address = session.contact.first_address
+        queued_call.retries += 1
+        queued_call.not_before = queued_call.next_retry_time
       end
 
       log "Re enqueuing call for session #{session.id} with queued call #{queued_call.id} for #{queued_call.not_before}"
@@ -247,19 +247,15 @@ class BaseBroker
 
   private
 
-  def store_session(session, queued_call = nil)
+  def store_session(session)
     sessions[session.id] = session
     active_calls[session.channel.id][session.id] = session
-    if queued_call
-      active_queued_calls[session.id] = queued_call
-    end
   end
 
   def finish_session(session)
     sessions.delete session.id
     active_calls[session.channel.id].delete session.id
     active_calls.delete session.channel.id if active_calls[session.channel.id].empty?
-    active_queued_calls.delete session.id
   end
 
   def error_message_for(exception)

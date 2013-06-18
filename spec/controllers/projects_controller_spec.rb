@@ -138,5 +138,37 @@ describe ProjectsController do
       response.should be_redirect
       flash[:error].should eq('You need to select a Call Flow')
     end
+
+    it 'should not enqueue multiple calls to the same number' do
+      expect {
+        post :enqueue_call, :id => project.id, :addresses => "0\n0\n0", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id
+      }.to change(QueuedCall, :count).by(1)
+      response.should be_redirect
+    end
+
+    context "contact with multiple numbers" do
+      before(:each) do
+        @contact = project.contacts.new
+        @contact.addresses.build address: '1'
+        @contact.addresses.build address: '2'
+        @contact.save!
+      end
+
+      it 'should not enqueue multiple calls to the same contact' do
+        expect {
+          post :enqueue_call, :id => project.id, :addresses => "1\n2", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id
+        }.to change(QueuedCall, :count).by(1)
+        response.should be_redirect
+      end
+
+      it "should enqueue a call to a contact's first number" do
+        expect {
+          post :enqueue_call, :id => project.id, :addresses => "2", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id
+        }.to change(QueuedCall, :count).by(1)
+        response.should be_redirect
+
+        QueuedCall.last.address.should eq('1')
+      end
+    end
   end
 end

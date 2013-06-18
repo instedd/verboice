@@ -128,6 +128,10 @@ end
 
 Contact.blueprint do
   project
+  addresses { [ContactAddress.make(contact: object)] }
+end
+
+ContactAddress.blueprint do
   address { Sham.password }
 end
 

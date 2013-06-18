@@ -60,7 +60,7 @@ class Commands::NuntiumCommand < Command
   def rcpt_address(session)
     address = case @rcpt_type
               when :caller
-                session["var_sms_number"].presence || session.contact.address
+                session["var_sms_number"].presence || session.address
               when :expr
                 session.eval(@expr) rescue nil
               end

@@ -45,7 +45,12 @@ class CallLog < ActiveRecord::Base
     direction == :outgoing
   end
 
+  def incoming?
+    direction == :incoming
+  end
+
   def start_incoming
+    info "Answering call from #{address}"
     start
   end
 
@@ -67,6 +72,7 @@ class CallLog < ActiveRecord::Base
   end
 
   def finish_successfully
+    self.fail_reason = ''
     finish :completed
   end
 
