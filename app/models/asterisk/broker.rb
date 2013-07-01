@@ -299,6 +299,7 @@ module Asterisk
 
     def on_status_complete
       sessions.each do |id, session|
+        next if session.suspended
         if session.pbx
           finish_session(session) unless @active_session_channels.include?(session.pbx['channel'])
         else
