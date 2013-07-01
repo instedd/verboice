@@ -27,6 +27,7 @@ module Parsers
         @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
+        @dial_prefix = params['dial_prefix']
       end
 
       def is_root?
@@ -47,7 +48,7 @@ module Parsers
           compiler.Assign "current_step", @id
           compiler.AssignValue "current_step_name", "#{@name}"
           compiler.Trace context_for '"Hang up and call back."'
-          compiler.HangupAndCallback
+          compiler.HangupAndCallback(dial_prefix: @dial_prefix)
           compiler.append @next.equivalent_flow if @next
         end
       end

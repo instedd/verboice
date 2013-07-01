@@ -60,6 +60,7 @@ class BaseBroker
     end
 
     begin
+      session.info "Dialing to #{session.address}"
       call session
       log "Call #{session.call_id} is ringing" and session.notify_status 'ringing'
     rescue PbxUnavailableException => ex

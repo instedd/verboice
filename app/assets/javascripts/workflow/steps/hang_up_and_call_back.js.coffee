@@ -6,12 +6,18 @@ onWorkflow ->
 
     constructor: (attrs) ->
       super(attrs)
+      @dial_prefix = ko.observable attrs.dial_prefix
 
     button_class: =>
       'lcallback'
 
     default_name: =>
       'Call back'
+
+    to_hash: () =>
+      $.extend(super,
+        dial_prefix: @dial_prefix()
+      )
 
     @add_to_steps: () ->
       workflow.add_step(new HangUpAndCallBack)
