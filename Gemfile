@@ -31,10 +31,6 @@ gem 'language_list'
 gem 'formatted_rails_logger'
 gem 'instedd-pigeon', '~> 0.2', :require => 'pigeon'
 
-group :v8 do
-  gem 'libv8', '~> 3.11.8'
-end
-
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
   gem 'coffee-rails', '~> 3.2.2'
