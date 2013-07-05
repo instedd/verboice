@@ -83,6 +83,8 @@ class Channel < ActiveRecord::Base
 
     if options[:call_flow_id]
       current_call_flow = account.call_flows.find(options[:call_flow_id])
+    elsif options[:call_flow]
+      current_call_flow = account.call_flows.find_by_name(options[:call_flow])
     elsif options[:flow]
       flow = options[:flow]
     elsif options[:callback_url]
