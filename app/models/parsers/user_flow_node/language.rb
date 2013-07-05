@@ -29,6 +29,7 @@ module Parsers
         @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
+        @force_question = params['force_question']
       end
 
       def is_root?
@@ -46,8 +47,10 @@ module Parsers
           compiler.Label @id
           compiler.Assign "current_step", @id
           compiler.AssignValue "current_step_name", @name
-          compiler.If "typeof(var_#{var_name}) != 'undefined'" do |c|
-            c.Goto "end#{@id}"
+          unless @force_question
+            compiler.If "typeof(var_#{var_name}) != 'undefined'" do |c|
+              c.Goto "end#{@id}"
+            end
           end
           @languages.each_with_index do |language, i|
             compiler.Capture({finish_on_key: '', timeout: i+1 == @languages.size ? 10 : 1}.merge(@resource.capture_flow(language)))

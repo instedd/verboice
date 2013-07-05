@@ -19,6 +19,8 @@ onWorkflow ->
       @is_invalid = ko.computed () =>
         @is_name_invalid() or not @resource.is_valid()
 
+      @force_question = ko.observable(attrs.force_question)
+
     button_class: () =>
       'llanguage'
 
@@ -31,7 +33,8 @@ onWorkflow ->
 
     to_hash: () =>
       $.extend(super,
-        resource: @resource.to_hash()
+        resource: @resource.to_hash(),
+        force_question: @force_question()
       )
 
     default_name: () =>
