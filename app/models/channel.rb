@@ -23,11 +23,14 @@ class Channel < ActiveRecord::Base
   has_many :call_logs, :dependent => :nullify
   has_many :queued_calls, :dependent => :destroy
 
+  config_accessor :limit
+
   validates_presence_of :account
   validates_presence_of :call_flow
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
+  validates_numericality_of :limit, :only_integer => true, :greater_than => 0, :if => :has_limit?
 
   after_commit :call_broker_create_channel, :on => :create
   after_commit :call_broker_update_channel, :on => :update
@@ -185,10 +188,6 @@ class Channel < ActiveRecord::Base
 
   def notify_broker
     broker.instance.notify_call_queued self
-  end
-
-  def limit
-    subclass_responsibility
   end
 
   def call_broker_create_channel

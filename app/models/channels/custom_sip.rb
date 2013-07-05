@@ -16,10 +16,6 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Channels::CustomSip < Channels::Sip
-  validates_numericality_of :limit, :only_integer => true, :greater_than => 0, :if => :has_limit?
-
-  config_accessor :limit
-
   def self.can_handle? a_kind
     a_kind == 'sip'
   end

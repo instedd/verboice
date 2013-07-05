@@ -40,7 +40,7 @@ describe BaseBroker do
   it "shouldn't call if call limit is reached" do
     @broker = BaseBroker.new
     @broker.stub(:pbx_available? => true)
-    @channel = Channels::TemplateBasedSip.make
+    @channel = Channels::TemplateBasedSip.make :limit => 1
 
     queued_call_1 = @channel.queued_calls.make
     queued_call_2 = @channel.queued_calls.make

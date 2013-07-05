@@ -16,7 +16,6 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Channels::TemplateBasedSip < Channels::Sip
-
   config_accessor :kind
 
   class << self
@@ -36,10 +35,6 @@ class Channels::TemplateBasedSip < Channels::Sip
       kinds << ["#{template[0]} channel", "#{name}-#{template[0]}"]
       kinds
     end
-  end
-
-  def limit
-    1
   end
 
   def register?
