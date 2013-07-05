@@ -16,7 +16,7 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Commands::HangupAndCallbackCommand < Command
-  def initialize(options)
+  def initialize(options = {})
     @dial_prefix = options[:dial_prefix]
   end
 
