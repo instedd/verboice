@@ -112,6 +112,7 @@ Verboice::Application.routes.draw do
       end
     end
     resources :projects, only: [:index] do
+      resources :contacts
       resources :schedules, only: [:index, :create] do
         collection do
           get ':name', :action => "show"

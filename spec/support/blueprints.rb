@@ -28,6 +28,7 @@ Sham.define do
   guid { Guid.new.to_s }
   url { "http://" + Faker::Internet.domain_name }
   result { Faker::Lorem.sentence}
+  number8 { (1..8).map { ('1'..'9').to_a.sample }.join }
 end
 
 Account.blueprint do
@@ -132,7 +133,7 @@ Contact.blueprint do
 end
 
 ContactAddress.blueprint do
-  address { Sham.password }
+  address { Sham.number8 }
 end
 
 ExternalService.blueprint do
