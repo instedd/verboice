@@ -37,6 +37,7 @@ describe Api::ContactsController do
     get :index, project_id: project.id
 
     response.should be_ok
+
     json = JSON.parse response.body
     json.length.should eq(1)
 
@@ -46,13 +47,43 @@ describe Api::ContactsController do
     json['vars'].should eq({"var1" => "foo"})
   end
 
-  it "gets contact by phone number" do
-    get :index, project_id: project.id, address: contact.addresses.first.address
+  it "gets contact by address" do
+    get :show_by_address, project_id: project.id, address: contact.addresses.first.address
 
     response.should be_ok
+
     json = JSON.parse response.body
     json['id'].should eq(contact.id)
     json['addresses'].should eq(contact.addresses.map(&:address))
     json['vars'].should eq({"var1" => "foo"})
+  end
+
+  it "updates a contact's var by address" do
+    put :update_by_address, project_id: project.id, address: contact.addresses.first.address, vars: {var1: "bar"}
+
+    @contact_var.reload
+    @contact_var.value.should eq("bar")
+
+    response.should be_ok
+
+    json = JSON.parse response.body
+    json['id'].should eq(contact.id)
+    json['addresses'].should eq(contact.addresses.map(&:address))
+    json['vars'].should eq({"var1" => "bar"})
+  end
+
+  it "updates all contacts vars" do
+    put :update_all, project_id: project.id, vars: {var1: "bar"}
+
+    @contact_var.reload
+    @contact_var.value.should eq("bar")
+
+    json = JSON.parse response.body
+    json.length.should eq(1)
+
+    json = json[0]
+    json['id'].should eq(contact.id)
+    json['addresses'].should eq(contact.addresses.map(&:address))
+    json['vars'].should eq({"var1" => "bar"})
   end
 end

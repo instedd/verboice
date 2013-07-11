@@ -18,13 +18,39 @@ class Api::ContactsController < ApiController
   expose(:project) { current_account.projects.find params[:project_id] }
 
   def index
-    if params[:address]
-      contact = project.contacts.joins(:addresses).where(contact_addresses: {address: params[:address]}).first or return head(:not_found)
-      render json: contacts_to_json([contact])[0]
-    else
-      contacts = project.contacts.includes(:addresses).all
-      render json: contacts_to_json(contacts)
+    contacts = project.contacts.includes(:addresses).all
+    render json: contacts_to_json(contacts)
+  end
+
+  def show_by_address
+    contact = project.contacts.joins(:addresses).where(contact_addresses: {address: params[:address]}).first or return head(:not_found)
+    render json: contacts_to_json([contact])[0]
+  end
+
+  def update_by_address
+    contact = project.contacts.joins(:addresses).where(contact_addresses: {address: params[:address]}).first or return head(:not_found)
+    vars = PersistedVariable.includes(:project_variable).where(project_variables: {project_id: project.id}, contact_id: contact.id).all
+    vars = vars.index_by { |var| var.project_variable.name }
+
+    params[:vars].each do |key, value|
+      var = vars[key]
+      var.value = value
+      var.save!
     end
+
+    render json: contacts_to_json([contact])[0]
+  end
+
+  def update_all
+    all_vars = PersistedVariable.includes(:project_variable).where(project_variables: {project_id: project.id}).all
+    all_vars = all_vars.group_by { |var| var.project_variable.name }
+
+    params[:vars].each do |key, value|
+      vars = all_vars[key]
+      PersistedVariable.update_all({value: value}, {id: vars.map(&:id)})
+    end
+
+    index
   end
 
   private
