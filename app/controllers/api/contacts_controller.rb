@@ -34,6 +34,9 @@ class Api::ContactsController < ApiController
 
     params[:vars].each do |key, value|
       var = vars[key]
+      unless var
+        return render text: "No such variable: #{key}", status: :bad_reqeust
+      end
       var.value = value
       var.save!
     end
