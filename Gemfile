@@ -29,7 +29,7 @@ gem 'csv_builder'
 gem 'newrelic_rpm'
 gem 'language_list'
 gem 'formatted_rails_logger'
-gem 'instedd-pigeon', '~> 0.2', :require => 'pigeon'
+gem 'instedd-pigeon', :require => 'pigeon'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
