@@ -1,0 +1,1 @@
+window.languages = <%= LanguageList::ALL_LANGUAGES.map{ |l| { label: l.name, value: l.iso_639_1 || l.iso_639_3 }}.to_json %>

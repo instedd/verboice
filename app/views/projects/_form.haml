@@ -1,6 +1,5 @@
 - content_for :head do
   :javascript
-    window.languages = #{languages_for_js};
     $(function() { initProjectSettings(#{@project.default_language.to_json}, #{@project.languages.to_json}, #{@project.synthesizer.voices.to_json}); });
 
 = form_for(@project, :builder => InsteddFormBuilder) do |f|
