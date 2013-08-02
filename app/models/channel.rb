@@ -142,6 +142,8 @@ class Channel < ActiveRecord::Base
       end
     end
 
+    callback_params = options[:callback_params] if options[:callback_params].is_a?(Hash)
+
     queued_call = queued_calls.new(
       :call_log => call_log,
       :address => address,
@@ -155,6 +157,7 @@ class Channel < ActiveRecord::Base
       :time_zone => time_zone.try(:name),
       :variables => variables,
       :session_id => session_id,
+      :callback_params => callback_params,
     )
 
     queued_call.not_before = queued_call.schedule.with_time_zone(time_zone) do |time_zoned_schedule|

@@ -27,6 +27,7 @@ class Session
   attr_accessor :status_callback_url
   attr_accessor :created_at
   attr_accessor :queued_call
+  attr_accessor :callback_params
 
   delegate :finish_successfully, :to => :call_log
   CallLogEntry::Levels.each { |severity| delegate severity, :to => :call_log }
@@ -240,6 +241,8 @@ class Session
       query[:From] = pbx.caller_id if pbx
       query[:CallDuration] = Time.now - start if start
       query[:Reason] = reason if reason
+      query.merge!(callback_params) if callback_params
+
       request.get({:query => query}.merge(authentication))
     end
   end

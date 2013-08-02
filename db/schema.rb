@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130613140748) do
+ActiveRecord::Schema.define(:version => 20130802143457) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -274,6 +274,7 @@ ActiveRecord::Schema.define(:version => 20130613140748) do
     t.string   "time_zone"
     t.text     "variables"
     t.string   "session_id"
+    t.text     "callback_params"
   end
 
   add_index "queued_calls", ["call_flow_id"], :name => "index_queued_calls_on_call_flow_id"

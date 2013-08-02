@@ -24,6 +24,7 @@ class QueuedCall < ActiveRecord::Base
 
   serialize :flow, Command
   serialize :variables, Hash
+  serialize :callback_params, Hash
 
   def start
     call_log.start_outgoing address
@@ -46,6 +47,7 @@ class QueuedCall < ActiveRecord::Base
     end
 
     options[:call_variables] = variables if variables
+    options[:callback_params] = callback_params
 
     channel.new_session(options).tap do |session|
       session.queued_call = self
