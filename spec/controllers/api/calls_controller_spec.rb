@@ -52,6 +52,18 @@ describe Api::CallsController do
       get :call, :address => 'foo', :channel => channel.name, :schedule => schedule.name
       QueuedCall.first.schedule.should == schedule
     end
+
+    it "calls with call flow id" do
+      call_flow_2 = CallFlow.make project: project
+      get :call, :address => 'foo', :channel => channel.name, :callback => 'bar', :call_flow_id => call_flow_2.id
+      CallLog.last.call_flow.should eq(call_flow_2)
+    end
+
+    it "calls with call flow name" do
+      call_flow_2 = CallFlow.make project: project
+      get :call, :address => 'foo', :channel => channel.name, :callback => 'bar', :call_flow => call_flow_2.name
+      CallLog.last.call_flow.should eq(call_flow_2)
+    end
   end
 
   it "call state" do

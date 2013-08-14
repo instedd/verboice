@@ -28,7 +28,7 @@
 .tablewrapp.no-wrap.scroll
   %table.GralTable
     %tr
-      %th{colspan: 2} Phone number
+      %th{colspan: 2} Phone numbers
       - @implicit_variables.each do |variable|
         %th=variable.key
       - @project_variables.each do |variable|
@@ -38,7 +38,7 @@
 
     - @contacts.each do |contact|
       %tr.link{'data-url' => edit_contact_path(contact)}
-        %td= contact.address
+        %td= addresses_for_contact(contact)
         %td.right= link_to '', contact, :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
         - @implicit_variables.each do |implicit_variable|
           - variable = contact.persisted_variables.detect{|v| v.implicit_key == implicit_variable.key}

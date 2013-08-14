@@ -15,15 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-class Channels::Custom < Channel
-
-  config_accessor :dial_string
-
-  def asterisk_address_string_for broker, address
-    broker.custom_address_string_for self, address
-  end
-
-  def self.can_handle? a_kind
-    a_kind == 'custom'
+module ContactHelper
+  def addresses_for_contact(contact)
+    address_count = contact.addresses.count
+    result = contact.addresses.take(2).map(&:address).join(', ')
+    result << " and #{address_count - 2} more" if address_count > 2
+    result
   end
 end
+

@@ -23,11 +23,14 @@ class Channel < ActiveRecord::Base
   has_many :call_logs, :dependent => :nullify
   has_many :queued_calls, :dependent => :destroy
 
+  config_accessor :limit
+
   validates_presence_of :account
   validates_presence_of :call_flow
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id
+  validates_numericality_of :limit, :only_integer => true, :greater_than => 0, :if => :has_limit?
 
   after_commit :call_broker_create_channel, :on => :create
   after_commit :call_broker_update_channel, :on => :update
@@ -56,8 +59,7 @@ class Channel < ActiveRecord::Base
     session.call_flow ||= call_flow
     session.channel = self
     unless session.call_log
-      session.call_log = call_logs.new :direction => :incoming, :call_flow => session.call_flow, :account => account, :project => session.call_flow.project, :started_at => Time.now.utc
-      session.call_log.start_incoming
+      session.call_log = call_logs.create! :direction => :incoming, :call_flow => session.call_flow, :account => account, :project => session.call_flow.project, :started_at => Time.now.utc
     end
     session.commands = session.call_flow.commands.dup
     session
@@ -85,6 +87,8 @@ class Channel < ActiveRecord::Base
 
     if options[:call_flow_id]
       current_call_flow = account.call_flows.find(options[:call_flow_id])
+    elsif options[:call_flow]
+      current_call_flow = account.call_flows.find_by_name(options[:call_flow])
     elsif options[:flow]
       flow = options[:flow]
     elsif options[:callback_url]
@@ -128,8 +132,8 @@ class Channel < ActiveRecord::Base
         :schedule => schedule,
         :not_before => not_before
       )
-      call_log.info "Received via #{via}: call #{address}"
       call_log.save!
+      call_log.info "Received via #{via}: call #{address}"
     end
 
     if options[:vars].is_a?(Hash)
@@ -138,6 +142,8 @@ class Channel < ActiveRecord::Base
         variables[name] = (value =~ /^\d+$/ ? value.to_i : value)
       end
     end
+
+    callback_params = options[:callback_params] if options[:callback_params].is_a?(Hash)
 
     queued_call = queued_calls.new(
       :call_log => call_log,
@@ -152,6 +158,7 @@ class Channel < ActiveRecord::Base
       :time_zone => time_zone.try(:name),
       :variables => variables,
       :session_id => session_id,
+      :callback_params => callback_params,
     )
 
     queued_call.not_before = queued_call.schedule.with_time_zone(time_zone) do |time_zoned_schedule|
@@ -181,10 +188,6 @@ class Channel < ActiveRecord::Base
 
   def notify_broker
     broker.instance.notify_call_queued self
-  end
-
-  def limit
-    subclass_responsibility
   end
 
   def call_broker_create_channel

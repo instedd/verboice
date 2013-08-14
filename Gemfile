@@ -30,11 +30,7 @@ gem 'newrelic_rpm'
 gem 'language_list'
 gem 'bertrpc'
 gem 'formatted_rails_logger'
-gem 'instedd-pigeon', '~> 0.2', :require => 'pigeon'
-
-group :v8 do
-  gem 'libv8', '~> 3.11.8'
-end
+gem 'instedd-pigeon', :require => 'pigeon'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'

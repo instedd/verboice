@@ -62,23 +62,23 @@ describe ContactsController do
     describe "with valid params" do
       it "creates a new Contact" do
         expect {
-          post :create, {:project_id => @project.id, :contact => Contact.plan}
+          post :create, {:project_id => @project.id, :contact => {:addresses_attributes => [{:address => '123'}]}}
         }.to change(Contact, :count).by(1)
       end
 
       it "assigns a newly created contact as @contact" do
-        post :create, {:project_id => @project.id, :contact => Contact.plan}
+        post :create, {:project_id => @project.id, :contact => {:addresses_attributes => [{:address => '123'}]}}
         assigns(:contact).should be_a(Contact)
         assigns(:contact).should be_persisted
       end
 
       it "redirects to index" do
-        post :create, {:project_id => @project.id, :contact => Contact.plan}
+        post :create, {:project_id => @project.id, :contact => {:addresses_attributes => [{:address => '123'}]}}
         response.should redirect_to(project_contacts_url(@project))
       end
 
       it "assigns the current project to the contact" do
-        post :create, {:project_id => @project.id, :contact => Contact.plan}
+        post :create, {:project_id => @project.id, :contact => {:addresses_attributes => [{:address => '123'}]}}
         assigns(:contact).project.should eq(@project)
       end
     end

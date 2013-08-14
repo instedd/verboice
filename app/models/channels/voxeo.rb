@@ -16,9 +16,6 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Channels::Voxeo < Channel
-
-  validates_numericality_of :limit, :only_integer => true, :greater_than => 0, :if => :has_limit?
-
   config_accessor :token
   config_accessor :url
   config_accessor :limit

@@ -25,7 +25,7 @@ module Commands
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow
       session  = Session.new :pbx => mock('pbx'), :call_log => call_log
-      session.stub :address => contact.address
+      session.stub :address => contact.first_address
 
       cmd = PersistVariableCommand.new 'foo', 2
       cmd.next = :next
@@ -49,7 +49,7 @@ module Commands
       cmd.next = :next
       cmd.run(session).should eq(:next)
       Contact.all.size.should eq(1)
-      Contact.first.address.should eq('1234xxx')
+      Contact.first.first_address.should eq('1234xxx')
       PersistedVariable.first.contact.should eq(Contact.first)
     end
 
@@ -59,7 +59,7 @@ module Commands
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow
       session  = Session.new :pbx => mock('pbx'), :call_log => call_log
-      session.stub :address => contact.address
+      session.stub :address => contact.first_address
 
       cmd = PersistVariableCommand.new 'foo', 2
       cmd.next = :next
@@ -93,7 +93,7 @@ module Commands
       cmd.next = :next
       cmd.run(session).should eq(:next)
       Contact.all.size.should eq(1)
-      Contact.first.address.should eq('Anonymous123')
+      Contact.first.first_address.should eq('Anonymous123')
       Contact.first.anonymous?.should eq(true)
       PersistedVariable.first.contact.should eq(Contact.first)
     end
@@ -105,7 +105,7 @@ module Commands
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow
       session  = Session.new :pbx => mock('pbx'), :call_log => call_log
-      session.stub :address => contact.address
+      session.stub :address => contact.first_address
 
       cmd = PersistVariableCommand.new ImplicitVariables::Language.key, "'kh'"
       cmd.run(session)
@@ -123,7 +123,7 @@ module Commands
       call_flow = CallFlow.make project: project
       call_log = CallLog.make call_flow: call_flow
       session  = Session.new :pbx => mock('pbx'), :call_log => call_log
-      session.stub :address => contact.address
+      session.stub :address => contact.first_address
       # PersistedVariable.
 
       cmd = PersistVariableCommand.new ImplicitVariables::Language.key, "'kh'"

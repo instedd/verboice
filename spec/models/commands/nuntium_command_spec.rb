@@ -122,7 +122,8 @@ module Commands
     end
 
     it "should use the implicit variable sms_number if present" do
-      contact = project.contacts.make address: '123'
+      contact = project.contacts.make
+      contact.addresses.create! address: '123'
       contact.persisted_variables.create! :implicit_key => 'sms_number', :value => '456'
       session.load_variables
 

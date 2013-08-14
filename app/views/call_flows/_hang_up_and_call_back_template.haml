@@ -12,7 +12,13 @@
         %td
           Hang up and immediately call back the caller, continuing the Call Flow from this point.
         %td
+    %br/
 
     .content
+      Dial Prefix
+      %br/
+      %input.w25{'type' => 'text', 'data-bind' => 'value: dial_prefix'}
+      %br/
+
       .bottom-actions
         %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

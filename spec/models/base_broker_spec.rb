@@ -40,7 +40,7 @@ describe BaseBroker do
   it "shouldn't call if call limit is reached" do
     @broker = BaseBroker.new
     @broker.stub(:pbx_available? => true)
-    @channel = Channels::TemplateBasedSip.make
+    @channel = Channels::TemplateBasedSip.make :limit => 1
 
     queued_call_1 = @channel.queued_calls.make
     queued_call_2 = @channel.queued_calls.make
@@ -197,6 +197,26 @@ describe BaseBroker do
           QueuedCall.last.should be_nil
         end
 
+        it "requeue call if rejected and the contact has more numbers to try" do
+          contact = @channel.project.contacts.make
+          second_address = contact.addresses.make
+          contact.addresses.count.should eq(2)
+
+          queued_call = @channel.queued_calls.make :address => contact.first_address, :call_log => @channel.call_logs.make
+          the_session = nil
+
+          @broker.should_receive(:call).with { |session| the_session = session }
+          @broker.notify_call_queued @channel
+
+          EM.should_receive(:fiber_sleep).with 2
+          @broker.call_rejected the_session.id, :busy
+
+          queued_call = QueuedCall.last
+          (queued_call.not_before - (Time.now + 15.seconds)).abs.should <= 2.seconds
+          queued_call.address.should eq(second_address.address)
+          queued_call.retries.should eq(0)
+        end
+
         it "not call if scheduled for the future" do
           @channel.queued_calls.make :not_before => Time.now + 1.hour
 
@@ -330,7 +350,7 @@ describe BaseBroker do
 
       context "reject call" do
         it "reject with busy status" do
-          session = Session.new
+          session = Session.new call_log: CallLog.make
           @broker.should_receive(:find_session).with(123).and_return(session)
           @broker.should_receive(:finish_session_with_error).with(session, 'Remote end is busy', 'busy')
           EM.should_receive(:fiber_sleep).with 2
@@ -340,7 +360,7 @@ describe BaseBroker do
         end
 
         it "reject with no answer status" do
-          session = Session.new
+          session = Session.new call_log: CallLog.make
           @broker.should_receive(:find_session).with(123).and_return(session)
           @broker.should_receive(:finish_session_with_error).with(session, 'Remote end do not answer', 'no-answer')
           EM.should_receive(:fiber_sleep).with 2
@@ -350,7 +370,7 @@ describe BaseBroker do
         end
 
         it "reject with unknown reason" do
-          session = Session.new
+          session = Session.new call_log: CallLog.make
           @broker.should_receive(:find_session).with(123).and_return(session)
           @broker.should_receive(:finish_session_with_error).with(session, 'Failed to establish the communication', 'failed')
           EM.should_receive(:fiber_sleep).with 2

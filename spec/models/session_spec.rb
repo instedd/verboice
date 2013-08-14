@@ -70,6 +70,32 @@ describe Session do
     @session.expand_vars('hello {foo}').should eq('hello world')
   end
 
+  it "creates an anonymous contact when there is no address" do
+    @session.contact.should_not be_nil
+    @session.contact.should be_anonymous
+    @session.contact.addresses.count.should eq(1)
+  end
+
+  it "creates a contact for the given address" do
+    @session.address = '123'
+
+    @session.contact.should_not be_nil
+    @session.contact.should_not be_anonymous
+    @session.contact.addresses.count.should eq(1)
+    @session.contact.addresses.first.address.should eq('123')
+  end
+
+  it "find a pre-existing contact for the given address" do
+    contact = @session.project.contacts.new
+    contact.addresses.build address: '123'
+    contact.save!
+
+    @session.address = '123'
+
+    @session.contact.should_not be_nil
+    @session.contact.should eq(contact)
+  end
+
   context "javascript evaluation" do
     it "alert calls info" do
       @session.should_receive(:info).with('foo')

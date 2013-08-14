@@ -9,3 +9,8 @@ en:
         callback_url_password: "Password"
         status_callback_url_user: "User"
         status_callback_url_password: "Password"
+      contact:
+        addresses: Phone numbers
+      addresses:
+        address: Phone number
+

@@ -60,7 +60,7 @@ class Commands::PersistVariableCommand < Command
           value: value
       end
     end
-    session.trace "'#{@variable_name}' saved for contact '#{contact.address}'.", command: 'persist_variable', action: 'finish'
+    session.trace "'#{@variable_name}' saved for contact '#{contact.first_address}'.", command: 'persist_variable', action: 'finish'
     super
   end
 
@@ -74,7 +74,7 @@ class Commands::PersistVariableCommand < Command
 
   def contact_from session
     contact = session.contact
-    session.trace "Caller address is unknown. Variable '#{@variable_name}' will be saved for contact '#{contact.address}'.", command: 'persist_variable', action: 'contact_unknown' unless session.address.presence
+    session.trace "Caller address is unknown. Variable '#{@variable_name}' will be saved for contact '#{contact.first_address}'.", command: 'persist_variable', action: 'contact_unknown' unless session.address.presence
     contact
   end
 end

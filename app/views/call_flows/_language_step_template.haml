@@ -24,5 +24,10 @@
           %button.farrow{ :type => "button", 'data-bind' => 'click: $parent.show_language' }
       / /ko
     .content
+      %hr
+      %input{ type: 'checkbox', 'data-bind' => 'checked: force_question' }
+      %label Force question
+      %br
+
       .bottom-actions
         %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

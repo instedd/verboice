@@ -44,6 +44,7 @@ class Commands::CallbackCommand < Command
 
     body = {:CallSid => session.call_id, :From => session.pbx.caller_id, :Channel => session.channel.name}
     body[:LastEntry] = last_entry.id if last_entry.present?
+    body.merge!(session.callback_params) if session.callback_params
 
     @params.each do |name, key|
       assign_from_js(body, name, session[key])

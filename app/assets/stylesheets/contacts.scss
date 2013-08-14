@@ -9,3 +9,15 @@
 .tablewrapp.no-wrap {
   white-space: nowrap;
 }
+
+.clist .field_with_errors {
+  display: inline;
+  input {
+    border: 2px solid #ff6600 !important;
+  }
+}
+
+td.right {
+  text-align: right;
+  float: none;
+}

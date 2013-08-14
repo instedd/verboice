@@ -16,13 +16,9 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Channels::Twilio < Channel
-
   config_accessor :account_sid
   config_accessor :auth_token
-  config_accessor :limit
   config_accessor :number
-
-  validates_numericality_of :limit, :only_integer => true, :greater_than => 0, :if => :has_limit?
 
   attr_protected :guid
 
