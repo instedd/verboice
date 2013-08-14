@@ -9,7 +9,7 @@
     retries = parse_retries(Schedule#schedule.retries)
   }).
 
--include("model.hrl").
+-include_lib("erl_dbmodel/include/model.hrl").
 
 next_available_time(Seconds, Schedule) when is_integer(Seconds) ->
   T = calendar:gregorian_seconds_to_datetime(Seconds),

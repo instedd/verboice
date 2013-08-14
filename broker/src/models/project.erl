@@ -10,7 +10,7 @@
   Project#project{languages = Languages, encrypted_config = Config}
 ).
 
--include("model.hrl").
+-include_lib("erl_dbmodel/include/model.hrl").
 
 voice(Lang, #project{languages = Languages}) ->
   voice(Lang, Languages);

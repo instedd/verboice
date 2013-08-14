@@ -6,7 +6,7 @@
   {ok, [GlobalSettings]} = yaml:load(Svc#external_service.global_settings, [{schema, yaml_schema_ruby}]),
   Svc#external_service{global_settings = GlobalSettings}
 ).
--include("model.hrl").
+-include_lib("erl_dbmodel/include/model.hrl").
 
 global_variable_value_for(Name, #external_service{global_settings = GlobalSettings}) ->
   case proplists:get_value(variables, GlobalSettings) of

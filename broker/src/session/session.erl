@@ -240,9 +240,10 @@ default_language(Session = #session{project = Project}) ->
   binary_to_list(Language).
 
 get_contact(ProjectId, undefined, CallLogId) ->
-  contact:create(#contact{project_id = ProjectId, anonymous = 1, address = "Anonymous" ++ integer_to_list(CallLogId)});
+  Address = "Anonymous" ++ integer_to_list(CallLogId),
+  contact:create_anonymous(ProjectId, Address);
 get_contact(ProjectId, Address, _) ->
-  contact:find_or_create([{project_id, ProjectId}, {address, Address}]).
+  contact:find_or_create_with_address(ProjectId, Address).
 
 default_variables(#session{contact = Contact, project = #project{id = ProjectId}}) ->
   Context = erjs_object:new([{record_url, fun(_Key) -> "<url>" end}]),

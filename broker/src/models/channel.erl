@@ -9,7 +9,7 @@
   Channel#channel{config = Config}
 ).
 
--include("model.hrl").
+-include_lib("erl_dbmodel/include/model.hrl").
 
 find_all_sip() ->
   find_all({type, in, ["Channels::Sip", "Channels::CustomSip", "Channels::TemplateBasedSip"]}).

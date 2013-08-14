@@ -2,7 +2,7 @@
 -export([find_by_guid/1, localized_resource/2, prepare/2, prepare/3, prepare_text_resource/2, prepare_text_resource/3, prepare_blob_resource/3, prepare_url_resource/2]).
 -define(CACHE, true).
 -define(TABLE_NAME, "resources").
--include("model.hrl").
+-include_lib("erl_dbmodel/include/model.hrl").
 -include("session.hrl").
 
 find_by_guid(Guid) ->

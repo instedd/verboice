@@ -2,7 +2,7 @@
 -export([prepare/2]).
 -define(CACHE, true).
 -define(TABLE_NAME, "localized_resources").
--include("model.hrl").
+-include_lib("erl_dbmodel/include/model.hrl").
 
 prepare(Session, #localized_resource{type = <<"TextLocalizedResource">>, text = Text, language = Language}) ->
   resource:prepare_text_resource(Text, binary_to_list(Language), Session);

@@ -1,3 +1,3 @@
 -module(trace_record).
 -define(TABLE_NAME, "traces").
--include("model.hrl").
+-include_lib("erl_dbmodel/include/model.hrl").

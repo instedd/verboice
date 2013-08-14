@@ -1,7 +1,7 @@
 -module(queued_call).
 -export([reschedule/1]).
 -define(TABLE_NAME, "queued_calls").
--include("model.hrl").
+-include_lib("erl_dbmodel/include/model.hrl").
 
 reschedule(#queued_call{schedule_id = undefined}) -> no_schedule;
 reschedule(QueuedCall = #queued_call{schedule_id = ScheduleId}) ->

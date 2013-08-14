@@ -4,7 +4,7 @@
 
 -define(MAP(CallFlow), load_flow(CallFlow)).
 
--include("model.hrl").
+-include_lib("erl_dbmodel/include/model.hrl").
 
 load_flow(CallFlow = #call_flow{callback_url = CallbackUrl, flow = CompFlow}) ->
   NewFlow = case CallbackUrl of
