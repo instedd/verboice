@@ -12,7 +12,7 @@
     = f.text_field :name
   .field
     = f.label :call_flow_id
-    = f.select :call_flow_id, options_from_collection_for_select(current_account.call_flows, :id, :name, @channel.call_flow_id)
+    = f.select :call_flow_id, option_groups_from_collection_for_select(current_account.projects.includes(:call_flows), :call_flows, :name, :id, :name, @channel.call_flow_id)
   = f.hidden_field :type
   = render "form_#{@channel.class.name.split('::').last.underscore}", :f => f
   .actions
