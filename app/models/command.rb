@@ -26,7 +26,7 @@ class Command
   def self.load(x)
     YAML.load(Zlib.inflate(x))
   rescue Exception => ex
-    Marshal.load(Zlib.inflate(x))
+    Marshal.load(Zlib.inflate(x)) rescue nil
   end
 
   def self.inherited(subclass)
