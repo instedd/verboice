@@ -1,5 +1,5 @@
 -module(uri).
--export([parse/1, format/1, parse_qs/1, format_qs/1]).
+-export([parse/1, format/1, parse_qs/1, format_qs/1, get/2]).
 -include("uri.hrl").
 
 parse(Uri) ->
@@ -37,6 +37,16 @@ format(Uri = #uri{}) ->
   end,
   Bin = iolist_to_binary([Scheme, "://", UserInfo, Uri#uri.host, Port, Path, Query]),
   binary_to_list(Bin).
+
+get(Options, Uri = #uri{}) ->
+  Headers = case proplists:get_value(basic_auth, Options) of
+    {User, Password} -> basic_auth(User, Password);
+    _ -> []
+  end,
+  httpc:request(get, {Uri:format(), Headers}, [], []).
+
+basic_auth(User, Password) ->
+  [{"Authorization", "Basic " ++ base64:encode_to_string(iolist_to_binary([User, $:, Password]))}].
 
 parse_qs([]) -> [];
 parse_qs(QS) ->
