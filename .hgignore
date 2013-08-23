@@ -23,4 +23,3 @@ broker/.eunit
 broker/*.plt
 broker/rel/verboice
 config/nuntium.yml
-
