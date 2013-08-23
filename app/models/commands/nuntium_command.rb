@@ -26,7 +26,7 @@ class Commands::NuntiumCommand < Command
   def serialize_parameters
     {
       expr: @expr,
-      resouce_guid: @resource_guid,
+      resource_guid: @resource_guid,
       rcpt_type: @rcpt_type
     }
   end

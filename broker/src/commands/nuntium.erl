@@ -5,38 +5,30 @@
 -include("uri.hrl").
 
 run(Args, Session = #session{call_log = CallLog, project = Project}) ->
-  Guid = proplists:get_value(resouce_guid, Args),
+  Guid = proplists:get_value(resource_guid, Args),
   RcptType = proplists:get_value(rcpt_type, Args),
   Expr = proplists:get_value(expr, Args),
 
   CallLog:info(["Send text message '", Guid, "'"], [{command, "nuntium"}, {action, "start"}]),
-  Result = case rcpt_address(RcptType, Expr, Session) of
-    undefined -> "Missing recipient";
+  {Result, Message} = case rcpt_address(RcptType, Expr, Session) of
+    undefined -> {error, "Missing recipient"};
     Address ->
       case resource:prepare(Guid, Session#session{pbx = nuntium}) of
         {text, _Lang, Body} ->
-          send_message(<<"sms://verboice">>, Address, Body, Project#project.account_id);
-        _ -> "Missing text to send"
+          nuntium_api:send_ao([
+            {from, <<"sms://verboice">>},
+            {to, Address},
+            {body, Body},
+            {account_id, Project#project.account_id}
+          ]),
+          {info, "Sent"};
+        _ -> {error, "Missing text to send"}
       end
   end,
 
-  CallLog:info(["Result:", Result], []),
+  CallLog:Result(["Result: ", Message], []),
 
   {next, Session}.
-
-send_message(From, To, Body, AccountId) ->
-  {ok, Host} = application:get_env(nuntium_host),
-  {ok, Account} = application:get_env(nuntium_account),
-  {ok, App} = application:get_env(nuntium_app),
-  {ok, AppPassword} = application:get_env(nuntium_app_password),
-
-  Uri = uri:parse(Host),
-  MsgUri = Uri#uri{path = [$/, Account, $/, App, "/send_ao"], query_string = [
-    {from, From}, {to, To}, {body, Body}, {account_id, AccountId}
-  ]},
-  Response = MsgUri:get([{basic_auth, {[Account, $/, App], AppPassword}}]),
-  io:format("~p~n", [Response]),
-  uri:format(MsgUri).
 
 rcpt_address(RcptType, Expr, Session) ->
   case rcpt_address_from_session(RcptType, Expr, Session) of
@@ -53,7 +45,7 @@ rcpt_address_from_session(caller, _, #session{js_context = JS, address = Address
   case erjs_object:get(var_sms_number, JS) of
     undefined -> Address;
     "" -> Address;
-    Number -> Number
+    Number -> list_to_binary(Number)
   end;
 
 rcpt_address_from_session(expr, Expr, #session{js_context = JS}) ->

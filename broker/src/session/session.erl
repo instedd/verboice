@@ -257,6 +257,7 @@ default_variables(Context, ProjectVars, [#persisted_variable{value = undefined} 
 default_variables(Context, ProjectVars, [Var | Rest]) ->
   VarName = case Var#persisted_variable.implicit_key of
     <<"language">> -> var_language;
+    <<"sms_number">> -> var_sms_number;
     undefined -> proplists:get_value(Var#persisted_variable.project_variable_id, ProjectVars)
   end,
   VarValue = binary_to_list(Var#persisted_variable.value),
