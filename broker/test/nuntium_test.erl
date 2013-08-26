@@ -15,17 +15,6 @@ should_work_with_text_localized_resource_test() ->
   ?assert(meck:called(nuntium_api, send_ao, [[{from, <<"sms://verboice">>}, {to, <<"sms://123">>}, {body, "some text"}, {account_id, 1}]])),
   meck:unload().
 
-% it "should send to a value recipient" do
-%       text_localized_resource = TextLocalizedResource.make text: 'some text', resource: resource
-
-%       nuntium.should_receive(:send_ao).with(:from => 'sms://verboice', :to => 'sms://555', :body => 'some text', :account_id => project.account_id)
-
-%       cmd = NuntiumCommand.new resource.guid, :expr, "'555'"
-%       cmd.should_receive(:nuntium).and_return(nuntium)
-%       cmd.next = :next
-%       cmd.run(session).should == :next
-%     end
-
 should_send_to_a_value_recipient_test() ->
   Session = #session{call_log = #call_log{}, js_context = erjs_object:new(), address = <<"123">>, project = #project{account_id = 1}},
   meck:new(call_log, [stub_all]),
