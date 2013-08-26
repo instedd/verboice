@@ -15,13 +15,16 @@ run(Args, Session = #session{call_log = CallLog, project = Project}) ->
     Address ->
       case resource:prepare(Guid, Session#session{pbx = nuntium}) of
         {text, _Lang, Body} ->
-          nuntium_api:send_ao([
+          NuntiumArgs = [
             {from, <<"sms://verboice">>},
             {to, Address},
             {body, Body},
             {account_id, Project#project.account_id}
-          ]),
-          {info, "Sent"};
+          ],
+          case nuntium_api:send_ao(NuntiumArgs) of
+            ok -> {info, "Sent"};
+            {error, Reason} -> {error, Reason}
+          end;
         _ -> {error, "Missing text to send"}
       end
   end,

@@ -11,6 +11,8 @@ send_ao(Params) ->
 
   Uri = uri:parse(Host),
   MsgUri = Uri#uri{path = [$/, Account, $/, App, "/send_ao"], query_string = Params},
-  Response = MsgUri:get([{basic_auth, {[Account, $/, App], AppPassword}}]),
-  io:format("~p~n", [Response]),
-  uri:format(MsgUri).
+  case MsgUri:get([{basic_auth, {[Account, $/, App], AppPassword}}]) of
+    {ok, {{_, 200, _}, _, _}} -> ok;
+    {ok, {{_, _, Reason}, _, _}} -> {error, Reason};
+    {error, Reason} -> {error, io_lib:format("~p", [Reason])}
+  end.
