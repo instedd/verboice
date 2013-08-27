@@ -139,11 +139,11 @@ dialing(timeout, Session) ->
   finalize({failed, timeout}, Session).
 
 in_progress({completed, ok}, Session) ->
-  notify_status('completed', Session),
+  notify_status(completed, Session),
   finalize(completed, Session);
 
 in_progress({completed, {error, Reason}}, Session) ->
-  notify_status('failed', Session),
+  notify_status(failed, Session),
   finalize({failed, Reason}, Session).
 
 notify_status(Status, Session = #session{session_id = SessionId, address = Address, callback_params = CallbackParams}) ->
