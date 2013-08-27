@@ -119,10 +119,9 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
       {reply, ok, dialing, NewSession, timer:minutes(1)}
   end.
 
-dialing({answer, Pbx}, Session) ->
+dialing({answer, Pbx}, Session = #session{queued_call = QueuedCall}) ->
   error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),
-  CallFlow = call_flow:find(Session#session.queued_call#queued_call.call_flow_id),
-  NewSession = Session#session{pbx = Pbx, flow = CallFlow#call_flow.flow, call_flow = CallFlow},
+  NewSession = QueuedCall:start_session(Session#session{pbx = Pbx}),
   notify_status('in-progress', NewSession),
   spawn_run(NewSession),
 
