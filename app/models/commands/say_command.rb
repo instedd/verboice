@@ -22,6 +22,10 @@ class Commands::SayCommand < Command
     @text = text
   end
 
+  def serialize_parameters
+    {text: @text}
+  end
+
   def run(session)
     session.info "Say '#{@text}'", command: 'say', action: 'start'
     text = session.expand_vars(@text)
