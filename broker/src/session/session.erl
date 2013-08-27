@@ -23,6 +23,7 @@
 
 -include("session.hrl").
 -include("db.hrl").
+-include("uri.hrl").
 
 start_link(SessionId) ->
   gen_fsm:start_link({global, ?SESSION(SessionId)}, ?MODULE, SessionId, []).
@@ -145,17 +146,15 @@ in_progress({completed, {error, Reason}}, Session) ->
   notify_status('failed', Session),
   finalize({failed, Reason}, Session).
 
-notify_status(Status, Session = #session{session_id = SessionId, address = Address}) ->
+notify_status(Status, Session = #session{session_id = SessionId, address = Address, callback_params = CallbackParams}) ->
   Project = Session#session.project,
   case Project#project.status_callback_url of
     undefined -> ok;
     <<>> -> ok;
     Url ->
-      StatusCallbackUrl = binary_to_list(Url),
-      QueryString = "CallSid=" ++ http_uri:encode(SessionId) ++
-                    "&CallStatus=" ++ atom_to_list(Status) ++
-                    "&From=" ++ binary_to_list(Address),
-      spawn(fun() -> httpc:request(get, {StatusCallbackUrl ++ "?" ++ QueryString, []}, [], [{full_result, false}]) end)
+      Uri = uri:parse(binary_to_list(Url)),
+      QueryString = [{"CallSid", SessionId}, {"CallStatus", Status}, {"From", Address} | CallbackParams],
+      spawn(fun() -> (Uri#uri{query_string = QueryString}):get([{full_result, false}]) end)
   end.
 
 handle_event(stop, _, Session) ->

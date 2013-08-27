@@ -38,19 +38,23 @@ format(Uri = #uri{}) ->
   Bin = iolist_to_binary([Scheme, "://", UserInfo, Uri#uri.host, Port, Path, Query]),
   binary_to_list(Bin).
 
-get(Options, Uri = #uri{}) ->
-  Headers = case proplists:get_value(basic_auth, Options) of
-    {User, Password} -> basic_auth(User, Password);
-    _ -> []
-  end,
-  httpc:request(get, {Uri:format(), Headers}, [], []).
+get(UriOptions, Uri = #uri{}) ->
+  {Headers, HTTPOptions, Options} = httpc_options(UriOptions),
+  httpc:request(get, {Uri:format(), Headers}, HTTPOptions, Options).
 
-post_form(Form, _Options, Uri = #uri{}) ->
+post_form(Form, UriOptions, Uri = #uri{}) ->
+  {Headers, HTTPOptions, Options} = httpc_options(UriOptions),
   Body = format_qs(Form),
-  httpc:request(post, {Uri:format(), [], "application/x-www-form-urlencoded", Body}, [], []).
+  httpc:request(post, {Uri:format(), Headers, "application/x-www-form-urlencoded", Body}, HTTPOptions, Options).
 
-basic_auth(User, Password) ->
-  [{"Authorization", "Basic " ++ base64:encode_to_string(iolist_to_binary([User, $:, Password]))}].
+httpc_options(Options) -> httpc_options(Options, [], [], []).
+
+httpc_options([], Headers, HTTPOptions, Options) -> {Headers, HTTPOptions, Options};
+httpc_options([{basic_auth, {User, Password}} | T], Headers, HTTPOptions, Options) ->
+  BasicAuthHeader = {"Authorization", "Basic " ++ base64:encode_to_string(iolist_to_binary([User, $:, Password]))},
+  httpc_options(T, [BasicAuthHeader, Headers], HTTPOptions, Options);
+httpc_options([Unknown | T], Headers, HTTPOptions, Options) ->
+  httpc_options(T, Headers, HTTPOptions, [Unknown | Options]).
 
 parse_qs([]) -> [];
 parse_qs(QS) ->
