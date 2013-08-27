@@ -2,8 +2,9 @@
 -export([run/2]).
 -include("session.hrl").
 -include("db.hrl").
+-include("uri.hrl").
 
-run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log = CallLog, call_flow = CallFlow}) ->
+run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log = CallLog, call_flow = CallFlow, callback_params = CallbackParams}) ->
   CallLog:info("Callback started", [{command, "callback"}, {action, "start"}]),
   Url = case proplists:get_value(url, Args) of
     undefined -> CallFlow#call_flow.callback_url;
@@ -14,13 +15,15 @@ run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log =
   Variables = proplists:get_value(variables, Args, []),
   Method = proplists:get_value(method, Args, "post"),
 
-  QueryString = prepare_params(Params ++ Variables, "CallSid=" ++ SessionId, JS),
+  QueryString = prepare_params(Params ++ Variables, [{"CallSid", SessionId} | CallbackParams], JS),
   RequestUrl = interpolate(Url, Args, Session),
+  Uri = uri:parse(RequestUrl),
+
   {ok, {_StatusLine, _Headers, Body}} = case Method of
     "get" ->
-      httpc:request(RequestUrl ++ "?" ++ QueryString);
+      (Uri#uri{query_string = QueryString}):get([]);
     _ ->
-      httpc:request(post, {RequestUrl, [], "application/x-www-form-urlencoded", QueryString}, [], [])
+      Uri:post_form(QueryString, [])
   end,
 
   CallLog:trace(["Callback returned: ", Body], [{command, "callback"}, {action, "return"}]),
@@ -54,7 +57,7 @@ prepare_params([{Name, Expr} | Rest], QueryString, JS) ->
     {Str, _} when is_list(Str) -> Str;
     {Num, _} when is_number(Num) -> integer_to_list(Num)
   end,
-  prepare_params(Rest, QueryString ++ "&" ++ Name ++ "=" ++ Value, JS).
+  prepare_params(Rest, [{Name, Value} | QueryString], JS).
 
 interpolate(Url, Args, _Session) ->
   InterpolatedUrl = util:interpolate(Url, fun(VarNameBin) ->

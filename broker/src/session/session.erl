@@ -263,9 +263,19 @@ default_variables(Context, ProjectVars, [Var | Rest]) ->
   VarValue = binary_to_list(Var#persisted_variable.value),
   default_variables(erjs_object:set(VarName, VarValue, Context), ProjectVars, Rest).
 
+callback_params(#session{queued_call = #queued_call{callback_params = CallbackParamsYaml}}) when is_binary(CallbackParamsYaml) ->
+  {ok, [CallbackParams]} = yaml:load(CallbackParamsYaml, [{schema, yaml_schema_ruby}]),
+  CallbackParams;
+callback_params(_) -> [].
+
 run(Session = #session{pbx = Pbx}) ->
   JsContext = default_variables(Session),
-  RunSession = Session#session{js_context = JsContext, default_language = default_language(Session)},
+  CallbackParams = callback_params(Session),
+  RunSession = Session#session{
+    js_context = JsContext,
+    default_language = default_language(Session),
+    callback_params = CallbackParams
+  },
   try run(RunSession, 1) of
     X -> X
   after

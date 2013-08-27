@@ -1,5 +1,5 @@
 -module(uri).
--export([parse/1, format/1, parse_qs/1, format_qs/1, get/2]).
+-export([parse/1, format/1, parse_qs/1, format_qs/1, get/2, post_form/3]).
 -include("uri.hrl").
 
 parse(Uri) ->
@@ -44,6 +44,10 @@ get(Options, Uri = #uri{}) ->
     _ -> []
   end,
   httpc:request(get, {Uri:format(), Headers}, [], []).
+
+post_form(Form, _Options, Uri = #uri{}) ->
+  Body = format_qs(Form),
+  httpc:request(post, {Uri:format(), [], "application/x-www-form-urlencoded", Body}, [], []).
 
 basic_auth(User, Password) ->
   [{"Authorization", "Basic " ++ base64:encode_to_string(iolist_to_binary([User, $:, Password]))}].
