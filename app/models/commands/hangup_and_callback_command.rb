@@ -20,6 +20,10 @@ class Commands::HangupAndCallbackCommand < Command
     @dial_prefix = options[:dial_prefix]
   end
 
+  def serialize_parameters
+    {dial_prefix: @dial_prefix}
+  end
+
   def run(session)
     session.info "Enqueuing call", command: 'hangup_and_callback', action: 'enqueue_call'
     session.address = dial_address(session)

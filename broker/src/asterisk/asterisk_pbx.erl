@@ -1,8 +1,12 @@
 -module(asterisk_pbx).
--export([new/1, answer/1, hangup/1, can_play/2, play/2, capture/6, record/4, terminate/1, sound_path_for/2]).
+-export([new/1, pid/1, answer/1, hangup/1, can_play/2, play/2, capture/6, record/4, terminate/1, sound_path_for/2]).
+
+-behaviour(pbx).
 
 new(Pid) ->
   {?MODULE, Pid}.
+
+pid({?MODULE, Pid}) -> Pid.
 
 sound_path_for(Name, _) ->
   {ok, SoundsDir} = application:get_env(asterisk_sounds_dir),

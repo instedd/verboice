@@ -1,5 +1,5 @@
 -module(twilio_pbx).
--export([answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2]).
+-export([pid/1, answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2]).
 -behaviour(pbx).
 
 -export([start_link/2, find/1, new/2, resume/2]).
@@ -26,13 +26,15 @@ new(CallSid, CallbackUrl) ->
   {ok, Pid} = twilio_pbx_sup:start_session(CallSid, CallbackUrl),
   {?MODULE, Pid}.
 
+pid(?PBX) -> Pid.
+
 answer(?PBX(_)) -> ok.
 
 hangup(?PBX(_)) -> throw(not_implemented).
 
 can_play(url, _) -> true;
 can_play({text, Lang}, _) -> lists:member(Lang, ["en", "es", "fr", "de", "it"]);
-can_play(file, _) -> true.
+can_play(file, _) -> trues.
 
 play(Resource, ?PBX) ->
   gen_server:call(Pid, {play, Resource}, timer:minutes(5)).

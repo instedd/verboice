@@ -1,5 +1,5 @@
 -module(queued_call).
--export([reschedule/1, start_session/2]).
+-export([reschedule/1, start_session/1]).
 -define(TABLE_NAME, "queued_calls").
 -include("session.hrl").
 -define(MAP(CallFlow), load_flow(CallFlow)).
@@ -22,10 +22,10 @@ reschedule(Q = #queued_call{retries = Retries, time_zone = TimeZone}, S) ->
   RetryTime = calendar:gregorian_seconds_to_datetime(S:next_available_time(NextRetry) - TimeZoneOffset),
   queued_call:create(Q#queued_call{not_before = RetryTime, retries = Retries + 1}).
 
-start_session(Session, #queued_call{call_flow_id = CallFlowId}) when is_number(CallFlowId) ->
+start_session(#queued_call{call_flow_id = CallFlowId}) when is_number(CallFlowId) ->
   CallFlow = call_flow:find(CallFlowId),
-  Session#session{flow = CallFlow#call_flow.flow, call_flow = CallFlow};
-start_session(Session, #queued_call{callback_url = CallbackUrl}) when is_binary(CallbackUrl) ->
-  Session#session{flow = [answer, [callback, [{url, binary_to_list(CallbackUrl)}]]]};
-start_session(Session, #queued_call{flow = Flow}) ->
-  Session#session{flow = Flow}.
+  #session{flow = CallFlow#call_flow.flow, call_flow = CallFlow};
+start_session(#queued_call{callback_url = CallbackUrl}) when is_binary(CallbackUrl) ->
+  #session{flow = [answer, [callback, [{url, binary_to_list(CallbackUrl)}]]]};
+start_session(#queued_call{flow = Flow}) ->
+  #session{flow = Flow}.

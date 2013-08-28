@@ -36,6 +36,7 @@ handle_call(_Request, _From, State) ->
 
 %% @private
 handle_cast({enqueue, QueuedCall}, State = #state{queued_calls = Queue}) ->
+  io:format("enqueue"),
   Queue2 = queue:in(QueuedCall, Queue),
   {noreply, do_dispatch(State#state{queued_calls = Queue2})};
 

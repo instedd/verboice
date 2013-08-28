@@ -30,7 +30,13 @@ notify_ready(Broker) ->
 
 %% @private
 handle_call({dispatch, Channel, QueuedCall}, _From, State = #state{real_broker = RealBroker, ready_channels = ReadyChannels}) ->
-  {ok, SessionPid} = session:new(),
+  SessionPid = case QueuedCall#queued_call.session_id of
+    undefined ->
+      {ok, Pid} = session:new(), Pid;
+    SessionId ->
+      session:find(SessionId)
+  end,
+
   case session:dial(SessionPid, RealBroker, Channel, QueuedCall) of
     ok ->
       {reply, {ok, SessionPid}, State};

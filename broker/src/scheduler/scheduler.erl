@@ -1,5 +1,5 @@
 -module(scheduler).
--export([start_link/0, load/0]).
+-export([start_link/0, load/0, enqueue/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -15,6 +15,9 @@ start_link() ->
 
 load() ->
   gen_server:cast(?SERVER, load).
+
+enqueue(Call) ->
+  gen_server:cast(?SERVER, {enqueue, Call}).
 
 %% @private
 init({}) ->
@@ -56,6 +59,12 @@ handle_cast(load, State = #state{last_id = LastId, waiting_calls = WaitingCalls}
 
   {noreply, State#state{last_id = NewLastId, waiting_calls = WaitingCalls2}};
 
+handle_cast({enqueue, Call}, State = #state{waiting_calls = WaitingCalls}) ->
+  {datetime, NotBefore} = Call#queued_call.not_before,
+  WaitingCalls2 = ordsets:add_element({NotBefore, Call}, WaitingCalls) ,
+
+  {noreply, State#state{waiting_calls = WaitingCalls2}};
+
 handle_cast(_Msg, State) ->
   {noreply, State}.
 
@@ -79,6 +88,7 @@ dispatch([]) -> [];
 dispatch(Queue = [{_, Call} | Rest]) ->
   case should_trigger(Call) of
     true ->
+      io:format("dispatch ~p~n", [Call]),
       channel_queue:enqueue(Call),
       dispatch(Rest);
     false ->

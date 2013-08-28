@@ -1,5 +1,18 @@
 -module(pbx).
--export([behaviour_info/1]).
 
-behaviour_info(callbacks) -> [{answer, 1}, {hangup, 1}, {play, 2}, {capture, 6}, {terminate, 1}, {sound_path_for, 2}];
-behaviour_info(_) -> undefined.
+-type pbx() :: any().
+-type resource_kind() :: file | url | text.
+-type resource() :: {file, string()}
+  | {url, string()}
+  | {text, string(), string()}.
+
+-callback answer(pbx()) -> any().
+-callback hangup(pbx()) -> any().
+-callback play(resource(), pbx()) -> any().
+-callback capture(any(), any(), any(), any(), any(), pbx()) -> any().
+-callback terminate(pbx()) -> any().
+-callback can_play(resource_kind(), pbx()) -> boolean().
+-callback sound_path_for(string(), pbx()) -> string().
+-callback pid(pbx()) -> undefined | pid().
+
+-export_type([pbx/0]).

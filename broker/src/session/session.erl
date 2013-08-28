@@ -1,9 +1,9 @@
 -module(session).
--export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1]).
+-export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1]).
 -export([language/1]).
 
 % FSM Description
-% Possible states: ready, dialing, in_progress, suspended, completed
+% Possible states: ready, dialing, in_progress, completed
 % Initial state: ready
 %
 % ready(dial) -> dialing
@@ -12,18 +12,19 @@
 % dialing(error | no_answer | busy) -> failed
 % in_progress(error | hangup) -> failed
 % in_progress(done) -> completed
-% in_progress(suspend) -> suspended
-% suspended(resume) -> in_progress
+% in_progress(suspend) -> ready
 
 -behaviour(gen_fsm).
 -export([init/1, handle_event/3, handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).
--export([ready/2, ready/3, dialing/2, in_progress/2, matches/2]).
+-export([ready/2, ready/3, dialing/2, in_progress/2, in_progress/3, matches/2]).
 
 -define(SESSION(Id), {session, Id}).
 
 -include("session.hrl").
 -include("db.hrl").
 -include("uri.hrl").
+
+-record(state, {session_id, session, resume_ptr, pbx_pid, flow_pid}).
 
 start_link(SessionId) ->
   gen_fsm:start_link({global, ?SESSION(SessionId)}, ?MODULE, SessionId, []).
@@ -33,12 +34,15 @@ new() ->
   SessionSpec = {SessionId, {session, start_link, [SessionId]}, temporary, 5000, worker, [session]},
   supervisor:start_child(session_sup, SessionSpec).
 
+-spec find(string()) -> undefined | pid().
 find(SessionId) ->
   global:whereis_name(?SESSION(SessionId)).
 
+-spec answer(pid(), pbx:pbx(), integer(), binary()) -> any().
 answer(SessionPid, Pbx, ChannelId, CallerId) ->
   gen_fsm:send_event(SessionPid, {answer, Pbx, ChannelId, CallerId}).
 
+-spec answer(pid(), pbx:pbx()) -> any().
 answer(SessionPid, Pbx) ->
   gen_fsm:send_event(SessionPid, {answer, Pbx}).
 
@@ -50,6 +54,9 @@ reject(SessionPid, Reason) ->
 
 stop(SessionPid) ->
   gen_fsm:send_all_state_event(SessionPid, stop).
+
+resume(SessionPid) ->
+  gen_fsm:send_event(SessionPid, resume).
 
 matches(SessionPid, Criteria) ->
   try gen_fsm:sync_send_all_state_event(SessionPid, {matches, Criteria}, 100)
@@ -66,84 +73,122 @@ language(#session{js_context = JsContext, default_language = DefaultLanguage}) -
 %% @private
 
 init(SessionId) ->
-  {ok, ready, #session{session_id = SessionId}}.
+  {ok, ready, #state{session_id = SessionId}}.
 
-ready({answer, Pbx, ChannelId, CallerId}, Session) ->
-  error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),
-  Channel = channel:find(ChannelId),
-  CallFlow = call_flow:find(Channel#channel.call_flow_id),
-  Project = project:find(CallFlow#call_flow.project_id),
-  CallLog = call_log_srv:new(#call_log{
-    account_id = Channel#channel.account_id,
-    project_id = CallFlow#call_flow.project_id,
-    state = "active",
-    direction = "incoming",
-    channel_id = ChannelId,
-    address = CallerId,
-    started_at = calendar:universal_time(),
-    call_flow_id = CallFlow#call_flow.id
-  }),
-  Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
-  Flow = CallFlow#call_flow.flow,
+ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}) ->
+  error_logger:info_msg("Session (~p) answer", [SessionId]),
+  monitor(process, Pbx:pid()),
 
-  NewSession = Session#session{pbx = Pbx, channel = Channel, flow = Flow, call_flow = CallFlow, call_log = CallLog, project = Project, address = CallerId, contact = Contact},
-  spawn_run(NewSession),
+  NewSession = case State#state.session of
+    undefined ->
+      Channel = channel:find(ChannelId),
+      CallFlow = call_flow:find(Channel#channel.call_flow_id),
+      Project = project:find(CallFlow#call_flow.project_id),
+      CallLog = call_log_srv:new(#call_log{
+        account_id = Channel#channel.account_id,
+        project_id = CallFlow#call_flow.project_id,
+        state = "active",
+        direction = "incoming",
+        channel_id = ChannelId,
+        address = CallerId,
+        started_at = calendar:universal_time(),
+        call_flow_id = CallFlow#call_flow.id
+      }),
+      Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
+      Flow = CallFlow#call_flow.flow,
+      io:format("~p~n", [Flow]),
 
-  {next_state, in_progress, NewSession}.
+      #session{
+        session_id = SessionId,
+        pbx = Pbx,
+        channel = Channel,
+        flow = Flow,
+        call_flow = CallFlow,
+        call_log = CallLog,
+        project = Project,
+        address = CallerId,
+        contact = Contact
+      };
+    Session -> Session#session{pbx = Pbx}
+  end,
+  spawn_run(NewSession, State#state.resume_ptr),
 
-ready({dial, RealBroker, Channel, QueuedCall}, _From, Session) ->
-  error_logger:info_msg("Session (~p) dial", [Session#session.session_id]),
-  CallLog = call_log_srv:new(call_log:find(QueuedCall#queued_call.call_log_id)),
-  Project = project:find(QueuedCall#queued_call.project_id),
-  Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, QueuedCall#queued_call.call_log_id),
+  {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), session = NewSession}}.
 
-  NewSession = Session#session{
-    channel = Channel,
-    address = QueuedCall#queued_call.address,
-    call_log = CallLog,
-    queued_call = QueuedCall,
-    project = Project,
-    contact = Contact
-  },
+ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id = SessionId}) ->
+  error_logger:info_msg("Session (~p) dial", [SessionId]),
+
+  NewSession = case State#state.session of
+    undefined ->
+      CallLog = call_log_srv:new(call_log:find(QueuedCall#queued_call.call_log_id)),
+      Project = project:find(QueuedCall#queued_call.project_id),
+      Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, QueuedCall#queued_call.call_log_id),
+      Session = QueuedCall:start_session(),
+
+      Session#session{
+        session_id = SessionId,
+        channel = Channel,
+        address = QueuedCall#queued_call.address,
+        call_log = CallLog,
+        queued_call = QueuedCall,
+        project = Project,
+        contact = Contact
+      };
+    Session ->
+      CallLog = Session#session.call_log,
+      Session#session{queued_call = QueuedCall}
+  end,
+
 
   case RealBroker:dispatch(NewSession) of
     {error, unavailable} ->
-      {stop, normal, unavailable, NewSession};
+      {stop, normal, unavailable, State#state{session = NewSession}};
     {error, Reason} ->
-      {_, _, NewSession2} = finalize({failed, Reason}, NewSession),
-      {stop, normal, error, NewSession2};
+      {_, _, NewSession2} = finalize({failed, Reason}, State#state{session = NewSession}),
+      {stop, normal, error, State#state{session = NewSession2}};
     _ ->
       CallLog:info(["Dialing to ", QueuedCall#queued_call.address, " through channel ", Channel#channel.name], []),
       notify_status(ringing, NewSession),
       CallLog:update([{state, "active"}, {fail_reason, undefined}]),
-      {reply, ok, dialing, NewSession, timer:minutes(1)}
+      {reply, ok, dialing, State#state{session = NewSession}, timer:minutes(1)}
   end.
 
-dialing({answer, Pbx}, Session = #session{queued_call = QueuedCall}) ->
-  error_logger:info_msg("Session (~p) answer", [Session#session.session_id]),
-  NewSession = QueuedCall:start_session(Session#session{pbx = Pbx}),
+dialing({answer, Pbx}, State = #state{session_id = SessionId, session = Session, resume_ptr = Ptr}) ->
+  error_logger:info_msg("Session (~p) answer", [SessionId]),
+  NewSession = Session#session{pbx = Pbx},
   notify_status('in-progress', NewSession),
-  spawn_run(NewSession),
+  spawn_run(NewSession, Ptr),
 
-  {next_state, in_progress, NewSession};
+  {next_state, in_progress, State#state{session = NewSession}};
 
-dialing({reject, Reason}, Session = #session{session_id = SessionId, call_log = CallLog}) ->
+dialing({reject, Reason}, State = #state{session = Session = #session{session_id = SessionId, call_log = CallLog}}) ->
   error_logger:info_msg("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
   CallLog:error(["Call was rejected. (Reason: ", atom_to_list(Reason),")"], []),
   notify_status('no-answer', Session),
-  finalize({failed, Reason}, Session);
+  finalize({failed, Reason}, State);
 
-dialing(timeout, Session) ->
+dialing(timeout, State = #state{session = Session}) ->
   notify_status(busy, Session),
-  finalize({failed, timeout}, Session).
+  finalize({failed, timeout}, State).
 
-in_progress({completed, ok}, Session) ->
+in_progress({completed, ok}, State = #state{session = Session}) ->
   notify_status(completed, Session),
-  finalize(completed, Session);
+  finalize(completed, State);
 
-in_progress({completed, {error, Reason}}, Session) ->
+in_progress({completed, {error, Reason}}, State = #state{session = Session}) ->
   notify_status(failed, Session),
-  finalize({failed, Reason}, Session).
+  finalize({failed, Reason}, State).
+
+in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = #session{session_id = SessionId}}) ->
+  error_logger:info_msg("Session (~p) suspended", [SessionId]),
+  NotBefore = calendar:gregorian_seconds_to_datetime(calendar:datetime_to_gregorian_seconds(calendar:universal_time()) + 2),
+  scheduler:enqueue(#queued_call{
+    not_before = {datetime, NotBefore},
+    session_id = SessionId,
+    channel_id = NewSession#session.channel#channel.id,
+    address = NewSession#session.address
+  }),
+  {reply, ok, ready, State#state{pbx_pid = undefined, resume_ptr = Ptr, session = NewSession}}.
 
 notify_status(Status, Session = #session{session_id = SessionId, address = Address, callback_params = CallbackParams}) ->
   Project = Session#session.project,
@@ -156,10 +201,10 @@ notify_status(Status, Session = #session{session_id = SessionId, address = Addre
       spawn(fun() -> (Uri#uri{query_string = QueryString}):get([{full_result, false}]) end)
   end.
 
-handle_event(stop, _, Session) ->
-  {stop, normal, Session}.
+handle_event(stop, _, State) ->
+  {stop, normal, State}.
 
-handle_sync_event({matches, Criteria}, _From, StateName, Session) ->
+handle_sync_event({matches, Criteria}, _From, StateName, State = #state{session = Session}) ->
   MatchResult = case Criteria of
     {project, ProjectId} ->
       Session#session.project#project.id == ProjectId;
@@ -169,21 +214,21 @@ handle_sync_event({matches, Criteria}, _From, StateName, Session) ->
       Session#session.call_flow#call_flow.id == CallFlowId;
     _ -> false
   end,
-  {reply, MatchResult, StateName, Session};
+  {reply, MatchResult, StateName, State};
 
-handle_sync_event(_Event, _From, StateName, Session) ->
-  {reply, ok, StateName, Session}.
+handle_sync_event(_Event, _From, StateName, State) ->
+  {reply, ok, StateName, State}.
 
 %% @private
-handle_info({'DOWN', _Ref, process, _Pid, Reason}, _, Session) ->
-  {stop, Reason, Session};
+handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{pbx_pid = Pid}) ->
+  {stop, Reason, State};
 
-handle_info(Info, _StateName, State) ->
+handle_info(Info, StateName, State) ->
   io:format("~p~n", [Info]),
-  {noreply, State}.
+  {next_state, StateName, State}.
 
 %% @private
-terminate(Reason, _, #session{session_id = Id}) ->
+terminate(Reason, _, #state{session = #session{session_id = Id}}) ->
   error_logger:info_msg("Session (~p) terminated with reason: ~p", [Id, Reason]),
   ok.
 
@@ -191,11 +236,11 @@ terminate(Reason, _, #session{session_id = Id}) ->
 code_change(_OldVsn, StateName, State, _Extra) ->
   {ok, StateName, State}.
 
-finalize(completed, Session = #session{call_log = CallLog}) ->
+finalize(completed, State = #state{session = #session{call_log = CallLog}}) ->
   CallLog:update([{state, "completed"}, {finished_at, calendar:universal_time()}]),
-  {stop, normal, Session};
+  {stop, normal, State};
 
-finalize({failed, Reason}, Session = #session{call_log = CallLog}) ->
+finalize({failed, Reason}, State = #state{session = Session = #session{call_log = CallLog}}) ->
   NewState = case Session#session.queued_call of
     undefined -> "failed";
     QueuedCall ->
@@ -210,14 +255,30 @@ finalize({failed, Reason}, Session = #session{call_log = CallLog}) ->
       end
   end,
   CallLog:update([{state, NewState}, {fail_reason, Reason}, {finished_at, calendar:universal_time()}]),
-  {stop, normal, Session}.
+  {stop, normal, State}.
 
-spawn_run(Session) ->
+spawn_run(Session, undefined) ->
+  JsContext = default_variables(Session),
+  CallbackParams = callback_params(Session),
+  RunSession = Session#session{
+    js_context = JsContext,
+    default_language = default_language(Session),
+    callback_params = CallbackParams
+  },
+  spawn_run(RunSession, 1);
+
+spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
   SessionPid = self(),
   spawn_monitor(fun() ->
-    {Result, #session{js_context = JsContext}} = run(Session),
-    Status = erjs_object:get(status, JsContext),
-    gen_fsm:send_event(SessionPid, {completed, flow_result(Result, Status)})
+    try run(Session, Ptr) of
+      {suspend, NewSession, NewPtr} ->
+        gen_fsm:sync_send_event(SessionPid, {suspend, NewSession, NewPtr});
+      {Result, #session{js_context = JsContext}} ->
+        Status = erjs_object:get(status, JsContext),
+        gen_fsm:send_event(SessionPid, {completed, flow_result(Result, Status)})
+    after
+      Pbx:terminate()
+    end
   end).
 
 flow_result(ok, "failed") -> {error, "marked as failed"};
@@ -266,20 +327,6 @@ callback_params(#session{queued_call = #queued_call{callback_params = CallbackPa
   CallbackParams;
 callback_params(_) -> [].
 
-run(Session = #session{pbx = Pbx}) ->
-  JsContext = default_variables(Session),
-  CallbackParams = callback_params(Session),
-  RunSession = Session#session{
-    js_context = JsContext,
-    default_language = default_language(Session),
-    callback_params = CallbackParams
-  },
-  try run(RunSession, 1) of
-    X -> X
-  after
-    Pbx:terminate()
-  end.
-
 run(Session = #session{flow = Flow}, Ptr) when Ptr > length(Flow) -> end_flow(Session);
 run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
   Command = lists:nth(Ptr, Flow),
@@ -296,7 +343,9 @@ run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
             false -> run(NewSession#session{flow = NewFlow, stack = [{Flow, Ptr + 1} | Stack]}, 1)
           end;
         finish ->
-          end_flow(NewSession)
+          end_flow(NewSession);
+        suspend ->
+          {suspend, NewSession, Ptr + 1}
       end
   catch
     hangup ->

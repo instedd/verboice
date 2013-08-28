@@ -5,7 +5,7 @@
 
 %% @private
 init(_) ->
-  {ok, dict:new()}.
+  {ok, undefined}.
 
 %% @private
 handle_event({new_session, Pid, Env}, State) ->
@@ -28,7 +28,7 @@ handle_event({new_session, Pid, Env}, State) ->
               {ok, State};
             SessionPid ->
               session:answer(SessionPid, Pbx),
-              {ok, dict:store(Pid, SessionPid, State)}
+              {ok, State}
           end;
 
         _ ->
@@ -47,9 +47,8 @@ handle_event({new_session, Pid, Env}, State) ->
 
           case session:new() of
             {ok, SessionPid} ->
-              monitor(process, Pid), % TODO: let the session monitor the pbx pid
               session:answer(SessionPid, Pbx, ChannelId, CallerId),
-              {ok, dict:store(Pid, SessionPid, State)};
+              {ok, State};
             {error, _Reason} ->
               agi_session:close(Pid),
               {ok, State}
@@ -65,14 +64,6 @@ handle_call(_Request, _State) ->
   {remove_handler, {error, unknown_call}}.
 
 %% @private
-handle_info({'DOWN', _Ref, process, Pid, _}, State) ->
-  case dict:find(Pid, State) of
-    {ok, SessionPid} ->
-      session:stop(SessionPid),
-      {ok, dict:erase(Pid, State)};
-    _ -> {ok, State}
-  end;
-
 handle_info(_, State) ->
   {ok, State}.
 
