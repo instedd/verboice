@@ -9,7 +9,7 @@ start_session_with_call_flow_test() ->
   meck:new(call_flow),
   meck:expect(call_flow, find, [123], CallFlow),
 
-  Session = queued_call:start_session(#session{}, QueuedCall),
+  Session = queued_call:start_session(QueuedCall),
 
   ?assertEqual(CallFlow, Session#session.call_flow),
   ?assertEqual(CallFlow#call_flow.flow, Session#session.flow),
@@ -18,14 +18,14 @@ start_session_with_call_flow_test() ->
 
 start_session_with_callback_url_test() ->
   QueuedCall = #queued_call{callback_url = <<"http://foo.com">>},
-  Session = queued_call:start_session(#session{}, QueuedCall),
+  Session = queued_call:start_session(QueuedCall),
 
   ?assertEqual(undefined, Session#session.call_flow),
   ?assertEqual([answer,[callback,[{url,"http://foo.com"}]]], Session#session.flow).
 
 start_session_with_flow_test() ->
   QueuedCall = #queued_call{flow = [answer, hangup]},
-  Session = queued_call:start_session(#session{}, QueuedCall) ,
+  Session = queued_call:start_session(QueuedCall) ,
 
   ?assertEqual(undefined, Session#session.call_flow),
   ?assertEqual(QueuedCall#queued_call.flow, Session#session.flow).
