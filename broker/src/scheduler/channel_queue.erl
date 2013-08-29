@@ -1,5 +1,5 @@
 -module(channel_queue).
--export([start_link/1, enqueue/1, wakeup/1]).
+-export([start_link/1, enqueue/1, wakeup/1, unmonitor_session/2]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -20,6 +20,10 @@ enqueue(QueuedCall = #queued_call{channel_id = ChannelId}) ->
 wakeup(ChannelId) ->
   gen_server:cast(?QUEUE(ChannelId), wakeup).
 
+%% Remove a session from monitored list
+unmonitor_session(ChannelId, SessionPid) ->
+  gen_server:cast(?QUEUE(ChannelId), {unmonitor, SessionPid}).
+
 %% @private
 init(Channel) ->
   {ok, #state{
@@ -36,26 +40,21 @@ handle_call(_Request, _From, State) ->
 
 %% @private
 handle_cast({enqueue, QueuedCall}, State = #state{queued_calls = Queue}) ->
-  io:format("enqueue"),
   Queue2 = queue:in(QueuedCall, Queue),
   {noreply, do_dispatch(State#state{queued_calls = Queue2})};
 
 handle_cast(wakeup, State) ->
   {noreply, do_dispatch(State#state{active = true})};
 
+handle_cast({unmonitor, Pid}, State) ->
+  {noreply, remove_session(Pid, State)};
+
 handle_cast(_Msg, State) ->
   {noreply, State}.
 
 %% @private
-handle_info({'DOWN', _, process, Pid, _}, State = #state{current_calls = C, sessions = Sessions}) ->
-  case ordsets:is_element(Pid, Sessions) of
-    true ->
-      NewSessions = ordsets:del_element(Pid, Sessions),
-      timer:apply_after(timer:seconds(2), gen_server, cast, [self(), wakeup]),
-      {noreply, State#state{sessions = NewSessions, current_calls = C - 1}};
-    false ->
-      {noreply, State}
-  end;
+handle_info({'DOWN', _, process, Pid, _}, State) ->
+  {noreply, remove_session(Pid, State)};
 
 handle_info(_Info, State) ->
   {noreply, State}.
@@ -67,6 +66,16 @@ terminate(_Reason, _State) ->
 %% @private
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
+
+remove_session(SessionPid, State = #state{current_calls = C, sessions = Sessions}) ->
+  case ordsets:is_element(SessionPid, Sessions) of
+    true ->
+      NewSessions = ordsets:del_element(SessionPid, Sessions),
+      timer:apply_after(timer:seconds(2), gen_server, cast, [self(), wakeup]),
+      State#state{sessions = NewSessions, current_calls = C - 1};
+    false ->
+      State
+  end.
 
 do_dispatch(State = #state{active = false}) -> State;
 do_dispatch(State = #state{current_calls = C, max_calls = M}) when C >= M -> State;

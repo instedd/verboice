@@ -88,7 +88,6 @@ dispatch([]) -> [];
 dispatch(Queue = [{_, Call} | Rest]) ->
   case should_trigger(Call) of
     true ->
-      io:format("dispatch ~p~n", [Call]),
       channel_queue:enqueue(Call),
       dispatch(Rest);
     false ->

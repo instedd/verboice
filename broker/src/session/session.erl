@@ -179,8 +179,9 @@ in_progress({completed, {error, Reason}}, State = #state{session = Session}) ->
   notify_status(failed, Session),
   finalize({failed, Reason}, State).
 
-in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = #session{session_id = SessionId}}) ->
+in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session = #session{session_id = SessionId}}) ->
   error_logger:info_msg("Session (~p) suspended", [SessionId]),
+  channel_queue:unmonitor_session(Session#session.channel#channel.id, self()),
   NotBefore = calendar:gregorian_seconds_to_datetime(calendar:datetime_to_gregorian_seconds(calendar:universal_time()) + 2),
   scheduler:enqueue(#queued_call{
     not_before = {datetime, NotBefore},
