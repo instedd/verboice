@@ -1,5 +1,5 @@
 -module(asterisk_broker).
--export([start_link/0, init/0, notify_ready/0, dispatch/1, create_channel/1, destroy_channel/1]).
+-export([start_link/0, init/0, notify_ready/0, dispatch/1, create_channel/1, destroy_channel/1, dial_address/2]).
 
 -behaviour(broker).
 

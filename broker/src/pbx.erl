@@ -1,4 +1,5 @@
 -module(pbx).
+-include("db.hrl").
 
 -type pbx() :: any().
 -type resource_kind() :: file | url | text.
@@ -13,6 +14,7 @@
 -callback terminate(pbx()) -> any().
 -callback can_play(resource_kind(), pbx()) -> boolean().
 -callback sound_path_for(string(), pbx()) -> string().
+-callback dial(#channel{}, string(), string(), pbx()) -> completed | busy | no_answer | failed.
 -callback pid(pbx()) -> undefined | pid().
 
 -export_type([pbx/0]).

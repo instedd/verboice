@@ -1,5 +1,5 @@
 -module(twilio_pbx).
--export([pid/1, answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2]).
+-export([pid/1, answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2, dial/4]).
 -behaviour(pbx).
 
 -export([start_link/2, find/1, new/2, resume/2]).
@@ -51,6 +51,8 @@ terminate(?PBX) ->
 sound_path_for(Name, ?PBX(_)) ->
   {ok, Dir} = file:get_cwd(),
   filename:join([Dir, "tmp/www", Name ++ ".mp3"]).
+
+dial(_, _, _, _) -> exit(unimplemented).
 
 resume(Params, ?PBX) ->
   gen_server:call(Pid, {resume, Params}).

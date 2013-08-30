@@ -1,5 +1,5 @@
 -module(agi_session).
--export([start_link/1, close/1, get_variable/2, answer/1, hangup/1, stream_file/3, wait_for_digit/2, record_file/5]).
+-export([start_link/1, close/1, get_variable/2, answer/1, hangup/1, stream_file/3, wait_for_digit/2, record_file/5, set_callerid/2, dial/2]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -59,6 +59,17 @@ record_file(Pid, FileName, Format, StopKeys, Timeout) ->
     #response{result = Digit, parent = "dtmf"} -> {digit, list_to_integer(Digit)};
     _ -> error
   end.
+
+set_callerid(Pid, CallerId) ->
+  gen_server:call(Pid, {execute, ["SET CALLERID ", CallerId]}).
+
+dial(Pid, ArgList) ->
+  Separator = case application:get_env(asterisk_agi_use_pipe_separator) of
+    {ok, true} -> "|";
+    _ -> ","
+  end,
+  Args = string:join(ArgList, Separator),
+  gen_server:call(Pid, {execute, ["EXEC DIAL ", Args]}, infinity).
 
 %% @private
 init(Sock) ->
