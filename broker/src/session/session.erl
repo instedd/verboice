@@ -96,7 +96,6 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
       }),
       Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
       Flow = CallFlow#call_flow.flow,
-      io:format("~p~n", [Flow]),
 
       #session{
         session_id = SessionId,
@@ -155,11 +154,12 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
 
 dialing({answer, Pbx}, State = #state{session_id = SessionId, session = Session, resume_ptr = Ptr}) ->
   error_logger:info_msg("Session (~p) answer", [SessionId]),
+  monitor(process, Pbx:pid()),
   NewSession = Session#session{pbx = Pbx},
   notify_status('in-progress', NewSession),
   spawn_run(NewSession, Ptr),
 
-  {next_state, in_progress, State#state{session = NewSession}};
+  {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), session = NewSession}};
 
 dialing({reject, Reason}, State = #state{session = Session = #session{session_id = SessionId, call_log = CallLog}}) ->
   error_logger:info_msg("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
@@ -224,14 +224,12 @@ handle_sync_event(_Event, _From, StateName, State) ->
 handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{pbx_pid = Pid}) ->
   {stop, Reason, State};
 
-handle_info(Info, StateName, State) ->
-  io:format("~p~n", [Info]),
+handle_info(_Info, StateName, State) ->
   {next_state, StateName, State}.
 
 %% @private
-terminate(Reason, _, #state{session = #session{session_id = Id}}) ->
-  error_logger:info_msg("Session (~p) terminated with reason: ~p", [Id, Reason]),
-  ok.
+terminate(Reason, _, #state{session_id = Id}) ->
+  error_logger:info_msg("Session (~p) terminated with reason: ~p", [Id, Reason]).
 
 %% @private
 code_change(_OldVsn, StateName, State, _Extra) ->
