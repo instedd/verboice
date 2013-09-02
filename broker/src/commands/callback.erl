@@ -39,7 +39,9 @@ handle_response(variables, Body, Session) ->
   case Response of
     {Vars} -> {next, handle_response_variables(Vars, Session)};
     _ -> {next, Session}
-  end.
+  end;
+
+handle_response(_, _, Session) -> {next, Session}.
 
 handle_response_variables([], Session) -> Session;
 handle_response_variables([{Name, Value} | Rest], Session = #session{js_context = JsContext}) ->

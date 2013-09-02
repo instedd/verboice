@@ -57,3 +57,13 @@ handle_response_with_variables_test() ->
   ?assertEqual("baz", erjs_object:get(response_bar, JS)),
 
   meck:unload().
+
+callback_without_response_test() ->
+  Session = #session{session_id = "1", call_log = #call_log{}},
+  meck:new(call_log, [stub_all]),
+  meck:new(httpc),
+
+  meck:expect(httpc, request, 4, {ok, {"200 OK", [], ""}}),
+
+  {next, Session} = callback:run([{url, "http://foo.com"}, {response_type, none}], Session),
+  meck:unload().
