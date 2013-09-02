@@ -45,3 +45,15 @@ get_to_url_with_session_callback_params_test() ->
   {{exec, []}, _} = callback:run([{method, "get"}, {url, "http://foo.com"}], Session),
   meck:unload().
 
+handle_response_with_variables_test() ->
+  Session = #session{session_id = "1", call_log = #call_log{}, js_context = erjs_object:new()},
+  meck:new(call_log, [stub_all]),
+  meck:new(httpc),
+
+  meck:expect(httpc, request, 4, {ok, {"200 OK", [], "{\"foo\":1, \"bar\":\"baz\"}"}}),
+
+  {next, #session{js_context = JS}} = callback:run([{url, "http://foo.com"}, {response_type, variables}], Session),
+  ?assertEqual(1, erjs_object:get(response_foo, JS)),
+  ?assertEqual("baz", erjs_object:get(response_bar, JS)),
+
+  meck:unload().
