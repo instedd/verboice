@@ -228,12 +228,19 @@ handle_info(_Info, StateName, State) ->
   {next_state, StateName, State}.
 
 %% @private
-terminate(Reason, _, #state{session_id = Id}) ->
+terminate(Reason, _, #state{session_id = Id, session = Session}) ->
+  push_results(Session),
   error_logger:info_msg("Session (~p) terminated with reason: ~p", [Id, Reason]).
 
 %% @private
 code_change(_OldVsn, StateName, State, _Extra) ->
   {ok, StateName, State}.
+
+push_results(#session{call_flow = #call_flow{id = CallFlowId, store_in_fusion_tables = 1}, call_log = CallLog}) ->
+  Task = ["--- !ruby/struct:CallFlow::FusionTablesPush::Pusher\ncall_flow_id: ", integer_to_list(CallFlowId),
+    "\ncall_log_id: ", integer_to_list(CallLog:id()), "\n"],
+  delayed_job:enqueue(Task);
+push_results(_) -> ok.
 
 finalize(completed, State = #state{session = #session{call_log = CallLog}}) ->
   CallLog:update([{state, "completed"}, {finished_at, calendar:universal_time()}]),

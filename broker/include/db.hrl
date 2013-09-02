@@ -2,7 +2,7 @@
 -record(call_log, {id, account_id, project_id, finished_at, direction, address,
   state, created_at, updated_at, channel_id, started_at, schedule_id, not_before, call_flow_id, fail_reason}).
 -record(call_log_entry, {id, call_id, severity, details, created_at, updated_at}).
--record(call_flow, {id, callback_url, flow, project_id, created_at, updated_at}).
+-record(call_flow, {id, callback_url, flow, project_id, store_in_fusion_tables, created_at, updated_at}).
 -record(queued_call, {id, channel_id, call_log_id, address, callback_url, flow, call_flow_id, status_callback_url,
   schedule_id, not_before, retries, project_id, time_zone, variables, session_id, callback_params, created_at, updated_at}).
 -record(schedule, {id, name, retries, time_from, time_to, weekdays, project_id, created_at, updated_at}).
@@ -16,3 +16,4 @@
 -record(recorded_audio, {id, contact_id, call_log_id, key, description, created_at, updated_at}).
 -record(external_service, {id, project_id, guid, global_settings, created_at, updated_at}).
 -record(trace_record, {id, call_flow_id, call_id, step_name, step_id, result, created_at, updated_at}).
+-record(delayed_job, {id, handler, run_at, created_at, updated_at}).
