@@ -10,9 +10,12 @@ create(Severity, CallId, Message, Details) ->
     details = serialize_details([{description, Message} | Details])
   }).
 
-serialize_details(Details) -> iolist_to_binary(serialize_details(Details, "---\n")).
+serialize_details(Details) ->
+  case json:encode({format_details(Details)}) of
+    {ok, Json} -> Json;
+    _ -> undefined
+  end.
 
-serialize_details([], Output) -> Output;
-serialize_details([{Key, Value} | Rest], Output) ->
-  FormattedValue = re:replace(Value, "'", "''", [global]),
-  serialize_details(Rest, [Output | [":", atom_to_list(Key), ": ! '", FormattedValue, "'\n"]]).
+format_details([]) -> [];
+format_details([{Key, Value} | T]) ->
+  [{Key, iolist_to_binary(Value)} | format_details(T)].

@@ -38,7 +38,15 @@ module MarshalZipSerializable
         begin
           data = Marshal.load(Zlib.inflate(x))
         rescue
-          data = YAML.load(x) rescue nil
+          begin
+            data = if x.start_with?("---")
+              YAML.load(x)
+            else
+              JSON.parse(x).with_indifferent_access
+            end
+          rescue
+            nil
+          end
         end
       }.join
       data
