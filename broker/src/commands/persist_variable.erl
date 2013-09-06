@@ -12,7 +12,7 @@ run(Args, Session = #session{js_context = JS}) ->
   PersistedVar:save(),
 
   VarName = list_to_atom("var_" ++ Name),
-  JS3 = erjs_object:set(VarName, Value, JS2),
+  JS3 = erjs_context:set(VarName, Value, JS2),
   {next, Session#session{js_context = JS3}}.
 
 find_or_create_persisted_variable(Name, #session{contact = Contact, project = Project}) ->

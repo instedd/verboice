@@ -25,7 +25,7 @@ run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, call_log = Cal
   CallLog:info(["Dialing ", Number, " throug channel ", Channel#channel.name], [{command, "dial"}, {action, "start"}]),
 
   Result = Pbx:dial(Channel, list_to_binary(Number), CallerId),
-  NewJS = erjs_object:set(dial_status, Result, JS),
+  NewJS = erjs_context:set(dial_status, Result, JS),
 
   CallLog:info(["Dial completed  with status ", atom_to_list(Result)], [{command, "dial"}, {action, "finish"}]),
   {next, Session#session{js_context = NewJS}}.

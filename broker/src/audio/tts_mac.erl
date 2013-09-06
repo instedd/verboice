@@ -12,7 +12,7 @@ synthesize(Text, Voice, TargetPath) ->
     receive
       {Port, {exit_status, N}} ->
         case N of
-          0 -> sox:convert(TempFile, TargetPath), ok;
+          0 -> sox:convert(TempFile, TargetPath);
           _ -> error
         end
       after 5000 ->

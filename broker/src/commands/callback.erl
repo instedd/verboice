@@ -14,20 +14,29 @@ run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log =
   Params = proplists:get_value(params, Args, []),
   Variables = proplists:get_value(variables, Args, []),
   Method = proplists:get_value(method, Args, "post"),
+  Async = proplists:get_value(async, Args),
 
   QueryString = prepare_params(Params ++ Variables, [{"CallSid", SessionId} | CallbackParams], JS),
   RequestUrl = interpolate(Url, Args, Session),
   Uri = uri:parse(RequestUrl),
 
-  {ok, {_StatusLine, _Headers, Body}} = case Method of
-    "get" ->
-      (Uri#uri{query_string = QueryString}):get([]);
-    _ ->
-      Uri:post_form(QueryString, [])
-  end,
+  case Async of
+    true ->
+      delayed_job:enqueue(""),
+      {next, Session};
 
-  CallLog:trace(["Callback returned: ", Body], [{command, "callback"}, {action, "return"}]),
-  handle_response(ResponseType, Body, Session).
+    _ ->
+      io:format("~p~n", [uri:format(Uri)]),
+      {ok, {_StatusLine, _Headers, Body}} = case Method of
+        "get" ->
+          (Uri#uri{query_string = QueryString}):get([]);
+        _ ->
+          Uri:post_form(QueryString, [])
+      end,
+
+      CallLog:trace(["Callback returned: ", Body], [{command, "callback"}, {action, "return"}]),
+      handle_response(ResponseType, Body, Session)
+  end.
 
 handle_response(flow, Body, Session) ->
   Commands = twiml:parse(Body),
@@ -50,23 +59,32 @@ handle_response_variables([{Name, Value} | Rest], Session = #session{js_context 
     Bin when is_binary(Bin) -> binary_to_list(Bin);
     X -> X
   end,
-  NewSession = Session#session{js_context = erjs_object:set(VarName, VarValue, JsContext)},
+  NewSession = Session#session{js_context = erjs_context:set(VarName, VarValue, JsContext)},
   handle_response_variables(Rest, NewSession).
 
 prepare_params([], QueryString, _JS) -> QueryString;
 prepare_params([{Name, Expr} | Rest], QueryString, JS) ->
-  Value = case erjs:eval(Expr, JS) of
-    {Str, _} when is_list(Str) -> Str;
-    {Num, _} when is_number(Num) -> integer_to_list(Num)
-  end,
-  prepare_params(Rest, [{Name, Value} | QueryString], JS).
+  {Value, _} = erjs:eval(Expr, JS),
+  NewQueryString = assign_from_js(QueryString, Name, Value, JS),
+  prepare_params(Rest, NewQueryString, JS).
 
-interpolate(Url, Args, _Session) ->
+assign_from_js(QueryString, _, undefined, _) -> QueryString;
+assign_from_js(QueryString, Prefix, Value, JS) ->
+  if
+    is_reference(Value) ->
+      Properties = erjs_context:get_object(Value, JS),
+      lists:foldl(fun({FName, FValue}, QS) ->
+        assign_from_js(QS, [Prefix, "[", FName, "]"], FValue, JS)
+      end, QueryString, Properties);
+    true -> [{iolist_to_binary(Prefix), Value} | QueryString]
+  end.
+
+interpolate(Url, Args, #session{project = #project{id = ProjectId}}) ->
   InterpolatedUrl = util:interpolate(Url, fun(VarNameBin) ->
     case proplists:get_value(external_service_guid, Args) of
       undefined -> <<>>;
       SvcGuid ->
-        Svc = external_service:find({guid, SvcGuid}),
+        Svc = external_service:find([{project_id, ProjectId}, {guid, SvcGuid}]),
         case Svc:global_variable_value_for(binary_to_list(VarNameBin)) of
           undefined -> <<>>;
           Value -> list_to_binary(Value)

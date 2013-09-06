@@ -4,7 +4,7 @@
 -include("db.hrl").
 
 should_work_with_text_localized_resource_test() ->
-  Session = #session{call_log = #call_log{}, js_context = erjs_object:new(), address = <<"123">>, project = #project{account_id = 1}},
+  Session = #session{call_log = #call_log{}, js_context = erjs_context:new(), address = <<"123">>, project = #project{account_id = 1}},
   meck:new(call_log, [stub_all]),
   meck:new(nuntium_api, [stub_all]),
   meck:new(resource),
@@ -16,7 +16,7 @@ should_work_with_text_localized_resource_test() ->
   meck:unload().
 
 should_send_to_a_value_recipient_test() ->
-  Session = #session{call_log = #call_log{}, js_context = erjs_object:new(), address = <<"123">>, project = #project{account_id = 1}},
+  Session = #session{call_log = #call_log{}, js_context = erjs_context:new(), address = <<"123">>, project = #project{account_id = 1}},
   meck:new(call_log, [stub_all]),
   meck:new(nuntium_api, [stub_all]),
   meck:new(resource),

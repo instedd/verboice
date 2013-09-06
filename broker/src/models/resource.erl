@@ -27,7 +27,7 @@ prepare_text_resource(Text, Session) ->
 prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_context = JsContext}) ->
   ReplacedText = util:interpolate(Text, fun(VarNameBin) ->
     VarName = binary_to_atom(<<"var_", VarNameBin/binary>>, utf8),
-    case erjs_object:get(VarName, JsContext) of
+    case erjs_context:get(VarName, JsContext) of
       undefined -> <<>>;
       X -> list_to_binary(X)
     end
@@ -38,7 +38,7 @@ prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_
       TargetPath = Pbx:sound_path_for(Name),
       case filelib:is_file(TargetPath) of
         true -> ok;
-        false -> tts:synthesize(ReplacedText, Project, Language, TargetPath)
+        false -> ok = tts:synthesize(ReplacedText, Project, Language, TargetPath)
       end,
       {file, Name};
     true ->

@@ -45,7 +45,7 @@ rcpt_address(RcptType, Expr, Session) ->
   end.
 
 rcpt_address_from_session(caller, _, #session{js_context = JS, address = Address}) ->
-  case erjs_object:get(var_sms_number, JS) of
+  case erjs_context:get(var_sms_number, JS) of
     undefined -> Address;
     "" -> Address;
     Number -> list_to_binary(Number)

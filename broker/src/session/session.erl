@@ -65,7 +65,7 @@ matches(SessionPid, Criteria) ->
   end.
 
 language(#session{js_context = JsContext, default_language = DefaultLanguage}) ->
-  case erjs_object:get(var_language, JsContext) of
+  case erjs_context:get(var_language, JsContext) of
     undefined -> DefaultLanguage;
     Language -> Language
   end.
@@ -280,7 +280,7 @@ spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
       {suspend, NewSession, NewPtr} ->
         gen_fsm:sync_send_event(SessionPid, {suspend, NewSession, NewPtr});
       {Result, #session{js_context = JsContext}} ->
-        Status = erjs_object:get(status, JsContext),
+        Status = erjs_context:get(status, JsContext),
         gen_fsm:send_event(SessionPid, {completed, flow_result(Result, Status)})
     after
       Pbx:terminate()
@@ -311,7 +311,7 @@ get_contact(ProjectId, Address, _) ->
   contact:find_or_create_with_address(ProjectId, Address).
 
 default_variables(#session{contact = Contact, project = #project{id = ProjectId}}) ->
-  Context = erjs_object:new([{record_url, fun(_Key) -> "<url>" end}]),
+  Context = erjs_context:new([{record_url, fun(_Key) -> "<url>" end}]),
   ProjectVars = project_variable:names_for_project(ProjectId),
   Variables = persisted_variable:find_all({contact_id, Contact#contact.id}),
   default_variables(Context, ProjectVars, Variables).
@@ -326,7 +326,7 @@ default_variables(Context, ProjectVars, [Var | Rest]) ->
     undefined -> proplists:get_value(Var#persisted_variable.project_variable_id, ProjectVars)
   end,
   VarValue = binary_to_list(Var#persisted_variable.value),
-  default_variables(erjs_object:set(VarName, VarValue, Context), ProjectVars, Rest).
+  default_variables(erjs_context:set(VarName, VarValue, Context), ProjectVars, Rest).
 
 callback_params(#session{queued_call = #queued_call{callback_params = CallbackParamsYaml}}) when is_binary(CallbackParamsYaml) ->
   {ok, [CallbackParams]} = yaml:load(CallbackParamsYaml, [{schema, yaml_schema_ruby}]),

@@ -19,5 +19,5 @@ variable_value(_, []) -> undefined;
 variable_value(Name, [Var | Rest]) ->
   case proplists:get_value("name", Var) of
     Name -> proplists:get_value("value", Var);
-    undefined -> variable_value(Name, Rest)
+    _ -> variable_value(Name, Rest)
   end.
