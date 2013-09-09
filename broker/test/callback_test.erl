@@ -112,5 +112,6 @@ async_callback_test() ->
   meck:expect(delayed_job, enqueue, 1, ok),
 
   {next, Session} = callback:run([{url, "http://foo.com"}, {async, true}], Session),
-  ?assertEqual(<<"">>, iolist_to_binary(meck:capture(last, delayed_job, enqueue, 1, 1))),
+  Task = iolist_to_binary(meck:capture(last, delayed_job, enqueue, 1, 1)),
+  ?assertEqual(<<"--- !ruby/object:Jobs::CallbackJob\n:url: http://foo.com\n:method: post\n:body:\n  CallSid: '1'\n...\n">>, Task),
   meck:unload().

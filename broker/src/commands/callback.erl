@@ -22,11 +22,15 @@ run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log =
 
   case Async of
     true ->
-      delayed_job:enqueue(""),
+      Task = [
+        {url, RequestUrl},
+        {method, Method},
+        {body, QueryString}
+      ],
+      delayed_job:enqueue(yaml:dump({map, Task, <<"!ruby/object:Jobs::CallbackJob">>}, [{schema, yaml_schema_ruby}])),
       {next, Session};
 
     _ ->
-      io:format("~p~n", [uri:format(Uri)]),
       {ok, {_StatusLine, _Headers, Body}} = case Method of
         "get" ->
           (Uri#uri{query_string = QueryString}):get([]);
