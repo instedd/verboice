@@ -83,17 +83,23 @@ do_dispatch(State = #state{current_calls = C, queued_calls = Q, sessions = S}) -
   case queue:out(Q) of
     {empty, _} -> State;
     {{value, Call}, Q2} ->
-      case broker:dispatch(State#state.channel, Call) of
-        {ok, SessionPid} ->
-          Call:delete(),
-          monitor(process, SessionPid),
-          NewSessions = ordsets:add_element(SessionPid, S),
-          do_dispatch(State#state{current_calls = C + 1, queued_calls = Q2, sessions = NewSessions});
-        error ->
-          Call:delete(),
-          do_dispatch(State#state{queued_calls = Q2});
-        unavailable ->
-          State#state{active = false}
+      case Call:exists() of
+        true ->
+          case broker:dispatch(State#state.channel, Call) of
+            {ok, SessionPid} ->
+              Call:delete(),
+              monitor(process, SessionPid),
+              NewSessions = ordsets:add_element(SessionPid, S),
+              do_dispatch(State#state{current_calls = C + 1, queued_calls = Q2, sessions = NewSessions});
+            error ->
+              Call:delete(),
+              do_dispatch(State#state{queued_calls = Q2});
+            unavailable ->
+              State#state{active = false}
+          end;
+        false ->
+          error_logger:info_msg("Ignoring queued call ~p which seems has been deleted", [Call#queued_call.id]),
+          do_dispatch(State#state{queued_calls = Q2})
       end
   end.
 
