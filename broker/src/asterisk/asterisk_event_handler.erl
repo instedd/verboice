@@ -31,6 +31,25 @@ handle_event({originateresponse, Packet}, State) ->
   end,
   {ok, State};
 
+handle_event({newchannel, Packet}, State) ->
+  NewChannel = ami_client:decode_packet(Packet),
+  io:format("New channel: ~p~n", [NewChannel]),
+  Channel = proplists:get_value(channel, NewChannel),
+  asterisk_pbx_log_srv:start_link(Channel),
+  {ok, State};
+
+handle_event({varset, Packet}, State) ->
+  Event = ami_client:decode_packet(Packet),
+  Channel = proplists:get_value(channel, Event),
+  asterisk_pbx_log_srv:varset(Channel, Event),
+  {ok, State};
+
+handle_event({hangup, Packet}, State) ->
+  Event = ami_client:decode_packet(Packet),
+  Channel = proplists:get_value(channel, Event),
+  asterisk_pbx_log_srv:hangup(Channel, Event),
+  {ok, State};
+
 handle_event(_Event, State) ->
   % io:format("EVENT: ~p~n", [Event]),
   {ok, State}.

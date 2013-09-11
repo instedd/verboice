@@ -84,7 +84,7 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
       Channel = channel:find(ChannelId),
       CallFlow = call_flow:find(Channel#channel.call_flow_id),
       Project = project:find(CallFlow#call_flow.project_id),
-      CallLog = call_log_srv:new(#call_log{
+      CallLog = call_log_srv:new(SessionId, #call_log{
         account_id = Channel#channel.account_id,
         project_id = CallFlow#call_flow.project_id,
         state = "active",
@@ -119,7 +119,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
 
   NewSession = case State#state.session of
     undefined ->
-      CallLog = call_log_srv:new(call_log:find(QueuedCall#queued_call.call_log_id)),
+      CallLog = call_log_srv:new(SessionId, call_log:find(QueuedCall#queued_call.call_log_id)),
       Project = project:find(QueuedCall#queued_call.project_id),
       Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, QueuedCall#queued_call.call_log_id),
       Session = QueuedCall:start_session(),

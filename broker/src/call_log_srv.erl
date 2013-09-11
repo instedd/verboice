@@ -1,5 +1,5 @@
 -module(call_log_srv).
--export([new/1, error/3, info/3, trace/3, trace_record/5, update/2, id/1]).
+-export([new/2, error/3, info/3, trace/3, trace_record/5, update/2, id/1, associate_pbx_log/2]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -9,8 +9,8 @@
 
 -include("db.hrl").
 
-new(CallLog) ->
-  {ok, Pid} = gen_server:start(?MODULE, {CallLog, self()}, []),
+new(SessionId, CallLog) ->
+  {ok, Pid} = gen_server:start({global, {call_log_srv, SessionId}}, ?MODULE, {CallLog, self()}, []),
   {?MODULE, Pid}.
 
 error(Message, Details, {?MODULE, Pid}) ->
@@ -30,6 +30,9 @@ update(Fields, {?MODULE, Pid}) ->
 
 id({?MODULE, Pid}) ->
   gen_server:call(Pid, get_id).
+
+associate_pbx_log(SessionId, PbxLogId) ->
+  gen_server:cast({global, {call_log_srv, SessionId}}, {associate_pbx_log, PbxLogId}).
 
 %% @private
 init({CallLog, Owner}) ->
@@ -68,7 +71,11 @@ handle_cast({trace_record, CallFlowId, StepId, StepName, Result}, State = #state
   % },
   % TraceRecord:save(),
   call_log_entry_srv:trace(CallLog#call_log.id, CallFlowId, StepId, StepName, Result),
-  {noreply, State}.
+  {noreply, State};
+
+handle_cast({associate_pbx_log, PbxLogId}, State = #state{call_log = CallLog}) ->
+  NewCallLog = call_log:update(CallLog#call_log{pbx_logs_guid = PbxLogId}),
+  {noreply, State#state{call_log = NewCallLog}}.
 
 %% @private
 handle_info({'DOWN', _Ref, process, Pid, _Reason}, State = #state{owner_pid = Pid}) ->
