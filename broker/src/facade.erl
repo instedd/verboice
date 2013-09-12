@@ -5,7 +5,8 @@
 ]).
 
 channel_status(ChannelIds) ->
-  Status = [{Id, proplist_to_bert_dict([{ok,true},{messages,[]}])} || Id <- ChannelIds],
+  AsteriskStatus = asterisk_channel_srv:get_channel_status(ChannelIds),
+  Status = [{Id, proplist_to_bert_dict([{ok, Ok},{messages, Messages}])} || {Id, Ok, Messages} <- AsteriskStatus],
   proplist_to_bert_dict(Status).
 
 notify_call_queued(_ChannelId) ->

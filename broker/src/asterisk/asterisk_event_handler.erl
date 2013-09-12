@@ -51,7 +51,6 @@ handle_event({hangup, Packet}, State) ->
   {ok, State};
 
 handle_event(_Event, State) ->
-  % io:format("EVENT: ~p~n", [Event]),
   {ok, State}.
 
 %% @private

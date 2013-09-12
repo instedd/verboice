@@ -19,10 +19,10 @@ generate(RegFilePath, ChannelsFilePath) ->
 
 generate_config(RegFile, ChannelsFile) ->
   Channels = channel:find_all_sip(),
-  generate_config(Channels, RegFile, ChannelsFile, dict:new(), dict:new()).
+  generate_config(Channels, RegFile, ChannelsFile, dict:new(), dict:new(), dict:new()).
 
-generate_config([], _, _, _, ChannelRegistry) -> ChannelRegistry;
-generate_config([Channel | Rest], RegFile, ChannelsFile, ResolvCache, ChannelRegistry) ->
+generate_config([], _, _, _, ChannelIndex, RegistryIndex) -> {ChannelIndex, RegistryIndex};
+generate_config([Channel | Rest], RegFile, ChannelsFile, ResolvCache, ChannelIndex, RegistryIndex) ->
   Section = ["verboice_", integer_to_list(Channel#channel.id)],
   Username = channel:username(Channel),
   Password = channel:password(Channel),
@@ -58,7 +58,7 @@ generate_config([Channel | Rest], RegFile, ChannelsFile, ResolvCache, ChannelReg
   end,
 
   {Expanded, NewCache} = expand_domain(Domain, ResolvCache),
-  {NewRegistry, _} = lists:foldl(fun ({Host, IPs, Port}, {R1, I}) ->
+  {NewChannelIndex, _} = lists:foldl(fun ({Host, IPs, Port}, {R1, I}) ->
     file:write(ChannelsFile, ["[", Section, "-inbound-", integer_to_list(I), "](", Section, ")\n"]),
     file:write(ChannelsFile, ["host=", Host, "\n"]),
     case Port of
@@ -75,15 +75,17 @@ generate_config([Channel | Rest], RegFile, ChannelsFile, ResolvCache, ChannelReg
       dict:store({binary_to_list(IP), Number}, Channel#channel.id, R2)
     end, R1, IPs),
     {R3, I + 1}
-  end, {ChannelRegistry, 0}, Expanded),
+  end, {ChannelIndex, 0}, Expanded),
 
-  case channel:register(Channel) of
+  NewRegistryIndex = case channel:register(Channel) of
     true ->
-      file:write(RegFile, ["register => ", Username, ":", Password, "@", Domain, "/", Number, "\n"]);
-    _ -> ok
+      file:write(RegFile, ["register => ", Username, ":", Password, "@", Domain, "/", Number, "\n"]),
+      dict:store({Username, Domain}, Channel#channel.id, RegistryIndex);
+    _ ->
+      RegistryIndex
   end,
 
-  generate_config(Rest, RegFile, ChannelsFile, NewCache, NewRegistry).
+  generate_config(Rest, RegFile, ChannelsFile, NewCache, NewChannelIndex, NewRegistryIndex).
 
 expand_domain(<<>>, ResolvCache) -> {[], ResolvCache};
 expand_domain(Domain, ResolvCache) ->

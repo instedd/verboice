@@ -1,12 +1,12 @@
 -module(asterisk_channel_srv).
--export([start_link/0, find_channel/2, regenerate_config/0]).
+-export([start_link/0, find_channel/2, regenerate_config/0, set_channel_status/1, get_channel_status/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
 
--record(state, {channels, config_job_state = idle}).
+-record(state, {channels, registry, channel_status, config_job_state = idle, status_job_state = idle}).
 
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
@@ -17,17 +17,37 @@ find_channel(PeerIp, SipTo) ->
 regenerate_config() ->
   gen_server:cast(?MODULE, regenerate_config).
 
+set_channel_status(Status) ->
+  gen_server:cast(?MODULE, {set_channel_status, Status}).
+
+get_channel_status(ChannelIds) ->
+  gen_server:call(?MODULE, {get_channel_status, ChannelIds}).
+
 %% @private
 init({}) ->
   agi_events:add_handler(asterisk_call_manager, []),
   regenerate_config(),
-  {ok, #state{channels = dict:new()}}.
+  timer:send_interval(timer:seconds(30), check_status),
+  {ok, #state{channels = dict:new(), registry = dict:new()}}.
 
 %% @private
 handle_call({find_channel, PeerIp, Number}, _From, State) ->
   case dict:find({PeerIp, Number}, State#state.channels) of
     {ok, ChannelId} -> {reply, ChannelId, State};
     error -> {reply, not_found, State}
+  end;
+
+handle_call({get_channel_status, ChannelIds}, _From, State) ->
+  case State#state.channel_status of
+    undefined -> {reply, [], State};
+    Status ->
+      Result = lists:foldl(fun(ChannelId, R) ->
+        case dict:find(ChannelId, Status) of
+          {ok, {Ok, Messages}} -> [{ChannelId, Ok, Messages} | R];
+          _ -> R
+        end
+      end, [], ChannelIds),
+      {reply, Result, State}
   end;
 
 handle_call(_Request, _From, State) ->
@@ -41,9 +61,9 @@ handle_cast(regenerate_config, State = #state{config_job_state = JobState}) ->
         {ok, BaseConfigPath} = application:get_env(asterisk_config_dir),
         RegFilePath = filename:join(BaseConfigPath, "sip_verboice_registrations.conf"),
         ChannelsFilePath = filename:join(BaseConfigPath, "sip_verboice_channels.conf"),
-        ChannelRegistry = asterisk_config:generate(RegFilePath, ChannelsFilePath),
+        {ChannelIndex, RegistryIndex} = asterisk_config:generate(RegFilePath, ChannelsFilePath),
         ami_client:sip_reload(),
-        gen_server:cast(?MODULE, {set_channels, ChannelRegistry})
+        gen_server:cast(?MODULE, {set_channels, ChannelIndex, RegistryIndex})
       end),
       State#state{config_job_state = working};
     working ->
@@ -53,18 +73,25 @@ handle_cast(regenerate_config, State = #state{config_job_state = JobState}) ->
   end,
   {noreply, NewState};
 
-handle_cast({set_channels, Registry}, State = #state{config_job_state = JobState}) ->
-  io:format("Updated registry: ~n~p~n", [Registry]),
+handle_cast({set_channels, ChannelIndex, RegistryIndex}, State = #state{config_job_state = JobState}) ->
+  io:format("Updated registry: ~n~p~n~p~n", [ChannelIndex, RegistryIndex]),
   case JobState of
     must_regenerate -> regenerate_config();
     _ -> ok
   end,
-  {noreply, State#state{channels = Registry, config_job_state = idle}};
+  {noreply, State#state{channels = ChannelIndex, registry = RegistryIndex, config_job_state = idle}};
+
+handle_cast({set_channel_status, Status}, State) ->
+  {noreply, State#state{channel_status = Status, status_job_state = idle}};
 
 handle_cast(_Msg, State) ->
   {noreply, State}.
 
 %% @private
+handle_info(check_status, State = #state{status_job_state = idle}) ->
+  asterisk_status_handler:start(State#state.registry),
+  {noreply, State#state{status_job_state = working}};
+
 handle_info(_Info, State) ->
   {noreply, State}.
 
