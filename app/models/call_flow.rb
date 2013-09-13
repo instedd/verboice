@@ -35,6 +35,7 @@ class CallFlow < ActiveRecord::Base
   serialize :flow,      Command
   serialize :user_flow, SerializableArray
   serialize :variables, Array
+  serialize :broker_flow, Command::BrokerFlow
 
   before_validation :set_name_to_callback_url, :unless => :name?
 
@@ -120,7 +121,7 @@ class CallFlow < ActiveRecord::Base
   def update_flow_with_user_flow
     if user_flow.presence && user_flow_changed?
       parser  = Parsers::UserFlow.new self, user_flow
-      self.flow = parser.equivalent_flow
+      self.broker_flow = self.flow = parser.equivalent_flow
       self.variables = parser.variables.to_a.uniq
       link_external_services(parser.external_service_guids.to_a)
       self.resource_guids = parser.resource_guids.to_a

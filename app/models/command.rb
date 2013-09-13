@@ -18,15 +18,19 @@
 class Command
   attr_accessor :next
 
-  # include MarshalZipSerializable
-  def self.dump(x)
-    Zlib.deflate(x.to_a.to_yaml)
-  end
+  include MarshalZipSerializable
 
-  def self.load(x)
-    YAML.load(Zlib.inflate(x))
-  rescue Exception => ex
-    Marshal.load(Zlib.inflate(x)) rescue nil
+  module BrokerFlow
+    def self.dump(x)
+      puts "Dumping..."
+      Zlib.deflate(x.to_a.to_yaml)
+    end
+
+    def self.load(x)
+      YAML.load(Zlib.inflate(x))
+    rescue Exception => ex
+      Marshal.load(Zlib.inflate(x)) rescue nil
+    end
   end
 
   def self.inherited(subclass)

@@ -24,7 +24,7 @@ reschedule(Q = #queued_call{retries = Retries, time_zone = TimeZone}, S) ->
 
 start_session(#queued_call{call_flow_id = CallFlowId}) when is_number(CallFlowId) ->
   CallFlow = call_flow:find(CallFlowId),
-  #session{flow = CallFlow#call_flow.flow, call_flow = CallFlow};
+  #session{flow = CallFlow#call_flow.broker_flow, call_flow = CallFlow};
 start_session(#queued_call{callback_url = CallbackUrl}) when is_binary(CallbackUrl) ->
   #session{flow = [answer, [callback, [{url, binary_to_list(CallbackUrl)}]]]};
 start_session(#queued_call{flow = Flow}) ->
