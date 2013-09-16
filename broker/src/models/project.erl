@@ -9,8 +9,13 @@
     LanguagesYaml ->
       {ok, [X]} = yaml:load(LanguagesYaml, [{schema, yaml_schema_ruby}]), X
   end,
-  {ok, Secret} = application:get_env(verboice, crypt_secret),
-  [Config] = marshal:decode(aes:decrypt(Secret, base64:decode(Project#project.encrypted_config))),
+  Config = case Project#project.encrypted_config of
+    undefined -> [];
+    CryptConfig ->
+      {ok, Secret} = application:get_env(verboice, crypt_secret),
+      [PlainConfig] = marshal:decode(aes:decrypt(Secret, base64:decode(CryptConfig))),
+      PlainConfig
+  end,
   Project#project{languages = Languages, encrypted_config = Config}
 ).
 
