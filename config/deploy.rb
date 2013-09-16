@@ -45,9 +45,6 @@ namespace :deploy do
     run "test -f #{shared_path}/verboice.config || cp #{release_path}/broker/verboice.config #{shared_path}"
     run "ln -nfs #{shared_path}/verboice.config #{release_path}/broker/verboice.config"
 
-    run "test -d #{shared_path}/broker_deps || mkdir #{shared_path}/broker_deps"
-    run "ln -nfs #{shared_path}/broker_deps #{release_path}/broker/deps"
-
     run "test -d #{shared_path}/log/broker || mkdir #{shared_path}/log/broker"
     run "ln -nfs #{shared_path}/log/broker #{release_path}/broker/log"
   end
