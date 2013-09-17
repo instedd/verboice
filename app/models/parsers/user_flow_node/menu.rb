@@ -28,7 +28,7 @@ module Parsers
         @options_resource = Resource.new params['options_resource']
         @options = params['options'].deep_clone || []
         @root_index = params['root']
-        @timeout = params['timeout'] || self.class.default_time_out_in_seconds
+        @timeout = params['timeout'].try(:to_i) || self.class.default_time_out_in_seconds
         @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
         @invalid_resource = Resource.new params['invalid_resource']
         @default = params['default']

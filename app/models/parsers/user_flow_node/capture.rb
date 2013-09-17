@@ -30,7 +30,7 @@ module Parsers
         @finish_on_key = params['finish_on_key'] || self.class.default_finish_key
         @min_input_length = params['min_input_length'].try(:to_i) || self.class.default_minimum_input_lenght
         @max_input_length = params['max_input_length'].try(:to_i) || self.class.default_maximum_input_lenght
-        @timeout = params['timeout'] || self.class.default_time_out_in_seconds
+        @timeout = params['timeout'].try(:to_i) || self.class.default_time_out_in_seconds
         @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
         @invalid_resource = Resource.new params['invalid_resource']
         @call_flow = call_flow
