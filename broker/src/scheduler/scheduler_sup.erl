@@ -14,7 +14,8 @@ start_link() ->
 init({}) ->
   Children = [
     ?CHILD(channel_mgr, worker),
-    ?CHILD(scheduler, worker)
+    ?CHILD(scheduler, worker),
+    ?CHILD(channel_sup, supervisor)
   ],
   RestartStrategy = {one_for_all, 5, 10},
   {ok, {RestartStrategy, Children}}.

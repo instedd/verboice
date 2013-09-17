@@ -21,8 +21,7 @@ enqueue(Call) ->
 
 %% @private
 init({}) ->
-  % Initial load after 1 second (wait for channels to start)
-  % TODO: create channel queues on demand so this timer is not neede
+  % Initial load after 1 second
   timer:apply_after(timer:seconds(1), ?MODULE, load, []),
 
   % Load queued calls every 1 minute, just in case the broker misses a notification
