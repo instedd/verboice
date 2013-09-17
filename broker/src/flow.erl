@@ -2,6 +2,7 @@
 -export([deserialize/1]).
 
 deserialize(undefined) -> [];
+deserialize(<<>>) -> [];
 deserialize(CompFlow) ->
   Z = zlib:open(),
   zlib:inflateInit(Z),
