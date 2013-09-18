@@ -203,13 +203,13 @@ describe Parsers::UserFlow do
     (Parsers::UserFlow.new call_flow, user_flow).equivalent_flow.should eq(
       Compiler.make do
         Answer()
-        Assign "current_step", 1
+        AssignValue "current_step", 1
         AssignValue "current_step_name", "Play number one"
         Trace call_flow_id: 5, step_id: 1, step_name: 'Play number one', store: '"Message played."'
         PlayResource "resource 1 guid"
-        Assign "current_step", 2
+        AssignValue "current_step", 2
         AssignValue "current_step_name", "Capture number one"
-        Assign 'attempt_number2', '1'
+        AssignValue 'attempt_number2', 1
         While 'attempt_number2 <= 3' do
           Capture resource: "First Capture message guid", min: 1, max: 10, finish_on_key: '#', timeout: 10
           Assign 'value_2', 'digits'
@@ -228,16 +228,16 @@ describe Parsers::UserFlow do
         end
         Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Missed input for 3 times."'
         Label "end2"
-        Assign "current_step", 3
+        AssignValue "current_step", 3
         AssignValue "current_step_name", "Menu number one"
         PlayResource "resource of menu 3"
-        Assign 'attempt_number3', '1'
+        AssignValue 'attempt_number3', 1
         While 'attempt_number3 <= 3' do
           Capture finish_on_key: '', timeout: 20
           Assign 'value_3', 'digits'
           If "digits == '2'" do
             Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
-            Assign "current_step", 4
+            AssignValue "current_step", 4
             AssignValue "current_step_name", "Say number 4"
             Trace call_flow_id: 5, step_id: 4, step_name: 'Say number 4', store: '"Message played."'
             PlayResource "resource 4 guid"
@@ -245,7 +245,7 @@ describe Parsers::UserFlow do
           end
           If "digits == '1'" do
             Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
-            Assign "current_step", 6
+            AssignValue "current_step", 6
             AssignValue "current_step_name", "Say number 6"
             Trace call_flow_id: 5, step_id: 6, step_name: 'Say number 6', store: '"Message played."'
             PlayResource "resource 6 guid"
@@ -261,20 +261,20 @@ describe Parsers::UserFlow do
         end
         Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"Missed input for 3 times."'
         Label "end3"
-        Assign "current_step", 5
+        AssignValue "current_step", 5
         AssignValue "current_step_name", "Say number 5"
         Trace call_flow_id: 5, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
         PlayResource "resource 5 guid"
-        Assign "current_step", 33
+        AssignValue "current_step", 33
         AssignValue "current_step_name", "Play number 33"
         Trace call_flow_id: 5, step_id: 33, step_name: 'Play number 33', store: '"Message played."'
         PlayResource "resource 33 guid"
-        Assign "current_step", 34
+        AssignValue "current_step", 34
         AssignValue "current_step_name", "Branch number one"
         If "(typeof(value_3) != 'undefined' && typeof(6) != 'undefined' && value_3 == 6) && (typeof(value_2) != 'undefined' && typeof(30) != 'undefined' && value_2 < 30) && (typeof(value_2) != 'undefined' && typeof(5) != 'undefined' && value_2 >= 5)" do
           Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
           Label 10
-          Assign "current_step", 10
+          AssignValue "current_step", 10
           AssignValue "current_step_name", "Play number 10"
           Trace call_flow_id: 5, step_id: 10, step_name: 'Play number 10', store: '"Message played."'
           PlayResource "resource 10 guid"
@@ -283,12 +283,12 @@ describe Parsers::UserFlow do
         If "(typeof(value_3) != 'undefined' && typeof(5) != 'undefined' && value_3 <= 5)" do
           Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
           Label 14
-          Assign "current_step", 14
+          AssignValue "current_step", 14
           AssignValue "current_step_name", "Say 14"
           Trace call_flow_id: 5, step_id: 14, step_name: 'Say 14', store: '"Message played."'
           PlayResource "resource 14 guid"
           Label 15
-          Assign "current_step", 15
+          AssignValue "current_step", 15
           AssignValue "current_step_name", "Hanged up!"
           Trace call_flow_id: 5, step_id: 15, step_name: 'Hanged up!', store: '"Verboice ended call."'
           End()

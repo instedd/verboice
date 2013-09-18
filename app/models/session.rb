@@ -90,7 +90,7 @@ class Session
   end
 
   def broker
-    channel.broker.instance
+    channel.broker
   end
 
   def js
@@ -190,11 +190,11 @@ class Session
   end
 
   CallLogEntry::Levels.each do |name|
-    class_eval %Q(
+    class_eval <<-EVAL, __FILE__, __LINE__ + 1
       def #{name}(text, options ={})
         call_log.#{name} text, step_id: self['current_step'], step_name: self['current_step_name'], command: options[:command], action: options[:action]
       end
-    )
+    EVAL
   end
 
   if Rails.env == 'production'

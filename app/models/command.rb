@@ -22,11 +22,12 @@ class Command
 
   module BrokerFlow
     def self.dump(x)
-      puts "Dumping..."
+      return nil unless x
       Zlib.deflate(x.to_a.to_yaml)
     end
 
     def self.load(x)
+      return nil unless x
       YAML.load(Zlib.inflate(x))
     rescue Exception => ex
       Marshal.load(Zlib.inflate(x)) rescue nil

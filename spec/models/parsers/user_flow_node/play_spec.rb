@@ -35,7 +35,7 @@ module Parsers
         play.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
-            c.Assign "current_step", 1
+            c.AssignValue "current_step", 1
             c.AssignValue "current_step_name", "Play"
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Play', store: '"Message played."'
             c.PlayResource 5
@@ -51,7 +51,7 @@ module Parsers
         play.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
-            c.Assign "current_step", 1
+            c.AssignValue "current_step", 1
             c.AssignValue "current_step_name", "Play"
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Play', store: '"Message played."'
           end.first
@@ -67,7 +67,7 @@ module Parsers
         play.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 27
-            c.Assign "current_step", 27
+            c.AssignValue "current_step", 27
             c.AssignValue "current_step_name", "Play number one"
             c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: 'Play number one', store: '"Message played."'
           end.first
@@ -85,7 +85,7 @@ module Parsers
         play.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 27
-            c.Assign "current_step", 27
+            c.AssignValue "current_step", 27
             c.AssignValue "current_step_name", "Play number one"
             c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: 'Play number one', store: '"Message played."'
           end.first

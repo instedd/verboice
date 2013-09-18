@@ -44,9 +44,9 @@ module Parsers
         capture.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
-            c.Assign "current_step", 1
+            c.AssignValue "current_step", 1
             c.AssignValue "current_step_name", "Capture number one"
-            c.Assign 'attempt_number1', '1'
+            c.AssignValue 'attempt_number1', 1
             c.While 'attempt_number1 <= 3' do |c|
               c.Capture resource: 1, min: 1, max: 2, finish_on_key: '#', timeout: 10
               c.Assign 'value_1', 'digits'
@@ -74,9 +74,9 @@ module Parsers
 
         capture_flow = Compiler.parse do |c|
           c.Label 4
-          c.Assign "current_step", 4
+          c.AssignValue "current_step", 4
           c.AssignValue "current_step_name", "Capture"
-          c.Assign 'attempt_number4', '1'
+          c.AssignValue 'attempt_number4', 1
           c.While 'attempt_number4 <= 3' do |c|
             c.Capture min: 1, max: 1, finish_on_key: '#', timeout: 5
             c.Assign 'value_4', 'digits'
@@ -124,9 +124,9 @@ module Parsers
         File.stub(:exists?).and_return{true}
         capture_flow = Compiler.parse do |c|
           c.Label 4
-          c.Assign "current_step", 4
+          c.AssignValue "current_step", 4
           c.AssignValue "current_step_name", "Capture"
-          c.Assign 'attempt_number4', '1'
+          c.AssignValue 'attempt_number4', 1
           c.While 'attempt_number4 <= 3' do |c|
             c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
             c.Assign 'value_4', 'digits'
@@ -164,9 +164,9 @@ module Parsers
         File.stub(:exists?).and_return{true}
         capture_flow = Compiler.parse do |c|
           c.Label 4
-          c.Assign "current_step", 4
+          c.AssignValue "current_step", 4
           c.AssignValue "current_step_name", "Capture"
-          c.Assign 'attempt_number4', '1'
+          c.AssignValue 'attempt_number4', 1
           c.While 'attempt_number4 <= 3' do |c|
             c.Capture min: 0, max: 1, finish_on_key: '#', timeout: 5
             c.Assign 'value_4', 'digits'
@@ -197,9 +197,9 @@ module Parsers
         File.stub(:exists?).and_return{true}
         capture_flow = Compiler.parse do |c|
             c.Label 4
-            c.Assign "current_step", 4
+            c.AssignValue "current_step", 4
             c.AssignValue "current_step_name", "Capture"
-            c.Assign 'attempt_number4', '1'
+            c.AssignValue 'attempt_number4', 1
             c.While 'attempt_number4 <= 3' do |c|
               c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
               c.Assign 'value_4', 'digits'
@@ -215,7 +215,7 @@ module Parsers
             end
             c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
             c.Label 2
-            c.Assign "current_step", 2
+            c.AssignValue "current_step", 2
             c.AssignValue "current_step_name", "Play"
             c.Trace call_flow_id: call_flow.id, step_id: 2, step_name: 'Play', store: '"Message played."'
             c.PlayResource 123

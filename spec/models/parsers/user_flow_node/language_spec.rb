@@ -33,7 +33,7 @@ module Parsers
         language.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
-            c.Assign "current_step", 1
+            c.AssignValue "current_step", 1
             c.AssignValue "current_step_name", "Detect Language"
             c.If "typeof(var_language) != 'undefined'" do |c|
               c.Goto "end1"
