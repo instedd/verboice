@@ -43,4 +43,10 @@ class ActiveRecord::Base
     # inherit config attributes
     @config_attrs ||= (self.superclass.respond_to?(:config_attrs) ? self.superclass.config_attrs.clone : [])
   end
+
+  def self.broker_cached(atom = self.name.underscore.to_sym)
+    after_commit do
+      BrokerClient.invalidate_cache atom, id
+    end
+  end
 end

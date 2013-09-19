@@ -22,13 +22,13 @@ class ChannelsController < ApplicationController
   def index
     @channels = current_account.channels.includes(:call_flow).all
     @channel_kinds = Channel.all_leaf_subclasses.map(&:kinds).flatten(1).sort_by{|x| x[0]}
-    @channel_status = BrokerClient.channel_status *@channels.map(&:id)
+    @channel_status = BrokerClient.channel_status(@channels.map(&:id)) rescue {}
   end
 
   # GET /channels/1
   def show
     @channel = current_account.channels.find(params[:id])
-    @errors_count = @channel.errors_count
+    @errors_count = 0 #@channel.errors_count
   end
 
   # GET /channels/new

@@ -26,6 +26,13 @@ class Commands::DialCommand < Command
     @caller_id = options[:caller_id]
   end
 
+  def serialize_parameters
+    params = {number: @number}
+    params[:channel_name] = @channel_name if @channel_name.present?
+    params[:caller_id] = @caller_id if @caller_id.present?
+    params
+  end
+
   def run(session)
     if @channel_name.present?
       channel = session.channel.account.channels.find_by_name @channel_name

@@ -35,6 +35,7 @@ class CallFlow < ActiveRecord::Base
   serialize :flow,      Command
   serialize :user_flow, SerializableArray
   serialize :variables, Array
+  serialize :broker_flow, Command::BrokerFlow
 
   before_validation :set_name_to_callback_url, :unless => :name?
 
@@ -51,6 +52,8 @@ class CallFlow < ActiveRecord::Base
   enum_attr :mode, %w(callback_url ^flow)
   config_accessor :callback_url_user, :callback_url_password
   attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true
+
+  broker_cached
 
   def commands
     self.flow.present? ? self.flow : Compiler.new.Answer().Callback(self.callback_url).make
@@ -105,6 +108,10 @@ class CallFlow < ActiveRecord::Base
     user_flow.select{|s| s['type'] == 'goto' && deleted_steps.include?(s['jump'])}.each{|s| s['jump'] = nil}
   end
 
+  def active_calls
+    BrokerClient.active_calls_by_call_flow(id)
+  end
+
   private
 
   def set_name_to_callback_url
@@ -114,7 +121,7 @@ class CallFlow < ActiveRecord::Base
   def update_flow_with_user_flow
     if user_flow.presence && user_flow_changed?
       parser  = Parsers::UserFlow.new self, user_flow
-      self.flow = parser.equivalent_flow
+      self.broker_flow = self.flow = parser.equivalent_flow
       self.variables = parser.variables.to_a.uniq
       link_external_services(parser.external_service_guids.to_a)
       self.resource_guids = parser.resource_guids.to_a
@@ -139,5 +146,4 @@ class CallFlow < ActiveRecord::Base
       self.call_flow_external_services.build external_service: external_service
     end
   end
-
 end

@@ -22,6 +22,7 @@ require 'sinatra'
 Numbers = {}
 
 post '/' do
+  p params
   session_id = params[:CallSid]
   number = Numbers[session_id]
   pressed = params[:Digits].to_i

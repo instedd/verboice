@@ -1,0 +1,15 @@
+{application, verboice,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  inets,
+                  lager,
+                  ernie_server
+                 ]},
+  {mod, { verboice_app, []}},
+  {env, []}
+ ]}.

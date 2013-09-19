@@ -39,4 +39,8 @@ class Commands::WhileCommand < Command
       super
     end
   end
+
+  def serialize_parameters
+    {condition: condition, block: block}
+  end
 end

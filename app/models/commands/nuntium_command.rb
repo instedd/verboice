@@ -23,6 +23,14 @@ class Commands::NuntiumCommand < Command
     @expr = expr
   end
 
+  def serialize_parameters
+    {
+      expr: @expr,
+      resource_guid: @resource_guid,
+      rcpt_type: @rcpt_type
+    }
+  end
+
   def run(session)
     session.info "Send text message '#{@resource_guid}'", command: 'nuntium', action: 'start'
 

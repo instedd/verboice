@@ -40,4 +40,10 @@ class Commands::AssignCommand < Command
   def assign_data(session)
     subclass_responsibility
   end
+
+  def serialize_parameters
+    {name: @name, data: @data}.tap do |parameters|
+      parameters[:try] = @try if @try
+    end
+  end
 end

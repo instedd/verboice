@@ -24,6 +24,8 @@ module Commands
       dial.next = :next
       session = Session.new :channel => Channels::CustomSip.make
 
+      broker = mock('broker')
+      session.stub(:broker) { broker }
       session.broker.should_receive(:get_dial_address).with(session.channel, '1234').and_return('SIP/1234')
       session.call_log = CallLog.make
       session.pbx = mock('pbx')
@@ -38,6 +40,8 @@ module Commands
       session = Session.new :channel => channel
       dial = DialCommand.new '1234', :channel => channel.name
 
+      broker = mock('broker')
+      session.stub(:broker) { broker }
       session.broker.should_receive(:get_dial_address).with(channel, '1234').and_return('SIP/1234')
       session.call_log = CallLog.make
       session.pbx = mock('pbx')
@@ -49,6 +53,8 @@ module Commands
       dial = DialCommand.new '1234', :caller_id => 'foo'
       session = Session.new :channel => Channels::CustomSip.make
 
+      broker = mock('broker')
+      session.stub(:broker) { broker }
       session.broker.should_receive(:get_dial_address).with(session.channel, '1234').and_return('SIP/1234')
       session.call_log = CallLog.make
       session.pbx = mock('pbx')

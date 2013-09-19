@@ -20,6 +20,10 @@ class Commands::JsCommand < Command
     @source = source
   end
 
+  def serialize_parameters
+    {source: @source}
+  end
+
   def run(session)
     session.trace "Starting JS code excecution.", command: 'js', action: 'start'
     session.eval @source

@@ -42,4 +42,11 @@ class Commands::IfCommand < Command
       @else || super
     end
   end
+
+  def serialize_parameters
+    {:condition => @condition}.tap do |params|
+      params[:then] = @then if @then
+      params[:else] = @else if @else
+    end
+  end
 end

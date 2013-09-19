@@ -7,7 +7,7 @@
 development:
   adapter: mysql2
   encoding: utf8
-  database: verboice_development<%=branch_spec%>
+  database: verboice_development
   pool: 5
   username: root
   password:

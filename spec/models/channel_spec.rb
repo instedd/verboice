@@ -66,7 +66,7 @@ describe Channel do
         BrokerClient.should_receive(:notify_call_queued).with(channel.id).and_raise("Oh no!")
 
         call_log = channel.call 'foo'
-        call_log.state.should == :failed
+        call_log.state.should == :queued
       end
 
       it "call and set direction outgoing" do
@@ -87,7 +87,7 @@ describe Channel do
       it "call with custom flow" do
         BrokerClient.should_receive(:notify_call_queued)
         channel.call 'foo', :flow => Compiler.make { Answer(); Hangup() }
-        queued_call.flow.should == Compiler.make { Answer(); Hangup() }
+        queued_call.flow.should == Compiler.make { Answer(); Hangup() }.to_a
       end
 
       it "call with custom status callback url" do

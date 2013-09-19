@@ -95,11 +95,11 @@ class CallLog < ActiveRecord::Base
   end
 
   CallLogEntry::Levels.each do | severity |
-    class_eval %Q(
+    class_eval <<-EVAL, __FILE__, __LINE__ + 1
       def #{severity}(description, options = {})
         log :#{severity}, description, options
       end
-    )
+    EVAL
   end
 
   def log(level, description, options = {})

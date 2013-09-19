@@ -32,7 +32,7 @@ module Parsers
         mark_as_failed.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
-            c.Assign "current_step", 1
+            c.AssignValue "current_step", 1
             c.AssignValue "current_step_name", "HangUpAndCallBack"
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'HangUpAndCallBack', store: '"Hang up and call back."'
             c.HangupAndCallback

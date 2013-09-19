@@ -26,6 +26,15 @@ class Commands::RecordCommand < Command
     @timeout     = options[:timeout].try(:to_i) || 10
   end
 
+  def serialize_parameters
+    {
+      key: @key,
+      description: @description,
+      stop_keys: @stop_keys,
+      timeout: @timeout
+    }
+  end
+
   def run(session)
     session.info "Record user voice", command: 'record', action: 'start'
     session.pbx.record filename(session), stop_keys, timeout

@@ -18,6 +18,7 @@
 class Channels::Twilio < Channel
   config_accessor :account_sid
   config_accessor :auth_token
+  config_accessor :number
 
   attr_protected :guid
 
@@ -32,6 +33,6 @@ class Channels::Twilio < Channel
   end
 
   def broker
-    Twilio::Broker
+    :twilio_broker
   end
 end

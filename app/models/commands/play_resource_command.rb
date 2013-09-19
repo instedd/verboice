@@ -32,6 +32,12 @@ module Commands
       super
     end
 
+    def serialize_parameters
+      { resource_guid: @resource_guid }.tap do |parameters|
+        parameters[:language] = @language if @language
+      end
+    end
+
     def capture_resource_hash session
       resource = localized_resource(session)
 

@@ -24,6 +24,10 @@ class Commands::PersistVariableCommand < Command
     @expression    = expression
   end
 
+  def serialize_parameters
+    { name: @variable_name, expression: @expression }
+  end
+
   def run session
     value = session["var_#{@variable_name}"] = evaluate_expression(session)
     session.trace "Saving '#{@variable_name}'", command: 'persist_variable', action: 'start'

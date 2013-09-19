@@ -28,7 +28,7 @@ module Parsers
         @options_resource = Resource.new params['options_resource']
         @options = params['options'].deep_clone || []
         @root_index = params['root']
-        @timeout = params['timeout'] || self.class.default_time_out_in_seconds
+        @timeout = params['timeout'].try(:to_i) || self.class.default_time_out_in_seconds
         @number_of_attempts = params['number_of_attempts'] || self.class.default_number_of_attempts
         @invalid_resource = Resource.new params['invalid_resource']
         @default = params['default']
@@ -56,10 +56,10 @@ module Parsers
       def equivalent_flow
         Compiler.parse do |c|
           c.Label @id
-          c.Assign "current_step", @id
+          c.AssignValue "current_step", @id
           c.AssignValue "current_step_name", "#{@name}"
           c.append @explanation_resource.equivalent_flow
-          c.Assign "attempt_number#{@id}", '1'
+          c.AssignValue "attempt_number#{@id}", 1
           c.While "attempt_number#{@id} <= #{@number_of_attempts}" do |c|
             c.Capture({finish_on_key: '', timeout: @timeout}.merge(@options_resource.capture_flow))
             c.Assign "value_#{@id}", 'digits'

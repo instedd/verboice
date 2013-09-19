@@ -92,6 +92,13 @@ class Commands::CallbackCommand < Command
     Fiber.yield
   end
 
+  def serialize_parameters
+    {
+      url: @url, method: @method, params: @params, response_type: @response_type, variables: @variables,
+      external_service_guid: @external_service_guid, async: @async
+    }
+  end
+
   private
 
   def assign_from_js(hash, prefix, value)
@@ -166,5 +173,4 @@ class Commands::CallbackCommand < Command
   def external_service session
     @external_service ||= session.call_flow.project.external_services.find_by_guid(@external_service_guid)
   end
-
 end

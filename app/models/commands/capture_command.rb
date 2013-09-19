@@ -33,6 +33,20 @@ class Commands::CaptureCommand < Command
     @options[:max] = Float::INFINITY if @options[:max] < @options[:min]
   end
 
+  def serialize_parameters
+    {
+      min: @options[:min],
+      max: @options[:max],
+      finish_on_key: @options[:finish_on_key],
+      timeout: @options[:timeout],
+    }.tap do |params|
+      params[:play] = @options[:play] if @options[:play]
+      params[:say] = @options[:say] if @options[:say]
+      params[:resource] = @options[:resource] if @options[:resource]
+      params[:language] = @options[:language] if @options[:language]
+    end
+  end
+
   def run(session)
 
     options = @options.dup

@@ -38,6 +38,8 @@ class Channel < ActiveRecord::Base
 
   serialize :config, Hash
 
+  broker_cached
+
   def config
     self[:config] ||= {}
   end
@@ -74,8 +76,7 @@ class Channel < ActiveRecord::Base
         BrokerClient.notify_call_queued id
       end
     rescue Exception => ex
-      call_log.finish_with_error ex.message
-      queued_call.destroy
+      call_log.warn "Unable to notify the broker about this new call. The call might be delayed"
     end
 
     call_log
@@ -169,10 +170,6 @@ class Channel < ActiveRecord::Base
     queued_call
   end
 
-  def active_calls_count
-    BrokerClient.active_calls_count_for id
-  end
-
   def poll_call
     self.class.transaction do
       queued_call = queued_calls.where('not_before IS NULL OR not_before <= ?', Time.now.utc).order(:created_at).first
@@ -186,7 +183,7 @@ class Channel < ActiveRecord::Base
   end
 
   def broker
-    Asterisk::Broker
+    :asterisk_broker
   end
 
   def notify_broker
@@ -194,15 +191,19 @@ class Channel < ActiveRecord::Base
   end
 
   def call_broker_create_channel
-    BrokerClient.create_channel id, broker.name
+    BrokerClient.create_channel id, broker
   end
 
   def call_broker_update_channel
-    BrokerClient.create_channel id, broker.name
+    BrokerClient.create_channel id, broker
   end
 
   def call_broker_destroy_channel
-    BrokerClient.destroy_channel id, broker.name
+    BrokerClient.destroy_channel id, broker
+  end
+
+  def active_calls
+    BrokerClient.active_calls_by_channel(id)
   end
 
   def kind
