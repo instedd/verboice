@@ -3,7 +3,7 @@
 
 decrypt(Password, Data) ->
   {Key, IV} = generate_key_and_iv(Password),
-  Result = crypto:aes_cbc_256_decrypt(Key, IV, Data),
+  Result = crypto:block_decrypt(aes_cbc256, Key, IV, Data),
   remove_padding(Result).
 
 generate_key_and_iv(Password) ->
@@ -19,7 +19,7 @@ d(Data, PrevD) ->
 
 hash(Data) -> hash(Data, 2048).
 hash(Data, 0) -> Data;
-hash(Data, N) -> hash(crypto:md5(Data), N - 1).
+hash(Data, N) -> hash(crypto:hash(md5, Data), N - 1).
 
 to_binary(X) when is_list(X) -> list_to_binary(X);
 to_binary(X) when is_binary(X) -> X.

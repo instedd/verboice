@@ -5,14 +5,14 @@
 
 start_session_with_call_flow_test() ->
   QueuedCall = #queued_call{call_flow_id = 123},
-  CallFlow = #call_flow{flow = [answer]},
+  CallFlow = #call_flow{broker_flow = [answer]},
   meck:new(call_flow),
   meck:expect(call_flow, find, [123], CallFlow),
 
   Session = queued_call:start_session(QueuedCall),
 
   ?assertEqual(CallFlow, Session#session.call_flow),
-  ?assertEqual(CallFlow#call_flow.flow, Session#session.flow),
+  ?assertEqual(CallFlow#call_flow.broker_flow, Session#session.flow),
 
   meck:unload().
 
