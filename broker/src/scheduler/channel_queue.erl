@@ -114,7 +114,7 @@ do_dispatch(State = #state{current_calls = C, queued_calls = Q, sessions = S}) -
   case queue:out(Q) of
     {empty, _} -> State;
     {{value, Call}, Q2} ->
-      case Call:exists() of
+      case Call#queued_call.id =:= undefined orelse Call:exists() of
         true ->
           case broker:dispatch(State#state.channel, Call) of
             {ok, SessionPid} ->
