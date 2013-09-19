@@ -25,10 +25,10 @@ domain(Channel = #channel{type = <<"Channels::TemplateBasedSip">>}) ->
   end;
 
 domain(#channel{config = Config}) ->
-  proplists:get_value(<<"domain">>, Config).
+  proplists:get_value(<<"domain">>, Config, <<>>).
 
 number(#channel{config = Config}) ->
-  binary_to_list(proplists:get_value(<<"number">>, Config)).
+  binary_to_list(proplists:get_value(<<"number">>, Config, <<>>)).
 
 username(#channel{config = Config}) ->
   binary_to_list(proplists:get_value(<<"username">>, Config)).
