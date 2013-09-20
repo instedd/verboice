@@ -1,0 +1,70 @@
+%script{type: "text/html", id: "impersonate_step_template"}
+  .feditor-sidebar.right.box.w28.iblock.h65
+
+    %div{ko(:if => "is_editing_resource()")}
+      %div{ko(template: "{name: 'resource_editor_template', data: current_editing_resource}")}
+
+    .tableheader
+      %span.left.i48grad-numeral{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
+
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %th Messages
+        %th
+        %tr
+          %td{ko(css: "{ orange: is_instructions_resource_invalid }")}
+            Instructions:
+            %span{ko(css: "{ alert: is_instructions_resource_invalid }")}
+            %span{ko(text: "resource('instructions').display_name()")}
+          %td
+            %button.farrow{ :type => "button", 'data-bind' => 'click: show_instructions_resource' }
+        %tr
+          %td
+            Invalid:
+            %span{ko(text: "resource('invalid').display_name()")}
+          %td
+            %button.farrow{ :type => "button", 'data-bind' => "click: show_invalid_resource" }
+    .content{ko('instedd_init' => true)}
+      %hr
+      %label Attempts
+      %br
+      .ux-nstep.w06
+        %input{ko(value: "timeout"),:type => 'number'}
+        %button{:type => 'button', :class => 'kdown'}
+        %button{:type => 'button', :class => 'kup'}
+      secs. before repeating options
+      %br/
+      .ux-nstep.w06
+        %input{ko(value: "number_of_attempts"),:type => 'number'}
+        %button{:type => 'button', :class => 'kdown'}
+        %button{:type => 'button', :class => 'kup'}
+      attempts
+      %br/
+      %br/
+      After final attempt fails:
+      %select.w10{'data-bind' => 'options: commands(), optionsText: function(item) { return (new window[item]({})).default_name() }, value: default_command_selected, event: { change: change_default_option }'}
+      %hr
+      %label Validation
+      %br/
+
+      Input length from
+      .ux-nstep.w06
+        %input{'type' => 'number', 'size' => 2, 'data-min' => 1, 'data-bind' => 'value: min_input_length'}
+      to
+      .ux-nstep.w06
+        %input{'type' => 'number', 'size' => 2, 'data-min' => 1, 'data-bind' => 'value: max_input_length'}
+      %br/
+
+      %span.validation
+        Finish on key
+      %input.w06{'type' => 'text', 'size' => 1, 'data-bind' => 'value: finish_on_key'}
+      %br/
+
+      %hr
+      %label Lookup variable
+      %select.w22{'data-bind' => 'value: variable, options: available_variables(), css: { error: !variable() }'}
+
+      %hr
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
