@@ -16,7 +16,7 @@ run(Args, Session = #session{js_context = JS, call_log = CallLog, project = #pro
 
     #persisted_variable{contact_id = ContactId} ->
       Contact = contact:find(ContactId),
-      Addresses = [to_string(Address#contact_address.address) || Address <- contact_address:find_all([{contact_id, ContactId}])],
+      Addresses = [util:to_string(Address#contact_address.address) || Address <- contact_address:find_all([{contact_id, ContactId}])],
       CallLog:info(io_lib:format("Impersonating as contact: ~p", [Addresses]), []),
       impersonate(Session, Contact)
   end,
