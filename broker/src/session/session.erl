@@ -293,12 +293,12 @@ flow_result(Result, _) -> Result.
 
 default_language(Session = #session{project = Project}) ->
   Language = case Session#session.queued_call of
-    undefined -> Project#project.default_language;
+    undefined -> Project:default_language();
     #queued_call{variables = VarsYaml} ->
       {ok, [Vars]} = yaml:load(VarsYaml, [{schema, yaml_schema_ruby}]),
       case proplists:get_value(<<"language">>, Vars) of
         undefined -> Project#project.default_language;
-        <<>> -> Project#project.default_language;
+        <<>> -> Project:default_language();
         Lang -> Lang
       end
   end,
