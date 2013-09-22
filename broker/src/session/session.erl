@@ -135,7 +135,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
       };
     Session ->
       CallLog = Session#session.call_log,
-      Session#session{queued_call = QueuedCall}
+      Session#session{queued_call = QueuedCall, address = QueuedCall#queued_call.address}
   end,
 
 
@@ -182,13 +182,6 @@ in_progress({completed, {error, Reason}}, State = #state{session = Session}) ->
 in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session = #session{session_id = SessionId}}) ->
   error_logger:info_msg("Session (~p) suspended", [SessionId]),
   channel_queue:unmonitor_session(Session#session.channel#channel.id, self()),
-  NotBefore = calendar:gregorian_seconds_to_datetime(calendar:datetime_to_gregorian_seconds(calendar:universal_time()) + 2),
-  scheduler:enqueue(#queued_call{
-    not_before = {datetime, NotBefore},
-    session_id = SessionId,
-    channel_id = NewSession#session.channel#channel.id,
-    address = NewSession#session.address
-  }),
   {reply, ok, ready, State#state{pbx_pid = undefined, resume_ptr = Ptr, session = NewSession}}.
 
 notify_status(Status, Session = #session{session_id = SessionId, address = Address, callback_params = CallbackParams}) ->
