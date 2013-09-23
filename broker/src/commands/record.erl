@@ -3,7 +3,7 @@
 -include("session.hrl").
 -include("db.hrl").
 
-run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact}) ->
+run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact, project = Project}) ->
   Key = util:to_string(proplists:get_value(key, Args)),
   Description = proplists:get_value(description, Args),
   StopKeys = proplists:get_value(stop_keys, Args, "01234567890*#"),
@@ -18,6 +18,7 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact}) 
 
   RecordedAudio = #recorded_audio{
     contact_id = Contact#contact.id,
+    project_id = Project#project.id,
     call_log_id = CallLogId,
     key = Key,
     description = Description
