@@ -1,0 +1,12 @@
+= form_for [project, feed], :remote => true do |f|
+  .toptitle
+    %span Name
+  .middle
+    = f.text_field :name, :class => 'w30'
+    %br
+  %hr
+  - if feed.new_record?
+    %button.white{:type => "submit"} Save
+  - else
+    %button.white{:type => "submit"} Update
+  = link_to 'Cancel', '#', :class => "tgrey #{feed.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130918190639) do
+ActiveRecord::Schema.define(:version => 20130923155817) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -180,6 +180,17 @@ ActiveRecord::Schema.define(:version => 20130918190639) do
   add_index "external_services", ["guid"], :name => "index_external_services_on_guid"
   add_index "external_services", ["project_id"], :name => "index_external_services_on_project_id"
 
+  create_table "feeds", :force => true do |t|
+    t.string   "name"
+    t.string   "key"
+    t.integer  "project_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "feeds", ["key"], :name => "index_feeds_on_key"
+  add_index "feeds", ["project_id"], :name => "index_feeds_on_project_id"
+
   create_table "localized_resources", :force => true do |t|
     t.string   "language"
     t.string   "text"
@@ -288,10 +299,12 @@ ActiveRecord::Schema.define(:version => 20130918190639) do
     t.string   "description"
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
+    t.integer  "project_id"
   end
 
   add_index "recorded_audios", ["call_log_id"], :name => "index_recorded_audios_on_call_log_id"
   add_index "recorded_audios", ["contact_id"], :name => "index_recorded_audios_on_contact_id"
+  add_index "recorded_audios", ["project_id", "created_at"], :name => "index_recorded_audios_on_project_id_and_created_at"
 
   create_table "resources", :force => true do |t|
     t.string   "name"

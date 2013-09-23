@@ -15,11 +15,27 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-class RecordedAudio < ActiveRecord::Base
-  belongs_to :contact
-  belongs_to :call_log
-  has_one :project, :through => :contact
+class FeedsController < ApplicationController
+  before_filter :authenticate_account!
+  expose(:project) { current_account.projects.includes(:feeds).find(params[:project_id]) }
+  expose(:feeds) { project.feeds }
+  expose(:feed)
 
-  attr_accessible :call_log, :description, :key
-  validates_presence_of :call_log, :contact, :key, :description
+  def index
+  end
+
+  def create
+    feed.save
+    render :partial => "box_content", :locals => { :feed => feed, :expanded => feed.errors.any?}
+  end
+
+  def update
+    feed.save
+    render :partial => "box_content", :locals => { :feed => feed, :expanded => feed.errors.any?}
+  end
+
+  def destroy
+    feed.destroy
+    redirect_to project_feeds_path(project), :notice => "Feed #{feed.name} successfully deleted."
+  end
 end

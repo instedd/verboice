@@ -30,6 +30,13 @@ Verboice::Application.routes.draw do
 
   devise_for :accounts
 
+  resources :feeds, controller: :feed_server do
+    member do
+      get :recordings
+      get 'recording/:recording_id', action: :get_recording, as: :recording
+    end
+  end
+
   # Register both shallow and deep routes:
   # - Shallow routes allow for easier path helper methods, such as contact_recorded_audios(@contact) instead of project_contact_recorded_audios(@project, @contact)
   # - Deep routes ensure that form_for directives work as expected, so form_for([@project, @contact]) works no matter it is a creation or an update
@@ -76,6 +83,7 @@ Verboice::Application.routes.draw do
         end
       end
 
+      resources :feeds
     end
   end
 

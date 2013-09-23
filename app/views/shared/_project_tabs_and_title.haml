@@ -15,5 +15,7 @@
     = link_to "External Services", project_external_services_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "projects" && params[:action] == 'edit'}" }
     = link_to "Settings", edit_project_path(project)
+  %li{ :class =>"#{"active" if params[:controller] == "feeds"}" }
+    = link_to "Feeds", project_feeds_path(project)
 .tabsline
 %br

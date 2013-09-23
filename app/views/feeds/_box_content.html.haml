@@ -1,0 +1,14 @@
+.box.grey.w60.collapsible_crud_box{:class => ("#{expanded ? 'expanded' : 'collapsed'}")}
+  - if feed.errors.any?
+    .error_explanation
+      %h2= "#{pluralize(feed.errors.count, "error")} prohibited this schedule from being saved:"
+      %ul
+        - feed.errors.full_messages.each do |msg|
+          %li= msg
+  .rightbuttons
+    = link_to '', [project, feed], :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless feed.new_record?
+  .summary
+    = render 'summary', :feed => feed
+  .content
+    = render 'form', :feed => feed
+  .clear
