@@ -1,12 +1,12 @@
 -module(resource).
--export([find_by_guid/1, localized_resource/2, prepare/2, prepare/3, prepare_text_resource/2, prepare_text_resource/3, prepare_blob_resource/3, prepare_url_resource/2]).
+-export([localized_resource/2, prepare/2, prepare/3, prepare_text_resource/2, prepare_text_resource/3, prepare_blob_resource/3, prepare_url_resource/2]).
 -define(CACHE, true).
 -define(TABLE_NAME, "resources").
 -include_lib("erl_dbmodel/include/model.hrl").
 -include("session.hrl").
 
-find_by_guid(Guid) ->
-  find({guid, Guid}).
+find_by_project_and_guid(ProjectId, Guid) ->
+  find([{project_id, ProjectId}, {guid, Guid}]).
 
 localized_resource(Language, #resource{id = Id}) ->
   localized_resource:find([{resource_id, Id}, {language, Language}]).
@@ -14,8 +14,8 @@ localized_resource(Language, #resource{id = Id}) ->
 prepare(Guid, Session) ->
   prepare(Guid, Session, Session:language()).
 
-prepare(Guid, Session, Language) ->
-  Resource = find_by_guid(Guid),
+prepare(Guid, Session = #session{project = #project{id = ProjectId}}, Language) ->
+  Resource = find_by_project_and_guid(ProjectId, Guid),
   case Resource:localized_resource(Language) of
     undefined -> exit(resource_undefined);
     LocalizedResource -> LocalizedResource:prepare(Session)
