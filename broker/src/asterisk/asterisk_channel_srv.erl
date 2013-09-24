@@ -25,7 +25,7 @@ get_channel_status(ChannelIds) ->
 
 %% @private
 init({}) ->
-  agi_events:add_handler(asterisk_call_manager, []),
+  agi_events:add_sup_handler(asterisk_call_manager, []),
   regenerate_config(),
   timer:send_interval(timer:seconds(30), check_status),
   {ok, #state{channels = dict:new(), registry = dict:new()}}.
@@ -91,6 +91,9 @@ handle_cast(_Msg, State) ->
 handle_info(check_status, State = #state{status_job_state = idle}) ->
   asterisk_status_handler:start(State#state.registry),
   {noreply, State#state{status_job_state = working}};
+
+handle_info({gen_event_EXIT, asterisk_call_manager, Reason}, State) ->
+  {stop, Reason, State};
 
 handle_info(_Info, State) ->
   {noreply, State}.
