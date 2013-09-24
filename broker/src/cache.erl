@@ -19,7 +19,11 @@ get(Key) ->
 
 get(Key, Fun) ->
   case cache:get(Key) of
-    undefined -> gen_server:call(?SERVER, {get, Key, Fun});
+    undefined ->
+      case gen_server:call(?SERVER, {get, Key, Fun}) of
+        {error, Type, Ex} -> erlang:Type(Ex);
+        Value -> Value
+      end;
     Value -> Value
   end.
 
@@ -48,17 +52,21 @@ init({}) ->
 handle_call({get, Key, Fun}, _From, State) ->
   Response = case cache:get(Key) of
     undefined ->
-      case Fun() of
-        undefined -> undefined;
-        {RealKey, Value} ->
-          replace(RealKey, Value, expiration()),
-          case RealKey of
-            Key -> ok;
-            _ ->
-              ets:insert(cache, {Key, #link{key = RealKey}}),
-              ets:insert(cache, {RealKey, #ref_link{key = Key}})
-          end,
-          Value
+      try
+        case Fun() of
+          undefined -> undefined;
+          {RealKey, Value} ->
+            replace(RealKey, Value, expiration()),
+            case RealKey of
+              Key -> ok;
+              _ ->
+                ets:insert(cache, {Key, #link{key = RealKey}}),
+                ets:insert(cache, {RealKey, #ref_link{key = Key}})
+            end,
+            Value
+        end
+      catch
+        Type:Ex -> {error, Type, Ex}
       end;
     Value -> Value
   end,
