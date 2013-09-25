@@ -10,8 +10,9 @@ xml.rss version: "2.0" do
         xml.title "#{recorded_audio.id}.wav"
         xml.description "CallId: #{recorded_audio.call_log_id}, Key: #{recorded_audio.key}, Description: #{recorded_audio.description}"
         xml.pubDate recorded_audio.created_at.to_s(:rfc822)
-        xml.link recording_feed_url(feed.key, recorded_audio)
-        xml.guid recording_feed_url(feed.key, recorded_audio)
+        url = recording_feed_url(feed.key, recorded_audio, format: :wav)
+        xml.link url
+        xml.guid url
       end
     end
   end
