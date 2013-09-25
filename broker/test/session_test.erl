@@ -7,8 +7,9 @@
 
 notify_status_on_completed_ok_test() ->
   Project = #project{status_callback_url = <<"http://foo.com">>},
-  Session = #session{session_id = "1", address = <<"123">>, call_log = #call_log{}, project = Project},
-  meck:new(call_log, [stub_all]),
+  Session = #session{address = <<"123">>, call_log = {call_log_srv}, project = Project},
+  meck:new(call_log_srv, [stub_all]),
+  meck:expect(call_log_srv, id, 1, 1),
   meck:new(httpc),
 
   RequestParams = [get, {"http://foo.com/?CallSid=1&CallStatus=completed&From=123", []}, '_', [{full_result, false}]],
@@ -20,8 +21,9 @@ notify_status_on_completed_ok_test() ->
 
 notify_status_on_completed_ok_with_callback_params_test() ->
   Project = #project{status_callback_url = <<"http://foo.com">>},
-  Session = #session{session_id = "1", address = <<"123">>, call_log = #call_log{}, project = Project, callback_params = [{"foo", "1"}]},
-  meck:new(call_log, [stub_all]),
+  Session = #session{address = <<"123">>, call_log = {call_log_srv}, project = Project, callback_params = [{"foo", "1"}]},
+  meck:new(call_log_srv, [stub_all]),
+  meck:expect(call_log_srv, id, 1, 1),
   meck:new(httpc),
 
   RequestParams = [get, {"http://foo.com/?CallSid=1&CallStatus=completed&From=123&foo=1", []}, '_', [{full_result, false}]],

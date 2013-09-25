@@ -4,7 +4,7 @@
 -include("db.hrl").
 -include("uri.hrl").
 
-run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log = CallLog, call_flow = CallFlow, callback_params = CallbackParams}) ->
+run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = CallFlow, callback_params = CallbackParams}) ->
   CallLog:info("Callback started", [{command, "callback"}, {action, "start"}]),
   Url = case proplists:get_value(url, Args) of
     undefined -> CallFlow#call_flow.callback_url;
@@ -16,7 +16,7 @@ run(Args, Session = #session{session_id = SessionId, js_context = JS, call_log =
   Method = proplists:get_value(method, Args, "post"),
   Async = proplists:get_value(async, Args),
 
-  QueryString = prepare_params(Params ++ Variables, [{"CallSid", SessionId} | CallbackParams], JS),
+  QueryString = prepare_params(Params ++ Variables, [{"CallSid", util:to_string(CallLog:id())} | CallbackParams], JS),
   RequestUrl = interpolate(Url, Args, Session),
   Uri = uri:parse(RequestUrl),
 

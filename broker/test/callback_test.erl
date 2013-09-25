@@ -4,11 +4,12 @@
 -include("db.hrl").
 
 make_session() ->
-  #session{session_id = "1", call_log = #call_log{}, project = #project{id = 42}}.
+  meck:new(call_log_srv, [stub_all]),
+  meck:expect(call_log_srv, id, 1, 1),
+  #session{session_id = "1", call_log = {call_log_srv}, project = #project{id = 42}}.
 
 get_to_url_in_param_test() ->
   Session = make_session(),
-  meck:new(call_log, [stub_all]),
   meck:new(httpc),
 
   meck:expect(httpc, request, [get, {"http://foo.com/?CallSid=1", []}, [], []], {ok, {"200 OK", [], "<Response/>"}}),
@@ -18,7 +19,6 @@ get_to_url_in_param_test() ->
 
 post_to_url_in_param_test() ->
   Session = make_session(),
-  meck:new(call_log, [stub_all]),
   meck:new(httpc),
 
   meck:expect(httpc, request, [post, {"http://foo.com/", [], "application/x-www-form-urlencoded", "CallSid=1"}, [], []],
@@ -30,7 +30,6 @@ post_to_url_in_param_test() ->
 
 get_to_url_in_session_test() ->
   Session = (make_session())#session{call_flow = #call_flow{callback_url = <<"http://foo.com">>}},
-  meck:new(call_log, [stub_all]),
   meck:new(httpc),
 
   meck:expect(httpc, request, [get, {"http://foo.com/?CallSid=1", []}, [], []], {ok, {"200 OK", [], "<Response/>"}}),
@@ -40,7 +39,6 @@ get_to_url_in_session_test() ->
 
 get_to_url_with_session_callback_params_test() ->
   Session = (make_session())#session{callback_params = [{"foo", "1"}]},
-  meck:new(call_log, [stub_all]),
   meck:new(httpc),
 
   meck:expect(httpc, request, [get, {"http://foo.com/?CallSid=1&foo=1", []}, [], []], {ok, {"200 OK", [], "<Response/>"}}),
@@ -50,7 +48,6 @@ get_to_url_with_session_callback_params_test() ->
 
 handle_response_with_variables_test() ->
   Session = (make_session())#session{js_context = erjs_context:new()},
-  meck:new(call_log, [stub_all]),
   meck:new(httpc),
 
   meck:expect(httpc, request, 4, {ok, {"200 OK", [], "{\"foo\":1, \"bar\":\"baz\"}"}}),
@@ -63,7 +60,6 @@ handle_response_with_variables_test() ->
 
 callback_without_response_test() ->
   Session = make_session(),
-  meck:new(call_log, [stub_all]),
   meck:new(httpc),
 
   meck:expect(httpc, request, 4, {ok, {"200 OK", [], ""}}),
@@ -73,7 +69,6 @@ callback_without_response_test() ->
 
 include_params_test() ->
   Session = (make_session())#session{js_context = erjs_context:new([{var_foo, 1}])},
-  meck:new(call_log, [stub_all]),
   meck:new(httpc),
 
   meck:expect(httpc, request, [get, {"http://foo.com/?foo=1&CallSid=1", []}, [], []], {ok, {"200 OK", [], "<Response/>"}}),
@@ -84,7 +79,6 @@ include_params_test() ->
 include_object_params_test() ->
   {_, Context} = erjs:eval("var_foo = {}; var_foo['bar'] = 1"),
   Session = (make_session())#session{js_context = Context},
-  meck:new(call_log, [stub_all]),
   meck:new(httpc),
 
   meck:expect(httpc, request, [get, {"http://foo.com/?foo%5Bbar%5D=1&CallSid=1", []}, [], []], {ok, {"200 OK", [], "<Response/>"}}),
@@ -95,7 +89,6 @@ include_object_params_test() ->
 include_nested_object_params_test() ->
   {_, Context} = erjs:eval("var_foo = {}; var_foo['bar'] = {}; var_foo['bar']['baz'] = 2"),
   Session = (make_session())#session{js_context = Context},
-  meck:new(call_log, [stub_all]),
   meck:new(httpc),
 
   meck:expect(httpc, request, [get, {"http://foo.com/?foo%5Bbar%5D%5Bbaz%5D=2&CallSid=1", []}, [], []], {ok, {"200 OK", [], "<Response/>"}}),
@@ -106,7 +99,6 @@ include_nested_object_params_test() ->
 
 async_callback_test() ->
   Session = make_session(),
-  meck:new(call_log, [stub_all]),
   meck:new(delayed_job),
 
   meck:expect(delayed_job, enqueue, 1, ok),

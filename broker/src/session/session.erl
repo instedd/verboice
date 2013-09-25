@@ -184,15 +184,17 @@ in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session 
   channel_queue:unmonitor_session(Session#session.channel#channel.id, self()),
   {reply, ok, ready, State#state{pbx_pid = undefined, resume_ptr = Ptr, session = NewSession}}.
 
-notify_status(Status, Session = #session{session_id = SessionId, address = Address, callback_params = CallbackParams}) ->
+notify_status(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams}) ->
   Project = Session#session.project,
   case Project#project.status_callback_url of
     undefined -> ok;
     <<>> -> ok;
     Url ->
-      Uri = uri:parse(binary_to_list(Url)),
-      QueryString = [{"CallSid", SessionId}, {"CallStatus", Status}, {"From", Address} | CallbackParams],
-      spawn(fun() -> (Uri#uri{query_string = QueryString}):get([{full_result, false}]) end)
+      spawn(fun() ->
+        Uri = uri:parse(binary_to_list(Url)),
+        QueryString = [{"CallSid", util:to_string(CallLog:id())}, {"CallStatus", Status}, {"From", Address} | CallbackParams],
+        (Uri#uri{query_string = QueryString}):get([{full_result, false}])
+      end)
   end.
 
 handle_event(stop, _, State) ->
