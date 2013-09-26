@@ -12,6 +12,9 @@ scan(Flow, Response = #xmlElement{name = 'Response'}) ->
 
 scan(Flow, []) -> Flow;
 
+scan(Flow, [#xmlText{} | Rest]) ->
+  scan(Flow, Rest);
+
 scan(Flow, [#xmlElement{name = 'Play', content = [#xmlText{value = Url}]} | Rest]) ->
   scan(Flow ++ [[play_url, [{url, Url}]]], Rest);
 
@@ -40,7 +43,8 @@ scan(Flow, [Gather = #xmlElement{name = 'Gather'} | Rest]) ->
     lists:foldl(fun(Elem, Opts) ->
       case Elem of
         #xmlElement{name = 'Play', content = [#xmlText{value = Url}]} -> [{play, Url} | Opts];
-        #xmlElement{name = 'Say', content = [#xmlText{value = Text}]} -> [{say, Text} | Opts]
+        #xmlElement{name = 'Say', content = [#xmlText{value = Text}]} -> [{say, Text} | Opts];
+        _ -> Opts
       end
     end, [{min, 1}, {max, infinity}], Gather#xmlElement.content),
 
