@@ -44,7 +44,6 @@ run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = Ca
 
 handle_response(flow, Body, Session) ->
   Commands = twiml:parse(Body),
-  io:format("~p~n", [Commands]),
   {{exec, Commands}, Session};
 
 handle_response(variables, Body, Session) ->

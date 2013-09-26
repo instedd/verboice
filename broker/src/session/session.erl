@@ -106,7 +106,8 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
         call_log = CallLog,
         project = Project,
         address = CallerId,
-        contact = Contact
+        contact = Contact,
+        status_callback_url = Project#project.status_callback_url
       };
     Session -> Session#session{pbx = Pbx}
   end,
@@ -131,7 +132,12 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
         call_log = CallLog,
         queued_call = QueuedCall,
         project = Project,
-        contact = Contact
+        contact = Contact,
+        status_callback_url = case QueuedCall#queued_call.status_callback_url of
+          undefined -> Project#project.status_callback_url;
+          <<>> -> Project#project.status_callback_url;
+          Url -> Url
+        end
       };
     Session ->
       CallLog = Session#session.call_log,
@@ -185,14 +191,14 @@ in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session 
   {reply, ok, ready, State#state{pbx_pid = undefined, resume_ptr = Ptr, session = NewSession}}.
 
 notify_status(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams}) ->
-  Project = Session#session.project,
-  case Project#project.status_callback_url of
+  case Session#session.status_callback_url of
     undefined -> ok;
     <<>> -> ok;
     Url ->
+      CallSid = util:to_string(CallLog:id()),
       spawn(fun() ->
         Uri = uri:parse(binary_to_list(Url)),
-        QueryString = [{"CallSid", util:to_string(CallLog:id())}, {"CallStatus", Status}, {"From", Address} | CallbackParams],
+        QueryString = [{"CallSid", CallSid}, {"CallStatus", Status}, {"From", Address} | CallbackParams],
         (Uri#uri{query_string = QueryString}):get([{full_result, false}])
       end)
   end.
