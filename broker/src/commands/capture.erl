@@ -44,6 +44,12 @@ parepare_localized_resource(Args, Session) ->
 
 prepare_url_resource(Args, Session) ->
   case proplists:get_value(play, Args) of
-    undefined -> throw(unknown_resource);
+    undefined -> prepare_text_resource(Args, Session);
     Url -> resource:prepare_url_resource(Url, Session)
+  end.
+
+prepare_text_resource(Args, Session) ->
+  case proplists:get_value(say, Args) of
+    undefined -> throw(unknown_resource);
+    Text -> resource:prepare_text_resource(list_to_binary(Text), Session)
   end.
