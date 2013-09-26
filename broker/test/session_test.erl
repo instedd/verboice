@@ -6,8 +6,7 @@
 -record(state, {session_id, session, resume_ptr, pbx_pid, flow_pid}).
 
 notify_status_on_completed_ok_test() ->
-  Project = #project{status_callback_url = <<"http://foo.com">>},
-  Session = #session{address = <<"123">>, call_log = {call_log_srv}, project = Project},
+  Session = #session{address = <<"123">>, call_log = {call_log_srv}, status_callback_url = <<"http://foo.com">>},
   meck:new(call_log_srv, [stub_all]),
   meck:expect(call_log_srv, id, 1, 1),
   meck:new(httpc),
@@ -20,8 +19,7 @@ notify_status_on_completed_ok_test() ->
   meck:unload().
 
 notify_status_on_completed_ok_with_callback_params_test() ->
-  Project = #project{status_callback_url = <<"http://foo.com">>},
-  Session = #session{address = <<"123">>, call_log = {call_log_srv}, project = Project, callback_params = [{"foo", "1"}]},
+  Session = #session{address = <<"123">>, call_log = {call_log_srv}, status_callback_url = <<"http://foo.com">>, callback_params = [{"foo", "1"}]},
   meck:new(call_log_srv, [stub_all]),
   meck:expect(call_log_srv, id, 1, 1),
   meck:new(httpc),
