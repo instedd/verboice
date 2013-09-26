@@ -15,11 +15,11 @@ scan(Flow, []) -> Flow;
 scan(Flow, [#xmlText{} | Rest]) ->
   scan(Flow, Rest);
 
-scan(Flow, [#xmlElement{name = 'Play', content = [#xmlText{value = Url}]} | Rest]) ->
-  scan(Flow ++ [[play_url, [{url, Url}]]], Rest);
+scan(Flow, [#xmlElement{name = 'Play', content = Content} | Rest]) ->
+  scan(Flow ++ [[play_url, [{url, inner_text(Content)}]]], Rest);
 
-scan(Flow, [#xmlElement{name = 'Say', content = [#xmlText{value = Text}]} | Rest]) ->
-  scan(Flow ++ [[say, [{text, Text}]]], Rest);
+scan(Flow, [#xmlElement{name = 'Say', content = Content} | Rest]) ->
+  scan(Flow ++ [[say, [{text, inner_text(Content)}]]], Rest);
 
 scan(Flow, [#xmlElement{name = 'Hangup'} | Rest]) ->
   scan(Flow ++ [hangup], Rest);
@@ -31,7 +31,8 @@ scan(Flow, [Pause = #xmlElement{name = 'Pause'} | Rest]) ->
   end,
   scan(Flow ++ [Cmd], Rest);
 
-scan(Flow, [Redirect = #xmlElement{name = 'Redirect', content = [#xmlText{value = Url}]} | Rest]) ->
+scan(Flow, [Redirect = #xmlElement{name = 'Redirect', content = Content} | Rest]) ->
+  Url = inner_text(Content),
   CallbackOpts = case get_attribute(Redirect, method) of
     undefined -> [{url, Url}];
     Method -> [{url, Url}, {method, parse_method(Method)}]
@@ -42,8 +43,8 @@ scan(Flow, [Gather = #xmlElement{name = 'Gather'} | Rest]) ->
   CaptureOpts1 =
     lists:foldl(fun(Elem, Opts) ->
       case Elem of
-        #xmlElement{name = 'Play', content = [#xmlText{value = Url}]} -> [{play, Url} | Opts];
-        #xmlElement{name = 'Say', content = [#xmlText{value = Text}]} -> [{say, Text} | Opts];
+        #xmlElement{name = 'Play', content = Content} -> [{play, inner_text(Content)} | Opts];
+        #xmlElement{name = 'Say', content = Content} -> [{say, inner_text(Content)} | Opts];
         _ -> Opts
       end
     end, [{min, 1}, {max, infinity}], Gather#xmlElement.content),
@@ -80,6 +81,11 @@ get_attribute(#xmlElement{attributes = Attributes}, AttrName) ->
     #xmlAttribute{value = Value} -> Value;
     _ -> undefined
   end.
+
+inner_text(Contents) -> inner_text(Contents, []).
+inner_text([], Acc) -> binary_to_list(iolist_to_binary(lists:reverse(Acc)));
+inner_text([#xmlText{value = Text} | Rest], Acc) -> inner_text(Rest, [Text | Acc]);
+inner_text([_ | Rest], Acc) -> inner_text(Rest, Acc).
 
 parse_method(Str) ->
   case string:to_upper(Str) of

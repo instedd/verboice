@@ -3,7 +3,8 @@
 
 parse_cases() -> [
   {?LINE, "<Response><Play>http://foo</Play></Response>", [[play_url, [{url, "http://foo"}]]]},
-  {?LINE, "<Response><Say>Hello</Say></Response>", [[say, [{text, "Hello"}]]]},
+  {?LINE, "<Response><Play>http://foo?bar&amp;baz</Play></Response>", [[play_url, [{url, "http://foo?bar&baz"}]]]},
+  {?LINE, "<Response><Say>Hello &amp; Bye</Say></Response>", [[say, [{text, "Hello & Bye"}]]]},
   {?LINE, "<Response><Hangup/></Response>", [hangup]},
   {?LINE, "<Response>\n<Hangup/>\n</Response>", [hangup]},
   {?LINE, "<Response><Pause /></Response>", [pause]},
