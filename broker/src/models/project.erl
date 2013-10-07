@@ -1,5 +1,5 @@
 -module(project).
--export([voice/2, tts_engine/1, ispeech_api_key/1, default_language/1]).
+-export([voice/2, tts_engine/1, ispeech_api_key/1, default_language/1, status_callback/1]).
 -define(CACHE, true).
 -define(TABLE_NAME, "projects").
 
@@ -41,3 +41,8 @@ default_language(#project{default_language = undefined, languages = [LangConfig 
   iolist_to_binary(proplists:get_value("language", LangConfig));
 default_language(#project{default_language = undefined}) -> <<"en">>;
 default_language(#project{default_language = Lang}) -> Lang.
+
+status_callback(#project{status_callback_url = Url, encrypted_config = Config}) ->
+  User = proplists:get_value("status_callback_url_user", Config),
+  Pass = proplists:get_value("status_callback_url_password", Config),
+  {Url, User, Pass}.

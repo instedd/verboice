@@ -96,6 +96,7 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
       }),
       Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
       Flow = CallFlow#call_flow.broker_flow,
+      {StatusUrl, StatusUser, StatusPass} = project:status_callback(Project),
 
       #session{
         session_id = SessionId,
@@ -107,10 +108,13 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
         project = Project,
         address = CallerId,
         contact = Contact,
-        status_callback_url = Project#project.status_callback_url
+        status_callback_url = StatusUrl,
+        status_callback_user = StatusUser,
+        status_callback_password = StatusPass
       };
     Session -> Session#session{pbx = Pbx}
   end,
+  notify_status('in-progress', NewSession),
   spawn_run(NewSession, State#state.resume_ptr),
 
   {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), session = NewSession}}.
@@ -125,6 +129,12 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
       Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, QueuedCall#queued_call.call_log_id),
       Session = QueuedCall:start_session(),
 
+      {StatusUrl, StatusUser, StatusPass} = case QueuedCall#queued_call.status_callback_url of
+        undefined -> project:status_callback(Project);
+        <<>> -> project:status_callback(Project);
+        Url -> {Url, undefined, undefined}
+      end,
+
       Session#session{
         session_id = SessionId,
         channel = Channel,
@@ -133,11 +143,9 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
         queued_call = QueuedCall,
         project = Project,
         contact = Contact,
-        status_callback_url = case QueuedCall#queued_call.status_callback_url of
-          undefined -> Project#project.status_callback_url;
-          <<>> -> Project#project.status_callback_url;
-          Url -> Url
-        end
+        status_callback_url = StatusUrl,
+        status_callback_user = StatusUser,
+        status_callback_password = StatusPass
       };
     Session ->
       CallLog = Session#session.call_log,
@@ -199,7 +207,13 @@ notify_status(Status, Session = #session{call_log = CallLog, address = Address, 
       spawn(fun() ->
         Uri = uri:parse(binary_to_list(Url)),
         QueryString = [{"CallSid", CallSid}, {"CallStatus", Status}, {"From", Address} | CallbackParams],
-        (Uri#uri{query_string = QueryString}):get([{full_result, false}])
+        AuthOptions = case Session#session.status_callback_user of
+          undefined -> [];
+          [] -> [];
+          <<>> -> [];
+          User -> [{basic_auth, {User, Session#session.status_callback_password}}]
+        end,
+        (Uri#uri{query_string = QueryString}):get([{full_result, false} | AuthOptions])
       end)
   end.
 
