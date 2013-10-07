@@ -28,7 +28,10 @@ domain(#channel{config = Config}) ->
   proplists:get_value(<<"domain">>, Config, <<>>).
 
 number(#channel{config = Config}) ->
-  binary_to_list(proplists:get_value(<<"number">>, Config, <<>>)).
+  case proplists:get_value(<<"number">>, Config, <<>>) of
+    Bin when is_binary(Bin) -> binary_to_list(Bin);
+    Int when is_integer(Int) -> integer_to_list(Int)
+  end.
 
 username(#channel{config = Config}) ->
   binary_to_list(proplists:get_value(<<"username">>, Config)).
