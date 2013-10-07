@@ -52,7 +52,7 @@ httpc_options(Options) -> httpc_options(Options, [], [], []).
 httpc_options([], Headers, HTTPOptions, Options) -> {Headers, HTTPOptions, Options};
 httpc_options([{basic_auth, {User, Password}} | T], Headers, HTTPOptions, Options) ->
   BasicAuthHeader = {"Authorization", "Basic " ++ base64:encode_to_string(iolist_to_binary([User, $:, Password]))},
-  httpc_options(T, [BasicAuthHeader, Headers], HTTPOptions, Options);
+  httpc_options(T, [BasicAuthHeader | Headers], HTTPOptions, Options);
 httpc_options([Unknown | T], Headers, HTTPOptions, Options) ->
   httpc_options(T, Headers, HTTPOptions, [Unknown | Options]).
 
