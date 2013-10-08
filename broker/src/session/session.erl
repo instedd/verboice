@@ -125,27 +125,14 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
   NewSession = case State#state.session of
     undefined ->
       CallLog = call_log_srv:new(SessionId, call_log:find(QueuedCall#queued_call.call_log_id)),
-      Project = project:find(QueuedCall#queued_call.project_id),
       Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, QueuedCall#queued_call.call_log_id),
       Session = QueuedCall:start_session(),
-
-      {StatusUrl, StatusUser, StatusPass} = case QueuedCall#queued_call.status_callback_url of
-        undefined -> project:status_callback(Project);
-        <<>> -> project:status_callback(Project);
-        Url -> {Url, undefined, undefined}
-      end,
 
       Session#session{
         session_id = SessionId,
         channel = Channel,
-        address = QueuedCall#queued_call.address,
         call_log = CallLog,
-        queued_call = QueuedCall,
-        project = Project,
-        contact = Contact,
-        status_callback_url = StatusUrl,
-        status_callback_user = StatusUser,
-        status_callback_password = StatusPass
+        contact = Contact
       };
     Session ->
       CallLog = Session#session.call_log,
@@ -280,11 +267,9 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
 
 spawn_run(Session, undefined) ->
   JsContext = default_variables(Session),
-  CallbackParams = callback_params(Session),
   RunSession = Session#session{
     js_context = JsContext,
-    default_language = default_language(Session),
-    callback_params = CallbackParams
+    default_language = default_language(Session)
   },
   spawn_run(RunSession, 1);
 
@@ -345,11 +330,6 @@ default_variables(Context, ProjectVars, [Var | Rest]) ->
   end,
   VarValue = binary_to_list(Var#persisted_variable.value),
   default_variables(erjs_context:set(VarName, VarValue, Context), ProjectVars, Rest).
-
-callback_params(#session{queued_call = #queued_call{callback_params = CallbackParamsYaml}}) when is_binary(CallbackParamsYaml) ->
-  {ok, [CallbackParams]} = yaml:load(CallbackParamsYaml, [{schema, yaml_schema_ruby}]),
-  CallbackParams;
-callback_params(_) -> [].
 
 run(Session = #session{flow = Flow}, Ptr) when Ptr > length(Flow) -> end_flow(Session);
 run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
