@@ -1,0 +1,22 @@
+#!/usr/bin/env escript
+%% -*- erlang -*-
+
+main([File, SectionName, SettingName, NewValue]) ->
+  Section = list_to_atom(SectionName),
+  Setting = list_to_atom(SettingName),
+  {ok, [Config]} = file:consult(File),
+  NewConfig = [
+    {SectionKey, case SectionKey of
+      Section -> [
+        {SettingKey, case SettingKey of
+          Setting -> NewValue;
+          _ -> SettingValue
+        end}
+      || {SettingKey, SettingValue} <- SectionValue];
+      _ -> SectionValue
+    end}
+  || {SectionKey, SectionValue} <- Config],
+
+  NewConfigData = io_lib:format("~p.~n", [NewConfig]),
+  file:write_file(File, NewConfigData),
+  ok.
