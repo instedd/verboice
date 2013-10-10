@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+require "yaml"
+
+filename = ARGV.shift
+config = YAML.load_file filename
+
+section = config
+section = section[ARGV.shift] while ARGV.length > 2
+
+section[ARGV[0]] = ARGV[1]
+File.write filename, config.to_yaml
