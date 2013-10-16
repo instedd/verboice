@@ -23,6 +23,17 @@ start_link() ->
 %% Supervisor callbacks
 %% ===================================================================
 
+-ifndef(TEST).
+pbx_supervisors() -> [
+  ?CHILD(asterisk_sup, supervisor),
+  ?CHILD(twilio_sup, supervisor)
+].
+-else.
+pbx_supervisors() -> [].
+-endif.
+
+
+
 init([]) ->
   {ok, DbName} = application:get_env(db_name),
   {ok, DbUser} = application:get_env(db_user),
@@ -34,10 +45,9 @@ init([]) ->
     ?CHILD(tz_server, worker),
     ?CHILD(cache, worker),
     ?CHILD(call_log_entry_srv, worker),
-    ?CHILD(asterisk_sup, supervisor),
-    ?CHILD(twilio_sup, supervisor),
     ?CHILD(session_sup, supervisor),
     ?CHILD(scheduler_sup, supervisor)
+    | pbx_supervisors()
   ]} }.
 
 log(_Module, _Line, debug, _FormatFun) -> ok;
