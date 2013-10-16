@@ -2,14 +2,15 @@
 -include_lib("eunit/include/eunit.hrl").
 
 -define(setup(F), {setup, fun test_app:start/0, fun test_app:stop/1, F}).
--define(test(F), fun() -> test_app:run_test_in_transaction(F) end).
+-define(test(F), {atom_to_list(F), fun() -> test_app:run_test_in_transaction(fun F/0) end}).
 -include("db.hrl").
 
 session_test_() ->
   ?setup([
-    ?test(fun run_simple_flow/0),
-    ?test(fun run_queued_call/0),
-    ?test(fun play_resource_with_default_language/0)
+    ?test(run_simple_flow),
+    ?test(run_queued_call),
+    ?test(play_resource_with_default_language),
+    ?test(run_concurrent_calls)
   ]).
 
 run_simple_flow() ->
@@ -66,3 +67,16 @@ play_resource_with_default_language() ->
   ?assertEqual(normal, integration_test:wait_process(SessionPid)),
   ?assertEqual(ok, Pbx:validate()).
 
+run_concurrent_calls() ->
+  mock_broker:start(),
+
+  Project = project:make(),
+  Flow = call_flow:make([{project_id, Project}, {broker_flow, flow:serialize([answer, hangup])}]),
+  Channel = channel:make([{call_flow_id, Flow}, {config, yaml:dump([{"limit", "2"}], [{schema, yaml_schema_ruby}])}]),
+  QueuedCall1 = queued_call:make([{project_id, Project}, {channel_id, Channel}, {call_flow_id, Flow}, {address, <<"123">>}]),
+  QueuedCall2 = queued_call:make([{project_id, Project}, {channel_id, Channel}, {call_flow_id, Flow}, {address, <<"124">>}]),
+  scheduler:load(),
+
+  mock_broker:wait_dispatch(QueuedCall1#queued_call.id),
+  mock_broker:wait_dispatch(QueuedCall2#queued_call.id),
+  ok.

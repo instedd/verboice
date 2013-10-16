@@ -13,6 +13,8 @@ start() ->
 wait_dispatch(QueuedCallId) ->
   Session = receive
     S = #session{queued_call = #queued_call{id = QueuedCallId}} -> S
+  after 1000 ->
+    throw(timeout)
   end,
   session:find(Session#session.session_id).
 

@@ -23,8 +23,8 @@ destroy_channel(_Id) ->
   asterisk_channel_srv:regenerate_config().
 
 dial_address(#channel{type = <<"Channels::Custom">>, config = Config}, Address) ->
-  DialString = proplists:get_value(<<"dial_string">>, Config),
-  util:interpolate(DialString, fun(Key) ->
+  DialString = proplists:get_value("dial_string", Config),
+  util:interpolate(list_to_binary(DialString), fun(Key) ->
     case Key of
       <<"number">> -> Address;
       _ -> <<>>

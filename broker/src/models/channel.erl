@@ -5,7 +5,7 @@
 -define(TABLE_NAME, "channels").
 
 -define(MAP(Channel),
-  {ok, [Config]} = yaml:load(Channel#channel.config),
+  {ok, [Config]} = yaml:load(Channel#channel.config, [{schema, yaml_schema_ruby}]),
   Channel#channel{config = Config}
 ).
 
@@ -18,40 +18,37 @@ find_all_twilio() ->
   find_all({type, "Channels::Twilio"}).
 
 domain(Channel = #channel{type = <<"Channels::TemplateBasedSip">>}) ->
-  case proplists:get_value(<<"kind">>, Channel#channel.config) of
+  case proplists:get_value("kind", Channel#channel.config) of
     % TODO: Load template domains from yaml file
-    <<"Callcentric">> -> "callcentric.com";
-    <<"Skype">> -> "sip.skype.com"
+    "Callcentric" -> "callcentric.com";
+    "Skype" -> "sip.skype.com"
   end;
 
 domain(#channel{config = Config}) ->
-  proplists:get_value(<<"domain">>, Config, <<>>).
+  proplists:get_value("domain", Config, <<>>).
 
 number(#channel{config = Config}) ->
-  case proplists:get_value(<<"number">>, Config, <<>>) of
-    Bin when is_binary(Bin) -> binary_to_list(Bin);
-    Int when is_integer(Int) -> integer_to_list(Int)
-  end.
+  util:to_string(proplists:get_value("number", Config, <<>>)).
 
 username(#channel{config = Config}) ->
-  binary_to_list(proplists:get_value(<<"username">>, Config)).
+  proplists:get_value("username", Config).
 
 password(#channel{config = Config}) ->
-  binary_to_list(proplists:get_value(<<"password">>, Config)).
+  proplists:get_value("password", Config).
 
 account_sid(#channel{config = Config}) ->
-  binary_to_list(proplists:get_value(<<"account_sid">>, Config)).
+  proplists:get_value("account_sid", Config).
 
 auth_token(#channel{config = Config}) ->
-  binary_to_list(proplists:get_value(<<"auth_token">>, Config)).
+  proplists:get_value("auth_token", Config).
 
 is_outbound(#channel{type = <<"Channels::TemplateBasedSip">>}) ->
   true;
 
 is_outbound(#channel{config = Config}) ->
-  case proplists:get_value(<<"direction">>, Config) of
-    <<"outbound">> -> true;
-    <<"both">> -> true;
+  case proplists:get_value("direction", Config) of
+    "outbound" -> true;
+    "both" -> true;
     _ -> false
   end.
 
@@ -59,14 +56,19 @@ register(#channel{type = <<"Channels::TemplateBasedSip">>}) ->
   true;
 
 register(#channel{config = Config}) ->
-  case proplists:get_value(<<"register">>, Config) of
-    <<"true">> -> true;
-    <<"1">> -> true;
+  case proplists:get_value("register", Config) of
+    "true" -> true;
+    "1" -> true;
     _ -> false
   end.
 
-limit(_) ->
-  1.
+limit(#channel{config = Config}) ->
+  case proplists:get_value("limit", Config) of
+    [] -> 1;
+    List when is_list(List) -> list_to_integer(List);
+    Int when is_integer(Int) -> Int;
+    _ -> 1
+  end.
 
 broker(#channel{type = <<"Channels::Twilio">>}) -> twilio_broker;
 broker(_) -> asterisk_broker.
