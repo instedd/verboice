@@ -7,8 +7,7 @@
                   kernel,
                   stdlib,
                   inets,
-                  lager,
-                  ernie_server
+                  lager
                  ]},
   {mod, { verboice_app, []}},
   {env, []}

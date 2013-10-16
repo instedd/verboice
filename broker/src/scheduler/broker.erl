@@ -5,7 +5,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
--record(state, {real_broker, ready_channels}).
+-record(state, {real_broker, real_broker_state, ready_channels}).
 
 -include("session.hrl").
 -include("db.hrl").
@@ -18,8 +18,8 @@ behaviour_info(_) -> undefined.
 
 %% @private
 init(RealBroker) ->
-  RealBroker:init(),
-  {ok, #state{real_broker = RealBroker, ready_channels = sets:new()}}.
+  RealBrokerState = RealBroker:init(),
+  {ok, #state{real_broker = RealBroker, real_broker_state = RealBrokerState, ready_channels = sets:new()}}.
 
 dispatch(Channel, QueuedCall) ->
   Broker = channel:broker(Channel),
@@ -60,8 +60,9 @@ handle_call(_Request, _From, State) ->
 %   channel_queue:dispatch(Queue),
 %   {noreply, State#state{ready_channels = sets:add_element(Queue, ReadyChannels)}};
 
-handle_cast(_Msg, State) ->
-  {noreply, State}.
+handle_cast(Msg, State = #state{real_broker = RealBroker, real_broker_state = RealBrokerState}) ->
+  NewState = RealBroker:handle_cast(Msg, RealBrokerState),
+  {noreply, State#state{real_broker_state = NewState}}.
 
 %% @private
 handle_info(_Info, State) ->

@@ -115,9 +115,9 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
     Session -> Session#session{pbx = Pbx}
   end,
   notify_status('in-progress', NewSession),
-  spawn_run(NewSession, State#state.resume_ptr),
+  FlowPid = spawn_run(NewSession, State#state.resume_ptr),
 
-  {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), session = NewSession}}.
+  {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), flow_pid = FlowPid, session = NewSession}}.
 
 ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id = SessionId}) ->
   error_logger:info_msg("Session (~p) dial", [SessionId]),
@@ -158,9 +158,9 @@ dialing({answer, Pbx}, State = #state{session_id = SessionId, session = Session,
   monitor(process, Pbx:pid()),
   NewSession = Session#session{pbx = Pbx},
   notify_status('in-progress', NewSession),
-  spawn_run(NewSession, Ptr),
+  FlowPid = spawn_run(NewSession, Ptr),
 
-  {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), session = NewSession}};
+  {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), flow_pid = FlowPid, session = NewSession}};
 
 dialing({reject, Reason}, State = #state{session = Session = #session{session_id = SessionId, call_log = CallLog}}) ->
   error_logger:info_msg("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
@@ -183,7 +183,7 @@ in_progress({completed, {error, Reason}}, State = #state{session = Session}) ->
 in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session = #session{session_id = SessionId}}) ->
   error_logger:info_msg("Session (~p) suspended", [SessionId]),
   channel_queue:unmonitor_session(Session#session.channel#channel.id, self()),
-  {reply, ok, ready, State#state{pbx_pid = undefined, resume_ptr = Ptr, session = NewSession}}.
+  {reply, ok, ready, State#state{pbx_pid = undefined, flow_pid = undefined, resume_ptr = Ptr, session = NewSession}}.
 
 notify_status(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams}) ->
   case Session#session.status_callback_url of
@@ -226,6 +226,9 @@ handle_sync_event(_Event, _From, StateName, State) ->
 handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{pbx_pid = Pid}) ->
   {stop, Reason, State};
 
+handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{flow_pid = Pid}) ->
+  {stop, Reason, State};
+
 handle_info(_Info, StateName, State) ->
   {next_state, StateName, State}.
 
@@ -263,14 +266,11 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
       end
   end,
   CallLog:update([{state, NewState}, {fail_reason, Reason}, {finished_at, calendar:universal_time()}]),
-  {stop, normal, State}.
+  {stop, Reason, State}.
 
 spawn_run(Session, undefined) ->
   JsContext = default_variables(Session),
-  RunSession = Session#session{
-    js_context = JsContext,
-    default_language = default_language(Session)
-  },
+  RunSession = Session#session{js_context = JsContext},
   spawn_run(RunSession, 1);
 
 spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
@@ -291,33 +291,34 @@ flow_result(ok, "failed") -> {error, "marked as failed"};
 flow_result({error, _}, "successful") -> ok;
 flow_result(Result, _) -> Result.
 
-default_language(Session = #session{project = Project}) ->
-  Language = case Session#session.queued_call of
-    undefined -> Project:default_language();
-    #queued_call{variables = VarsYaml} ->
-      {ok, [Vars]} = yaml:load(VarsYaml, [{schema, yaml_schema_ruby}]),
-      case proplists:get_value(<<"language">>, Vars) of
-        undefined -> Project#project.default_language;
-        <<>> -> Project:default_language();
-        Lang -> Lang
-      end
-  end,
-  binary_to_list(Language).
-
 get_contact(ProjectId, undefined, CallLogId) ->
   Address = "Anonymous" ++ integer_to_list(CallLogId),
   contact:create_anonymous(ProjectId, Address);
 get_contact(ProjectId, Address, _) ->
   contact:find_or_create_with_address(ProjectId, Address).
 
-default_variables(#session{contact = Contact, project = #project{id = ProjectId}, call_log = CallLog}) ->
+default_variables(#session{contact = Contact, queued_call = QueuedCall, project = #project{id = ProjectId}, call_log = CallLog}) ->
   Context = erjs_context:new([{record_url, fun(Key) ->
     {ok, BaseUrl} = application:get_env(base_url),
     BaseUrl ++ "/calls/" ++ util:to_string(CallLog:id()) ++ "/results/" ++ util:to_string(Key)
   end}]),
   ProjectVars = project_variable:names_for_project(ProjectId),
   Variables = persisted_variable:find_all({contact_id, Contact#contact.id}),
-  default_variables(Context, ProjectVars, Variables).
+  DefaultContext = default_variables(Context, ProjectVars, Variables),
+  initialize_context(DefaultContext, QueuedCall).
+
+initialize_context(Context, #queued_call{variables = Vars}) ->
+  lists:foldl(fun({Name, Value}, C) ->
+    case Value of
+      undefined -> C;
+      [] -> C;
+      <<>> -> C;
+      _ ->
+        VarName = binary_to_atom(iolist_to_binary(["var_", Name]), utf8),
+        erjs_context:set(VarName, Value, C)
+    end
+  end, Context, Vars);
+initialize_context(Context, _) -> Context.
 
 default_variables(Context, _ProjectVars, []) -> Context;
 default_variables(Context, ProjectVars, [#persisted_variable{value = undefined} | Rest]) ->
@@ -359,7 +360,7 @@ run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
       CallLog:error(["Error ", io_lib:format("~p:~p", [Class, Error])], []),
       error_logger:error_msg("Error during session ~p: ~p:~p~n~p~n",
         [Session#session.session_id, Class, Error, erlang:get_stacktrace()]),
-      {{error, error}, Session}
+      {{error, {Class, Error}}, Session}
   end.
 
 end_flow(Session = #session{stack = []}) -> {ok, Session};

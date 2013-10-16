@@ -5,16 +5,10 @@
 -define(MAP(QueuedCall), load_queued_call(QueuedCall)).
 -include_lib("erl_dbmodel/include/model.hrl").
 
-load_queued_call(QueuedCall = #queued_call{flow = CompFlow, callback_params = CallbackParamsYaml}) ->
-  CallbackParams = load_callback_params(CallbackParamsYaml),
-  QueuedCall#queued_call{flow = flow:deserialize(CompFlow), callback_params = CallbackParams}.
-
-load_callback_params(CallbackParamsYaml) when is_binary(CallbackParamsYaml) ->
-  case yaml:load(CallbackParamsYaml, [{schema, yaml_schema_ruby}]) of
-    {ok, [CallbackParams]} -> CallbackParams;
-    _ -> []
-  end;
-load_callback_params(_) -> [].
+load_queued_call(QueuedCall = #queued_call{flow = CompFlow}) ->
+  CallbackParams = util:safe_load_yaml(QueuedCall#queued_call.callback_params),
+  Variables = util:safe_load_yaml(QueuedCall#queued_call.variables),
+  QueuedCall#queued_call{flow = flow:deserialize(CompFlow), callback_params = CallbackParams, variables = Variables}.
 
 reschedule(#queued_call{schedule_id = undefined}) -> no_schedule;
 reschedule(QueuedCall = #queued_call{schedule_id = ScheduleId}) ->
