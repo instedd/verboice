@@ -268,9 +268,9 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
   CallLog:update([{state, NewState}, {fail_reason, io_lib:format("~p", [Reason])}, {finished_at, calendar:universal_time()}]),
   {stop, Reason, State}.
 
-spawn_run(Session, undefined) ->
+spawn_run(Session = #session{project = Project}, undefined) ->
   JsContext = default_variables(Session),
-  RunSession = Session#session{js_context = JsContext},
+  RunSession = Session#session{js_context = JsContext, default_language = project:default_language(Project)},
   spawn_run(RunSession, 1);
 
 spawn_run(Session = #session{pbx = Pbx}, Ptr) ->

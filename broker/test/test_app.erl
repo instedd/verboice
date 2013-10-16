@@ -1,4 +1,4 @@
--module(integration_test).
+-module(test_app).
 -export([start/0, stop/1, run_test_in_transaction/1, wait_process/1]).
 
 start() ->
