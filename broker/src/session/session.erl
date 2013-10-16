@@ -265,7 +265,7 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
           "queued"
       end
   end,
-  CallLog:update([{state, NewState}, {fail_reason, Reason}, {finished_at, calendar:universal_time()}]),
+  CallLog:update([{state, NewState}, {fail_reason, io_lib:format("~p", [Reason])}, {finished_at, calendar:universal_time()}]),
   {stop, Reason, State}.
 
 spawn_run(Session, undefined) ->
