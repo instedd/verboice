@@ -24,7 +24,7 @@ run_simple_flow() ->
 
   session:answer(SessionPid, Pbx, Channel:id(), <<"1234">>),
 
-  ?assertEqual(normal, integration_test:wait_process(SessionPid)),
+  ?assertEqual(normal, test_app:wait_process(SessionPid)),
   ?assertEqual(ok, Pbx:validate()).
 
 run_queued_call() ->
@@ -44,7 +44,7 @@ run_queued_call() ->
   ]),
   session:answer(SessionPid, Pbx),
 
-  ?assertEqual(normal, integration_test:wait_process(SessionPid)),
+  ?assertEqual(normal, test_app:wait_process(SessionPid)),
   ?assertEqual(ok, Pbx:validate()),
 
   meck:unload().
@@ -64,7 +64,7 @@ play_resource_with_default_language() ->
 
   session:answer(SessionPid, Pbx, Channel:id(), <<"1234">>),
 
-  ?assertEqual(normal, integration_test:wait_process(SessionPid)),
+  ?assertEqual(normal, test_app:wait_process(SessionPid)),
   ?assertEqual(ok, Pbx:validate()).
 
 run_concurrent_calls() ->
