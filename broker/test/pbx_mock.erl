@@ -33,6 +33,7 @@ validate({pbx_mock, Pid}) ->
 
 invoke(Pid, Method, Args) ->
   case gen_server:call(Pid, {invoke, Method, Args}) of
+    {ok, Fun} when is_function(Fun) -> Fun();
     {ok, Result} -> Result;
     {error, Error} -> erlang:error(Error)
   end.

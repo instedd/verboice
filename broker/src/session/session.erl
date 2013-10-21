@@ -176,9 +176,9 @@ in_progress({completed, ok}, State = #state{session = Session}) ->
   notify_status(completed, Session),
   finalize(completed, State);
 
-in_progress({completed, {error, Reason}}, State = #state{session = Session}) ->
+in_progress({completed, Failure}, State = #state{session = Session}) ->
   notify_status(failed, Session),
-  finalize({failed, Reason}, State).
+  finalize({failed, Failure}, State).
 
 in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session = #session{session_id = SessionId}}) ->
   error_logger:info_msg("Session (~p) suspended", [SessionId]),
@@ -266,7 +266,11 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
       end
   end,
   CallLog:update([{state, NewState}, {fail_reason, io_lib:format("~p", [Reason])}, {finished_at, calendar:universal_time()}]),
-  {stop, Reason, State}.
+  StopReason = case Reason of
+    {error, Error} -> Error;
+    _ -> normal
+  end,
+  {stop, StopReason, State}.
 
 spawn_run(Session = #session{project = Project}, undefined) ->
   JsContext = default_variables(Session),
@@ -355,7 +359,7 @@ run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
   catch
     hangup ->
       CallLog:info("The user hang up", []),
-      {{error, hangup}, Session};
+      {hangup, Session};
     Class:Error ->
       CallLog:error(["Error ", io_lib:format("~p:~p", [Class, Error])], []),
       error_logger:error_msg("Error during session ~p: ~p:~p~n~p~n",

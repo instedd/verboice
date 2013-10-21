@@ -10,7 +10,9 @@ session_test_() ->
     ?test(run_simple_flow),
     ?test(run_queued_call),
     ?test(play_resource_with_default_language),
-    ?test(run_concurrent_calls)
+    ?test(run_concurrent_calls),
+    ?test(unanswered_call),
+    ?test(unexpected_error)
   ]).
 
 run_simple_flow() ->
@@ -79,4 +81,34 @@ run_concurrent_calls() ->
 
   mock_broker:wait_dispatch(QueuedCall1#queued_call.id),
   mock_broker:wait_dispatch(QueuedCall2#queued_call.id),
+  meck:unload(),
   ok.
+
+unanswered_call() ->
+  mock_broker:start(),
+
+  Project = project:make(),
+  Flow = call_flow:make([{project_id, Project}, {broker_flow, flow:serialize([answer, hangup])}]),
+  Channel = channel:make([{call_flow_id, Flow}]),
+  QueuedCall = queued_call:make([{project_id, Project}, {channel_id, Channel}, {call_flow_id, Flow}, {address, <<"123">>}]),
+  scheduler:load(),
+
+  SessionPid = mock_broker:wait_dispatch(QueuedCall#queued_call.id),
+  session:reject(SessionPid, no_answer),
+
+  ?assertEqual(normal, test_app:wait_process(SessionPid)),
+
+  meck:unload().
+
+unexpected_error() ->
+  Flow = call_flow:make([{broker_flow, flow:serialize([answer, hangup])}]),
+  Channel = channel:make([{call_flow_id, Flow}]),
+  {ok, SessionPid} = session:new(),
+  Pbx = pbx_mock:new([
+    {answer, [], fun() -> throw(unexpected_error) end}
+  ]),
+
+  session:answer(SessionPid, Pbx, Channel:id(), <<"1234">>),
+
+  ?assertEqual({throw, unexpected_error}, test_app:wait_process(SessionPid)),
+  ?assertEqual(ok, Pbx:validate()).
