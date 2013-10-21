@@ -89,8 +89,10 @@ handle_cast(_Msg, State) ->
 
 %% @private
 handle_info(check_status, State = #state{status_job_state = idle}) ->
-  asterisk_status_handler:start(State#state.registry),
-  {noreply, State#state{status_job_state = working}};
+  case asterisk_status_handler:start(State#state.registry) of
+    ok -> {noreply, State#state{status_job_state = working}};
+    _ -> {noreply, State#state{channel_status = undefined}}
+  end;
 
 handle_info({gen_event_EXIT, asterisk_call_manager, Reason}, State) ->
   {stop, Reason, State};

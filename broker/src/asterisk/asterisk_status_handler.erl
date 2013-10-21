@@ -9,8 +9,10 @@ start(RegistryIndex) ->
 
 %% @private
 init(RegistryIndex) ->
-  ami_client:sip_show_registry(),
-  {ok, #state{registry = RegistryIndex, status = dict:new()}}.
+  case ami_client:sip_show_registry() of
+    {error, Reason} -> {error, Reason};
+    _ -> {ok, #state{registry = RegistryIndex, status = dict:new()}}
+  end.
 
 handle_event({registryentry, Packet}, State = #state{registry = Registry, status = Status}) ->
   Event = ami_client:decode_packet(Packet),
