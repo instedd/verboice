@@ -2,13 +2,12 @@
 -export([reschedule/1, start_session/1]).
 -define(TABLE_NAME, "queued_calls").
 -include("session.hrl").
--define(MAP(QueuedCall), load_queued_call(QueuedCall)).
+-define(MAP, [
+  {flow, flow_serializer},
+  {callback_params, yaml_serializer},
+  {variables, yaml_serializer}
+]).
 -include_lib("erl_dbmodel/include/model.hrl").
-
-load_queued_call(QueuedCall = #queued_call{flow = CompFlow}) ->
-  CallbackParams = util:safe_load_yaml(QueuedCall#queued_call.callback_params),
-  Variables = util:safe_load_yaml(QueuedCall#queued_call.variables),
-  QueuedCall#queued_call{flow = flow:deserialize(CompFlow), callback_params = CallbackParams, variables = Variables}.
 
 reschedule(#queued_call{schedule_id = undefined}) -> no_schedule;
 reschedule(QueuedCall = #queued_call{schedule_id = ScheduleId}) ->
@@ -26,9 +25,9 @@ reschedule(Q = #queued_call{retries = Retries, time_zone = TimeZone}, S) ->
 
 start_session(QueuedCall = #queued_call{call_flow_id = CallFlowId}) when is_number(CallFlowId) ->
   CallFlow = call_flow:find(CallFlowId),
-  start_session(#session{flow = CallFlow#call_flow.broker_flow, call_flow = CallFlow}, QueuedCall);
+  start_session(#session{flow = call_flow:flow(CallFlow), call_flow = CallFlow}, QueuedCall);
 start_session(QueuedCall = #queued_call{callback_url = CallbackUrl}) when is_binary(CallbackUrl) ->
-  start_session(#session{flow = [answer, [callback, [{url, binary_to_list(CallbackUrl)}]]]}, QueuedCall);
+  start_session(#session{flow = flow:callback_flow(CallbackUrl)}, QueuedCall);
 start_session(QueuedCall = #queued_call{flow = Flow}) ->
   start_session(#session{flow = Flow}, QueuedCall).
 

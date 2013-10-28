@@ -1,6 +1,5 @@
 -module(util).
--export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1,
-  normalize_phone_number/1, interpolate/2, safe_load_yaml/1]).
+-export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1, interpolate/2]).
 
 md5hex(Data) ->
   Hash = crypto:hash(md5, Data),
@@ -53,10 +52,3 @@ interpolate(Text, Fun, Output) ->
           interpolate(T2, Fun, <<Output/binary, H1/binary, Value/binary>>)
       end
   end.
-
-safe_load_yaml(Yaml) when is_binary(Yaml) ->
-  case yaml:load(Yaml, [{schema, yaml_schema_ruby}]) of
-    {ok, [Doc]} -> Doc;
-    _ -> []
-  end;
-safe_load_yaml(_) -> [].

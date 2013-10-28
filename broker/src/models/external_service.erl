@@ -2,10 +2,7 @@
 -export([global_variable_value_for/2]).
 -define(CACHE, true).
 -define(TABLE_NAME, "external_services").
--define(MAP(Svc),
-  {ok, [GlobalSettings]} = yaml:load(Svc#external_service.global_settings, [{schema, yaml_schema_ruby}]),
-  Svc#external_service{global_settings = GlobalSettings}
-).
+-define(MAP, [{global_settings, yaml_serializer}]).
 -include_lib("erl_dbmodel/include/model.hrl").
 
 global_variable_value_for(Name, #external_service{global_settings = GlobalSettings}) ->

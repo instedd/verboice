@@ -95,7 +95,7 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
         call_flow_id = CallFlow#call_flow.id
       }),
       Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
-      Flow = CallFlow#call_flow.broker_flow,
+      Flow = call_flow:flow(CallFlow),
       {StatusUrl, StatusUser, StatusPass} = project:status_callback(Project),
 
       #session{

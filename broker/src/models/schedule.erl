@@ -1,14 +1,11 @@
 -module(schedule).
--export([next_available_time/2]).
+-export([next_available_time/2, load/2]).
 -define(CACHE, true).
 -define(TABLE_NAME, "schedules").
-
--define(MAP(Schedule),
-  Schedule#schedule{
-    weekdays = parse_weekdays(Schedule#schedule.weekdays),
-    retries = parse_retries(Schedule#schedule.retries)
-  }).
-
+-define(MAP, [
+  {weekdays, {schedule, weekdays}},
+  {retries, {schedule, retries}}
+]).
 -include_lib("erl_dbmodel/include/model.hrl").
 
 next_available_time(Seconds, Schedule) when is_integer(Seconds) ->
@@ -50,6 +47,9 @@ next_weekday(AvailableDays, WDay) ->
 next_weekday([First|_], [], _) -> First;
 next_weekday(_, [D | _], WDay) when D >= WDay-> D;
 next_weekday(AvailableDays, [_ | Rest], WDay) -> next_weekday(AvailableDays, Rest, WDay).
+
+load(Weekdays, {schedule, weekdays}) -> parse_weekdays(Weekdays);
+load(Retries, {schedule, retries}) -> parse_retries(Retries).
 
 parse_weekdays(undefined) -> undefined;
 parse_weekdays(<<>>) -> undefined;

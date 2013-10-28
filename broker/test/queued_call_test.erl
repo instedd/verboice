@@ -6,7 +6,7 @@
 start_session_with_call_flow_test() ->
   QueuedCall = #queued_call{call_flow_id = 123, project_id = project_id},
   CallFlow = #call_flow{broker_flow = [answer]},
-  meck:new(call_flow),
+  meck:new(call_flow, [passthrough]),
   meck:expect(call_flow, find, [123], CallFlow),
   meck:new(project),
   meck:expect(project, find, [project_id], #project{}),

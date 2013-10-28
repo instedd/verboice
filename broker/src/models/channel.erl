@@ -3,12 +3,7 @@
 -export([account_sid/1, auth_token/1]).
 -define(CACHE, true).
 -define(TABLE_NAME, "channels").
-
--define(MAP(Channel),
-  {ok, [Config]} = yaml:load(Channel#channel.config, [{schema, yaml_schema_ruby}]),
-  Channel#channel{config = Config}
-).
-
+-define(MAP, [{config, yaml_serializer}]).
 -include_lib("erl_dbmodel/include/model.hrl").
 
 find_all_sip() ->

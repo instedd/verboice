@@ -16,7 +16,7 @@ session_test_() ->
   ]).
 
 run_simple_flow() ->
-  Flow = call_flow:make([{broker_flow, flow:serialize([answer, hangup])}]),
+  Flow = call_flow:make([{broker_flow, [answer, hangup]}]),
   Channel = channel:make([{call_flow_id, Flow}]),
   {ok, SessionPid} = session:new(),
   Pbx = pbx_mock:new([
@@ -33,7 +33,7 @@ run_queued_call() ->
   mock_broker:start(),
 
   Project = project:make(),
-  Flow = call_flow:make([{project_id, Project}, {broker_flow, flow:serialize([answer, hangup])}]),
+  Flow = call_flow:make([{project_id, Project}, {broker_flow, [answer, hangup]}]),
   Channel = channel:make([{call_flow_id, Flow}]),
   QueuedCall = queued_call:make([{project_id, Project}, {channel_id, Channel}, {call_flow_id, Flow}, {address, <<"123">>}]),
   scheduler:load(),
@@ -55,7 +55,7 @@ play_resource_with_default_language() ->
   Project = project:make(),
   Resource = resource:make([{project_id, Project}]),
   localized_resource:make(text, [{resource_id, Resource}, {text, "hello"}]),
-  Flow = call_flow:make([{project_id, Project}, {broker_flow, flow:serialize([answer, [play_resource, [{resource_guid, Resource#resource.guid}]]])}]),
+  Flow = call_flow:make([{project_id, Project}, {broker_flow, [answer, [play_resource, [{resource_guid, Resource#resource.guid}]]]}]),
   Channel = channel:make([{call_flow_id, Flow}]),
   {ok, SessionPid} = session:new(),
   Pbx = pbx_mock:new([
@@ -73,8 +73,8 @@ run_concurrent_calls() ->
   mock_broker:start(),
 
   Project = project:make(),
-  Flow = call_flow:make([{project_id, Project}, {broker_flow, flow:serialize([answer, hangup])}]),
-  Channel = channel:make([{call_flow_id, Flow}, {config, yaml:dump([{"limit", "2"}], [{schema, yaml_schema_ruby}])}]),
+  Flow = call_flow:make([{project_id, Project}, {broker_flow, [answer, hangup]}]),
+  Channel = channel:make([{call_flow_id, Flow}, {config, [{"limit", "2"}]}]),
   QueuedCall1 = queued_call:make([{project_id, Project}, {channel_id, Channel}, {call_flow_id, Flow}, {address, <<"123">>}]),
   QueuedCall2 = queued_call:make([{project_id, Project}, {channel_id, Channel}, {call_flow_id, Flow}, {address, <<"124">>}]),
   scheduler:load(),
@@ -88,7 +88,7 @@ unanswered_call() ->
   mock_broker:start(),
 
   Project = project:make(),
-  Flow = call_flow:make([{project_id, Project}, {broker_flow, flow:serialize([answer, hangup])}]),
+  Flow = call_flow:make([{project_id, Project}, {broker_flow, [answer, hangup]}]),
   Channel = channel:make([{call_flow_id, Flow}]),
   QueuedCall = queued_call:make([{project_id, Project}, {channel_id, Channel}, {call_flow_id, Flow}, {address, <<"123">>}]),
   scheduler:load(),
@@ -101,7 +101,7 @@ unanswered_call() ->
   meck:unload().
 
 unexpected_error() ->
-  Flow = call_flow:make([{broker_flow, flow:serialize([answer, hangup])}]),
+  Flow = call_flow:make([{broker_flow, [answer, hangup]}]),
   Channel = channel:make([{call_flow_id, Flow}]),
   {ok, SessionPid} = session:new(),
   Pbx = pbx_mock:new([

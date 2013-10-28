@@ -12,12 +12,12 @@ make(project, _) -> [
 
 make(channel, _) -> [
   {name, fun make_ref/0 },
-  {config, <<"--- \n...\n">>}
+  {config, []}
 ];
 
 make(queued_call, _) -> [
   {call_log_id, call_log},
-  {variables, <<"--- \n...\n">>}
+  {variables, []}
 ];
 
 make(call_log, _) -> [

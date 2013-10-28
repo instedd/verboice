@@ -1,19 +1,14 @@
 -module(call_flow).
+-export([flow/1]).
 -define(CACHE, true).
 -define(TABLE_NAME, "call_flows").
--define(MAP(CallFlow), load_flow(CallFlow)).
+-define(MAP, [
+  {broker_flow, flow_serializer},
+  {encrypted_config, encrypted_config_serializer}
+]).
 -include_lib("erl_dbmodel/include/model.hrl").
 
-load_flow(CallFlow = #call_flow{callback_url = CallbackUrl, broker_flow = CompFlow}) ->
-  NewFlow = case CallbackUrl of
-    undefined -> flow:deserialize(CompFlow);
-    _ -> [answer, [callback, [{url, binary_to_list(CallbackUrl)}]]]
-  end,
-  Config = case CallFlow#call_flow.encrypted_config of
-    undefined -> [];
-    CryptConfig ->
-      {ok, Secret} = application:get_env(verboice, crypt_secret),
-      [PlainConfig] = marshal:decode(aes:decrypt(Secret, base64:decode(CryptConfig))),
-      PlainConfig
-  end,
-  CallFlow#call_flow{broker_flow = NewFlow, encrypted_config = Config}.
+flow(#call_flow{callback_url = undefined, broker_flow = Flow}) ->
+  Flow;
+flow(#call_flow{callback_url = CallbackUrl}) ->
+  flow:callback_flow(CallbackUrl).

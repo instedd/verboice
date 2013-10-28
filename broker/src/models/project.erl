@@ -2,23 +2,10 @@
 -export([voice/2, tts_engine/1, ispeech_api_key/1, default_language/1, status_callback/1]).
 -define(CACHE, true).
 -define(TABLE_NAME, "projects").
-
--define(MAP(Project),
-  Languages = case Project#project.languages of
-    undefined -> [];
-    LanguagesYaml ->
-      {ok, [X]} = yaml:load(LanguagesYaml, [{schema, yaml_schema_ruby}]), X
-  end,
-  Config = case Project#project.encrypted_config of
-    undefined -> [];
-    CryptConfig ->
-      {ok, Secret} = application:get_env(verboice, crypt_secret),
-      [PlainConfig] = marshal:decode(aes:decrypt(Secret, base64:decode(CryptConfig))),
-      PlainConfig
-  end,
-  Project#project{languages = Languages, encrypted_config = Config}
-).
-
+-define(MAP, [
+  {languages, yaml_serializer},
+  {encrypted_config, encrypted_config_serializer}
+]).
 -include_lib("erl_dbmodel/include/model.hrl").
 
 voice(Lang, #project{languages = Languages}) ->
