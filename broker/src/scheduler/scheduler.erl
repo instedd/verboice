@@ -45,10 +45,7 @@ handle_cast(load, State = #state{last_id = LastId}) ->
   {noreply, NewState};
 
 handle_cast({enqueue, Call}, State = #state{waiting_calls = WaitingCalls}) ->
-  {datetime, NotBefore} = Call#queued_call.not_before,
-  WaitingCalls2 = ordsets:add_element({NotBefore, Call}, WaitingCalls) ,
-
-  {noreply, State#state{waiting_calls = WaitingCalls2}};
+  {noreply, State#state{waiting_calls = enqueue(Call, WaitingCalls)}};
 
 handle_cast(_Msg, State) ->
   {noreply, State}.
@@ -75,10 +72,13 @@ process_call(Call, State = #state{last_id = LastId, waiting_calls = WaitingCalls
       channel_queue:enqueue(Call),
       WaitingCalls;
     false ->
-      {datetime, NotBefore} = Call#queued_call.not_before,
-      ordsets:add_element({NotBefore, Call}, WaitingCalls)
+      enqueue(Call, WaitingCalls)
   end,
   State#state{last_id = max(Call#queued_call.call_log_id, LastId), waiting_calls = NewWaitingCalls}.
+
+enqueue(Call, WaitingCalls) ->
+  {datetime, NotBefore} = Call#queued_call.not_before,
+  ordsets:add_element({NotBefore, Call}, WaitingCalls).
 
 dispatch([]) -> [];
 dispatch(Queue = [{_, Call} | Rest]) ->

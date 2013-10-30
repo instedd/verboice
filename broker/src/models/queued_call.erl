@@ -21,7 +21,9 @@ reschedule(Q = #queued_call{retries = Retries, time_zone = TimeZone}, S) ->
   TimeZoneOffset = tz_server:get_timezone_offset(TimeZone),
   NextRetry = calendar:datetime_to_gregorian_seconds(calendar:universal_time()) + NextRetryOffset + TimeZoneOffset,
   RetryTime = calendar:gregorian_seconds_to_datetime(S:next_available_time(NextRetry) - TimeZoneOffset),
-  queued_call:create(Q#queued_call{not_before = RetryTime, retries = Retries + 1}).
+  QueuedCall = queued_call:create(Q#queued_call{not_before = {datetime, RetryTime}, retries = Retries + 1}),
+  scheduler:enqueue(QueuedCall),
+  QueuedCall.
 
 start_session(QueuedCall = #queued_call{call_flow_id = CallFlowId}) when is_number(CallFlowId) ->
   CallFlow = call_flow:find(CallFlowId),
