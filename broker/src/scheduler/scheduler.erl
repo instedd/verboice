@@ -38,25 +38,11 @@ handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast(load, State = #state{last_id = LastId, waiting_calls = WaitingCalls}) ->
-  LoadedCalls = queued_call:find_all([{id, '>', LastId}], [{order_by, not_before}]),
-  NewLastId = case LoadedCalls of
-    [] -> LastId;
-    _ -> (lists:max(LoadedCalls))#queued_call.id
-  end,
+handle_cast(load, State = #state{last_id = LastId}) ->
+  LoadedCalls = queued_call:find_all([{call_log_id, '>', LastId}], [{order_by, not_before}]),
+  NewState = lists:foldl(fun process_call/2, State, LoadedCalls),
 
-  WaitingCalls2 = lists:foldl(fun(Call, Queue) ->
-    case should_trigger(Call) of
-      true ->
-        channel_queue:enqueue(Call),
-        Queue;
-      false ->
-        {datetime, NotBefore} = Call#queued_call.not_before,
-        ordsets:add_element({NotBefore, Call}, Queue)
-    end
-  end, WaitingCalls, LoadedCalls),
-
-  {noreply, State#state{last_id = NewLastId, waiting_calls = WaitingCalls2}};
+  {noreply, NewState};
 
 handle_cast({enqueue, Call}, State = #state{waiting_calls = WaitingCalls}) ->
   {datetime, NotBefore} = Call#queued_call.not_before,
@@ -82,6 +68,17 @@ terminate(_Reason, _State) ->
 %% @private
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
+
+process_call(Call, State = #state{last_id = LastId, waiting_calls = WaitingCalls}) ->
+  NewWaitingCalls = case should_trigger(Call) of
+    true ->
+      channel_queue:enqueue(Call),
+      WaitingCalls;
+    false ->
+      {datetime, NotBefore} = Call#queued_call.not_before,
+      ordsets:add_element({NotBefore, Call}, WaitingCalls)
+  end,
+  State#state{last_id = max(Call#queued_call.call_log_id, LastId), waiting_calls = NewWaitingCalls}.
 
 dispatch([]) -> [];
 dispatch(Queue = [{_, Call} | Rest]) ->
