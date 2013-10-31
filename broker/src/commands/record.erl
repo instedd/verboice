@@ -29,4 +29,5 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact, p
   {next, Session}.
 
 filename(CallLogId, Key) ->
-  filename:join(["../data/call_logs/", util:to_string(CallLogId), "results", Key ++ ".wav"]).
+  {ok, RecordDir} = application:get_env(record_dir),
+  filename:join([RecordDir, util:to_string(CallLogId), "results", Key ++ ".wav"]).
