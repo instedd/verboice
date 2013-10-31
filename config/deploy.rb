@@ -43,14 +43,13 @@ namespace :deploy do
 
   task :prepare_broker, :roles => :app do
     run "test -f #{shared_path}/verboice.config || cp #{release_path}/broker/verboice.config #{shared_path}"
-    run "ln -nfs #{shared_path}/verboice.config #{release_path}/broker/verboice.config"
-
     run "test -d #{shared_path}/log/broker || mkdir #{shared_path}/log/broker"
-    run "ln -nfs #{shared_path}/log/broker #{release_path}/broker/log"
   end
 
   task :compile_broker, :roles => :app do
-    run "cd #{release_path}/broker && make deps"
+    run "make -C #{release_path}/broker deps release"
+    run "ln -nfs #{shared_path}/verboice.config #{release_path}/broker/rel/verboice/etc/app.config"
+    run "ln -nfs #{shared_path}/log/broker #{release_path}/broker/rel/verboice/log"
   end
 
   task :symlink_configs, :roles => :app do
@@ -68,7 +67,7 @@ namespace :foreman do
   desc 'Export the Procfile to Ubuntu upstart scripts'
   task :export, :roles => :app do
     run "echo -e \"PATH=$PATH\\nGEM_HOME=$GEM_HOME\\nGEM_PATH=$GEM_PATH\\nRAILS_ENV=production\" >  #{current_path}/.env"
-    run "cd #{current_path} && rvmsudo bundle exec foreman export upstart /etc/init -f #{current_path}/Procfile -a #{application} -u #{user} --concurrency=\"broker=1,delayed=1\""
+    run "cd #{current_path} && rvmsudo bundle exec foreman export upstart /etc/init -f #{current_path}/Procfile.deploy -a #{application} -u #{user}"
   end
 
   desc "Start the application services"

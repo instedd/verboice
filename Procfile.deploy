@@ -1,0 +1,2 @@
+broker: broker/rel/verboice/bin/verboice foreground
+delayed: bundle exec rake jobs:work
