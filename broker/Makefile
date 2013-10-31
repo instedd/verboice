@@ -44,3 +44,6 @@ dialyzer: compile .apps.plt .deps.plt
 
 .deps.plt: deps/*/ebin/*.beam
 	@dialyzer --build_plt --output_plt $@ deps/*/ebin
+
+release:
+	./rebar generate skip_deps=true
