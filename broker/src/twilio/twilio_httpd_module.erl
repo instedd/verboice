@@ -51,8 +51,8 @@ find_channel(AccountSid, Number) ->
 
 find_channel([], _, _) -> undefined;
 find_channel([Channel = #channel{config = Config} | Rest], AccountSid, Number) ->
-  ChannelAccountSid = proplists:get_value(<<"account_sid">>, Config),
-  ChannelNumber = util:normalize_phone_number(proplists:get_value(<<"number">>, Config)),
+  ChannelAccountSid = proplists:get_value("account_sid", Config),
+  ChannelNumber = util:normalize_phone_number(proplists:get_value("number", Config)),
   if
     (AccountSid == ChannelAccountSid) and (Number == ChannelNumber) ->
       Channel;
