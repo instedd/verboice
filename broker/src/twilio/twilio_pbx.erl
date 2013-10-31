@@ -55,11 +55,15 @@ sound_path_for(Name, ?PBX(_)) ->
 dial(_, _, _, _) -> exit(unimplemented).
 
 resume(Params, ?PBX) ->
-  gen_server:call(Pid, {resume, Params}).
+  try
+    gen_server:call(Pid, {resume, Params})
+  catch
+    exit:{timeout, _} -> terminate(?PBX)
+  end.
 
 %% @private
 init(CallbackUrl) ->
-  {ok, #state{callback_url = CallbackUrl}}.
+  {ok, #state{callback_url = CallbackUrl}, 1000}.
 
 %% @private
 handle_call({resume, _Params}, From, State = #state{session = undefined}) ->
@@ -99,6 +103,9 @@ handle_cast(_Msg, State) ->
   {noreply, State}.
 
 %% @private
+handle_info(timeout, State) ->
+  {stop, timeout, State};
+
 handle_info(_Info, State) ->
   {noreply, State}.
 

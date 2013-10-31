@@ -15,7 +15,7 @@ do(#mod{absolute_uri = AbsoluteUri, request_uri = RequestUri, method = "POST", e
       Pbx = twilio_pbx:new(CallSid, CallbackUrl),
       case proplists:get_value("VerboiceSid", QSParams) of
         undefined ->
-          AccountSid = list_to_binary(proplists:get_value("AccountSid", Params)),
+          AccountSid = proplists:get_value("AccountSid", Params),
           Number = util:normalize_phone_number(proplists:get_value("To", Params)),
           CallerId = util:normalize_phone_number(proplists:get_value("From", Params)),
           Channel = find_channel(AccountSid, Number),
