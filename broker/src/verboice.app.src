@@ -7,6 +7,7 @@
                   kernel,
                   stdlib,
                   inets,
+                  ssl,
                   lager
                  ]},
   {mod, { verboice_app, []}},

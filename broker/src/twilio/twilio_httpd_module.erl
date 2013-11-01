@@ -4,15 +4,14 @@
 -include_lib("inets/include/httpd.hrl").
 -include("db.hrl").
 
-do(#mod{absolute_uri = AbsoluteUri, request_uri = RequestUri, method = "POST", entity_body = Body}) ->
+do(#mod{request_uri = RequestUri, method = "POST", entity_body = Body}) ->
   Params = uri:parse_qs(Body),
   QSParams = uri:parse_qs(RequestUri),
   CallSid = proplists:get_value("CallSid", Params),
 
   ResponseBody = case twilio_pbx:find(CallSid) of
     undefined ->
-      CallbackUrl = "http://" ++ AbsoluteUri,
-      Pbx = twilio_pbx:new(CallSid, CallbackUrl),
+      Pbx = twilio_pbx:new(CallSid),
       case proplists:get_value("VerboiceSid", QSParams) of
         undefined ->
           AccountSid = proplists:get_value("AccountSid", Params),

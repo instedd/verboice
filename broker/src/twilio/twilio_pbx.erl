@@ -2,7 +2,7 @@
 -export([pid/1, answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2, dial/4]).
 -behaviour(pbx).
 
--export([start_link/2, find/1, new/2, resume/2]).
+-export([start_link/1, find/1, new/1, resume/2]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -13,8 +13,8 @@
 
 -record(state, {callback_url, awaiter, session, commands = [], waiting}).
 
-start_link(CallSid, CallbackUrl) ->
-  gen_server:start_link({global, {twilio_pbx, CallSid}}, ?MODULE, CallbackUrl, []).
+start_link(CallSid) ->
+  gen_server:start_link({global, {twilio_pbx, CallSid}}, ?MODULE, {}, []).
 
 find(CallSid) ->
   case global:whereis_name({twilio_pbx, CallSid}) of
@@ -22,8 +22,8 @@ find(CallSid) ->
     Pid -> {?MODULE, Pid}
   end.
 
-new(CallSid, CallbackUrl) ->
-  {ok, Pid} = twilio_pbx_sup:start_session(CallSid, CallbackUrl),
+new(CallSid) ->
+  {ok, Pid} = twilio_pbx_sup:start_session(CallSid),
   {?MODULE, Pid}.
 
 pid(?PBX) -> Pid.
@@ -62,7 +62,8 @@ resume(Params, ?PBX) ->
   end.
 
 %% @private
-init(CallbackUrl) ->
+init({}) ->
+  {ok, CallbackUrl} = application:get_env(twilio_callback_url),
   {ok, #state{callback_url = CallbackUrl}, 1000}.
 
 %% @private

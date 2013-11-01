@@ -43,9 +43,18 @@ get(UriOptions, Uri = #uri{}) ->
   httpc:request(get, {Uri:format(), Headers}, HTTPOptions, Options).
 
 post_form(Form, UriOptions, Uri = #uri{}) ->
+  post_form_impl(Form, UriOptions, Uri:format());
+
+post_form(Form, UriOptions, Uri) when is_list(Uri) ->
+  post_form(Form, UriOptions, iolist_to_binary(Uri));
+
+post_form(Form, UriOptions, Uri) when is_binary(Uri) ->
+  post_form_impl(Form, UriOptions, binary_to_list(Uri)).
+
+post_form_impl(Form, UriOptions, Uri) ->
   {Headers, HTTPOptions, Options} = httpc_options(UriOptions),
   Body = format_qs(Form),
-  httpc:request(post, {Uri:format(), Headers, "application/x-www-form-urlencoded", Body}, HTTPOptions, Options).
+  httpc:request(post, {Uri, Headers, "application/x-www-form-urlencoded", Body}, HTTPOptions, Options).
 
 httpc_options(Options) -> httpc_options(Options, [], [], []).
 

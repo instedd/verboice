@@ -3,6 +3,7 @@
 
 -behaviour(broker).
 -include("session.hrl").
+-include("uri.hrl").
 
 start_link() ->
   broker:start_link(?MODULE).
@@ -18,15 +19,17 @@ dispatch(_Session = #session{session_id = SessionId, channel = Channel, address 
   io:format("Channel ~p~n", [Channel]),
   AccountSid = channel:account_sid(Channel),
   AuthToken = channel:auth_token(Channel),
-  RequestUrl = "https://api.twilio.com/2010-04-01/Accounts/" ++ AccountSid ++ "/Calls",
-  Headers = [{"Authorization", "Basic " ++ base64:encode_to_string(lists:append([AccountSid,":",AuthToken]))}],
-  QueryString = uri:format_qs([
-    {"From", util:normalize_phone_number(channel:number(Channel))},
-    {"To", util:normalize_phone_number(Address)},
-    {"Url", "http://manas.no-ip.biz:8080?VerboiceSid=" ++ http_uri:encode(SessionId)}
-  ]),
+  {ok, CallbackUrl} = application:get_env(twilio_callback_url),
+  CallbackUri = uri:parse(CallbackUrl),
 
-  Response = httpc:request(post, {RequestUrl, Headers, "application/x-www-form-urlencoded", QueryString}, [], []),
+  RequestUrl = ["https://api.twilio.com/2010-04-01/Accounts/", AccountSid, "/Calls"],
+  RequestBody = [
+    {'From', util:normalize_phone_number(channel:number(Channel))},
+    {'To', util:normalize_phone_number(Address)},
+    {'Url', uri:format(CallbackUri#uri{query_string = [{'VerboiceSid', SessionId}]})}
+  ],
+
+  Response = uri:post_form(RequestBody, [{basic_auth, {AccountSid, AuthToken}}], RequestUrl),
   io:format("Response: ~p~n", [Response]),
   case Response of
     {ok, {{_, 201, _}, _, _}} -> ok;
