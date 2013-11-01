@@ -43,13 +43,14 @@ namespace :deploy do
 
   task :prepare_broker, :roles => :app do
     run "test -f #{shared_path}/verboice.config || cp #{release_path}/broker/verboice.config #{shared_path}"
+    run "ln -nfs #{shared_path}/verboice.config #{release_path}/broker/verboice.config"
+
     run "test -d #{shared_path}/log/broker || mkdir #{shared_path}/log/broker"
+    run "ln -nfs #{shared_path}/log/broker #{release_path}/broker/log"
   end
 
   task :compile_broker, :roles => :app do
-    run "make -C #{release_path}/broker deps release"
-    run "ln -nfs #{shared_path}/verboice.config #{release_path}/broker/rel/verboice/etc/app.config"
-    run "ln -nfs #{shared_path}/log/broker #{release_path}/broker/rel/verboice/log"
+    run "make -C #{release_path}/broker"
   end
 
   task :symlink_configs, :roles => :app do

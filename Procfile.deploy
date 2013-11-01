@@ -1,2 +1,2 @@
-broker: broker/rel/verboice/bin/verboice foreground
+broker: make -C broker run-prod
 delayed: bundle exec rake jobs:work

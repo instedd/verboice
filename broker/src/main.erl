@@ -2,8 +2,5 @@
 -export([start/0]).
 
 start() ->
-  lager:start(),
-  inets:start(),
-  ssl:start(),
-  application:start(ernie_server),
-  application:start(verboice).
+  application:ensure_all_started(verboice, permanent),
+  application:ensure_all_started(ernie_server, permanent).
