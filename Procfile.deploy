@@ -1,2 +1,0 @@
-broker: make -C broker run-prod
-delayed: bundle exec rake jobs:work

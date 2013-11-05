@@ -39,7 +39,11 @@ eunit:
 	./rebar eunit skip_deps=true
 
 run:
-	$(APP_CMD) -s reloader
+	@if [ "$(RAILS_ENV)" = "production" ]; then \
+		$(APP_CMD) -noinput +Bd; \
+	else \
+		$(APP_CMD) -s reloader; \
+	fi
 
 run-prod:
 	$(APP_CMD) -noinput +Bd

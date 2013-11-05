@@ -68,7 +68,7 @@ namespace :foreman do
   desc 'Export the Procfile to Ubuntu upstart scripts'
   task :export, :roles => :app do
     run "echo -e \"PATH=$PATH\\nGEM_HOME=$GEM_HOME\\nGEM_PATH=$GEM_PATH\\nRAILS_ENV=production\" >  #{current_path}/.env"
-    run "cd #{current_path} && rvmsudo bundle exec foreman export upstart /etc/init -f #{current_path}/Procfile.deploy -a #{application} -u #{user}"
+    run "cd #{current_path} && rvmsudo bundle exec foreman export upstart /etc/init -f #{current_path}/Procfile -a #{application} -u #{user} --concurrency=\"broker=1,delayed=1\""
   end
 
   desc "Start the application services"
