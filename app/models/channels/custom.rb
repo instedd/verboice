@@ -16,12 +16,7 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Channels::Custom < Channel
-
   config_accessor :dial_string
-
-  def asterisk_address_string_for broker, address
-    broker.custom_address_string_for self, address
-  end
 
   def self.can_handle? a_kind
     a_kind == 'custom'

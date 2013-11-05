@@ -54,17 +54,6 @@ class Channel < ActiveRecord::Base
     super
   end
 
-  def new_session(options = {})
-    session = Session.new options
-    session.call_flow ||= call_flow
-    session.channel = self
-    unless session.call_log
-      session.call_log = call_logs.create! :direction => :incoming, :call_flow => session.call_flow, :account => account, :project => session.call_flow.project, :started_at => Time.now.utc
-    end
-    session.commands = session.call_flow.commands.dup
-    session
-  end
-
   def call(address, options = {})
     queued_call = enqueue_call_to address, options
     call_log = queued_call.call_log
@@ -170,24 +159,12 @@ class Channel < ActiveRecord::Base
     queued_call
   end
 
-  def poll_call
-    self.class.transaction do
-      queued_call = queued_calls.where('not_before IS NULL OR not_before <= ?', Time.now.utc).order(:created_at).first
-      queued_call.destroy if queued_call
-      queued_call
-    end
-  end
-
   def has_limit?
     limit.present?
   end
 
   def broker
     :asterisk_broker
-  end
-
-  def notify_broker
-    broker.instance.notify_call_queued self
   end
 
   def call_broker_create_channel

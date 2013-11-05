@@ -23,11 +23,4 @@ class Commands::JsCommand < Command
   def serialize_parameters
     {source: @source}
   end
-
-  def run(session)
-    session.trace "Starting JS code excecution.", command: 'js', action: 'start'
-    session.eval @source
-    session.trace "JS code excecution ended.", command: 'js', action: 'finish'
-    super
-  end
 end

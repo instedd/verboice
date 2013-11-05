@@ -15,10 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-require_dependency 'pbx_unavailable_exception'
-
 class BrokerClient
-  @client = BERTRPC::Service.new('127.0.0.1', BrokerFacade::PORT)
+  PORT = Rails.configuration.verboice_configuration[:broker_port].to_i
+  @client = BERTRPC::Service.new('127.0.0.1', PORT)
 
   def self.invalidate_cache(entity, id)
     @client.cast.facade.invalidate_cache(entity, id) rescue nil

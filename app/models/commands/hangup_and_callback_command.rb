@@ -23,26 +23,4 @@ class Commands::HangupAndCallbackCommand < Command
   def serialize_parameters
     {dial_prefix: @dial_prefix}
   end
-
-  def run(session)
-    session.info "Enqueuing call", command: 'hangup_and_callback', action: 'enqueue_call'
-    session.address = dial_address(session)
-    session.channel.enqueue_call_to session.address, not_before: 15.seconds.from_now, session_id: session.id
-    session.info "Suspending session", command: 'hangup_and_callback', action: 'suspend'
-    session.suspend
-    session.pbx.hangup
-    super
-  end
-
-  def dial_address(session)
-    if @dial_prefix.present?
-      if session.address.start_with?(@dial_prefix)
-        session.address
-      else
-        @dial_prefix + session.address
-      end
-    else
-      session.address
-    end
-  end
 end

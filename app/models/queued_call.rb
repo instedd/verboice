@@ -26,34 +26,6 @@ class QueuedCall < ActiveRecord::Base
   serialize :variables, Hash
   serialize :callback_params, Hash
 
-  def start
-    call_log.start_outgoing address
-    new_session
-  end
-
-  def new_session
-    options = {:call_log => call_log, :address => address}
-
-    if call_flow.present?
-      options[:call_flow] = call_flow
-    elsif callback_url.present?
-      options[:call_flow] = CallFlow.new :callback_url => callback_url, mode: :callback_url
-    elsif flow.present?
-      options[:call_flow] = CallFlow.new :flow => flow
-    end
-
-    if status_callback_url.present?
-      options[:status_callback_url] = status_callback_url
-    end
-
-    options[:call_variables] = variables if variables
-    options[:callback_params] = callback_params
-
-    channel.new_session(options).tap do |session|
-      session.queued_call = self
-    end
-  end
-
   def cancel_call!
     call_log.state = :cancelled
     call_log.save!

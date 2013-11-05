@@ -37,10 +37,6 @@ class Channels::Sip < Channel
     direction == 'inbound' || direction == 'both'
   end
 
-  def asterisk_address_string_for broker, address
-    broker.sip_address_string_for self, address
-  end
-
   def server_username_uniqueness
     return unless self.username.present?
     conflicting_channels = Channels::CustomSip

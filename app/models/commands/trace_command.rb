@@ -16,26 +16,11 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Commands::TraceCommand < Command
-
   def initialize(options = {})
     @call_flow_id = options[:call_flow_id]
     @step_id = options[:step_id]
     @step_name = options[:step_name]
     @expression = options[:store]
-  end
-
-  def run(session)
-    session.trace "Recording result.", command: 'trace', action: 'start'
-    if session.trace_enabled?
-      Trace.create!\
-        call_flow_id: @call_flow_id,
-        step_id: session.eval(@step_id),
-        step_name: @step_name,
-        call_id: session.call_id,
-        result: session.eval(@expression)
-    end
-    session.trace "Result recorded.", command: 'trace', action: 'finish'
-    super
   end
 
   def serialize_parameters

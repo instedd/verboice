@@ -16,9 +16,4 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Commands::AssignValueCommand < Commands::AssignCommand
-
-  def assign_data(session)
-    session[@name.to_s] = @data
-  end
-
 end

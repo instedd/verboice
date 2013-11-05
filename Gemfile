@@ -6,16 +6,10 @@ gem 'haml-rails'
 gem "jquery-rails"
 
 gem 'mysql2'
-gem 'librevox'
-gem 'batphone', :git => 'https://github.com/instedd/batphone', :branch => 'fastagi'
-gem 'em-http-request'
-gem 'eventmachine_httpserver', :require => 'evma_httpserver'
 gem 'nokogiri'
 gem 'guid'
 gem 'devise'
 gem "will_paginate", "~> 3.0"
-gem "daemons"
-gem 'rkelly', :git => 'https://github.com/manastech/rkelly.git'
 gem "instedd-rails"
 gem 'decent_exposure'
 gem 'attr_encrypted'

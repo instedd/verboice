@@ -33,6 +33,6 @@ class Channels::Voxeo < Channel
   end
 
   def broker
-    Voxeo::Broker
+    :voxeo_broker
   end
 end

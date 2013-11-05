@@ -32,22 +32,4 @@ class Commands::DialCommand < Command
     params[:caller_id] = @caller_id if @caller_id.present?
     params
   end
-
-  def run(session)
-    if @channel_name.present?
-      channel = session.channel.account.channels.find_by_name @channel_name
-    else
-      channel = session.channel
-    end
-
-    address = session.broker.get_dial_address channel, @number
-    session.info "Dialing #{address}", command: 'dial', action: 'start'
-
-    @options = {}
-    @options[:caller_id] = caller_id if caller_id
-    session[:dial_status] = session.pbx.dial address, @options
-    session.trace "Dial completed with status '#{session[:dial_status]}'", command: 'dial', action: 'finish'
-
-    super
-  end
 end

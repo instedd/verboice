@@ -16,10 +16,4 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Commands::AnswerCommand < Command
-  def run(session)
-    session.info "Answer", command: 'answer', action: 'start'
-    session.pbx.answer
-    session.trace "Answer", command: 'answer', action: 'finish'
-    super
-  end
 end

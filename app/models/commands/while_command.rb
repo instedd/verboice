@@ -29,17 +29,6 @@ class Commands::WhileCommand < Command
     end
   end
 
-  def run(session)
-    session.trace "Testing statement: #{@condition}.", command: 'while', action: 'testing'
-    if session.eval @condition
-      session.trace "The statement is true. running cycle.", command: 'while', action: 'true'
-      @block
-    else
-    session.trace "The statement is false. Ending while.", command: 'while', action: 'false'
-      super
-    end
-  end
-
   def serialize_parameters
     {condition: condition, block: block}
   end

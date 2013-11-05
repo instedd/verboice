@@ -16,13 +16,6 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Commands::CaptureCommand < Command
-  param :min, :integer, :default => 1, :ui_length => 1
-  param :max, :integer, :default => 1, :ui_length => 1
-  param :finish_on_key, :string, :default => '#', :ui_length => 1
-  param :timeout, :integer, :default => 5, :ui_length => 1
-  param :play, :string, :ui_length => 40
-  param :say, :string, :ui_length => 40
-
   def initialize(options = {})
     @options = {
       :min => self.class.default_minimum_input_lenght,
@@ -45,65 +38,6 @@ class Commands::CaptureCommand < Command
       params[:resource] = @options[:resource] if @options[:resource]
       params[:language] = @options[:language] if @options[:language]
     end
-  end
-
-  def run(session)
-
-    options = @options.dup
-    if options[:play].present?
-      options[:play] = Commands::PlayUrlCommand.new(options[:play]).download(session)
-      options.delete :say
-    elsif options[:say].present?
-      options.delete :play
-    elsif options[:resource].present?
-      options.delete :play
-      options.delete :say
-      resource = Commands::PlayResourceCommand.new(options[:resource], options[:language])
-      options.merge! resource.capture_resource_hash(session)
-      options.delete :resource
-    else
-      options.delete :play
-      options.delete :say
-    end
-
-    [:digits, :timeout, :finish_key].each { |key| session.delete key }
-
-    options[:after_play] = lambda() do |digits, offset|
-      if digits
-        session.info "User interrupted playback at #{offset} milliseconds by pressing #{digits}.", command: 'capture', action: 'received'
-      else
-        session.info "Finished playing file.", command: 'capture', action: 'finish'
-        session.info "Waiting for user input.", command: 'capture', action: 'waiting'
-      end
-    end
-
-    options[:if_hang_up] = lambda() { |offset| session.info "User hung up at #{offset} milliseconds.", command: 'capture', action: 'user_hang_up' }
-
-    if options[:say].present?
-      session.info "Say '#{@options[:say]}'. Waiting user input: #{@options.to_pretty_s}", command: 'capture', action: 'start'
-    elsif options[:play].present?
-      session.info "Play file #{@options[:play]}. Waiting user input: #{@options.to_pretty_s}", command: 'capture', action: 'start'
-    else
-      session.info "Waiting user input: #{@options.to_pretty_s}", command: 'capture', action: 'waiting'
-    end
-
-    digits = session.pbx.capture options
-    case digits
-    when nil
-      session.info("User didn't press enough digits", command: 'capture', action: 'timeout')
-      session[:timeout] = true
-    when :timeout, 'timeout'
-      session.info("User timeout", command: 'capture', action: 'timeout')
-      session[:timeout] = true
-    when :finish_key, 'finish_key'
-      session.info("User pressed the finish key", command: 'capture', action: 'finish_key')
-      session[:finish_key] = true
-    else
-      session.info("User pressed: #{digits}", command: 'capture', action: 'received')
-      session[:digits] = digits
-    end
-
-    super
   end
 
   def self.default_time_out_in_seconds

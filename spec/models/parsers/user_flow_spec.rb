@@ -20,7 +20,7 @@ require 'spec_helper'
 describe Parsers::UserFlow do
   let(:call_flow) do
     app = mock('call_flow')
-    app.stubs(:id).returns 5
+    app.stub(:id).and_return 5
     app
   end
 

@@ -16,10 +16,4 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Commands::HangupCommand < Command
-  def run(session)
-    session.info 'Hangup', command: 'hang_up', action: 'start'
-    session.pbx.hangup
-    session.trace 'Hangup', command: 'hang_up', action: 'finish'
-    super
-  end
 end

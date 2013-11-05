@@ -170,38 +170,6 @@ describe Channel do
         channel.register?.should be_false
       end
     end
-
-    context "poll call" do
-      it "return nil if no queued calls" do
-        channel = a_channel.make
-        channel.poll_call.should == nil
-      end
-
-      it "return queued call and destroy it" do
-        channel = a_channel.make
-        queued_call = channel.queued_calls.make
-
-        channel.poll_call.should == queued_call
-        QueuedCall.count.should == 0
-      end
-
-      it "not return scheduled calls in the future" do
-        channel = a_channel.make
-        channel.queued_calls.make :not_before => Time.now + 1.hour
-
-        channel.poll_call.should == nil
-      end
-    end
-
-    it "create new session without a call log" do
-      channel = a_channel.make
-      session = channel.new_session
-      session.call_log.account.should == channel.account
-      session.call_log.project.should == channel.call_flow.project
-      session.call_log.channel.should == channel
-      session.call_log.direction.should == :incoming
-      session.call_log.state.should == :active
-    end
   end
 
   it "should assign a guid" do

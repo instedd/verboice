@@ -21,12 +21,4 @@ class Commands::BridgeCommand < Command
   def initialize(session_id)
     @session_id = session_id.to_i
   end
-
-  def run(session)
-    session.trace "Bridging with session #{@session_id}.", command: 'bridge', action: 'start'
-    other_session = session.broker.find_session_by_call_log_id @session_id
-    session.pbx.bridge_with other_session
-    session.trace "Bridge with session #{@session_id} completed.", command: 'bridge', action: 'finish'
-  end
-
 end

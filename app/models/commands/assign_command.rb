@@ -26,21 +26,6 @@ class Commands::AssignCommand < Command
     @try = try
   end
 
-  def run(session)
-    session.trace "Assign: #{@name}", command: 'assign', action: 'start'
-    begin
-      assign_data session
-    rescue
-      raise unless @try
-    end
-    session.trace "Assign: #{@name}", command: 'assign', action: 'finish'
-    super
-  end
-
-  def assign_data(session)
-    subclass_responsibility
-  end
-
   def serialize_parameters
     {name: @name, data: @data}.tap do |parameters|
       parameters[:try] = @try if @try
