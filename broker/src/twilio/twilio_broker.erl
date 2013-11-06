@@ -11,9 +11,9 @@ start_link() ->
 init() ->
   ok.
 
-create_channel(_Id) -> ok.
+create_channel(_Id) -> twilio_channel_srv:reload_channels(), ok.
 
-destroy_channel(_Id) -> ok.
+destroy_channel(_Id) -> twilio_channel_srv:reload_channels(), ok.
 
 dispatch(_Session = #session{session_id = SessionId, channel = Channel, address = Address}) ->
   io:format("Channel ~p~n", [Channel]),

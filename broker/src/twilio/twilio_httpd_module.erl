@@ -17,7 +17,7 @@ do(#mod{request_uri = RequestUri, method = "POST", entity_body = Body}) ->
           AccountSid = proplists:get_value("AccountSid", Params),
           Number = util:normalize_phone_number(proplists:get_value("To", Params)),
           CallerId = util:normalize_phone_number(proplists:get_value("From", Params)),
-          Channel = find_channel(AccountSid, Number),
+          Channel = twilio_channel_srv:find_channel(AccountSid, Number),
 
           {ok, SessionPid} = session:new(),
 
@@ -43,18 +43,3 @@ do(#mod{request_uri = RequestUri, method = "POST", entity_body = Body}) ->
 do(ModData) ->
   io:format("Unhandled: ~p~n", [ModData]),
   {proceed, [ModData]}.
-
-find_channel(AccountSid, Number) ->
-  Channels = channel:find_all_twilio(),
-  find_channel(Channels, AccountSid, Number).
-
-find_channel([], _, _) -> undefined;
-find_channel([Channel = #channel{config = Config} | Rest], AccountSid, Number) ->
-  ChannelAccountSid = proplists:get_value("account_sid", Config),
-  ChannelNumber = util:normalize_phone_number(proplists:get_value("number", Config)),
-  if
-    (AccountSid == ChannelAccountSid) and (Number == ChannelNumber) ->
-      Channel;
-    true ->
-      find_channel(Rest, AccountSid, Number)
-  end.
