@@ -17,7 +17,7 @@
   %h1 Properties
 
   = f.text_field :name
-  = f.time_zone_select :time_zone, ActiveSupport::TimeZone.all
+  = f.time_zone_select :time_zone, TZInfo::Timezone.all.sort, :model => TZInfo::Timezone
 
   %hr
 

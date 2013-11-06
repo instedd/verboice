@@ -141,7 +141,7 @@ describe Channel do
         BrokerClient.should_receive(:notify_call_queued)
         channel.call_flow.project.update_attribute :time_zone, 'Buenos Aires'
         channel.reload.call 'foo'
-        queued_call.time_zone.should eq('Buenos Aires')
+        queued_call.time_zone.should eq('America/Argentina/Buenos_Aires')
       end
 
       it "calls with variables" do

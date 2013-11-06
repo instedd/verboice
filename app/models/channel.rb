@@ -144,7 +144,7 @@ class Channel < ActiveRecord::Base
       :schedule => schedule,
       :call_flow => current_call_flow,
       :project => project,
-      :time_zone => time_zone.try(:name),
+      :time_zone => (time_zone ? time_zone.tzinfo.identifier : nil),
       :variables => variables,
       :session_id => session_id,
       :callback_params => callback_params,
