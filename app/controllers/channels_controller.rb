@@ -22,7 +22,9 @@ class ChannelsController < ApplicationController
   def index
     @channels = current_account.channels.includes(:call_flow).all
     @channel_kinds = Channel.all_leaf_subclasses.map(&:kinds).flatten(1).sort_by{|x| x[0]}
-    @channel_status = BrokerClient.channel_status(@channels.map(&:id)) rescue {}
+
+    grouped_channels = @channels.each_with_object(Hash.new { |h,k| h[k] = [] }) { |ch, h| h[ch.broker] << ch.id }
+    @channel_status = BrokerClient.channel_status(grouped_channels) rescue {}
   end
 
   # GET /channels/1

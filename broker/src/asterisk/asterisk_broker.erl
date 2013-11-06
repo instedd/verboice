@@ -1,5 +1,5 @@
 -module(asterisk_broker).
--export([start_link/0, init/0, notify_ready/0, dispatch/1, create_channel/1, destroy_channel/1, dial_address/2]).
+-export([start_link/0, init/0, notify_ready/0, dispatch/1, create_channel/1, destroy_channel/1, dial_address/2, get_channel_status/1]).
 
 -behaviour(broker).
 
@@ -8,6 +8,9 @@
 
 start_link() ->
   broker:start_link(?MODULE).
+
+get_channel_status(ChannelIds) ->
+  asterisk_channel_srv:get_channel_status(ChannelIds).
 
 init() ->
   ami_events:add_handler(asterisk_event_handler, []),

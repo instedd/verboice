@@ -4,9 +4,11 @@
   active_calls_by_channel/1, active_calls_by_project/1, active_calls_by_call_flow/1
 ]).
 
-channel_status(ChannelIds) ->
-  AsteriskStatus = asterisk_channel_srv:get_channel_status(ChannelIds),
-  Status = [{Id, proplist_to_bert_dict([{ok, Ok},{messages, Messages}])} || {Id, Ok, Messages} <- AsteriskStatus],
+channel_status(Channels) ->
+  ChannelStatus = dict:fold(fun(Broker, ChannelIds, S) ->
+    S ++ Broker:get_channel_status(ChannelIds)
+  end, [], Channels),
+  Status = [{Id, proplist_to_bert_dict([{ok, Ok}, {messages, Messages}])} || {Id, Ok, Messages} <- ChannelStatus],
   proplist_to_bert_dict(Status).
 
 notify_call_queued(_ChannelId) ->
