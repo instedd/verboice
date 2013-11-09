@@ -99,8 +99,8 @@ end
 Schedule.blueprint do
   project
   name
-  time_from { Time.now }
-  time_to { Time.now + 1.hour }
+  time_from { Time.gm(2000, 1, 1, 10, 0) }
+  time_to { Time.gm(2000, 1, 1, 11, 0) }
 end
 
 QueuedCall.blueprint do
