@@ -48,9 +48,9 @@ handle_call(_Request, _From, State) ->
 %% @private
 handle_cast(reload_channels, State) ->
   Channels = channel:find_all_twilio(),
-  NewRegistry = lists:foldl(fun(Channel = #channel{config = Config}, Registry) ->
-    AccountSid = proplists:get_value("account_sid", Config),
-    Number = util:normalize_phone_number(proplists:get_value("number", Config)),
+  NewRegistry = lists:foldl(fun(Channel, Registry) ->
+    AccountSid = channel:account_sid(Channel),
+    Number = util:normalize_phone_number(channel:number(Channel)),
     dict:store({AccountSid, Number}, Channel, Registry)
   end, dict:new(), Channels),
 
