@@ -31,6 +31,8 @@ describe Api::ContactsController do
 
     @project_var = project.project_variables.make name: "var1"
     @contact_var = PersistedVariable.make project_variable_id: @project_var.id, contact_id: contact.id, value: "foo"
+
+    @project_var2 = project.project_variables.make name: "var2"
   end
 
   it "gets all contacts" do
@@ -72,6 +74,20 @@ describe Api::ContactsController do
     json['vars'].should eq({"var1" => "bar"})
   end
 
+  it "updates a contact's var (that didn't have a previous value) by address" do
+    put :update_by_address, project_id: project.id, address: contact.addresses.first.address, vars: {var2: "bar"}
+
+    var = PersistedVariable.where(contact_id: contact.id, project_variable_id: @project_var2.id).first
+    var.value.should eq("bar")
+
+    response.should be_ok
+
+    json = JSON.parse response.body
+    json['id'].should eq(contact.id)
+    json['addresses'].should eq(contact.addresses.map(&:address))
+    json['vars'].should eq({"var1" => "foo", "var2" => "bar"})
+  end
+
   it "updates all contacts vars" do
     put :update_all, project_id: project.id, vars: {var1: "bar"}
 
@@ -85,5 +101,17 @@ describe Api::ContactsController do
     json['id'].should eq(contact.id)
     json['addresses'].should eq(contact.addresses.map(&:address))
     json['vars'].should eq({"var1" => "bar"})
+  end
+
+  it "updates all contacts vars (when a var didn't have a previous value)" do
+    put :update_all, project_id: project.id, vars: {var2: "bar"}
+
+    json = JSON.parse response.body
+    json.length.should eq(1)
+
+    json = json[0]
+    json['id'].should eq(contact.id)
+    json['addresses'].should eq(contact.addresses.map(&:address))
+    json['vars'].should eq({"var1" => "foo", "var2" => "bar"})
   end
 end

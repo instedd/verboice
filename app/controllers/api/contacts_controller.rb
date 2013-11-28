@@ -29,28 +29,63 @@ class Api::ContactsController < ApiController
 
   def update_by_address
     contact = project.contacts.joins(:addresses).where(contact_addresses: {address: params[:address]}).first or return head(:not_found)
+    project_vars = project.project_variables.all
+    project_vars = project_vars.index_by &:name
+
     vars = PersistedVariable.includes(:project_variable).where(project_variables: {project_id: project.id}, contact_id: contact.id).all
     vars = vars.index_by { |var| var.project_variable.name }
 
-    params[:vars].each do |key, value|
-      var = vars[key]
-      unless var
-        return render text: "No such variable: #{key}", status: :bad_reqeust
+    Contact.transaction do
+      params[:vars].each do |key, value|
+        var = vars[key]
+        unless var
+          project_var = project_vars[key]
+          unless project_var
+            return render text: "No such variable: #{key}", status: :bad_reqeust
+          end
+
+          var = PersistedVariable.new
+          var.contact_id = contact.id
+          var.project_variable_id = project_var.id
+        end
+        var.value = value
+        var.save!
       end
-      var.value = value
-      var.save!
     end
 
     render json: contacts_to_json([contact])[0]
   end
 
   def update_all
-    all_vars = PersistedVariable.includes(:project_variable).where(project_variables: {project_id: project.id}).all
-    all_vars = all_vars.group_by { |var| var.project_variable.name }
+    project_vars = project.project_variables.all
+    project_vars = project_vars.index_by &:name
 
-    params[:vars].each do |key, value|
-      vars = all_vars[key]
-      PersistedVariable.update_all({value: value}, {id: vars.map(&:id)})
+    all_vars = PersistedVariable.includes(:project_variable).where(project_variables: {project_id: project.id}).all
+    all_vars = all_vars.index_by { |var| [var.project_variable_id, var.contact_id] }
+
+    contacts_ids = project.contacts.pluck(:id)
+
+    Contact.transaction do
+      params[:vars].each do |key, value|
+        project_var = project_vars[key]
+        unless project_var
+          return render text: "No such variable: #{key}", status: :bad_reqeust
+        end
+
+        # First update all existing variables
+        PersistedVariable.update_all({value: value}, {project_variable_id: project_var.id})
+
+        # Now create missing variables (PersistedVariables that don't yet exist for existing contacts)
+        contacts_ids.each do |contact_id|
+          unless all_vars[[project_var.id, contact_id]]
+            var = PersistedVariable.new
+            var.project_variable_id = project_var.id
+            var.contact_id = contact_id
+            var.value = value
+            var.save!
+          end
+        end
+      end
     end
 
     index
@@ -72,5 +107,4 @@ class Api::ContactsController < ApiController
       }
     end
   end
-
 end
