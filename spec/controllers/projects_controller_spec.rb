@@ -80,9 +80,9 @@ describe ProjectsController do
     end
 
     it 'should enqueue a call not before specific date' do
-      not_before = DateTime.new(2012, 1, 1, 16, 0, 0)
+      not_before = Time.gm(2012, 1, 1, 16, 0, 0)
 
-      BrokerClient.should_receive(:notify_call_queued).with(channel.id,not_before + 1)
+      BrokerClient.should_receive(:notify_call_queued).with(channel.id, not_before + 1.day)
 
       expect {
         post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id, :not_before_date => not_before, :not_before => true
@@ -91,7 +91,7 @@ describe ProjectsController do
       enqueued_call = QueuedCall.last
       enqueued_call.schedule_id.should eq(schedule.id)
       enqueued_call.project_id.should eq(project.id)
-      enqueued_call.not_before.should eq(not_before + 1)
+      enqueued_call.not_before.should eq(not_before + 1.day)
 
       response.should be_redirect
     end
