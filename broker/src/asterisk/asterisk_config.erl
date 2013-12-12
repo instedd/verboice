@@ -1,5 +1,5 @@
 -module(asterisk_config).
--export([generate/2]).
+-export([generate/2, expand_domain/1]).
 
 -include_lib("kernel/include/inet.hrl").
 -include("db.hrl").
@@ -72,7 +72,7 @@ generate_config([Channel | Rest], RegFile, ChannelsFile, ResolvCache, ChannelInd
     file:write(ChannelsFile, "\n"),
 
     R3 = lists:foldl(fun (IP, R2) ->
-      dict:store({binary_to_list(IP), Number}, Channel#channel.id, R2)
+      dict:store({util:to_string(IP), Number}, Channel#channel.id, R2)
     end, R1, IPs),
     {R3, I + 1}
   end, {ChannelIndex, 0}, Expanded),
