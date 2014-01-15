@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140114210033) do
+ActiveRecord::Schema.define(:version => 20140115210147) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -94,6 +94,7 @@ ActiveRecord::Schema.define(:version => 20140114210033) do
     t.string   "pbx_logs_guid"
   end
 
+  add_index "call_logs", ["account_id", "id"], :name => "index_call_logs_on_account_id_and_id"
   add_index "call_logs", ["call_flow_id"], :name => "index_call_logs_on_call_flow_id"
 
   create_table "channels", :force => true do |t|
