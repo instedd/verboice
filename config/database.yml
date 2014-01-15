@@ -1,9 +1,3 @@
-<%
-  if Rails.env != 'production'
-    branch = `hg branch`.strip
-    branch_spec = branch == "default" ? "" : "_#{branch}"
-  end
-%>
 development:
   adapter: mysql2
   encoding: utf8
@@ -19,7 +13,7 @@ development:
 test:
   adapter: mysql2
   encoding: utf8
-  database: verboice_test<%=branch_spec%>
+  database: verboice_test
   pool: 5
   username: root
   password:
