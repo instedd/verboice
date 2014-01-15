@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131105234512) do
+ActiveRecord::Schema.define(:version => 20140114210033) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -193,7 +193,7 @@ ActiveRecord::Schema.define(:version => 20131105234512) do
 
   create_table "localized_resources", :force => true do |t|
     t.string   "language"
-    t.string   "text"
+    t.text     "text"
     t.binary   "recorded_audio", :limit => 2147483647
     t.string   "url"
     t.string   "type"
