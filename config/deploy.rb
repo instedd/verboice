@@ -23,7 +23,7 @@ set :rvm_type, :system
 
 set :application, "verboice"
 set :repository,  "https://bitbucket.org/instedd/verboice"
-set :scm, :mercurial
+set :scm, :git
 set :deploy_via, :remote_cache
 set :user, 'ubuntu'
 
