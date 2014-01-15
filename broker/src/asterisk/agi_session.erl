@@ -112,6 +112,9 @@ handle_info({tcp, _, Line}, State = #state{caller = From}) ->
 handle_info(timeout, State) ->
   {stop, timeout, State#state{closed = true}};
 
+handle_info({tcp_closed, _}, State) ->
+  {stop, closed, State#state{closed = true}};
+
 handle_info(_Info, State) ->
   {noreply, State}.
 
