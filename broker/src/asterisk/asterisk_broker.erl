@@ -46,5 +46,6 @@ dispatch(#session{session_id = SessionId, channel = Channel, address = Address})
     {data, ["agi://localhost:", integer_to_list(BrokerPort), ",", SessionId]},
     {async, true},
     {actionid, SessionId},
+    {timeout, 60000},
     {variable, ["verboice_session_id=", SessionId]}
   ]).

@@ -150,7 +150,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
       CallLog:info(["Dialing to ", QueuedCall#queued_call.address, " through channel ", Channel#channel.name], []),
       notify_status(ringing, NewSession),
       CallLog:update([{state, "active"}, {fail_reason, undefined}]),
-      {reply, ok, dialing, State#state{session = NewSession}, timer:minutes(1)}
+      {reply, ok, dialing, State#state{session = NewSession}, timer:minutes(2)}
   end.
 
 dialing({answer, Pbx}, State = #state{session_id = SessionId, session = Session, resume_ptr = Ptr}) ->
