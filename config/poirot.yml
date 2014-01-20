@@ -1,0 +1,16 @@
+common: &default_settings
+  source: verboice-ui
+  debug: false
+
+development:
+  <<: *default_settings
+  enabled: true
+  server: localhost:2812
+
+test:
+  <<: *default_settings
+  enabled: false
+
+production:
+  <<: *default_settings
+  enabled: false
