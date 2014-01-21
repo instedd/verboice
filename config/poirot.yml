@@ -5,7 +5,7 @@ common: &default_settings
 development:
   <<: *default_settings
   enabled: true
-  server: localhost:2812
+  server: localhost:2120
 
 test:
   <<: *default_settings
