@@ -1,5 +1,5 @@
 -module(resource).
--export([localized_resource/2, prepare/2, prepare/3, prepare_text_resource/2, prepare_text_resource/3, prepare_blob_resource/3, prepare_url_resource/2]).
+-export([localized_resource/2, prepare/2, prepare/3, prepare_text_resource/2, prepare_text_resource/3, prepare_blob_resource/4, prepare_url_resource/2]).
 -define(CACHE, true).
 -define(TABLE_NAME, "resources").
 -include_lib("erl_dbmodel/include/model.hrl").
@@ -45,11 +45,11 @@ prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_
       {text, Language, ReplacedText}
   end.
 
-prepare_blob_resource(Name, Blob, #session{pbx = Pbx}) ->
+prepare_blob_resource(Name, UpdatedAt, Blob, #session{pbx = Pbx}) ->
   TargetPath = Pbx:sound_path_for(Name),
-  case filelib:is_file(TargetPath) of
-    true -> ok;
-    false -> sox:convert(Blob, "wav", TargetPath)
+  case must_update(TargetPath, UpdatedAt) of
+    false -> ok;
+    true -> sox:convert(Blob, "wav", TargetPath)
   end,
   {file, Name}.
 
@@ -84,4 +84,11 @@ guess_type(Url, Headers) ->
       ".gsm" -> "gsm";
       _ -> throw("Unknown file type")
     end
+  end.
+
+must_update(FileName, UpdatedAt) ->
+  case filelib:last_modified(FileName) of
+    0 -> true;
+    LastModified ->
+      calendar:universal_time_to_local_time(UpdatedAt) > LastModified
   end.
