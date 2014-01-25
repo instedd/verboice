@@ -80,7 +80,7 @@ describe ProjectsController do
     end
 
     it 'should enqueue a call not before specific date' do
-      not_before = Time.gm(2012, 1, 1, 16, 0, 0)
+      not_before = DateTime.new(2012, 1, 1, 16, 0, 0)
 
       BrokerClient.should_receive(:notify_call_queued).with(channel.id, not_before + 1.day)
 
