@@ -6,8 +6,10 @@ Voice is the most universal and inclusive means of communication, and it's an id
 
 Getting Started
 -------------
-[Verboice](http://verboice.instedd.org)
+[Start using Verboice now](http://verboice.instedd.org)
 
 [Verboice Help](https://bitbucket.org/instedd/verboice/wiki/Home)
+
+[What's coming next?](https://bitbucket.org/instedd/verboice/wiki/Roadmap)
 
 [Installing your own server](https://bitbucket.org/instedd/verboice/wiki/Installation.md)
