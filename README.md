@@ -8,4 +8,6 @@ Getting Started
 -------------
 [Verboice](http://verboice.instedd.org)
 
-[Deploying your own server](https://bitbucket.org/instedd/verboice/wiki/Home)
+[Verboice Help](https://bitbucket.org/instedd/verboice/wiki/Home)
+
+[Installing your own server](https://bitbucket.org/instedd/verboice/wiki/Installation.md)
