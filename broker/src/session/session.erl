@@ -73,10 +73,11 @@ language(#session{js_context = JsContext, default_language = DefaultLanguage}) -
 %% @private
 
 init(SessionId) ->
+  poirot:push(poirot:new_activity("Session ~p", [SessionId])),
   {ok, ready, #state{session_id = SessionId}}.
 
 ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}) ->
-  error_logger:info_msg("Session (~p) answer", [SessionId]),
+  lager:info("Session (~p) answer", [SessionId]),
   monitor(process, Pbx:pid()),
 
   NewSession = case State#state.session of
@@ -120,7 +121,7 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
   {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), flow_pid = FlowPid, session = NewSession}}.
 
 ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id = SessionId}) ->
-  error_logger:info_msg("Session (~p) dial", [SessionId]),
+  lager:info("Session (~p) dial", [SessionId]),
 
   NewSession = case State#state.session of
     undefined ->
@@ -139,6 +140,13 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
       Session#session{queued_call = QueuedCall, address = QueuedCall#queued_call.address}
   end,
 
+  poirot:add_meta([
+    {address, QueuedCall#queued_call.address},
+    {project_id, QueuedCall#queued_call.project_id},
+    {call_log_id, QueuedCall#queued_call.call_log_id},
+    {channel_id, Channel#channel.id},
+    {channel_name, Channel#channel.name}
+  ]),
 
   case RealBroker:dispatch(NewSession) of
     {error, unavailable} ->
@@ -154,7 +162,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
   end.
 
 dialing({answer, Pbx}, State = #state{session_id = SessionId, session = Session, resume_ptr = Ptr}) ->
-  error_logger:info_msg("Session (~p) answer", [SessionId]),
+  lager:info("Session (~p) answer", [SessionId]),
   monitor(process, Pbx:pid()),
   NewSession = Session#session{pbx = Pbx},
   notify_status('in-progress', NewSession),
@@ -163,7 +171,7 @@ dialing({answer, Pbx}, State = #state{session_id = SessionId, session = Session,
   {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), flow_pid = FlowPid, session = NewSession}};
 
 dialing({reject, Reason}, State = #state{session = Session = #session{session_id = SessionId, call_log = CallLog}}) ->
-  error_logger:info_msg("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
+  lager:info("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
   CallLog:error(["Call was rejected. (Reason: ", atom_to_list(Reason),")"], []),
   notify_status('no-answer', Session),
   finalize({failed, Reason}, State);
@@ -181,7 +189,7 @@ in_progress({completed, Failure}, State = #state{session = Session}) ->
   finalize({failed, Failure}, State).
 
 in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session = #session{session_id = SessionId}}) ->
-  error_logger:info_msg("Session (~p) suspended", [SessionId]),
+  lager:info("Session (~p) suspended", [SessionId]),
   channel_queue:unmonitor_session(Session#session.channel#channel.id, self()),
   {reply, ok, ready, State#state{pbx_pid = undefined, flow_pid = undefined, resume_ptr = Ptr, session = NewSession}}.
 
@@ -235,7 +243,8 @@ handle_info(_Info, StateName, State) ->
 %% @private
 terminate(Reason, _, #state{session_id = Id, session = Session}) ->
   push_results(Session),
-  error_logger:info_msg("Session (~p) terminated with reason: ~p", [Id, Reason]).
+  lager:info("Session (~p) terminated with reason: ~p", [Id, Reason]),
+  poirot:pop().
 
 %% @private
 code_change(_OldVsn, StateName, State, _Extra) ->
@@ -279,17 +288,26 @@ spawn_run(Session = #session{project = Project}, undefined) ->
 
 spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
   SessionPid = self(),
+  SessionActivity = poirot:current(),
   spawn_monitor(fun() ->
-    try run(Session, Ptr) of
-      {suspend, NewSession, NewPtr} ->
-        gen_fsm:sync_send_event(SessionPid, {suspend, NewSession, NewPtr});
-      {Result, #session{js_context = JsContext}} ->
-        Status = erjs_context:get(status, JsContext),
-        gen_fsm:send_event(SessionPid, {completed, flow_result(Result, Status)})
-    after
-      Pbx:terminate()
-    end
+    poirot:new_inside(SessionActivity, "Session worker process", async, fun() ->
+      lager:info("Start"),
+      try run(Session, Ptr) of
+        {suspend, NewSession, NewPtr} ->
+          close_user_step_activity(NewSession),
+          gen_fsm:sync_send_event(SessionPid, {suspend, NewSession, NewPtr});
+        {Result, NewSession = #session{js_context = JsContext}} ->
+          close_user_step_activity(NewSession),
+          Status = erjs_context:get(status, JsContext),
+          gen_fsm:send_event(SessionPid, {completed, flow_result(Result, Status)})
+      after
+        Pbx:terminate()
+      end
+    end)
   end).
+
+close_user_step_activity(#session{in_user_step_activity = true}) -> poirot:pop();
+close_user_step_activity(_) -> ok.
 
 flow_result(ok, "failed") -> {error, "marked as failed"};
 flow_result({error, _}, "successful") -> ok;
@@ -362,7 +380,7 @@ run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
       {hangup, Session};
     Class:Error ->
       CallLog:error(["Error ", io_lib:format("~p:~p", [Class, Error])], []),
-      error_logger:error_msg("Error during session ~p: ~p:~p~n~p~n",
+      lager:error("Error during session ~p: ~p:~p~n~p~n",
         [Session#session.session_id, Class, Error, erlang:get_stacktrace()]),
       {{error, {Class, Error}}, Session}
   end.
