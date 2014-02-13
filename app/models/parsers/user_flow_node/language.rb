@@ -45,10 +45,11 @@ module Parsers
 
         Compiler.parse do |compiler|
           compiler.Label @id
-          compiler.AssignValue "current_step", @id
-          compiler.AssignValue "current_step_name", @name
+          c.StartUserStep :language, @id, @name
           unless @force_question
             compiler.If "typeof(var_#{var_name}) != 'undefined'" do |c|
+              c.Trace context_for %("Language already set: '" + #{var_name} + "'")
+              c.SetStepResult :already_set, var_name
               c.Goto "end#{@id}"
             end
           end
@@ -62,6 +63,7 @@ module Parsers
           @languages.each_with_index do |language, i|
             compiler.If "digits == #{i+1}" do |c|
               c.Trace context_for %("User selected #{language} language.")
+              c.SetStepResult :language, var_name
               c.PersistVariable var_name, "'#{language}'"
             end
           end
