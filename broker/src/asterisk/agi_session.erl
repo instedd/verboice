@@ -53,9 +53,9 @@ wait_for_digit(Pid, Timeout) ->
 record_file(Pid, FileName, Format, StopKeys, Timeout) ->
   case gen_server:call(Pid, {execute, ["RECORD FILE \"", FileName, "\" ", Format, " \"", StopKeys, "\" ", integer_to_list(Timeout), " BEEP"]}, Timeout + 1000) of
     hangup -> hangup;
+    #response{result = _, parent = "hangup"} -> hangup;
+    #response{result = _, parent = "timeout"} -> timeout;
     #response{result = "-1", parent = _} -> error;
-    #response{result = "0", parent = "hangup"} -> hangup;
-    #response{result = "0", parent = "timeout"} -> timeout;
     #response{result = Digit, parent = "dtmf"} -> {digit, list_to_integer(Digit)};
     _ -> error
   end.

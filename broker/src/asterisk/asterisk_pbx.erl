@@ -72,7 +72,6 @@ record(FileName, StopKeys, Timeout, {?MODULE, Pid}) ->
 
   try
     case agi_session:record_file(Pid, filename:absname(filename:rootname(FileName)), "gsm", StopKeys, Timeout * 1000) of
-      hangup -> throw(hangup);
       error -> throw(error);
       _ ->
         sox:convert(TempFile, FileName)
