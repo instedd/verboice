@@ -47,17 +47,23 @@
 %br/
 %p
   = link_to 'Download CSV', download_details_call_log_path(@log, :format => :csv), :class => "button fimport"
-%table.GralTable
-  %tr
-    %th Severity
-    %th When
-    %th Text
-  - @log.structured_details.each do |detail|
-    %tr{:class => detail[:severity]}
-      %td= detail[:severity]
-      %td= detail[:time]
-      %td= short_html detail[:text], 40
-%br/
+
+.tablewrapp.user-flow-log
+  %table
+    -@activities.each do |activity|
+      %tr
+        %td.timestamp
+          - time = Time.parse(activity.start)
+          = l(time.to_date, format: :short)
+          %br
+          = time.strftime("%H:%M:%S.%L")
+        %td.icon
+          %div{:class => user_step_class(activity.fields['step_type'])}
+        %td.details
+          .step_name= activity.fields['step_name']
+          .description
+            = activity.fields['step_result']
+            = activity.fields['step_data']
 
 - if @log.pbx_logs_guid
   %h3 Network Logs
