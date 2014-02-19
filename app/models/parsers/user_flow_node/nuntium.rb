@@ -42,7 +42,7 @@ module Parsers
       def equivalent_flow
         Compiler.parse do |compiler|
           compiler.Label @id
-          c.StartUserStep :nuntium, @id, @name
+          compiler.StartUserStep :nuntium, @id, @name
           if @resource.guid
             if @recipient['caller']
               compiler.Nuntium @resource.guid, :caller

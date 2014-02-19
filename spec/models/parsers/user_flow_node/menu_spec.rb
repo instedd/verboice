@@ -88,59 +88,54 @@ module Parsers
         menu.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
-            c.AssignValue "current_step", 1
-            c.AssignValue "current_step_name", "Menu number one"
+            c.StartUserStep :menu, 1, "Menu number one"
             c.PlayResource 5
             c.AssignValue 'attempt_number1', 1
             c.While 'attempt_number1 <= 3' do |c|
               c.Capture resource: 7, finish_on_key: '', timeout: 20
               c.Assign 'value_1', 'digits'
               c.If "digits == '4'" do |c|
-                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.SetStepResult :pressed, "digits"
                 c.PersistVariable 'some_variable', 'value_1'
                 c.Label 10
-                c.AssignValue "current_step", 10
-                c.AssignValue "current_step_name", "Play 1"
-                c.Trace call_flow_id: call_flow.id, step_id: 10, step_name: 'Play 1', store: '"Message played."'
+                c.StartUserStep :play, 10, "Play 1"
                 c.PlayResource 1
+                c.Trace call_flow_id: call_flow.id, step_id: 10, step_name: 'Play 1', store: '"Message played."'
                 c.Goto "end1"
               end
               c.If "digits == '6'" do |c|
-                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.SetStepResult :pressed, "digits"
                 c.PersistVariable 'some_variable', 'value_1'
                 c.Label 14
-                c.AssignValue "current_step", 14
-                c.AssignValue "current_step_name", "Play 2"
-                c.Trace call_flow_id: call_flow.id, step_id: 14, step_name: 'Play 2', store: '"Message played."'
+                c.StartUserStep :play, 14, "Play 2"
                 c.PlayResource 2
+                c.Trace call_flow_id: call_flow.id, step_id: 14, step_name: 'Play 2', store: '"Message played."'
                 c.Goto "end1"
               end
               c.If "digits == '2'" do |c|
-                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"User pressed: " + digits'
+                c.SetStepResult :pressed, "digits"
                 c.PersistVariable 'some_variable', 'value_1'
                 c.Label 5
-                c.AssignValue "current_step", 5
-                c.AssignValue "current_step_name", "Play 3"
-                c.Trace call_flow_id: call_flow.id, step_id: 5, step_name: 'Play 3', store: '"Message played."'
+                c.StartUserStep :play, 5, "Play 3"
                 c.PlayResource 3
+                c.Trace call_flow_id: call_flow.id, step_id: 5, step_name: 'Play 3', store: '"Message played."'
                 c.Goto "end1"
               end
               c.If "digits != null" do |c|
                 c.PlayResource 8
-                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"Invalid key pressed"'
+                c.SetStepResult :invalid_key
               end
               c.Else do |c|
-                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"No key was pressed. Timeout."'
+                c.SetStepResult :timeout
               end
               c.Assign 'attempt_number1', 'attempt_number1 + 1'
             end
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Menu number one', store: '"Missed input for 3 times."'
             c.PersistVariable 'some_variable', nil
             c.Label 45
-            c.AssignValue "current_step", 45
-            c.AssignValue "current_step_name", "Play 45"
-            c.Trace call_flow_id: call_flow.id, step_id: 45, step_name: 'Play 45', store: '"Message played."'
+            c.StartUserStep :play, 45, "Play 45"
             c.PlayResource 45
+            c.Trace call_flow_id: call_flow.id, step_id: 45, step_name: 'Play 45', store: '"Message played."'
             c.Label "end1"
           end.first
         )
@@ -150,17 +145,16 @@ module Parsers
         menu = Menu.new call_flow, 'id' => 27, 'type' => 'menu'
         menu.equivalent_flow.make.should eq(
           Compiler.make do |c|
-            c.AssignValue "current_step", 27
-            c.AssignValue "current_step_name", ""
+            c.StartUserStep :menu, 27, ""
             c.AssignValue 'attempt_number27', 1
             c.While 'attempt_number27 <= 3' do |c|
               c.Capture finish_on_key: '', timeout: 5
               c.Assign 'value_27', 'digits'
               c.If "digits != null" do |c|
-                c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: '', store: '"Invalid key pressed"'
+                c.SetStepResult :invalid_key
               end
               c.Else do |c|
-                c.Trace call_flow_id: call_flow.id, step_id: 27, step_name: '', store: '"No key was pressed. Timeout."'
+                c.SetStepResult :timeout
               end
               c.Assign 'attempt_number27', 'attempt_number27 + 1'
             end

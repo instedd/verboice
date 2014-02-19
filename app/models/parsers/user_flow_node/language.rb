@@ -45,7 +45,7 @@ module Parsers
 
         Compiler.parse do |compiler|
           compiler.Label @id
-          c.StartUserStep :language, @id, @name
+          compiler.StartUserStep :language, @id, @name
           unless @force_question
             compiler.If "typeof(var_#{var_name}) != 'undefined'" do |c|
               c.Trace context_for %("Language already set: '" + #{var_name} + "'")

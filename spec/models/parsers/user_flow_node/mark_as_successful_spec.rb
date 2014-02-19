@@ -32,8 +32,7 @@ module Parsers
         mark_as_successful.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
-            c.AssignValue "current_step", 1
-            c.AssignValue "current_step_name", "MarkAsSuccessful"
+            c.StartUserStep :mark_as_successful, 1, "MarkAsSuccessful"
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'MarkAsSuccessful', store: '"Marked as successful."'
             c.AssignValue "status", "successful"
           end.first
