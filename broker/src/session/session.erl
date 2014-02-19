@@ -1,6 +1,7 @@
 -module(session).
 -export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1]).
 -export([language/1]).
+-compile([{parse_transform, lager_transform}]).
 
 % FSM Description
 % Possible states: ready, dialing, in_progress, completed

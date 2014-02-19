@@ -1,5 +1,6 @@
 -module(capture).
 -export([run/2]).
+-compile([{parse_transform, lager_transform}]).
 -include("session.hrl").
 
 run(Args, Session = #session{pbx = Pbx, js_context = JS, call_log = CallLog}) ->
