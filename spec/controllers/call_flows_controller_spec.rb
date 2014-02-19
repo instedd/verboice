@@ -26,6 +26,7 @@ describe CallFlowsController do
   let!(:account) { Account.make }
   let!(:project) { Project.make account: account }
   let!(:call_flow) { CallFlow.make project: project }
+  let!(:channel) { Channels::Custom.make account: account, name: "Channel1" }
 
   it 'Should retrieve a csv with the call traces' do
 
@@ -35,12 +36,12 @@ describe CallFlowsController do
 
     call_flow.save!
 
-    call_log1 = CallLog.make id: 1, address: 1000, call_flow: call_flow, started_at: Time.now, finished_at: Time.now
-    call_log2 = CallLog.make id: 2, address: 1000, call_flow: call_flow, started_at: Time.now, finished_at: Time.now
-    call_log3 = CallLog.make id: 3, address: 1000, call_flow: call_flow, started_at: Time.now, finished_at: Time.now
-    call_log4 = CallLog.make id: 4, address: 1000, call_flow: call_flow, started_at: Time.now, finished_at: Time.now
-    call_log5 = CallLog.make id: 5, address: 1000, call_flow: call_flow, started_at: Time.now, finished_at: Time.now
-    call_log6 = CallLog.make id: 6, address: 1000, call_flow: call_flow, started_at: Time.now, finished_at: Time.now
+    call_log1 = CallLog.make id: 1, address: 1000, call_flow: call_flow, channel: channel, direction: :incoming, started_at: Time.now, finished_at: Time.now
+    call_log2 = CallLog.make id: 2, address: 1000, call_flow: call_flow, channel: channel, direction: :outgoing, started_at: Time.now, finished_at: Time.now
+    call_log3 = CallLog.make id: 3, address: 1000, call_flow: call_flow, channel: channel, direction: :incoming, started_at: Time.now, finished_at: Time.now
+    call_log4 = CallLog.make id: 4, address: 1000, call_flow: call_flow, channel: channel, direction: :outgoing, started_at: Time.now, finished_at: Time.now
+    call_log5 = CallLog.make id: 5, address: 1000, call_flow: call_flow, channel: channel, direction: :incoming, started_at: Time.now, finished_at: Time.now
+    call_log6 = CallLog.make id: 6, address: 1000, call_flow: call_flow, channel: channel, direction: :outgoing, started_at: Time.now, finished_at: Time.now
     Trace.make call_flow: call_flow, call_log: call_log3, step_id: 1, result: "No key was pressed. Timeout.", step_name: 'Initial menu'
     Trace.make call_flow: call_flow, call_log: call_log1, step_id: 1, result: "User pressed: 2"
     Trace.make call_flow: call_flow, call_log: call_log2, step_id: 1, result: "User pressed: 1"
