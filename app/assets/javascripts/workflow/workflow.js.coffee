@@ -25,7 +25,7 @@ onWorkflow ->
     # Creates a step in this workflow.
     # If a callback is given, the caller must somehow add the step
     # to this workflow. If not, it's added at the end.
-    create_step: (command_type, parent, relative_to callback) =>
+    create_step: (command_type, parent, callback) =>
       new_step = Step.from_hash(type: command_type, root: not parent?)
       parent.next_id = new_step.id if parent?
 
