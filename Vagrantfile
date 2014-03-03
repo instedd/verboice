@@ -17,8 +17,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     sudo apt-get update
     export DEBIAN_FRONTEND=noninteractive
     sudo -E apt-get -y install ruby1.9.3 apache2 asterisk erlang erlang-dev mercurial git \
-      libxml2-dev libxslt1-dev mysql-server libmysqlclient-dev lame sox libsox-fmt-mp3 nodejs \
-      libcurl4-openssl-dev apache2-threaded-dev libapr1-dev libaprutil1-dev libyaml-dev postfix festival
+      libxml2-dev libxslt1-dev libzmq-dev mysql-server libmysqlclient-dev lame sox libsox-fmt-mp3 nodejs \
+      libcurl4-openssl-dev apache2-threaded-dev libapr1-dev libaprutil1-dev libyaml-dev postfix festival curl
 
     # Install bundler
     sudo gem install bundler --no-ri --no-rdoc
@@ -35,7 +35,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     sudo service apache2 restart
 
     # Setup rails application
-    hg clone /vagrant verboice
+    git  clone /vagrant verboice
     cd verboice
     bundle install --deployment --path .bundle --without "development test"
     bundle exec rake db:setup RAILS_ENV=production
@@ -56,7 +56,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     sudo cp etc/asterisk/* /etc/asterisk/
     sudo touch /etc/asterisk/sip_verboice_registrations.conf /etc/asterisk/sip_verboice_channels.conf
     sudo chown `whoami` /etc/asterisk/sip_verboice_*
-    sudo mkdir /usr/share/asterisk/sounds/verboice
+    sudo mkdir -p /usr/share/asterisk/sounds/verboice
     sudo chown `whoami` /usr/share/asterisk/sounds/verboice
     sudo /etc/init.d/asterisk restart
 
