@@ -5,6 +5,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
+-define(RELOAD_INTERVAL, timer:minutes(2)).
 
 -record(state, {channels, registry, channel_status, config_job_state = idle, status_job_state = idle}).
 
@@ -28,6 +29,7 @@ init({}) ->
   agi_events:add_sup_handler(asterisk_call_manager, []),
   regenerate_config(),
   timer:send_interval(timer:seconds(30), check_status),
+  timer:send_after(?RELOAD_INTERVAL, sip_reload),
   {ok, #state{channels = dict:new(), registry = dict:new()}}.
 
 %% @private
@@ -93,6 +95,11 @@ handle_info(check_status, State = #state{status_job_state = idle}) ->
     ok -> {noreply, State#state{status_job_state = working}};
     _ -> {noreply, State#state{channel_status = undefined}}
   end;
+
+handle_info(sip_reload, State) ->
+  ami_client:sip_reload(),
+  timer:send_after(?RELOAD_INTERVAL, sip_reload),
+  {noreply, State};
 
 handle_info({gen_event_EXIT, asterisk_call_manager, Reason}, State) ->
   {stop, Reason, State};
