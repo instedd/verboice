@@ -28,6 +28,8 @@ module Parsers
         @next = params['next']
         @root_index = params['root']
         @dial_prefix = params['dial_prefix']
+        @when = params['when'] || 'immediately'
+        @delay = params['delay'] || '1h'
       end
 
       def is_root?

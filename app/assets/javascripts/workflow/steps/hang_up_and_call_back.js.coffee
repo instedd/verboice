@@ -7,6 +7,8 @@ onWorkflow ->
     constructor: (attrs) ->
       super(attrs)
       @dial_prefix = ko.observable attrs.dial_prefix
+      @when = ko.observable(attrs.when ? 'immediately')
+      @delay = ko.observable(attrs.delay ? '1h')
 
     button_class: =>
       'lcallback'
@@ -16,7 +18,9 @@ onWorkflow ->
 
     to_hash: () =>
       $.extend(super,
-        dial_prefix: @dial_prefix()
+        dial_prefix: @dial_prefix(),
+        when: @when(),
+        delay: @delay(),
       )
 
     @add_to_steps: () ->
