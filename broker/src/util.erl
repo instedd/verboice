@@ -1,5 +1,5 @@
 -module(util).
--export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1, interpolate/2]).
+-export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1, interpolate/2, to_poirot/1]).
 
 md5hex(Data) ->
   Hash = crypto:hash(md5, Data),
@@ -52,3 +52,12 @@ interpolate(Text, Fun, Output) ->
           interpolate(T2, Fun, <<Output/binary, H1/binary, Value/binary>>)
       end
   end.
+
+to_poirot(Values) -> to_poirot(Values, []).
+to_poirot([], Metadata) -> Metadata;
+to_poirot([{Key, Value} | T], Metadata) ->
+  NewValue = case Value of
+    List when is_list(List) -> iolist_to_binary(List);
+    Else -> Else
+  end,
+  to_poirot(T, [{Key, NewValue} | Metadata]).

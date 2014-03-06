@@ -3,8 +3,7 @@
 -compile([{parse_transform, lager_transform}]).
 -include("session.hrl").
 
-run(Session = #session{pbx = Pbx, call_log = CallLog}) ->
-  CallLog:info("Answer", [{command, "answer"}, {action, "start"}]),
+run(Session = #session{pbx = Pbx}) ->
   lager:info("Answer"),
   Pbx:answer(),
   {next, Session}.
