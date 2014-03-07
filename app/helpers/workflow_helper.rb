@@ -30,6 +30,9 @@ module WorkflowHelper
     when "input" then "i48grad-numeral"
     when "menu" then "i48grad-dial"
     when "impersonate" then "i48grad-users"
+    when "hangup_and_callback" then "i48grad-callback"
+    when "language" then "i48grad-language"
+    when "record" then "i48grad-microphone"
     else "i48grad-cloud"
     end
   end

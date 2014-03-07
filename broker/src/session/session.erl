@@ -116,6 +116,15 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
       };
     Session -> Session#session{pbx = Pbx}
   end,
+
+  poirot:add_meta([
+    {address, CallerId},
+    {project_id, NewSession#session.project#project.id},
+    {call_log_id, (NewSession#session.call_log):id()},
+    {channel_id, ChannelId},
+    {channel_name, NewSession#session.channel#channel.name}
+  ]),
+
   notify_status('in-progress', NewSession),
   FlowPid = spawn_run(NewSession, State#state.resume_ptr),
 
@@ -130,24 +139,25 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
       Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, QueuedCall#queued_call.call_log_id),
       Session = QueuedCall:start_session(),
 
+      poirot:add_meta([
+        {address, QueuedCall#queued_call.address},
+        {project_id, QueuedCall#queued_call.project_id},
+        {call_log_id, QueuedCall#queued_call.call_log_id},
+        {channel_id, Channel#channel.id},
+        {channel_name, Channel#channel.name}
+      ]),
+
       Session#session{
         session_id = SessionId,
         channel = Channel,
         call_log = CallLog,
         contact = Contact
       };
+
     Session ->
       CallLog = Session#session.call_log,
       Session#session{queued_call = QueuedCall, address = QueuedCall#queued_call.address}
   end,
-
-  poirot:add_meta([
-    {address, QueuedCall#queued_call.address},
-    {project_id, QueuedCall#queued_call.project_id},
-    {call_log_id, QueuedCall#queued_call.call_log_id},
-    {channel_id, Channel#channel.id},
-    {channel_name, Channel#channel.name}
-  ]),
 
   case RealBroker:dispatch(NewSession) of
     {error, unavailable} ->
@@ -296,7 +306,7 @@ spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
       try run(Session, Ptr) of
         {suspend, NewSession, NewPtr} ->
           close_user_step_activity(NewSession),
-          gen_fsm:sync_send_event(SessionPid, {suspend, NewSession, NewPtr});
+          gen_fsm:sync_send_event(SessionPid, {suspend, NewSession#session{in_user_step_activity = false}, NewPtr});
         {Result, NewSession = #session{js_context = JsContext}} ->
           close_user_step_activity(NewSession),
           Status = erjs_context:get(status, JsContext),

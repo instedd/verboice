@@ -47,7 +47,7 @@ module Parsers
           compiler.StartUserStep :record, @id, @name
           compiler.append @explanation_resource.equivalent_flow
           compiler.Record @id, @name, {:stop_keys => @stop_key, :timeout => @timeout}
-          compiler.Trace context_for %("Record message. Download link: " + record_url(#{@id}))
+          compiler.SetStepResult :recorded, "record_url(#{@id})"
           compiler.append @confirmation_resource.equivalent_flow
           compiler.append @next.equivalent_flow if @next
         end

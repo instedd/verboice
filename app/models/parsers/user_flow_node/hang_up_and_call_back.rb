@@ -45,7 +45,7 @@ module Parsers
       def equivalent_flow
         Compiler.parse do |compiler|
           compiler.Label @id
-          compiler.Trace context_for '"Hang up and call back."'
+          compiler.StartUserStep :hangup_and_callback, @id, @name
           compiler.HangupAndCallback(dial_prefix: @dial_prefix)
           compiler.append @next.equivalent_flow if @next
         end
