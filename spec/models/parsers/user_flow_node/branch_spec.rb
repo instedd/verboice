@@ -88,6 +88,7 @@ module Parsers
             StartUserStep :branch, 1, "Branch number one"
             If "(typeof(value_3) != 'undefined' && typeof(6) != 'undefined' && value_3 == 6) && (typeof(var_some_name) != 'undefined' && typeof(5) != 'undefined' && var_some_name >= 5)" do
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 1 selected: \'Play 1\'"'
+              SetStepResult :selected, "1"
               Label 10
               StartUserStep :play, 10, "Play 1"
               PlayResource 123
@@ -96,6 +97,7 @@ module Parsers
             end
             If "(typeof(value_1) != 'undefined' && typeof(var_another_name) != 'undefined' && value_1 <= var_another_name) && (typeof(var_some_name) != 'undefined' && typeof(var_another_name) != 'undefined' && var_some_name <= var_another_name)" do
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 2 selected: \'Play 2\'"'
+              SetStepResult :selected, "2"
               Label 14
               StartUserStep :play, 14, "Play 2"
               PlayResource 1234
@@ -104,6 +106,7 @@ module Parsers
             end
             If "true" do
               Trace call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"Branch number 3 selected: \'Play 3\'"'
+              SetStepResult :selected, "3"
               Label 5
               StartUserStep :play, 5, "Play 3"
               PlayResource 1235
@@ -111,6 +114,7 @@ module Parsers
               Goto "end1"
             end
             Trace(call_flow_id: 1, step_id: 1, step_name: 'Branch number one', store: '"No branch was selected."')
+            SetStepResult :no_branch
             Label "end1"
           end.first
         )
