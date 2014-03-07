@@ -266,6 +266,7 @@ describe Parsers::UserFlow do
         StartUserStep :branch, 34, "Branch number one"
         If "(typeof(value_3) != 'undefined' && typeof(6) != 'undefined' && value_3 == 6) && (typeof(value_2) != 'undefined' && typeof(30) != 'undefined' && value_2 < 30) && (typeof(value_2) != 'undefined' && typeof(5) != 'undefined' && value_2 >= 5)" do
           Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 1 selected: \'Play number 10\'"'
+          SetStepResult :selected, "1"
           Label 10
           StartUserStep :play, 10, "Play number 10"
           PlayResource "resource 10 guid"
@@ -274,6 +275,7 @@ describe Parsers::UserFlow do
         end
         If "(typeof(value_3) != 'undefined' && typeof(5) != 'undefined' && value_3 <= 5)" do
           Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 2 selected: \'Say 14\'"'
+          SetStepResult :selected, "2"
           Label 14
           StartUserStep :play, 14, "Say 14"
           PlayResource "resource 14 guid"
@@ -284,6 +286,7 @@ describe Parsers::UserFlow do
           Goto "end34"
         end
         Trace(call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"No branch was selected."')
+        SetStepResult :no_branch
         Label "end34"
       end
     )
