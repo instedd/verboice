@@ -26,16 +26,20 @@
 
 -record(state, {session_id, session, resume_ptr, pbx_pid, flow_pid, hibernated}).
 
+start_link(#hibernated_session{session_id = SessionId}) ->
+  start_link(SessionId);
 start_link(SessionId) ->
-  gen_fsm:start_link({global, ?SESSION(SessionId)}, ?MODULE, SessionId, []).
+  StringSessionId = util:to_string(SessionId),
+  gen_fsm:start_link({global, ?SESSION(StringSessionId)}, ?MODULE, StringSessionId, []).
 
 new() ->
   SessionId = uuid:to_string(uuid:v4()),
   SessionSpec = {SessionId, {session, start_link, [SessionId]}, temporary, 5000, worker, [session]},
   supervisor:start_child(session_sup, SessionSpec).
 
-new(SessionId) ->
-  SessionSpec = {SessionId, {session, start_link, [SessionId]}, temporary, 5000, worker, [session]},
+new(HibernatedSession) ->
+  HibernatedSessionId = HibernatedSession#hibernated_session.session_id,
+  SessionSpec = {util:to_string(HibernatedSessionId), {session, start_link, [HibernatedSession]}, temporary, 5000, worker, [session]},
   supervisor:start_child(session_sup, SessionSpec).
 
 -spec find(binary() | string()) -> undefined | pid().
@@ -44,7 +48,12 @@ find(SessionId) ->
   case SessionPid of
     undefined ->
       HibernatedSession = hibernated_session:find({session_id, SessionId}),
-      ok;
+      case HibernatedSession of
+        undefined -> undefined;
+        _ ->
+          {ok, NewSessionPid} = new(HibernatedSession),
+          NewSessionPid
+      end;
     _ -> SessionPid
   end.
 
@@ -82,6 +91,9 @@ language(#session{js_context = JsContext, default_language = DefaultLanguage}) -
 
 %% @private
 
+init(HibernatedSession = #hibernated_session{}) ->
+  Session = HibernatedSession:wake_up(),
+  {ok, ready, #state{session_id = Session#session.session_id, session = Session}};
 init(SessionId) ->
   {ok, ready, #state{session_id = SessionId}}.
 
@@ -197,7 +209,21 @@ in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session 
 
 in_progress({hibernate, NewSession, _Ptr}, _From, State = #state{session = _Session = #session{session_id = SessionId}}) ->
   error_logger:info_msg("Session (~p) hibernated", [SessionId]),
-  HibernatedSession = #hibernated_session{session_id = SessionId, data = NewSession},
+  Data = #hibernated_session_data{
+    flow = NewSession#session.flow,
+    stack = NewSession#session.stack,
+    js_context = NewSession#session.js_context,
+    channel_id = NewSession#session.channel#channel.id,
+    call_flow = NewSession#session.call_flow,
+    call_log_id = (NewSession#session.call_log):id(),
+    project_id = NewSession#session.project#project.id,
+    address = NewSession#session.address,
+    contact_id = NewSession#session.contact#contact.id,
+    status_callback_url = NewSession#session.status_callback_url,
+    status_callback_user = NewSession#session.status_callback_user,
+    status_callback_password = NewSession#session.status_callback_password
+  },
+  HibernatedSession = #hibernated_session{session_id = SessionId, data = Data},
   HibernatedSession:create(),
   {stop, normal, State#state{hibernated = true}}.
 
