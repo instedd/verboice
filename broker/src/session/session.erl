@@ -24,7 +24,7 @@
 -include("db.hrl").
 -include("uri.hrl").
 
--record(state, {session_id, session, resume_ptr, pbx_pid, flow_pid}).
+-record(state, {session_id, session, resume_ptr, pbx_pid, flow_pid, hibernated}).
 
 start_link(SessionId) ->
   gen_fsm:start_link({global, ?SESSION(SessionId)}, ?MODULE, SessionId, []).
@@ -34,9 +34,19 @@ new() ->
   SessionSpec = {SessionId, {session, start_link, [SessionId]}, temporary, 5000, worker, [session]},
   supervisor:start_child(session_sup, SessionSpec).
 
--spec find(string()) -> undefined | pid().
+new(SessionId) ->
+  SessionSpec = {SessionId, {session, start_link, [SessionId]}, temporary, 5000, worker, [session]},
+  supervisor:start_child(session_sup, SessionSpec).
+
+-spec find(binary() | string()) -> undefined | pid().
 find(SessionId) ->
-  global:whereis_name(?SESSION(SessionId)).
+  SessionPid = global:whereis_name(?SESSION(util:to_string(SessionId))),
+  case SessionPid of
+    undefined ->
+      HibernatedSession = hibernated_session:find({session_id, SessionId}),
+      ok;
+    _ -> SessionPid
+  end.
 
 -spec answer(pid(), pbx:pbx(), integer(), binary()) -> any().
 answer(SessionPid, Pbx, ChannelId, CallerId) ->
@@ -183,7 +193,13 @@ in_progress({completed, Failure}, State = #state{session = Session}) ->
 in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session = #session{session_id = SessionId}}) ->
   error_logger:info_msg("Session (~p) suspended", [SessionId]),
   channel_queue:unmonitor_session(Session#session.channel#channel.id, self()),
-  {reply, ok, ready, State#state{pbx_pid = undefined, flow_pid = undefined, resume_ptr = Ptr, session = NewSession}}.
+  {reply, ok, ready, State#state{pbx_pid = undefined, flow_pid = undefined, resume_ptr = Ptr, session = NewSession}};
+
+in_progress({hibernate, NewSession, _Ptr}, _From, State = #state{session = _Session = #session{session_id = SessionId}}) ->
+  error_logger:info_msg("Session (~p) hibernated", [SessionId]),
+  HibernatedSession = #hibernated_session{session_id = SessionId, data = NewSession},
+  HibernatedSession:create(),
+  {stop, normal, State#state{hibernated = true}}.
 
 notify_status(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams}) ->
   case Session#session.status_callback_url of
@@ -233,6 +249,8 @@ handle_info(_Info, StateName, State) ->
   {next_state, StateName, State}.
 
 %% @private
+terminate(_Reason, _, #state{hibernated = true}) ->
+  ok;
 terminate(Reason, _, #state{session_id = Id, session = Session}) ->
   push_results(Session),
   error_logger:info_msg("Session (~p) terminated with reason: ~p", [Id, Reason]).
@@ -283,6 +301,8 @@ spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
     try run(Session, Ptr) of
       {suspend, NewSession, NewPtr} ->
         gen_fsm:sync_send_event(SessionPid, {suspend, NewSession, NewPtr});
+      {hibernate, NewSession, NewPtr} ->
+        gen_fsm:sync_send_event(SessionPid, {hibernate, NewSession, NewPtr});
       {Result, #session{js_context = JsContext}} ->
         Status = erjs_context:get(status, JsContext),
         gen_fsm:send_event(SessionPid, {completed, flow_result(Result, Status)})
@@ -354,7 +374,9 @@ run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
         finish ->
           end_flow(NewSession);
         suspend ->
-          {suspend, NewSession, Ptr + 1}
+          {suspend, NewSession, Ptr + 1};
+        hibernate ->
+          {hibernate, NewSession, Ptr + 1}
       end
   catch
     hangup ->

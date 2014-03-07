@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140115210510) do
+ActiveRecord::Schema.define(:version => 20140306150914) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -191,6 +191,13 @@ ActiveRecord::Schema.define(:version => 20140115210510) do
 
   add_index "feeds", ["key"], :name => "index_feeds_on_key"
   add_index "feeds", ["project_id"], :name => "index_feeds_on_project_id"
+
+  create_table "hibernated_sessions", :force => true do |t|
+    t.string   "session_id"
+    t.binary   "data"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
 
   create_table "localized_resources", :force => true do |t|
     t.string   "language"
