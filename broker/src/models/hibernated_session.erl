@@ -7,7 +7,7 @@
 -include_lib("erl_dbmodel/include/model.hrl").
 -include("session.hrl").
 
-wake_up(#hibernated_session{session_id = SessionId, data = #hibernated_session_data{
+wake_up(HibernatedSession = #hibernated_session{session_id = SessionId, data = #hibernated_session_data{
     channel_id = ChannelId,
     flow = Flow,
     stack = Stack,
@@ -22,7 +22,7 @@ wake_up(#hibernated_session{session_id = SessionId, data = #hibernated_session_d
     status_callback_user = StatusCallbackUser,
     status_callback_password = StatusCallbackPassword
   }}) ->
-  #session{
+  Session = #session{
     session_id = SessionId,
     channel = channel:find(ChannelId),
     flow = Flow,
@@ -37,4 +37,7 @@ wake_up(#hibernated_session{session_id = SessionId, data = #hibernated_session_d
     status_callback_url = StatusCallbackUrl,
     status_callback_user = StatusCallbackUser,
     status_callback_password = StatusCallbackPassword
-  }.
+  },
+  HibernatedSession:delete(),
+  Session.
+
