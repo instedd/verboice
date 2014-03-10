@@ -47,7 +47,7 @@ describe ProjectsController do
 
     let!(:call_flow) { CallFlow.make :project => project }
     let!(:channel) { Channel.all_leaf_subclasses.sample.make :call_flow => call_flow, :account => account }
-    let!(:schedule) { project.schedules.make :weekdays => "1", :time_to => (Time.now + 1.day)}
+    let!(:schedule) { project.schedules.make :weekdays => "1", :time_to => Time.utc(2012, 1, 1, 23, 59, 59)}
 
     Timecop.return
 
