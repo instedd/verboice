@@ -5,7 +5,6 @@
 
 run(Args, Session = #session{js_context = JS}) ->
   Metadata = prepare_metadata(Args, JS),
-  io:format("METADATA: ~p~n", [Metadata]),
   poirot:add_meta(util:to_poirot(Metadata)),
   {next, Session}.
 
