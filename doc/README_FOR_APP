@@ -2,25 +2,17 @@ Verboice Installation Guide
 ========================
  * Note: $ entries are commands to execute on the terminal
 
- * Recommended: install RVM and then rvm use 1.9.2 (and better to create a gemset for it)
+ * Gem dependences (install before bundling)
+
+  * ZeroMQ messaging library
+    $ brew install zeromq22
+
+  * sox (wav to gsm converter)
+    * Install sox:
+      * Mac: $ brew install sox
 
  $ gem install bundler
  $ bundle install
-
- * FreeSWITCH
-
-   * Install FreeSWITCH:
-     * Mac: http://wiki.freeswitch.org/wiki/Installation_and_Tips_for_Mac_OS_X
-
-   * Make sure FreeSWITCH is running:
-     * Mac: /usr/local/freeswitch/bin/freeswitch
-
-   * Enable mod event socket in FreeSWITCH: http://wiki.freeswitch.org/wiki/Event_Socket
-     * Usually mod event socket is enabled and the defaults are OK
-
-   * Add a dialplan extension to communicate FreeSWITCH with Verboice:
-     * On verboice root execute:
-       $ cp etc/freeswitch/dialplan/default.xml /usr/local/freeswitch/conf/dialplan
 
   * Asterisk
 
@@ -30,31 +22,30 @@ Verboice Installation Guide
         $ ./configure --prefix=/usr/local/asterisk
         $ make
         $ make install
-        * On verboice root execute:
-          $ cp etc/asterisk/* /usr/local/asterisk/etc/asterisk/
 
-  * sox (wav to gsm converter)
+    * Copy verboice configuration to Asterisk
+      $ cp etc/asterisk/* /usr/local/asterisk/etc/asterisk/
 
-    * Install sox:
-      * Mac: $ brew install sox
+    * Run Asterisk:
+     $ /usr/local/asterisk/sbin/asterisk -c
 
-  * lame (mp3 to wav converter)
+    * Copy Asterisk configuration
+      * In the application root run:
+        $ cp -R etc/ /usr/local/asterisk/etc/
 
-    * Install lame:
-      * Mac: I think it comes in xcode
+  * Compile the Broker
+    $ make -C broker
 
-  * Blink: to test FreeSWITCH and Asterisk are properly installed
-   * Install Blink (a SIP client):
-     * Download: http://icanblink.com/
-     * Once installed, go to Preferences and add a new account:
-       * SIP Address: 1000@<your-ip>
-       * Password: 1234
-       (these will work for FreeSWITCH defaults and for asterisk when copying the config from this project)
-     * You can check if it works by calling the number 1000 (type it on the search box and press enter).
-       This will call yourself :-P
+  * Run the Broker
+    $ make -C broker run
+
+  * Start verboice
+    $ bundle exec rails s
+
+  * Download a soft phone (Ex: Telephone in macosx) and try to call verboice
+
 
 Documentation
 =============
 
   * Asterisk AGI commands: http://www.voip-info.org/wiki/view/Asterisk+AGI
-  * FreeSWITCH commands: http://wiki.freeswitch.org/wiki/Mod_dptools
