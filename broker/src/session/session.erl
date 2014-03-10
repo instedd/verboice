@@ -26,8 +26,9 @@
 
 -record(state, {session_id, session, resume_ptr, pbx_pid, flow_pid, hibernated}).
 
-start_link(#hibernated_session{session_id = SessionId}) ->
-  start_link(SessionId);
+start_link(HibernatedSession = #hibernated_session{session_id = SessionId}) ->
+  StringSessionId = util:to_string(SessionId),
+  gen_fsm:start_link({global, ?SESSION(StringSessionId)}, ?MODULE, HibernatedSession, []);
 start_link(SessionId) ->
   StringSessionId = util:to_string(SessionId),
   gen_fsm:start_link({global, ?SESSION(StringSessionId)}, ?MODULE, StringSessionId, []).
@@ -90,10 +91,10 @@ language(#session{js_context = JsContext, default_language = DefaultLanguage}) -
   end.
 
 %% @private
-
-init(HibernatedSession = #hibernated_session{}) ->
+init(HibernatedSession = #hibernated_session{ data = #hibernated_session_data{resume_ptr = ResumePtr}}) ->
   Session = HibernatedSession:wake_up(),
-  {ok, ready, #state{session_id = Session#session.session_id, session = Session}};
+
+  {ok, ready, #state{session_id = Session#session.session_id, session = Session, resume_ptr = ResumePtr}};
 init(SessionId) ->
   {ok, ready, #state{session_id = SessionId}}.
 
@@ -207,7 +208,7 @@ in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session 
   channel_queue:unmonitor_session(Session#session.channel#channel.id, self()),
   {reply, ok, ready, State#state{pbx_pid = undefined, flow_pid = undefined, resume_ptr = Ptr, session = NewSession}};
 
-in_progress({hibernate, NewSession, _Ptr}, _From, State = #state{session = _Session = #session{session_id = SessionId}}) ->
+in_progress({hibernate, NewSession, Ptr}, _From, State = #state{session = _Session = #session{session_id = SessionId}}) ->
   error_logger:info_msg("Session (~p) hibernated", [SessionId]),
   Data = #hibernated_session_data{
     flow = NewSession#session.flow,
@@ -219,9 +220,11 @@ in_progress({hibernate, NewSession, _Ptr}, _From, State = #state{session = _Sess
     project_id = NewSession#session.project#project.id,
     address = NewSession#session.address,
     contact_id = NewSession#session.contact#contact.id,
+    default_language = NewSession#session.default_language,
     status_callback_url = NewSession#session.status_callback_url,
     status_callback_user = NewSession#session.status_callback_user,
-    status_callback_password = NewSession#session.status_callback_password
+    status_callback_password = NewSession#session.status_callback_password,
+    resume_ptr = Ptr
   },
   HibernatedSession = #hibernated_session{session_id = SessionId, data = Data},
   HibernatedSession:create(),
