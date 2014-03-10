@@ -60,7 +60,7 @@
         %td.icon
           %div{:class => user_step_class(activity.fields['step_type'])}
         %td.details
-          .step_name= activity.fields['step_name']
+          .step_name= activity.description
           .description
             = activity.fields['step_result']
             = activity.fields['step_data']
