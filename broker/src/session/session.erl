@@ -390,6 +390,8 @@ run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
       CallLog:info("The user hang up", []),
       {hangup, Session};
     Class:Error ->
+      poirot:add_meta([{error, iolist_to_binary(io_lib:format("~p", [Error]))}]),
+      close_user_step_activity(Session),
       CallLog:error(["Error ", io_lib:format("~p:~p", [Class, Error])], []),
       lager:error("Error during session ~p: ~p:~p~n~p~n",
         [Session#session.session_id, Class, Error, erlang:get_stacktrace()]),

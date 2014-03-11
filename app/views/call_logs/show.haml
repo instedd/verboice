@@ -51,17 +51,18 @@
 .tablewrapp.user-flow-log
   %table
     -@activities.each do |activity|
-      %tr
+      %tr{:class => activity.fields['error'] ? 'error' : ''}
         %td.timestamp
           - time = Time.parse(activity.start)
           = l(time.to_date, format: :short)
           %br
           = time.strftime("%H:%M:%S.%L")
         %td.icon
-          %div{:class => user_step_class(activity.fields['step_type'])}
+          %div{:class => user_step_class(activity.fields['step_type'], !!activity.fields['error'])}
         %td.details
           .step_name= activity.description
           .description
+            = activity.fields['error']
             = activity.fields['step_result']
             = activity.fields['step_data']
 

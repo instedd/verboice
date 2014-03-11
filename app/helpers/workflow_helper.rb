@@ -23,18 +23,19 @@ module WorkflowHelper
     content_tag(:input, '', :type => 'text', 'data-bind' => 'value: store, enable: defines_store, initAutocomplete: {source: workflow.all_variables()}, initMask: {mask: $.mask.masks.token}', :style => "width: 108px")
   end
 
-  def user_step_class(step_type)
-    case step_type
-    when "play" then "i48grad-sound"
-    when "branch" then "i48grad-directions"
-    when "input" then "i48grad-numeral"
-    when "menu" then "i48grad-dial"
-    when "impersonate" then "i48grad-users"
-    when "hangup_and_callback" then "i48grad-callback"
-    when "language" then "i48grad-language"
-    when "record" then "i48grad-microphone"
-    else "i48grad-cloud"
-    end
+  def user_step_class(step_type, error = false)
+    icon_class = case step_type
+      when "play" then "sound"
+      when "branch" then "directions"
+      when "input" then "numeral"
+      when "menu" then "dial"
+      when "impersonate" then "users"
+      when "hangup_and_callback" then "callback"
+      when "language" then "language"
+      when "record" then "microphone"
+      else "cloud"
+      end
+    "i48grad #{icon_class}#{error ? " red" : ""}"
   end
 
 end
