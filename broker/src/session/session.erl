@@ -195,9 +195,9 @@ in_progress({completed, ok}, State = #state{session = Session}) ->
   notify_status(completed, Session),
   finalize(completed, State);
 
-in_progress({completed, Failure}, State = #state{session = Session}) ->
+in_progress({completed, {failed, Reason}}, State = #state{session = Session}) ->
   notify_status(failed, Session),
-  finalize({failed, Failure}, State).
+  finalize({failed, Reason}, State).
 
 in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session = #session{session_id = SessionId}}) ->
   lager:info("Session (~p) suspended", [SessionId]),
@@ -285,7 +285,12 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
           "queued"
       end
   end,
-  CallLog:update([{state, NewState}, {fail_reason, io_lib:format("~p", [Reason])}, {finished_at, calendar:universal_time()}]),
+  FailReason = case Reason of
+    hangup -> "hangup";
+    {error, _} -> "fatal error";
+    _ -> "error"
+  end,
+  CallLog:update([{state, NewState}, {fail_reason, FailReason}, {finished_at, calendar:universal_time()}]),
   StopReason = case Reason of
     {error, Error} -> Error;
     _ -> normal
@@ -320,8 +325,8 @@ spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
 close_user_step_activity(#session{in_user_step_activity = true}) -> poirot:pop();
 close_user_step_activity(_) -> ok.
 
-flow_result(ok, "failed") -> {error, "marked as failed"};
-flow_result({error, _}, "successful") -> ok;
+flow_result(ok, "failed") -> {failed, "marked as failed"};
+flow_result({failed, _}, "successful") -> ok;
 flow_result(Result, _) -> Result.
 
 get_contact(ProjectId, undefined, CallLogId) ->
@@ -366,7 +371,7 @@ default_variables(Context, ProjectVars, [Var | Rest]) ->
   default_variables(erjs_context:set(VarName, VarValue, Context), ProjectVars, Rest).
 
 run(Session = #session{flow = Flow}, Ptr) when Ptr > length(Flow) -> end_flow(Session);
-run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
+run(Session = #session{flow = Flow, stack = Stack}, Ptr) ->
   Command = lists:nth(Ptr, Flow),
   try eval(Command, Session) of
     {Action, NewSession} ->
@@ -387,15 +392,18 @@ run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
       end
   catch
     hangup ->
-      CallLog:info("The user hang up", []),
-      {hangup, Session};
+      lager:warning("The user hang up"),
+      poirot:add_meta([{error, <<"The user hang up">>}]),
+      {{failed, hangup}, Session};
+    Reason ->
+      poirot:add_meta([{error, iolist_to_binary(io_lib:format("~s", [Reason]))}]),
+      lager:error("~s", [Reason]),
+      {{failed, Reason}, Session};
     Class:Error ->
-      poirot:add_meta([{error, iolist_to_binary(io_lib:format("~p", [Error]))}]),
-      close_user_step_activity(Session),
-      CallLog:error(["Error ", io_lib:format("~p:~p", [Class, Error])], []),
+      poirot:add_meta([{error, iolist_to_binary(io_lib:format("Fatal Error: ~p", [Error]))}]),
       lager:error("Error during session ~p: ~p:~p~n~p~n",
         [Session#session.session_id, Class, Error, erlang:get_stacktrace()]),
-      {{error, {Class, Error}}, Session}
+      {{failed, {error, Error}}, Session}
   end.
 
 end_flow(Session = #session{stack = []}) -> {ok, Session};
