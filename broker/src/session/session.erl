@@ -242,8 +242,10 @@ handle_sync_event(_Event, _From, StateName, State) ->
   {reply, ok, StateName, State}.
 
 %% @private
-handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{pbx_pid = Pid}) ->
-  {stop, Reason, State};
+handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Session, pbx_pid = Pid}) ->
+  notify_status(failed, Session),
+  lager:error("PBX closed unexpectedly with reason: ~s", [Reason]),
+  finalize({failed, {error, Reason}}, State);
 
 handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{flow_pid = Pid}) ->
   {stop, Reason, State};
@@ -252,9 +254,12 @@ handle_info(_Info, StateName, State) ->
   {next_state, StateName, State}.
 
 %% @private
-terminate(Reason, _, #state{session_id = Id, session = Session}) ->
+terminate(Reason, _, #state{session_id = SessionId, session = Session}) ->
   push_results(Session),
-  lager:info("Session (~p) terminated with reason: ~p", [Id, Reason]),
+  case Reason of
+    normal -> lager:info("Session (~p) terminated normally", [SessionId]);
+    _ -> lager:warning("Session (~p) terminated with reason: ~p", [SessionId, Reason])
+  end,
   poirot:pop().
 
 %% @private
@@ -317,7 +322,7 @@ spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
           Status = erjs_context:get(status, JsContext),
           gen_fsm:send_event(SessionPid, {completed, flow_result(Result, Status)})
       after
-        Pbx:terminate()
+        catch Pbx:terminate()
       end
     end)
   end).
