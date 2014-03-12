@@ -25,14 +25,15 @@ module WorkflowHelper
 
   def user_step_class(step_type, error = false)
     icon_class = case step_type
-      when "play" then "sound"
+      when "play", "twiml_play", "twiml_say" then "sound"
       when "branch" then "directions"
-      when "input" then "numeral"
+      when "input", "twiml_gather" then "numeral"
       when "menu" then "dial"
       when "impersonate" then "users"
       when "hangup_and_callback" then "callback"
       when "language" then "language"
       when "record" then "microphone"
+      when "hangup", "twiml_hangup" then "phone"
       else "cloud"
       end
     "i48grad #{icon_class}#{error ? " red" : ""}"
