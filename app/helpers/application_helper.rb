@@ -81,4 +81,8 @@ module ApplicationHelper
   def nuntium_configured?
     Pigeon.config.nuntium_configured?
   end
+
+  def format_timestamp(time)
+    "#{l(time.to_date, format: :long)}, #{time.strftime("%H:%M:%S")} (UTC)"
+  end
 end
