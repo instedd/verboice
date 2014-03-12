@@ -21,7 +21,7 @@
         %input{ko(checked: "when"), 'type' => 'radio', 'value' => 'immediately'} Immediately
         %br
         %input{ko(checked: "when"), 'type' => 'radio', 'value' => 'later'} Later
-        %input{ko(value: 'delay', visible: "when() == 'later'"), 'type' => 'text'}
+        %input{ko(value: 'delay', valueUpdate: '"afterkeydown"', visible: "when() == 'later'", css: '{ "error": is_delay_invalid }'), 'type' => 'text'}
 
       %br/
       %div

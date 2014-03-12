@@ -54,16 +54,22 @@ interpolate(Text, Fun, Output) ->
   end.
 
 parse_short_time(String) ->
-  {Amount, Unit} = string:to_integer(String),
+  {Amount, Unit} = string:to_integer(string:strip(String)),
   case Amount of
     error -> throw({unexpected_short_time, String});
     _ ->
-      case Unit of
-        "s" -> Amount;
-        "m" -> Amount * 60;
-        "h" -> Amount * 60 * 60;
-        "d" -> Amount * 60 * 60 * 24;
-        [] -> Amount * 60 * 60
+      StrippedUnit = string:strip(Unit),
+      case StrippedUnit of
+        [] ->
+          Amount * 60 * 60;
+        _ ->
+          [UnitFirst|_] = StrippedUnit,
+          case UnitFirst of
+            $s -> Amount;
+            $m -> Amount * 60;
+            $h -> Amount * 60 * 60;
+            $d -> Amount * 60 * 60 * 24
+          end
       end
   end.
 
