@@ -142,6 +142,9 @@ Verboice::Application.routes.draw do
     end
   end
 
+
+  get 'permissions' => 'permissions#index'
+
   post 'call_simulator/start'
   post 'call_simulator/resume'
 

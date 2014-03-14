@@ -1,0 +1,3 @@
+class ProjectPermission < Permission
+
+end

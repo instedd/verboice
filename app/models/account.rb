@@ -36,6 +36,7 @@ class Account < ActiveRecord::Base
   has_many :channels, :dependent => :destroy
   has_many :queued_calls, :through => :channels
   has_many :nuntium_channels, :dependent => :destroy
+  has_many :permissions, :dependent => :destroy
 
   has_one :google_oauth_token, :class_name => 'OAuthToken', :conditions => {:service => :google}, :dependent => :destroy
 
