@@ -1,6 +1,6 @@
 GIT
   remote: https://bitbucket.org/instedd/poirot.git
-  revision: 3151d652f205ebb7dfde8be8aaecdeda65ab8164
+  revision: 28c95757704998aca6d2a9ce780c302d7ea84dd5
   branch: master
   specs:
     hercule (0.0.2)
