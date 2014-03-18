@@ -1,5 +1,6 @@
 %script{type: "text/html", id: "resource_template"}
-  %tr{ko(click: 'edit', css: '{ clickable: !editing() }')}
+  - ko_attrs = project_admin? ? {click: 'edit', css: '{ clickable: !editing() }'} : {}
+  %tr{ko(ko_attrs)}
     %td
       %span.name{'data-bind' => 'visible: !editing(), text: name'}
       = text_field_tag :name, '', :class => '', 'data-bind' => 'visible: editing, value: name', :placeholder => 'Enter resource name'
@@ -11,7 +12,8 @@
     / /ko
   %tr{ko(visible: 'editing')}
     %td
-      %button.white{ko(click: 'save')} Save
+      - if project_admin?
+        %button.white{ko(click: 'save')} Save
       %a.cancel{ko(click: 'cancel', visible: 'editing'), href: '#'} Cancel
     %td
     %td.text-right

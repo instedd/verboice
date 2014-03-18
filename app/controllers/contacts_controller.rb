@@ -17,8 +17,9 @@
 
 class ContactsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_project, :only => [:new, :create, :index]
+  before_filter :load_project
   before_filter :initialize_context, :only => [:show, :edit, :update, :destroy]
+  before_filter :check_project_admin, :only => [:create, :edit, :update, :destroy]
 
   def index
     @contacts = @project.contacts.includes(:addresses).includes(:recorded_audios).includes(:persisted_variables).includes(:project_variables)
@@ -107,10 +108,6 @@ class ContactsController < ApplicationController
   end
 
   private
-
-  def load_project
-    @project = current_account.projects.find(params[:project_id])
-  end
 
   def initialize_context
     @contact = current_account.contacts.includes(:addresses).includes(:recorded_audios).includes(:persisted_variables).find(params[:id])

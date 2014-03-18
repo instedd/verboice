@@ -21,9 +21,12 @@ class ExternalServicesController < ApplicationController
 
   respond_to :html, :json
 
-  expose(:project) { current_account.projects.find(params[:project_id]) }
+  expose(:project) { load_project }
   expose(:external_services) { project.external_services }
   expose(:external_service)
+
+  before_filter :load_project
+  before_filter :check_project_admin, only: [:create, :update, :destroy, :update_manifest]
 
   def create
     external_service.save

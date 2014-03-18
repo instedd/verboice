@@ -2,4 +2,5 @@
   %span.title= schedule.name
 .middle= schedule.description
 .bottom
-  = link_to 'Edit', '#', :class => 'farrow collapse_trigger'
+  - if project_admin?
+    = link_to 'Edit', '#', :class => 'farrow collapse_trigger'

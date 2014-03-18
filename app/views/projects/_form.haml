@@ -2,6 +2,8 @@
   :javascript
     $(function() { initProjectSettings(#{@project.default_language.to_json}, #{@project.languages.to_json}, #{@project.synthesizer.voices.to_json}); });
 
+- readonly = @project.persisted? && @project_permission != "admin"
+
 = form_for(@project, :builder => InsteddFormBuilder) do |f|
   - if @project.errors.any?
     #error_explanation
@@ -16,8 +18,8 @@
 
   %h1 Properties
 
-  = f.text_field :name
-  = f.time_zone_select :time_zone, TZInfo::Timezone.all.sort, :model => TZInfo::Timezone
+  = f.text_field :name, readonly: readonly
+  = f.time_zone_select(:time_zone, TZInfo::Timezone.all.sort, {:model => TZInfo::Timezone}, {disabled: readonly})
 
   %hr
 
@@ -28,11 +30,11 @@
 
   = f.label :default_language
   %br
-  %select.w30{ko(value: 'defaultLanguage', options: 'languages', optionsText: "'label'", optionsValue: "'value'"), name: 'project[default_language]'}
+  %select.w30{ko(value: 'defaultLanguage', options: 'languages', optionsText: "'label'", optionsValue: "'value'"), name: 'project[default_language]', disabled: readonly}
 
   %br
   %br
-  = f.select :tts_engine, options_for_select([['Built in', 'built-in'], ['iSpeech', 'ispeech']], @project.tts_engine), label: 'Text-to-speech Engine'
+  = f.select(:tts_engine, options_for_select([['Built in', 'built-in'], ['iSpeech', 'ispeech']], @project.tts_engine), {label: 'Text-to-speech Engine'}, {disabled: readonly})
   = f.text_field :tts_ispeech_api_key, label: 'iSpeech API key'
 
   = f.label :languages, "Languages you will support in this project"
@@ -43,12 +45,14 @@
     %li
       %input{ko(value: 'value'), type: 'hidden', name: 'project[languages][][language]'}
       %span.w15{ko(text: 'description')}
-      %select.w15{ko(value: 'voice', options: 'voices()', optionsText: "'description'", optionsValue: "'id'"), name: 'project[languages][][voice]'}
-      %button.clist-remove{ko(click: '$root.removeLanguage')}
+      %select.w15{ko(value: 'voice', options: 'voices()', optionsText: "'description'", optionsValue: "'id'"), name: 'project[languages][][voice]', disabled: readonly}
+      - unless readonly
+        %button.clist-remove{ko(click: '$root.removeLanguage')}
     //ko
-    %li
-      %input#add_language.ux-type{ko(value: 'newLanguage', valueUpdate: 'afterkeydown', event: {keydown: 'keydown'}), type: 'text', placeholder: 'Add a new language'}
-      %button#add_language_button.clist-add{ko(click: 'addLanguage')}
+    - unless readonly
+      %li
+        %input#add_language.ux-type{ko(value: 'newLanguage', valueUpdate: 'afterkeydown', event: {keydown: 'keydown'}), type: 'text', placeholder: 'Add a new language'}
+        %button#add_language_button.clist-add{ko(click: 'addLanguage')}
 
   %br
 
@@ -59,15 +63,15 @@
 
   %h1 Status callback
 
-  = f.text_field :status_callback_url, :label => 'URL'
-  = f.text_field :status_callback_url_user, :label => 'User', :autocomplete => 'off'
-  = f.password_field :status_callback_url_password, :label => 'Password', :autocomplete => 'off'
+  = f.text_field :status_callback_url, :label => 'URL', readonly: readonly
+  = f.text_field :status_callback_url_user, :label => 'User', :autocomplete => 'off', readonly: readonly
+  = f.password_field :status_callback_url_password, :label => 'Password', :autocomplete => 'off', readonly: readonly
 
-  %hr
-
-  - if @project.new_record?
-    %button.grey{:type => "submit"} Save
-    = link_to "Cancel", projects_path, :class => "button white cancel", :style => 'top: 1px;'
-  - else
-    %button.grey{:type => "submit"} Update
-    = link_to "Cancel", project_path(@project), :class => "button white cancel", :style => 'top: 1px;'
+  - if @project.new_record? || project_admin?
+    %hr
+      - if @project.new_record?
+        %button.grey{:type => "submit"} Save
+        = link_to "Cancel", projects_path, :class => "button white cancel", :style => 'top: 1px;'
+      - else
+        %button.grey{:type => "submit"} Update
+        = link_to "Cancel", project_path(@project), :class => "button white cancel", :style => 'top: 1px;'

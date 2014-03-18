@@ -20,15 +20,14 @@
   - %W(resource localized_resource_selector text_localized_resource url_localized_resource record_localized_resource upload_localized_resource undefined_localized_resource).each do |template|
     = render "resources/#{template}_template"
 
-
-
-= render 'shared/project_tabs_and_title', :project => project
+= render 'shared/project_tabs_and_title', :project => project, :shared_project => @shared_project
 
 %h1 Resources
 %p.desc You can translate the content of your call flows to other languages
 
-%br
-= link_to 'Create Resource', '#', :class => 'cadd', 'data-bind' => 'click: addResource'
+- if project_admin?
+  %br
+  = link_to 'Create Resource', '#', :class => 'cadd', 'data-bind' => 'click: addResource'
 %br
 #wami
 #resources

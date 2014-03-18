@@ -1,4 +1,6 @@
 class FeedServerController < ApplicationController
+  layout false
+
   expose(:feed) { Feed.find_by_key!(params[:id]) }
   expose(:project) { feed.project }
   expose(:recorded_audios) { project.recorded_audios.order("created_at DESC").limit(50) }

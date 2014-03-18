@@ -1,11 +1,12 @@
-= render 'shared/project_tabs_and_title', :project => @project
+= render 'shared/project_tabs_and_title', :project => @project, :shared_project => @shared_project
 
 %h2 Phone book
 %p.desc List of all the people that have made or received calls in this project
 
 .ux-collapsible.collapsed.w40.file_upload{"data-on-expanded" => "box grey"}
   %span
-    %a.button.fconfiguration{:href => "#"} Manage Phone book's columns
+    - if project_admin?
+      %a.button.fconfiguration{:href => "#"} Manage Phone book's columns
   .ux-content
     = form_for(@project, :url => update_variables_project_path(@project)) do |f|
       %hr
@@ -37,9 +38,12 @@
         %th=audio_description
 
     - @contacts.each do |contact|
-      %tr.link{'data-url' => edit_contact_path(contact)}
+      - link_opts = project_admin? ? {'data-url' => edit_contact_path(contact), 'class' => 'link'} : {}
+      %tr{link_opts}
         %td= addresses_for_contact(contact)
-        %td.right= link_to '', contact, :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
+        %td.right
+          - if project_admin?
+            = link_to '', project_contact_path(@project, contact), :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
         - @implicit_variables.each do |implicit_variable|
           - variable = contact.persisted_variables.detect{|v| v.implicit_key == implicit_variable.key}
           %td= variable.try(:value)
@@ -53,4 +57,5 @@
           %td= audios.size
 %br
 
-= link_to 'New Contact', new_project_contact_path(@project), :class => 'cadd'
+- if project_admin?
+  = link_to 'New Contact', new_project_contact_path(@project), :class => 'cadd'

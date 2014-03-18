@@ -40,6 +40,14 @@ class Account < ActiveRecord::Base
 
   has_one :google_oauth_token, :class_name => 'OAuthToken', :conditions => {:service => :google}, :dependent => :destroy
 
+  def shared_projects
+    ProjectPermission.where(account_id: id).includes(:project)
+  end
+
+  def shared_channels
+    ChannelPermission.where(account_id: id).includes(:channel)
+  end
+
   def call(options = {})
     channel = channels.find_by_name! options[:channel]
     channel.call options[:address], options
