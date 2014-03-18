@@ -28,6 +28,8 @@ module Parsers
         @next = params['next']
         @root_index = params['root']
         @dial_prefix = params['dial_prefix']
+        @when = params['when'] || 'immediately'
+        @delay = params['delay'] || '1h'
       end
 
       def is_root?
@@ -46,7 +48,7 @@ module Parsers
         Compiler.parse do |compiler|
           compiler.Label @id
           compiler.StartUserStep :hangup_and_callback, @id, @name
-          compiler.HangupAndCallback(dial_prefix: @dial_prefix)
+          compiler.HangupAndCallback(dial_prefix: @dial_prefix, when: @when, delay: @delay)
           compiler.append @next.equivalent_flow if @next
         end
       end

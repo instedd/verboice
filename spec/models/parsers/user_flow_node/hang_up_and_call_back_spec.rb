@@ -33,7 +33,7 @@ module Parsers
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :hangup_and_callback, 1, 'HangUpAndCallBack'
-            c.HangupAndCallback
+            c.HangupAndCallback(dial_prefix: nil, when: 'immediately', delay: '1h')
           end.first
         )
       end

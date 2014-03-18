@@ -3,7 +3,7 @@
 -include("session.hrl").
 -include("db.hrl").
 
--record(state, {session_id, session, resume_ptr, pbx_pid, flow_pid}).
+-record(state, {session_id, session, resume_ptr, pbx_pid, flow_pid, hibernated}).
 
 notify_status_on_completed_ok_test() ->
   Session = #session{address = <<"123">>, call_log = {call_log_srv}, status_callback_url = <<"http://foo.com">>},
