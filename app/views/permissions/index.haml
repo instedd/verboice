@@ -15,13 +15,13 @@
           %div
             %span{ko(text: 'name')}
             %span{ko(text: 'role')}
-            %select{ko(value: 'role', options: "['none', 'read', 'edit']")}
+            %select{ko(value: 'role', options: "['none', 'use', 'admin']")}
           //ko
           %b Channels
           /ko foreach: channels
           %div
             %span{ko(text: 'name')}
-            %select{ko(value: 'role', options: "['none', 'read', 'use']")}
+            %select{ko(value: 'role', options: "['none', 'use', 'admin']")}
           //ko
       //ko
   %input#add-user{type: :text, placeholder: "Type an email"}
