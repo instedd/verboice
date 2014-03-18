@@ -357,9 +357,10 @@ get_contact(ProjectId, Address, _) ->
   contact:find_or_create_with_address(ProjectId, Address).
 
 default_variables(#session{contact = Contact, queued_call = QueuedCall, project = #project{id = ProjectId}, call_log = CallLog}) ->
+  CallLogId = util:to_string(CallLog:id()),
   Context = erjs_context:new([{record_url, fun(Key) ->
     {ok, BaseUrl} = application:get_env(base_url),
-    BaseUrl ++ "/calls/" ++ util:to_string(CallLog:id()) ++ "/results/" ++ util:to_string(Key)
+    BaseUrl ++ "/calls/" ++ CallLogId ++ "/results/" ++ util:to_string(Key)
   end}]),
   ProjectVars = project_variable:names_for_project(ProjectId),
   Variables = persisted_variable:find_all({contact_id, Contact#contact.id}),
