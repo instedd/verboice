@@ -1,5 +1,5 @@
 -module(util).
--export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1, interpolate/2]).
+-export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1, interpolate/2, parse_short_time/1, time_from_now/1]).
 
 md5hex(Data) ->
   Hash = crypto:hash(md5, Data),
@@ -52,3 +52,27 @@ interpolate(Text, Fun, Output) ->
           interpolate(T2, Fun, <<Output/binary, H1/binary, Value/binary>>)
       end
   end.
+
+parse_short_time(String) ->
+  {Amount, Unit} = string:to_integer(string:strip(String)),
+  case Amount of
+    error -> throw({unexpected_short_time, String});
+    _ ->
+      StrippedUnit = string:strip(Unit),
+      case StrippedUnit of
+        [] ->
+          Amount * 60 * 60;
+        _ ->
+          [UnitFirst|_] = StrippedUnit,
+          case UnitFirst of
+            $s -> Amount;
+            $m -> Amount * 60;
+            $h -> Amount * 60 * 60;
+            $d -> Amount * 60 * 60 * 24
+          end
+      end
+  end.
+
+time_from_now(Seconds) ->
+  calendar:gregorian_seconds_to_datetime(calendar:datetime_to_gregorian_seconds(calendar:universal_time()) + Seconds).
+
