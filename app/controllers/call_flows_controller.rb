@@ -30,6 +30,14 @@ class CallFlowsController < ApplicationController
     @filename = "Call_results_-_#{@call_flow.name}_(#{Time.now.to_s.gsub(' ', '_')}).csv"
     @streaming = true
     @csv_options = { :col_sep => ',' }
+
+    @call_logs = @call_flow.call_logs
+    @activities = Hercule::Activity.search({size: 1000000, filter: {
+      and: [
+        {terms: {call_log_id: @call_logs.map(&:id)}},
+        {exists: {field: "step_type"}}
+      ]
+    }}).items.group_by { |x| x.fields['call_log_id'] }
   end
 
   def index

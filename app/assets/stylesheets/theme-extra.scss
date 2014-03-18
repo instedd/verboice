@@ -11,7 +11,6 @@
 .mobile { background: url(http://theme.instedd.org/theme/images/icons/18/black/mobile.png) no-repeat left; padding-left:20px }
 .message { background: url(http://theme.instedd.org/theme/images/icons/18/black/message.png) no-repeat left; padding-left:20px }
 .twitter { background: url(http://theme.instedd.org/theme/images/icons/18/black/twitter.png) no-repeat left; padding-left:20px }
-.phone { background: url(http://theme.instedd.org/theme/images/icons/18/black/phone.png) no-repeat left; padding-left:20px }
 
 .gmobile { background: url(http://theme.instedd.org/theme/images/icons/18/grey/mobile.png) no-repeat left; padding-left:20px }
 .gmessage { background: url(http://theme.instedd.org/theme/images/icons/18/grey/message.png) no-repeat left; padding-left:20px }
@@ -127,6 +126,40 @@ ul.call-log-details li div span { display:block }
 ul.call-log-details li div span.grey { color:#999999 }
 ul.call-log-details li.orange div { background-position:left -48px }
 ul.call-log-details li.orange div span { color:#ff6600 }
+
+.user-flow-log {
+  min-height: 0px;
+  padding: 0px;
+  width: 800px;
+
+  table {
+    margin: 5px;
+    border-collapse: collapse;
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #999999;
+      margin: 0px;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr.error {
+      * { color: #FF6600 !important; }
+    }
+    .timestamp {
+      width: 100px; font-size: 11px; color: #999999;
+    }
+    .icon {
+      width: 50px;
+    }
+    .details {
+      width: 100%;
+      .description {
+        color: #999999;
+      }
+    }
+  }
+}
 
 .butt-right { background: url(http://theme.instedd.org/theme/images/buttons/mark/greyRight.png) no-repeat right top; color:#000000 !important; padding:2px 15px 2px 4px; display:inline-block; vertical-align:middle }
 .butt-right:hover { background-position:right -30px }

@@ -1,6 +1,7 @@
 -module(session).
 -export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1]).
 -export([language/1]).
+-compile([{parse_transform, lager_transform}]).
 
 % FSM Description
 % Possible states: ready, dialing, in_progress, completed
@@ -91,15 +92,17 @@ language(#session{js_context = JsContext, default_language = DefaultLanguage}) -
   end.
 
 %% @private
-init(HibernatedSession = #hibernated_session{ data = #hibernated_session_data{resume_ptr = ResumePtr}}) ->
+init(HibernatedSession = #hibernated_session{ data = #hibernated_session_data{resume_ptr = ResumePtr, poirot_activity = Activity }}) ->
+  poirot:set_current(Activity),
   Session = HibernatedSession:wake_up(),
-
   {ok, ready, #state{session_id = Session#session.session_id, session = Session, resume_ptr = ResumePtr}};
+
 init(SessionId) ->
+  poirot:push(poirot:new_activity("Session ~p", [SessionId])),
   {ok, ready, #state{session_id = SessionId}}.
 
 ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}) ->
-  error_logger:info_msg("Session (~p) answer", [SessionId]),
+  lager:info("Session (~p) answer", [SessionId]),
   monitor(process, Pbx:pid()),
 
   NewSession = case State#state.session of
@@ -137,13 +140,22 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
       };
     Session -> Session#session{pbx = Pbx}
   end,
+
+  poirot:add_meta([
+    {address, CallerId},
+    {project_id, NewSession#session.project#project.id},
+    {call_log_id, (NewSession#session.call_log):id()},
+    {channel_id, ChannelId},
+    {channel_name, NewSession#session.channel#channel.name}
+  ]),
+
   notify_status('in-progress', NewSession),
   FlowPid = spawn_run(NewSession, State#state.resume_ptr),
 
   {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), flow_pid = FlowPid, session = NewSession}}.
 
 ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id = SessionId, resume_ptr = ResumePtr}) ->
-  error_logger:info_msg("Session (~p) dial", [SessionId]),
+  lager:info("Session (~p) dial", [SessionId]),
 
   NewSession = case State#state.session of
     undefined ->
@@ -151,12 +163,21 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
       Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, QueuedCall#queued_call.call_log_id),
       Session = QueuedCall:start_session(),
 
+      poirot:add_meta([
+        {address, QueuedCall#queued_call.address},
+        {project_id, QueuedCall#queued_call.project_id},
+        {call_log_id, QueuedCall#queued_call.call_log_id},
+        {channel_id, Channel#channel.id},
+        {channel_name, Channel#channel.name}
+      ]),
+
       Session#session{
         session_id = SessionId,
         channel = Channel,
         call_log = CallLog,
         contact = Contact
       };
+
     Session ->
       CallLog = Session#session.call_log,
       Session#session{queued_call = QueuedCall, address = QueuedCall#queued_call.address}
@@ -183,7 +204,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
   end.
 
 dialing({answer, Pbx}, State = #state{session_id = SessionId, session = Session, resume_ptr = Ptr}) ->
-  error_logger:info_msg("Session (~p) answer", [SessionId]),
+  lager:info("Session (~p) answer", [SessionId]),
   monitor(process, Pbx:pid()),
   NewSession = Session#session{pbx = Pbx},
   notify_status('in-progress', NewSession),
@@ -192,7 +213,7 @@ dialing({answer, Pbx}, State = #state{session_id = SessionId, session = Session,
   {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), flow_pid = FlowPid, session = NewSession}};
 
 dialing({reject, Reason}, State = #state{session = Session = #session{session_id = SessionId, call_log = CallLog}}) ->
-  error_logger:info_msg("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
+  lager:info("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
   CallLog:error(["Call was rejected. (Reason: ", atom_to_list(Reason),")"], []),
   notify_status('no-answer', Session),
   finalize({failed, Reason}, State);
@@ -205,17 +226,17 @@ in_progress({completed, ok}, State = #state{session = Session}) ->
   notify_status(completed, Session),
   finalize(completed, State);
 
-in_progress({completed, Failure}, State = #state{session = Session}) ->
+in_progress({completed, {failed, Reason}}, State = #state{session = Session}) ->
   notify_status(failed, Session),
-  finalize({failed, Failure}, State).
+  finalize({failed, Reason}, State).
 
 in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session = #session{session_id = SessionId}}) ->
-  error_logger:info_msg("Session (~p) suspended", [SessionId]),
+  lager:info("Session (~p) suspended", [SessionId]),
   channel_queue:unmonitor_session(Session#session.channel#channel.id, self()),
   {reply, ok, ready, State#state{pbx_pid = undefined, flow_pid = undefined, resume_ptr = Ptr, session = NewSession}};
 
 in_progress({hibernate, NewSession, Ptr}, _From, State = #state{session = _Session = #session{session_id = SessionId}}) ->
-  error_logger:info_msg("Session (~p) hibernated", [SessionId]),
+  lager:info("Session (~p) hibernated", [SessionId]),
   Data = #hibernated_session_data{
     flow = NewSession#session.flow,
     stack = NewSession#session.stack,
@@ -230,11 +251,12 @@ in_progress({hibernate, NewSession, Ptr}, _From, State = #state{session = _Sessi
     status_callback_url = NewSession#session.status_callback_url,
     status_callback_user = NewSession#session.status_callback_user,
     status_callback_password = NewSession#session.status_callback_password,
-    resume_ptr = Ptr
+    resume_ptr = Ptr,
+    poirot_activity = poirot:current()
   },
   HibernatedSession = #hibernated_session{session_id = SessionId, data = Data},
   HibernatedSession:create(),
-  {stop, normal, State#state{hibernated = true}}.
+  {stop, normal, ok, State#state{hibernated = true}}.
 
 notify_status(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams}) ->
   case Session#session.status_callback_url of
@@ -274,8 +296,10 @@ handle_sync_event(_Event, _From, StateName, State) ->
   {reply, ok, StateName, State}.
 
 %% @private
-handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{pbx_pid = Pid}) ->
-  {stop, Reason, State};
+handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Session, pbx_pid = Pid}) ->
+  notify_status(failed, Session),
+  lager:error("PBX closed unexpectedly with reason: ~s", [Reason]),
+  finalize({failed, {error, Reason}}, State);
 
 handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{flow_pid = Pid}) ->
   {stop, Reason, State};
@@ -286,9 +310,13 @@ handle_info(_Info, StateName, State) ->
 %% @private
 terminate(_Reason, _, #state{hibernated = true}) ->
   ok;
-terminate(Reason, _, #state{session_id = Id, session = Session}) ->
+terminate(Reason, _, #state{session_id = SessionId, session = Session}) ->
   push_results(Session),
-  error_logger:info_msg("Session (~p) terminated with reason: ~p", [Id, Reason]).
+  case Reason of
+    normal -> lager:info("Session (~p) terminated normally", [SessionId]);
+    _ -> lager:warning("Session (~p) terminated with reason: ~p", [SessionId, Reason])
+  end,
+  poirot:pop().
 
 %% @private
 code_change(_OldVsn, StateName, State, _Extra) ->
@@ -318,7 +346,12 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
           "queued"
       end
   end,
-  CallLog:update([{state, NewState}, {fail_reason, io_lib:format("~p", [Reason])}, {finished_at, calendar:universal_time()}]),
+  FailReason = case Reason of
+    hangup -> "hangup";
+    {error, _} -> "fatal error";
+    _ -> "error"
+  end,
+  CallLog:update([{state, NewState}, {fail_reason, FailReason}, {finished_at, calendar:universal_time()}]),
   StopReason = case Reason of
     {error, Error} -> Error;
     _ -> normal
@@ -332,22 +365,32 @@ spawn_run(Session = #session{project = Project}, undefined) ->
 
 spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
   SessionPid = self(),
+  SessionActivity = poirot:current(),
   spawn_monitor(fun() ->
-    try run(Session, Ptr) of
-      {suspend, NewSession, NewPtr} ->
-        gen_fsm:sync_send_event(SessionPid, {suspend, NewSession, NewPtr});
-      {hibernate, NewSession, NewPtr} ->
-        gen_fsm:sync_send_event(SessionPid, {hibernate, NewSession, NewPtr});
-      {Result, #session{js_context = JsContext}} ->
-        Status = erjs_context:get(status, JsContext),
-        gen_fsm:send_event(SessionPid, {completed, flow_result(Result, Status)})
-    after
-      Pbx:terminate()
-    end
+    poirot:new_inside(SessionActivity, "Session worker process", async, fun() ->
+      lager:info("Start"),
+      try run(Session, Ptr) of
+        {suspend, NewSession, NewPtr} ->
+          close_user_step_activity(NewSession),
+          gen_fsm:sync_send_event(SessionPid, {suspend, NewSession#session{in_user_step_activity = false}, NewPtr});
+        {hibernate, NewSession, NewPtr} ->
+          close_user_step_activity(NewSession),
+          gen_fsm:sync_send_event(SessionPid, {hibernate, NewSession#session{in_user_step_activity = false}, NewPtr});
+        {Result, NewSession = #session{js_context = JsContext}} ->
+          close_user_step_activity(NewSession),
+          Status = erjs_context:get(status, JsContext),
+          gen_fsm:send_event(SessionPid, {completed, flow_result(Result, Status)})
+      after
+        catch Pbx:terminate()
+      end
+    end)
   end).
 
-flow_result(ok, "failed") -> {error, "marked as failed"};
-flow_result({error, _}, "successful") -> ok;
+close_user_step_activity(#session{in_user_step_activity = true}) -> poirot:pop();
+close_user_step_activity(_) -> ok.
+
+flow_result(ok, "failed") -> {failed, "marked as failed"};
+flow_result({failed, _}, "successful") -> ok;
 flow_result(Result, _) -> Result.
 
 get_contact(ProjectId, undefined, CallLogId) ->
@@ -393,7 +436,7 @@ default_variables(Context, ProjectVars, [Var | Rest]) ->
   default_variables(erjs_context:set(VarName, VarValue, Context), ProjectVars, Rest).
 
 run(Session = #session{flow = Flow}, Ptr) when Ptr > length(Flow) -> end_flow(Session);
-run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
+run(Session = #session{flow = Flow, stack = Stack}, Ptr) ->
   Command = lists:nth(Ptr, Flow),
   try eval(Command, Session) of
     {Action, NewSession} ->
@@ -416,13 +459,18 @@ run(Session = #session{flow = Flow, stack = Stack, call_log = CallLog}, Ptr) ->
       end
   catch
     hangup ->
-      CallLog:info("The user hang up", []),
-      {hangup, Session};
+      lager:warning("The user hang up"),
+      poirot:add_meta([{error, <<"The user hang up">>}]),
+      {{failed, hangup}, Session};
+    Reason ->
+      poirot:add_meta([{error, iolist_to_binary(io_lib:format("~s", [Reason]))}]),
+      lager:error("~s", [Reason]),
+      {{failed, Reason}, Session};
     Class:Error ->
-      CallLog:error(["Error ", io_lib:format("~p:~p", [Class, Error])], []),
-      error_logger:error_msg("Error during session ~p: ~p:~p~n~p~n",
+      poirot:add_meta([{error, iolist_to_binary(io_lib:format("Fatal Error: ~p", [Error]))}]),
+      lager:error("Error during session ~p: ~p:~p~n~p~n",
         [Session#session.session_id, Class, Error, erlang:get_stacktrace()]),
-      {{error, {Class, Error}}, Session}
+      {{failed, {error, Error}}, Session}
   end.
 
 end_flow(Session = #session{stack = []}) -> {ok, Session};

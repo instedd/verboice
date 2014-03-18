@@ -42,9 +42,7 @@ module Parsers
       def equivalent_flow
         Compiler.parse do |compiler|
           compiler.Label @id
-          compiler.AssignValue "current_step", @id
-          compiler.AssignValue "current_step_name", "#{@name}"
-          compiler.Trace context_for '"Sent text message."'
+          compiler.StartUserStep :nuntium, @id, @name
           if @resource.guid
             if @recipient['caller']
               compiler.Nuntium @resource.guid, :caller
@@ -52,6 +50,7 @@ module Parsers
               compiler.Nuntium @resource.guid, :expr, InputSetting.new(@recipient).expression()
             end
           end
+          compiler.Trace context_for '"Sent text message."'
           compiler.append @next.equivalent_flow if @next
         end
       end

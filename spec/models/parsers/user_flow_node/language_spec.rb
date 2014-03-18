@@ -33,9 +33,10 @@ module Parsers
         language.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
-            c.AssignValue "current_step", 1
-            c.AssignValue "current_step_name", "Detect Language"
+            c.StartUserStep :language, 1, "Detect Language"
             c.If "typeof(var_language) != 'undefined'" do |c|
+              c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Detect Language', store: %("Language already set: '" + var_language + "'")
+              c.SetStepResult :already_set, "var_language"
               c.Goto "end1"
             end
             c.Capture({finish_on_key: '', timeout: 1, resource: '12349', language: 'en'})
@@ -49,10 +50,12 @@ module Parsers
             c.Label "set_language1"
             c.If "digits == 1" do |c|
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Detect Language', store: '"User selected en language."'
+              c.SetStepResult :language, "var_language"
               c.PersistVariable 'language', "'en'"
             end
             c.If "digits == 2" do |c|
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Detect Language', store: '"User selected es language."'
+              c.SetStepResult :language, "var_language"
               c.PersistVariable 'language', "'es'"
             end
             c.Label "end1"

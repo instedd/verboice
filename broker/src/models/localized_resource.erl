@@ -4,6 +4,9 @@
 -define(TABLE_NAME, "localized_resources").
 -include_lib("erl_dbmodel/include/model.hrl").
 
+prepare(_, #localized_resource{type = <<"TextLocalizedResource">>, text = undefined, language = Language}) ->
+  throw(io_lib:format("Missing resource text for language '~s'", [Language]));
+
 prepare(Session, #localized_resource{type = <<"TextLocalizedResource">>, text = Text, language = Language}) ->
   resource:prepare_text_resource(Text, binary_to_list(Language), Session);
 

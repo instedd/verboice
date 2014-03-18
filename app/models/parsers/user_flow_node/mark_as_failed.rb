@@ -40,8 +40,7 @@ module Parsers
       def equivalent_flow
         Compiler.parse do |compiler|
           compiler.Label @id
-          compiler.AssignValue "current_step", @id
-          compiler.AssignValue "current_step_name", "#{@name}"
+          compiler.StartUserStep :mark_as_failed, @id, @name
           compiler.Trace context_for '"Marked as failed."'
           compiler.AssignValue "status", "failed"
           compiler.append @next.equivalent_flow if @next

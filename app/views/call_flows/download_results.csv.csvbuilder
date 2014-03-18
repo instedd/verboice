@@ -2,7 +2,7 @@ steps = @call_flow.step_names
 ids = steps.keys
 header = ['Call ID', 'Phone Number', 'Channel', 'Direction', 'Start Time', 'End Time']
 csv << header + steps.values
-@call_flow.call_logs.includes(:traces, :channel).find_each do |call_log|
+@call_logs.includes(:channel).find_each do |call_log|
   line = []
   line << call_log.id
   line << call_log.address
@@ -10,13 +10,18 @@ csv << header + steps.values
   line << call_log.direction
   line << call_log.started_at
   line << call_log.finished_at
-  call_log.traces.each do |trace|
-    begin
-      line[ids.index(trace.step_id.to_i) + header.size] = trace.result
-    rescue Exception => e
-      # If the Trace belongs to a deleted step, there is no way to represent it.
-      # This should be fixed when the call flow stores it's different flow versions.
-      # For now, the trace is ignored
+  if traces = @activities[call_log.id]
+    traces.each do |trace|
+      begin
+        step_id = trace.fields['step_id']
+        step_result = trace.fields['step_result']
+        step_data = trace.fields['step_data']
+        line[ids.index(step_id) + header.size] = step_data ? "#{step_result}:#{step_data}" : step_result
+      rescue Exception => e
+        # If the Trace belongs to a deleted step, there is no way to represent it.
+        # This should be fixed when the call flow stores it's different flow versions.
+        # For now, the trace is ignored
+      end
     end
   end
   csv << line

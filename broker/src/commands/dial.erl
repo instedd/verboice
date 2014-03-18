@@ -1,9 +1,10 @@
 -module(dial).
 -export([run/2]).
+-compile([{parse_transform, lager_transform}]).
 -include("session.hrl").
 -include("db.hrl").
 
-run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, call_log = CallLog, js_context = JS}) ->
+run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, js_context = JS}) ->
   Number = proplists:get_value(number, Args),
   CallerId = proplists:get_value(caller_id, Args),
 
@@ -22,10 +23,10 @@ run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, call_log = Cal
       end
   end,
 
-  CallLog:info(["Dialing ", Number, " throug channel ", Channel#channel.name], [{command, "dial"}, {action, "start"}]),
+  lager:info("Dialing ~s throug channel ~s", [Number, Channel#channel.name]),
 
   Result = Pbx:dial(Channel, list_to_binary(Number), CallerId),
   NewJS = erjs_context:set(dial_status, Result, JS),
 
-  CallLog:info(["Dial completed  with status ", atom_to_list(Result)], [{command, "dial"}, {action, "finish"}]),
+  lager:info("Dial completed with status ~s", [Result]),
   {next, Session#session{js_context = NewJS}}.

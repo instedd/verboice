@@ -105,10 +105,10 @@ unexpected_error() ->
   Channel = channel:make([{call_flow_id, Flow}]),
   {ok, SessionPid} = session:new(),
   Pbx = pbx_mock:new([
-    {answer, [], fun() -> throw(unexpected_error) end}
+    {answer, [], fun() -> error(unexpected_error) end}
   ]),
 
   session:answer(SessionPid, Pbx, Channel:id(), <<"1234">>),
 
-  ?assertEqual({throw, unexpected_error}, test_app:wait_process(SessionPid)),
+  ?assertEqual(unexpected_error, test_app:wait_process(SessionPid)),
   ?assertEqual(ok, Pbx:validate()).

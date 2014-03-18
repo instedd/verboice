@@ -76,10 +76,9 @@ describe CallFlow do
     call_flow.reload.flow.should eq(
       Compiler.make do
         Answer()
-        AssignValue "current_step", 1
-        AssignValue "current_step_name", "Play number one"
-        Trace call_flow_id: 4, step_id: 1, step_name: 'Play number one', store: '"Message played."'
+        StartUserStep :play, 1, "Play number one"
         PlayResource resource.guid
+        Trace call_flow_id: 4, step_id: 1, step_name: 'Play number one', store: '"Message played."'
       end
     )
   end

@@ -15,21 +15,33 @@ scan(Flow, []) -> Flow;
 scan(Flow, [#xmlText{} | Rest]) ->
   scan(Flow, Rest);
 
-scan(Flow, [#xmlElement{name = 'Play', content = Content} | Rest]) ->
-  scan(Flow ++ [[play_url, [{url, inner_text(Content)}]]], Rest);
+scan(Flow, [Play = #xmlElement{name = 'Play', content = Content} | Rest]) ->
+  scan(Flow ++ [
+    start_activity(Play, "twiml_play"),
+    [play_url, [{url, inner_text(Content)}]]
+  ], Rest);
 
-scan(Flow, [#xmlElement{name = 'Say', content = Content} | Rest]) ->
-  scan(Flow ++ [[say, [{text, inner_text(Content)}]]], Rest);
+scan(Flow, [Say = #xmlElement{name = 'Say', content = Content} | Rest]) ->
+  scan(Flow ++ [
+    start_activity(Say, "twiml_say"),
+    [say, [{text, inner_text(Content)}]]
+  ], Rest);
 
-scan(Flow, [#xmlElement{name = 'Hangup'} | Rest]) ->
-  scan(Flow ++ [hangup], Rest);
+scan(Flow, [Hangup = #xmlElement{name = 'Hangup'} | Rest]) ->
+  scan(Flow ++ [
+    start_activity(Hangup, "twiml_hangup"),
+    hangup
+  ], Rest);
 
 scan(Flow, [Pause = #xmlElement{name = 'Pause'} | Rest]) ->
   Cmd = case get_attribute(Pause, length) of
     undefined -> pause;
     Length -> [pause, [{length, list_to_integer(Length)}]]
   end,
-  scan(Flow ++ [Cmd], Rest);
+  scan(Flow ++ [
+    start_activity(Pause, "twiml_pause"),
+    Cmd
+  ], Rest);
 
 scan(Flow, [Redirect = #xmlElement{name = 'Redirect', content = Content} | Rest]) ->
   Url = inner_text(Content),
@@ -37,7 +49,10 @@ scan(Flow, [Redirect = #xmlElement{name = 'Redirect', content = Content} | Rest]
     undefined -> [{url, Url}];
     Method -> [{url, Url}, {method, parse_method(Method)}]
   end,
-  scan(Flow ++ [[callback, CallbackOpts]], Rest);
+  scan(Flow ++ [
+    start_activity(Redirect, "twiml_redirect"),
+    [callback, CallbackOpts]
+  ], Rest);
 
 scan(Flow, [Gather = #xmlElement{name = 'Gather'} | Rest]) ->
   CaptureOpts1 =
@@ -67,12 +82,15 @@ scan(Flow, [Gather = #xmlElement{name = 'Gather'} | Rest]) ->
       end
     end, {CaptureOpts1, [{params, [{"Digits", "digits"}]}]}, Gather#xmlElement.attributes),
 
-  NextIndex = case Rest of [] -> 3; _ -> 4 end,
+  NextIndex = case Rest of [] -> 5; _ -> 6 end,
   Commands = [
+    start_activity(Gather, "twiml_gather"),
     [capture, CaptureOpts],
     ['if', [{condition, "timeout || finish_key"}, {then, length(Flow) + NextIndex}]],
+    set_metadata("pressed", [eval, "digits"]),
     [callback, CallbackOpts],
-    stop
+    stop,
+    set_metadata("timeout")
   ],
   scan(Flow ++ Commands, Rest).
 
@@ -92,3 +110,15 @@ parse_method(Str) ->
     "GET" -> get;
     "POST" -> post
   end.
+
+start_activity(XmlElement, StepType) ->
+  [start_activity, [
+    {name, iolist_to_binary(xmerl:export_simple_element(XmlElement, xmerl_xml))},
+    {metadata, [{step_type, StepType}]}
+  ]].
+
+set_metadata(Result, Data) ->
+  [set_metadata, [{step_result, Result}, {step_data, Data}]].
+
+set_metadata(Result) ->
+  [set_metadata, [{step_result, Result}]].

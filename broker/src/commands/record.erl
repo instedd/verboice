@@ -1,5 +1,6 @@
 -module(record).
 -export([run/2]).
+-compile([{parse_transform, lager_transform}]).
 -include("session.hrl").
 -include("db.hrl").
 
@@ -9,11 +10,11 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact, p
   StopKeys = proplists:get_value(stop_keys, Args, "01234567890*#"),
   Timeout = proplists:get_value(timeout, Args, 10),
 
-  CallLog:info("Record user voice", [{command, "record"}, {action, "start"}]),
   CallLogId = CallLog:id(),
   Filename = filename(CallLogId, Key),
   filelib:ensure_dir(Filename),
 
+  lager:info("Recording to filename: ~s, stop keys: ~s, timeout: ~B", [Filename, StopKeys, Timeout]),
   Pbx:record(Filename, StopKeys, Timeout),
 
   RecordedAudio = #recorded_audio{
@@ -25,7 +26,6 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact, p
   },
   RecordedAudio:save(),
 
-  CallLog:info("Recording saved", [{command, "record"}, {action, "finish"}]),
   {next, Session}.
 
 filename(CallLogId, Key) ->
