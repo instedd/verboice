@@ -42,7 +42,8 @@ capture(Caption, Timeout, FinishOnKey, Min, Max, Pbx = {?MODULE, Pid}) ->
       case lists:member(Key, FinishOnKey) of
         true -> finish_key;
         _Else -> capture_digits(Timeout, FinishOnKey, Min, Max, Pid, [Key])
-      end
+      end;
+    error -> throw({error, "Error during audio playback"})
   end.
 
 capture_digits(_Timeout, _FinishOnKey, _Min, Max, _Pid, Keys) when length(Keys) >= Max ->
