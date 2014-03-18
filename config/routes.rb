@@ -142,8 +142,10 @@ Verboice::Application.routes.draw do
     end
   end
 
-
   get 'permissions' => 'permissions#index'
+  get 'permissions/autocomplete' => 'permissions#autocomplete'
+  post 'permissions/add_account' => 'permissions#add_account'
+  post 'permissions/update' => 'permissions#update'
 
   post 'call_simulator/start'
   post 'call_simulator/resume'

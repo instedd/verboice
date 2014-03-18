@@ -1,7 +1,38 @@
-- content_for :head do
-  :javascript
-    var permissions = #{@permissions.to_json};
-
 %h2 Permissions
+
+.w60
+  .tablewrapp
+    %table.GralTable
+      %tr
+        %th User
+        %th Permissions
+      /ko foreach: $root.users
+      %tr
+        %td{ko(text: 'email'), style: 'vertical-align: baseline'}
+        %td
+          %b Projects
+          /ko foreach: projects
+          %div
+            %span{ko(text: 'name')}
+            %span{ko(text: 'role')}
+            %select{ko(value: 'role', options: "['none', 'read', 'edit']")}
+          //ko
+          %b Channels
+          /ko foreach: channels
+          %div
+            %span{ko(text: 'name')}
+            %select{ko(value: 'role', options: "['none', 'read', 'use']")}
+          //ko
+      //ko
+  %input#add-user{type: :text, placeholder: "Type an email"}
+  %input{ko(click: :addUser), type: :button, value: "Add user"}
+
+:javascript
+  var model = {};
+  model.users = #{@accounts.map { |u| {id: u.id, email: u.email} }.to_json.html_safe};
+  model.projects = #{@projects.map { |p| {id: p.id, name: p.name} }.to_json.html_safe};
+  model.channels = #{@channels.map { |c| {id: c.id, name: c.name} }.to_json.html_safe};
+  model.permissions = #{@permissions.map { |p| {user_id: p.account_id, type: p.type, model_id: p.model_id, role: p.role} }.to_json.html_safe};
+  initPermissions(model)
 
 
