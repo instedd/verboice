@@ -7,21 +7,33 @@ window.initPermissions = (params) ->
     addUser: =>
       $.post "/permissions/add_account", email: $("#add-user").val(), (data) =>
         if data.ok
-          @users.push(new User(data.account))
+          @users.push(new User(data.account, true))
           $("#add-user").val('')
         else
           alert "Error: #{data.error}"
 
   class User
-    constructor: (data) ->
+    constructor: (data, expanded = false) ->
       @id = data.id
       @email = data.email
+      @expanded = ko.observable(expanded)
+      @projectsExpanded = ko.observable(expanded)
+      @channelsExpanded = ko.observable(expanded)
 
       @projects = ko.observableArray _.map params.projects, (project) =>
         new Project(@, project)
 
       @channels = ko.observableArray _.map params.channels, (channel) =>
         new Channel(@, channel)
+
+    toggleExpanded: =>
+      @expanded(!@expanded())
+
+    toggleProjectsExpanded: =>
+      @projectsExpanded(!@projectsExpanded())
+
+    toggleChannelsExpanded: =>
+      @channelsExpanded(!@channelsExpanded())
 
   class PermissionObject
     constructor: (@user, data) ->
