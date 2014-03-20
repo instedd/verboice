@@ -6,7 +6,8 @@
         - feed.errors.full_messages.each do |msg|
           %li= msg
   .rightbuttons
-    = link_to '', [project, feed], :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless feed.new_record?
+    - if project_admin?
+      = link_to '', [project, feed], :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless feed.new_record?
   .summary
     = render 'summary', :feed => feed
   .content

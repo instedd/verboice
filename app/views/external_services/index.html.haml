@@ -1,4 +1,4 @@
-= render 'shared/project_tabs_and_title', :project => project
+= render 'shared/project_tabs_and_title', :project => project, :shared_project => @shared_project
 
 %h2 External services
 %p Use the following tool to define your application's external services
@@ -9,8 +9,9 @@
 - external_services.each do |external_service|
   = render 'box', :external_service => external_service, :expanded => external_service.errors.any?
 
-.box.grey.w60.addqueue
-  %span
-    = link_to_add_box :external_service, "Add External service", @project, :class => 'add_fields'
-  %button.cadd.right{:onclick => "$('.add_fields').click();", :type => "button"}
-  .clear
+- if project_admin?
+  .box.grey.w60.addqueue
+    %span
+      = link_to_add_box :external_service, "Add External service", @project, :class => 'add_fields'
+    %button.cadd.right{:onclick => "$('.add_fields').click();", :type => "button"}
+    .clear

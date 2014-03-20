@@ -6,7 +6,7 @@
     %tr
       %th My Projects
       %th
-    - if @projects.empty?
+    - if @all_projects.empty?
       %tr
         %td.EmptyFolder{:colspan => 100}
           %br
@@ -14,9 +14,12 @@
           %br
           = link_button_to ('Create Project'), new_project_path, :class => 'EmptyAddButton button cadd'
     - else
-      - @projects.each do |project|
+      - @all_projects.each do |project, permission|
         %tr.link{'data-url' => project_path(project)}
-          %td= project.name
+          %td
+            = project.name
+            - if permission
+              (shared as #{permission})
           %td
             %button.farrow{:type => :button}
       %tr.link{'data-url' => new_project_path}

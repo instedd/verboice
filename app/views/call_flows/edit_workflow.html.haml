@@ -32,7 +32,7 @@
   - %W(external_step hang_up_step workflow_step capture_step menu_step play_step mark_as_failed_step mark_as_successful_step transfer_step goto_step branch_step record_step language_step text_localized_resource url_localized_resource record_localized_resource upload_localized_resource command_selector call_simulator branch_option external_setting resource_editor hang_up_and_call_back nuntium_step impersonate_step).each do |template|
     = render "call_flows/#{template}_template"
 
-= render 'shared/project_tabs_and_title', :project => @project
+= render 'shared/project_tabs_and_title', :project => @project, :shared_project => @shared_project
 
 %h2= @call_flow.name
 %p Use the following tool to define the application's call flow
@@ -42,17 +42,18 @@
   = check_box_tag :export_audios
   include audio recordings
 
-.ux-collapsible.collapsed.w40.file_upload{"data-on-expanded" => "box grey"}
-  %span
-    %a.button.fexport{:href => "#"} Import a new Call Flow:
-  .ux-content
-    = form_tag({:action => :import}, :multipart => true) do
-      %hr
-      = file_field_tag 'vrb', :label => 'Browse', :class =>'button white'
-      %hr
-      .right
-        %button.grey{:type => "submit"} Upload
-      .clear
+- if project_admin?
+  .ux-collapsible.collapsed.w40.file_upload{"data-on-expanded" => "box grey"}
+    %span
+      %a.button.fexport{:href => "#"} Import a new Call Flow:
+    .ux-content
+      = form_tag({:action => :import}, :multipart => true) do
+        %hr
+        = file_field_tag 'vrb', :label => 'Browse', :class =>'button white'
+        %hr
+        .right
+          %button.grey{:type => "submit"} Upload
+        .clear
 
 %hr
 
@@ -65,7 +66,8 @@
       -# %p.left.title.clickable{ 'data-bind' => 'click: call_from_browser' } | Try it now!
       %div.right
         = hidden_field_tag 'flow', (@call_flow.user_flow || []).to_json
-        %button.grey{:type => "submit"} Save
+        - if project_admin?
+          %button.grey{:type => "submit"} Save
         = link_to 'Back', project_call_flows_path(@project), :class => "button white cancel", :style => 'top: 1px; margin-right: 15px'
       .clear
       .left
