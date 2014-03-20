@@ -73,9 +73,8 @@ describe ExternalServicesController do
     end
 
     it "fails if the requested external_service is not in current account projects" do
-      expect {
-        post :create, {:project_id => other_external_service.project.to_param, :external_service => ExternalService.plan}
-      }.should raise_error
+      post :create, {:project_id => other_external_service.project.to_param, :external_service => ExternalService.plan}
+      response.status.should eq(404)
     end
   end
 
@@ -90,7 +89,6 @@ describe ExternalServicesController do
         put :update, {:id => external_service.to_param, :external_service => ExternalService.plan, :project_id => project.to_param}
         controller.external_service.should eq(external_service)
       end
-
     end
 
     describe "with invalid params" do
@@ -109,9 +107,8 @@ describe ExternalServicesController do
     end
 
     it "fails if the requested external_service is not in current account projects" do
-      expect {
-        put :update, {:id => other_external_service.to_param, :external_service => ExternalService.plan, :project_id => other_external_service.project.to_param}
-      }.should raise_error
+      put :update, {:id => other_external_service.to_param, :external_service => ExternalService.plan, :project_id => other_external_service.project.to_param}
+      response.status.should eq(404)
     end
   end
 
@@ -123,9 +120,8 @@ describe ExternalServicesController do
     end
 
     it "fails if the requested external_service is not in current account projects" do
-      expect {
-        delete :update, {:id => other_external_service.to_param, :external_service => ExternalService.plan, :project_id => other_external_service.project.to_param}
-      }.should raise_error
+      delete :update, {:id => other_external_service.to_param, :external_service => ExternalService.plan, :project_id => other_external_service.project.to_param}
+      response.status.should eq(404)
     end
 
     it "cleans external_service call flows before destroy" do
@@ -133,7 +129,6 @@ describe ExternalServicesController do
       delete :destroy, {:id => external_service.to_param, :project_id => project.to_param}
     end
   end
-
 
   describe "PUT update_manifest" do
     before(:each) do
@@ -147,10 +142,8 @@ describe ExternalServicesController do
 
 
      it "fails if the requested external_service is not in current account projects" do
-        expect {
-          put :update_manifest, {:id => other_external_service.to_param, :project_id => other_external_service.project.to_param}
-        }.should raise_error
-      end
+      put :update_manifest, {:id => other_external_service.to_param, :project_id => other_external_service.project.to_param}
+      response.status.should eq(404)
+    end
   end
-
 end
