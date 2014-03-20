@@ -102,7 +102,7 @@ class ProjectsController < ApplicationController
     load_project
     @channels = current_account.channels.all
 
-    shared_channels = current_account.shared_channels.where(role: "use").all.map(&:channel)
+    shared_channels = current_account.shared_channels.all.map(&:channel)
     shared_channels.each { |c| c.name = "#{c.name} (shared)" }
     @channels.concat shared_channels
 
