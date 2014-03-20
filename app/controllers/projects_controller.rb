@@ -66,6 +66,7 @@ class ProjectsController < ApplicationController
     addresses = params[:addresses].split(/\n/).map(&:strip).select(&:presence)
 
     options = {}
+    options[:account] = current_account
     options[:schedule_id] = params[:schedule_id] if params[:schedule_id].present?
     options[:not_before] = "#{params[:not_before_date]} #{params[:not_before_time]}" if params[:not_before_date].present? && params[:not_before].present?
     options[:time_zone] = params[:time_zone] if params[:time_zone].present?
