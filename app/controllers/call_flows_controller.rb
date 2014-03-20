@@ -83,7 +83,7 @@ class CallFlowsController < ApplicationController
     @call_flow.user_flow = JSON.parse params[:flow]
     @call_flow.mode= :flow
     if @call_flow.save
-        redirect_to edit_workflow_call_flow_path(@call_flow), :notice => "Call Flow #{@call_flow.name} successfully updated."
+      redirect_to edit_workflow_project_call_flow_path(@project, @call_flow), :notice => "Call Flow #{@call_flow.name} successfully updated."
     else
       render :action => "edit_workflow"
     end
