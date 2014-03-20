@@ -43,16 +43,17 @@ describe ProjectsController do
   end
 
   context "Call enqueue:" do
-    Timecop.freeze(Time.local(2012, 1, 1, 0, 0, 0))
-
     let!(:call_flow) { CallFlow.make :project => project }
     let!(:channel) { Channel.all_leaf_subclasses.sample.make :call_flow => call_flow, :account => account }
     let!(:schedule) { project.schedules.make :weekdays => "1", :time_to => Time.utc(2012, 1, 1, 23, 59, 59)}
 
-    Timecop.return
-
     before(:each) do
+      Timecop.freeze(Time.local(2012, 1, 1, 0, 0, 0))
       BrokerClient.stub(:notify_call_queued)
+    end
+
+    after(:each) do
+      Timecop.return
     end
 
     it 'should enqueue a call' do
@@ -117,7 +118,6 @@ describe ProjectsController do
 
       response.should be_redirect
     end
-
 
     it 'should enqueue multiple calls' do
       expect {

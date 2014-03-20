@@ -36,6 +36,10 @@ describe Schedule do
       Timecop.freeze(Time.parse("2012-04-04T12:00:00Z"))
     end
 
+    after(:each) do
+      Timecop.return
+    end
+
     it "convert time to string" do
       subject.time_from = Time.parse '10:03'
       subject.time_to = Time.parse '10:03'

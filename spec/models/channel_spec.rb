@@ -22,7 +22,7 @@ describe Channel do
   self.use_transactional_fixtures = false
 
   before(:each) do
-    Timecop.freeze(Date.today)
+    Timecop.freeze(Time.parse("2012-01-01T12:00:00Z"))
   end
 
   after(:each) do
