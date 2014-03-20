@@ -1,4 +1,7 @@
-%h1= project.name
+- if shared_project
+  %h1 #{project.name} (shared as #{shared_project.role})
+- else
+  %h1= project.name
 
 %ul.tabs.top
   %li{ :class =>"#{"active" if params[:controller] == "projects" && params[:action] == 'show'}" }

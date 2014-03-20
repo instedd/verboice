@@ -3,4 +3,5 @@
   %br
   = link_to 'Recordings', recordings_feed_url(feed.key, format: :rss), class: 'button frss' if feed.key
 .bottom
-  = link_to 'Edit', '#', :class => 'farrow collapse_trigger'
+  - if project_admin?
+    = link_to 'Edit', '#', :class => 'farrow collapse_trigger'

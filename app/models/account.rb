@@ -36,12 +36,26 @@ class Account < ActiveRecord::Base
   has_many :channels, :dependent => :destroy
   has_many :queued_calls, :through => :channels
   has_many :nuntium_channels, :dependent => :destroy
+  has_many :permissions, :dependent => :destroy
 
   has_one :google_oauth_token, :class_name => 'OAuthToken', :conditions => {:service => :google}, :dependent => :destroy
 
-  def call(options = {})
-    channel = channels.find_by_name! options[:channel]
-    channel.call options[:address], options
+  def shared_projects
+    ProjectPermission.where(account_id: id).includes(:project)
   end
 
+  def shared_channels
+    ChannelPermission.where(account_id: id).includes(:channel)
+  end
+
+  def call(options = {})
+    channel_name = options[:channel]
+    channel = channels.find_by_name(channel_name)
+    channel ||= shared_channels.all.map(&:channel).find { |c| c.name == channel_name }
+    if channel
+      channel.call options[:address], options
+    else
+      raise "Channel not found: #{channel_name}"
+    end
+  end
 end

@@ -78,6 +78,14 @@ module ApplicationHelper
     form.hidden_field(:_destroy) + link_to_function(name, "remove_fields(this)", options)
   end
 
+  def project_admin?
+    @project_permission == "admin"
+  end
+
+  def channel_admin?
+    @channel_permission == "admin"
+  end
+
   def nuntium_configured?
     Pigeon.config.nuntium_configured?
   end

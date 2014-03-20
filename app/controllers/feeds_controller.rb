@@ -17,9 +17,12 @@
 
 class FeedsController < ApplicationController
   before_filter :authenticate_account!
-  expose(:project) { current_account.projects.includes(:feeds).find(params[:project_id]) }
+  expose(:project) { load_project }
   expose(:feeds) { project.feeds }
   expose(:feed)
+
+  before_filter :load_project
+  before_filter :check_project_admin, only: [:create, :update, :destroy]
 
   def index
   end
