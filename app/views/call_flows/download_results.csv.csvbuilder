@@ -6,7 +6,7 @@ csv << header + steps.values
   line = []
   line << call_log.id
   line << call_log.address
-  line << call_log.channel.name
+  line << call_log.channel.try(:name)
   line << call_log.direction
   line << call_log.started_at
   line << call_log.finished_at
