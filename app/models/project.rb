@@ -36,6 +36,7 @@ class Project < ActiveRecord::Base
   has_many :localized_resources, through: :resources
   has_many :feeds
   has_many :recorded_audios
+  has_many :project_permissions, :foreign_key => "model_id", :dependent => :destroy
 
   accepts_nested_attributes_for :project_variables,
     :reject_if => lambda { |attributes| attributes[:name].blank?},

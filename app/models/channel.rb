@@ -22,6 +22,7 @@ class Channel < ActiveRecord::Base
 
   has_many :call_logs, :dependent => :nullify
   has_many :queued_calls, :dependent => :destroy
+  has_many :channel_permissions, :foreign_key => "model_id", :dependent => :destroy
 
   config_accessor :limit
 
