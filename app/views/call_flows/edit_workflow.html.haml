@@ -1,4 +1,8 @@
 - content_for :head do
+  :css
+    .ui-autocomplete.ui-menu {
+      width: 200px !important;
+    }
   :javascript
     var distinct_variables = #{ @variables.to_json };
     var call_flow = #{ raw (@call_flow.user_flow || []).to_json };

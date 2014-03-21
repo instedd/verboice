@@ -38,7 +38,7 @@
         %th=audio_description
 
     - @contacts.each do |contact|
-      - link_opts = project_admin? ? {'data-url' => edit_contact_path(contact), 'class' => 'link'} : {}
+      - link_opts = project_admin? ? {'data-url' => edit_project_contact_path(@project, contact), 'class' => 'link'} : {}
       %tr{link_opts}
         %td= addresses_for_contact(contact)
         %td.right
