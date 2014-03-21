@@ -12,7 +12,7 @@
 
 .w80
   %div{style: 'padding-bottom:10px'}
-    %input.w50#add-user{type: :text, placeholder: "Type an email"}
+    %input.w50#add-user{ko(event: {keydown: :addUserKeydown}), type: :text, placeholder: "Type an email"}
     %button.cadd{ko(click: :addUser), type: :button} Add user
   .tablewrapp
     %table.GralTable

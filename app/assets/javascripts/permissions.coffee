@@ -12,6 +12,12 @@ window.initPermissions = (params) ->
         else
           alert "Error: #{data.error}"
 
+    addUserKeydown: (model, event) =>
+      if event.keyCode == 13
+        @addUser()
+      else
+        true
+
   class User
     constructor: (data, expanded = false) ->
       @id = data.id
