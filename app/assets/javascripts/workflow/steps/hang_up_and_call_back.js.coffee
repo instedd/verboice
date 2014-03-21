@@ -8,7 +8,7 @@ onWorkflow ->
       super(attrs)
       @dial_prefix = ko.observable attrs.dial_prefix
       @when = ko.observable(attrs.when ? 'immediately')
-      @delay = ko.observable(attrs.delay ? '1h')
+      @delay = ko.observable(attrs.delay ? '1 hour')
 
       @is_delay_invalid = ko.computed =>
         @when() == 'later' && !@delay().match(/^\s*\d+\s*(se?c?o?n?d?s?|mi?n?u?t?e?s?|ho?u?r?s?|da?y?s?)\s*$/)

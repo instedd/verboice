@@ -30,5 +30,13 @@
         %input.w25{'type' => 'text', 'data-bind' => 'value: dial_prefix'}
         %br/
 
+      %div{style: 'padding-top:20px'}
+        Examples for "Later":
+        %ul
+          %li 45 seconds
+          %li 30 minutes
+          %li 2 hours
+          %li 7 days
+
       .bottom-actions
         %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
