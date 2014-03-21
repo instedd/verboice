@@ -41,6 +41,12 @@
               %b Projects
             /ko if: projectsExpanded()
             %div.permission-second-padding
+              /ko if: projects.length == 0
+              %div.permission-highlight
+                %div.permission-col-first.permission-empty
+                  You don't have any projects.
+              //ko
+              /ko if: projects.length > 0
               /ko foreach: projects
               %div.permission-highlight
                 %div.permission-col-first
@@ -52,12 +58,19 @@
                 %div.permission-col
                   %input{ko(checked: "role"), type: "radio", value: "admin"}
               //ko
+              //ko
             //ko
             %div.permission-height.permission-highlight{ko(click: :toggleChannelsExpanded), style: 'cursor:pointer'}
               %img{ko(attr: {src: "'#{InsteddRails.url}/theme/images/icons/misc/black/arrow' + (channelsExpanded() ? 'Down' : 'Right') + '.png'"})}
               %b Channels
             /ko if: channelsExpanded()
             %div.permission-second-padding
+              /ko if: channels.length == 0
+              %div.permission-highlight
+                %div.permission-col-first.permission-empty
+                  You don't have any channels.
+              //ko
+              /ko if: channels.length > 0
               /ko foreach: channels
               %div.permission-highlight
                 %div.permission-col-first
@@ -68,6 +81,7 @@
                   %input{ko(checked: "role"), type: "radio", value: "read"}
                 %div.permission-col
                   %input{ko(checked: "role"), type: "radio", value: "admin"}
+              //ko
               //ko
             //ko
           //ko

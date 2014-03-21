@@ -43,3 +43,7 @@
 .permission-highlight:hover {
   background-color: #efefef;
 }
+
+.permission-empty {
+  color: #888;
+}
