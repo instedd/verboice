@@ -37,7 +37,7 @@
 %h2= @call_flow.name
 %p Use the following tool to define the application's call flow
 
-= form_tag export_call_flow_path(@call_flow), :method => :get do
+= form_tag export_project_call_flow_path(@project, @call_flow), :method => :get do
   %button.fimport Export Call flow
   = check_box_tag :export_audios
   include audio recordings

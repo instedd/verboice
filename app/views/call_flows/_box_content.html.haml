@@ -8,7 +8,7 @@
           %li= msg
   .rightbuttons
     - if project_admin?
-      = link_to '', call_flow, :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless call_flow.new_record?
+      = link_to '', project_call_flow_path(@project, call_flow), :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless call_flow.new_record?
   .summary
     = render 'summary', :call_flow => call_flow
 
