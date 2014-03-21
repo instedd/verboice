@@ -16,7 +16,7 @@ run(Args, Session) ->
       Delay = proplists:get_value(delay, Args),
       Seconds = util:parse_short_time(Delay),
       CallDate = util:time_from_now(Seconds),
-      QueuedCall = #queued_call{
+      QueuedCall = queued_call:create(#queued_call{
         channel_id = Session#session.channel#channel.id,
         call_log_id = (Session#session.call_log):id(),
         address = Session#session.address,
@@ -24,7 +24,7 @@ run(Args, Session) ->
         flow = [],
         status_callback_url = Session#session.status_callback_url,
         % TODO: schedule (maybe?)
-        not_before = CallDate,
+        not_before = {datetime, CallDate},
         % TODO: retries
         project_id = Session#session.project#project.id,
         call_flow_id = Session#session.call_flow#call_flow.id,
@@ -32,8 +32,8 @@ run(Args, Session) ->
         session_id = Session#session.session_id,
         variables = [],
         callback_params = []
-      },
-      QueuedCall:create(),
+      }),
+      scheduler:enqueue(QueuedCall),
       {hibernate, Session};
     _ ->
       NotBefore = util:time_from_now(15),
