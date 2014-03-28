@@ -1,7 +1,7 @@
 -module(start_activity).
 -export([run/2]).
 -include("session.hrl").
--include_lib("poirot_erlang/include/poirot.hrl").
+-include_lib("poirot/include/poirot.hrl").
 
 run(Args, Session = #session{call_log = CallLog}) ->
   Name = proplists:get_value(name, Args),

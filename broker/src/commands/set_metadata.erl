@@ -1,7 +1,7 @@
 -module(set_metadata).
 -export([run/2]).
 -include("session.hrl").
--include_lib("poirot_erlang/include/poirot.hrl").
+-include_lib("poirot/include/poirot.hrl").
 
 run(Args, Session = #session{js_context = JS}) ->
   Metadata = prepare_metadata(Args, JS),

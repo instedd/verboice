@@ -9,7 +9,7 @@
                   inets,
                   ssl,
                   lager,
-                  poirot_erlang
+                  poirot
                  ]},
   {mod, { verboice_app, []}},
   {env, []}
