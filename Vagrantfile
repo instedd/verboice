@@ -7,6 +7,12 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "precise64"
   config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+  config.vm.hostname = "verboice.local"
+  config.vm.network :private_network, type: :dhcp
+
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "1024"]
+  end
 
   config.vm.provision :shell, :privileged => false, :inline => <<-SH
     # Add Erlang Solution's repository sources
@@ -17,8 +23,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     sudo apt-get update
     export DEBIAN_FRONTEND=noninteractive
     sudo -E apt-get -y install ruby1.9.3 apache2 asterisk erlang erlang-dev mercurial git \
-      libxml2-dev libxslt1-dev libzmq-dev mysql-server libmysqlclient-dev lame sox libsox-fmt-mp3 nodejs \
-      libcurl4-openssl-dev apache2-threaded-dev libapr1-dev libaprutil1-dev libyaml-dev postfix festival curl
+      libxml2-dev libxslt1-dev libzmq-dev mysql-server libmysqlclient-dev sox libsox-fmt-mp3 nodejs \
+      libcurl4-openssl-dev apache2-threaded-dev libapr1-dev libaprutil1-dev libyaml-dev postfix festival curl \
+      openjdk-7-jre-headless avahi-daemon
+
+    # Install ElasticSearch
+    wget -q https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.1.0.deb
+    sudo dpkg -i elasticsearch-1.1.0.deb
+    sudo service elasticsearch restart
+    update-rc.d elasticsearch defaults
 
     # Install bundler
     sudo gem install bundler --no-ri --no-rdoc
@@ -35,7 +48,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     sudo service apache2 restart
 
     # Setup rails application
-    git  clone /vagrant verboice
+    git clone /vagrant verboice
     cd verboice
     bundle install --deployment --path .bundle --without "development test"
     bundle exec rake db:setup RAILS_ENV=production
@@ -45,9 +58,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     script/update_erl_config broker/verboice.config verboice db_name verboice
     script/update_erl_config broker/verboice.config verboice asterisk_config_dir /etc/asterisk
     script/update_erl_config broker/verboice.config verboice asterisk_sounds_dir /usr/share/asterisk/sounds
-    script/update_erl_config broker/verboice.config verboice base_url "http://192.168.33.10"
+    script/update_erl_config broker/verboice.config verboice base_url "http://verboice.local"
     script/update_erl_config broker/verboice.config verboice crypt_secret super_secret
-    script/update_yml_config config/verboice.yml default_url_options host 192.168.33.10
+    script/update_yml_config config/verboice.yml default_url_options host verboice.local
     echo "RAILS_ENV=production" > .env
     sudo -E bundle exec foreman export upstart /etc/init -a verboice -u `whoami` --concurrency="broker=1,delayed=1"
 
@@ -63,41 +76,4 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Start verboice services
     sudo start verboice
   SH
-
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine. In the example below,
-  # accessing "localhost:8080" will access port 80 on the guest machine.
-  # config.vm.network :forwarded_port, guest: 80, host: 8080
-
-  # Create a private network, which allows host-only access to the machine
-  # using a specific IP.
-  config.vm.network :private_network, ip: "192.168.33.10"
-
-  # Create a public network, which generally matched to bridged network.
-  # Bridged networks make the machine appear as another physical device on
-  # your network.
-  # config.vm.network :public_network
-
-  # If true, then any SSH connections made will enable agent forwarding.
-  # Default value: false
-  # config.ssh.forward_agent = true
-
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
-
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
-  # config.vm.provider :virtualbox do |vb|
-  #   # Don't boot with headless mode
-  #   vb.gui = true
-  #
-  #   # Use VBoxManage to customize the VM. For example to change memory:
-  #   vb.customize ["modifyvm", :id, "--memory", "1024"]
-  # end
-  #
 end
