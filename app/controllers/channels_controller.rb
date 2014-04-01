@@ -17,6 +17,7 @@
 
 class ChannelsController < ApplicationController
   before_filter :authenticate_account!
+  before_filter :load_call_flows, only: [:new, :edit]
   before_filter :load_channel, only: [:show, :edit, :update, :destroy, :call]
   before_filter :check_channel_admin, only: [:update, :destroy]
 
@@ -97,5 +98,13 @@ class ChannelsController < ApplicationController
 
   def call
     render :layout => false
+  end
+
+  private
+
+  def load_call_flows
+    t = Project.arel_table
+    shared_project_ids = current_account.shared_projects.pluck(:model_id)
+    @projects = Project.where(t[:account_id].eq(current_account.id).or(t[:id].in(shared_project_ids))).includes(:call_flows)
   end
 end
