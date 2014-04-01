@@ -40,6 +40,20 @@ describe ProjectsController do
       project.reload.name.should eq('My New Project Name')
       project.reload.time_zone.should eq('GMT-3')
     end
+
+    it "delete a project" do
+      expect {
+        delete :destroy, id: project.to_param
+      }.to change(Project, :count).by(-1)
+    end
+
+    it "should not be able to delete a shared project" do
+      other_project = Project.make
+      Permission.create!(account_id: account.id, type: "Project", model_id: other_project.id, role: :admin)
+      expect {
+        delete :destroy, id: other_project.to_param
+      }.to raise_error(ActiveRecord::RecordNotFound)
+    end
   end
 
   context "Call enqueue:" do
