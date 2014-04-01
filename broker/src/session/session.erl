@@ -197,7 +197,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
       {_, _, NewSession2} = finalize({failed, Reason}, State#state{session = NewSession}),
       {stop, normal, error, State#state{session = NewSession2}};
     _ ->
-      CallLog:info(["Dialing to ", QueuedCall#queued_call.address, " through channel ", Channel#channel.name], []),
+      lager:info("Dialing to ~s through channel ~s", [QueuedCall#queued_call.address, Channel#channel.name]),
       notify_status(ringing, NewSession),
       CallLog:update([{state, "active"}, {fail_reason, undefined}]),
       {reply, ok, dialing, State#state{session = NewSession}, timer:minutes(2)}
