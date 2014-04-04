@@ -62,6 +62,10 @@ namespace :deploy do
   task :symlink_data, :roles => :app do
     run "ln -nfs #{shared_path}/data #{release_path}/"
   end
+
+  task :generate_version, :roles => :app do
+    run "cd #{current_path} && git describe --always > #{release_path}/VERSION"
+  end
 end
 
 namespace :foreman do
@@ -90,6 +94,7 @@ end
 
 before "deploy:start", "deploy:migrate"
 before "deploy:restart", "deploy:migrate"
+after "deploy:update_code", "deploy:generate_version"
 after "deploy:update_code", "deploy:symlink_configs"
 after "deploy:update_code", "deploy:symlink_data"
 after "deploy:update_code", "deploy:prepare_broker"
