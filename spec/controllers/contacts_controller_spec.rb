@@ -159,4 +159,26 @@ describe ContactsController do
     end
   end
 
+  describe "with shared project" do
+    before(:each) do
+      Permission.create!(account_id: @account.id, type: "Project", model_id: @other_project.id, role: :admin)
+    end
+
+    it "can view contacts" do
+      get :index, {:project_id => @other_project.id}
+      assigns(:contacts).should eq([other_contact])
+    end
+
+    it "edit contact" do
+      get :edit, {:project_id => @other_project.id, :id => other_contact.to_param}
+      assigns(:contact).should eq(other_contact)
+    end
+
+    it "destroy the requested contact from shared project" do
+      expect {
+        delete :destroy, {:project_id => @other_project.id, :id => other_contact.to_param}
+      }.to change(Contact, :count).by(-1)
+    end
+  end
+
 end

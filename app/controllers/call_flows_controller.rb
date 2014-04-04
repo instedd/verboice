@@ -25,7 +25,7 @@ class CallFlowsController < ApplicationController
   ]
   before_filter :load_all_call_flows, :only => [:index, :update, :create]
   before_filter :load_recording_data, :only => [:play_result]
-  before_filter :check_project_admin, :only => [:update, :update_workflow, :destroy, :import]
+  before_filter :check_project_admin, :only => [:create, :update, :update_workflow, :destroy, :import]
 
   def download_results
     @filename = "Call_results_-_#{@call_flow.name}_(#{Time.now.to_s.gsub(' ', '_')}).csv"
@@ -50,7 +50,6 @@ class CallFlowsController < ApplicationController
   end
 
   def create
-    @project = current_account.projects.includes(:call_flows).find(params[:project_id])
     @call_flow = @project.call_flows.create(params[:call_flow])
 
     @call_flow.save

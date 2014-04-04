@@ -110,10 +110,9 @@ class ContactsController < ApplicationController
   private
 
   def initialize_context
-    @contact = current_account.contacts.includes(:addresses).includes(:recorded_audios).includes(:persisted_variables).find(params[:id])
+    @contact = @project.contacts.includes(:addresses).includes(:recorded_audios).includes(:persisted_variables).find(params[:id])
     @recorded_audios = @contact.recorded_audios
     @persisted_variables = @contact.persisted_variables
-    @project = @contact.project
     @project_variables = @project.project_variables
   end
 

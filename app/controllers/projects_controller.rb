@@ -17,9 +17,9 @@
 
 class ProjectsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_project, only: [:edit, :update, :destroy, :update_variables]
+  before_filter :load_project, only: [:edit, :update, :update_variables]
   before_filter :load_enqueue_call_fields, only: [:show, :enqueue_call]
-  before_filter :check_project_admin, only: [:update, :destroy, :update_variables]
+  before_filter :check_project_admin, only: [:update, :update_variables]
 
   def index
     @projects = current_account.projects.all
@@ -85,6 +85,7 @@ class ProjectsController < ApplicationController
   end
 
   def destroy
+    @project = current_account.projects.find(params[:id])
     @project.destroy
     redirect_to(projects_url, :notice => "Project #{@project.name} successfully deleted.")
   end

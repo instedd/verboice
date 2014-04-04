@@ -102,6 +102,21 @@ describe CallFlowsController do
         response.should render_template("index")
       end
     end
+
+    it "creates a new CallFlow in shared project" do
+      other_project = Project.make
+      Permission.create!(account_id: account.id, type: "Project", model_id: other_project.id, role: :admin)
+      expect {
+        post :create, {:call_flow => CallFlow.plan, :project_id => other_project.to_param}
+      }.to change(CallFlow, :count).by(1)
+    end
+
+    it "cannot create a new CallFlow in shared project without admin role" do
+      other_project = Project.make
+      Permission.create!(account_id: account.id, type: "Project", model_id: other_project.id, role: :user)
+      post :create, {:call_flow => CallFlow.plan, :project_id => other_project.to_param}
+      response.status.should eq(401)
+    end
   end
 
   describe "PUT update" do
