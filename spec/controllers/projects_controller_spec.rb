@@ -40,6 +40,20 @@ describe ProjectsController do
       project.reload.name.should eq('My New Project Name')
       project.reload.time_zone.should eq('GMT-3')
     end
+
+    it "delete a project" do
+      expect {
+        delete :destroy, id: project.to_param
+      }.to change(Project, :count).by(-1)
+    end
+
+    it "should not be able to delete a shared project" do
+      other_project = Project.make
+      Permission.create!(account_id: account.id, type: "Project", model_id: other_project.id, role: :admin)
+      expect {
+        delete :destroy, id: other_project.to_param
+      }.to raise_error(ActiveRecord::RecordNotFound)
+    end
   end
 
   context "Call enqueue:" do
@@ -47,7 +61,7 @@ describe ProjectsController do
 
     let!(:call_flow) { CallFlow.make :project => project }
     let!(:channel) { Channel.all_leaf_subclasses.sample.make :call_flow => call_flow, :account => account }
-    let!(:schedule) { project.schedules.make :weekdays => "1", :time_to => (Time.now + 1.day)}
+    let!(:schedule) { project.schedules.make :weekdays => "1", :time_to => Time.utc(2012, 1, 1, 23, 59, 59)}
 
     Timecop.return
 
@@ -80,7 +94,7 @@ describe ProjectsController do
     end
 
     it 'should enqueue a call not before specific date' do
-      not_before = Time.gm(2012, 1, 1, 16, 0, 0)
+      not_before = DateTime.new(2012, 1, 1, 16, 0, 0)
 
       BrokerClient.should_receive(:notify_call_queued).with(channel.id, not_before + 1.day)
 

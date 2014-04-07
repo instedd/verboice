@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140115210510) do
+ActiveRecord::Schema.define(:version => 20140317144944) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -192,6 +192,13 @@ ActiveRecord::Schema.define(:version => 20140115210510) do
   add_index "feeds", ["key"], :name => "index_feeds_on_key"
   add_index "feeds", ["project_id"], :name => "index_feeds_on_project_id"
 
+  create_table "hibernated_sessions", :force => true do |t|
+    t.string   "session_id"
+    t.binary   "data"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table "localized_resources", :force => true do |t|
     t.string   "language"
     t.text     "text"
@@ -238,6 +245,15 @@ ActiveRecord::Schema.define(:version => 20140115210510) do
   end
 
   add_index "pbx_logs", ["guid", "id"], :name => "index_pbx_logs_on_guid_and_id"
+
+  create_table "permissions", :force => true do |t|
+    t.integer  "account_id"
+    t.string   "type"
+    t.integer  "model_id"
+    t.string   "role"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
 
   create_table "persisted_variables", :force => true do |t|
     t.string   "value"

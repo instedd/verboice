@@ -25,6 +25,7 @@ class CallFlowsController < ApplicationController
   ]
   before_filter :load_all_call_flows, :only => [:index, :update, :create]
   before_filter :load_recording_data, :only => [:play_result]
+  before_filter :check_project_admin, :only => [:create, :update, :update_workflow, :destroy, :import]
 
   def download_results
     @filename = "Call_results_-_#{@call_flow.name}_(#{Time.now.to_s.gsub(' ', '_')}).csv"
@@ -33,7 +34,6 @@ class CallFlowsController < ApplicationController
   end
 
   def index
-    @project = current_account.projects.includes(:call_flows).find(params[:project_id])
   end
 
   def new
@@ -42,7 +42,6 @@ class CallFlowsController < ApplicationController
   end
 
   def create
-    @project = current_account.projects.includes(:call_flows).find(params[:project_id])
     @call_flow = @project.call_flows.create(params[:call_flow])
 
     @call_flow.save
@@ -75,7 +74,7 @@ class CallFlowsController < ApplicationController
     @call_flow.user_flow = JSON.parse params[:flow]
     @call_flow.mode= :flow
     if @call_flow.save
-        redirect_to edit_workflow_call_flow_path(@call_flow), :notice => "Call Flow #{@call_flow.name} successfully updated."
+      redirect_to edit_workflow_project_call_flow_path(@project, @call_flow), :notice => "Call Flow #{@call_flow.name} successfully updated."
     else
       render :action => "edit_workflow"
     end
@@ -136,16 +135,12 @@ class CallFlowsController < ApplicationController
   end
 
   def load_call_flow_and_project
-    @call_flow = current_account.call_flows.find(params[:id])
-    @project = @call_flow.project
+    load_project
+    @call_flow = @project.call_flows.find(params[:id])
   end
 
   def load_all_call_flows
-    @project = current_account.projects.includes(:call_flows).find(params[:project_id])
-    @call_flows = if @call_flow
-      @project.call_flows.reject { |call_flow| call_flow.id == @call_flow.id }.unshift(@call_flow)
-    else
-      @project.call_flows
-    end
+    load_project
+    @call_flows = @project.call_flows.all
   end
 end

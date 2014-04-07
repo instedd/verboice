@@ -1,4 +1,16 @@
 GIT
+  remote: https://bitbucket.org/instedd/poirot_rails.git
+  revision: 793de4cfb67e271a777a083b281b9baa9c5063a2
+  branch: master
+  specs:
+    poirot_rails (0.0.1)
+      bertrpc
+      guid
+      json
+      rails (>= 3.2)
+      zmq
+
+GIT
   remote: https://github.com/edave/enumerated_attribute.git
   revision: ec1021d11874f37d30589f91814d069884348fdf
   specs:
@@ -239,6 +251,7 @@ GEM
     warden (1.1.0)
       rack (>= 1.0)
     will_paginate (3.0.3)
+    zmq (2.1.4)
 
 PLATFORMS
   ruby
@@ -271,6 +284,7 @@ DEPENDENCIES
   newrelic_rpm
   nokogiri
   oauth2
+  poirot_rails!
   pry-debugger
   rails (~> 3.2.0)
   rest-client

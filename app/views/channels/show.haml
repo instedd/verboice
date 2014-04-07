@@ -1,4 +1,4 @@
-= render 'shared/channel_tabs_and_title', :channel => @channel
+= render 'shared/channel_tabs_and_title', :channel => @channel, :shared_channel => @shared_channel
 
 %h1 Calls
 %p Total number of calls made and received
@@ -26,8 +26,8 @@
           %nobr= @channel.call_flow.name
         - else
           None
-    - if @channel.project
-      = link_to "Manage Call Flow", project_call_flows_path(@channel.project), :class => "button farrow"
+    - if @project
+      = link_to "Manage Call Flow", project_call_flows_path(@project), :class => "button farrow"
   %li
     .i48grad-time
     %div
@@ -47,5 +47,6 @@
 
 %hr
 
-= link_to 'Delete this channel', @channel, :confirm => "Are you sure you want to delete the channel #{@channel.name}?", :method => :delete, :class => "button fdelete"
+- if channel_admin?
+  = link_to 'Delete this channel', @channel, :confirm => "Are you sure you want to delete the channel #{@channel.name}?", :method => :delete, :class => "button fdelete"
 .clear

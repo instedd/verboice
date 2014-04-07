@@ -22,6 +22,7 @@ class Channel < ActiveRecord::Base
 
   has_many :call_logs, :dependent => :nullify
   has_many :queued_calls, :dependent => :destroy
+  has_many :channel_permissions, :foreign_key => "model_id", :dependent => :destroy
 
   config_accessor :limit
 
@@ -74,10 +75,12 @@ class Channel < ActiveRecord::Base
   def enqueue_call_to address, options
     via = options.fetch(:via, 'API')
 
+    account = options[:account] || self.account
+
     if options[:call_flow_id]
-      current_call_flow = account.call_flows.find(options[:call_flow_id])
+      current_call_flow = account.find_call_flow_by_id(options[:call_flow_id])
     elsif options[:call_flow]
-      current_call_flow = account.call_flows.find_by_name(options[:call_flow])
+      current_call_flow = account.find_call_flow_by_name(options[:call_flow])
     elsif options[:flow]
       flow = options[:flow]
     elsif options[:callback_url]
@@ -89,7 +92,7 @@ class Channel < ActiveRecord::Base
     if current_call_flow
       project = current_call_flow.project
     elsif options[:project_id]
-      project = account.projects.find(options[:project_id])
+      project = account.find_project_by_id(options[:project_id])
     else
       project = self.project
     end

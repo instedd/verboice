@@ -18,9 +18,11 @@
 class Commands::HangupAndCallbackCommand < Command
   def initialize(options = {})
     @dial_prefix = options[:dial_prefix]
+    @when = options[:when]
+    @delay = options[:delay]
   end
 
   def serialize_parameters
-    {dial_prefix: @dial_prefix}
+    {dial_prefix: @dial_prefix, when: @when, delay: @delay}
   end
 end

@@ -17,20 +17,29 @@
 
 class ChannelsController < ApplicationController
   before_filter :authenticate_account!
+  before_filter :load_call_flows, only: [:new, :edit]
+  before_filter :load_channel, only: [:show, :edit, :update, :destroy, :call]
+  before_filter :check_channel_admin, only: [:update, :destroy]
 
   # GET /channels
   def index
     @channels = current_account.channels.includes(:call_flow).all
+    @shared_channels = current_account.shared_channels.all
+    all_channels = @channels + @shared_channels.map(&:channel)
+
     @channel_kinds = Channel.all_leaf_subclasses.map(&:kinds).flatten(1).sort_by{|x| x[0]}
 
-    grouped_channels = @channels.each_with_object(Hash.new { |h,k| h[k] = [] }) { |ch, h| h[ch.broker] << ch.id }
+    grouped_channels = all_channels.each_with_object(Hash.new { |h,k| h[k] = [] }) { |ch, h| h[ch.broker] << ch.id }
     @channel_status = BrokerClient.channel_status(grouped_channels) rescue {}
+
+    @all_channels = @channels.map { |c| [c, nil] } +
+                    @shared_channels.map { |sc| [sc.channel, sc.role] }
   end
 
   # GET /channels/1
   def show
-    @channel = current_account.channels.find(params[:id])
     @errors_count = 0 #@channel.errors_count
+    @project = current_account.find_project_by_id(@channel.project.id)
   end
 
   # GET /channels/new
@@ -49,7 +58,6 @@ class ChannelsController < ApplicationController
 
   # GET /channels/1/edit
   def edit
-    @channel = current_account.channels.find(params[:id])
   end
 
   # POST /channels
@@ -75,7 +83,6 @@ class ChannelsController < ApplicationController
 
   # PUT /channels/1
   def update
-    @channel = current_account.channels.find(params[:id])
     if @channel.update_attributes(params[:channel])
       redirect_to(channels_path, :notice => "Channel #{@channel.name} successfully updated.")
     else
@@ -85,14 +92,20 @@ class ChannelsController < ApplicationController
 
   # DELETE /channels/1
   def destroy
-    @channel = current_account.channels.find(params[:id])
     @channel.destroy
 
     redirect_to(channels_url)
   end
 
   def call
-    @channel = current_account.channels.find(params[:id])
     render :layout => false
+  end
+
+  private
+
+  def load_call_flows
+    t = Project.arel_table
+    shared_project_ids = current_account.shared_projects.pluck(:model_id)
+    @projects = Project.where(t[:account_id].eq(current_account.id).or(t[:id].in(shared_project_ids))).includes(:call_flows)
   end
 end

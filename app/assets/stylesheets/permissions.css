@@ -1,0 +1,49 @@
+.permission-header-first {
+  width: 500px;
+  max-width: 500px;
+}
+
+.permission-header {
+  width: 80px;
+  max-width: 80px;
+  text-align: center !important;
+}
+
+.permission-row {
+  vertical-align: baseline;
+  padding: 0 !important;
+}
+
+.permission-col-first {
+  width: 480px;
+  display: inline-block;
+  padding: 0px;
+  height: 24px;
+}
+
+.permission-col {
+  width: 88px;
+  display: inline-block;
+  text-align: center;
+  padding: 0px;
+}
+
+.permission-height {
+  height: 24px;
+}
+
+.permission-first-padding {
+  padding-left: 10px;
+}
+
+.permission-second-padding {
+  padding-left: 16px;
+}
+
+.permission-highlight:hover {
+  background-color: #efefef;
+}
+
+.permission-empty {
+  color: #888;
+}

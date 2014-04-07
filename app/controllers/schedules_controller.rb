@@ -17,10 +17,12 @@
 
 class SchedulesController < ApplicationController
 
-  respond_to :html
-  expose(:project)
+  expose(:project) { load_project }
   expose(:schedules) { project.schedules }
   expose(:schedule)
+
+  before_filter :load_project, only: [:index]
+  before_filter :check_project_admin, only: [:create, :update, :destroy]
 
   def create
     schedule.save

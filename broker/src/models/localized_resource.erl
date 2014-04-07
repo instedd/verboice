@@ -7,8 +7,8 @@
 prepare(Session, #localized_resource{type = <<"TextLocalizedResource">>, text = Text, language = Language}) ->
   resource:prepare_text_resource(Text, binary_to_list(Language), Session);
 
-prepare(Session, #localized_resource{type = <<"UploadLocalizedResource">>, uploaded_audio = Blob, guid = Guid}) ->
-  resource:prepare_blob_resource(binary_to_list(Guid), Blob, Session);
+prepare(Session, #localized_resource{type = <<"UploadLocalizedResource">>, uploaded_audio = Blob, guid = Guid, updated_at = {datetime, UpdatedAt}}) ->
+  resource:prepare_blob_resource(binary_to_list(Guid), UpdatedAt, Blob, Session);
 
-prepare(Session, #localized_resource{type = <<"RecordLocalizedResource">>, recorded_audio = Blob, guid = Guid}) ->
-  resource:prepare_blob_resource(binary_to_list(Guid), Blob, Session).
+prepare(Session, #localized_resource{type = <<"RecordLocalizedResource">>, recorded_audio = Blob, guid = Guid, updated_at = {datetime, UpdatedAt}}) ->
+  resource:prepare_blob_resource(binary_to_list(Guid), UpdatedAt, Blob, Session).

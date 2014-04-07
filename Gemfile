@@ -25,6 +25,7 @@ gem 'language_list'
 gem 'bertrpc'
 gem 'formatted_rails_logger'
 gem 'instedd-pigeon', :require => 'pigeon'
+gem 'poirot_rails', git: 'https://bitbucket.org/instedd/poirot_rails.git', branch: 'master'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'

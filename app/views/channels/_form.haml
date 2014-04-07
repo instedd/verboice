@@ -7,18 +7,20 @@
       %ul
         - @channel.errors.full_messages.each do |msg|
           %li= msg
+  - readonly = @channel.persisted? && @channel_permission != "admin"
   .field
     = f.label :name
-    = f.text_field :name
+    = f.text_field :name, readonly: readonly
   .field
     = f.label :call_flow_id
-    = f.select :call_flow_id, option_groups_from_collection_for_select(current_account.projects.includes(:call_flows), :call_flows, :name, :id, :name, @channel.call_flow_id)
+    = f.select :call_flow_id, option_groups_from_collection_for_select(@projects, :call_flows, :name, :id, :name, @channel.call_flow_id), {}, {disabled: readonly}
   = f.hidden_field :type
-  = render "form_#{@channel.class.name.split('::').last.underscore}", :f => f
-  .actions
-    %hr
-    - if @channel.new_record?
-      %button.white{:type => "submit"} Save
-    - else
-      %button.white{:type => "submit"} Update
-    = link_to 'Cancel', @channel, :class => "button white cancel #{@channel.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'
+  = render "form_#{@channel.class.name.split('::').last.underscore}", :f => f, :readonly => readonly
+  - if @channel.new_record? || channel_admin?
+    .actions
+      %hr
+        - if @channel.new_record?
+          %button.white{:type => "submit"} Save
+        - else
+          %button.white{:type => "submit"} Update
+        = link_to 'Cancel', @channel, :class => "button white cancel #{@channel.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'

@@ -10,15 +10,33 @@
         %th
       %tr
         %td
-          Hang up and immediately call back the caller, continuing the Call Flow from this point.
+          Hang up call back the caller, continuing the Call Flow from this point.
         %td
     %br/
 
     .content
-      Dial Prefix
+      %div
+        Call the caller
+        %br
+        %input{ko(checked: "when"), 'type' => 'radio', 'value' => 'immediately'} Immediately
+        %br
+        %input{ko(checked: "when"), 'type' => 'radio', 'value' => 'later'} Later
+        %input{ko(value: 'delay', valueUpdate: '"afterkeydown"', visible: "when() == 'later'", css: '{ "error": is_delay_invalid }'), 'type' => 'text'}
+
       %br/
-      %input.w25{'type' => 'text', 'data-bind' => 'value: dial_prefix'}
-      %br/
+      %div
+        Dial Prefix
+        %br/
+        %input.w25{'type' => 'text', 'data-bind' => 'value: dial_prefix'}
+        %br/
+
+      %div{style: 'padding-top:20px'}
+        Examples for "Later":
+        %ul
+          %li 45 seconds
+          %li 30 minutes
+          %li 2 hours
+          %li 7 days
 
       .bottom-actions
         %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

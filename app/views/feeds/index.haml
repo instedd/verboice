@@ -1,4 +1,4 @@
-= render 'shared/project_tabs_and_title'
+= render 'shared/project_tabs_and_title', :shared_project => @shared_project
 
 %h2 Feeds
 %p Securely share activity feeds of your projects
@@ -6,8 +6,9 @@
 - feeds.each do |feed|
   = render 'box', :feed => feed, :expanded => feed.errors.any?
 
-.box.grey.w60.addqueue
-  %span
-    = link_to_add_box :feed, "Add Feed", project, :class => 'add_fields'
-  %button.cadd.right{:onclick => "$('.add_fields').click();", :type => "button"}
-  .clear
+- if project_admin?
+  .box.grey.w60.addqueue
+    %span
+      = link_to_add_box :feed, "Add Feed", project, :class => 'add_fields'
+    %button.cadd.right{:onclick => "$('.add_fields').click();", :type => "button"}
+    .clear

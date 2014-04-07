@@ -1,0 +1,98 @@
+- content_for(:head) do
+  :css
+    .ui-autocomplete.ui-menu {
+      width: 494px !important;
+    }
+
+%h2 Permissions
+%p
+  Here you can give other users permissions to read/use and administrate your projects and channels.<br/>
+  Search a user by its email, then click "Add user". If the user doesn't have a Verboice account, please ask her
+  to create one first.<br/>
+
+.w80
+  %div{style: 'padding-bottom:10px'}
+    %input.w50#add-user{ko(event: {keydown: :addUserKeydown}), type: :text, placeholder: "Type an email"}
+    %button.cadd{ko(click: :addUser), type: :button} Add user
+  .tablewrapp
+    %table.GralTable
+      %tr
+        %th.permission-header-first Users → Projects and Channels
+        %th.permission-header None
+        %th.permission-header Read/Use
+        %th.permission-header Admin
+        %th
+      %tr
+        %td
+        %td
+        %td
+        %td
+        %td
+      /ko foreach: $root.users
+      %tr
+        %td{colspan: 5, style: 'padding-top: 4px'}
+          %div.permission-height.permission-highlight{ko(click: :toggleExpanded), style: 'cursor:pointer'}
+            %img{ko(attr: {src: "'#{InsteddRails.url}/theme/images/icons/misc/black/arrow' + (expanded() ? 'Down' : 'Right') + '.png'"})}
+            %span{ko(text: 'email')}
+          /ko if: expanded()
+          %div.permission-first-padding
+            %div.permission-height.permission-highlight{ko(click: :toggleProjectsExpanded), style: 'cursor:pointer'}
+              %img{ko(attr: {src: "'#{InsteddRails.url}/theme/images/icons/misc/black/arrow' + (projectsExpanded() ? 'Down' : 'Right') + '.png'"})}
+              %b Projects
+            /ko if: projectsExpanded()
+            %div.permission-second-padding
+              /ko if: projects().length == 0
+              %div.permission-highlight
+                %div.permission-col-first.permission-empty
+                  You don't have any projects.
+              //ko
+              /ko if: projects().length > 0
+              /ko foreach: projects
+              %div.permission-highlight
+                %div.permission-col-first
+                  %span{ko(text: 'name')}
+                %div.permission-col
+                  %input{ko(checked: "role"), type: "radio", value: "none"}
+                %div.permission-col
+                  %input{ko(checked: "role"), type: "radio", value: "read"}
+                %div.permission-col
+                  %input{ko(checked: "role"), type: "radio", value: "admin"}
+              //ko
+              //ko
+            //ko
+            %div.permission-height.permission-highlight{ko(click: :toggleChannelsExpanded), style: 'cursor:pointer'}
+              %img{ko(attr: {src: "'#{InsteddRails.url}/theme/images/icons/misc/black/arrow' + (channelsExpanded() ? 'Down' : 'Right') + '.png'"})}
+              %b Channels
+            /ko if: channelsExpanded()
+            %div.permission-second-padding
+              /ko if: channels().length == 0
+              %div.permission-highlight
+                %div.permission-col-first.permission-empty
+                  You don't have any channels.
+              //ko
+              /ko if: channels().length > 0
+              /ko foreach: channels
+              %div.permission-highlight
+                %div.permission-col-first
+                  %span{ko(text: 'name')}
+                %div.permission-col
+                  %input{ko(checked: "role"), type: "radio", value: "none"}
+                %div.permission-col
+                  %input{ko(checked: "role"), type: "radio", value: "read"}
+                %div.permission-col
+                  %input{ko(checked: "role"), type: "radio", value: "admin"}
+              //ko
+              //ko
+            //ko
+          //ko
+      //ko
+
+:javascript
+  var model = {};
+  model.users = #{@accounts.map { |u| {id: u.id, email: u.email} }.to_json.html_safe};
+  model.projects = #{@projects.map { |p| {id: p.id, name: p.name} }.to_json.html_safe};
+  model.channels = #{@channels.map { |c| {id: c.id, name: c.name} }.to_json.html_safe};
+  model.permissions = #{@permissions.map { |p| {user_id: p.account_id, type: p.type, model_id: p.model_id, role: p.role} }.to_json.html_safe};
+  initPermissions(model)
+
+

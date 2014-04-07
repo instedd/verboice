@@ -13,7 +13,7 @@
 start_link(Channel = #channel{id = Id}) ->
   gen_server:start_link(?QUEUE(Id), ?MODULE, Channel, []).
 
-%% Enqueue a new ready call. The queue will immediatelly dispatch to broker unless it's busy
+%% Enqueue a new ready call. The queue will immediately dispatch to broker unless it's busy
 enqueue(QueuedCall = #queued_call{channel_id = ChannelId}) ->
   ensure_exists(ChannelId),
   gen_server:cast(?QUEUE(ChannelId), {enqueue, QueuedCall}).

@@ -17,11 +17,15 @@
 
 class ProjectsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_project, only: [:edit, :update, :destroy, :update_variables]
+  before_filter :load_project, only: [:edit, :update, :update_variables]
   before_filter :load_enqueue_call_fields, only: [:show, :enqueue_call]
+  before_filter :check_project_admin, only: [:update, :update_variables]
 
   def index
     @projects = current_account.projects.all
+    @shared_projects = current_account.shared_projects.all
+    @all_projects = @projects.map { |p| [p, nil] } +
+                    @shared_projects.map { |sp| [sp.project, sp.role] }
   end
 
   def show
@@ -56,12 +60,13 @@ class ProjectsController < ApplicationController
   def enqueue_call
     redirect_to project_path(params[:id]), flash: {error: 'You need to select a Call Flow'} and return unless params[:call_flow_id].present?
 
-    @channel = current_account.channels.find_by_id(params[:channel_id])
+    @channel = @channels.find { |c| c.id == params[:channel_id].to_i }
     redirect_to project_path(params[:id]), flash: {error: 'You need to select a channel'} and return unless @channel
 
     addresses = params[:addresses].split(/\n/).map(&:strip).select(&:presence)
 
     options = {}
+    options[:account] = current_account
     options[:schedule_id] = params[:schedule_id] if params[:schedule_id].present?
     options[:not_before] = "#{params[:not_before_date]} #{params[:not_before_time]}" if params[:not_before_date].present? && params[:not_before].present?
     options[:time_zone] = params[:time_zone] if params[:time_zone].present?
@@ -80,6 +85,7 @@ class ProjectsController < ApplicationController
   end
 
   def destroy
+    @project = current_account.projects.find(params[:id])
     @project.destroy
     redirect_to(projects_url, :notice => "Project #{@project.name} successfully deleted.")
   end
@@ -94,13 +100,14 @@ class ProjectsController < ApplicationController
 
   private
 
-  def load_project
-    @project = current_account.projects.find(params[:id])
-  end
-
   def load_enqueue_call_fields
-    @channels = current_account.channels
-    @project = current_account.projects.includes(:call_flows).find(params[:id])
+    load_project
+    @channels = current_account.channels.all
+
+    shared_channels = current_account.shared_channels.all.map(&:channel)
+    shared_channels.each { |c| c.name = "#{c.name} (shared)" }
+    @channels.concat shared_channels
+
     @schedules = @project.schedules
     @call_flows = @project.call_flows.includes(:channels).includes(:queued_calls)
     @project_channels = @call_flows.collect(&:channels).flatten.to_set
@@ -109,7 +116,7 @@ class ProjectsController < ApplicationController
   end
 
   def curated_addresses(addresses)
-    # build a hash from contact_id to all his addresses 
+    # build a hash from contact_id to all his addresses
     # eg. { 1 => ['123','456'], 2 => ['789'] }
     all_contacts = Hash.new { |hash,key| hash[key] = [] }
     all_contacts = @project.contact_addresses.order(:id).inject(all_contacts) do |contacts, contact_address|

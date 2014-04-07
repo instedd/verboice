@@ -10,9 +10,9 @@
     %p.desc Choose whether you will use an external app or build one using Verboice
     .call_flow_mode
       = f.select :mode, options_for_select([['Use an external application', :callback_url], ['Design your app in Verboice', :flow]], call_flow.mode), {}, :class => "w30"
-      = link_to "Go to Designer", edit_workflow_call_flow_path(call_flow), :class => 'button farrow flow_settings flow_settings' unless call_flow.new_record?
+      = link_to "Go to Designer", edit_workflow_project_call_flow_path(@project, call_flow), :class => 'button farrow flow_settings flow_settings' unless call_flow.new_record?
     .flow_settings
-      = link_to 'Download call results as CSV', download_results_call_flow_path(call_flow, :format => :csv), :class => "button fimport" unless call_flow.new_record? || call_flow.user_flow.nil?
+      = link_to 'Download call results as CSV', download_results_project_call_flow_path(@project, call_flow, :format => :csv), :class => "button fimport" unless call_flow.new_record? || call_flow.user_flow.nil?
 
   .callback_url_settings
     = f.label :callback_url, 'URL'
@@ -38,7 +38,7 @@
       = f.label :fusion_table_name, "Fusion Table name"
       %br
       = f.text_field :fusion_table_name, :class => 'w30 fusion_table_name'
-      = link_to current_account.google_oauth_token.nil? ? 'Set your Google Account' : 'Change your Google Account', oauth_call_flow_path(call_flow), :class => 'button farrow link_to_oauth'
+      = link_to current_account.google_oauth_token.nil? ? 'Set your Google Account' : 'Change your Google Account', oauth_project_call_flow_path(@project, call_flow), :class => 'button farrow link_to_oauth'
   %hr
   - if call_flow.new_record?
     %button.white{:type => "submit"} Save

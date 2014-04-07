@@ -1,4 +1,4 @@
-= render 'shared/project_tabs_and_title', :project => @project
+= render 'shared/project_tabs_and_title', :project => @project, :shared_project => @shared_project
 
 %h2 Call flows
 %p Use the following tool to define your application's call flows
@@ -6,8 +6,9 @@
 - @call_flows.each do |call_flow|
   = render 'box', :call_flow => call_flow, :expanded => call_flow.errors.any?
 
-.box.grey.w60.addqueue
-  %span
-    = link_to_add_box :call_flow, "Add Call flow", @project, :class => 'add_fields'
-  %button.cadd.right{:onclick => "$('.add_fields').click();", :type => "button"}
-  .clear
+- if project_admin?
+  .box.grey.w60.addqueue
+    %span
+      = link_to_add_box :call_flow, "Add Call flow", @project, :class => 'add_fields'
+    %button.cadd.right{:onclick => "$('.add_fields').click();", :type => "button"}
+    .clear

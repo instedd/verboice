@@ -6,7 +6,8 @@
         - schedule.errors.full_messages.each do |msg|
           %li= msg
   .rightbuttons
-    = link_to '', [project, schedule], :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless schedule.new_record?
+    - if project_admin?
+      = link_to '', [project, schedule], :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless schedule.new_record?
   .summary
     = render 'summary', :schedule => schedule
   .content
