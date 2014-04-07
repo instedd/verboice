@@ -6,7 +6,7 @@ Verboice Installation Guide
   $ brew install erlang
 
 * Install Elasticsearch
-  $ brew install  elasticsearch
+  $ brew install elasticsearch
 
  * Gem dependences (install before bundling)
 
