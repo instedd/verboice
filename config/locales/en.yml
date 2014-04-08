@@ -4,6 +4,14 @@
 en:
   activerecord:
     attributes:
+      call_flow:
+        google_oauth_token: "A Google account"
+    errors:
+      models:
+        call_flow:
+          attributes:
+            google_oauth_token:
+              blank: "must be linked"
       application:
         callback_url_user: "User"
         callback_url_password: "Password"
