@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+require 'optparse'
+
+options = {env: ENV["RAILS_ENV"] || "production"}
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} [options]"
+  opts.on("-i", "--install", "Install this script as a cron task")                 { options[:install] = true }
+  opts.on("-k", "--key KEY", "Server key provided by InSTEDD")                     { |key| options[:key] = key }
+  opts.on("-e", "--environment ENV", "Rails environment (defaults to production)") { |env| options[:env] = env }
+end
+opts.parse!
+
+unless options[:key]
+  puts "Server key is required"
+  puts opts
+  exit 1
+end
+
+require "bundler/setup"
+require "rails"
+Rails.env =  options[:env]
+require File.expand_path("config/environment", Bundler.root)
+
+if options[:install]
+  `echo "\
+BUNDLE_GEMFILE=#{Bundler.default_gemfile}
+PATH=#{ENV['PATH']}
+GEM_PATH=\\"#{ENV['GEM_PATH']}\\"
+GEM_ROOT=\\"#{ENV['GEM_ROOT']}\\"
+
+0 2 * * 7 root  #{$0} -k #{options[:key]} -e #{Rails.env}
+" | sudo tee /etc/cron.d/verboice_usage_stats`
+  exit
+end
+
+require "net/http"
+require "json"
+require "time"
+require "securerandom"
+
+channel_count = Channel.count
+phone_count = defined?(ContactAddress) && ContactAddress.table_exists? ? ContactAddress.count : Contact.count
+call_count =  CallLog.where('created_at >= ?', 1.week.ago).count
+timestamp = Time.now.utc.iso8601
+
+stats = {
+  timestamp: timestamp,
+  server_key: options[:key],
+  channel_count: channel_count,
+  phone_count: phone_count,
+  call_count: call_count
+}
+
+http = Net::HTTP.new("s3.amazonaws.com", 443)
+http.use_ssl = true
+request = Net::HTTP::Put.new("/verboice-stats.instedd.org/#{timestamp}-#{options[:key]}-#{SecureRandom.urlsafe_base64}")
+request.add_field('x-amz-acl', 'bucket-owner-full-control')
+request.add_field('Content-Type', 'text/json')
+request.body = stats.to_json
+http.request(request)
