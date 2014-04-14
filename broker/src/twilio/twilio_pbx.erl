@@ -2,7 +2,7 @@
 -export([pid/1, answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2, dial/4]).
 -behaviour(pbx).
 
--export([start_link/1, find/1, new/1, resume/2]).
+-export([start_link/1, find/1, new/1, resume/2, record/4]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -12,6 +12,8 @@
 -define(PBX, ?PBX(Pid)).
 
 -record(state, {callback_url, awaiter, session, commands = [], waiting}).
+
+-include("uri.hrl").
 
 start_link(CallSid) ->
   gen_server:start_link({global, {twilio_pbx, CallSid}}, ?MODULE, {}, []).
@@ -44,6 +46,9 @@ capture(Caption, Timeout, FinishOnKey, Min, Max, ?PBX(Pid)) ->
     hangup -> throw(hangup);
     X -> X
   end.
+
+record(FileName, StopKeys, Timeout, ?PBX(Pid)) ->
+  gen_server:call(Pid, {record, FileName, StopKeys, Timeout}, timer:minutes(5)).
 
 terminate(?PBX) ->
   catch gen_server:call(Pid, terminate).
@@ -82,6 +87,18 @@ handle_call({resume, Params}, From, State = #state{session = Session, waiting = 
   gen_server:reply(Session, Reply),
   {noreply, State#state{awaiter = From, waiting = undefined}};
 
+
+handle_call({resume, Params}, From, State = #state{session = Session, waiting = {record, FileName}}) ->
+ Reply = case proplists:get_value("RecordingUrl", Params) of
+    undefined -> timeout;
+    RecordingUrl ->
+      RequestUrl = RecordingUrl,
+      RequestUri = uri:parse(RequestUrl),
+      uri:get([{body_format, binary}, {stream, FileName}], RequestUri)
+  end,
+  gen_server:reply(Session, Reply),
+  {noreply, State#state{awaiter = From, waiting = undefined}};
+
 handle_call({resume, _Params}, From, State = #state{session = Session}) ->
   gen_server:reply(Session, ok),
   {noreply, State#state{awaiter = From}};
@@ -95,6 +112,11 @@ handle_call({capture, Resource, Timeout, FinishOnKey, Min, Max}, From, State) ->
       [resource_command(Resource, State)]
     },
   flush(From, append_with_callback(Command, State#state{waiting = {capture, Min}}));
+
+handle_call({record, FileName, StopKeys, Timeout}, From, State) ->
+  Command =
+    {'Record', [{timeout, Timeout}, {finishOnKey, StopKeys}], []},
+  flush(From, append_with_callback(Command, State#state{waiting = {record, FileName}}));
 
 handle_call(terminate, _From, State) ->
   {stop, normal, ok, State}.
