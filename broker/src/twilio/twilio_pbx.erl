@@ -48,7 +48,10 @@ capture(Caption, Timeout, FinishOnKey, Min, Max, ?PBX(Pid)) ->
   end.
 
 record(FileName, StopKeys, Timeout, ?PBX(Pid)) ->
-  gen_server:call(Pid, {record, FileName, StopKeys, Timeout}, timer:minutes(5)).
+  case gen_server:call(Pid, {record, FileName, StopKeys, Timeout}, timer:minutes(5)) of
+    hangup -> throw(hangup);
+    X -> X
+  end.
 
 terminate(?PBX) ->
   catch gen_server:call(Pid, terminate).
@@ -89,7 +92,7 @@ handle_call({resume, Params}, From, State = #state{session = Session, waiting = 
 
 
 handle_call({resume, Params}, From, State = #state{session = Session, waiting = {record, FileName}}) ->
- Reply = case proplists:get_value("RecordingUrl", Params) of
+  Reply = case proplists:get_value("RecordingUrl", Params) of
     undefined -> timeout;
     RecordingUrl ->
       RequestUrl = RecordingUrl,
