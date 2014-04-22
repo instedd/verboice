@@ -39,7 +39,9 @@ class ChannelsController < ApplicationController
   # GET /channels/1
   def show
     @errors_count = 0 #@channel.errors_count
-    @project = current_account.find_project_by_id(@channel.project.id)
+    if @channel.project
+      @project = current_account.find_project_by_id(@channel.project.id)
+    end
   end
 
   # GET /channels/new
