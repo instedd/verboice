@@ -7,6 +7,10 @@ onResources(function(){
     this.name = ko.observable(null);
     this.editing = ko.observable(false);
 
+    this.is_valid = ko.computed(function() {
+        return this.name()
+    }, this);
+
     var existing_localized_resources = hash['localized_resources'] || [];
     this.localizedResources = ko.observableArray(
       _.map(project.languages(), function(language){
@@ -44,6 +48,9 @@ onResources(function(){
   }
 
   Resource.prototype.save = function(){
+    if(! this.is_valid()) {
+      return false;
+    };
     var self = this;
     var data = this.toHash();
     if(this.id()) {
