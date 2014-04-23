@@ -27,7 +27,6 @@ class Channel < ActiveRecord::Base
   config_accessor :limit
 
   validates_presence_of :account
-  validates_presence_of :call_flow
 
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :account_id

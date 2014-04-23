@@ -40,7 +40,6 @@ describe Channel do
       it { should belong_to(:call_flow) }
 
       it { should validate_presence_of(:account) }
-      it { should validate_presence_of(:call_flow) }
       it { should validate_presence_of(:name) }
       it { should validate_uniqueness_of(:name).scoped_to(:account_id) }
     end

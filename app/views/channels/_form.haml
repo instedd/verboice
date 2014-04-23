@@ -13,7 +13,7 @@
     = f.text_field :name, readonly: readonly
   .field
     = f.label :call_flow_id
-    = f.select :call_flow_id, option_groups_from_collection_for_select(@projects, :call_flows, :name, :id, :name, @channel.call_flow_id), {}, {disabled: readonly}
+    = f.select :call_flow_id, option_groups_from_collection_for_select(@projects, :call_flows, :name, :id, :name, @channel.call_flow_id), {:include_blank => 'None'}, {disabled: readonly}
   = f.hidden_field :type
   = render "form_#{@channel.class.name.split('::').last.underscore}", :f => f, :readonly => readonly
   - if @channel.new_record? || channel_admin?

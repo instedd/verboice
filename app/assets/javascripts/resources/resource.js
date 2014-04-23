@@ -8,7 +8,7 @@ onResources(function(){
     this.editing = ko.observable(false);
 
     this.is_valid = ko.computed(function() {
-        return this.name()
+      return this.name()
     }, this);
 
     var existing_localized_resources = hash['localized_resources'] || [];
