@@ -28,7 +28,8 @@ Verboice::Application.routes.draw do
 
   match '/' => 'home#index',  :as => 'home'
 
-  devise_for :accounts
+  devise_for :accounts, controllers: {omniauth_callbacks: "omniauth_callbacks"}
+  guisso_for :account
 
   resources :feeds, controller: :feed_server do
     member do

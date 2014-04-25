@@ -15,25 +15,25 @@
           <%=current_account.email%><br><br>
           <div class="container">
             <ul>
-              <li><%= link_to 'Settings', edit_account_registration_path %></li>
+              <li><%= link_to 'Settings', guisso_settings_path(:account) %></li>
             </ul>
             <hr/>
             <ul>
               <li><a href="mailto:support@instedd.org?subject=[<%= application_name.underscore %>-bug]">Report a bug</a></li>
-              <li><%= link_to "Sign Out", destroy_account_session_path %></li>
+              <li><%= link_to "Sign Out", guisso_sign_out_path_for(:account, after_sign_out_url: root_url) %></li>
             </ul>
           </div>
         </div>
         </li>
         <li>
-          <%= link_to '', edit_account_registration_path, :class => 'fsettings' %>
+          <%= link_to '', guisso_settings_path(:account), :class => 'fsettings' %>
         </li>
         <% else %>
         <li>
-          <%= link_to "Create account", new_account_registration_path, :class => 'fedit' %>
+          <%= link_to "Create account", guisso_sign_up_path_for(:account), :class => 'fedit' %>
         </li>
         <li>
-          <%= link_to "Log in", new_account_session_path, :class => 'fuser' %>
+          <%= link_to "Log in", guisso_sign_in_path_for(:account), :class => 'fuser' %>
         </li>
         <% end %>
       </ul>

@@ -1,4 +1,16 @@
 GIT
+  remote: https://bitbucket.org/instedd/alto_guisso.git
+  revision: 98617c7d74de3f56d43b70df198fe13027552061
+  branch: master
+  specs:
+    alto_guisso (0.0.1)
+      omniauth
+      omniauth-openid
+      rack-oauth2
+      rails (>= 3.0)
+      ruby-openid
+
+GIT
   remote: https://bitbucket.org/instedd/poirot.git
   revision: 28c95757704998aca6d2a9ce780c302d7ea84dd5
   branch: master
@@ -24,6 +36,18 @@ GIT
   specs:
     enumerated_attribute (0.2.16)
       meta_programming (>= 0.2.1)
+
+GIT
+  remote: https://github.com/manastech/rack-oauth2.git
+  revision: 192e4d020a84432179297deb035f9716d4bf6622
+  branch: master
+  specs:
+    rack-oauth2 (1.0.5)
+      activesupport (>= 2.3)
+      attr_required (>= 0.0.5)
+      httpclient (>= 2.2.0.2)
+      multi_json (>= 1.3.6)
+      rack (>= 1.1)
 
 GIT
   remote: https://github.com/tbuehl/machinist.git
@@ -65,6 +89,7 @@ GEM
     arel (3.0.3)
     attr_encrypted (1.2.0)
       encryptor (>= 1.1.1)
+    attr_required (1.0.0)
     bcrypt-ruby (3.0.1)
     bert (1.1.6)
     bertrpc (1.3.1)
@@ -137,9 +162,11 @@ GEM
       activesupport (~> 3.0)
       haml (~> 3.0)
       railties (~> 3.0)
+    hashie (2.1.1)
     highline (1.6.19)
     hike (1.2.3)
     httpauth (0.1)
+    httpclient (2.3.4.1)
     i18n (0.6.9)
     instedd-pigeon (0.2.2)
       json
@@ -184,6 +211,12 @@ GEM
       httpauth (~> 0.1)
       multi_json (~> 1.0)
       rack (~> 1.4)
+    omniauth (1.2.1)
+      hashie (>= 1.2, < 3)
+      rack (~> 1.0)
+    omniauth-openid (1.0.1)
+      omniauth (~> 1.0)
+      rack-openid (~> 1.3.1)
     orm_adapter (0.0.5)
     polyglot (0.3.4)
     pry (0.9.12.4)
@@ -196,6 +229,9 @@ GEM
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
+    rack-openid (1.3.1)
+      rack (>= 1.1.0)
+      ruby-openid (>= 2.1.8)
     rack-ssl (1.3.4)
       rack
     rack-test (0.6.2)
@@ -215,7 +251,7 @@ GEM
       rake (>= 0.8.7)
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
-    rake (10.2.2)
+    rake (10.3.1)
     rdoc (3.12.2)
       json (~> 1.4)
     rest-client (1.6.7)
@@ -233,6 +269,7 @@ GEM
       activesupport (>= 3.0)
       railties (>= 3.0)
       rspec (~> 2.9.0)
+    ruby-openid (2.5.0)
     rubyzip (0.9.6.1)
     rvm (1.11.3.3)
     rvm-capistrano (1.0.2)
@@ -273,6 +310,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  alto_guisso!
   attr_encrypted
   bertrpc
   capistrano
@@ -303,6 +341,7 @@ DEPENDENCIES
   oauth2
   poirot_rails!
   pry-debugger
+  rack-oauth2!
   rails (~> 3.2.0)
   rest-client
   rspec
