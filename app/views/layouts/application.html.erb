@@ -20,7 +20,7 @@
             <hr/>
             <ul>
               <li><a href="mailto:support@instedd.org?subject=[<%= application_name.underscore %>-bug]">Report a bug</a></li>
-              <li><%= link_to "Sign Out", guisso_sign_out_path_for(:account, after_sign_out_url: root_url) %></li>
+              <li><%= link_to "Sign Out", guisso_sign_out_path_for(:account, after_sign_out_url: root_url), method: :delete %></li>
             </ul>
           </div>
         </div>
