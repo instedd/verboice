@@ -2,6 +2,13 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   skip_before_filter :verify_authenticity_token
   skip_before_filter :check_guisso_cookie
 
+  # Same as `skip_before_filter :check_guisso_cookie` but works
+  # with `Rails.config.eager_load = true`, which is set in Verboice.
+  # We don't know why both things conflict, we need to investigate it further.
+  def check_guisso_cookie
+    true
+  end
+
   def instedd
     generic do |auth|
       {
@@ -19,12 +26,12 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     else
       attributes = yield auth
 
-      attributes[:confirmed_at] = Time.now
-
       account = Account.find_by_email(attributes[:email])
       unless account
         password = Devise.friendly_token
-        account = Account.create!(attributes.merge(password: password, password_confirmation: password))
+        account = Account.new(attributes.merge(password: password, password_confirmation: password))
+        account.confirmed_at = Time.now
+        account.save!
       end
       account.identities.create! provider: auth['provider'], token: auth['uid']
     end
