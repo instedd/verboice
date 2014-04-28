@@ -339,6 +339,8 @@ DEPENDENCIES
   newrelic_rpm
   nokogiri
   oauth2
+  omniauth
+  omniauth-openid
   poirot_rails!
   pry-debugger
   rack-oauth2!
@@ -346,6 +348,7 @@ DEPENDENCIES
   rest-client
   rspec
   rspec-rails
+  ruby-openid
   rubyzip
   rvm
   rvm-capistrano
