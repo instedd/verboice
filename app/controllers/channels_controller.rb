@@ -17,7 +17,7 @@
 
 class ChannelsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_call_flows, only: [:new, :edit]
+  before_filter :load_call_flows, only: [:new, :edit, :create]
   before_filter :load_channel, only: [:show, :edit, :update, :destroy, :call]
   before_filter :check_channel_admin, only: [:update, :destroy]
 
