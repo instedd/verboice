@@ -54,7 +54,7 @@ namespace :deploy do
   end
 
   task :symlink_configs, :roles => :app do
-    %W(credentials verboice newrelic oauth nuntium poirot).each do |file|
+    %W(credentials verboice newrelic oauth nuntium poirot guisso).each do |file|
       run "ln -nfs #{shared_path}/#{file}.yml #{release_path}/config/"
     end
   end
