@@ -45,7 +45,7 @@ handle_call({get_channel_status, ChannelIds}, _From, State) ->
     Status ->
       Result = lists:foldl(fun(ChannelId, R) ->
         case dict:find(ChannelId, Status) of
-          {ok, {Ok, Messages}} -> [{ChannelId, Ok, Messages} | R];
+          {ok, ChannelStatus} -> [ChannelStatus | R];
           _ -> R
         end
       end, [], ChannelIds),
@@ -83,7 +83,8 @@ handle_cast({set_channels, ChannelIndex, RegistryIndex}, State = #state{config_j
   end,
   {noreply, State#state{channels = ChannelIndex, registry = RegistryIndex, config_job_state = idle}};
 
-handle_cast({set_channel_status, Status}, State) ->
+handle_cast({set_channel_status, Status}, State = #state{channel_status = PrevStatus}) ->
+  channel:log_broken_channels(PrevStatus, Status),
   {noreply, State#state{channel_status = Status, status_job_state = idle}};
 
 handle_cast(_Msg, State) ->

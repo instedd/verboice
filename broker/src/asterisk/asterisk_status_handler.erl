@@ -23,15 +23,15 @@ handle_event({registryentry, Packet}, State = #state{registry = Registry, status
   NewStatus = case dict:find({Username, Host}, Registry) of
     error -> Status;
     {ok, ChannelId} ->
-      Status2 = {_, Messages} = case dict:find(ChannelId, Status) of
-        error -> {true, []};
+      Status2 = {_, _, Messages} = case dict:find(ChannelId, Status) of
+        error -> {ChannelId, true, []};
         {ok, S} -> S
       end,
       ChannelStatus = case EntryState of
         <<"Registered">> -> Status2;
         _ ->
           Message = iolist_to_binary(["Host ", Host, ", status: ", EntryState]),
-          {false, [Message | Messages]}
+          {ChannelId, false, [Message | Messages]}
       end,
       dict:store(ChannelId, ChannelStatus, Status)
   end,
