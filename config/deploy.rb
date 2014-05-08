@@ -64,7 +64,7 @@ namespace :deploy do
   end
 
   task :generate_version, :roles => :app do
-    run "cd #{current_path} && git describe --always > #{release_path}/VERSION"
+    run "cd #{release_path} && git describe --always > #{release_path}/VERSION"
   end
 end
 
