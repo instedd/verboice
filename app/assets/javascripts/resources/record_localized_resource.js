@@ -164,7 +164,7 @@ onResources(function(){
       recorder.playRaw();
     } else {
       if (this.isSaved()) {
-        recorder.playMp3(this.playRecordingUrl());
+        recorder.playRaw(this.playRecordingUrl());
       }
     }
     this.alertFlashRequired('playing');
