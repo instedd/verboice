@@ -1,6 +1,5 @@
 -module(dial).
 -export([run/2]).
--compile([{parse_transform, lager_transform}]).
 -include("session.hrl").
 -include("db.hrl").
 
@@ -23,10 +22,10 @@ run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, js_context = J
       end
   end,
 
-  lager:info("Dialing ~s throug channel ~s", [Number, Channel#channel.name]),
+  poirot:log(info, "Dialing ~s throug channel ~s", [Number, Channel#channel.name]),
 
   Result = Pbx:dial(Channel, list_to_binary(Number), CallerId),
   NewJS = erjs_context:set(dial_status, Result, JS),
 
-  lager:info("Dial completed with status ~s", [Result]),
+  poirot:log(info, "Dial completed with status ~s", [Result]),
   {next, Session#session{js_context = NewJS}}.

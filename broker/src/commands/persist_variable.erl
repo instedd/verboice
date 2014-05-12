@@ -1,6 +1,5 @@
 -module(persist_variable).
 -export([run/2]).
--compile([{parse_transform, lager_transform}]).
 -include("session.hrl").
 -include("db.hrl").
 
@@ -10,7 +9,7 @@ run(Args, Session = #session{js_context = JS}) ->
   {Value, JS2} = erjs:eval(Expression, JS),
 
   PersistedVar = (find_or_create_persisted_variable(Name, Session))#persisted_variable{value = Value},
-  lager:info("Saving variable '~s' with value: ~s", [Name, Value]),
+  poirot:log(info, "Saving variable '~s' with value: ~s", [Name, Value]),
   PersistedVar:save(),
 
   VarName = list_to_atom("var_" ++ Name),

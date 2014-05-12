@@ -1,6 +1,5 @@
 -module(nuntium).
 -export([run/2, can_play/1]).
--compile([{parse_transform, lager_transform}]).
 -include("session.hrl").
 -include("db.hrl").
 -include("uri.hrl").
@@ -21,7 +20,7 @@ run(Args, Session = #session{project = Project}) ->
             {body, Body},
             {account_id, Project#project.account_id}
           ],
-          lager:debug("Sending to nuntium: ~p", [NuntiumArgs]),
+          poirot:log(debug, "Sending to nuntium: ~p", [NuntiumArgs]),
           case nuntium_api:send_ao(NuntiumArgs) of
             ok -> {info, "Sent"};
             {error, Reason} -> {error, Reason}
@@ -31,8 +30,8 @@ run(Args, Session = #session{project = Project}) ->
   end,
 
   case Result of
-    info -> lager:info(Message);
-    error -> lager:error(Message)
+    info -> poirot:log(info, Message);
+    error -> poirot:log(error, Message)
   end,
 
   {next, Session}.
