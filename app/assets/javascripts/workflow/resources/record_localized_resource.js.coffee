@@ -1,5 +1,4 @@
 #= require workflow/resources/localized_resource
-#= require recorder
 
 onWorkflow ->
   class window.RecordLocalizedResource extends LocalizedResource
@@ -28,26 +27,26 @@ onWorkflow ->
         return
       @playing false
       @update_duration 0
-      Wami.setup
-        id: 'wami'
-        swfUrl: '/Wami.swf'
-        onReady: =>
-          Wami.startRecording(
-            @save_recording_url(),
-            Wami.nameCallback(@wami_record_start),
-            Wami.nameCallback(@wami_record_finished),
-            Wami.nameCallback(@wami_record_failed)
-          )
-          @recording_start = @now_seconds()
-          @update_duration_interval = window.setInterval((() =>
-            @update_duration(@now_seconds() - @recording_start)), 100)
+      # Wami.setup
+      #   id: 'wami'
+      #   swfUrl: '/Wami.swf'
+      #   onReady: =>
+      #     Wami.startRecording(
+      #       @save_recording_url(),
+      #       Wami.nameCallback(@wami_record_start),
+      #       Wami.nameCallback(@wami_record_finished),
+      #       Wami.nameCallback(@wami_record_failed)
+      #     )
+      #     @recording_start = @now_seconds()
+      #     @update_duration_interval = window.setInterval((() =>
+      #       @update_duration(@now_seconds() - @recording_start)), 100)
       @alert_flash_required('recording')
 
     stop: () =>
-      if Wami.stopRecording # check if Wami is loaded
-        Wami.stopRecording() if @recording()
-        Wami.stopPlaying() if @playing()
-        @has_audio(true)
+      # if Wami.stopRecording # check if Wami is loaded
+      #   Wami.stopRecording() if @recording()
+      #   Wami.stopPlaying() if @playing()
+      #   @has_audio(true)
       @playing(false)
       window.clearInterval(@update_duration_interval)
 
