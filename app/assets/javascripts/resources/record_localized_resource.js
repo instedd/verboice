@@ -18,30 +18,6 @@ onResources(function(){
     this.isValid = ko.computed(function(){
       this.hasAudio();
     }, this)
-
-    var swfVersion = "11.7.0";
-    var flashVars = {
-      gain:50,
-      rate:44.1,
-      silentLevel:0,
-      timeOut:-1
-    }
-
-    var params = {
-      menu: "false",
-      quality: "high",
-      allowscriptaccess: "always",
-      allowfullscreen: "true",
-      wmode: "transparent"
-    }
-
-    var attributes = {
-      id: "recorder",
-      name: "recorder"
-    }
-
-    swfobject.embedSWF("/Recorder.swf", "recorder", "220", "150", swfVersion, null, flashVars, params, attributes);
-
   }
 
   RecordLocalizedResource.prototype = new LocalizedResource();
@@ -180,11 +156,17 @@ onResources(function(){
   }
 
   RecordLocalizedResource.prototype.play= function(){
-    var self = this;
     if (this.playing() || this.recording() || !this.hasAudio()) return;
     this.recording(false);
     this.playing(true);
-    document.getElementById("recorder").playRaw();
+    var recorder = document.getElementById("recorder");
+    if (recorder.hasData()) {
+      recorder.playRaw();
+    } else {
+      if (this.isSaved()) {
+        recorder.playMp3(this.playRecordingUrl());
+      }
+    }
     this.alertFlashRequired('playing');
   }
 
