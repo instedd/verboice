@@ -88,6 +88,7 @@ class ChannelsController < ApplicationController
     if @channel.update_attributes(params[:channel])
       redirect_to(channels_path, :notice => "Channel #{@channel.name} successfully updated.")
     else
+      load_call_flows
       render :action => "edit"
     end
   end

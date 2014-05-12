@@ -1,6 +1,5 @@
 -module(capture).
 -export([run/2]).
--compile([{parse_transform, lager_transform}]).
 -include("session.hrl").
 
 run(Args, Session = #session{pbx = Pbx, js_context = JS}) ->
@@ -12,20 +11,20 @@ run(Args, Session = #session{pbx = Pbx, js_context = JS}) ->
   Caption = prepare_caption(Args, Session),
   {_, JS2} = erjs:eval("digits = timeout = finish_key = null", JS),
 
-  lager:info("Waiting user input (timeout: ~B, min: ~B, max: ~B, finish: ~s)", [Timeout, Min, Max, FinishOnKey]),
+  poirot:log(info, "Waiting user input (timeout: ~B, min: ~B, max: ~B, finish: ~s)", [Timeout, Min, Max, FinishOnKey]),
 
   JS3 = case Pbx:capture(Caption, Timeout, FinishOnKey, Min, Max) of
     finish_key ->
-      lager:info("User pressed the finish key"),
+      poirot:log(info, "User pressed the finish key"),
       erjs_context:set(finish_key, true, JS2);
     timeout ->
-      lager:info("User timeout"),
+      poirot:log(info, "User timeout"),
       erjs_context:set(timeout, true, JS2);
     short_entry ->
-      lager:info("User didn't press enough digits"),
+      poirot:log(info, "User didn't press enough digits"),
       erjs_context:set(finish_key, true, JS2);
     {digits, Digits} ->
-      lager:info("User pressed: ~s", [Digits]),
+      poirot:log(info, "User pressed: ~s", [Digits]),
       erjs_context:set(digits, Digits, JS2)
   end,
   {next, Session#session{js_context = JS3}}.
