@@ -1,6 +1,5 @@
 -module(record).
 -export([run/2]).
--compile([{parse_transform, lager_transform}]).
 -include("session.hrl").
 -include("db.hrl").
 
@@ -14,7 +13,7 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact, p
   Filename = filename(CallLogId, Key),
   filelib:ensure_dir(Filename),
 
-  lager:info("Recording to filename: ~s, stop keys: ~s, timeout: ~B", [Filename, StopKeys, Timeout]),
+  poirot:log(info, "Recording to filename: ~s, stop keys: ~s, timeout: ~B", [Filename, StopKeys, Timeout]),
   Pbx:record(Filename, StopKeys, Timeout),
 
   RecordedAudio = #recorded_audio{

@@ -1,6 +1,5 @@
 -module(trace).
 -export([run/2]).
--compile([{parse_transform, lager_transform}]).
 -include("session.hrl").
 
 run(Args, Session = #session{js_context = JS}) ->
@@ -10,5 +9,5 @@ run(Args, Session = #session{js_context = JS}) ->
   Expression = proplists:get_value(expression, Args),
   {Result, _} = erjs:eval(Expression, JS),
   % CallLog:trace_record(CallFlowId, StepId, StepName, Result),
-  lager:info(Result),
+  poirot:log(info, Result),
   {next, Session}.
