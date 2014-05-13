@@ -14,6 +14,7 @@ onResources(function(){
     this.recordingStart = null;
     this.updateDurationInterval = null;
     this.description = ko.observable(hash.description);
+    this.totalDuration = this.duration();
 
     this.isValid = ko.computed(function(){
       this.hasAudio();
@@ -71,7 +72,7 @@ onResources(function(){
   RecordLocalizedResource.prototype.startHandler = function(info) {
     window.currentResource.recording(true);
     window.currentResource.recordingStart = window.currentResource.nowSeconds();
-    window.timeHandler = window.setInterval( function(){ return window.currentResource.updateDuration(window.currentResource.nowSeconds() - window.currentResource.recordingStart)}, 1000 );
+    window.timeHandler = window.setInterval( function(){ return window.currentResource.updateDuration(window.currentResource.nowSeconds() - window.currentResource.recordingStart)}, 500 );
   }
 
   // function progressHandler(info) {
@@ -80,18 +81,20 @@ onResources(function(){
 
   RecordLocalizedResource.prototype.completeHandler = function(info) {
     clearInterval(window.timeHandler);
+    window.currentResource.totalDuration = window.currentResource.nowSeconds() - window.currentResource.recordingStart;
     window.currentResource.recording(false);
     window.currentResource.hasAudio(true);
   }
 
   RecordLocalizedResource.prototype.playbackStartHandler = function(info) {
-    window.currentResource.playbackStart1 = window.currentResource.nowSeconds();
-    window.currentResource.updateDurationInterval = window.setInterval( function(){ return window.currentResource.updateDuration(window.currentResource.nowSeconds() - window.currentResource.playbackStart1)}, 100 );
+    window.currentResource.playbackStart = window.currentResource.nowSeconds();
+    window.currentResource.updateDurationInterval = window.setInterval( function(){ return window.currentResource.updateDuration(window.currentResource.nowSeconds() - window.currentResource.playbackStart)}, 500 );
   }
 
   RecordLocalizedResource.prototype.playbackCompleteHandler = function(info) {
     window.currentResource.playing(false);
     clearInterval(window.currentResource.updateDurationInterval);
+    window.currentResource.updateDuration(window.currentResource.totalDuration);
   }
 
   // function accessDeniedHandler(info) {
@@ -146,6 +149,7 @@ onResources(function(){
     document.getElementById("recorder").stop();
     window.currentResource.playing(false);
     clearInterval(window.currentResource.updateDurationInterval);
+    window.currentResource.updateDuration(window.currentResource.totalDuration);
   }
 
   RecordLocalizedResource.prototype.toHash= function(){
