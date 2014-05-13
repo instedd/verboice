@@ -81,6 +81,7 @@ onResources(function(){
   RecordLocalizedResource.prototype.completeHandler = function(info) {
     clearInterval(window.timeHandler);
     window.currentResource.recording(false);
+    window.currentResource.hasAudio(true);
   }
 
   RecordLocalizedResource.prototype.playbackStartHandler = function(info) {
@@ -156,10 +157,11 @@ onResources(function(){
   }
 
   RecordLocalizedResource.prototype.play= function(){
-    if (this.playing() || this.recording() || !this.hasAudio()) return;
+    var recorder = document.getElementById("recorder");
+    if (this.playing() || this.recording() || (!this.hasAudio() && !recorder.hasData())) return;
     this.recording(false);
     this.playing(true);
-    var recorder = document.getElementById("recorder");
+
     if (recorder.hasData()) {
       recorder.playRaw();
     } else {
