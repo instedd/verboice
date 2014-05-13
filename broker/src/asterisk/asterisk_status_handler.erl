@@ -37,9 +37,29 @@ handle_event({registryentry, Packet}, State = #state{registry = Registry, status
   end,
   {ok, State#state{status = NewStatus}};
 
-handle_event({registrationscomplete, _}, #state{status = Status}) ->
+handle_event({registrationscomplete, _}, State) ->
+  ami_client:sip_peers(),
+  {ok, State};
+
+handle_event({peerentry, Packet}, State) ->
+
+  Event = ami_client:decode_packet(Packet),
+  case proplists:get_value(dynamic, Event) of
+    <<"yes">> ->
+      case proplists:get_value(objectname, Event) of
+        <<"verboice_", ChannelId/binary>> ->
+          IP = proplists:get_value(ipaddress, Event),
+          asterisk_channel_srv:register_channel(binary_to_integer(ChannelId), binary_to_list(IP));
+        _ -> ok
+      end;
+    _ -> ok
+  end,
+  {ok, State};
+
+handle_event({peerlistcomplete, _}, #state{status = Status}) ->
   asterisk_channel_srv:set_channel_status(Status),
   remove_handler;
+
 
 handle_event(_Event, State) ->
   {ok, State}.
