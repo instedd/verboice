@@ -170,15 +170,15 @@ class Channel < ActiveRecord::Base
   end
 
   def call_broker_create_channel
-    BrokerClient.create_channel id, broker
+    BrokerClient.create_channel(id, broker) rescue nil
   end
 
   def call_broker_update_channel
-    BrokerClient.create_channel id, broker
+    BrokerClient.create_channel(id, broker) rescue nil
   end
 
   def call_broker_destroy_channel
-    BrokerClient.destroy_channel id, broker
+    BrokerClient.destroy_channel(id, broker) rescue nil
   end
 
   def active_calls

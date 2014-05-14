@@ -28,8 +28,9 @@ class Jobs::CallbackJob
     else
       RestClient.post @url, @body
     end
-  rescue Exception => ex
-    Rails.logger.error("Error processing CallbackJob: #{ex.message} #{ex.backtrace}")
-    Delayed::Job.enqueue Jobs::CallbackJob.new(@url, @method, @body), run_at: 15.minutes.from_now
+  end
+
+  def max_attempts
+    11
   end
 end
