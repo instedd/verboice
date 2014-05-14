@@ -17,6 +17,8 @@
 
 class RecordLocalizedResource < LocalizedResource
 
+  before_save {|record| puts "en el before"; record.recorded_audio = Base64.decode64(record.recorded_audio)}
+
   def audio
     self.recorded_audio
   end
