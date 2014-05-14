@@ -81,20 +81,18 @@ onResources(function(){
 
   RecordLocalizedResource.prototype.completeHandler = function(info) {
     clearInterval(window.timeHandler);
-    window.currentResource.totalDuration = window.currentResource.nowSeconds() - window.currentResource.recordingStart;
+    window.currentResource.totalDuration = window.currentResource.convertSecondsToString(window.currentResource.nowSeconds() - window.currentResource.recordingStart);
     window.currentResource.recording(false);
     window.currentResource.hasAudio(true);
   }
 
-  RecordLocalizedResource.prototype.playbackStartHandler = function(info) {
-    window.currentResource.playbackStart = window.currentResource.nowSeconds();
-    window.currentResource.updateDurationInterval = window.setInterval( function(){ return window.currentResource.updateDuration(window.currentResource.nowSeconds() - window.currentResource.playbackStart)}, 500 );
-  }
+  // RecordLocalizedResource.prototype.playbackStartHandler = function(info) {
+  // }
 
   RecordLocalizedResource.prototype.playbackCompleteHandler = function(info) {
     window.currentResource.playing(false);
     clearInterval(window.currentResource.updateDurationInterval);
-    window.currentResource.updateDuration(window.currentResource.totalDuration);
+    window.currentResource.duration(window.currentResource.totalDuration);
   }
 
   // function accessDeniedHandler(info) {
@@ -147,9 +145,9 @@ onResources(function(){
 
   RecordLocalizedResource.prototype.stop= function(){
     document.getElementById("recorder").stop();
-    window.currentResource.playing(false);
-    clearInterval(window.currentResource.updateDurationInterval);
-    window.currentResource.updateDuration(window.currentResource.totalDuration);
+    this.playing(false);
+    clearInterval(this.updateDurationInterval);
+    this.duration(this.totalDuration);
   }
 
   RecordLocalizedResource.prototype.toHash= function(){
@@ -166,6 +164,9 @@ onResources(function(){
     if (this.playing() || this.recording() || (!this.hasAudio() && !recorder.hasData())) return;
     this.recording(false);
     this.playing(true);
+    var self = this;
+    this.playbackStart = this.nowSeconds();
+    this.updateDurationInterval = window.setInterval( function(){ return self.updateDuration(self.nowSeconds() - self.playbackStart)}, 500 );
 
     if (recorder.hasData()) {
       recorder.playRaw();
@@ -190,7 +191,11 @@ onResources(function(){
   }
 
   RecordLocalizedResource.prototype.updateDuration= function(seconds){
-    return this.duration((new Date).clearTime().addSeconds(seconds).toString('mm:ss'));
+    return this.duration(this.convertSecondsToString(seconds));
+  }
+
+  RecordLocalizedResource.prototype.convertSecondsToString = function(seconds){
+    return (new Date).clearTime().addSeconds(seconds).toString('mm:ss');
   }
 
   RecordLocalizedResource.prototype.alertFlashRequired= function(){
