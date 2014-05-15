@@ -173,10 +173,10 @@ onResources(function(){
     this.updateDurationInterval = window.setInterval( function(){ return self.updateDuration(self.nowSeconds() - self.playbackStart)}, 500 );
 
     if (recorder.hasData()) {
-      recorder.playRaw();
+      recorder.play();
     } else {
       if (this.isSaved()) {
-        recorder.playRaw(this.playRecordingUrl());
+        recorder.play(this.playRecordingUrl());
       }
     }
     this.alertFlashRequired('playing');
