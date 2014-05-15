@@ -6,6 +6,7 @@ onResources(function(){
     this.guid = ko.observable(null);
     this.name = ko.observable(null);
     this.editing = ko.observable(false);
+    this.saving = ko.observable(false);
 
     this.is_valid = ko.computed(function() {
       return this.name()
@@ -53,6 +54,8 @@ onResources(function(){
     };
     var self = this;
     var data = this.toHash();
+    self.saving(true);
+    block_screen()
     if(this.id()) {
       $.ajax({
         type: 'PUT',
@@ -61,6 +64,12 @@ onResources(function(){
         data: JSON.stringify(data),
         success: function(response){
           self.updateLocalizedResources(response.localized_resources);
+          self.saving(false);
+          self.editing(false);
+        },
+        complete: function() {
+          self.saving(false);
+          unblock_screen()
         }
       });
     } else {
@@ -73,10 +82,14 @@ onResources(function(){
           self.id(response.id);
           self.guid(response.guid);
           self.updateLocalizedResources(response.localized_resources);
+          self.editing(false);
+        },
+        complete: function() {
+          self.saving(false);
+          unblock_screen();
         }
       });
     };
-    this.editing(false);
   }
 
   Resource.prototype.cancel = function(){
