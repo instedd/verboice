@@ -14,18 +14,22 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact, p
   filelib:ensure_dir(Filename),
 
   poirot:log(info, "Recording to filename: ~s, stop keys: ~s, timeout: ~B", [Filename, StopKeys, Timeout]),
-  Pbx:record(Filename, StopKeys, Timeout),
+  case Pbx:record(Filename, StopKeys, Timeout) of
+    ok ->
+      RecordedAudio = #recorded_audio{
+        contact_id = Contact#contact.id,
+        project_id = Project#project.id,
+        call_log_id = CallLogId,
+        key = Key,
+        description = Description
+      },
+      RecordedAudio:save(),
 
-  RecordedAudio = #recorded_audio{
-    contact_id = Contact#contact.id,
-    project_id = Project#project.id,
-    call_log_id = CallLogId,
-    key = Key,
-    description = Description
-  },
-  RecordedAudio:save(),
+      {next, Session};
 
-  {next, Session}.
+    {error, Reason} ->
+      throw({error_recording, Reason})
+  end.
 
 filename(CallLogId, Key) ->
   {ok, RecordDir} = application:get_env(record_dir),

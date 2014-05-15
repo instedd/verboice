@@ -95,9 +95,8 @@ handle_call({resume, Params}, From, State = #state{session = Session, waiting = 
   Reply = case proplists:get_value("RecordingUrl", Params) of
     undefined -> timeout;
     RecordingUrl ->
-      RequestUrl = RecordingUrl,
-      RequestUri = uri:parse(RequestUrl),
-      uri:get([{body_format, binary}, {stream, FileName}], RequestUri)
+      RequestUri = uri:parse(RecordingUrl),
+      retrieve_recording_with_retries(RequestUri, FileName, 3)
   end,
   gen_server:reply(Session, Reply),
   {noreply, State#state{awaiter = From, waiting = undefined}};
@@ -168,3 +167,13 @@ flush(From, State = #state{awaiter = Awaiter, commands = Commands}) ->
   gen_server:reply(Awaiter, ResponseXml),
   {noreply, State#state{session = From, awaiter = undefined, commands = []}}.
 
+retrieve_recording_with_retries(RequestUri, FileName, Retries) ->
+  case uri:get([{body_format, binary}, {stream, FileName}], RequestUri) of
+    {ok, saved_to_file} -> ok;
+    {ok, {{_, 404, _}, _, _}} ->
+      case Retries of
+        0 -> {error, not_found};
+        _ -> timer:sleep(200), retrieve_recording_with_retries(RequestUri, FileName, Retries - 1)
+      end;
+    Ret -> {error, Ret}
+  end.
