@@ -211,10 +211,14 @@ onResources(function(){
 
   RecordLocalizedResource.prototype.preserveCurrentValues= function() {
     this.original_description = this.description();
+    this.original_duration = this.duration();
   }
 
   RecordLocalizedResource.prototype.revertToPreservedValues= function() {
     this.description(this.original_description);
+    var recorder = document.getElementById("recorder");
+    this.duration(this.original_duration);
+    recorder.clear();
   }
 })
 
