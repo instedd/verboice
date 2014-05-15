@@ -17,7 +17,7 @@
 
 class RecordLocalizedResource < LocalizedResource
 
-  before_save {|record| puts "en el before"; record.recorded_audio = Base64.decode64(record.recorded_audio)}
+  attr_accessible :encoded_audio
 
   def audio
     self.recorded_audio
@@ -33,5 +33,9 @@ class RecordLocalizedResource < LocalizedResource
 
   def capture_resource_for play_resource_command, session
     play_resource_command.record_capture_resource_for self, session
+  end
+
+  def encoded_audio= encoded_audio
+    self.recorded_audio = Base64.decode64 encoded_audio
   end
 end

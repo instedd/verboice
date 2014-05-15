@@ -152,7 +152,7 @@ onResources(function(){
 
   RecordLocalizedResource.prototype.toHash= function(){
     var recorder = document.getElementById("recorder");
-    return $.extend(LocalizedResource.prototype.toHash.call( this ), { description: this.description(), duration: this.duration(), recorded_audio: recorder.data()});
+    return $.extend(LocalizedResource.prototype.toHash.call( this ), { description: this.description(), duration: this.duration(), encoded_audio: recorder.data()});
   }
 
   RecordLocalizedResource.prototype.type= function(){
