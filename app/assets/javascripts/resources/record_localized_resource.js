@@ -15,6 +15,7 @@ onResources(function(){
     this.updateDurationInterval = null;
     this.description = ko.observable(hash.description);
     this.totalDuration = this.duration();
+    this.listenersInitialized = false;
 
     this.isValid = ko.computed(function(){
       this.hasAudio();
@@ -34,21 +35,19 @@ onResources(function(){
     var recorderElement = document.getElementById("recorder");
     recorderElement.record();
 
-    // :(
-    window.currentResource = self;
-
-    recorderElement.addEventListener("recorderStart", "RecordLocalizedResource.prototype.startHandler");
-    // recorderElement.addEventListener("recorderProgress", "RecordLocalizedResource.prototype.progressHandler");
-    recorderElement.addEventListener("recorderComplete", "RecordLocalizedResource.prototype.completeHandler");
-    // recorderElement.addEventListener("uploadError", "uploadErrorHandler");
-    // recorderElement.addEventListener("uploadComplete", "uploadCompleteHandler");
-    recorderElement.addEventListener("playbackStart", "RecordLocalizedResource.prototype.playbackStartHandler");
-    recorderElement.addEventListener("playbackComplete", "RecordLocalizedResource.prototype.playbackCompleteHandler");
-    // recorderElement.addEventListener("accessDenied", "accessDeniedHandler");
-    // recorderElement.addEventListener("accessGranted", "accessGrantedHandler");
-    // recorderElement.addEventListener("encoderError", "encoderErrorHandler");
-
+    this.initListeners(this, recorderElement);
     this.alertFlashRequired('recording');
+  }
+
+  RecordLocalizedResource.prototype.initListeners = function(currentResource, recorderElement){
+    if(!this.listenersInitialized){
+      window.currentResource = currentResource;
+      recorderElement.addEventListener("recorderStart", "RecordLocalizedResource.prototype.startHandler");
+      recorderElement.addEventListener("recorderComplete", "RecordLocalizedResource.prototype.completeHandler");
+      recorderElement.addEventListener("playbackStart", "RecordLocalizedResource.prototype.playbackStartHandler");
+      recorderElement.addEventListener("playbackComplete", "RecordLocalizedResource.prototype.playbackCompleteHandler");
+      this.listenersInitialized = true;
+    }
   }
 
   // function uploadErrorHandler(info) {
@@ -160,11 +159,13 @@ onResources(function(){
 
   RecordLocalizedResource.prototype.play= function(){
     var recorder = document.getElementById("recorder");
+    this.initListeners(this, recorder);
     if (this.playing() || this.recording() || (!this.hasAudio() && !recorder.hasData())) return;
     this.recording(false);
     this.playing(true);
     var self = this;
     this.playbackStart = this.nowSeconds();
+    this.updateDuration(0);
     this.updateDurationInterval = window.setInterval( function(){ return self.updateDuration(self.nowSeconds() - self.playbackStart)}, 500 );
 
     if (recorder.hasData()) {
@@ -213,6 +214,7 @@ onResources(function(){
     this.description(this.original_description);
     var recorder = document.getElementById("recorder");
     this.duration(this.original_duration);
+    this.totalDuration = this.duration();
     recorder.clear();
   }
 })
