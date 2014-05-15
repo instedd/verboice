@@ -27,11 +27,6 @@ onResources(function(){
   RecordLocalizedResource.prototype.record= function(){
     var self = this;
     if (this.playing() || this.recording()) return;
-    if (!this.isSaved()) {
-      alert('Please save this message before recording');
-      return;
-    }
-
 
     this.playing(false);
     this.updateDuration(0);
