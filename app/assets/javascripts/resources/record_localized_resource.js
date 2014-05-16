@@ -16,6 +16,7 @@ onResources(function(){
     this.description = ko.observable(hash.description);
     this.totalDuration = this.duration();
     this.listenersInitialized = false;
+    this.guid = Math.floor((Math.random() * 1000) + 1);
 
     this.isValid = ko.computed(function(){
       this.hasAudio();
@@ -26,22 +27,22 @@ onResources(function(){
   RecordLocalizedResource.prototype.constructor = RecordLocalizedResource;
 
   RecordLocalizedResource.prototype.record= function(){
-    var self = this;
     if (this.playing() || this.recording()) return;
 
     this.playing(false);
     this.updateDuration(0);
 
     var recorderElement = document.getElementById("recorder");
-    recorderElement.record();
-
     this.initListeners(this, recorderElement);
+
+    recorderElement.record(this.guid);
+
     this.alertFlashRequired('recording');
   }
 
   RecordLocalizedResource.prototype.initListeners = function(currentResource, recorderElement){
+    window.currentResource = currentResource;
     if(!this.listenersInitialized){
-      window.currentResource = currentResource;
       recorderElement.addEventListener("recorderStart", "RecordLocalizedResource.prototype.startHandler");
       recorderElement.addEventListener("recorderComplete", "RecordLocalizedResource.prototype.completeHandler");
       recorderElement.addEventListener("playbackComplete", "RecordLocalizedResource.prototype.playbackCompleteHandler");
@@ -79,8 +80,8 @@ onResources(function(){
   RecordLocalizedResource.prototype.toHash= function(){
     var recorder = document.getElementById("recorder");
     var resourceData = { description: this.description(), duration: this.duration()};
-    if (recorder.hasData()) {
-      resourceData["encoded_audio"] = recorder.data();
+    if (recorder.hasData(this.guid)) {
+      resourceData["encoded_audio"] = recorder.data(this.guid);
     }
     return $.extend(LocalizedResource.prototype.toHash.call( this ), resourceData);
   }
@@ -92,7 +93,7 @@ onResources(function(){
   RecordLocalizedResource.prototype.play= function(){
     var recorder = document.getElementById("recorder");
     this.initListeners(this, recorder);
-    if (this.playing() || this.recording() || (!this.hasAudio() && !recorder.hasData())) return;
+    if (this.playing() || this.recording() || (!this.hasAudio() && !recorder.hasData(this.guid))) return;
     this.recording(false);
     this.playing(true);
     var self = this;
@@ -100,11 +101,11 @@ onResources(function(){
     this.updateDuration(0);
     this.updateDurationInterval = window.setInterval( function(){ return self.updateDuration(self.nowSeconds() - self.playbackStart)}, 500 );
 
-    if (recorder.hasData()) {
-      recorder.play();
+    if (recorder.hasData(this.guid)) {
+      recorder.play(this.guid);
     } else {
       if (this.isSaved()) {
-        recorder.play(this.playRecordingUrl());
+        recorder.playExternal(this.playRecordingUrl());
       }
     }
     this.alertFlashRequired('playing');
@@ -147,7 +148,7 @@ onResources(function(){
     var recorder = document.getElementById("recorder");
     this.duration(this.original_duration);
     this.totalDuration = this.duration();
-    recorder.clear();
+    recorder.clear(this.guid);
   }
 })
 
