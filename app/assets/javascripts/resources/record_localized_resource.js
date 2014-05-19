@@ -9,7 +9,9 @@ onResources(function(){
 
     this.hasAudio = ko.observable(hash.has_recorded_audio);
     this.recording = ko.observable(false);
+    this.setGlobalRecording(false);
     this.playing = ko.observable(false);
+    this.setGlobalPlaying(false);
     this.duration = ko.observable(hash.duration || (new Date).clearTime().toString('mm:ss'));
     this.recordingStart = null;
     this.updateDurationInterval = null;
@@ -26,10 +28,36 @@ onResources(function(){
   RecordLocalizedResource.prototype = new LocalizedResource();
   RecordLocalizedResource.prototype.constructor = RecordLocalizedResource;
 
-  RecordLocalizedResource.prototype.record= function(){
+  RecordLocalizedResource.prototype.globalRecording = function(){
+    return window.localizedResourceRecording();
+  }
+
+  RecordLocalizedResource.prototype.setGlobalRecording = function(value){
+    if(window.localizedResourceRecording == undefined){
+      window.localizedResourceRecording = ko.observable(value);
+    } else {
+      window.localizedResourceRecording(value);
+    }
+    this.recording(value);
+  }
+
+  RecordLocalizedResource.prototype.globalPlaying = function(){
+    return window.localizedResourcePlaying();
+  }
+
+  RecordLocalizedResource.prototype.setGlobalPlaying = function(value){
+    if(window.localizedResourcePlaying == undefined){
+      window.localizedResourcePlaying = ko.observable(value);
+    } else {
+      window.localizedResourcePlaying(value);
+    }
+    this.playing(value);
+  }
+
+  RecordLocalizedResource.prototype.record = function(){
     if (this.playing() || this.recording()) return;
 
-    this.playing(false);
+    this.setGlobalPlaying(false);
     this.updateDuration(0);
 
     var recorderElement = document.getElementById("recorder");
@@ -51,7 +79,7 @@ onResources(function(){
   }
 
   RecordLocalizedResource.prototype.startHandler = function(info) {
-    window.currentResource.recording(true);
+    window.currentResource.setGlobalRecording(true);
     window.currentResource.recordingStart = window.currentResource.nowSeconds();
     window.timeHandler = window.setInterval( function(){ return window.currentResource.updateDuration(window.currentResource.nowSeconds() - window.currentResource.recordingStart)}, 500 );
   }
@@ -59,12 +87,12 @@ onResources(function(){
   RecordLocalizedResource.prototype.completeHandler = function(info) {
     clearInterval(window.timeHandler);
     window.currentResource.totalDuration = window.currentResource.convertSecondsToString(window.currentResource.nowSeconds() - window.currentResource.recordingStart);
-    window.currentResource.recording(false);
+    window.currentResource.setGlobalRecording(false);
     window.currentResource.hasAudio(true);
   }
 
   RecordLocalizedResource.prototype.playbackCompleteHandler = function(info) {
-    window.currentResource.playing(false);
+    window.currentResource.setGlobalPlaying(false);
     clearInterval(window.currentResource.updateDurationInterval);
     window.currentResource.duration(window.currentResource.totalDuration);
   }
@@ -72,7 +100,7 @@ onResources(function(){
 
   RecordLocalizedResource.prototype.stop= function(){
     document.getElementById("recorder").stop();
-    this.playing(false);
+    this.setGlobalPlaying(false);
     clearInterval(this.updateDurationInterval);
     this.duration(this.totalDuration);
   }
@@ -94,8 +122,8 @@ onResources(function(){
     var recorder = document.getElementById("recorder");
     this.initListeners(this, recorder);
     if (this.playing() || this.recording() || (!this.hasAudio() && !recorder.hasData(this.guid))) return;
-    this.recording(false);
-    this.playing(true);
+    this.setGlobalRecording(false);
+    this.setGlobalPlaying(true);
     var self = this;
     this.playbackStart = this.nowSeconds();
     this.updateDuration(0);
