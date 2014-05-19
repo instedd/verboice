@@ -7,6 +7,7 @@ onResources(function(){
     this.name = ko.observable(null);
     this.editing = ko.observable(false);
     this.saving = ko.observable(false);
+    this.uploadError = ko.observable(false);
 
     this.is_valid = ko.computed(function() {
       return this.name()
@@ -55,7 +56,6 @@ onResources(function(){
     var self = this;
     var data = this.toHash();
     self.saving(true);
-    block_screen()
     if(this.id()) {
       $.ajax({
         type: 'PUT',
@@ -64,12 +64,14 @@ onResources(function(){
         data: JSON.stringify(data),
         success: function(response){
           self.updateLocalizedResources(response.localized_resources);
-          self.saving(false);
+          self.uploadError(false);
           self.editing(false);
+        },
+        error: function(error) {
+          self.uploadError(true);
         },
         complete: function() {
           self.saving(false);
-          unblock_screen()
         }
       });
     } else {
@@ -82,11 +84,14 @@ onResources(function(){
           self.id(response.id);
           self.guid(response.guid);
           self.updateLocalizedResources(response.localized_resources);
+          self.uploadError(false);
           self.editing(false);
+        },
+        error: function(error) {
+          self.uploadError(true);
         },
         complete: function() {
           self.saving(false);
-          unblock_screen();
         }
       });
     };
@@ -94,6 +99,7 @@ onResources(function(){
 
   Resource.prototype.cancel = function(){
     this.editing(false);
+    this.uploadError(false);
     this.revertToPreservedValues();
     if (! this.id() ) { this.remove() };
   }

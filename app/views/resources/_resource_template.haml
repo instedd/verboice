@@ -16,6 +16,7 @@
       - if project_admin?
         %button#save-resource.white{ko(click: 'save', text: "saving() ? 'Saving...' : 'Save'", disable: "saving()")}
       %a.cancel{ko(click: 'cancel', visible: 'editing'), href: '#'} Cancel
+      %span.alert-orange-b{ko(visible: 'uploadError()')} There was an error saving this resource.
     %td
     %td.text-right
       %button.fdelete{ 'data-bind' => 'click: removeWithConfirm' } Remove this resource

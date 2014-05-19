@@ -78,14 +78,3 @@ function add_variable(link, association, content) {
     $('.field').last().find('input[type=hidden]').attr('value', text_input.attr('value'));
   }
 }
-
-function block_screen() {
-  div_block = document.createElement('div');
-  div_element = $(div_block);
-  div_element.addClass("screen_block");
-  div_element.appendTo('body');
-}
-
-function unblock_screen() {
-  $('.screen_block').remove();
-}
