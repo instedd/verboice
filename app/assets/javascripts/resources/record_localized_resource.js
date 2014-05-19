@@ -57,9 +57,6 @@ onResources(function(){
   RecordLocalizedResource.prototype.record = function(){
     if (this.playing() || this.recording()) return;
 
-    this.setGlobalPlaying(false);
-    this.updateDuration(0);
-
     var recorderElement = document.getElementById("recorder");
     this.initListeners(this, recorderElement);
 
@@ -79,6 +76,8 @@ onResources(function(){
   }
 
   RecordLocalizedResource.prototype.startHandler = function(info) {
+    window.currentResource.setGlobalPlaying(false);
+    window.currentResource.updateDuration(0);
     window.currentResource.setGlobalRecording(true);
     window.currentResource.recordingStart = window.currentResource.nowSeconds();
     window.timeHandler = window.setInterval( function(){ return window.currentResource.updateDuration(window.currentResource.nowSeconds() - window.currentResource.recordingStart)}, 500 );
