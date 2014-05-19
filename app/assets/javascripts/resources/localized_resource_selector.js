@@ -24,6 +24,10 @@ onResources(function(){
     return this.current().toHash();
   }
 
+  LocalizedResourceSelector.prototype.beforeSave = function(){
+    this.current().beforeSave();
+  }
+
   LocalizedResourceSelector.fromHash = function(hash, resource){
     options = _.map(['Undefined', 'Text', 'Url', 'Record', 'Upload'], function(type){ return new window[type + "LocalizedResource"](hash, resource) });
     selector = new LocalizedResourceSelector(options, resource);

@@ -7,7 +7,10 @@ onResources(function(){
     this.parent = ko.observable(resource);
   }
 
-  LocalizedResource.prototype.isSaved= function(){
+  LocalizedResource.prototype.beforeSave = function(){
+  }
+
+  LocalizedResource.prototype.isSaved = function(){
     return this.parent() && this.parent().id() && this.id()
   }
 

@@ -177,6 +177,10 @@ onResources(function(){
     this.totalDuration = this.duration();
     recorder.clear(this.guid);
   }
+
+  RecordLocalizedResource.prototype.beforeSave = function(){
+    if (this.playing() || this.recording()) this.stop();
+  }
 })
 
 

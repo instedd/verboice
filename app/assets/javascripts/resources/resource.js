@@ -55,6 +55,7 @@ onResources(function(){
     };
     var self = this;
     var data = this.toHash();
+    self.beforeSave();
     self.saving(true);
     if(this.id()) {
       $.ajax({
@@ -104,14 +105,18 @@ onResources(function(){
     if (! this.id() ) { this.remove() };
   }
 
+  Resource.prototype.beforeSave = function(){
+    _.each(this.localizedResources(), function(localized) {localized.beforeSave()});
+  }
+
   Resource.prototype.preserveCurrentValues= function() {
     this.original_name = this.name();
-    _.each(this.localizedResources(), function(localized) {localized.preserveCurrentValues()})
+    _.each(this.localizedResources(), function(localized) {localized.preserveCurrentValues()});
   }
 
   Resource.prototype.revertToPreservedValues= function() {
     this.name(this.original_name);
-    _.each(this.localizedResources(), function(localized) {localized.revertToPreservedValues()})
+    _.each(this.localizedResources(), function(localized) {localized.revertToPreservedValues()});
   }
 
   Resource.prototype.toHash= function(){
