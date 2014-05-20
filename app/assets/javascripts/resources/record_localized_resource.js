@@ -13,9 +13,10 @@ onResources(function(){
     this.playing = ko.observable(false);
     this.setGlobalPlaying(false);
     this.duration = ko.observable(hash.duration || (new Date).clearTime().toString('mm:ss'));
+    this.description = ko.observable(hash.description);
+
     this.recordingStart = null;
     this.updateDurationInterval = null;
-    this.description = ko.observable(hash.description);
     this.totalDuration = this.duration();
     this.listenersInitialized = false;
     this.guid = Math.floor((Math.random() * 1000) + 1);

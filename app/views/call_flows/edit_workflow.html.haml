@@ -62,7 +62,7 @@
 %hr
 
 = form_tag update_workflow_project_call_flow_path(@project, @call_flow), :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
-  #wami
+  = render 'shared/recorder'
   #workflow
     #workflow-page
       %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
@@ -81,7 +81,6 @@
       .clear
 
 #call-flow-simulator{style: 'display: none'}
-  HOLA!
 
 :javascript
   window.callFlowId = #{@call_flow.id}
