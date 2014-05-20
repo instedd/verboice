@@ -71,6 +71,9 @@ onResources(function(){
       recorderElement.addEventListener("recorderStart", "RecordLocalizedResource.prototype.startHandler");
       recorderElement.addEventListener("recorderComplete", "RecordLocalizedResource.prototype.completeHandler");
       recorderElement.addEventListener("playbackComplete", "RecordLocalizedResource.prototype.playbackCompleteHandler");
+      recorderElement.addEventListener("panelOpened", "RecordLocalizedResource.prototype.showFlashPanel");
+      recorderElement.addEventListener("panelClosed", "RecordLocalizedResource.prototype.hideFlashPanel");
+
       this.listenersInitialized = true;
     }
   }
@@ -96,6 +99,13 @@ onResources(function(){
     window.currentResource.duration(window.currentResource.totalDuration);
   }
 
+  RecordLocalizedResource.prototype.hideFlashPanel = function() {
+    $(recorder).removeClass("recorder-visible");
+  }
+
+  RecordLocalizedResource.prototype.showFlashPanel = function() {
+    $(recorder).addClass("recorder-visible");
+  }
 
   RecordLocalizedResource.prototype.stop= function(){
     document.getElementById("recorder").stop();

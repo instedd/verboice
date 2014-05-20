@@ -2,12 +2,17 @@
   vertical-align: top;
 }
 
-
 #recorder {
   position: fixed;
-  z-index: 1000;
   background: none;
   top:15%;
   left:50%;
   margin-left: -150px;
+  z-index: 0;
+  visibility: hidden;
+}
+
+#recorder.recorder-visible {
+  visibility: visible;
+  z-index: 1000;
 }

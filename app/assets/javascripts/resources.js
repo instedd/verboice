@@ -14,7 +14,7 @@ onResources(function(){
       quality: "high",
       allowscriptaccess: "always",
       allowfullscreen: "true",
-      wmode: "transparent"
+      wmode: "opaque"
     }
 
     var attributes = {
