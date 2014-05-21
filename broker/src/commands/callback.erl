@@ -4,7 +4,7 @@
 -include("db.hrl").
 -include("uri.hrl").
 
-run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = CallFlow, callback_params = CallbackParams}) ->
+run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = CallFlow, callback_params = CallbackParams, project = Project}) ->
   Url = case proplists:get_value(url, Args) of
     undefined -> CallFlow#call_flow.callback_url;
     X -> list_to_binary(X)
@@ -30,7 +30,8 @@ run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = Ca
           {url, RequestUrl},
           {method, Method},
           {body, QueryString},
-          {activity, poirot:current_id()}
+          {activity, poirot:current_id()},
+          {project_id, Project#project.id}
         ],
         delayed_job:enqueue(yaml:dump({map, Task, <<"!ruby/object:Jobs::CallbackJob">>}, [{schema, yaml_schema_ruby}]))
       end),

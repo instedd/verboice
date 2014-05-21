@@ -16,10 +16,16 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Jobs::CallbackJob
+  attr_reader :url, :body
+
   def initialize(url, method, body)
     @url = url
     @method = method
     @body = body
+  end
+
+  def http_method
+    @method
   end
 
   def perform
@@ -27,6 +33,13 @@ class Jobs::CallbackJob
       RestClient.get @url, {:params => @body}
     else
       RestClient.post @url, @body
+    end
+  end
+
+  def error(job, exception)
+    if job.attempts >= 3 || job.attempts + 1 == max_attempts
+      account = Project.find(@project_id).account
+      CallbackMailer.error(account, job, exception).deliver
     end
   end
 
