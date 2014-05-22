@@ -10,6 +10,9 @@ onResources(function(){
   LocalizedResource.prototype.beforeSave = function(){
   }
 
+  LocalizedResource.prototype.afterSave = function(){
+  }
+
   LocalizedResource.prototype.isSaved = function(){
     return this.parent() && this.parent().id() && this.id()
   }

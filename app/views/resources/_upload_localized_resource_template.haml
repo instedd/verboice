@@ -9,13 +9,13 @@
     / ko ifnot: hasAudio()
     .right
       .upload-file.fexport
-        %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit, fileuploadDone: done, fileuploadAdd: add'}
+        %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadAdd: add, fileuploadDone: done, progressall: showProgress'}
       Upload
     / /ko
     / ko if: hasAudio()
     .right
       .upload-file.fsync
-        %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit, fileuploadDone: done, fileuploadAdd: add'}
+        %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadAdd: add, fileuploadDone: done, progressall: showProgress'}
       Replace
     / /ko
   .w100

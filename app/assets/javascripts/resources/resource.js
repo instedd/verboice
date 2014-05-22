@@ -57,6 +57,7 @@ onResources(function(){
     var data = this.toHash();
     self.beforeSave();
     self.saving(true);
+    self.uploadError(false);
     if(this.id()) {
       $.ajax({
         type: 'PUT',
@@ -65,7 +66,7 @@ onResources(function(){
         data: JSON.stringify(data),
         success: function(response){
           self.updateLocalizedResources(response.localized_resources);
-          self.uploadError(false);
+          self.afterSave();
           self.editing(false);
         },
         error: function(error) {
@@ -85,7 +86,7 @@ onResources(function(){
           self.id(response.id);
           self.guid(response.guid);
           self.updateLocalizedResources(response.localized_resources);
-          self.uploadError(false);
+          self.afterSave();
           self.editing(false);
         },
         error: function(error) {
@@ -107,6 +108,10 @@ onResources(function(){
 
   Resource.prototype.beforeSave = function(){
     _.each(this.localizedResources(), function(localized) {localized.beforeSave()});
+  }
+
+  Resource.prototype.afterSave = function(){
+    _.each(this.localizedResources(), function(localized) {localized.afterSave()});
   }
 
   Resource.prototype.preserveCurrentValues= function() {

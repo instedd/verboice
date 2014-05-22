@@ -10,6 +10,8 @@ onResources(function(){
     this.description = ko.observable(hash.description);
     this.hasAudio = ko.observable(hash.has_uploaded_audio);
     this.filename = ko.observable(hash.filename);
+    this.uploadedfile = null;
+
 
     this.url = ko.computed(function(){
       if(this.isSaved()) {
@@ -25,28 +27,27 @@ onResources(function(){
 
     // fileupload callbacks
     this.add= function(e, data){
+      self.hasAudio(true);
       self.filename(data.files[0].name);
-      return data.url = self.url();
-    }
-
-    this.submit= function(){
-      if (!self.isSaved()) {
-        alert('Please save this message before uploading a file');
-        return false;
-      }
+      self.uploadedfile = data;
     }
 
     this.done= function(){
       self.hasAudio(true);
     }
 
+    this.showProgress = function (e, data) {
+      // Log the current bitrate for this upload:
+      debugger
+      console.log(data);
+    }
   }
 
   UploadLocalizedResource.prototype = new LocalizedResource();
   UploadLocalizedResource.prototype.constructor = UploadLocalizedResource;
 
   UploadLocalizedResource.prototype.toHash= function(){
-    return $.extend(LocalizedResource.prototype.toHash.call( this ), { description: this.description(), filename: this.filename() })
+    return $.extend(LocalizedResource.prototype.toHash.call( this ), { description: this.description(), filename: this.filename()})
   };
   UploadLocalizedResource.prototype.type= function(){
     return 'UploadLocalizedResource'
@@ -79,6 +80,14 @@ onResources(function(){
 
   UploadLocalizedResource.prototype.revertToPreservedValues= function() {
     this.description(this.original_description);
+  }
+
+  UploadLocalizedResource.prototype.afterSave = function(){
+    //In order to trigger the update in the jqueryfile upload binding
+    console.log("en afrer save");
+    console.log(this.url());
+    this.uploadedfile.url = this.url();
+    this.uploadedfile.submit();
   }
 })
 

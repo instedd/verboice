@@ -136,13 +136,10 @@
             // data.submit() returns a Promise object and allows to attach additional
             // handlers using jQuery's Deferred callbacks:
             // data.submit().done(func).fail(func).always(func);
-            add: function (e, data) {
-                data.submit();
-            },
-
+            add: function (e, data) {},
             // Other callbacks:
             // Callback for the submit event of each file upload:
-            // submit: function (e, data) {}, // .bind('fileuploadsubmit', func);
+            //submit: function (e, data) {}, // .bind('fileuploadsubmit', func);
             // Callback for the start of each file upload request:
             // send: function (e, data) {}, // .bind('fileuploadsend', func);
             // Callback for successful uploads:

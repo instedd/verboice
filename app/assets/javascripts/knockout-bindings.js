@@ -36,6 +36,9 @@ ko.bindingHandlers.fileupload = {
     if (allBindings.fileuploadFail) {
       $(element).bind('fileuploadfail', allBindings.fileuploadFail);
     }
+    if (allBindings.progressall) {
+      $(element).bind('progressall', allBindings.progressall);
+    }
   },
   update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
     var url = ko.utils.unwrapObservable(valueAccessor());
