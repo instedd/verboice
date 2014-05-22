@@ -37,10 +37,26 @@ class Jobs::CallbackJob
   end
 
   def error(job, exception)
+    account = Project.find(@project_id).account
+
     if job.attempts >= 3 || job.attempts + 1 == max_attempts
-      account = Project.find(@project_id).account
       CallbackMailer.error(account, job, exception).deliver
     end
+
+    max_attempts = job.max_attempts || Delayed::Worker.max_attempts
+    attempts = job.attempts + 1
+
+    alert = CallbackAlert.find_or_initialize_by_account_id_and_key account.id, "callback:#{job.id}"
+    alert.severity = 'error'
+    alert.message = 'Error processing async callback'
+    alert.data = {
+      url: @url,
+      method: @method,
+      body: @body,
+      exception: exception.to_s,
+      remaining_attempts: max_attempts - attempts
+    }
+    alert.save
   end
 
   def max_attempts
