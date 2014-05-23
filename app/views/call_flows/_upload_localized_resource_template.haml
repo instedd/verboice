@@ -1,7 +1,7 @@
 %script{type: "text/html", id: "upload_localized_resource_template"}
   .file-name
     / ko ifnot: has_audio()
-    %span.alert-orange-b No file uploaded yet
+    %span.alert-orange-b Select a file to upload
     / /ko
     / ko if: has_audio()
     %span.clickable{'data-bind' => 'text: filename, click: download'}
