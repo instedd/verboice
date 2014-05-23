@@ -50,11 +50,15 @@
   = form_tag({action: :index, controller: :call_logs}, method: :get) do
     - total_pages = (@logs.count/@per_page)+1
 
-    - previous_btn_class = 'pprevious' + (if (@page.to_i - 1) < 1 then " disabled" else '' end)
-    = link_to '', {action: 'index', page: @page.to_i-1}, class: previous_btn_class
+    - if (@page.to_i - 1) < 1
+      %a.pprevious.disabled
+    - else
+      = link_to '', {action: 'index', page: @page.to_i-1}, class: 'pprevious'
 
-    - next_btn_class = 'pnext' + (if (@page.to_i + 1) > total_pages then " disabled" else '' end)
-    = link_to '', {action: 'index', page: @page.to_i+1}, class: next_btn_class
+    - if (@page.to_i + 1) > total_pages
+      %a.pnext.disabled
+    - else
+      = link_to '', {action: 'index', page: @page.to_i+1}, class: 'pnext'
 
     = text_field_tag 'page', @page.to_i
     %span.label-info="of #{total_pages}"
