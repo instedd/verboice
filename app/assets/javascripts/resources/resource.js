@@ -7,7 +7,7 @@ onResources(function(){
     this.name = ko.observable(null);
     this.editing = ko.observable(false);
     this.saving = ko.observable(false);
-    this.uploadError = ko.observable(false);
+    this.uploadStatus = ko.observable('standBy');
 
     this.is_valid = ko.computed(function() {
       return this.name()
@@ -57,7 +57,7 @@ onResources(function(){
     var data = this.toHash();
     self.beforeSave();
     self.saving(true);
-    self.uploadError(false);
+    self.uploadStatus('standBy');
     if(this.id()) {
       $.ajax({
         type: 'PUT',
@@ -70,7 +70,7 @@ onResources(function(){
           self.editing(false);
         },
         error: function(error) {
-          self.uploadError(true);
+          self.uploadStatus('error');
         },
         complete: function() {
           self.saving(false);
@@ -90,7 +90,7 @@ onResources(function(){
           self.editing(false);
         },
         error: function(error) {
-          self.uploadError(true);
+          self.uploadStatus('error');
         },
         complete: function() {
           self.saving(false);
@@ -101,7 +101,7 @@ onResources(function(){
 
   Resource.prototype.cancel = function(){
     this.editing(false);
-    this.uploadError(false);
+    this.uploadStatus('standBy');
     this.revertToPreservedValues();
     if (! this.id() ) { this.remove() };
   }

@@ -92,6 +92,7 @@ onResources(function(){
     window.currentResource.totalDuration = window.currentResource.convertSecondsToString(window.currentResource.nowSeconds() - window.currentResource.recordingStart);
     window.currentResource.setGlobalRecording(false);
     window.currentResource.hasAudio(true);
+    window.currentResource.parent().uploadStatus('pending')
   }
 
   RecordLocalizedResource.prototype.playbackCompleteHandler = function(info) {

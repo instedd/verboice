@@ -5,9 +5,17 @@
 
 onResources(function(){
   window['LocalizedResourceSelector']= function LocalizedResourceSelector(options, resource){
+    var self = this;
+
     this.options = ko.observableArray(options);
     this.current = ko.observable(options[0]);
+
     this.parent = resource;
+
+    this.current.subscribe(function(newValue) {
+      self.parent.uploadStatus('standBy');
+    })
+
     this.language = ko.computed(function(){
       return this.current() && this.current().language()
     }, this);

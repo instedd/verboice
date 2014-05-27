@@ -27,20 +27,34 @@ onResources(function(){
 
     // fileupload callbacks
     this.add= function(e, data){
+      self.preserveCurrentValues();
       self.hasAudio(true);
       self.filename(data.files[0].name);
+      self.parent().uploadStatus('pending');
       self.uploadedfile = data;
-    }
-
-    this.done= function(){
-      self.hasAudio(true);
     }
 
     this.showProgress = function (e, data) {
       // Log the current bitrate for this upload:
+      // For some reason it is not reaching this breakpoint..
       debugger
+      console.log("showProgress UploadLocalizedResource")
       console.log(data);
     }
+
+    this.fail = function (e, data) {
+      self.parent().uploadStatus('error');
+      self.revertToPreservedValues();
+    }
+
+    this.done = function(){
+      self.parent().uploadStatus('ok');
+    }
+
+    this.always = function (e, data) {
+      self.parent().saving(false);
+    }
+
   }
 
   UploadLocalizedResource.prototype = new LocalizedResource();
@@ -57,37 +71,26 @@ onResources(function(){
     return downloadURL("/projects/" + project_id + "/resources/" + this.parent().id() + "/localized_resources/" + this.id() + "/play_file");
   }
 
-  // fileupload callbacks
-  // UploadLocalizedResource.prototype.add= function(e, data){
-  //   this.filename(data.files[0].name);
-  //   return data.url = this.url();
-  // }
-
-  // UploadLocalizedResource.prototype.submit= function(){
-  //   if (!this.isSaved()) {
-  //     alert('Please save this message before uploading a file');
-  //     return false;
-  //   }
-  // }
-
-  // UploadLocalizedResource.prototype.done= function(){
-  //   return this.hasAudio(true);
-  // }
-
   UploadLocalizedResource.prototype.preserveCurrentValues= function() {
     this.original_description = this.description();
+    this.original_hasAudio = this.hasAudio();
+    this.original_filename = this.filename();
   }
 
   UploadLocalizedResource.prototype.revertToPreservedValues= function() {
     this.description(this.original_description);
+    this.hasAudio(this.original_hasAudio);
+    this.filename(this.original_filename);
   }
 
   UploadLocalizedResource.prototype.afterSave = function(){
-    //In order to trigger the update in the jqueryfile upload binding
-    console.log("en afrer save");
-    console.log(this.url());
-    this.uploadedfile.url = this.url();
-    this.uploadedfile.submit();
+    if (this.uploadedfile) {
+      this.parent().saving(true);
+      this.parent().uploadStatus('uploading');
+      this.uploadedfile.url = this.url();
+      // binding the events in the view and in knockout bindings is not working for some reason :(
+      this.uploadedfile.submit().done(this.done).fail(this.fail).always(this.always).progress(this.progress);
+    }
   }
 })
 

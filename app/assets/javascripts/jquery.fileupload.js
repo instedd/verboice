@@ -151,7 +151,9 @@
             // Callback for upload progress events:
             // progress: function (e, data) {}, // .bind('fileuploadprogress', func);
             // Callback for global upload progress events:
-            // progressall: function (e, data) {}, // .bind('fileuploadprogressall', func);
+            progressall: function (e, data) {
+                console.log(data);
+            }, // .bind('fileuploadprogressall', func);
             // Callback for uploads start, equivalent to the global ajaxStart event:
             // start: function (e) {}, // .bind('fileuploadstart', func);
             // Callback for uploads stop, equivalent to the global ajaxStop event:
