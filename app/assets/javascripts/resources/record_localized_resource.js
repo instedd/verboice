@@ -1,6 +1,6 @@
 #= require resources/localized_resource
 
-onResources(function(){
+onResourcesWorkflow(function(){
   window['RecordLocalizedResource']= function RecordLocalizedResource(hash, resource){
     LocalizedResource.call( this, hash, resource );
 

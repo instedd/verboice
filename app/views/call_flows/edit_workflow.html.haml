@@ -7,7 +7,7 @@
     var distinct_variables = #{ @variables.to_json };
     var call_flow = #{ raw (@call_flow.user_flow || []).to_json };
     var external_steps = #{ @external_steps.to_json };
-    var languages = #{ project_languages_json(@project) };
+    var project_languages = #{ project_languages_json(@project) };
     var project_id = #{ @project.id };
     var nuntium_configured = #{ nuntium_configured?.to_json };
 

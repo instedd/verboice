@@ -1,6 +1,6 @@
 #= require resources/localized_resource
 
-onResources(function(){
+onResourcesWorkflow(function(){
   window['UndefinedLocalizedResource']= function UndefinedLocalizedResource(hash, resource){
     LocalizedResource.call( this, hash, resource );
     this.label = 'Select an option';

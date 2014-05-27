@@ -1,10 +1,14 @@
-onResources(function(){
+onResourcesWorkflow(function(){
   window['LocalizedResource']= function LocalizedResource(hash, resource){
     if (hash) {
       this.id = ko.observable(hash.id);
       this.language = ko.observable(hash['language'])
     }
     this.parent = ko.observable(resource);
+  }
+
+  LocalizedResource.prototype.set_parent = function(parent) {
+    return this.parent(parent);
   }
 
   LocalizedResource.prototype.beforeSave = function(){

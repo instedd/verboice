@@ -1,6 +1,6 @@
 #= require resources/localized_resource
 
-onResources(function(){
+onResourcesWorkflow(function(){
   window['UploadLocalizedResource']= function UploadLocalizedResource(hash, resource){
     LocalizedResource.call( this, hash, resource );
     var self = this;
@@ -38,7 +38,7 @@ onResources(function(){
 
     this.showProgress = function (e, data) {
       // Log the current bitrate for this upload:
-      debugger
+      // debugger
       console.log(data);
     }
   }

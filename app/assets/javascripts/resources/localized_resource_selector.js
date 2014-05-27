@@ -3,21 +3,62 @@
 #= require resources/record_localized_resource
 #= require resources/upload_localized_resource
 
-onResources(function(){
+onResourcesWorkflow(function(){
+  console.log("pasamos por el localized_resource_selector.js")
   window['LocalizedResourceSelector']= function LocalizedResourceSelector(options, resource){
     this.options = ko.observableArray(options);
     this.current = ko.observable(options[0]);
     this.parent = resource;
+    this.title = ko.observable('');
     this.language = ko.computed(function(){
       return this.current() && this.current().language()
     }, this);
 
+    this.is_text = ko.computed((function(_this) {
+      return function() {
+        var _ref;
+        return ((_ref = _this.current()) != null ? _ref.type() : void 0) === "TextLocalizedResource";
+      };
+    })(this));
+
+
     this.isValid = ko.computed(function(){
       return this.current() && this.current().isValid()
     }, this);
-    this.editing = ko.computed(function(){
-      return this.parent.editing()
-    }, this)
+    // this.editing = ko.computed(function(){
+    //   return this.parent.editing()
+    // }, this);
+
+    this.with_title = function(new_title) {
+      this.title(new_title);
+      return this;
+    };
+
+    this.with_language = function(language) {
+      this.language = language;
+      return this;
+    };
+
+    this.with_parent = function(parent) {
+      var option, _i, _len, _ref;
+      _ref = this.options();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        option = _ref[_i];
+        option.set_parent(parent);
+      }
+      return this;
+    };
+  }
+
+  LocalizedResourceSelector.prototype.editing = function(value){
+    if(value){
+      this.parent.editing(value);
+    }
+    return this.parent.editing();
+  }
+
+  LocalizedResourceSelector.prototype.language = function(){
+    return this.current().language;
   }
 
   LocalizedResourceSelector.prototype.toHash = function(){
@@ -33,7 +74,7 @@ onResources(function(){
   }
 
   LocalizedResourceSelector.fromHash = function(hash, resource){
-    options = _.map(['Undefined', 'Text', 'Url', 'Record', 'Upload'], function(type){ return new window[type + "LocalizedResource"](hash, resource) });
+    options = _.map(['Text', 'Url', 'Record', 'Upload'], function(type){ return new window[type + "LocalizedResource"](hash, resource) });
     selector = new LocalizedResourceSelector(options, resource);
 
     selector.current(_.detect(options, function(option){ return option.type() == hash.type }) || _.detect(options, function(option){ return option.type() == 'UndefinedLocalizedResource' }));

@@ -13,3 +13,7 @@ onResources(function(){
   };
 
 })
+
+onWorkflow(function(){
+  loadRecorderSwf();
+})

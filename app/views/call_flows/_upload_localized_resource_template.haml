@@ -1,18 +1,18 @@
 %script{type: "text/html", id: "upload_localized_resource_template"}
   .file-name
-    / ko ifnot: has_audio()
+    / ko ifnot: hasAudio()
     %span.alert-orange-b Select a file to upload
     / /ko
-    / ko if: has_audio()
+    / ko if: hasAudio()
     %span.clickable{'data-bind' => 'text: filename, click: download'}
     / /ko
     %span.fade
-  / ko ifnot: has_audio()
+  / ko ifnot: hasAudio()
   .upload-file.fexport
     %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit, fileuploadDone: done, fileuploadAdd: add'}
   Upload
   / /ko
-  / ko if: has_audio()
+  / ko if: hasAudio()
   .upload-file.fsync
     %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit, fileuploadDone: done, fileuploadAdd: add'}
   Replace

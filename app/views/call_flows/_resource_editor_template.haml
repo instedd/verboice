@@ -34,7 +34,7 @@
       /   %span.alert-orange
       %hr
       %div Languages
-      / ko foreach: localized_resources
+      / ko foreach: localizedResources
       %div
         %a{:href => '#', 'data-bind' => 'click: $parent.edit'}
           %span{'data-bind' => "css: {'arrow-col': $parent.current_editing_localized_resource() != $data, 'arrow-exp': $parent.current_editing_localized_resource() == $data}"}
