@@ -108,9 +108,9 @@
             // By default, failed (abort or error) file uploads are removed from the
             // global progress calculation. Set the following option to false to
             // prevent recalculating the global progress data:
-            recalculateProgress: true,
+            recalculateProgress: false,
             // Interval in milliseconds to calculate and trigger progress events:
-            progressInterval: 100,
+            progressInterval: 50,
             // Interval in milliseconds to calculate progress bitrate:
             bitrateInterval: 500,
 
@@ -151,9 +151,7 @@
             // Callback for upload progress events:
             // progress: function (e, data) {}, // .bind('fileuploadprogress', func);
             // Callback for global upload progress events:
-            progressall: function (e, data) {
-                console.log(data);
-            }, // .bind('fileuploadprogressall', func);
+            // progressall: function (e, data) {}, // .bind('fileuploadprogressall', func);
             // Callback for uploads start, equivalent to the global ajaxStart event:
             // start: function (e) {}, // .bind('fileuploadstart', func);
             // Callback for uploads stop, equivalent to the global ajaxStop event:

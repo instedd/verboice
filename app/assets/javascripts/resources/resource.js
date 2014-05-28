@@ -8,6 +8,8 @@ onResources(function(){
     this.editing = ko.observable(false);
     this.saving = ko.observable(false);
     this.uploadStatus = ko.observable('standBy');
+    this.uploadProgress = ko.observable(0);
+
 
     this.is_valid = ko.computed(function() {
       return this.name()
@@ -41,6 +43,10 @@ onResources(function(){
   }
 
   Resource.prototype.edit = function(){
+    if (this.uploadStatus() == 'uploading') {
+      return true;
+    }
+
     if (this.editing()) {
       return true;
     } else {

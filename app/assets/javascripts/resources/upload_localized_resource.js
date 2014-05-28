@@ -35,11 +35,9 @@ onResources(function(){
     }
 
     this.showProgress = function (e, data) {
-      // Log the current bitrate for this upload:
-      // For some reason it is not reaching this breakpoint..
-      debugger
-      console.log("showProgress UploadLocalizedResource")
-      console.log(data);
+      console.log('showProgress');
+      var progress = parseInt(data.loaded / data.total * 100, 10);
+      self.parent().uploadProgress(progress);
     }
 
     this.fail = function (e, data) {
@@ -89,7 +87,7 @@ onResources(function(){
       this.parent().uploadStatus('uploading');
       this.uploadedfile.url = this.url();
       // binding the events in the view and in knockout bindings is not working for some reason :(
-      this.uploadedfile.submit().done(this.done).fail(this.fail).always(this.always).progress(this.progress);
+      this.uploadedfile.submit().done(this.done).fail(this.fail).always(this.always);
     }
   }
 })

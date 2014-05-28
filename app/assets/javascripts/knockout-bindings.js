@@ -30,6 +30,11 @@ ko.bindingHandlers.fileupload = {
     if (allBindings.fileuploadSubmit) {
       $(element).bind('fileuploadsubmit', allBindings.fileuploadSubmit);
     }
+    if (allBindings.fileuploadprogressall) {
+      console.log('binding');
+      console.log(allBindings.fileuploadprogressall);
+      $(element).bind('fileuploadprogressall', allBindings.fileuploadprogressall);
+    }
   },
   update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
     var url = ko.utils.unwrapObservable(valueAccessor());
