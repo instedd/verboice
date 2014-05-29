@@ -4,8 +4,8 @@ onResourcesWorkflow(function(){
   window['Resource']= function Resource(hash, project){
 
     var self = this;
-    this.id = ko.observable(null);
-    this.guid = ko.observable(null);
+    this.id = ko.observable(hash['id'] || null);
+    this.guid = ko.observable(hash['guid'] || null);
     this.name = ko.observable(hash['name'] || null);
     this.editing = ko.observable(false);
     this.saving = ko.observable(false);
