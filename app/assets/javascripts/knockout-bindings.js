@@ -30,14 +30,10 @@ ko.bindingHandlers.fileupload = {
     if (allBindings.fileuploadSubmit) {
       $(element).bind('fileuploadsubmit', allBindings.fileuploadSubmit);
     }
-    if (allBindings.fileuploadDone) {
-      $(element).bind('fileuploaddone', allBindings.fileuploadDone);
-    }
-    if (allBindings.fileuploadFail) {
-      $(element).bind('fileuploadfail', allBindings.fileuploadFail);
-    }
-    if (allBindings.progressall) {
-      $(element).bind('progressall', allBindings.progressall);
+    if (allBindings.fileuploadprogressall) {
+      console.log('binding');
+      console.log(allBindings.fileuploadprogressall);
+      $(element).bind('fileuploadprogressall', allBindings.fileuploadprogressall);
     }
   },
   update: function(element, valueAccessor, allBindingsAccessor, viewModel) {

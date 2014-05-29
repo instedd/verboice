@@ -6,10 +6,18 @@
 onResourcesWorkflow(function(){
   console.log("pasamos por el localized_resource_selector.js")
   window['LocalizedResourceSelector']= function LocalizedResourceSelector(options, resource){
+    var self = this;
+
     this.options = ko.observableArray(options);
     this.current = ko.observable(options[0]);
+
     this.parent = resource;
     this.title = ko.observable('');
+
+    this.current.subscribe(function(newValue) {
+      self.parent.uploadStatus('standBy');
+    })
+
     this.language = ko.computed(function(){
       return this.current() && this.current().language()
     }, this);

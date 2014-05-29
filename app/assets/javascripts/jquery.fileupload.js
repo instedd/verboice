@@ -108,9 +108,9 @@
             // By default, failed (abort or error) file uploads are removed from the
             // global progress calculation. Set the following option to false to
             // prevent recalculating the global progress data:
-            recalculateProgress: true,
+            recalculateProgress: false,
             // Interval in milliseconds to calculate and trigger progress events:
-            progressInterval: 100,
+            progressInterval: 50,
             // Interval in milliseconds to calculate progress bitrate:
             bitrateInterval: 500,
 

@@ -1,23 +1,33 @@
 %script{type: "text/html", id: "upload_localized_resource_template"}
   %div{ko(visible: '$parent.editing')}
-    / ko ifnot: hasAudio()
+    / ko if:  parent().uploadStatus() == 'standBy' && !hasAudio()
     %span.alert-orange-b Select a file to upload
     / /ko
+
     / ko if: hasAudio()
-    %span.clickable{'data-bind' => 'text: filename, click: download'}
+    %span.clickable.audio-name{'data-bind' => 'text: "File: " + filename(), click: download'}
     / /ko
-    / ko ifnot: hasAudio()
-    .right
-      .upload-file.fexport
-        %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadAdd: add, fileuploadDone: done, progressall: showProgress'}
-      Upload
-    / /ko
-    / ko if: hasAudio()
-    .right
-      .upload-file.fsync
-        %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadAdd: add, fileuploadDone: done, progressall: showProgress'}
-      Replace
-    / /ko
+
+    .div
+      / ko if: parent().uploadStatus() == 'pending'
+      .alert-save-resource Save the resource in order to upload this file
+      / /ko
+      / ko if: parent().uploadStatus() == 'error'
+      %span.alert-orange-b There was an error uploading the file
+      / /ko
+
+      / ko ifnot: hasAudio()
+      .right
+        .upload-file.fexport
+          %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadAdd: add, fileuploadprogressall: showProgress'}
+        Upload
+      / /ko
+      / ko if: hasAudio()
+      .right
+        .upload-file.fsync
+          %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadAdd: add, fileuploadprogressall: showProgress'}
+        Replace
+      / /ko
   .w100
     %textarea{:rows => 6, :placeholder => 'Write here a description of the recording, either as a reminder for you or as a reference for the person that will record the message.', 'data-bind' => 'value: description, visible: $parent.editing'}
   %span.i18b-file{ko(visible: '! $parent.editing()')}

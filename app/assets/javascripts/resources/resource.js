@@ -10,7 +10,9 @@ onResourcesWorkflow(function(){
     this.name = ko.observable(hash['name'] || null);
     this.editing = ko.observable(false);
     this.saving = ko.observable(false);
-    this.uploadError = ko.observable(false);
+    this.uploadStatus = ko.observable('standBy');
+    this.uploadProgress = ko.observable(0);
+
 
     var existing_localized_resources = hash['localized_resources'] || [];
     if(project){
@@ -108,6 +110,20 @@ onResourcesWorkflow(function(){
     return resource;
   }
 
+
+  Resource.prototype.edit = function(){
+    if (this.uploadStatus() == 'uploading') {
+      return true;
+    }
+
+    if (this.editing()) {
+      return true;
+    } else {
+      this.editing(true);
+      this.preserveCurrentValues();
+    }
+  }
+
   Resource.prototype.save = function(callback){
     if(! this.is_valid()) {
       return false;
@@ -116,8 +132,8 @@ onResourcesWorkflow(function(){
     var data = this.toHash();
     self.beforeSave();
     self.saving(true);
-    self.uploadError(false);
-    debugger
+
+    self.uploadStatus('standBy');
     if(this.id()) {
       $.ajax({
         type: 'PUT',
@@ -129,13 +145,13 @@ onResourcesWorkflow(function(){
           self.updateLocalizedResources(response.localized_resources);
           self.afterSave();
           self.editing(false);
+          self.uploadStatus('ok');
         },
         error: function(error) {
           console.log("en el error 2");
-          self.uploadError(true);
+          self.uploadStatus('error');
         },
         complete: function() {
-          console.log("en el complete 2");
           self.saving(false);
         }
       });
@@ -146,18 +162,18 @@ onResourcesWorkflow(function(){
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function(response){
-          debugger
           console.log("en el success 1");
           self.id(response.id);
           self.guid(response.guid);
           self.updateLocalizedResources(response.localized_resources);
+          self.uploadStatus('ok');
           self.afterSave();
           self.editing(false);
           return typeof callback === "function" ? callback(self) : void 0;
         },
         error: function(error) {
           console.log("en el error 1");
-          self.uploadError(true);
+          self.uploadStatus('error');
         },
         complete: function() {
           console.log("en el complete 1");
@@ -169,7 +185,7 @@ onResourcesWorkflow(function(){
 
   Resource.prototype.cancel = function(){
     this.editing(false);
-    this.uploadError(false);
+    this.uploadStatus('standBy');
     this.revertToPreservedValues();
     if (! this.id() ) { this.remove() };
   }

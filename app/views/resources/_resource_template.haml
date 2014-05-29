@@ -1,22 +1,23 @@
 %script{type: "text/html", id: "resource_template"}
-  - ko_attrs = project_admin? ? {click: 'edit', css: '{ clickable: !editing() }'} : {}
+  - ko_attrs = project_admin? ? {click: 'edit', css: '{ clickable: !editing() && !(uploadStatus() == "uploading"), disabled: uploadStatus() == "uploading" }'} : {}
   %tr{ko(ko_attrs)}
-    %td
-      %span.name{'data-bind' => 'visible: !editing(), text: name'}
+    %td{'data-bind' => 'css: { editing: editing()}'}
+      %span.name{'data-bind' => "visible: !editing(), text: name"}
       = text_field_tag :name, '', :class => '', 'data-bind' => 'visible: editing, value: name, valueUpdate: "afterkeydown"', :placeholder => 'Enter resource name'
+      .progress{ko(visible: 'uploadStatus() == "uploading"')}
+        .bar{'data-bind' => "style: {width: uploadProgress() + '%;'}"}
       %span.alert-orange-b{ko(visible: '!is_valid() && !name()')} Missing name
     / ko with: firstResource
-    %td{ko(template: '{name: template}')}
+    %td{ko(template: '{name: template}, css: { editing: editing()}')}
     / /ko
     / ko with: secondResource
-    %td{ko(template: '{name: template}')}
+    %td{ko(template: '{name: template}, css: { editing: editing()}')}
     / /ko
   %tr{ko(visible: 'editing')}
     %td
       - if project_admin?
         %button#save-resource.white{ko(click: 'save', text: "saving() ? 'Saving...' : 'Save'", disable: "saving()")}
       %a.cancel{ko(click: 'cancel', visible: 'editing'), href: '#'} Cancel
-      %span.alert-orange-b{ko(visible: 'uploadError()')} There was an error saving this resource.
     %td
     %td.text-right
       %button.fdelete{ 'data-bind' => 'click: removeWithConfirm' } Remove this resource
