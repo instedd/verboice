@@ -1,5 +1,4 @@
 onWorkflow ->
-  console.log("en el workflow.js.coffee")
   class window.Workflow
     constructor: () ->
       @steps = ko.observableArray(Step.from_hash(hash) for hash in call_flow)

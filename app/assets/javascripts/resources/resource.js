@@ -1,6 +1,5 @@
 #= require resources/localized_resource_selector
 
-console.log("pasamos por resource.js");
 onResourcesWorkflow(function(){
   window['Resource']= function Resource(hash, project){
 
@@ -124,9 +123,9 @@ onResourcesWorkflow(function(){
   }
 
   Resource.prototype.save = function(callback){
-    if(! this.is_valid()) {
+    if(!this.name()){
       return false;
-    };
+    }
     var self = this;
     var data = this.toHash();
     self.beforeSave();
@@ -140,14 +139,13 @@ onResourcesWorkflow(function(){
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function(response){
-          console.log("en el success 2");
           self.updateLocalizedResources(response.localized_resources);
           self.afterSave();
           self.editing(false);
           self.uploadStatus('ok');
+          return typeof callback === "function" ? callback(self) : void 0;
         },
         error: function(error) {
-          console.log("en el error 2");
           self.uploadStatus('error');
         },
         complete: function() {
@@ -161,7 +159,6 @@ onResourcesWorkflow(function(){
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function(response){
-          console.log("en el success 1");
           self.id(response.id);
           self.guid(response.guid);
           self.updateLocalizedResources(response.localized_resources);
@@ -171,11 +168,9 @@ onResourcesWorkflow(function(){
           return typeof callback === "function" ? callback(self) : void 0;
         },
         error: function(error) {
-          console.log("en el error 1");
           self.uploadStatus('error');
         },
         complete: function() {
-          console.log("en el complete 1");
           self.saving(false);
         }
       });
@@ -229,7 +224,7 @@ onResourcesWorkflow(function(){
     }
   }
 
-  Resource.prototype.packLocalizedResources= function(){
+  Resource.prototype.packLocalizedResources = function(){
     var result = {}
     _.each(this.localizedResources(), function(lr, i) {
       result[i] = lr.toHash();
@@ -240,7 +235,6 @@ onResourcesWorkflow(function(){
   Resource.prototype.updateLocalizedResources = function(arr) {
     _.each(arr, function(hash) {
         localizedResource = _.detect(this.localizedResources(), function(x){
-          // debugger
           return x.language == hash.language });
         if(localizedResource) {
           localizedResource.current().id(hash.id);

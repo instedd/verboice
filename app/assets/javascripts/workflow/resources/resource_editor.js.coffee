@@ -1,11 +1,9 @@
 #= require resources/resource
-console.log("pasamos por el ResourceEditor.js.coffee");
 onWorkflow ->
   class window.ResourceEditor
 
     constructor: (parent, hash = {}) ->
       @parent = parent
-      # console.log("hasta aca 1")
       @resource = ko.observable null
       @type = ko.observable 'new'
       @name = ko.observable null
@@ -22,16 +20,11 @@ onWorkflow ->
         else
           @existing_resource_guid()?
 
-      # console.log("hasta aca 2")
-      # console.log(@resource())
       if hash.guid?
-        # console.log("hasta aca 2.5")
         Resource.find hash.guid, (result) =>
           @resource(result)
-      # console.log("hasta aca 3")
       @is_valid = ko.computed =>
         if @resource()? then @resource().is_valid() else false
-      # console.log("hasta aca 4")
       @is_text = ko.computed =>
         if @resource()? then @resource().is_text() else false
 

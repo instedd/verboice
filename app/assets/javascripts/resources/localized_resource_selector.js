@@ -4,7 +4,6 @@
 #= require resources/upload_localized_resource
 
 onResourcesWorkflow(function(){
-  console.log("pasamos por el localized_resource_selector.js")
   window['LocalizedResourceSelector']= function LocalizedResourceSelector(options, resource){
     var self = this;
 
@@ -82,11 +81,11 @@ onResourcesWorkflow(function(){
   }
 
   LocalizedResourceSelector.fromHash = function(hash, resource){
-    options = _.map(['Text', 'Url', 'Record', 'Upload', 'Undefined'], function(type){ return new window[type + "LocalizedResource"](hash, resource) });
+    var self = this;
+    options = _.map(this.prototype.optionsArray(), function(type){ return new window[type + "LocalizedResource"](hash, resource) });
     selector = new LocalizedResourceSelector(options, resource);
 
-    selector.current(_.detect(options, function(option){ return option.type() == hash.type }) || _.detect(options, function(option){ return option.type() == 'UndefinedLocalizedResource' }));
-
+    selector.current(_.detect(options, function(option){ return option.type() == hash.type }) || _.detect(options, function(option){ return option.type() == self.prototype.defaultOptionType() }));
     return selector
   }
 
@@ -94,13 +93,33 @@ onResourcesWorkflow(function(){
     return 'localized_resource_selector_template'
   }
 
-  LocalizedResourceSelector.prototype.preserveCurrentValues= function() {
+  LocalizedResourceSelector.prototype.preserveCurrentValues = function() {
     this.original_current = this.current();
     _.each(this.options(), function(localized) {localized.preserveCurrentValues()})
   }
 
-  LocalizedResourceSelector.prototype.revertToPreservedValues= function() {
+  LocalizedResourceSelector.prototype.revertToPreservedValues = function() {
     this.current(this.original_current);
     _.each(this.options(), function(localized) {localized.revertToPreservedValues()})
+  }
+})
+
+onResources(function(){
+  LocalizedResourceSelector.prototype.optionsArray = function(){
+    return ['Undefined', 'Text', 'Url', 'Record', 'Upload'];
+  }
+
+  LocalizedResourceSelector.prototype.defaultOptionType = function(){
+    return "UndefinedLocalizedResource"
+  }
+})
+
+onWorkflow(function(){
+  LocalizedResourceSelector.prototype.optionsArray = function(){
+    return ['Text', 'Url', 'Record', 'Upload'];
+  }
+
+  LocalizedResourceSelector.prototype.defaultOptionType = function(){
+    return "TextLocalizedResource"
   }
 })

@@ -7,7 +7,6 @@ onResourcesWorkflow(function(){
     this.template = 'text_localized_resource_template';
     this.text = ko.observable(hash.text);
     this.isValid = ko.computed(function(){
-      // debugger
       return this.text() != undefined && this.text().length > 0
     }, this)
   }

@@ -22,7 +22,7 @@ onResourcesWorkflow(function(){
     this.guid = Math.floor((Math.random() * 1000) + 1);
 
     this.isValid = ko.computed(function(){
-      this.hasAudio();
+      return this.hasAudio();
     }, this)
   }
 

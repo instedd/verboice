@@ -35,7 +35,6 @@ onResourcesWorkflow(function(){
     }
 
     this.showProgress = function (e, data) {
-      console.log('showProgress');
       var progress = parseInt(data.loaded / data.total * 100, 10);
       self.parent().uploadProgress(progress);
     }
