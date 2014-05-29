@@ -68,7 +68,6 @@ onResourcesWorkflow(function(){
     })(this));
 
     this.edit = function(resource){
-      debugger
       // if (this.editing()) {
       //   return true;
       // } else {

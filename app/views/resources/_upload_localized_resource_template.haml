@@ -1,5 +1,5 @@
 %script{type: "text/html", id: "upload_localized_resource_template"}
-  %div{ko(visible: '$parent.editing')}
+  %div{ko(visible: '$parent.editing()')}
     / ko if:  parent().uploadStatus() == 'standBy' && !hasAudio()
     %span.alert-orange-b Select a file to upload
     / /ko
@@ -29,6 +29,6 @@
         Replace
       / /ko
   .w100
-    %textarea{:rows => 6, :placeholder => 'Write here a description of the recording, either as a reminder for you or as a reference for the person that will record the message.', 'data-bind' => 'value: description, visible: $parent.editing'}
+    %textarea{:rows => 6, :placeholder => 'Write here a description of the recording, either as a reminder for you or as a reference for the person that will record the message.', 'data-bind' => 'value: description, visible: $parent.editing()'}
   %span.i18b-file{ko(visible: '! $parent.editing()')}
   %span{ko(text: 'description', visible: '! $parent.editing()')}

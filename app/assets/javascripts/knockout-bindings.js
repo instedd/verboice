@@ -31,8 +31,6 @@ ko.bindingHandlers.fileupload = {
       $(element).bind('fileuploadsubmit', allBindings.fileuploadSubmit);
     }
     if (allBindings.fileuploadprogressall) {
-      console.log('binding');
-      console.log(allBindings.fileuploadprogressall);
       $(element).bind('fileuploadprogressall', allBindings.fileuploadprogressall);
     }
   },

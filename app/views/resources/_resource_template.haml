@@ -8,10 +8,10 @@
         .bar{'data-bind' => "style: {width: uploadProgress() + '%;'}"}
       %span.alert-orange-b{ko(visible: '!is_valid() && !name()')} Missing name
     / ko with: firstResource
-    %td{ko(template: '{name: template}, css: { editing: editing()}')}
+    %td{ko(template: '{name: template}, css: { editing: editing() }')}
     / /ko
     / ko with: secondResource
-    %td{ko(template: '{name: template}, css: { editing: editing()}')}
+    %td{ko(template: '{name: template}, css: { editing: editing() }')}
     / /ko
   %tr{ko(visible: 'editing')}
     %td
