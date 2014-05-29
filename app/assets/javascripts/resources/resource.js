@@ -10,6 +10,11 @@ onResources(function(){
     this.uploadStatus = ko.observable('standBy');
     this.uploadProgress = ko.observable(0);
 
+    this.uploadStatus.subscribe(function(newValue) {
+      if (newValue == 'ok') {
+        setTimeout(function() {self.uploadStatus('standBy');}, '5000');
+      }
+    });
 
     this.is_valid = ko.computed(function() {
       return this.name()
