@@ -16,7 +16,7 @@
   %tr{ko(visible: 'editing')}
     %td
       - if project_admin?
-        %button#save-resource.white{ko(click: 'save', text: "saving() ? 'Saving...' : 'Save'", disable: "saving()")}
+        %button#save-resource.white{ko(click: 'save', text: "(uploadStatus() == 'uploading') ? 'Saving...' : 'Save'", disable: "uploadStatus() == 'uploading'")}
       %a.cancel{ko(click: 'cancel', visible: 'editing'), href: '#'} Cancel
     %td
     %td.text-right

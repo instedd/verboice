@@ -36,7 +36,7 @@
       %div Languages
       / ko foreach: localizedResources
       %div
-        %a{:href => '#', 'data-bind' => 'click: $parent.edit'}
+        %a{:href => '#', 'data-bind' => 'click: $parent.editLocalizedResource'}
           %span{'data-bind' => "css: {'arrow-col': $parent.current_editing_localized_resource() != $data, 'arrow-exp': $parent.current_editing_localized_resource() == $data}"}
           %span{'data-bind' => 'text: title'}
       / ko if: $parent.current_editing_localized_resource() == $data
@@ -49,7 +49,7 @@
 
       %hr
 
-      %button.white{'data-bind' => 'click: save'} Save
+      %button#save-resource.white{ko(click: 'save', text: "(resource().uploadStatus() == 'uploading') ? 'Saving...' : 'Save'", disable: "(resource().uploadStatus() == 'uploading') ")}
       %a.cancel{:href => '#', 'data-bind' => 'click: cancel'} Cancel
       %button.fsync.right{'data-bind' => 'click: replace'} Replace
 

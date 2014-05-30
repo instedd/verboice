@@ -47,11 +47,6 @@ onResourcesWorkflow(function(){
     this.done = function(){
       self.parent().uploadStatus('ok');
     }
-
-    this.always = function (e, data) {
-      self.parent().saving(false);
-    }
-
   }
 
   UploadLocalizedResource.prototype = new LocalizedResource();
@@ -65,6 +60,10 @@ onResourcesWorkflow(function(){
   }
 
   UploadLocalizedResource.prototype.download= function(){
+    if (!this.parent().id() || !this.id()) {
+      return false;
+    }
+
     return downloadURL("/projects/" + project_id + "/resources/" + this.parent().id() + "/localized_resources/" + this.id() + "/play_file");
   }
 
@@ -82,11 +81,10 @@ onResourcesWorkflow(function(){
 
   UploadLocalizedResource.prototype.afterSave = function(){
     if (this.uploadedfile) {
-      this.parent().saving(true);
       this.parent().uploadStatus('uploading');
       this.uploadedfile.url = this.url();
       // binding the events in the view and in knockout bindings is not working for some reason :(
-      this.uploadedfile.submit().done(this.done).fail(this.fail).always(this.always);
+      this.uploadedfile.submit().done(this.done).fail(this.fail);
     }
   }
 })

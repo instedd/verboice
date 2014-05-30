@@ -8,7 +8,6 @@ onResourcesWorkflow(function(){
     this.guid = ko.observable(hash['guid'] || null);
     this.name = ko.observable(hash['name'] || null);
     this.editing = ko.observable(false);
-    this.saving = ko.observable(false);
     this.uploadStatus = ko.observable('standBy');
     this.uploadProgress = ko.observable(0);
 
@@ -66,14 +65,17 @@ onResourcesWorkflow(function(){
       };
     })(this));
 
-    this.edit = function(resource){
-      // if (this.editing()) {
-      //   return true;
-      // } else {
+    this.edit = function(){
+      if (this.editing()) {
+        return true;
+      } else {
         self.editing(true);
         self.preserveCurrentValues();
-        self.current_editing_localized_resource(resource)
-      // }
+      }
+    }
+
+    this.editLocalizedResource = function(resource) {
+      self.current_editing_localized_resource(resource);
     }
   }
 
@@ -129,9 +131,9 @@ onResourcesWorkflow(function(){
     var self = this;
     var data = this.toHash();
     self.beforeSave();
-    self.saving(true);
 
-    self.uploadStatus('standBy');
+    self.uploadStatus('uploading');
+
     if(this.id()) {
       $.ajax({
         type: 'PUT',
@@ -143,13 +145,10 @@ onResourcesWorkflow(function(){
           self.afterSave();
           self.editing(false);
           self.uploadStatus('ok');
-          return typeof callback === "function" ? callback(self) : void 0;
+          //return typeof callback === "function" ? callback(self) : void 0;
         },
         error: function(error) {
           self.uploadStatus('error');
-        },
-        complete: function() {
-          self.saving(false);
         }
       });
     } else {
@@ -165,13 +164,10 @@ onResourcesWorkflow(function(){
           self.uploadStatus('ok');
           self.afterSave();
           self.editing(false);
-          return typeof callback === "function" ? callback(self) : void 0;
+          //return typeof callback === "function" ? callback(self) : void 0;
         },
         error: function(error) {
           self.uploadStatus('error');
-        },
-        complete: function() {
-          self.saving(false);
         }
       });
     };
