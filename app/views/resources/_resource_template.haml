@@ -2,7 +2,7 @@
   - ko_attrs = project_admin? ? {click: 'edit', css: '{ clickable: !editing() && !(uploadStatus() == "uploading"), disabled: uploadStatus() == "uploading" }'} : {}
   %tr{ko(ko_attrs)}
     %td{'data-bind' => 'css: { editing: editing()}'}
-      %span.name{'data-bind' => "visible: !editing(), text: name"}
+      %span.name{'data-bind' => "visible: !editing(), text: name, css: {upload_error: uploadStatus() == 'error', upload_ok: uploadStatus() == 'ok' }"}
       = text_field_tag :name, '', :class => '', 'data-bind' => 'visible: editing, value: name, valueUpdate: "afterkeydown"', :placeholder => 'Enter resource name'
       .progress{ko(visible: 'uploadStatus() == "uploading"')}
         .bar{'data-bind' => "style: {width: uploadProgress() + '%;'}"}
