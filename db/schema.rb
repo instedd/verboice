@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140424172606) do
+ActiveRecord::Schema.define(:version => 20140522152029) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -35,6 +35,19 @@ ActiveRecord::Schema.define(:version => 20140424172606) do
   add_index "accounts", ["confirmation_token"], :name => "index_accounts_on_confirmation_token", :unique => true
   add_index "accounts", ["email"], :name => "index_accounts_on_email", :unique => true
   add_index "accounts", ["reset_password_token"], :name => "index_accounts_on_reset_password_token", :unique => true
+
+  create_table "alerts", :force => true do |t|
+    t.integer  "account_id"
+    t.string   "type"
+    t.string   "severity"
+    t.string   "message"
+    t.string   "key"
+    t.text     "data"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "alerts", ["account_id", "key"], :name => "index_alerts_on_account_id_and_key"
 
   create_table "call_flow_external_services", :force => true do |t|
     t.integer  "call_flow_id"

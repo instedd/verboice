@@ -1,0 +1,2 @@
+class CallbackAlert < Alert
+end

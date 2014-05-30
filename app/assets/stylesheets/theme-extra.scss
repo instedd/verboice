@@ -84,6 +84,55 @@ span.forwardto { display:inline-block; width:66px; margin:6px 0 !important }
 span.alert-orange { background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat right; padding-right:18px; color:#ff6600; display:inline-block }
 span.alert-orange-b { background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat left; padding-left:18px; color:#ff6600; display:inline-block }
 
+.alerts {
+  position: relative;
+
+  span.summary {
+    cursor: pointer;
+    background: url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat left;
+    padding-left: 18px;
+    margin-left: 5px;
+    margin-top: 8px;
+    margin-right: 5px;
+    color:#ff6600;
+    display:inline-block;
+  }
+
+  .box {
+    display: none;
+    position: absolute;
+    width: 300px;
+    right: 0px;
+    margin-top: 5px;
+    padding: 2px;
+
+    &.visible {
+      display: inherit;
+    }
+
+    .item {
+      margin: 0px 5px;
+      border-bottom: 1px solid #b3b3b3;
+      font-size: 13px;
+      padding: 3px;
+      padding-right: 20px;
+      padding-top: 8px;
+      min-height: 20px;
+      position: relative;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    button.farrow {
+      position: absolute;
+      right: 0px;
+      top: 0px;
+    }
+  }
+}
+
 
 .content-header { padding:10px 50px; text-align:center }
 .content-header h1 { font-size:16px; color:#000000; margin:0 }

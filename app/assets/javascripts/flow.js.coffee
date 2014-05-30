@@ -37,7 +37,7 @@ onWorkflow ->
 
   window.workflow = new Workflow()
   window.workflow.after_initialize()
-  ko.applyBindings(workflow)
+  ko.applyBindings(workflow, document.getElementById('container'))
 
   $(window).bind 'beforeunload', () ->
     if window.workflow.has_changed()

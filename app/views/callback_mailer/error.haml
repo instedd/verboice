@@ -1,0 +1,22 @@
+%p
+  Dear Verboice administrator,
+  there was an error processing an asychronous callback:
+
+%ul
+  %li
+    %b Method:
+    = @job.payload_object.http_method.upcase
+  %li
+    %b URL:
+    = @job.payload_object.url
+  %li
+    %b Parameters:
+    = @job.payload_object.body
+  %li
+    %b Error:
+    = @exception.to_s
+
+- if @attempts < @max_attempts
+  %p This job will be retried #{@max_attempts - @attempts} more time(s)
+- else
+  %p This job will be discarded

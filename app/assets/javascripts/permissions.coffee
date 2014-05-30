@@ -58,7 +58,7 @@ window.initPermissions = (params) ->
   class Channel extends PermissionObject
     className: => "Channel"
 
-  ko.applyBindings(new ViewModel)
+  ko.applyBindings(new ViewModel, document.getElementById('container'))
 
   $('#add-user').autocomplete source: (request, response) ->
     $.get "/permissions/autocomplete", {term: request.term}, response

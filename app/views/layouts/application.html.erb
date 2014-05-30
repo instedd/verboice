@@ -9,8 +9,8 @@
 <% end %>
 <% content_for :right_menu do %>
   <ul class="RightMenu">
-      <%- if account_signed_in? %>
-        <li>
+    <%- if account_signed_in? %>
+      <li>
         <div id="User">
           <%=current_account.email%><br><br>
           <div class="container">
@@ -24,19 +24,30 @@
             </ul>
           </div>
         </div>
-        </li>
-        <li>
-          <%= link_to '', guisso_settings_path(:account), :class => 'fsettings' %>
-        </li>
-        <% else %>
-        <li>
-          <%= link_to "Create account", guisso_sign_up_path_for(:account), :class => 'fedit' %>
-        </li>
-        <li>
-          <%= link_to "Log in", guisso_sign_in_path_for(:account), :class => 'fuser' %>
-        </li>
-        <% end %>
-      </ul>
+      </li>
+      <li>
+        <div id="alerts" class="alerts">
+          <span class="summary" data-bind="visible: alerts().length > 0, text: alerts().length"></span>
+          <div class="box" data-bind="foreach: alerts">
+            <div class="item" data-bind="click: $parent.open">
+              <span data-bind="text: message"></span>
+              <button class="farrow"></button>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <%= link_to '', guisso_settings_path(:account), :class => 'fsettings' %>
+      </li>
+    <% else %>
+      <li>
+        <%= link_to "Create account", guisso_sign_up_path_for(:account), :class => 'fedit' %>
+      </li>
+      <li>
+        <%= link_to "Log in", guisso_sign_in_path_for(:account), :class => 'fuser' %>
+      </li>
+    <% end %>
+  </ul>
 <% end %>
 <% content_for :footer_links do %>
   <a href="<%= root_path %>">Home</a>

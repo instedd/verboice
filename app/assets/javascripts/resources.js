@@ -3,7 +3,7 @@
 onResources(function(){
   loadRecorderSwf();
   window.project = new Project();
-  ko.applyBindings(project);
+  ko.applyBindings(project, document.getElementById('container'));
   window.onbeforeunload = function() {
     editing_any = _.some(project.resources(), function(res) { return res.editing() });
     if (editing_any) {
