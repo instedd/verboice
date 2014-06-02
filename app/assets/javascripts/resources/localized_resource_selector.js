@@ -13,10 +13,6 @@ onResourcesWorkflow(function(){
     this.parent = resource;
     this.title = ko.observable('');
 
-    this.language = ko.computed(function(){
-      return this.current() && this.current().language()
-    }, this);
-
     this.is_text = ko.computed((function(_this) {
       return function() {
         var _ref;
@@ -35,7 +31,7 @@ onResourcesWorkflow(function(){
     };
 
     this.with_language = function(language) {
-      this.language = language;
+      this.language(language);
       return this;
     };
 
@@ -58,7 +54,7 @@ onResourcesWorkflow(function(){
   }
 
   LocalizedResourceSelector.prototype.language = function(){
-    return this.current().language;
+    return this.current().language();
   }
 
   LocalizedResourceSelector.prototype.uploadStatus = function(){
