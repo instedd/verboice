@@ -49,7 +49,7 @@
 
       %hr
 
-      %button#save-resource.white{ko(click: 'save', text: "(resource().uploadStatus() == 'uploading') ? 'Saving...' : 'Save'", disable: "(resource().uploadStatus() == 'uploading') ")}
+      %button#save-resource.white{ko(click: 'save', text: "resource().saving() ? 'Saving...' : 'Save'", disable: "resource().saving()")}
       %a.cancel{:href => '#', 'data-bind' => 'click: cancel'} Cancel
       %button.fsync.right{'data-bind' => 'click: replace'} Replace
 

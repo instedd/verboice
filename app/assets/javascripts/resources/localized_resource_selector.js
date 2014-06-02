@@ -13,10 +13,6 @@ onResourcesWorkflow(function(){
     this.parent = resource;
     this.title = ko.observable('');
 
-    this.current.subscribe(function(newValue) {
-      self.parent.uploadStatus('standBy');
-    })
-
     this.language = ko.computed(function(){
       return this.current() && this.current().language()
     }, this);
@@ -32,9 +28,6 @@ onResourcesWorkflow(function(){
     this.isValid = ko.computed(function(){
       return this.current() && this.current().isValid()
     }, this);
-    // this.editing = ko.computed(function(){
-    //   return this.parent.editing()
-    // }, this);
 
     this.with_title = function(new_title) {
       this.title(new_title);
@@ -66,6 +59,10 @@ onResourcesWorkflow(function(){
 
   LocalizedResourceSelector.prototype.language = function(){
     return this.current().language;
+  }
+
+  LocalizedResourceSelector.prototype.uploadStatus = function(){
+    return this.current().uploadStatus();
   }
 
   LocalizedResourceSelector.prototype.toHash = function(){

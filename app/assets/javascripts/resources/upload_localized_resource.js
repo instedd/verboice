@@ -30,7 +30,7 @@ onResourcesWorkflow(function(){
       self.preserveCurrentValues();
       self.hasAudio(true);
       self.filename(data.files[0].name);
-      self.parent().uploadStatus('pending');
+      self.uploadStatus('pending');
       self.uploadedfile = data;
     }
 
@@ -40,12 +40,12 @@ onResourcesWorkflow(function(){
     }
 
     this.fail = function (e, data) {
-      self.parent().uploadStatus('error');
+      self.uploadStatus('error');
       self.revertToPreservedValues();
     }
 
     this.done = function(){
-      self.parent().uploadStatus('ok');
+      self.uploadStatus('ok');
     }
   }
 
@@ -81,7 +81,7 @@ onResourcesWorkflow(function(){
 
   UploadLocalizedResource.prototype.afterSave = function(){
     if (this.uploadedfile) {
-      this.parent().uploadStatus('uploading');
+      this.uploadStatus('uploading');
       this.uploadedfile.url = this.url();
       // binding the events in the view and in knockout bindings is not working for some reason :(
       this.uploadedfile.submit().done(this.done).fail(this.fail);

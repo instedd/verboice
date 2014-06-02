@@ -2,20 +2,13 @@
 
 onResourcesWorkflow(function(){
   window['Resource']= function Resource(hash, project){
-
     var self = this;
     this.id = ko.observable(hash['id'] || null);
     this.guid = ko.observable(hash['guid'] || null);
     this.name = ko.observable(hash['name'] || null);
     this.editing = ko.observable(false);
-    this.uploadStatus = ko.observable('standBy');
     this.uploadProgress = ko.observable(0);
-
-    this.uploadStatus.subscribe(function(newValue) {
-      if (newValue == 'ok') {
-        setTimeout(function() {self.uploadStatus('standBy');}, '5000');
-      }
-    });
+    this.saveFailed = ko.observable(false);
 
     var existing_localized_resources = hash['localized_resources'] || [];
     if(project){
@@ -54,6 +47,21 @@ onResourcesWorkflow(function(){
     }
 
     this.current_editing_localized_resource = ko.observable(this.localizedResources()[0]);
+
+
+    this.savingBaseFields = ko.observable(false);
+    this.saving = ko.computed(function() {
+      return self.savingBaseFields() || _.any(self.localizedResources(), function(x) {
+        return x.uploadStatus() == 'uploading';
+      });
+    }, this);
+
+    this.error = ko.computed(function() {
+      return self.saveFailed() || _.any(self.localizedResources(), function(x) {
+        return x.uploadStatus() == 'error';
+      });
+    }, this);
+
 
 
     this.is_valid = ko.computed(function() {
@@ -117,11 +125,7 @@ onResourcesWorkflow(function(){
 
 
   Resource.prototype.edit = function(){
-    if (this.uploadStatus() == 'uploading') {
-      return true;
-    }
-
-    if (this.editing()) {
+    if (this.editing() || this.saving()) {
       return true;
     } else {
       this.editing(true);
@@ -137,8 +141,7 @@ onResourcesWorkflow(function(){
     var data = this.toHash();
     self.beforeSave();
 
-    self.uploadStatus('uploading');
-
+    self.savingBaseFields(true);
     if(this.id()) {
       $.ajax({
         type: 'PUT',
@@ -149,11 +152,13 @@ onResourcesWorkflow(function(){
           self.updateLocalizedResources(response.localized_resources);
           self.afterSave();
           self.editing(false);
-          self.uploadStatus('ok');
-          //return typeof callback === "function" ? callback(self) : void 0;
+          self.saveFailed(false);
         },
         error: function(error) {
-          self.uploadStatus('error');
+          self.saveFailed(true);
+        },
+        complete: function() {
+          self.savingBaseFields(false);
         }
       });
     } else {
@@ -166,13 +171,15 @@ onResourcesWorkflow(function(){
           self.id(response.id);
           self.guid(response.guid);
           self.updateLocalizedResources(response.localized_resources);
-          self.uploadStatus('ok');
+          self.saveFailed(false);
           self.afterSave();
           self.editing(false);
-          //return typeof callback === "function" ? callback(self) : void 0;
         },
         error: function(error) {
-          self.uploadStatus('error');
+          self.saveFailed(true);
+        },
+        complete: function() {
+          self.savingBaseFields(false);
         }
       });
     };
@@ -180,7 +187,7 @@ onResourcesWorkflow(function(){
 
   Resource.prototype.cancel = function(){
     this.editing(false);
-    this.uploadStatus('standBy');
+    _.each(this.localizedResources(), function(localized) {localized.uploadStatus('standBy')});
     this.revertToPreservedValues();
     if (! this.id() ) { this.remove() };
   }

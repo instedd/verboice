@@ -5,6 +5,7 @@ onResourcesWorkflow(function(){
       this.language = ko.observable(hash['language'])
     }
     this.parent = ko.observable(resource);
+    this.uploadStatus = ko.observable('standBy');
   }
 
   LocalizedResource.prototype.set_parent = function(parent) {

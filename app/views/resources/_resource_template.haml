@@ -1,10 +1,10 @@
 %script{type: "text/html", id: "resource_template"}
-  - ko_attrs = project_admin? ? {click: 'edit', css: '{ clickable: !editing() && !(uploadStatus() == "uploading"), disabled: uploadStatus() == "uploading" }'} : {}
+  - ko_attrs = project_admin? ? {click: 'edit', css: '{ clickable: !editing() && !saving(), disabled: saving() }'} : {}
   %tr{ko(ko_attrs)}
     %td{'data-bind' => 'css: { editing: editing()}'}
       %span.name{'data-bind' => "visible: !editing(), text: name, css: {upload_error: uploadStatus() == 'error', upload_ok: uploadStatus() == 'ok' }"}
       = text_field_tag :name, '', :class => '', 'data-bind' => 'visible: editing, value: name, valueUpdate: "afterkeydown"', :placeholder => 'Enter resource name'
-      .progress{ko(visible: 'uploadStatus() == "uploading"')}
+      .progress{ko(visible: 'saving()')}
         .bar{'data-bind' => "style: {width: uploadProgress() + '%;'}"}
       %span.alert-orange-b{ko(visible: '!is_valid() && !name()')} Missing name
     / ko with: firstResource
@@ -16,7 +16,7 @@
   %tr{ko(visible: 'editing')}
     %td
       - if project_admin?
-        %button#save-resource.white{ko(click: 'save', text: "(uploadStatus() == 'uploading') ? 'Saving...' : 'Save'", disable: "uploadStatus() == 'uploading'")}
+        %button#save-resource.white{ko(click: 'save', text: "saving() ? 'Saving...' : 'Save'", disable: "saving()")}
       %a.cancel{ko(click: 'cancel', visible: 'editing'), href: '#'} Cancel
     %td
     %td.text-right

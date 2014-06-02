@@ -1,6 +1,6 @@
 %script{type: "text/html", id: "upload_localized_resource_template"}
   %div{ko(visible: '$parent.editing()')}
-    / ko if:  parent().uploadStatus() == 'standBy' && !hasAudio()
+    / ko if:  uploadStatus() == 'standBy' && !hasAudio()
     %span.alert-orange-b Select a file to upload
     / /ko
 
@@ -9,10 +9,10 @@
     / /ko
 
     .div
-      / ko if: parent().uploadStatus() == 'pending'
+      / ko if: uploadStatus() == 'pending'
       .alert-save-resource Save the resource in order to upload this file
       / /ko
-      / ko if: parent().uploadStatus() == 'error'
+      / ko if: uploadStatus() == 'error'
       %span.alert-orange-b There was an error uploading the file
       / /ko
 
