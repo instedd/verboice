@@ -62,10 +62,15 @@ onResourcesWorkflow(function(){
       });
     }, this);
 
+    // At least one of the resources needs to be in status 'ok' because this means a file has been recently uploaded
+    // All the others needs to be 'ok' or 'standBy' since some of the localized resouces may have not been modified
     this.uploadOk = ko.computed(function() {
-      return !self.saveFailed() && _.all(self.localizedResources(), function(x) {
-        return x.uploadStatus() == 'ok';
-      });
+      return (!self.saveFailed()
+        && _.any(self.localizedResources(), function(x) {
+          return x.uploadStatus() == 'ok'
+        }) && _.all(self.localizedResources(), function(x) {
+          return (x.uploadStatus() == 'ok' || x.uploadStatus() == 'standBy');
+      }));
     }, this);
 
 
