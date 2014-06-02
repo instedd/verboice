@@ -254,7 +254,7 @@ onResourcesWorkflow(function(){
   Resource.prototype.updateLocalizedResources = function(arr) {
     _.each(arr, function(hash) {
         localizedResource = _.detect(this.localizedResources(), function(x){
-          return x.language == hash.language });
+          return x.language() == hash.language });
         if(localizedResource) {
           localizedResource.current().id(hash.id);
         }
