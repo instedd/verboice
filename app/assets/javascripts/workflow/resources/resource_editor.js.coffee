@@ -44,7 +44,6 @@ onWorkflow ->
             @resource(result)
 
     save: =>
-      window.resource = @resource()
       @resource().save()
       @resource().saving.subscribe (saving) =>
         # if the resource finished saving and there is not any errors, the edit window needs to be closed
