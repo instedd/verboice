@@ -195,7 +195,7 @@ onResourcesWorkflow(function(){
   }
 
   RecordLocalizedResource.prototype.afterSave = function(){
-    window.currentResource.uploadStatus('ok');
+    this.uploadStatus('ok');
   }
 })
 

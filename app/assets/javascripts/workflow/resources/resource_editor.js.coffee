@@ -45,10 +45,13 @@ onWorkflow ->
 
     save: =>
       @resource().save()
-      @resource().saving.subscribe (saving) =>
+      subscription = @resource().saving.subscribe (saving) =>
         # if the resource finished saving and there is not any errors, the edit window needs to be closed
         if(saving == false and !@resource().error())
           @cancel()
+        # We no longer want this event to be triggered again
+        subscription.dispose()
+
 
     replace: =>
       @resource(null)
