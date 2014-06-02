@@ -62,6 +62,12 @@ onResourcesWorkflow(function(){
       });
     }, this);
 
+    this.uploadOk = ko.computed(function() {
+      return !self.saveFailed() && _.all(self.localizedResources(), function(x) {
+        return x.uploadStatus() == 'ok';
+      });
+    }, this);
+
 
 
     this.is_valid = ko.computed(function() {
