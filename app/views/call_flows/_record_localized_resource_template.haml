@@ -2,9 +2,9 @@
   .text-right
     .player
       %span{ko(text: 'duration', css: "{recording: recording()}")}
-      %button.fplay{ko(click: 'play', visible: '!playing()', css: "{disabled: recording() || !hasAudio()}")}
+      %button.fplay{ko(click: 'play', visible: '!playing()', css: "{disabled: globalPlaying() || globalRecording() || recording() || !hasAudio()}")}
       %button.fstop{ko(click: 'stop', visible: 'playing()')}
-      %button.frecording{ko(click: 'record', visible: '!recording()', css: "{disabled: playing()}")}
+      %button.frecording{ko(click: 'record', visible: '!recording()', css: "{disabled: globalPlaying() || globalRecording() || playing()}")}
       %button.fstopped{ko(click: 'stop', visible: 'recording()', css: "{active: recording(), disabled: playing()}")}
     .w22
       %textarea{:rows => 6, :placeholder => 'Write here a description of the recording, either as a reminder for you or as a reference for the person that will record the message.', 'data-bind' => 'value: description'}
