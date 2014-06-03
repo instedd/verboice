@@ -73,6 +73,10 @@ onResourcesWorkflow(function(){
     this.current().afterSave();
   }
 
+  LocalizedResourceSelector.prototype.afterSaveFailed = function() {
+    this.current().afterSaveFailed();
+  }
+
   LocalizedResourceSelector.fromHash = function(hash, resource){
     var self = this;
     options = _.map(this.prototype.optionsArray(), function(type){ return new window[type + "LocalizedResource"](hash, resource) });

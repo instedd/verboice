@@ -192,10 +192,15 @@ onResourcesWorkflow(function(){
 
   RecordLocalizedResource.prototype.beforeSave = function(){
     if (this.playing() || this.recording()) this.stop();
+    if (this.hasAudio()) this.uploadStatus('uploading');
   }
 
   RecordLocalizedResource.prototype.afterSave = function(){
-    this.uploadStatus('ok');
+    if (this.hasAudio()) this.uploadStatus('ok');
+  }
+
+  RecordLocalizedResource.prototype.afterSaveFailed = function(){
+    if (this.hasAudio()) this.uploadStatus('error');
   }
 })
 

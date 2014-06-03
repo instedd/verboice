@@ -152,6 +152,8 @@ onResourcesWorkflow(function(){
     var data = this.toHash();
     self.beforeSave();
 
+    self.editing(false);
+
     self.savingBaseFields(true);
     if(this.id()) {
       $.ajax({
@@ -162,11 +164,11 @@ onResourcesWorkflow(function(){
         success: function(response){
           self.updateLocalizedResources(response.localized_resources);
           self.afterSave();
-          self.editing(false);
           self.saveFailed(false);
         },
         error: function(error) {
           self.saveFailed(true);
+          self.afterSaveFailed();
         },
         complete: function() {
           self.savingBaseFields(false);
@@ -184,10 +186,10 @@ onResourcesWorkflow(function(){
           self.updateLocalizedResources(response.localized_resources);
           self.saveFailed(false);
           self.afterSave();
-          self.editing(false);
         },
         error: function(error) {
           self.saveFailed(true);
+          self.afterSaveFailed();
         },
         complete: function() {
           self.savingBaseFields(false);
@@ -209,6 +211,10 @@ onResourcesWorkflow(function(){
 
   Resource.prototype.afterSave = function(){
     _.each(this.localizedResources(), function(localized) {localized.afterSave()});
+  }
+
+  Resource.prototype.afterSaveFailed = function(){
+    _.each(this.localizedResources(), function(localized) {localized.afterSaveFailed()});
   }
 
   Resource.prototype.preserveCurrentValues= function() {
