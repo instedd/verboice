@@ -28,7 +28,6 @@ onWorkflow ->
       @is_text = ko.computed =>
         if @resource()? then @resource().is_text() else false
 
-      @subscription = null
 
     get_resources: (query, source) =>
       Resource.search query, (results) =>
@@ -36,8 +35,6 @@ onWorkflow ->
 
     cancel: =>
       _.each(@resource().localizedResources(), (localized) => localized.current().uploadStatus('standBy'))
-      if @subscription
-        @subscription.dispose()
       @parent.current_editing_resource(null)
 
     next: =>
@@ -50,13 +47,14 @@ onWorkflow ->
 
     save: =>
       @resource().save()
-      @subscription = @resource().uploadOk.subscribe (upload_ok) =>
+      subscription = @resource().uploadOk.subscribe (upload_ok) =>
         # if the resource finished saving and there without any errors, the edit window needs to be closed
         if(upload_ok)
-          # We no longer want this event to be triggered again
-          @subscription.dispose()
-
           @cancel()
+
+          # We no longer want this event to be triggered again
+          subscription.dispose()
+
 
 
 

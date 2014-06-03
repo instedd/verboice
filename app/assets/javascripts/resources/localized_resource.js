@@ -22,12 +22,15 @@ onResourcesWorkflow(function(){
   }
 
   LocalizedResource.prototype.beforeSave = function(){
+    this.uploadStatus('uploading');
   }
 
   LocalizedResource.prototype.afterSave = function(){
+    this.uploadStatus('ok');
   }
 
-  LocalizedResource.prototype.afterSaveFailed = function() {
+  LocalizedResource.prototype.afterSaveFailed = function(){
+    this.uploadStatus('error');
   }
 
   LocalizedResource.prototype.isSaved = function(){
