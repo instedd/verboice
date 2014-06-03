@@ -90,7 +90,7 @@ onResourcesWorkflow(function(){
     })(this));
 
     this.edit = function(){
-      if (this.editing()) {
+      if (this.editing() || this.saving()) {
         return true;
       } else {
         self.editing(true);
