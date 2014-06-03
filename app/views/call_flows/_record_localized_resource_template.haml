@@ -6,5 +6,12 @@
       %button.fstop{ko(click: 'stop', visible: 'playing()')}
       %button.frecording{ko(click: 'record', visible: '!recording()', css: "{disabled: globalPlaying() || globalRecording() || playing()}")}
       %button.fstopped{ko(click: 'stop', visible: 'recording()', css: "{active: recording(), disabled: playing()}")}
+    / ko if: uploadStatus() == 'pending'
+    %span.alert-save-resource Save the resource in order to upload this recording
+    / /ko
+    / ko if: uploadStatus() == 'error'
+    %span.alert-orange-b There was an error saving the recording
+    / /ko
     .w22
       %textarea{:rows => 6, :placeholder => 'Write here a description of the recording, either as a reminder for you or as a reference for the person that will record the message.', 'data-bind' => 'value: description'}
+
