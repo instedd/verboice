@@ -6,7 +6,6 @@
     / ko if: hasAudio()
     %span.clickable.audio-name{'data-bind' => 'text: "File: " + filename(), click: download'}
     / /ko
-    %span.fade
 
     / ko if: uploadStatus() == 'pending'
     .alert-save-resource Save the resource in order to upload this file
