@@ -87,6 +87,16 @@ describe ResourcesController do
         post :create, {:project_id => @project.id, :resource => Resource.plan}
         controller.resource.project.should eq(@project)
       end
+
+      it "returns the correct amount of nested localized_resources" do
+        # This was returning duplicated localized resources for some reason. It seems to be a decent_exposure issue with nested attributes
+        resource_json = {"name"=>"Say hello",
+          "localized_resources_attributes"=>
+            {"0"=>{"language"=>"en", "type"=>"TextLocalizedResource", "text"=>"Hello"},
+            "1"=>{"language"=>"es", "type"=>"TextLocalizedResource"}}}
+        post :create, :project_id => @project.id, :resource => resource_json, :format => :json
+        JSON.parse(response.body)["localized_resources"].count.should eq(2)
+      end
     end
 
     describe "with invalid params" do
@@ -108,6 +118,21 @@ describe ResourcesController do
       it "renders the requested resources as json" do
         put :update, {:project_id => @project.id, :id => resource1.to_param, :resource => {}, :format => :json}
         response.body.should eq(resource1.to_json(:include => :localized_resources))
+      end
+
+      it "returns the correct amount of nested localized_resources" do
+        localized_res1 = TextLocalizedResource.make resource: resource1, language: "en"
+        localized_res2 = TextLocalizedResource.make resource: resource1, language: "es"
+        # This was returning duplicated localized resources for some reason. It seems to be a decent_exposure issue with nested attributes
+        resource_json =  {"name"=>"new name",
+          "localized_resources_attributes"=>
+          {"0"=>
+            {"language"=>"en",
+             "type"=>"UploadLocalizedResource",
+             "filename"=>"05 Ipanema.mp3"},
+           "1"=>{"id"=>localized_res2.id, "language"=>"es", "type"=>"TextLocalizedResource"}}}
+        put :update, {:id => resource1.to_param, :project_id => @project.id, :resource => resource_json, :format => :json}
+        JSON.parse(response.body)["localized_resources"].count.should eq(2)
       end
 
     end
