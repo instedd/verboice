@@ -33,6 +33,7 @@ onWorkflow ->
         source(results)
 
     cancel: =>
+      _.each(@resource().localizedResources(), (localized) => localized.current().uploadStatus('standBy'))
       @parent.current_editing_resource(null)
 
     next: =>
