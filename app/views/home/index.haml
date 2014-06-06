@@ -20,11 +20,11 @@
   - else
     %p
       Get started:
-      = link_button_to 'Create an account', new_account_registration_path, :class => "orange"
+      = link_button_to 'Create an account', guisso_sign_up_path_for(:account), :class => "orange"
     %p
     %p
       Already a member?
-      = link_to 'Log in', new_account_session_path
+      = link_to 'Log in', guisso_sign_in_path_for(:account)
   .clear
   / #container
   .home-middle-bar

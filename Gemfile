@@ -26,6 +26,12 @@ gem 'bertrpc'
 gem 'formatted_rails_logger'
 gem 'instedd-pigeon', :require => 'pigeon'
 gem 'poirot_rails', git: 'https://bitbucket.org/instedd/poirot_rails.git', branch: 'master'
+gem 'hercule', git: 'https://bitbucket.org/instedd/poirot.git', branch: 'master'
+gem 'rack-oauth2', git: "https://github.com/manastech/rack-oauth2.git", branch: 'master'
+gem 'alto_guisso', git: "https://bitbucket.org/instedd/alto_guisso.git", branch: 'master'
+gem 'ruby-openid'
+gem 'omniauth'
+gem 'omniauth-openid'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'

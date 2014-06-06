@@ -33,6 +33,7 @@ handle_event({new_session, Pid, Env}, State) ->
 
         _ ->
           % Incoming call
+          agi_session:ringing(Pid),
           {ok, PeerIp} = agi_session:get_variable(Pid, "CHANNEL(peerip)"),
           SipTo = binary_to_list(proplists:get_value(dnid, Env)),
           ChannelId = case asterisk_channel_srv:find_channel(PeerIp, SipTo) of

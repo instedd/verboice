@@ -105,6 +105,18 @@ class Compiler
     append Commands::AssignExpressionCommand.new(*args)
   end
 
+  def StartUserStep(type, id, name, metadata = {})
+    metadata[:step_type] = type
+    metadata[:step_id] = id
+    StartActivity name, metadata
+  end
+
+  def SetStepResult(result, data = nil)
+    md = { step_result: result }
+    md[:step_data] = [:eval, data] if data
+    SetMetadata md
+  end
+
   def method_missing(method, *args)
     cmd_class = "Commands::#{method.to_s}Command".constantize
     append cmd_class.new *args

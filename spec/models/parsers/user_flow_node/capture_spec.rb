@@ -44,23 +44,23 @@ module Parsers
         capture.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
-            c.AssignValue "current_step", 1
-            c.AssignValue "current_step_name", "Capture number one"
+            c.StartUserStep :input, 1, "Capture number one"
             c.AssignValue 'attempt_number1', 1
             c.While 'attempt_number1 <= 3' do |c|
               c.Capture resource: 1, min: 1, max: 2, finish_on_key: '#', timeout: 10
               c.Assign 'value_1', 'digits'
               c.PersistVariable 'some_variable', 'value_1'
               c.If "(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20)" do |c|
-                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Capture number one', store: '"User pressed: " + (digits ? digits : "<empty>")'
+                c.SetStepResult :pressed, "digits"
                 c.Goto "end1"
               end
               c.If "digits != null" do |c|
-                c.PlayResource 5
+                c.SetStepResult :invalid_key
                 c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Capture number one', store: '"Invalid key pressed"'
+                c.PlayResource 5
               end
               c.Else do |c|
-                c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'Capture number one', store: '"No key was pressed. Timeout."'
+                c.SetStepResult :timeout
               end
               c.Assign 'attempt_number1', 'attempt_number1 + 1'
             end
@@ -74,18 +74,17 @@ module Parsers
 
         capture_flow = Compiler.parse do |c|
           c.Label 4
-          c.AssignValue "current_step", 4
-          c.AssignValue "current_step_name", "Capture"
+          c.StartUserStep :input, 4, "Capture"
           c.AssignValue 'attempt_number4', 1
           c.While 'attempt_number4 <= 3' do |c|
             c.Capture min: 1, max: 1, finish_on_key: '#', timeout: 5
             c.Assign 'value_4', 'digits'
             c.If 'digits != null' do |c|
-              c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + (digits ? digits : "<empty>")'
+              c.SetStepResult :pressed, "digits"
               c.Goto "end4"
             end
             c.Else do |c|
-              c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"No key was pressed. Timeout."'
+              c.SetStepResult :timeout
             end
             c.Assign 'attempt_number4', 'attempt_number4 + 1'
           end
@@ -124,19 +123,19 @@ module Parsers
         File.stub(:exists?).and_return{true}
         capture_flow = Compiler.parse do |c|
           c.Label 4
-          c.AssignValue "current_step", 4
-          c.AssignValue "current_step_name", "Capture"
+          c.StartUserStep :input, 4, "Capture"
           c.AssignValue 'attempt_number4', 1
           c.While 'attempt_number4 <= 3' do |c|
             c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
             c.Assign 'value_4', 'digits'
             c.If '(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20) || (digits == null)' do |c|
-              c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + (digits ? digits : "<empty>")'
+              c.SetStepResult :pressed, "digits"
               c.Goto "end4"
             end
             c.Else do |c|
-              c.PlayResource 2
+              c.SetStepResult :invalid_key
               c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
+              c.PlayResource 2
             end
             c.Assign 'attempt_number4', 'attempt_number4 + 1'
           end
@@ -164,17 +163,17 @@ module Parsers
         File.stub(:exists?).and_return{true}
         capture_flow = Compiler.parse do |c|
           c.Label 4
-          c.AssignValue "current_step", 4
-          c.AssignValue "current_step_name", "Capture"
+          c.StartUserStep :input, 4, "Capture"
           c.AssignValue 'attempt_number4', 1
           c.While 'attempt_number4 <= 3' do |c|
             c.Capture min: 0, max: 1, finish_on_key: '#', timeout: 5
             c.Assign 'value_4', 'digits'
             c.If 'true' do |c|
-              c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + (digits ? digits : "<empty>")'
+              c.SetStepResult :pressed, "digits"
               c.Goto "end4"
             end
             c.Else do |c|
+              c.SetStepResult :invalid_key
               c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
             end
             c.Assign 'attempt_number4', 'attempt_number4 + 1'
@@ -197,28 +196,27 @@ module Parsers
         File.stub(:exists?).and_return{true}
         capture_flow = Compiler.parse do |c|
             c.Label 4
-            c.AssignValue "current_step", 4
-            c.AssignValue "current_step_name", "Capture"
+            c.StartUserStep :input, 4, "Capture"
             c.AssignValue 'attempt_number4', 1
             c.While 'attempt_number4 <= 3' do |c|
               c.Capture min: 0, max: 2, finish_on_key: '#', timeout: 5
               c.Assign 'value_4', 'digits'
               c.If '(digits == 1) || (digits >= 2 && digits <= 4) || (digits >= 10 && digits <= 20) || (digits == null)' do |c|
-                c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"User pressed: " + (digits ? digits : "<empty>")'
+                c.SetStepResult :pressed, "digits"
                 c.Goto "end4"
               end
               c.Else do |c|
-                c.PlayResource 5
+                c.SetStepResult :invalid_key
                 c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Invalid key pressed"'
+                c.PlayResource 5
               end
               c.Assign 'attempt_number4', 'attempt_number4 + 1'
             end
             c.Trace call_flow_id: call_flow.id, step_id: 4, step_name: 'Capture', store: '"Missed input for 3 times."'
             c.Label 2
-            c.AssignValue "current_step", 2
-            c.AssignValue "current_step_name", "Play"
-            c.Trace call_flow_id: call_flow.id, step_id: 2, step_name: 'Play', store: '"Message played."'
+            c.StartUserStep :play, 2, "Play"
             c.PlayResource 123
+            c.Trace call_flow_id: call_flow.id, step_id: 2, step_name: 'Play', store: '"Message played."'
             c.Label "end4"
           end.first
 

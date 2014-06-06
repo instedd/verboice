@@ -9,24 +9,27 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact, p
   StopKeys = proplists:get_value(stop_keys, Args, "01234567890*#"),
   Timeout = proplists:get_value(timeout, Args, 10),
 
-  CallLog:info("Record user voice", [{command, "record"}, {action, "start"}]),
   CallLogId = CallLog:id(),
   Filename = filename(CallLogId, Key),
   filelib:ensure_dir(Filename),
 
-  Pbx:record(Filename, StopKeys, Timeout),
+  poirot:log(info, "Recording to filename: ~s, stop keys: ~s, timeout: ~B", [Filename, StopKeys, Timeout]),
+  case Pbx:record(Filename, StopKeys, Timeout) of
+    ok ->
+      RecordedAudio = #recorded_audio{
+        contact_id = Contact#contact.id,
+        project_id = Project#project.id,
+        call_log_id = CallLogId,
+        key = Key,
+        description = Description
+      },
+      RecordedAudio:save(),
 
-  RecordedAudio = #recorded_audio{
-    contact_id = Contact#contact.id,
-    project_id = Project#project.id,
-    call_log_id = CallLogId,
-    key = Key,
-    description = Description
-  },
-  RecordedAudio:save(),
+      {next, Session};
 
-  CallLog:info("Recording saved", [{command, "record"}, {action, "finish"}]),
-  {next, Session}.
+    {error, Reason} ->
+      throw({error_recording, Reason})
+  end.
 
 filename(CallLogId, Key) ->
   {ok, RecordDir} = application:get_env(record_dir),

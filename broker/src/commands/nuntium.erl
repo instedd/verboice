@@ -4,12 +4,11 @@
 -include("db.hrl").
 -include("uri.hrl").
 
-run(Args, Session = #session{call_log = CallLog, project = Project}) ->
+run(Args, Session = #session{project = Project}) ->
   Guid = proplists:get_value(resource_guid, Args),
   RcptType = proplists:get_value(rcpt_type, Args),
   Expr = proplists:get_value(expr, Args),
 
-  CallLog:info(["Send text message '", Guid, "'"], [{command, "nuntium"}, {action, "start"}]),
   {Result, Message} = case rcpt_address(RcptType, Expr, Session) of
     undefined -> {error, "Missing recipient"};
     Address ->
@@ -21,6 +20,7 @@ run(Args, Session = #session{call_log = CallLog, project = Project}) ->
             {body, Body},
             {account_id, Project#project.account_id}
           ],
+          poirot:log(debug, "Sending to nuntium: ~p", [NuntiumArgs]),
           case nuntium_api:send_ao(NuntiumArgs) of
             ok -> {info, "Sent"};
             {error, Reason} -> {error, Reason}
@@ -29,7 +29,10 @@ run(Args, Session = #session{call_log = CallLog, project = Project}) ->
       end
   end,
 
-  CallLog:Result(["Result: ", Message], []),
+  case Result of
+    info -> poirot:log(info, Message);
+    error -> poirot:log(error, Message)
+  end,
 
   {next, Session}.
 

@@ -56,7 +56,8 @@ handle_cast(reload_channels, State) ->
 
   {noreply, State#state{registry = NewRegistry}};
 
-handle_cast({set_channel_status, NewStatus}, State) ->
+handle_cast({set_channel_status, NewStatus}, State = #state{channel_status = PrevStatus}) ->
+  channel:log_broken_channels(PrevStatus, NewStatus),
   {noreply, State#state{channel_status = NewStatus, status_job_state = idle}};
 
 handle_cast(_Msg, State) ->

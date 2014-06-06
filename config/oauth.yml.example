@@ -1,0 +1,19 @@
+# Rename this file to oauth.yml in order to activate Fusion Tables integration
+#
+# In order to get this info:
+#   * Setup a google application at https://console.developers.google.com
+#   * Create a project
+#   * Click APIs & Auth on the left side
+#   * Find Fusion Tables and turn it on
+#   * Click credentials
+#   * Click "Create new client id"
+#   * Choose "Web application"
+#   * Authorized JavaScript origins: http://your.server.org
+#   * Authorized redirect URI: http://your.server.org/oauth/google/callback
+#
+# Restart your server and edit a call flow in order to link your Google account
+
+
+google:
+  api_key: {client_id}
+  api_secret: {client_secret}

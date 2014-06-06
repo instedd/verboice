@@ -55,8 +55,7 @@ module Parsers
       def equivalent_flow
         Compiler.parse do |c|
           c.Label @id
-          c.AssignValue "current_step", @id
-          c.AssignValue "current_step_name", "#{@name}"
+          c.StartUserStep :impersonate, @id, @name
           c.AssignValue "attempt_number#{@id}", 1
           c.While "attempt_number#{@id} <= #{@number_of_attempts}" do |c|
             c.Capture({
@@ -66,20 +65,18 @@ module Parsers
                 timeout: @timeout
               }.merge( @instructions_resource.capture_flow ))
             c.If 'digits != null' do |c|
-              c.Trace context_for '"User pressed: " + (digits ? digits : "<empty>")'
               c.Impersonate @variable, 'digits'
               c.If 'impersonated' do |c|
+                c.SetStepResult :impersonated
                 c.Goto "end#{@id}"
               end
               c.Else do |c|
                 c.append @invalid_resource.equivalent_flow
               end
             end
-            c.Else do |c|
-              c.Trace context_for '"No key was pressed. Timeout."'
-            end
             c.Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"
           end
+          c.SetStepResult :failed
           c.Trace context_for %("Missed input for #{@number_of_attempts} times.")
           c.append @default.equivalent_flow if @default
           c.Label "end#{@id}"

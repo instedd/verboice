@@ -72,6 +72,8 @@ class Schedule < ActiveRecord::Base
   end
 
   def next_available_time(t)
+    t = Time.now.utc if t.past?
+
     if time_from.present? && time_to.present?
       from = get_seconds(time_from)
       to = get_seconds(time_to)

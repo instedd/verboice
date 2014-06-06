@@ -8,7 +8,6 @@
   %p
     = link_to 'Download as CSV', download_call_logs_path(:format => :csv, :search => @search), :class => "button fimport"
   %div= page_entries_info @logs, :entry_name => 'call log'
-  = will_paginate @logs, :param_name => 'page'
   - if @logs.present?
     %br/
     %table.GralTable
@@ -46,6 +45,19 @@
               = "(#{log.fail_reason})"
           %td= link_to 'view details', call_log_path(log)
     %br/
-    %div= page_entries_info @logs, :entry_name => 'call log'
-    = will_paginate @logs, :param_name => 'page'
+
+%div#call_logs_paginator
+  = form_tag({action: :index, controller: :call_logs}, method: :get) do
+    - total_pages = (@logs.count/@per_page)+1
+
+    - previous_btn_class = 'pprevious' + (if (@page.to_i - 1) < 1 then " disabled" else '' end)
+    = link_to '', {action: 'index', page: @page.to_i-1}, class: previous_btn_class
+
+    - next_btn_class = 'pnext' + (if (@page.to_i + 1) > total_pages then " disabled" else '' end)
+    = link_to '', {action: 'index', page: @page.to_i+1}, class: next_btn_class
+
+    = text_field_tag 'page', @page.to_i
+    %span.label-info="of #{total_pages}"
+    = submit_tag '', class: 'hidden'
+
 %br/

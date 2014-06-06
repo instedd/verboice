@@ -55,8 +55,7 @@ module Parsers
       def equivalent_flow
         Compiler.parse do |c|
           c.Label @id
-          c.AssignValue "current_step", @id
-          c.AssignValue "current_step_name", "#{@name}"
+          c.StartUserStep :input, @id, @name
           c.AssignValue "attempt_number#{@id}", 1
           c.While "attempt_number#{@id} <= #{@number_of_attempts}" do |c|
             c.Capture({
@@ -68,13 +67,14 @@ module Parsers
             c.Assign "value_#{@id}", 'digits'
             c.PersistVariable @persisted_variable_name, "value_#{@id}" if @persisted_variable_name
             c.If valid_digits_condition do |c|
-              c.Trace context_for '"User pressed: " + (digits ? digits : "<empty>")'
+              c.SetStepResult :pressed, "digits"
               c.Goto "end#{@id}"
             end
 
             invalid_resource_block = lambda { |c|
-              c.append @invalid_resource.equivalent_flow
+              c.SetStepResult :invalid_key
               c.Trace context_for '"Invalid key pressed"'
+              c.append @invalid_resource.equivalent_flow
             }
 
             if @min_input_length == 0
@@ -84,7 +84,7 @@ module Parsers
                 c.If "digits != null", &invalid_resource_block
               end
               c.Else do |c|
-                c.Trace context_for '"No key was pressed. Timeout."'
+                c.SetStepResult :timeout
               end
             end
             c.Assign "attempt_number#{@id}", "attempt_number#{@id} + 1"

@@ -33,8 +33,7 @@ module Parsers
         transfer.equivalent_flow.first.should eq(
           Compiler.parse do
             Label 1
-            AssignValue "current_step", 1
-            AssignValue "current_step_name", "Transfer"
+            StartUserStep :transfer, 1, "Transfer"
             Trace call_flow_id: 1, step_id: 1, step_name: 'Transfer', store: '"Transfer to 1234-5678 in channel foo."'
             Dial '1234-5678', {:channel => 'foo'}
           end.first
@@ -50,8 +49,7 @@ module Parsers
         transfer.equivalent_flow.first.should eq(
           Compiler.parse do
             Label 2
-            AssignValue "current_step", 2
-            AssignValue "current_step_name", "Transfer"
+            StartUserStep :transfer, 2, "Transfer"
             Trace call_flow_id: 1, step_id: 2, step_name: 'Transfer', store: '"Transfer to 1234-5678 in current channel."'
             Dial '1234-5678', {:channel => nil}
           end.first

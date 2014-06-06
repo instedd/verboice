@@ -45,7 +45,7 @@ module Parsers
         service = service_step.external_service
         Compiler.parse do |compiler|
           compiler.Label @id
-          compiler.AssignValue "current_step", @id
+          compiler.StartUserStep :external_service, @id, @name, external_step_guid: @external_step_guid
           case service_step.kind
           when 'callback'
             compiler.Trace context_for %("Calling External Service #{service.name}.")

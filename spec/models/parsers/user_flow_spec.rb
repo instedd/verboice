@@ -203,98 +203,90 @@ describe Parsers::UserFlow do
     (Parsers::UserFlow.new call_flow, user_flow).equivalent_flow.should eq(
       Compiler.make do
         Answer()
-        AssignValue "current_step", 1
-        AssignValue "current_step_name", "Play number one"
-        Trace call_flow_id: 5, step_id: 1, step_name: 'Play number one', store: '"Message played."'
+        StartUserStep :play, 1, "Play number one"
         PlayResource "resource 1 guid"
-        AssignValue "current_step", 2
-        AssignValue "current_step_name", "Capture number one"
+        Trace call_flow_id: 5, step_id: 1, step_name: 'Play number one', store: '"Message played."'
+        StartUserStep :input, 2, "Capture number one"
         AssignValue 'attempt_number2', 1
         While 'attempt_number2 <= 3' do
           Capture resource: "First Capture message guid", min: 1, max: 10, finish_on_key: '#', timeout: 10
           Assign 'value_2', 'digits'
           If "(digits >= 1 && digits <= 10)" do
-            Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"User pressed: " + (digits ? digits : "<empty>")'
+            SetStepResult :pressed, "digits"
             Goto "end2"
           end
           If "digits != null" do
+            SetStepResult :invalid_key
+            Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store:  '"Invalid key pressed"'
             PlayResource "resource 2 invalid guid"
-            Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Invalid key pressed"'
           end
           Else do
-            Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"No key was pressed. Timeout."'
+            SetStepResult :timeout
           end
           Assign 'attempt_number2', 'attempt_number2 + 1'
         end
         Trace call_flow_id: 5, step_id: 2, step_name: 'Capture number one', store: '"Missed input for 3 times."'
         Label "end2"
-        AssignValue "current_step", 3
-        AssignValue "current_step_name", "Menu number one"
+        StartUserStep :menu, 3, "Menu number one"
         PlayResource "resource of menu 3"
         AssignValue 'attempt_number3', 1
         While 'attempt_number3 <= 3' do
           Capture finish_on_key: '', timeout: 20
           Assign 'value_3', 'digits'
           If "digits == '2'" do
-            Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
-            AssignValue "current_step", 4
-            AssignValue "current_step_name", "Say number 4"
-            Trace call_flow_id: 5, step_id: 4, step_name: 'Say number 4', store: '"Message played."'
+            SetStepResult :pressed, "digits"
+            StartUserStep :play, 4, "Say number 4"
             PlayResource "resource 4 guid"
+            Trace call_flow_id: 5, step_id: 4, step_name: 'Say number 4', store: '"Message played."'
             Goto "end3"
           end
           If "digits == '1'" do
-            Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"User pressed: " + digits'
-            AssignValue "current_step", 6
-            AssignValue "current_step_name", "Say number 6"
-            Trace call_flow_id: 5, step_id: 6, step_name: 'Say number 6', store: '"Message played."'
+            SetStepResult :pressed, "digits"
+            StartUserStep :play, 6, "Say number 6"
             PlayResource "resource 6 guid"
+            Trace call_flow_id: 5, step_id: 6, step_name: 'Say number 6', store: '"Message played."'
             Goto "end3"
           end
           If "digits != null" do
-            Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"Invalid key pressed"'
+            SetStepResult :invalid_key
           end
           Else do
-            Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"No key was pressed. Timeout."'
+            SetStepResult :timeout
           end
           Assign 'attempt_number3', 'attempt_number3 + 1'
         end
         Trace call_flow_id: 5, step_id: 3, step_name: 'Menu number one', store: '"Missed input for 3 times."'
         Label "end3"
-        AssignValue "current_step", 5
-        AssignValue "current_step_name", "Say number 5"
-        Trace call_flow_id: 5, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
+        StartUserStep :play, 5, "Say number 5"
         PlayResource "resource 5 guid"
-        AssignValue "current_step", 33
-        AssignValue "current_step_name", "Play number 33"
-        Trace call_flow_id: 5, step_id: 33, step_name: 'Play number 33', store: '"Message played."'
+        Trace call_flow_id: 5, step_id: 5, step_name: 'Say number 5', store: '"Message played."'
+        StartUserStep :play, 33, "Play number 33"
         PlayResource "resource 33 guid"
-        AssignValue "current_step", 34
-        AssignValue "current_step_name", "Branch number one"
+        Trace call_flow_id: 5, step_id: 33, step_name: 'Play number 33', store: '"Message played."'
+        StartUserStep :branch, 34, "Branch number one"
         If "(typeof(value_3) != 'undefined' && typeof(6) != 'undefined' && value_3 == 6) && (typeof(value_2) != 'undefined' && typeof(30) != 'undefined' && value_2 < 30) && (typeof(value_2) != 'undefined' && typeof(5) != 'undefined' && value_2 >= 5)" do
-          Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 1 selected: \'foo\'"'
+          Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 1 selected: \'Play number 10\'"'
+          SetStepResult :selected, "1"
           Label 10
-          AssignValue "current_step", 10
-          AssignValue "current_step_name", "Play number 10"
-          Trace call_flow_id: 5, step_id: 10, step_name: 'Play number 10', store: '"Message played."'
+          StartUserStep :play, 10, "Play number 10"
           PlayResource "resource 10 guid"
+          Trace call_flow_id: 5, step_id: 10, step_name: 'Play number 10', store: '"Message played."'
           Goto "end34"
         end
         If "(typeof(value_3) != 'undefined' && typeof(5) != 'undefined' && value_3 <= 5)" do
-          Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 2 selected: \'bar\'"'
+          Trace call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"Branch number 2 selected: \'Say 14\'"'
+          SetStepResult :selected, "2"
           Label 14
-          AssignValue "current_step", 14
-          AssignValue "current_step_name", "Say 14"
-          Trace call_flow_id: 5, step_id: 14, step_name: 'Say 14', store: '"Message played."'
+          StartUserStep :play, 14, "Say 14"
           PlayResource "resource 14 guid"
+          Trace call_flow_id: 5, step_id: 14, step_name: 'Say 14', store: '"Message played."'
           Label 15
-          AssignValue "current_step", 15
-          AssignValue "current_step_name", "Hanged up!"
           Trace call_flow_id: 5, step_id: 15, step_name: 'Hanged up!', store: '"Verboice ended call."'
           End()
           Goto "end34"
         end
         Trace(call_flow_id: 5, step_id: 34, step_name: 'Branch number one', store: '"No branch was selected."')
+        SetStepResult :no_branch
         Label "end34"
       end
     )

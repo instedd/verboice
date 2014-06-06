@@ -17,7 +17,7 @@
 
 class ChannelsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :load_call_flows, only: [:new, :edit]
+  before_filter :load_call_flows, only: [:new, :edit, :create]
   before_filter :load_channel, only: [:show, :edit, :update, :destroy, :call]
   before_filter :check_channel_admin, only: [:update, :destroy]
 
@@ -39,7 +39,9 @@ class ChannelsController < ApplicationController
   # GET /channels/1
   def show
     @errors_count = 0 #@channel.errors_count
-    @project = current_account.find_project_by_id(@channel.project.id)
+    if @channel.project
+      @project = current_account.find_project_by_id(@channel.project.id)
+    end
   end
 
   # GET /channels/new
@@ -86,6 +88,7 @@ class ChannelsController < ApplicationController
     if @channel.update_attributes(params[:channel])
       redirect_to(channels_path, :notice => "Channel #{@channel.name} successfully updated.")
     else
+      load_call_flows
       render :action => "edit"
     end
   end

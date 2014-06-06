@@ -1,0 +1,17 @@
+#call_logs_paginator {
+  a.pnext, a.pprevious {
+    min-width: 22px;
+    min-height: 22px;
+    margin-right: 2px;
+    padding: 0px !important;
+  }
+
+  input#page {
+    vertical-align: middle;
+    width: 30px;
+  }
+
+  .label-info {
+    color: #555;
+  }
+}

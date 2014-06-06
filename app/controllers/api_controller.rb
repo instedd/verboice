@@ -16,7 +16,7 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class ApiController < ApplicationController
-  before_filter :authenticate_account!
+  before_filter :authenticate_api_account!
   skip_before_filter :verify_authenticity_token
 
   def errors_to_json(model_object, action)

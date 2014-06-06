@@ -76,10 +76,9 @@ describe CallFlow do
     call_flow.reload.flow.should eq(
       Compiler.make do
         Answer()
-        AssignValue "current_step", 1
-        AssignValue "current_step_name", "Play number one"
-        Trace call_flow_id: 4, step_id: 1, step_name: 'Play number one', store: '"Message played."'
+        StartUserStep :play, 1, "Play number one"
         PlayResource resource.guid
+        Trace call_flow_id: 4, step_id: 1, step_name: 'Play number one', store: '"Message played."'
       end
     )
   end
@@ -258,4 +257,20 @@ describe CallFlow do
     end
   end
 
+  it "should nullify channels on deletion" do
+    call_flow = CallFlow.make
+
+    Channel.all_leaf_subclasses.each do |a_channel|
+      a_channel.make call_flow: call_flow
+    end
+
+    channels = call_flow.channels
+
+    call_flow.destroy
+
+    channels.each do |channel|
+      channel.call_flow_id.should be_nil
+    end
+
+  end
 end

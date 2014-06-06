@@ -1,5 +1,5 @@
 -module(agi_session).
--export([start_link/1, close/1, get_variable/2, answer/1, hangup/1, stream_file/3, wait_for_digit/2, record_file/5, set_callerid/2, dial/2]).
+-export([start_link/1, close/1, get_variable/2, ringing/1, answer/1, hangup/1, stream_file/3, wait_for_digit/2, record_file/5, set_callerid/2, dial/2]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -21,6 +21,9 @@ get_variable(Pid, Variable) ->
     hangup -> hangup;
     #response{parent = Value} -> {ok, Value}
   end.
+
+ringing(Pid) ->
+  gen_server:call(Pid, {execute, "EXEC RINGING"}).
 
 answer(Pid) ->
   case gen_server:call(Pid, {execute, "ANSWER"}) of

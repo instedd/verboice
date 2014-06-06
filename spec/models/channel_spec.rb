@@ -22,7 +22,7 @@ describe Channel do
   self.use_transactional_fixtures = false
 
   before(:each) do
-    Timecop.freeze(Date.today)
+    Timecop.freeze(Time.parse("2012-01-01T12:00:00Z"))
   end
 
   after(:each) do
@@ -40,7 +40,6 @@ describe Channel do
       it { should belong_to(:call_flow) }
 
       it { should validate_presence_of(:account) }
-      it { should validate_presence_of(:call_flow) }
       it { should validate_presence_of(:name) }
       it { should validate_uniqueness_of(:name).scoped_to(:account_id) }
     end

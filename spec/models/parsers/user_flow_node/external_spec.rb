@@ -36,7 +36,7 @@ module Parsers
           external.equivalent_flow.first.should eq(
             Compiler.parse do |c|
               c.Label 1
-              c.AssignValue 'current_step', 1
+              c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Calling External Service #{external_service.name}.")
               c.Callback external_service_step.callback_url, {:response_type => :variables, :external_service_guid => external_service.guid}
             end.first
@@ -57,7 +57,7 @@ module Parsers
           external.equivalent_flow.first.should eq(
             Compiler.parse do |c|
               c.Label 1
-              c.AssignValue 'current_step', 1
+              c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Calling External Service #{external_service.name}.")
               c.Callback external_service_step.callback_url, {:response_type => :variables, :variables => {
                 'variable_with_step' => 'value_20',
@@ -87,7 +87,7 @@ module Parsers
           external.equivalent_flow.first.should eq(
             Compiler.parse do |c|
               c.Label 1
-              c.AssignValue 'current_step', 1
+              c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Calling External Service #{external_service.name}.")
               c.Callback external_service_step.callback_url, {:response_type => :variables, :external_service_guid => external_service_step.external_service.guid}
               c.Assign "external_1_response_one", 'response_response_one', :try
@@ -110,7 +110,7 @@ module Parsers
           external.equivalent_flow.first.should eq(
             Compiler.parse do |c|
               c.Label 1
-              c.AssignValue 'current_step', 1
+              c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Calling External Service #{external_service.name}.")
               c.Callback external_service_step.callback_url, {:response_type => :variables, :external_service_guid => external_service.guid, :async => true}
             end.first
@@ -130,7 +130,7 @@ module Parsers
           external.equivalent_flow.first.should eq(
             Compiler.parse do |c|
               c.Label 1
-              c.AssignValue 'current_step', 1
+              c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Calling External Service #{external_service.name}.")
               c.Callback external_service_step.callback_url, {:response_type => :flow, :external_service_guid => external_service.guid}
             end.first
@@ -150,7 +150,7 @@ module Parsers
           external.equivalent_flow.first.should eq(
             Compiler.parse do |c|
               c.Label 1
-              c.AssignValue 'current_step', 1
+              c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Calling External Service #{external_service.name}.")
               c.Callback external_service_step.callback_url, {:response_type => :none, :external_service_guid => external_service.guid}
             end.first
@@ -170,7 +170,7 @@ module Parsers
           external.equivalent_flow.first.should eq(
             Compiler.parse do |c|
               c.Label 1
-              c.AssignValue 'current_step', 1
+              c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Calling External Service #{external_service.name}.")
               c.Callback external_service_step.callback_url, {:response_type => :none, :variables => {
                 'foo' => 'foo',
@@ -193,7 +193,7 @@ module Parsers
           external.equivalent_flow.first.should eq(
             Compiler.parse do |c|
               c.Label 1
-              c.AssignValue 'current_step', 1
+              c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Executing External Service #{external_service.name}.")
               c.Js '1'
             end.first
@@ -214,7 +214,7 @@ module Parsers
           external.equivalent_flow.first.should eq(
             Compiler.parse do |c|
               c.Label 1
-              c.AssignValue 'current_step', 1
+              c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
               c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'External Service', store: %("Executing External Service #{external_service.name}.")
               c.Js "settings = {};settings['variable_with_step'] = value_20;settings['variable_with_variable'] = var_foobar;settings['variable_with_value'] = 'fixed value'"
               c.Js '1'

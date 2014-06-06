@@ -105,5 +105,13 @@ async_callback_test() ->
 
   {next, Session} = callback:run([{url, "http://foo.com"}, {async, true}], Session),
   Task = iolist_to_binary(meck:capture(last, delayed_job, enqueue, 1, 1)),
-  ?assertEqual(<<"--- !ruby/object:Jobs::CallbackJob\n:url: http://foo.com\n:method: post\n:body:\n  CallSid: '1'\n...\n">>, Task),
+
+  % Make sure the object is properly tagged
+  <<"--- !ruby/object:Jobs::CallbackJob\n", _/binary>> = Task,
+
+  {ok, [Job]} = yaml:load(Task, [{schema, yaml_schema_ruby}]),
+  ?assertEqual("post", proplists:get_value(method, Job)),
+  ?assertEqual([{"CallSid", 1}], proplists:get_value(body, Job)),
+  ?assertEqual("http://foo.com", proplists:get_value(url, Job)),
+
   meck:unload().

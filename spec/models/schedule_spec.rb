@@ -32,6 +32,14 @@ describe Schedule do
     it { should validate_presence_of(:time_from) }
     it { should validate_presence_of(:time_to) }
 
+    before(:each) do
+      Timecop.freeze(Time.parse("2012-04-04T12:00:00Z"))
+    end
+
+    after(:each) do
+      Timecop.return
+    end
+
     it "convert time to string" do
       subject.time_from = Time.parse '10:03'
       subject.time_to = Time.parse '10:03'
@@ -90,6 +98,10 @@ describe Schedule do
 
         it "moves time forward if it falls outside the range" do
           subject.next_available_time(t '2012-05-05T10:00:00Z').should == t('2012-05-05T18:00:00Z')
+        end
+
+        it "moves time forward if it falls in the past" do
+          subject.next_available_time(t '2012-03-03T10:00:00Z').should == t('2012-04-04T18:00:00Z')
         end
       end
 

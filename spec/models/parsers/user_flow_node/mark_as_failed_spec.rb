@@ -32,8 +32,7 @@ module Parsers
         mark_as_failed.equivalent_flow.first.should eq(
           Compiler.parse do |c|
             c.Label 1
-            c.AssignValue "current_step", 1
-            c.AssignValue "current_step_name", "MarkAsFailed"
+            c.StartUserStep :mark_as_failed, 1, "MarkAsFailed"
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'MarkAsFailed', store: '"Marked as failed."'
             c.AssignValue "status", "failed"
           end.first

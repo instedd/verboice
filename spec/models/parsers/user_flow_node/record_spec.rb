@@ -39,11 +39,10 @@ module Parsers
         record.equivalent_flow.first.should eq(
           Compiler.parse do
             Label 1
-            AssignValue "current_step", 1
-            AssignValue "current_step_name", "Record Step"
-            Trace call_flow_id: 5, step_id: 1, step_name: 'Record Step', store: %("Record message. Download link: " + record_url(1))
+            StartUserStep :record, 1, "Record Step"
             PlayResource 1
             Record 1, 'Record Step', {:stop_keys => '#', :timeout => 7}
+            SetStepResult :recorded, "record_url(1)"
             PlayResource 2
           end.first
         )

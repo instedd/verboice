@@ -3,7 +3,8 @@
   %tr{ko(ko_attrs)}
     %td
       %span.name{'data-bind' => 'visible: !editing(), text: name'}
-      = text_field_tag :name, '', :class => '', 'data-bind' => 'visible: editing, value: name', :placeholder => 'Enter resource name'
+      = text_field_tag :name, '', :class => '', 'data-bind' => 'visible: editing, value: name, valueUpdate: "afterkeydown"', :placeholder => 'Enter resource name'
+      %span.alert-orange-b{ko(visible: '!is_valid() && !name()')} Missing name
     / ko with: firstResource
     %td{ko(template: '{name: template}')}
     / /ko

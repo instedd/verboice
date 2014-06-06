@@ -2,6 +2,12 @@ Verboice Installation Guide
 ========================
  * Note: $ entries are commands to execute on the terminal
 
+ * Install erlang
+  $ brew install erlang
+
+* Install Elasticsearch
+  $ brew install elasticsearch
+
  * Gem dependences (install before bundling)
 
   * ZeroMQ messaging library
