@@ -51,7 +51,7 @@ module Parsers
           c.StartUserStep :branch, @id, @name
           @options.each_with_index do |an_option, index|
             c.If(merge_conditions_from(an_option['conditions'], c)) do |c|
-              c.Trace context_for "\"Branch number #{index + 1} selected: '#{an_option['next'].name}'\""
+              c.Trace context_for "\"Branch number #{index + 1} selected: '#{an_option['next'].name if an_option['next']}'\""
               c.SetStepResult :selected, "#{index + 1}"
               c.append(an_option['next'].equivalent_flow) if an_option['next']
               c.Goto("end#{@id}")
