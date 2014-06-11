@@ -19,7 +19,7 @@ synthesize(Text, Voice, TargetPath) ->
           0 -> sox:convert(TempFile, TargetPath), ok;
           _ -> error
         end
-      after 5000 ->
+      after 50000 ->
         timeout
     end
   after

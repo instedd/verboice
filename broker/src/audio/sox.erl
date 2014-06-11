@@ -5,7 +5,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
--define(TIMEOUT, 1000).
+-define(TIMEOUT, 10000).
 -record(state, {port, caller}).
 
 start_link() ->
