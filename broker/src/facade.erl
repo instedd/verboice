@@ -1,8 +1,10 @@
 -module(facade).
+
 -export([channel_status/1, notify_call_queued/1, notify_call_queued/2,
   create_channel/2, destroy_channel/2, invalidate_cache/2,
-  active_calls_by_channel/1, active_calls_by_project/1, active_calls_by_call_flow/1
+  active_calls_by_channel/1, active_calls_by_project/1, active_calls_by_call_flow/1, sanity_check/0
 ]).
+
 
 channel_status(Channels) ->
   ChannelStatus = dict:fold(fun(Broker, ChannelIds, S) ->
@@ -44,3 +46,7 @@ proplist_to_bert_dict([], Dict) -> Dict;
 proplist_to_bert_dict([Value | Rest], Dict) ->
   proplist_to_bert_dict(Rest, [Value | Dict]).
 
+sanity_check() ->
+  SipChannelsState = sanity_check:verify_write_permission_to_sip_file("sip_verboice_channels.conf"),
+  SipRegistryState = sanity_check:verify_write_permission_to_sip_file("sip_verboice_registry.conf"),
+  [proplist_to_bert_dict(SipChannelsState), proplist_to_bert_dict(SipRegistryState)].
