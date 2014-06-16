@@ -50,5 +50,7 @@ sanity_check() ->
   SipChannelsAccess = sanity_check:verify_write_permission_on_sip_file("sip_verboice_channels.conf"),
   SipRegistryAccess = sanity_check:verify_write_permission_on_sip_file("sip_verboice_registry.conf"),
   AudioDirectoryAccess = sanity_check:verify_write_permission_on_audio_directory(),
+  SoxStatus = sanity_check:verify_sox(),
 
-  [proplist_to_bert_dict(SipChannelsAccess), proplist_to_bert_dict(SipRegistryAccess), proplist_to_bert_dict(AudioDirectoryAccess)].
+  [proplist_to_bert_dict(SipChannelsAccess), proplist_to_bert_dict(SipRegistryAccess), proplist_to_bert_dict(AudioDirectoryAccess),
+  proplist_to_bert_dict(SoxStatus)].
