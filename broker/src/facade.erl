@@ -47,11 +47,10 @@ proplist_to_bert_dict([Value | Rest], Dict) ->
   proplist_to_bert_dict(Rest, [Value | Dict]).
 
 sanity_check() ->
-  SipChannelsAccess = sanity_check:verify_write_permission_on_sip_file("sip_verboice_channels.conf"),
-  SipRegistryAccess = sanity_check:verify_write_permission_on_sip_file("sip_verboice_registry.conf"),
-  AudioDirectoryAccess = sanity_check:verify_write_permission_on_audio_directory(),
-  SoxStatus = sanity_check:verify_sox(),
-  RecordingDirectoryAccess = sanity_check:verify_write_permission_on_recording_directory(),
+  Checks = [sanity_check:verify_write_permission_on_sip_file("sip_verboice_channels.conf"),
+  sanity_check:verify_write_permission_on_sip_file("sip_verboice_registry.conf"),
+  sanity_check:verify_write_permission_on_audio_directory(),
+  sanity_check:verify_sox(),
+  sanity_check:verify_write_permission_on_recording_directory()],
 
-  [proplist_to_bert_dict(SipChannelsAccess), proplist_to_bert_dict(SipRegistryAccess), proplist_to_bert_dict(AudioDirectoryAccess),
-  proplist_to_bert_dict(SoxStatus), proplist_to_bert_dict(RecordingDirectoryAccess)].
+  lists:map(fun proplist_to_bert_dict/1, Checks).
