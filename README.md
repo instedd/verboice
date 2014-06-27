@@ -13,3 +13,5 @@ Getting Started
 [What's coming next?](https://bitbucket.org/instedd/verboice/wiki/Roadmap)
 
 [Installing your own server](https://bitbucket.org/instedd/verboice/wiki/Installation.md)
+
+[Install Verboice on a Raspberry PI](https://bitbucket.org/instedd/verboice/wiki/Install%20Verboice%20on%20a%20Raspberry%20PI)
