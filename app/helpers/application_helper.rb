@@ -95,6 +95,7 @@ module ApplicationHelper
   end
 
   def format_timestamp(time)
+    return nil unless time
     "#{l(time.to_date, format: :long)}, #{time.strftime("%H:%M:%S")} (UTC)"
   end
 end
