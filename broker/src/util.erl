@@ -1,5 +1,5 @@
 -module(util).
--export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1, interpolate/2, to_poirot/1, parse_short_time/1, time_from_now/1]).
+-export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1, interpolate/2, to_poirot/1, parse_short_time/1, time_from_now/1, deflate/1]).
 
 md5hex(Data) ->
   Hash = crypto:hash(md5, Data),
@@ -84,3 +84,10 @@ parse_short_time(String) ->
 
 time_from_now(Seconds) ->
   calendar:gregorian_seconds_to_datetime(calendar:datetime_to_gregorian_seconds(calendar:universal_time()) + Seconds).
+
+deflate(Binary) ->
+  Z = zlib:open(),
+  zlib:deflateInit(Z),
+  CompTerm = iolist_to_binary(zlib:deflate(Z, Binary, finish)),
+  zlib:close(Z),
+  CompTerm.

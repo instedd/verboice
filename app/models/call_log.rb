@@ -118,6 +118,23 @@ class CallLog < ActiveRecord::Base
     self.entries.order('created_at DESC, id DESC').first
   end
 
+  def self.poirot_activities(id_or_ids)
+    if Rails.configuration.verboice_configuration[:poirot_elasticsearch_url]
+      Hercule::Activity.search({size: 1000000, filter: {
+        and: [
+          { term: { call_log_id: id_or_ids } },
+          { exists: { field: "step_type" } }
+        ]
+      }}).items
+    else
+      entries = CallLogEntry.where(call_id: id_or_ids)
+      activities = entries.select { |x| x.details.has_key?(:activity) }.map do |x|
+        activity = JSON.load(x.details[:activity])
+        Hercule::Activity.new({'_source' => activity["body"]})
+      end
+    end
+  end
+
   private
 
   def set_account_to_project_account
