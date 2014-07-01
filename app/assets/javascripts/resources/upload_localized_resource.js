@@ -85,6 +85,8 @@ onResourcesWorkflow(function(){
       this.uploadedfile.url = this.url();
       // binding the events in the view and in knockout bindings is not working for some reason :(
       this.uploadedfile.submit().done(this.done).fail(this.fail);
+    } else {
+      this.uploadStatus('ok');
     }
   }
 })
