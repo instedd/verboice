@@ -4,4 +4,8 @@
 load(X) -> X.
 
 dump(X) ->
-  util:deflate(marshal:encode({hash, X})).
+  util:deflate(marshal:encode({hash, format_hash(X)})).
+
+format_hash([]) -> [];
+format_hash([{Key, Value} | T]) ->
+  [{Key, {string, binary_to_list(iolist_to_binary(Value))}} | format_hash(T)].

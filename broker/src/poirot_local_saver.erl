@@ -22,8 +22,8 @@ handle_event(Event = #event{type = end_activity, body = Body}, State) ->
             undefined -> ok;
             _ ->
               End = proplists:get_value(<<"@end">>, Body),
-              EventJson = binary_to_list(iolist_to_binary(poirot_event:dump(Event#event{body = [{<<"@start">>, End} | Body]}))),
-              CallLogEntry = #call_log_entry{call_id = CallId, severity = info, details = [{activity, {string, EventJson}}]},
+              EventJson = poirot_event:dump(Event#event{body = [{<<"@start">>, End} | Body]}),
+              CallLogEntry = #call_log_entry{call_id = CallId, severity = info, details = [{activity, EventJson}]},
               CallLogEntry:create()
           end
       end;
