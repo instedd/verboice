@@ -62,6 +62,8 @@ to_poirot([{Key, Value} | T], Metadata) ->
   end,
   to_poirot(T, [{Key, NewValue} | Metadata]).
 
+parse_short_time(Binary) when is_binary(Binary) ->
+  parse_short_time(binary_to_list(Binary));
 parse_short_time(String) ->
   {Amount, Unit} = string:to_integer(string:strip(String)),
   case Amount of

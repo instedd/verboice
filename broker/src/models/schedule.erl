@@ -8,6 +8,10 @@
 ]).
 -include_lib("erl_dbmodel/include/model.hrl").
 
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+-endif.
+
 next_available_time(Seconds, Schedule) when is_integer(Seconds) ->
   T = calendar:gregorian_seconds_to_datetime(Seconds),
   Offset1 = offset_for_time(T, Schedule),
@@ -59,14 +63,12 @@ parse_weekdays(Weekdays) ->
 parse_retries(undefined) -> undefined;
 parse_retries(<<>>) -> undefined;
 parse_retries(Retries) ->
-  [binary_to_number(X) || X <- binary:split(Retries, <<",">>, [global])].
+  [util:parse_short_time(X) || X <- binary:split(Retries, <<",">>, [global])].
 
 ruby_to_erlang_weekday(0) -> 7;
 ruby_to_erlang_weekday(N) -> N.
 
-binary_to_number(Bin) ->
-  N = binary_to_list(Bin),
-  case string:to_float(N) of
-    {error, no_float} -> list_to_integer(N);
-    {F, _Rest} -> F
-  end.
+-ifdef(TEST).
+parse_weekdays_test() ->
+  ?assertEqual([35 * 60, 2 * 60 * 60, 3 * 60 * 60, 4 * 24 * 60 * 60], parse_retries(<<"35m, 2, 3h, 4d">>)).
+-endif.
