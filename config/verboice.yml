@@ -4,4 +4,6 @@ asset_host: "http://default-domain.com"
 default_url_options:
   host: "default-domain.com"
   protocol: "http"
+default_mailer_options:
+  from: "verboice@instedd.org"
 poirot_elasticsearch_url: http://localhost:9200

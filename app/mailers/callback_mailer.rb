@@ -1,6 +1,7 @@
 class CallbackMailer < ActionMailer::Base
   add_template_helper InsteddRails::MailerHelper
   layout 'mail'
+  default from: Rails.configuration.verboice_configuration[:default_mailer_options][:from]
 
   def error(account, job, exception)
     @job = job
