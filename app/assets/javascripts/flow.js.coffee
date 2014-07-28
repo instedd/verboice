@@ -33,9 +33,11 @@ onWorkflow ->
   for step_type in window.step_types
     window[step_type.type] = step_type
 
+  loadRecorderSwf();
+
   window.workflow = new Workflow()
   window.workflow.after_initialize()
-  ko.applyBindings(workflow)
+  ko.applyBindings(workflow, document.getElementById('container'))
 
   $(window).bind 'beforeunload', () ->
     if window.workflow.has_changed()

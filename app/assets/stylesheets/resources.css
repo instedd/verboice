@@ -1,3 +1,49 @@
-#resources .GralTable td {
+#recorder {
+  position: fixed;
+  background: none;
+  top:15%;
+  left:50%;
+  margin-left: -150px;
+  z-index: 0;
+  visibility: hidden;
+}
+
+#recorder.recorder-visible {
+  visibility: visible;
+  z-index: 1000;
+}
+
+.bar {
+  height: 6px;
+  background: #000;
+  width: 75px;
+}
+
+.progress {
+  margin-top: 8px;
+  background: #ccc;
+  float: right;
+}
+
+#resources table tr {
+  height: 30px;
+}
+
+#resources table tr .editing {
   vertical-align: top;
+}
+
+#resources tr.disabled {
+  background-image:url('disabledPattern.jpg');
+}
+
+#resources .name.upload_error {
+  color: red;
+  background :url('uploadError.png') no-repeat right center;
+  padding-right: 30px;
+}
+
+#resources .name.upload_ok {
+  background :url('uploadOk.png') no-repeat right center;
+  padding-right: 30px;
 }

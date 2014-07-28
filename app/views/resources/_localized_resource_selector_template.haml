@@ -1,4 +1,4 @@
 %script{type: "text/html", id: "localized_resource_selector_template"}
   %div
-    %select.w100{ko(options: "options", optionsText: "'label'", value: "current", visible: "editing")}
+    %select.w100{ko(options: "options", optionsText: "'label'", value: "current", visible: "editing()")}
     %div{ko(:template => "{name: current().template, data: current}")}

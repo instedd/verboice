@@ -49,11 +49,15 @@ class ResourcesController < ApplicationController
 
   def create
     resource.save
+    # For some reason nested localized resources are duplicated...
+    resource.reload
     respond_with resource, :include => :localized_resources
   end
 
   def update
     resource.save
+    # For some reason nested localized resources are duplicated...
+    resource.reload
     respond_with resource do |format|
       format.json { render :json => resource, :include => :localized_resources }
     end

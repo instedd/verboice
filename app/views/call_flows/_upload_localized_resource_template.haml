@@ -1,22 +1,28 @@
 %script{type: "text/html", id: "upload_localized_resource_template"}
   .file-name
-    / ko ifnot: has_audio()
-    %span.alert-orange-b No file uploaded yet
+    / ko if:  uploadStatus() == 'standBy' && !hasAudio()
+    %span.alert-orange-b Select a file to upload
     / /ko
-    / ko if: has_audio()
-    %span.clickable{'data-bind' => 'text: filename, click: download'}
+    / ko if: hasAudio()
+    %span.clickable.audio-name{'data-bind' => 'text: "File: " + filename(), click: download'}
     / /ko
-    %span.fade
-  / ko ifnot: has_audio()
-  .upload-file.fexport
-    %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit, fileuploadDone: done, fileuploadAdd: add'}
-  Upload
-  / /ko
-  / ko if: has_audio()
-  .upload-file.fsync
-    %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadSubmit: submit, fileuploadDone: done, fileuploadAdd: add'}
-  Replace
-  / /ko
+
+    / ko if: uploadStatus() == 'pending'
+    .alert-save-resource Save the resource in order to upload this file
+    / /ko
+    / ko if: uploadStatus() == 'error'
+    %span.alert-orange-b There was an error uploading the file
+    / /ko
+    / ko ifnot: hasAudio()
+    .upload-file.fexport
+      %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadAdd: add'}
+    Upload
+    / /ko
+    / ko if: hasAudio()
+    .upload-file.fsync
+      %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadAdd: add'}
+    Replace
+    / /ko
   %br{clear: 'all'}
   .w22
     %textarea{:rows => 6, :placeholder => 'Write here a description of the recording, either as a reminder for you or as a reference for the person that will record the message.', 'data-bind' => 'value: description'}

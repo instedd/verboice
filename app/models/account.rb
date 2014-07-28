@@ -37,6 +37,7 @@ class Account < ActiveRecord::Base
   has_many :queued_calls, :through => :channels
   has_many :nuntium_channels, :dependent => :destroy
   has_many :permissions, :dependent => :destroy
+  has_many :alerts, :dependent => :destroy
 
   has_many :identities, dependent: :destroy
 

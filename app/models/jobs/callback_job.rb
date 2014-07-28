@@ -16,10 +16,16 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Jobs::CallbackJob
+  attr_reader :url, :body
+
   def initialize(url, method, body)
     @url = url
     @method = method
     @body = body
+  end
+
+  def http_method
+    @method
   end
 
   def perform
@@ -28,8 +34,32 @@ class Jobs::CallbackJob
     else
       RestClient.post @url, @body
     end
-  rescue Exception => ex
-    Rails.logger.error("Error processing CallbackJob: #{ex.message} #{ex.backtrace}")
-    Delayed::Job.enqueue Jobs::CallbackJob.new(@url, @method, @body), run_at: 15.minutes.from_now
+  end
+
+  def error(job, exception)
+    account = Project.find(@project_id).account
+
+    if job.attempts >= 3 || job.attempts + 1 == max_attempts
+      CallbackMailer.error(account, job, exception).deliver
+    end
+
+    max_attempts = job.max_attempts || Delayed::Worker.max_attempts
+    attempts = job.attempts + 1
+
+    alert = CallbackAlert.find_or_initialize_by_account_id_and_key account.id, "callback:#{job.id}"
+    alert.severity = 'error'
+    alert.message = 'Error processing async callback'
+    alert.data = {
+      url: @url,
+      method: @method,
+      body: @body,
+      exception: exception.to_s,
+      remaining_attempts: max_attempts - attempts
+    }
+    alert.save
+  end
+
+  def max_attempts
+    11
   end
 end

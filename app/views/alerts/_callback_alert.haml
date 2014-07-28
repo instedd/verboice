@@ -1,0 +1,22 @@
+There was an error processing an asychronous callback:
+
+%ul
+  %li
+    %b Method:
+    = alert.data[:method].try &:upcase
+  %li
+    %b URL:
+    = alert.data[:url]
+  %li
+    %b Parameters:
+    = alert.data[:body]
+  %li
+    %b Error:
+    = alert.data[:exception]
+
+- remaining_attempts = alert.data[:remaining_attempts] || 0
+- if remaining_attempts > 0
+  %p This job will be retried #{remaining_attempts} more time(s)
+- else
+  %p This job was be discarded
+
