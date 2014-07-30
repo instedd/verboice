@@ -96,6 +96,9 @@ GEM
       bert (>= 1.1.0, < 2.0.0)
     breadcrumbs_on_rails (2.2.0)
     builder (3.0.4)
+    byebug (2.7.0)
+      columnize (~> 0.3)
+      debugger-linecache (~> 1.2)
     capistrano (2.15.5)
       highline
       net-scp (>= 1.0.0)
@@ -112,15 +115,10 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.3.1)
-    columnize (0.3.6)
+    columnize (0.8.9)
     csv_builder (2.1.1)
       actionpack (>= 3.0.0)
-    debugger (1.6.5)
-      columnize (>= 0.3.1)
-      debugger-linecache (~> 1.2.0)
-      debugger-ruby_core_source (~> 1.3.1)
     debugger-linecache (1.2.0)
-    debugger-ruby_core_source (1.3.1)
     decent_exposure (1.0.1)
     delayed_job (4.0.1)
       activesupport (>= 3.0, < 4.2)
@@ -169,7 +167,7 @@ GEM
     hike (1.2.3)
     httpauth (0.1)
     httpclient (2.3.4.1)
-    i18n (0.6.9)
+    i18n (0.6.11)
     instedd-pigeon (0.2.2)
       json
       rails (~> 3.2)
@@ -221,13 +219,13 @@ GEM
       rack-openid (~> 1.3.1)
     orm_adapter (0.0.5)
     polyglot (0.3.5)
-    pry (0.9.12.4)
-      coderay (~> 1.0)
-      method_source (~> 0.8)
+    pry (0.10.0)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
       slop (~> 3.4)
-    pry-debugger (0.2.2)
-      debugger (~> 1.3)
-      pry (~> 0.9.10)
+    pry-byebug (1.3.3)
+      byebug (~> 2.7)
+      pry (~> 0.10)
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -276,13 +274,13 @@ GEM
     rvm (1.11.3.3)
     rvm-capistrano (1.0.2)
       capistrano (>= 2.0.0)
-    sass (3.1.15)
-    sass-rails (3.2.5)
+    sass (3.3.12)
+    sass-rails (3.2.6)
       railties (~> 3.2.0)
       sass (>= 3.1.10)
       tilt (~> 1.3)
     shoulda-matchers (1.0.0)
-    slop (3.4.7)
+    slop (3.6.0)
     sprockets (2.2.2)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -344,7 +342,7 @@ DEPENDENCIES
   omniauth
   omniauth-openid
   poirot_rails!
-  pry-debugger
+  pry-byebug
   rack-oauth2!
   rails (~> 3.2.0)
   rest-client
@@ -354,6 +352,7 @@ DEPENDENCIES
   rubyzip
   rvm
   rvm-capistrano
+  sass
   sass-rails (~> 3.2.5)
   shoulda-matchers
   syntax

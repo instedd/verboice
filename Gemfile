@@ -34,6 +34,7 @@ gem 'omniauth'
 gem 'omniauth-openid'
 
 group :assets do
+  gem 'sass'
   gem 'sass-rails',   '~> 3.2.5'
   gem 'coffee-rails', '~> 3.2.2'
   gem 'uglifier', '>= 1.0.3'
@@ -48,7 +49,7 @@ group :development, :test do
   gem "shoulda-matchers"
   gem 'ci_reporter'
   gem 'equivalent-xml'
-  gem 'pry-debugger'
+  gem 'pry-byebug'
   gem 'syntax'
   gem 'timecop'
 end
