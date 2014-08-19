@@ -1,4 +1,5 @@
 class AlertsController < ApplicationController
+  before_filter :ensure_account
   expose(:alerts) { current_account.alerts }
   expose(:alert)
 
@@ -14,5 +15,11 @@ class AlertsController < ApplicationController
   def dismiss
     alert.delete
     redirect_to :root
+  end
+
+  private
+
+  def ensure_account
+    return head :not_found unless current_account
   end
 end
