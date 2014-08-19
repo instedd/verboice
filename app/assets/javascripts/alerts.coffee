@@ -12,13 +12,14 @@ class AlertsModel
 
 $ ->
   $alerts = $('#alerts')
-  $alertsBox = $('#alerts .box')
-  $alerts.click (event) ->
-    $alertsBox.toggleClass('visible')
-    event.stopPropagation()
+  if $alerts.length > 0
+    $alertsBox = $('#alerts .box')
+    $alerts.click (event) ->
+      $alertsBox.toggleClass('visible')
+      event.stopPropagation()
 
-  $('html').click ->
-    if ($alertsBox.hasClass('visible'))
-      $alertsBox.removeClass('visible')
+    $('html').click ->
+      if ($alertsBox.hasClass('visible'))
+        $alertsBox.removeClass('visible')
 
-  ko.applyBindings(new AlertsModel(), document.getElementById('alerts'))
+    ko.applyBindings(new AlertsModel(), document.getElementById('alerts'))
