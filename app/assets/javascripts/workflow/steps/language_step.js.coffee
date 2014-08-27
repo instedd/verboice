@@ -7,7 +7,7 @@ onWorkflow ->
     constructor: (attrs) ->
       super(attrs)
 
-      @languages = window.languages
+      @languages = project_languages
 
       @next_id = attrs.next
       @resource = new ResourceEditor(@, attrs.resource)
