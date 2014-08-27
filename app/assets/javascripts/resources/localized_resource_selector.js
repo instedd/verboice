@@ -96,7 +96,9 @@ onResourcesWorkflow(function(){
   }
 
   LocalizedResourceSelector.prototype.revertToPreservedValues = function() {
-    this.current(this.original_current);
+    if(this.original_current) {
+      this.current(this.original_current);
+    }
     _.each(this.options(), function(localized) {localized.revertToPreservedValues()})
   }
 })

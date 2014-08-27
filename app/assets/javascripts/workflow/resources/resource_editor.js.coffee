@@ -34,7 +34,8 @@ onWorkflow ->
         source(results)
 
     cancel: =>
-      _.each(@resource().localizedResources(), (localized) => localized.current().uploadStatus('standBy'))
+      if @resource()
+        _.each(@resource().localizedResources(), (localized) => localized.current().uploadStatus('standBy'))
       @parent.current_editing_resource(null)
 
     next: =>
@@ -54,9 +55,6 @@ onWorkflow ->
 
           # We no longer want this event to be triggered again
           subscription.dispose()
-
-
-
 
     replace: =>
       @resource(null)
