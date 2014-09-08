@@ -135,12 +135,12 @@ GEM
     dotenv (0.11.1)
       dotenv-deployment (~> 0.0.2)
     dotenv-deployment (0.0.2)
-    elasticsearch (1.0.5)
-      elasticsearch-api (= 1.0.5)
-      elasticsearch-transport (= 1.0.5)
-    elasticsearch-api (1.0.5)
+    elasticsearch (1.0.0)
+      elasticsearch-api (= 1.0.0)
+      elasticsearch-transport (= 1.0.0)
+    elasticsearch-api (1.0.0)
       multi_json
-    elasticsearch-transport (1.0.5)
+    elasticsearch-transport (1.0.0)
       faraday
       multi_json
     encryptor (1.1.3)
