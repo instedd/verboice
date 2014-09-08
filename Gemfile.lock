@@ -11,16 +11,23 @@ GIT
       ruby-openid
 
 GIT
-  remote: https://bitbucket.org/instedd/poirot.git
-  revision: a835c6953b72734f9f0ed99c61a45fa3fc2fb7e9
+  remote: https://github.com/edave/enumerated_attribute.git
+  revision: ec1021d11874f37d30589f91814d069884348fdf
+  specs:
+    enumerated_attribute (0.2.16)
+      meta_programming (>= 0.2.1)
+
+GIT
+  remote: https://github.com/instedd/poirot.git
+  revision: f31913758cfb24ba250522eef8bc20736540a622
   branch: master
   specs:
     hercule (0.0.2)
       elasticsearch
 
 GIT
-  remote: https://bitbucket.org/instedd/poirot_rails.git
-  revision: 793de4cfb67e271a777a083b281b9baa9c5063a2
+  remote: https://github.com/instedd/poirot_rails.git
+  revision: 22eb420bf2d170efef118ca57324221e6383fa1c
   branch: master
   specs:
     poirot_rails (0.0.1)
@@ -29,13 +36,6 @@ GIT
       json
       rails (>= 3.2)
       zmq
-
-GIT
-  remote: https://github.com/edave/enumerated_attribute.git
-  revision: ec1021d11874f37d30589f91814d069884348fdf
-  specs:
-    enumerated_attribute (0.2.16)
-      meta_programming (>= 0.2.1)
 
 GIT
   remote: https://github.com/manastech/rack-oauth2.git
@@ -135,12 +135,12 @@ GEM
     dotenv (0.11.1)
       dotenv-deployment (~> 0.0.2)
     dotenv-deployment (0.0.2)
-    elasticsearch (1.0.0)
-      elasticsearch-api (= 1.0.0)
-      elasticsearch-transport (= 1.0.0)
-    elasticsearch-api (1.0.0)
+    elasticsearch (1.0.5)
+      elasticsearch-api (= 1.0.5)
+      elasticsearch-transport (= 1.0.5)
+    elasticsearch-api (1.0.5)
       multi_json
-    elasticsearch-transport (1.0.0)
+    elasticsearch-transport (1.0.5)
       faraday
       multi_json
     encryptor (1.1.3)
