@@ -21,8 +21,6 @@ module CallFlow::FusionTablesPush
   end
 
   class Pusher < Struct.new(:call_flow_id, :call_log_id)
-    include CallLogHelper
-
     API_URL = "https://www.googleapis.com/fusiontables/v1/query"
 
     attr_accessor :call_flow, :call_log, :access_token
@@ -56,8 +54,9 @@ module CallFlow::FusionTablesPush
 
       call_log.step_activities.each do |trace|
         begin
-          step_id = trace.fields['step_id']
-          values[ids.index(step_id) + 5] = step_result(trace)
+          index = ids.index(trace.fields['step_id']) * 2 + 5
+          values[index] = trace.fields['step_result']
+          values[index + 1] = trace.fields['step_data']
         rescue Exception => e
           # If the Trace belongs to a deleted step, there is no way to represent it.
           # This should be fixed when the call flow stores it's different flow versions.
@@ -136,7 +135,7 @@ module CallFlow::FusionTablesPush
           index += 1
           step_name = "#{original_step_name}_#{index}"
         end
-        step_names << step_name
+        step_names << "#{step_name}_result" << "#{step_name}_data"
       end
 
       ['Call ID', 'Phone Number', 'State', ['Start Time', 'DATETIME'], ['End Time', 'DATETIME']] + step_names
