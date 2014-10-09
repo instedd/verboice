@@ -39,10 +39,10 @@ prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_
       TargetPath = Pbx:sound_path_for(Name),
       case filelib:is_file(TargetPath) of
         true ->
-          lager:info("Audio file already exists, no need to synthesize"),
+          poirot:log(info, "Audio file already exists, no need to synthesize"),
           ok;
         false ->
-          lager:info("Synthesizing"),
+          poirot:log(info, "Synthesizing"),
           ok = tts:synthesize(ReplacedText, Project, Language, TargetPath)
       end,
       {file, Name};
