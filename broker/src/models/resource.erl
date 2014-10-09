@@ -4,6 +4,7 @@
 -define(TABLE_NAME, "resources").
 -include_lib("erl_dbmodel/include/model.hrl").
 -include("session.hrl").
+-compile([{parse_transform, lager_transform}]).
 
 find_by_project_and_guid(ProjectId, Guid) ->
   find([{project_id, ProjectId}, {guid, Guid}]).
@@ -34,16 +35,30 @@ prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_
   end),
   case Pbx:can_play({text, Language}) of
     false ->
-      Name = util:md5hex(ReplacedText),
+      Name = file_name(Project, Language, ReplacedText),
       TargetPath = Pbx:sound_path_for(Name),
       case filelib:is_file(TargetPath) of
-        true -> ok;
-        false -> ok = tts:synthesize(ReplacedText, Project, Language, TargetPath)
+        true ->
+          lager:info("Audio file already exists, no need to synthesize"),
+          ok;
+        false ->
+          lager:info("Synthesizing"),
+          ok = tts:synthesize(ReplacedText, Project, Language, TargetPath)
       end,
       {file, Name};
     true ->
       {text, Language, ReplacedText}
   end.
+
+file_name(Project, Language, Text) ->
+  ProjectId = Project#project.id,
+  LanguageBin = list_to_binary(Language),
+  Timestamp = case Project#project.updated_at of
+    {datetime, DateTime} -> calendar:datetime_to_gregorian_seconds(DateTime);
+    _                    -> 0
+  end,
+  CacheData = <<ProjectId/integer, LanguageBin/binary, Timestamp/integer, Text/binary>>,
+  util:md5hex(CacheData).
 
 prepare_blob_resource(Name, UpdatedAt, Blob, #session{pbx = Pbx}) ->
   TargetPath = Pbx:sound_path_for(Name),
