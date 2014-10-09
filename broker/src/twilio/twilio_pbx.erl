@@ -1,4 +1,5 @@
 -module(twilio_pbx).
+-compile([{parse_transform, lager_transform}]).
 -export([pid/1, answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2, dial/4]).
 -behaviour(pbx).
 
@@ -60,7 +61,8 @@ sound_path_for(Name, ?PBX(_)) ->
   {ok, Dir} = file:get_cwd(),
   filename:join([Dir, "tmp/www", Name ++ ".mp3"]).
 
-dial(_, _, _, _) -> exit(unimplemented).
+dial(_Channel, Number, CallerId, ?PBX(Pid)) ->
+  gen_server:call(Pid, {dial, Number, CallerId}, timer:minutes(60)).
 
 resume(Params, ?PBX) ->
   try
@@ -101,6 +103,20 @@ handle_call({resume, Params}, From, State = #state{session = Session, waiting = 
   gen_server:reply(Session, Reply),
   {noreply, State#state{awaiter = From, waiting = undefined}};
 
+handle_call({resume, Params}, From, State = #state{session = Session, waiting = dial}) ->
+  Reply = case proplists:get_value("DialCallStatus", Params) of
+    "completed" -> completed;
+    "busy" -> busy;
+    "no-answer" -> no_answer;
+    "failed" -> failed;
+    "canceled" -> canceled;
+    Other ->
+      lager:warning("Unknown DialCallStatus: ~p", [Other]),
+      failed
+  end,
+  gen_server:reply(Session, Reply),
+  {noreply, State#state{awaiter = From, waiting = undefined}};
+
 handle_call({resume, _Params}, From, State = #state{session = Session}) ->
   gen_server:reply(Session, ok),
   {noreply, State#state{awaiter = From}};
@@ -119,6 +135,10 @@ handle_call({record, FileName, StopKeys, Timeout}, From, State) ->
   Command =
     {'Record', [{timeout, Timeout}, {finishOnKey, StopKeys}], []},
   flush(From, append_with_callback(Command, State#state{waiting = {record, FileName}}));
+
+handle_call({dial, Number, _CallerId}, From, State) ->
+  Command = {'Dial', [{action, State#state.callback_url}], [binary_to_list(Number)]},
+  flush(From, append(Command, State#state{waiting = dial}));
 
 handle_call(terminate, _From, State) ->
   {stop, normal, ok, State}.
