@@ -30,12 +30,7 @@ class CallLogsController < ApplicationController
   def show
     set_fixed_width_content
     @log = current_account.call_logs.find params[:id]
-    @activities = Hercule::Activity.search({size: 1000, filter: {
-      and: [
-        {term: {call_log_id: params[:id]}},
-        {exists: {field: "step_type"}}
-      ]
-    }}).items.sort_by(&:start)
+    @activities = @log.step_activities.sort_by(&:start)
   end
 
   def progress

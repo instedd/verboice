@@ -21,6 +21,9 @@
 
 -define(SESSION(Id), {session, Id}).
 
+% delay for executing the job to push call results to Fusion Tables
+-define(PUSH_DELAY_SECONDS, 60).
+
 -include("session.hrl").
 -include("db.hrl").
 -include("uri.hrl").
@@ -325,7 +328,7 @@ code_change(_OldVsn, StateName, State, _Extra) ->
 push_results(#session{call_flow = #call_flow{id = CallFlowId, store_in_fusion_tables = 1}, call_log = CallLog}) ->
   Task = ["--- !ruby/struct:CallFlow::FusionTablesPush::Pusher\ncall_flow_id: ", integer_to_list(CallFlowId),
     "\ncall_log_id: ", integer_to_list(CallLog:id()), "\n"],
-  delayed_job:enqueue(Task);
+  delayed_job:enqueue(Task, ?PUSH_DELAY_SECONDS);
 push_results(_) -> ok.
 
 finalize(completed, State = #state{session = #session{call_log = CallLog}}) ->

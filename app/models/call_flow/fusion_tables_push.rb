@@ -16,12 +16,12 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 module CallFlow::FusionTablesPush
-
   def push_to_fusion_tables(call_log)
     Delayed::Job.enqueue Pusher.new(self.id, call_log.id)
   end
 
   class Pusher < Struct.new(:call_flow_id, :call_log_id)
+    include CallLogHelper
 
     API_URL = "https://www.googleapis.com/fusiontables/v1/query"
 
@@ -54,8 +54,15 @@ module CallFlow::FusionTablesPush
       ids = call_flow.step_names.keys
       values = [call_log.id, call_log.address, call_log.state, call_log.started_at, call_log.finished_at]
 
-      call_log.traces.each do |trace|
-        values[ids.index(trace.step_id.to_i) + 5] = trace.result rescue nil
+      call_log.step_activities.each do |trace|
+        begin
+          step_id = trace.fields['step_id']
+          values[ids.index(step_id) + 5] = step_result(trace)
+        rescue Exception => e
+          # If the Trace belongs to a deleted step, there is no way to represent it.
+          # This should be fixed when the call flow stores it's different flow versions.
+          # For now, the trace is ignored
+        end
       end
 
       columns.count.times {|i| values[i] ||= '' }

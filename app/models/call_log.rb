@@ -118,6 +118,24 @@ class CallLog < ActiveRecord::Base
     self.entries.order('created_at DESC, id DESC').first
   end
 
+  def step_activities
+    Hercule::Activity.search({size: 1000, filter: {
+      and: [
+        {term: {call_log_id: id}},
+        {exists: {field: "step_type"}}
+      ]
+    }}).items
+  end
+
+  def self.step_activities_for(call_logs)
+    Hercule::Activity.search({size: 1000000, filter: {
+      and: [
+        {terms: {call_log_id: call_logs.map(&:id)}},
+        {exists: {field: "step_type"}}
+      ]
+    }}).items.group_by { |x| x.fields['call_log_id'] }
+  end
+
   private
 
   def set_account_to_project_account
