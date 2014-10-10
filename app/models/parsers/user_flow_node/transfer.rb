@@ -29,6 +29,7 @@ module Parsers
         @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
+        @successful_after = params['successful_after']
       end
 
       def is_root?
@@ -45,7 +46,7 @@ module Parsers
           c.Label @id
           c.StartUserStep :transfer, @id, @name
           c.Trace context_for %("Transfer to #{@address} in #{channel_name}.")
-          c.Dial @address, {:channel => @channel}
+          c.Dial @address, {:channel => @channel, :successful_after => @successful_after}
           c.SetStepResult [:eval, "dial_status"]
           c.append @next.equivalent_flow if @next
         end
