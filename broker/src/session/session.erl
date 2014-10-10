@@ -465,6 +465,10 @@ run(Session = #session{flow = Flow, stack = Stack}, Ptr) ->
       lager:warning("The user hang up"),
       poirot:add_meta([{error, <<"The user hang up">>}]),
       {{failed, hangup}, Session};
+    {hangup, NewSession} ->
+      lager:warning("The user hang up"),
+      poirot:add_meta([{error, <<"The user hang up">>}]),
+      {{failed, hangup}, NewSession};
     Reason ->
       poirot:add_meta([{error, iolist_to_binary(io_lib:format("~s", [Reason]))}]),
       lager:error("~s", [Reason]),
