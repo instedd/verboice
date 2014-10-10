@@ -182,7 +182,10 @@ resource_command({text, Language, Text}, _) ->
   {'Say', [{language, Language}], [binary_to_list(Text)]};
 
 resource_command({file, Name}, #state{callback_url = CallbackUrl}) ->
-  {'Play', [[CallbackUrl, Name, ".mp3"]]}.
+  {'Play', [[CallbackUrl, Name, ".mp3"]]};
+
+resource_command({url, Url}, _) ->
+  {'Play', [Url]}.
 
 append(Command, State = #state{commands = Commands}) ->
   State#state{commands = [Command | Commands]}.

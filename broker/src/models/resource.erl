@@ -69,22 +69,26 @@ prepare_blob_resource(Name, UpdatedAt, Blob, #session{pbx = Pbx}) ->
   {file, Name}.
 
 prepare_url_resource(Url, #session{pbx = Pbx}) ->
-  Name = util:md5hex(Url),
-  TargetPath = Pbx:sound_path_for(Name),
-  case filelib:is_file(TargetPath) of
-    true -> ok;
-    false ->
-      TempFile = TargetPath ++ ".tmp",
-      try
-        {ok, {_, Headers, Body}} = httpc:request(Url),
-        file:write_file(TempFile, Body),
-        Type = guess_type(Url, Headers),
-        sox:convert(TempFile, Type, TargetPath)
-      after
-        file:delete(TempFile)
-      end
-  end,
-  {file, Name}.
+  case Pbx:can_play(url) of
+    true -> {url, Url};
+    _ ->
+      Name = util:md5hex(Url),
+      TargetPath = Pbx:sound_path_for(Name),
+      case filelib:is_file(TargetPath) of
+        true -> ok;
+        false ->
+          TempFile = TargetPath ++ ".tmp",
+          try
+            {ok, {_, Headers, Body}} = httpc:request(Url),
+            file:write_file(TempFile, Body),
+            Type = guess_type(Url, Headers),
+            sox:convert(TempFile, Type, TargetPath)
+          after
+            file:delete(TempFile)
+          end
+      end,
+      {file, Name}
+  end.
 
 guess_type(Url, Headers) ->
   case proplists:get_value("content-type", Headers) of
