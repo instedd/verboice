@@ -47,7 +47,7 @@ run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, js_context = J
 maybe_mark_session_successful(_DialStart, undefined, JS) ->
   JS;
 maybe_mark_session_successful(DialStart, SuccessAfterSeconds, JS) ->
-  CallTimeSeconds = timer:now_diff(erlang:now(), DialStart) div 1000000000,
+  CallTimeSeconds = timer:now_diff(erlang:now(), DialStart) div 1000000,
   if
     CallTimeSeconds > SuccessAfterSeconds ->
       poirot:log(info, "Call time exceeded threshold, marking session successful", []),
