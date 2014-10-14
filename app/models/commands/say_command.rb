@@ -25,6 +25,8 @@ class Commands::SayCommand < Command
   end
 
   def serialize_parameters
-    {text: @text, language: @language}
+    result = {text: @text}
+    result[:language] = @language unless @language.blank?
+    result
   end
 end

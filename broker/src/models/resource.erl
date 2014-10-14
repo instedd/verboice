@@ -23,8 +23,10 @@ prepare(Guid, Session = #session{project = #project{id = ProjectId}}, Language) 
   end.
 
 prepare_text_resource(Text, Session) ->
-  prepare_text_resource(Text, Session:language(), Session).
+  prepare_text_resource(Text, undefined, Session).
 
+prepare_text_resource(Text, undefined, Session) ->
+  prepare_text_resource(Text, Session:language(), Session);
 prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_context = JsContext}) ->
   ReplacedText = util:interpolate(Text, fun(VarNameBin) ->
     VarName = binary_to_atom(<<"var_", VarNameBin/binary>>, utf8),

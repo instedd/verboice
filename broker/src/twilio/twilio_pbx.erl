@@ -36,7 +36,7 @@ answer(?PBX(_)) -> ok.
 hangup(?PBX(_)) -> throw(not_implemented).
 
 can_play(url, _) -> true;
-can_play({text, Lang}, _) -> lists:member(Lang, ["en", "es", "fr", "de", "it"]);
+can_play({text, Lang}, _) -> lists:member(util:to_string(Lang), ["en", "es", "fr", "de", "it"]);
 can_play(file, _) -> true.
 
 play(Resource, ?PBX) ->
