@@ -52,7 +52,7 @@ prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_
 
 file_name(Project, Language, Text) ->
   ProjectId = Project#project.id,
-  LanguageBin = list_to_binary(Language),
+  LanguageBin = util:as_binary(Language),
   Timestamp = case Project#project.updated_at of
     {datetime, DateTime} -> calendar:datetime_to_gregorian_seconds(DateTime);
     _                    -> 0
