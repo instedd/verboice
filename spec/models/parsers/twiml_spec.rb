@@ -157,6 +157,30 @@ describe Parsers::Twiml do
     end
   end
 
+  context "record" do
+    it "parses basic command" do
+      xml = "<Response><Record/></Response>"
+      parsed = Parsers::Xml.parse(xml)
+      parsed.should be_a(Commands::RecordCommand)
+    end
+
+    it "parses command with timeout and stop keys" do
+      xml = "<Response><Record timeout='10' finishOnKey='1234'/></Response>"
+      parsed = Parsers::Xml.parse(xml)
+      parsed.should be_a(Commands::RecordCommand)
+      parsed.timeout.should == 10
+      parsed.stop_keys.should == '1234'
+    end
+
+    it "parses command with action and method" do
+      xml = "<Response><Record action='http://foo' method='get'/></Response>"
+      parsed = Parsers::Xml.parse(xml)
+      parsed.should be_a(Commands::RecordCommand)
+      callback_command = parsed.next
+      callback_command.should == Commands::CallbackCommand.new('http://foo', method: 'get')
+    end
+  end
+
   def assert_parse(xml, result)
     Parsers::Xml.parse(xml).should == result
   end
