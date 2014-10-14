@@ -61,7 +61,7 @@ class Parsers::Twiml < Parsers::Xml
   end
 
   def self.say(xml, compiler)
-    compiler.Say(xml.text.try(:strip))
+    compiler.Say(xml.text.try(:strip), xml.attributes['language'].try(:value))
   end
 
   def self.pause(xml, compiler)

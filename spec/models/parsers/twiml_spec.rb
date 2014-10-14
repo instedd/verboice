@@ -85,8 +85,14 @@ describe Parsers::Twiml do
     end
   end
 
-  it "parse say" do
-    assert_parse '<Response><Say>Hello</Say></Response>', Commands::SayCommand.new('Hello')
+  context "say" do
+    it "parses simple command" do
+      assert_parse '<Response><Say>Hello</Say></Response>', Commands::SayCommand.new('Hello')
+    end
+
+    it "parses language attribute" do
+      assert_parse '<Response><Say language="en">Hello</Say></Response>', Commands::SayCommand.new('Hello', 'en')
+    end
   end
 
   it "parse hangup" do
