@@ -8,6 +8,8 @@ parse_cases() -> [
     [start_activity("<Play>http://foo?bar&amp;baz</Play>", "twiml_play"), [play_url, [{url, "http://foo?bar&baz"}]]]},
   {?LINE, "<Response><Say>Hello &amp; Bye</Say></Response>",
     [start_activity("<Say>Hello &amp; Bye</Say>", "twiml_say"), [say, [{text, "Hello & Bye"}]]]},
+  {?LINE, "<Response><Say language=\"en\">Hello</Say></Response>",
+    [start_activity("<Say language=\"en\">Hello</Say>", "twiml_say"), [say, [{text, "Hello"}, {language, "en"}]]]},
   {?LINE, "<Response><Hangup/></Response>", [start_activity("<Hangup/>", "twiml_hangup"), hangup]},
   {?LINE, "<Response>\n<Hangup/>\n</Response>", [start_activity("<Hangup/>", "twiml_hangup"), hangup]},
   {?LINE, "<Response><Pause /></Response>", [start_activity("<Pause/>", "twiml_pause"), pause]},
@@ -57,3 +59,19 @@ set_metadata(Result, Data) ->
 
 set_metadata(Result) ->
   [set_metadata, [{step_result, Result}]].
+
+parse_record_test_() ->
+  [{?LINE, ?_assertMatch(
+    [[start_activity, [{name, <<"<Record/>">>}, {metadata, [{step_type, "twiml_record"}]}]],
+     [record, [{key, _}, {description, _}]]],
+    twiml:parse("<Response><Record/></Response>"))},
+   {?LINE, ?_assertMatch(
+    [[start_activity, [{name, <<"<Record timeout=\"5\" finishOnKey=\"*\"/>">>}, {metadata, [{step_type, "twiml_record"}]}]],
+     [record, [{key, _}, {description, _}, {stop_keys, "*"}, {timeout, 5}]]],
+    twiml:parse("<Response><Record timeout=\"5\" finishOnKey=\"*\"/></Response>"))},
+   {?LINE, ?_assertMatch(
+    [[start_activity, [{name, <<"<Record action=\"http://foo\" method=\"get\"/>">>}, {metadata, [{step_type, "twiml_record"}]}]],
+     [record, [{key, _}, {description, _}]],
+     [callback, [{method, get}, {url, "http://foo"}]]],
+    twiml:parse("<Response><Record action=\"http://foo\" method=\"get\"/></Response>"))}].
+

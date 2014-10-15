@@ -22,9 +22,13 @@ scan(Flow, [Play = #xmlElement{name = 'Play', content = Content} | Rest]) ->
   ], Rest);
 
 scan(Flow, [Say = #xmlElement{name = 'Say', content = Content} | Rest]) ->
+  OtherOptions = case get_attribute(Say, language) of
+                   undefined -> [];
+                   Lang -> [{language, Lang}]
+                 end,
   scan(Flow ++ [
     start_activity(Say, "twiml_say"),
-    [say, [{text, inner_text(Content)}]]
+    [say, [{text, inner_text(Content)}|OtherOptions]]
   ], Rest);
 
 scan(Flow, [Hangup = #xmlElement{name = 'Hangup'} | Rest]) ->
@@ -92,7 +96,35 @@ scan(Flow, [Gather = #xmlElement{name = 'Gather'} | Rest]) ->
     stop,
     set_metadata("timeout")
   ],
-  scan(Flow ++ Commands, Rest).
+  scan(Flow ++ Commands, Rest);
+
+scan(Flow, [Record = #xmlElement{name = 'Record'} | Rest]) ->
+  {RecordOpts, CallbackOpts} =
+    lists:foldl(fun(Attr, {Opts1, Opts2}) ->
+      case Attr#xmlAttribute.name of
+        timeout ->
+          Timeout = list_to_integer(Attr#xmlAttribute.value),
+          {[{timeout, Timeout} | Opts1], Opts2};
+        finishOnKey ->
+          {[{stop_keys, Attr#xmlAttribute.value} | Opts1], Opts2};
+        action ->
+          {Opts1, [{url, Attr#xmlAttribute.value} | Opts2]};
+        method ->
+          {Opts1, [{method, parse_method(Attr#xmlAttribute.value)} | Opts2]}
+      end
+    end, {[], []}, Record#xmlElement.attributes),
+
+  CallbackCommands = if
+                       length(CallbackOpts) > 0 -> [[callback, CallbackOpts]];
+                       true -> []
+                     end,
+
+  Key = uuid:to_string(uuid:v4()),
+  Commands = [
+    start_activity(Record, "twiml_record"),
+    [record, [{key, Key}, {description, "Recorded from external flow"}|RecordOpts]]
+  ],
+  scan(Flow ++ Commands ++ CallbackCommands, Rest).
 
 get_attribute(#xmlElement{attributes = Attributes}, AttrName) ->
   case lists:keyfind(AttrName, #xmlAttribute.name, Attributes) of

@@ -12,7 +12,7 @@ run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = Ca
   ResponseType = proplists:get_value(response_type, Args, flow),
   Params = proplists:get_value(params, Args, []),
   Variables = proplists:get_value(variables, Args, []),
-  Method = proplists:get_value(method, Args, "post"),
+  Method = util:to_string(proplists:get_value(method, Args, "post")),
   Async = proplists:get_value(async, Args),
 
   QueryString = prepare_params(Params ++ Variables, [{"CallSid", CallLog:id()} | CallbackParams], JS),
