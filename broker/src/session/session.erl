@@ -157,6 +157,12 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
 
   {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), flow_pid = FlowPid, session = NewSession}}.
 
+ready({dial, _, _, QueuedCall = #queued_call{address = undefined}}, _From, State) ->
+  lager:error("Refusing to make a call to an undefined address (queued call id ~p)", [QueuedCall#queued_call.id]),
+  CallLog = call_log:find(QueuedCall#queued_call.call_log_id),
+  CallLog:update([{state, "failed"}, {fail_reason, "invalid address"}, {finished_at, calendar:universal_time()}]),
+  {stop, normal, error, State};
+
 ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id = SessionId, resume_ptr = ResumePtr}) ->
   lager:info("Session (~p) dial", [SessionId]),
 
