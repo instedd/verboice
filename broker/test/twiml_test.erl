@@ -63,11 +63,13 @@ set_metadata(Result) ->
 parse_record_test_() ->
   [{?LINE, ?_assertMatch(
     [[start_activity, [{name, <<"<Record/>">>}, {metadata, [{step_type, "twiml_record"}]}]],
-     [record, [{key, _}, {description, _}]]],
+     [record, [{key, _}, {description, _}]],
+     [callback, []]],
     twiml:parse("<Response><Record/></Response>"))},
    {?LINE, ?_assertMatch(
     [[start_activity, [{name, <<"<Record timeout=\"5\" finishOnKey=\"*\"/>">>}, {metadata, [{step_type, "twiml_record"}]}]],
-     [record, [{key, _}, {description, _}, {stop_keys, "*"}, {timeout, 5}]]],
+     [record, [{key, _}, {description, _}, {stop_keys, "*"}, {timeout, 5}]],
+     [callback, []]],
     twiml:parse("<Response><Record timeout=\"5\" finishOnKey=\"*\"/></Response>"))},
    {?LINE, ?_assertMatch(
     [[start_activity, [{name, <<"<Record action=\"http://foo\" method=\"get\"/>">>}, {metadata, [{step_type, "twiml_record"}]}]],

@@ -114,17 +114,13 @@ scan(Flow, [Record = #xmlElement{name = 'Record'} | Rest]) ->
       end
     end, {[], []}, Record#xmlElement.attributes),
 
-  CallbackCommands = if
-                       length(CallbackOpts) > 0 -> [[callback, CallbackOpts]];
-                       true -> []
-                     end,
-
   Key = uuid:to_string(uuid:v4()),
   Commands = [
     start_activity(Record, "twiml_record"),
-    [record, [{key, Key}, {description, "Recorded from external flow"}|RecordOpts]]
+    [record, [{key, Key}, {description, "Recorded from external flow"}|RecordOpts]],
+    [callback, CallbackOpts]
   ],
-  scan(Flow ++ Commands ++ CallbackCommands, Rest).
+  scan(Flow ++ Commands, Rest).
 
 get_attribute(#xmlElement{attributes = Attributes}, AttrName) ->
   case lists:keyfind(AttrName, #xmlAttribute.name, Attributes) of
