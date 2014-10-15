@@ -99,6 +99,7 @@ scan(Flow, [Gather = #xmlElement{name = 'Gather'} | Rest]) ->
   scan(Flow ++ Commands, Rest);
 
 scan(Flow, [Record = #xmlElement{name = 'Record'} | Rest]) ->
+  Key = uuid:to_string(uuid:v4()),
   {RecordOpts, CallbackOpts} =
     lists:foldl(fun(Attr, {Opts1, Opts2}) ->
       case Attr#xmlAttribute.name of
@@ -112,9 +113,8 @@ scan(Flow, [Record = #xmlElement{name = 'Record'} | Rest]) ->
         method ->
           {Opts1, [{method, parse_method(Attr#xmlAttribute.value)} | Opts2]}
       end
-    end, {[], []}, Record#xmlElement.attributes),
+    end, {[], [{params, [{"RecordingUrl", "record_url(\"" ++ Key ++ "\")"}]}]}, Record#xmlElement.attributes),
 
-  Key = uuid:to_string(uuid:v4()),
   Commands = [
     start_activity(Record, "twiml_record"),
     [record, [{key, Key}, {description, "Recorded from external flow"}|RecordOpts]],

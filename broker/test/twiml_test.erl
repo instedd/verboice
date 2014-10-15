@@ -64,16 +64,16 @@ parse_record_test_() ->
   [{?LINE, ?_assertMatch(
     [[start_activity, [{name, <<"<Record/>">>}, {metadata, [{step_type, "twiml_record"}]}]],
      [record, [{key, _}, {description, _}]],
-     [callback, []]],
+     [callback, [{params, [{"RecordingUrl", "record_url" ++ _}]}]]],
     twiml:parse("<Response><Record/></Response>"))},
    {?LINE, ?_assertMatch(
     [[start_activity, [{name, <<"<Record timeout=\"5\" finishOnKey=\"*\"/>">>}, {metadata, [{step_type, "twiml_record"}]}]],
      [record, [{key, _}, {description, _}, {stop_keys, "*"}, {timeout, 5}]],
-     [callback, []]],
+     [callback, [{params, [{"RecordingUrl", "record_url" ++ _}]}]]],
     twiml:parse("<Response><Record timeout=\"5\" finishOnKey=\"*\"/></Response>"))},
    {?LINE, ?_assertMatch(
     [[start_activity, [{name, <<"<Record action=\"http://foo\" method=\"get\"/>">>}, {metadata, [{step_type, "twiml_record"}]}]],
      [record, [{key, _}, {description, _}]],
-     [callback, [{method, get}, {url, "http://foo"}]]],
+     [callback, [{method, get}, {url, "http://foo"}, {params, [{"RecordingUrl", "record_url" ++ _}]}]]],
     twiml:parse("<Response><Record action=\"http://foo\" method=\"get\"/></Response>"))}].
 
