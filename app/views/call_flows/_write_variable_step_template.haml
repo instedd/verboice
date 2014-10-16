@@ -4,11 +4,20 @@
       %span.left.i48grad-numeral{ ko(css: '{ "orange": is_invalid }') }
       %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
 
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %th
+          Request
+        %th
+
     .content{ ko('instedd_init' => true) }
-      Store
-      %input.ux-text{ ko(value: 'value', valueUpdate: '"afterkeydown"') }
-      in
-      %input.ux-text{ ko(value: 'variable', valueUpdate: '"afterkeydown"', css: '{ "error": is_variable_invalid }', initAutocomplete: '{source: workflow.all_variables()}', initMask: '{mask: $.mask.masks.token}') }
+      %input.ux-text.w22{ ko(value: 'variable', valueUpdate: '"afterkeydown"', css: '{ "error": is_variable_invalid }', initAutocomplete: '{source: workflow.all_variables()}', initMask: '{mask: $.mask.masks.token}'), placeholder: 'Address book variable' }
+
+      %br
+      %label to be equal to
+
+      %br
+      %input.ux-text.w22{ ko(value: 'value', valueUpdate: '"afterkeydown"'), placeholder: 'Enter the new value' }
 
       %hr
 
