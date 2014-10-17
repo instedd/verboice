@@ -22,7 +22,6 @@ class QueuedCall < ActiveRecord::Base
   belongs_to :project
   belongs_to :call_flow
 
-  serialize :flow, Command::BrokerFlow
   serialize :variables, Hash
   serialize :callback_params, Hash
 

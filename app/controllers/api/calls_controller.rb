@@ -19,7 +19,7 @@ module Api
 
     def call
       begin
-        params[:flow] = Parsers::Xml.parse request.body if request.post?
+        params[:flow] = request.body.read if request.post?
         call_log = current_account.call params
         render :json => {:call_id => call_log.id, :state => call_log.state}
       rescue Exception => ex

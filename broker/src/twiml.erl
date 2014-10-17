@@ -3,6 +3,8 @@
 
 -include_lib("xmerl/include/xmerl.hrl").
 
+parse(Binary) when is_binary(Binary) ->
+  parse(binary_to_list(Binary));
 parse(String) ->
   {Xml, _} = xmerl_scan:string(String),
   scan([], Xml).
