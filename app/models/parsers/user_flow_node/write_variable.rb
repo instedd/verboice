@@ -44,8 +44,12 @@ module Parsers
         Compiler.parse do |compiler|
           compiler.Label @id
           compiler.StartUserStep :write_variable, @id, @name
-          compiler.PersistVariable @variable, "'#{@value}'" unless @variable.blank? # otherwise a blank variable is created
+          unless @variable.blank? # otherwise a blank variable is created
+            compiler.PersistVariable @variable, "'#{@value}'"
+            compiler.SetStepResult @value
+          end
           compiler.Trace context_for '"Variable written."'
+
           compiler.append @next.equivalent_flow if @next
         end
       end
