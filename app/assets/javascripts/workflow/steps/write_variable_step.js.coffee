@@ -17,7 +17,7 @@ onWorkflow ->
         @is_name_invalid() or @is_variable_invalid()
 
     button_class: =>
-      'lnumeral'
+      'laddressbook'
 
     default_name: =>
       'Write variable'
