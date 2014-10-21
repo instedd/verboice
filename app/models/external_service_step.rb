@@ -41,6 +41,10 @@ class ExternalServiceStep < ActiveRecord::Base
     true
   end
 
+  def absolute_callback_url
+    external_service.to_absolute_url callback_url
+  end
+
   class Variable < Struct.new(:name, :display_name, :type)
     def valid?(parent, field)
       unless self.name =~ /^[a-zA-Z_][a-zA-Z0-9_]*$/
