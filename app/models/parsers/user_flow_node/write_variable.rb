@@ -46,7 +46,7 @@ module Parsers
           compiler.StartUserStep :write_variable, @id, @name
           unless @variable.blank? # otherwise a blank variable is created
             compiler.PersistVariable @variable, "'#{@value}'"
-            compiler.SetStepResult @value
+            compiler.SetStepResult "#{@variable} = '#{@value}'"
           end
           compiler.Trace context_for '"Variable written."'
 
