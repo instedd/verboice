@@ -21,6 +21,8 @@ module Api
       params[:flow] = Parsers::Xml.parse request.body if request.post?
       call_log = current_account.call params
       render :json => {:call_id => call_log.id, :state => call_log.state}
+    rescue CallQueuingError => e
+      render :json => {:error => e.message}
     end
 
     def redirect

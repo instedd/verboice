@@ -112,7 +112,7 @@ describe ProjectsController do
     end
 
     it 'should enqueue a call not before specific date with a timezone' do
-      not_before = DateTime.new(2012, 1, 1, 4, 0, 0)
+      not_before = '2012-01-01 4:00:00'
       expected_not_before = DateTime.parse "2012-01-02 10:00:00 GMT-3"
 
       schedule.time_from = '10:00'
@@ -122,13 +122,55 @@ describe ProjectsController do
       BrokerClient.should_receive(:notify_call_queued).with(channel.id, expected_not_before)
 
       expect {
-        post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id, :not_before_date => '2012-01-01 4:00:00', :not_before => true, :time_zone => 'Buenos Aires'
+        post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id, :not_before_date => not_before, :not_before => true, :time_zone => 'Buenos Aires'
       }.to change(QueuedCall, :count).by(1)
 
       enqueued_call = QueuedCall.last
       enqueued_call.schedule_id.should eq(schedule.id)
       enqueued_call.project_id.should eq(project.id)
       enqueued_call.not_before.should eq(expected_not_before)
+
+      response.should be_redirect
+    end
+
+    it 'should ignore the not after date if not after check is not set' do
+      not_after = DateTime.new(2012, 1, 1, 16, 0, 0)
+
+      BrokerClient.should_receive(:notify_call_queued).with(channel.id, anything)
+
+      expect {
+        post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id, :not_after_date => not_after
+      }.to change(QueuedCall, :count).by(1)
+
+      enqueued_call = QueuedCall.last
+      enqueued_call.schedule_id.should eq(schedule.id)
+      enqueued_call.project_id.should eq(project.id)
+      enqueued_call.not_after.should_not eq(not_after + 1)
+
+      response.should be_redirect
+    end
+
+    it "shouldn't enqueue a call after an specific date" do
+      not_after = DateTime.new(2012, 1, 1, 16, 0, 0)
+
+      BrokerClient.should_not_receive(:notify_call_queued)
+
+      post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id, :not_after_date => not_after, :not_after => true
+
+      QueuedCall.count.should be(0)
+
+      response.should be_redirect
+    end
+
+    it 'should check that not after date is greater than not before date' do
+      not_after = DateTime.new(2012, 1, 2, 16, 0, 0)
+      not_before = DateTime.new(2012, 1, 3, 16, 0, 0)
+
+      BrokerClient.should_not_receive(:notify_call_queued)
+
+      post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id, :not_before_date => not_before, :not_before => true, :not_after_date => not_after, :not_after => true
+
+      QueuedCall.count.should be(0)
 
       response.should be_redirect
     end
