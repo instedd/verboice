@@ -1,0 +1,28 @@
+%script{type: "text/html", id: "mbuilder_step_template"}
+  .feditor-sidebar.right.box.w28.iblock.h65
+    .tableheader
+      %span.left.lpgear{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
+
+    .content
+
+      / ko if: loading_actions()
+      %span loading actions
+      / /ko
+
+
+      / ko if: !loading_actions()
+      %select{ko(options: 'actions', optionsText: "'action'", value: 'action', optionsCaption: "'Choose...'")}
+
+      .box.noshadow
+        / ko foreach: settings
+        %table
+          %tbody
+            %tr
+              %span{ ko(text: 'name') }
+            %tr{ko(template: "'input_setting_template'")}
+        / /ko
+
+      / /ko
+
+
