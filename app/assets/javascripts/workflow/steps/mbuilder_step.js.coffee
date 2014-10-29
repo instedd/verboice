@@ -6,12 +6,15 @@ onWorkflow ->
 
     constructor: (attrs) ->
       super(attrs)
-
       @loading_actions = ko.observable(true)
-      @actions = ko.observableArray()
 
-      @action = ko.observable()
+      @action = ko.observable(attrs.action)
+      @actions = ko.observableArray()
+      @actions.push(@action()) if @action()?
+
       @settings = ko.observableArray()
+      for setting in attrs.settings || []
+        @settings.push(new MbuilderStepSetting(@, setting))
 
       window.setTimeout =>
         @actions.push(
@@ -44,7 +47,6 @@ onWorkflow ->
         return unless newValue?
         for param in newValue.parameters
           @settings.push(new MbuilderStepSetting(@, name: param.name))
-        console.log(@settings())
 
     default_name: () =>
       'Mbuilder'

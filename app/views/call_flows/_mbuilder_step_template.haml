@@ -6,13 +6,12 @@
 
     .content
 
+
+      %select{ko(options: 'actions', optionsText: "'action'", value: 'action', optionsCaption: "'Choose...'")}
+
       / ko if: loading_actions()
       %span loading actions
       / /ko
-
-
-      / ko if: !loading_actions()
-      %select{ko(options: 'actions', optionsText: "'action'", value: 'action', optionsCaption: "'Choose...'")}
 
       .box.noshadow
         / ko foreach: settings
@@ -23,6 +22,5 @@
             %tr{ko(template: "'input_setting_template'")}
         / /ko
 
-      / /ko
-
-
+    .bottom-actions
+      %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
