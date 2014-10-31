@@ -25,12 +25,9 @@ prepare_text_resource(Text, Session) ->
   prepare_text_resource(Text, Session:language(), Session).
 
 prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_context = JsContext}) ->
-  ReplacedText = util:interpolate(Text, fun(VarNameBin) ->
-    VarName = binary_to_atom(<<"var_", VarNameBin/binary>>, utf8),
-    case erjs_context:get(VarName, JsContext) of
-      undefined -> <<>>;
-      X -> list_to_binary(X)
-    end
+  ReplacedText = util:interpolate(Text, fun(JsCode) ->
+    {Value, _} = erjs:eval(JsCode, JsContext),
+    list_to_binary(Value)
   end),
   case Pbx:can_play({text, Language}) of
     false ->
