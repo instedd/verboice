@@ -1,5 +1,5 @@
 -module(session).
--export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1]).
+-export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1, create_default_erjs_context/1]).
 -export([language/1]).
 -compile([{parse_transform, lager_transform}]).
 
@@ -410,14 +410,33 @@ get_contact(ProjectId, Address, _) ->
 
 default_variables(#session{contact = Contact, queued_call = QueuedCall, project = #project{id = ProjectId}, call_log = CallLog}) ->
   CallLogId = util:to_string(CallLog:id()),
-  Context = erjs_context:new([{record_url, fun(Key) ->
-    {ok, BaseUrl} = application:get_env(base_url),
-    BaseUrl ++ "/calls/" ++ CallLogId ++ "/results/" ++ util:to_string(Key)
-  end}]),
+  Context = create_default_erjs_context(CallLogId),
   ProjectVars = project_variable:names_for_project(ProjectId),
   Variables = persisted_variable:find_all({contact_id, Contact#contact.id}),
   DefaultContext = default_variables(Context, ProjectVars, Variables),
   initialize_context(DefaultContext, QueuedCall).
+
+create_default_erjs_context(CallLogId) ->
+  erjs_context:new([
+    {record_url, fun(Key) ->
+      {ok, BaseUrl} = application:get_env(base_url),
+      BaseUrl ++ "/calls/" ++ CallLogId ++ "/results/" ++ util:to_string(Key)
+    end},
+    {'_get_var', fun(Name, Context) ->
+      Value = erjs_context:get(Name, Context),
+      case Value of
+        undefined ->
+          VarName = binary_to_atom(iolist_to_binary(["var_", atom_to_list(Name)]), utf8),
+          erjs_context:get(VarName, Context);
+        _ -> Value
+      end
+    end},
+    {'digits', fun(Value) ->
+      Result = re:replace(Value,"\\d"," &",[{return,list}, global]),
+      io:format("result: ~p~n", [Result]),
+      Result
+    end}
+  ]).
 
 initialize_context(Context, #queued_call{variables = Vars}) ->
   lists:foldl(fun({Name, Value}, C) ->
