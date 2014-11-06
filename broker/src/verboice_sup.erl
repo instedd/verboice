@@ -38,9 +38,13 @@ init([]) ->
   {ok, DbName} = application:get_env(db_name),
   {ok, DbUser} = application:get_env(db_user),
   {ok, DbPass} = application:get_env(db_pass),
+  DbHost = case application:get_env(db_host) of
+    {ok, Value} -> Value;
+    undefined -> "localhost"
+  end,
 
   {ok, { {one_for_one, 5, 10}, [
-    {mysql, {mysql, start_link, [db, "localhost", undefined, DbUser, DbPass, DbName, fun log/4, utf8]},
+    {mysql, {mysql, start_link, [db, DbHost, undefined, DbUser, DbPass, DbName, fun log/4, utf8]},
       permanent, 5000, worker, [mysql]},
     ?CHILD(tz_server, worker),
     ?CHILD(cache, worker),
