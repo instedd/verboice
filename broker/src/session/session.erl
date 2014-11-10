@@ -431,7 +431,7 @@ create_default_erjs_context(CallLogId) ->
         _ -> Value
       end
     end},
-    {'digits', fun(Value) ->
+    {'split_digits', fun(Value) ->
       Result = re:replace(Value,"\\d"," &",[{return,list}, global]),
       io:format("result: ~p~n", [Result]),
       Result
