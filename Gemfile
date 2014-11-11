@@ -58,4 +58,5 @@ group :development do
   gem 'rvm'
   gem 'rvm-capistrano'
   gem 'licit'
+  gem 'webmock'
 end

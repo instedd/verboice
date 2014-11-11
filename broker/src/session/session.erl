@@ -258,7 +258,11 @@ in_progress({hibernate, NewSession, Ptr}, _From, State = #state{session = _Sessi
   HibernatedSession:create(),
   {stop, normal, ok, State#state{hibernated = true}}.
 
-notify_status(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams}) ->
+notify_status(Status, Session) ->
+  notify_status_to_callback_url(Status, Session),
+  notify_status_to_hub(Status, Session).
+
+notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams}) ->
   case Session#session.status_callback_url of
     undefined -> ok;
     <<>> -> ok;
@@ -275,6 +279,21 @@ notify_status(Status, Session = #session{call_log = CallLog, address = Address, 
         end,
         (Uri#uri{query_string = QueryString}):get([{full_result, false} | AuthOptions])
       end)
+  end.
+
+notify_status_to_hub(Status, #session{call_log = CallLog}) ->
+  case Status of
+    completed ->
+      HubEnabled = application:get_env(verboice, hub_enabled, false),
+      case HubEnabled of
+        false ->
+          ok;
+        true ->
+          Task = [{call_log_id, CallLog:id()}],
+          delayed_job:enqueue(yaml:dump({map, Task, <<"!ruby/object:Jobs::HubJob">>}, [{schema, yaml_schema_ruby}]))
+      end;
+    _ ->
+       ok
   end.
 
 handle_event(stop, _, State) ->

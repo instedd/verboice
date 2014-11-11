@@ -18,7 +18,7 @@
 require 'spec_helper'
 
 describe Api::ProjectsController do
-  s
+  include Devise::TestHelpers
 
   before(:each) do
     sign_in account
