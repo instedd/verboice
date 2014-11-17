@@ -1,6 +1,6 @@
 GIT
   remote: https://bitbucket.org/instedd/alto_guisso.git
-  revision: 2ece45e117b04ed6b7de71e878c9df506156ee48
+  revision: cda34b8e0bdc6a3758f1de429c5ee30197bd9dcf
   branch: master
   specs:
     alto_guisso (0.0.1)
@@ -19,7 +19,7 @@ GIT
 
 GIT
   remote: https://github.com/instedd/poirot.git
-  revision: f31913758cfb24ba250522eef8bc20736540a622
+  revision: ea1615dbd6f93b1808521e3869d1fca3a4ede894
   branch: master
   specs:
     hercule (0.0.2)
@@ -27,15 +27,15 @@ GIT
 
 GIT
   remote: https://github.com/instedd/poirot_rails.git
-  revision: 22eb420bf2d170efef118ca57324221e6383fa1c
+  revision: 880f8e78dfd5c642694d43529230c1ffb31e926f
   branch: master
   specs:
-    poirot_rails (0.0.1)
+    poirot_rails (0.0.4)
       bertrpc
+      ffi-rzmq (~> 2.0.1)
       guid
       json
       rails (>= 3.2)
-      zmq
 
 GIT
   remote: https://github.com/manastech/rack-oauth2.git
@@ -154,6 +154,11 @@ GEM
     faraday (0.8.0)
       multipart-post (~> 1.1)
     ffaker (1.4.0)
+    ffi (1.9.6)
+    ffi-rzmq (2.0.1)
+      ffi-rzmq-core (>= 1.0.1)
+    ffi-rzmq-core (1.0.3)
+      ffi (~> 1.9)
     foreman (0.71.0)
       dotenv (~> 0.11.1)
       thor (~> 0.19.1)
@@ -311,7 +316,6 @@ GEM
       addressable (~> 2.2, > 2.2.5)
       crack (>= 0.1.7)
     will_paginate (3.0.3)
-    zmq (2.1.4)
 
 PLATFORMS
   ruby
