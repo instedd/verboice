@@ -12,7 +12,7 @@ GIT
 
 GIT
   remote: git://github.com/instedd/hub_client.git
-  revision: 33af02e5dcd50bcb756cce9cc67f9186bb33f359
+  revision: c7df43625b3ee8295e8b595dcb214224a92bac07
   branch: master
   specs:
     hub_client (0.0.1)
