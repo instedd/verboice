@@ -11,6 +11,14 @@ GIT
       ruby-openid
 
 GIT
+  remote: git://github.com/instedd/hub_client.git
+  revision: 33af02e5dcd50bcb756cce9cc67f9186bb33f359
+  branch: master
+  specs:
+    hub_client (0.0.1)
+      rest-client
+
+GIT
   remote: https://github.com/edave/enumerated_attribute.git
   revision: ec1021d11874f37d30589f91814d069884348fdf
   specs:
@@ -339,6 +347,7 @@ DEPENDENCIES
   guid
   haml-rails
   hercule!
+  hub_client!
   instedd-pigeon
   instedd-rails
   jquery-rails

@@ -26,10 +26,6 @@ class Jobs::HubJob
     contact = contact_address.contact
     persisted_vars = contact.persisted_variables.includes(:project_variable).all
 
-    hub_config = Rails.configuration.verboice_configuration[:hub]
-    hub_url = hub_config[:url]
-    hub_token = hub_config[:token]
-
     vars = {}
     persisted_vars.each do |var|
       vars[var.project_variable.name] = var.value
@@ -42,6 +38,6 @@ class Jobs::HubJob
       vars: vars,
     }
 
-    RestClient.post "#{hub_url}?token=#{hub_token}", request.to_json
+    HubClient.current.notify "verboice", "call_finished", request.to_json
   end
 end

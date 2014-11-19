@@ -21,6 +21,7 @@ gem 'rest-client'
 gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribute.git"
 gem 'csv_builder'
 gem 'newrelic_rpm'
+gem 'hub_client', github: 'instedd/hub_client', branch: 'master'
 gem 'language_list'
 gem 'bertrpc'
 gem 'formatted_rails_logger'

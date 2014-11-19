@@ -7,6 +7,3 @@ default_url_options:
 default_mailer_options:
   from: "verboice@instedd.org"
 poirot_elasticsearch_url: http://localhost:9200
-hub:
-  url: "http://hub.instedd.org"
-  token: "some_token"
