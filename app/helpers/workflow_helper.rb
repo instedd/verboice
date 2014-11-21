@@ -30,10 +30,11 @@ module WorkflowHelper
       when "input", "twiml_gather" then "numeral"
       when "menu" then "dial"
       when "impersonate" then "users"
-      when "hangup_and_callback" then "callback"
+      when "hangup_and_callback" then "forwardCall"
       when "language" then "language"
       when "record" then "microphone"
       when "hangup", "twiml_hangup" then "phone"
+      when "transfer" then "callback"
       else "cloud"
       end
     "i48grad #{icon_class}#{error ? " red" : ""}"

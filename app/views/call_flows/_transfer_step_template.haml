@@ -21,7 +21,21 @@
         = options_from_collection_for_select(current_account.channels, 'name', 'name')
       %br
 
-      %hr
+      .content{ko('instedd_init' => true)}
+        .transfer_successful_after
+          %hr
+
+          %input{id: 'successful_after_check', type: 'checkbox', 'data-bind' => 'checked: successful_after_check'}
+          %label{for: 'successful_after_check'}
+            Mark call as successful after caller was connected for:
+          .block
+            %input{type: 'text', 'data-bind' => 'value: successful_after_input, valueUpdate: "afterkeydown", enable: successful_after_check'}
+          .examples.block
+            Examples:
+            %ul
+              %li 10 seconds
+              %li 2 minutes
+              %li 1 hour
 
       .bottom-actions
         %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

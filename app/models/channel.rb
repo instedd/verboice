@@ -55,6 +55,8 @@ class Channel < ActiveRecord::Base
   end
 
   def call(address, options = {})
+    raise "Call address cannot be empty" unless address.present?
+
     queued_call = enqueue_call_to address, options
     call_log = queued_call.call_log
 

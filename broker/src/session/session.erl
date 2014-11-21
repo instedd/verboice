@@ -1,5 +1,5 @@
 -module(session).
--export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1]).
+-export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1, create_default_erjs_context/1]).
 -export([language/1]).
 -compile([{parse_transform, lager_transform}]).
 
@@ -20,6 +20,9 @@
 -export([ready/2, ready/3, dialing/2, in_progress/2, in_progress/3, matches/2]).
 
 -define(SESSION(Id), {session, Id}).
+
+% delay for executing the job to push call results to Fusion Tables
+-define(PUSH_DELAY_SECONDS, 60).
 
 -include("session.hrl").
 -include("db.hrl").
@@ -153,6 +156,12 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
   FlowPid = spawn_run(NewSession, State#state.resume_ptr),
 
   {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), flow_pid = FlowPid, session = NewSession}}.
+
+ready({dial, _, _, QueuedCall = #queued_call{address = undefined}}, _From, State) ->
+  lager:error("Refusing to make a call to an undefined address (queued call id ~p)", [QueuedCall#queued_call.id]),
+  CallLog = call_log:find(QueuedCall#queued_call.call_log_id),
+  CallLog:update([{state, "failed"}, {fail_reason, "invalid address"}, {finished_at, calendar:universal_time()}]),
+  {stop, normal, error, State};
 
 ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id = SessionId, resume_ptr = ResumePtr}) ->
   lager:info("Session (~p) dial", [SessionId]),
@@ -325,7 +334,7 @@ code_change(_OldVsn, StateName, State, _Extra) ->
 push_results(#session{call_flow = #call_flow{id = CallFlowId, store_in_fusion_tables = 1}, call_log = CallLog}) ->
   Task = ["--- !ruby/struct:CallFlow::FusionTablesPush::Pusher\ncall_flow_id: ", integer_to_list(CallFlowId),
     "\ncall_log_id: ", integer_to_list(CallLog:id()), "\n"],
-  delayed_job:enqueue(Task);
+  delayed_job:enqueue(Task, ?PUSH_DELAY_SECONDS);
 push_results(_) -> ok.
 
 finalize(completed, State = #state{session = #session{call_log = CallLog}}) ->
@@ -401,14 +410,33 @@ get_contact(ProjectId, Address, _) ->
 
 default_variables(#session{contact = Contact, queued_call = QueuedCall, project = #project{id = ProjectId}, call_log = CallLog}) ->
   CallLogId = util:to_string(CallLog:id()),
-  Context = erjs_context:new([{record_url, fun(Key) ->
-    {ok, BaseUrl} = application:get_env(base_url),
-    BaseUrl ++ "/calls/" ++ CallLogId ++ "/results/" ++ util:to_string(Key)
-  end}]),
+  Context = create_default_erjs_context(CallLogId),
   ProjectVars = project_variable:names_for_project(ProjectId),
   Variables = persisted_variable:find_all({contact_id, Contact#contact.id}),
   DefaultContext = default_variables(Context, ProjectVars, Variables),
   initialize_context(DefaultContext, QueuedCall).
+
+create_default_erjs_context(CallLogId) ->
+  erjs_context:new([
+    {record_url, fun(Key) ->
+      {ok, BaseUrl} = application:get_env(base_url),
+      BaseUrl ++ "/calls/" ++ CallLogId ++ "/results/" ++ util:to_string(Key)
+    end},
+    {'_get_var', fun(Name, Context) ->
+      Value = erjs_context:get(Name, Context),
+      case Value of
+        undefined ->
+          VarName = binary_to_atom(iolist_to_binary(["var_", atom_to_list(Name)]), utf8),
+          erjs_context:get(VarName, Context);
+        _ -> Value
+      end
+    end},
+    {'split_digits', fun(Value) ->
+      Result = re:replace(Value,"\\d"," &",[{return,list}, global]),
+      io:format("result: ~p~n", [Result]),
+      Result
+    end}
+  ]).
 
 initialize_context(Context, #queued_call{variables = Vars}) ->
   lists:foldl(fun({Name, Value}, C) ->
@@ -462,6 +490,10 @@ run(Session = #session{flow = Flow, stack = Stack}, Ptr) ->
       lager:warning("The user hang up"),
       poirot:add_meta([{error, <<"The user hang up">>}]),
       {{failed, hangup}, Session};
+    {hangup, NewSession} ->
+      lager:warning("The user hang up"),
+      poirot:add_meta([{error, <<"The user hang up">>}]),
+      {{failed, hangup}, NewSession};
     Reason ->
       poirot:add_meta([{error, iolist_to_binary(io_lib:format("~s", [Reason]))}]),
       lager:error("~s", [Reason]),

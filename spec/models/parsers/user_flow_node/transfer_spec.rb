@@ -36,6 +36,7 @@ module Parsers
             StartUserStep :transfer, 1, "Transfer"
             Trace call_flow_id: 1, step_id: 1, step_name: 'Transfer', store: '"Transfer to 1234-5678 in channel foo."'
             Dial '1234-5678', {:channel => 'foo'}
+            SetStepResult [:eval, "dial_status"]
           end.first
         )
       end
@@ -52,6 +53,7 @@ module Parsers
             StartUserStep :transfer, 2, "Transfer"
             Trace call_flow_id: 1, step_id: 2, step_name: 'Transfer', store: '"Transfer to 1234-5678 in current channel."'
             Dial '1234-5678', {:channel => nil}
+            SetStepResult [:eval, "dial_status"]
           end.first
         )
       end

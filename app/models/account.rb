@@ -98,7 +98,7 @@ class Account < ActiveRecord::Base
       options[:account] = self
       channel.call options[:address], options
     else
-      raise "Channel not found: #{channel_name}"
+      raise "Channel not found: #{options[:channel]}"
     end
   end
 end

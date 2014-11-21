@@ -12,6 +12,8 @@ voice(Lang, #project{languages = Languages}) ->
   voice(Lang, Languages);
 
 voice(_, []) -> undefined;
+voice(Lang, Languages) when is_binary(Lang) ->
+  voice(util:to_string(Lang), Languages);
 voice(Lang, [LangConfig | Rest]) ->
   case proplists:get_value("language", LangConfig) of
     Lang -> proplists:get_value("voice", LangConfig);
