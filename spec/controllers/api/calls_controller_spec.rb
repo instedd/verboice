@@ -64,6 +64,16 @@ describe Api::CallsController do
       get :call, :address => 'foo', :channel => channel.name, :callback => 'bar', :call_flow => call_flow_2.name
       CallLog.last.call_flow.should eq(call_flow_2)
     end
+
+    it "rejects a call without a channel" do
+      get :call
+      response.should_not be_success
+    end
+
+    it "rejects a call with empty address" do
+      get :call, :channel => channel.name
+      response.should_not be_success
+    end
   end
 
   it "call state" do

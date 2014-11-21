@@ -14,4 +14,7 @@ prepare(Session, #localized_resource{type = <<"UploadLocalizedResource">>, uploa
   resource:prepare_blob_resource(binary_to_list(Guid), UpdatedAt, Blob, Session);
 
 prepare(Session, #localized_resource{type = <<"RecordLocalizedResource">>, recorded_audio = Blob, guid = Guid, updated_at = {datetime, UpdatedAt}}) ->
-  resource:prepare_blob_resource(binary_to_list(Guid), UpdatedAt, Blob, Session).
+  resource:prepare_blob_resource(binary_to_list(Guid), UpdatedAt, Blob, Session);
+
+prepare(Session, #localized_resource{type = <<"UrlLocalizedResource">>, url = Url}) ->
+  resource:prepare_url_resource(binary_to_list(Url), Session).

@@ -30,7 +30,7 @@ say_digits_test() ->
   meck:new(pbx, [non_strict]),
   meck:expect(pbx, can_play, 1, true),
   meck:expect(pbx, play, 1, ok),
-  {next, Session} = say:run([{text, "Your Social Security Number is{digits(ssn)}"}], Session),
+  {next, Session} = say:run([{text, "Your Social Security Number is{split_digits(ssn)}"}], Session),
 
   ?assert(meck:called(pbx, play, [{text, "en", <<"Your Social Security Number is 1 2 3 4 5 6">>}])),
   meck:unload().

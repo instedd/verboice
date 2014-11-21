@@ -17,6 +17,6 @@
 
 Delayed::Worker.delay_jobs = true
 Delayed::Worker.destroy_failed_jobs = true
-Delayed::Worker.sleep_delay = Rails.env.production? ? 60 : 1
+Delayed::Worker.sleep_delay = Rails.env.production? ? 60 : 5
 Delayed::Worker.max_attempts = 5
 Delayed::Worker.max_run_time = 5.minutes

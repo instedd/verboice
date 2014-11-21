@@ -4,6 +4,7 @@
 -define(TABLE_NAME, "resources").
 -include_lib("erl_dbmodel/include/model.hrl").
 -include("session.hrl").
+-compile([{parse_transform, lager_transform}]).
 
 find_by_project_and_guid(ProjectId, Guid) ->
   find([{project_id, ProjectId}, {guid, Guid}]).
@@ -22,8 +23,10 @@ prepare(Guid, Session = #session{project = #project{id = ProjectId}}, Language) 
   end.
 
 prepare_text_resource(Text, Session) ->
-  prepare_text_resource(Text, Session:language(), Session).
+  prepare_text_resource(Text, undefined, Session).
 
+prepare_text_resource(Text, undefined, Session) ->
+  prepare_text_resource(Text, Session:language(), Session);
 prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_context = JsContext}) ->
   ReplacedText = util:interpolate(Text, fun(JsCode) ->
     {Value, _} = erjs:eval(JsCode, JsContext),
@@ -31,16 +34,30 @@ prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_
   end),
   case Pbx:can_play({text, Language}) of
     false ->
-      Name = util:md5hex(ReplacedText),
+      Name = file_name(Project, Language, ReplacedText),
       TargetPath = Pbx:sound_path_for(Name),
       case filelib:is_file(TargetPath) of
-        true -> ok;
-        false -> ok = tts:synthesize(ReplacedText, Project, Language, TargetPath)
+        true ->
+          poirot:log(info, "Audio file already exists, no need to synthesize"),
+          ok;
+        false ->
+          poirot:log(info, "Synthesizing"),
+          ok = tts:synthesize(ReplacedText, Project, Language, TargetPath)
       end,
       {file, Name};
     true ->
       {text, Language, ReplacedText}
   end.
+
+file_name(Project, Language, Text) ->
+  ProjectId = Project#project.id,
+  LanguageBin = util:as_binary(Language),
+  Timestamp = case Project#project.updated_at of
+    {datetime, DateTime} -> calendar:datetime_to_gregorian_seconds(DateTime);
+    _                    -> 0
+  end,
+  CacheData = <<ProjectId/integer, LanguageBin/binary, Timestamp/integer, Text/binary>>,
+  util:md5hex(CacheData).
 
 prepare_blob_resource(Name, UpdatedAt, Blob, #session{pbx = Pbx}) ->
   TargetPath = Pbx:sound_path_for(Name),
@@ -59,22 +76,26 @@ prepare_blob_resource(Name, UpdatedAt, Blob, #session{pbx = Pbx}) ->
   {file, Name}.
 
 prepare_url_resource(Url, #session{pbx = Pbx}) ->
-  Name = util:md5hex(Url),
-  TargetPath = Pbx:sound_path_for(Name),
-  case filelib:is_file(TargetPath) of
-    true -> ok;
-    false ->
-      TempFile = TargetPath ++ ".tmp",
-      try
-        {ok, {_, Headers, Body}} = httpc:request(Url),
-        file:write_file(TempFile, Body),
-        Type = guess_type(Url, Headers),
-        sox:convert(TempFile, Type, TargetPath)
-      after
-        file:delete(TempFile)
-      end
-  end,
-  {file, Name}.
+  case Pbx:can_play(url) of
+    true -> {url, Url};
+    _ ->
+      Name = util:md5hex(Url),
+      TargetPath = Pbx:sound_path_for(Name),
+      case filelib:is_file(TargetPath) of
+        true -> ok;
+        false ->
+          TempFile = TargetPath ++ ".tmp",
+          try
+            {ok, {_, Headers, Body}} = httpc:request(Url),
+            file:write_file(TempFile, Body),
+            Type = guess_type(Url, Headers),
+            sox:convert(TempFile, Type, TargetPath)
+          after
+            file:delete(TempFile)
+          end
+      end,
+      {file, Name}
+  end.
 
 guess_type(Url, Headers) ->
   case proplists:get_value("content-type", Headers) of

@@ -82,7 +82,10 @@ record(FileName, StopKeys, Timeout, {?MODULE, Pid}) ->
   end.
 
 dial(Channel, Address, undefined, {?MODULE, Pid}) ->
-  DialAddress = binary_to_list(asterisk_broker:dial_address(Channel, Address)),
+  DialAddress = case asterisk_broker:dial_address(Channel, Address) of
+                  AsBinary when is_binary(AsBinary) -> binary_to_list(AsBinary);
+                  AsList -> AsList
+                end,
   agi_session:dial(Pid, [DialAddress, "60", "m"]),
   case agi_session:get_variable(Pid, "DIALSTATUS") of
     hangup -> throw(hangup);

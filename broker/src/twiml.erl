@@ -3,6 +3,8 @@
 
 -include_lib("xmerl/include/xmerl.hrl").
 
+parse(Binary) when is_binary(Binary) ->
+  parse(binary_to_list(Binary));
 parse(String) ->
   {Xml, _} = xmerl_scan:string(String),
   scan([], Xml).
@@ -22,9 +24,13 @@ scan(Flow, [Play = #xmlElement{name = 'Play', content = Content} | Rest]) ->
   ], Rest);
 
 scan(Flow, [Say = #xmlElement{name = 'Say', content = Content} | Rest]) ->
+  OtherOptions = case get_attribute(Say, language) of
+                   undefined -> [];
+                   Lang -> [{language, Lang}]
+                 end,
   scan(Flow ++ [
     start_activity(Say, "twiml_say"),
-    [say, [{text, inner_text(Content)}]]
+    [say, [{text, inner_text(Content)}|OtherOptions]]
   ], Rest);
 
 scan(Flow, [Hangup = #xmlElement{name = 'Hangup'} | Rest]) ->
@@ -91,6 +97,30 @@ scan(Flow, [Gather = #xmlElement{name = 'Gather'} | Rest]) ->
     [callback, CallbackOpts],
     stop,
     set_metadata("timeout")
+  ],
+  scan(Flow ++ Commands, Rest);
+
+scan(Flow, [Record = #xmlElement{name = 'Record'} | Rest]) ->
+  Key = uuid:to_string(uuid:v4()),
+  {RecordOpts, CallbackOpts} =
+    lists:foldl(fun(Attr, {Opts1, Opts2}) ->
+      case Attr#xmlAttribute.name of
+        timeout ->
+          Timeout = list_to_integer(Attr#xmlAttribute.value),
+          {[{timeout, Timeout} | Opts1], Opts2};
+        finishOnKey ->
+          {[{stop_keys, Attr#xmlAttribute.value} | Opts1], Opts2};
+        action ->
+          {Opts1, [{url, Attr#xmlAttribute.value} | Opts2]};
+        method ->
+          {Opts1, [{method, parse_method(Attr#xmlAttribute.value)} | Opts2]}
+      end
+    end, {[], [{params, [{"RecordingUrl", "record_url(\"" ++ Key ++ "\")"}]}]}, Record#xmlElement.attributes),
+
+  Commands = [
+    start_activity(Record, "twiml_record"),
+    [record, [{key, Key}, {description, "Recorded from external flow"}|RecordOpts]],
+    [callback, CallbackOpts]
   ],
   scan(Flow ++ Commands, Rest).
 

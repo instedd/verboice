@@ -39,6 +39,8 @@ class Parsers::Twiml < Parsers::Xml
         pause(child, compiler)
       when 'Bridge'
         bridge(child, compiler)
+      when 'Record'
+        record(child, compiler)
       when 'Dial'
         continue = dial(child, compiler)
         break unless continue
@@ -61,7 +63,7 @@ class Parsers::Twiml < Parsers::Xml
   end
 
   def self.say(xml, compiler)
-    compiler.Say(xml.text.try(:strip))
+    compiler.Say(xml.text.try(:strip), xml.attributes['language'].try(:value))
   end
 
   def self.pause(xml, compiler)
@@ -108,6 +110,20 @@ class Parsers::Twiml < Parsers::Xml
 
   def self.bridge(xml, compiler)
     compiler.Bridge(xml.attributes['session_id'].try(:value))
+  end
+
+  def self.record(xml, compiler)
+    options = {}
+    options[:stop_keys] = xml.attributes['finishOnKey'].value if xml.attributes['finishOnKey']
+    options[:timeout] = xml.attributes['timeout'].value if xml.attributes['timeout']
+    key = Guid.new.to_s.force_encoding("UTF-8")  # force_encoding to avoid serializing as binary
+    compiler.Record key, "Recorded from external TwilML flow", options
+
+    if xml.attributes['action']
+      callback_options = {}
+      callback_options[:method] = xml.attributes['method'].value if xml.attributes['method']
+      compiler.Callback xml.attributes['action'].value, callback_options
+    end
   end
 
   def self.dial(xml, compiler)

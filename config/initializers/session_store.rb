@@ -23,3 +23,27 @@ Verboice::Application.config.session_store :cookie_store, :key => '_verboice_ses
 # which shouldn't be used to store highly confidential information
 # (create the session table with "rails generate session_migration")
 # Verboice::Application.config.session_store :active_record_store
+
+
+#
+# Mark cookies as secure when created in a secure (SSL) connection.
+#
+# Needed to monkeypatch in order to decide this for every cookie being
+# created, as we want to support both secure and non secure sessions.
+#
+module ActionDispatch
+  class Cookies::CookieJar
+
+    alias_method :old_set_cookie_value, :[]=
+
+    def []=(key, options)
+      # @secure is initialized when the cookiejar is created, and is
+      # true iff the request is made over an ssl connection.
+      #
+      # see CookieJar in ActionPack gem.
+      options[:secure] = @secure
+      old_set_cookie_value(key, options)
+    end
+
+  end
+end

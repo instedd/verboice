@@ -3,7 +3,6 @@
 -define(TABLE_NAME, "queued_calls").
 -include("session.hrl").
 -define(MAP, [
-  {flow, flow_serializer},
   {callback_params, yaml_serializer},
   {variables, yaml_serializer}
 ]).
@@ -31,7 +30,7 @@ start_session(QueuedCall = #queued_call{call_flow_id = CallFlowId}) when is_numb
 start_session(QueuedCall = #queued_call{callback_url = CallbackUrl}) when is_binary(CallbackUrl) ->
   start_session(#session{flow = flow:callback_flow(CallbackUrl)}, QueuedCall);
 start_session(QueuedCall = #queued_call{flow = Flow}) ->
-  start_session(#session{flow = Flow}, QueuedCall).
+  start_session(#session{flow = twiml:parse(Flow)}, QueuedCall).
 
 start_session(Session, QueuedCall) ->
   Project = project:find(QueuedCall#queued_call.project_id),
