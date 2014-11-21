@@ -32,7 +32,7 @@ start_session_with_callback_url_test() ->
   meck:unload().
 
 start_session_with_flow_test() ->
-  QueuedCall = #queued_call{flow = [answer, hangup], project_id = project_id},
+  QueuedCall = #queued_call{flow = "<Response><Hangup/></Response>", project_id = project_id},
   meck:new(project),
   meck:expect(project, find, [project_id], #project{}),
   meck:expect(project, status_callback, 1, {undefined, undefined, undefined}),
@@ -40,6 +40,6 @@ start_session_with_flow_test() ->
   Session = queued_call:start_session(QueuedCall),
 
   ?assertEqual(undefined, Session#session.call_flow),
-  ?assertEqual(QueuedCall#queued_call.flow, Session#session.flow),
+  ?assertEqual(twiml:parse(QueuedCall#queued_call.flow), Session#session.flow),
 
   meck:unload().
