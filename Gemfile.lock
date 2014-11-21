@@ -1,5 +1,5 @@
 GIT
-  remote: https://bitbucket.org/instedd/alto_guisso.git
+  remote: git://github.com/instedd/alto_guisso.git
   revision: 2ece45e117b04ed6b7de71e878c9df506156ee48
   branch: master
   specs:
