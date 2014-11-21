@@ -127,6 +127,7 @@ Verboice::Application.routes.draw do
       end
     end
     resources :projects, only: [:index, :show] do
+      resources :call_flows, only: [:index, :show]
       resources :contacts do
         collection do
           get 'by_address/:address', :action => "show_by_address"
