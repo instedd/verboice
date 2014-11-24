@@ -1,6 +1,6 @@
 steps = @call_flow.step_names
 ids = steps.keys
-header = ['Call ID', 'Phone Number', 'Channel', 'Direction', 'Start Time', 'End Time']
+header = ['Call ID', 'Phone Number', 'Channel', 'Direction', 'Start Time', 'End Time', 'Status']
 step_labels = steps.values.map {|label| ["#{label} (Result)", "#{label} (Data)"]}.flatten
 csv << header + step_labels
 @call_logs.includes(:channel).find_each do |call_log|
@@ -11,6 +11,7 @@ csv << header + step_labels
   line << call_log.direction
   line << call_log.started_at
   line << call_log.finished_at
+  line << call_log.state
   if traces = @activities[call_log.id]
     traces.each do |trace|
       begin
