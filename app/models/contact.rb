@@ -41,6 +41,10 @@ class Contact < ActiveRecord::Base
     addresses.drop_while { |addr| addr != address }.second 
   end
 
+  def semicolon_separated_addresses
+    "#{addresses.map(&:address).join(";")}"
+  end
+
   private
 
   def at_least_one_address
