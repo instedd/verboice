@@ -11,7 +11,7 @@ GIT
       ruby-openid
 
 GIT
-  remote: git://github.com/instedd/hub_client.git
+  remote: git://github.com/instedd/ruby-hub_client.git
   revision: c7df43625b3ee8295e8b595dcb214224a92bac07
   branch: master
   specs:
