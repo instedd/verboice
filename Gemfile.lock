@@ -12,7 +12,7 @@ GIT
 
 GIT
   remote: git://github.com/instedd/ruby-hub_client.git
-  revision: 60c009b989c83209da3e980c50d90e163e5b5334
+  revision: 17a4c3e5806e025cdc6c11fee11b2744299fecb2
   branch: master
   specs:
     hub_client (0.0.1)
@@ -220,6 +220,7 @@ GEM
     net-ssh (2.7.0)
     net-ssh-gateway (1.2.0)
       net-ssh (>= 2.6.5)
+    netrc (0.8.0)
     newrelic_rpm (3.7.3.204)
     nokogiri (1.4.4)
     oauth (0.4.7)
@@ -271,8 +272,9 @@ GEM
     rake (10.3.2)
     rdoc (3.12.2)
       json (~> 1.4)
-    rest-client (1.6.7)
-      mime-types (>= 1.16)
+    rest-client (1.7.2)
+      mime-types (>= 1.16, < 3.0)
+      netrc (~> 0.7)
     rspec (2.9.0)
       rspec-core (~> 2.9.0)
       rspec-expectations (~> 2.9.0)
