@@ -38,6 +38,6 @@ class Jobs::HubJob
       vars: vars,
     }
 
-    HubClient.current.notify "verboice", "call_finished", request.to_json
+    HubClient.current.notify "verboice", "call", request.to_json
   end
 end
