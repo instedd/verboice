@@ -22,7 +22,8 @@ set :rvm_ruby_string, '1.9.3'
 set :rvm_type, :system
 
 set :application, "verboice"
-set :repository,  "https://bitbucket.org/instedd/verboice"
+set :repository,  "https://github.com/instedd/verboice"
+set :branch, ENV['BRANCH'] || "master"
 set :scm, :git
 set :deploy_via, :remote_cache
 set :user, 'ubuntu'
@@ -54,7 +55,7 @@ namespace :deploy do
   end
 
   task :symlink_configs, :roles => :app do
-    %W(credentials verboice newrelic oauth nuntium poirot guisso).each do |file|
+    %W(credentials verboice newrelic oauth nuntium poirot guisso hub).each do |file|
       run "ln -nfs #{shared_path}/#{file}.yml #{release_path}/config/"
     end
   end
