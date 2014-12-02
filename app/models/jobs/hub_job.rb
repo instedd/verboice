@@ -16,28 +16,11 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Jobs::HubJob
-  def initialize(call_log_id)
-    @call_log_id = call_log_id
+  def initialize(payload)
+    @payload = payload
   end
 
   def perform
-    call_log = CallLog.find @call_log_id
-    contact_address = ContactAddress.find_by_address call_log.address
-    contact = contact_address.contact
-    persisted_vars = contact.persisted_variables.includes(:project_variable).all
-
-    vars = {}
-    persisted_vars.each do |var|
-      vars[var.project_variable.name] = var.value
-    end
-
-    request = {
-      project_id: call_log.project_id,
-      call_flow_id: call_log.call_flow_id,
-      address: call_log.address,
-      vars: vars,
-    }
-
-    HubClient.current.notify "verboice", "call", request.to_json
+    HubClient.current.notify "verboice", "call", @payload.to_json
   end
 end
