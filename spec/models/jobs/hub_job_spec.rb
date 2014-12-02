@@ -12,7 +12,7 @@ describe Jobs::HubJob do
 
     HubClient.current "token" => "some_token"
 
-    stub_request(:post, "https://hub.instedd.org/callback/verboice/call_finished?token=some_token").
+    stub_request(:post, "https://hub.instedd.org/callback/verboice/call?token=some_token").
       with(:body => "{\"project_id\":#{call_log.project_id},\"call_flow_id\":#{call_log.call_flow_id},\"address\":\"#{address}\",\"vars\":{\"var1\":\"value1\"}}").
       to_return(:status => 200, :body => "", :headers => {})
 
