@@ -30,6 +30,7 @@ gem 'poirot_rails', git: 'https://github.com/instedd/poirot_rails.git', branch: 
 gem 'hercule', git: 'https://github.com/instedd/poirot.git', branch: 'master'
 gem 'rack-oauth2', git: "https://github.com/manastech/rack-oauth2.git", branch: 'master'
 gem 'alto_guisso', github: "instedd/alto_guisso", branch: 'master'
+gem 'alto_guisso_rails', github: "instedd/alto_guisso_rails", branch: 'master'
 gem 'ruby-openid'
 gem 'omniauth'
 gem 'omniauth-openid'

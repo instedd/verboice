@@ -1,9 +1,18 @@
 GIT
   remote: git://github.com/instedd/alto_guisso.git
-  revision: cda34b8e0bdc6a3758f1de429c5ee30197bd9dcf
+  revision: 6248661256cb782920cc2e2feec48d61440d3169
   branch: master
   specs:
-    alto_guisso (0.0.1)
+    alto_guisso (0.0.2)
+      rack-oauth2
+
+GIT
+  remote: git://github.com/instedd/alto_guisso_rails.git
+  revision: a9bb41430e636e3dec1a85a2be2af0fc27358a9c
+  branch: master
+  specs:
+    alto_guisso_rails (0.0.1)
+      alto_guisso
       omniauth
       omniauth-openid
       rack-oauth2
@@ -12,7 +21,7 @@ GIT
 
 GIT
   remote: git://github.com/instedd/ruby-hub_client.git
-  revision: 17a4c3e5806e025cdc6c11fee11b2744299fecb2
+  revision: 2dfe1ffca0767b8aa2cce4ab487801cb967bb82a
   branch: master
   specs:
     hub_client (0.0.1)
@@ -332,6 +341,7 @@ PLATFORMS
 
 DEPENDENCIES
   alto_guisso!
+  alto_guisso_rails!
   attr_encrypted
   bertrpc
   capistrano

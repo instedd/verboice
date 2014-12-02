@@ -127,6 +127,7 @@ Verboice::Application.routes.draw do
       end
     end
     resources :projects, only: [:index, :show] do
+      resources :project_variables, only: :index
       resources :call_flows, only: [:index, :show]
       resources :contacts do
         collection do
