@@ -282,7 +282,6 @@ notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, add
   end.
 
 notify_status_to_hub(Status, Session = #session{call_log = CallLog, js_context = JS, project = Project}) ->
-  io:format("~p~n", [Session]),
   case Status of
     completed ->
       HubEnabled = application:get_env(verboice, hub_enabled, false),
