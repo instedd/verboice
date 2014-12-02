@@ -17,3 +17,4 @@
 -record(schedule, {id, name, retries, time_from, time_to, weekdays, project_id, created_at, updated_at}).
 -record(trace_record, {id, call_flow_id, call_id, step_name, step_id, result, created_at, updated_at}).
 -record(hibernated_session, {id, session_id, data, created_at, updated_at}).
+-record(nuntium_channel, {id, channel_name, created_at, updated_at}).
