@@ -21,6 +21,6 @@ class Jobs::HubJob
   end
 
   def perform
-    HubClient.current.notify "verboice", "call", @payload.to_json
+    HubClient.current.notify "projects/#{@payload[:project_id]}/call_flows/#{@payload[:call_flow_id]}/$events/call_finished", @payload.to_json
   end
 end
