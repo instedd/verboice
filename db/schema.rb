@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140522152029) do
+ActiveRecord::Schema.define(:version => 20141209200220) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -357,6 +357,27 @@ ActiveRecord::Schema.define(:version => 20140522152029) do
 
   add_index "resources", ["guid"], :name => "index_resources_on_guid"
   add_index "resources", ["project_id"], :name => "index_resources_on_project_id"
+
+  create_table "scheduled_calls", :force => true do |t|
+    t.string   "name"
+    t.boolean  "enabled",            :default => true
+    t.integer  "project_id"
+    t.integer  "call_flow_id"
+    t.integer  "channel_id"
+    t.integer  "schedule_id"
+    t.string   "frequency"
+    t.boolean  "not_before_enabled", :default => false
+    t.datetime "not_before"
+    t.string   "time_zone"
+    t.text     "filters"
+    t.datetime "created_at",                            :null => false
+    t.datetime "updated_at",                            :null => false
+  end
+
+  add_index "scheduled_calls", ["call_flow_id"], :name => "index_scheduled_calls_on_call_flow_id"
+  add_index "scheduled_calls", ["channel_id"], :name => "index_scheduled_calls_on_channel_id"
+  add_index "scheduled_calls", ["project_id"], :name => "index_scheduled_calls_on_project_id"
+  add_index "scheduled_calls", ["schedule_id"], :name => "index_scheduled_calls_on_schedule_id"
 
   create_table "schedules", :force => true do |t|
     t.string   "name"
