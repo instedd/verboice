@@ -203,3 +203,14 @@ CallFlowExternalService.blueprint do
   external_service
 end
 
+ScheduledCall.blueprint do
+  enabled { true }
+  channel { Channel.all_leaf_subclasses.sample.make }
+  call_flow { channel.call_flow }
+  project { call_flow.project }
+  schedule
+  name
+  frequency { 'weekly' }
+  time_zone { 'Buenos Aires' }
+end
+
