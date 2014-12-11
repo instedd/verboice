@@ -49,7 +49,35 @@ module Parsers
         Compiler.parse do |compiler|
           compiler.Label @id
           compiler.Trace context_for '"Hub."'
+          compiler.Js bindings_js()
+          # compiler.Callback ...
           compiler.End
+        end
+      end
+
+      def bindings_js
+        str = ""
+        str << "hub_payload = {};"
+        @bindings.each do |binding|
+          binding_js(binding, str, "hub_payload")
+        end
+        str
+      end
+
+      def binding_js(binding, str, prefix)
+        name = binding['name']
+        value = binding['value']
+        new_prefix = "#{prefix}['#{name}']"
+
+        if value
+          input_setting = InputSetting.new(value)
+          str << "#{new_prefix} = #{input_setting.expression};"
+        else
+          sub_bindings = binding['bindings']
+          str << "#{new_prefix} = {};"
+          sub_bindings.each do |sub_binding|
+            binding_js(sub_binding, str, new_prefix)
+          end
         end
       end
     end
