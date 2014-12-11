@@ -39,7 +39,7 @@ format(Uri = #uri{}) ->
   binary_to_list(Bin).
 
 get(UriOptions, Uri = #uri{}) ->
-  {Headers, HTTPOptions, Options} = httpc_options(UriOptions),
+  {Headers, HTTPOptions, Options} = httpc_options("GET", Uri, UriOptions),
   httpc:request(get, {Uri:format(), Headers}, HTTPOptions, Options).
 
 post_form(Form, UriOptions, Uri = #uri{}) ->
@@ -52,18 +52,21 @@ post_form(Form, UriOptions, Uri) when is_binary(Uri) ->
   post_form_impl(Form, UriOptions, binary_to_list(Uri)).
 
 post_form_impl(Form, UriOptions, Uri) ->
-  {Headers, HTTPOptions, Options} = httpc_options(UriOptions),
+  {Headers, HTTPOptions, Options} = httpc_options("POST", Uri, UriOptions),
   Body = format_qs(Form),
   httpc:request(post, {Uri, Headers, "application/x-www-form-urlencoded", Body}, HTTPOptions, Options).
 
-httpc_options(Options) -> httpc_options(Options, [], [], []).
+httpc_options(Method, Uri, UriOptions) -> httpc_options(Method, Uri, UriOptions, [], [], []).
 
-httpc_options([], Headers, HTTPOptions, Options) -> {Headers, HTTPOptions, Options};
-httpc_options([{basic_auth, {User, Password}} | T], Headers, HTTPOptions, Options) ->
+httpc_options(_, _, [], Headers, HTTPOptions, Options) -> {Headers, HTTPOptions, Options};
+httpc_options(Method, Uri, [{basic_auth, {User, Password}} | T], Headers, HTTPOptions, Options) ->
   BasicAuthHeader = {"Authorization", "Basic " ++ base64:encode_to_string(iolist_to_binary([User, $:, Password]))},
-  httpc_options(T, [BasicAuthHeader | Headers], HTTPOptions, Options);
-httpc_options([Unknown | T], Headers, HTTPOptions, Options) ->
-  httpc_options(T, Headers, HTTPOptions, [Unknown | Options]).
+  httpc_options(Method, Uri, T, [BasicAuthHeader | Headers], HTTPOptions, Options);
+httpc_options(Method, Uri, [{oauth2, AccessToken} | T], Headers, HTTPOptions, Options) ->
+  NewHeaders = [{"Authorization", oauth2:authorization_header(Method, Uri, AccessToken)} | Headers],
+  httpc_options(Method, Uri, T, NewHeaders, HTTPOptions, Options);
+httpc_options(Method, Uri, [Unknown | T], Headers, HTTPOptions, Options) ->
+  httpc_options(Method, Uri, T, Headers, HTTPOptions, [Unknown | Options]).
 
 parse_qs([]) -> [];
 parse_qs(QS) ->
