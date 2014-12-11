@@ -10,4 +10,5 @@
 //= require underscore
 //= require pigeon
 //= require global
+//= require hub_client
 //= require_directory .

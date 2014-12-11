@@ -165,4 +165,6 @@ Verboice::Application.routes.draw do
   root :to => 'home#index'
 
   get 'terms_and_conditions', :to => redirect('/')
+
+  match '/hub/*path' => 'hub#api', format: false
 end
