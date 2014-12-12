@@ -59,6 +59,23 @@ module Parsers
           "hub_payload['properties']['Age'] = 'B';" \
         )
       end
+
+      it "should build bindings js with one empty binding" do
+        hub = Hub.new nil, "bindings"=>
+           [{"name"=>"foo",
+             "label"=>"Foo",
+             "value"=>{"step"=>nil, "variable"=>nil, "value"=>"FOO", "response"=>nil},
+             "bindings"=>[]},
+            {"name"=>"bar",
+             "label"=>"Bar",
+             "value"=>{"step"=>nil, "variable"=>nil, "value"=>"", "response"=>nil},
+             "bindings"=>[]}]
+
+        hub.bindings_js.should eq(
+          "hub_payload = {};" \
+          "hub_payload['foo'] = 'FOO';" \
+        )
+      end
     end
   end
 end

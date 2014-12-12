@@ -47,9 +47,9 @@ describe Compiler do
   it "makes callback command" do
     result = subject.Callback('http://www.url.com', :method => 'get', :params => {:foo => 1}).make
     result.should be_instance_of(Commands::CallbackCommand)
-    result.url.should == 'http://www.url.com'
-    result.method.should == 'get'
-    result.params.should == {:foo => 1}
+    result.options[:url].should == 'http://www.url.com'
+    result.options[:method].should == 'get'
+    result.options[:params].should == {:foo => 1}
   end
 
   it "makes capture command" do

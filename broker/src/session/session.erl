@@ -464,7 +464,12 @@ create_default_erjs_context(CallLogId) ->
       Result = re:replace(Value,"\\d"," &",[{return,list}, global]),
       io:format("result: ~p~n", [Result]),
       Result
-    end}
+    end},
+    {<<"hub_url">>, begin
+                {ok, HubUrl} = application:get_env(verboice, hub_url),
+                HubUrl
+              end
+    }
   ]).
 
 initialize_context(Context, #queued_call{variables = Vars}) ->

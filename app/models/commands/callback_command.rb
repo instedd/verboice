@@ -16,24 +16,17 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Commands::CallbackCommand < Command
-  attr_accessor :url
-  attr_accessor :method
-  attr_accessor :params
+  attr_accessor :options
 
   def initialize(url = nil, options = {})
-    @url = url
-    @method = options[:method] || 'post'
-    @params = options[:params]
-    @response_type = options[:response_type] || :flow
-    @variables = options[:variables] || {}
-    @external_service_guid = options[:external_service_guid]
-    @async = options[:async]
+    options[:url] = url
+    options[:method] = (options[:method] || 'post').to_s
+    options[:variables] ||= {}
+    options[:response_type] ||= :flow
+    @options = options
   end
 
   def serialize_parameters
-    {
-      url: @url, method: @method, params: @params, response_type: @response_type, variables: @variables,
-      external_service_guid: @external_service_guid, async: @async
-    }
+    options
   end
 end

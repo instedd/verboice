@@ -1,5 +1,5 @@
 -module(uri).
--export([parse/1, format/1, parse_qs/1, format_qs/1, get/2, post_form/3]).
+-export([parse/1, format/1, parse_qs/1, format_qs/1, get/2, post/4, post_form/3, full_path/1]).
 -include("uri.hrl").
 
 parse(Uri) ->
@@ -38,9 +38,20 @@ format(Uri = #uri{}) ->
   Bin = iolist_to_binary([Scheme, "://", UserInfo, Uri#uri.host, Port, Path, Query]),
   binary_to_list(Bin).
 
+full_path(#uri{path = Path, query_string = undefined}) ->
+  Path;
+full_path(#uri{path = Path, query_string = []}) ->
+  Path;
+full_path(#uri{path = Path, query_string = Query}) ->
+  binary_to_list(iolist_to_binary([Path, $?, format_qs_as_iolist(Query)])).
+
 get(UriOptions, Uri = #uri{}) ->
   {Headers, HTTPOptions, Options} = httpc_options("GET", Uri, UriOptions),
   httpc:request(get, {Uri:format(), Headers}, HTTPOptions, Options).
+
+post(ContentType, Body, UriOptions, Uri = #uri{}) ->
+  {Headers, HTTPOptions, Options} = httpc_options("POST", Uri, UriOptions),
+  httpc:request(post, {Uri:format(), Headers, ContentType, Body}, HTTPOptions, Options).
 
 post_form(Form, UriOptions, Uri = #uri{}) ->
   post_form_impl(Form, UriOptions, Uri:format());

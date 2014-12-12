@@ -35,6 +35,8 @@ module Parsers
         @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
+        @action_name = params['action_name']
+        @action_path = params['action_path']
       end
 
       def is_root?
@@ -50,7 +52,11 @@ module Parsers
           compiler.Label @id
           compiler.Trace context_for '"Hub."'
           compiler.Js bindings_js()
-          # compiler.Callback ...
+          compiler.Callback "{hub_url}/api/invoke/#{action_path}",
+            method: :post,
+            json_body: "hub_payload",
+            trusted_app: true,
+            response_type: :none
           compiler.End
         end
       end
@@ -71,7 +77,10 @@ module Parsers
 
         if value
           input_setting = InputSetting.new(value)
-          str << "#{new_prefix} = #{input_setting.expression};"
+          input_value = input_setting.expression
+          unless input_value == 'null'
+            str << "#{new_prefix} = #{input_value};"
+          end
         else
           sub_bindings = binding['bindings']
           str << "#{new_prefix} = {};"
