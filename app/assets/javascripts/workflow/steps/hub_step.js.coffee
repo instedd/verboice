@@ -79,6 +79,8 @@ onWorkflow ->
 
     class Binding
       constructor: (@name, @label, @value, @bindings) ->
+        if @label.length > 0
+          @label = @label.charAt(0).toUpperCase() + @label.substring(1)
 
       to_hash: ->
         {
