@@ -35,6 +35,9 @@ make(localized_resource, text) -> [
   {guid, uuid()}
 ];
 
+make(nuntium_channel, _) -> [
+];
+
 make(Model, _) -> throw({missing_blueprint, Model}).
 
 uuid() ->

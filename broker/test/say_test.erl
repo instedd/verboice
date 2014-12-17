@@ -3,7 +3,7 @@
 -include("session.hrl").
 
 do_test() ->
-  Context = session:create_default_erjs_context(1),
+  Context = session:create_default_erjs_context(1, "44445555"),
   Session = #session{pbx = pbx, default_language = "en", js_context = erjs_context:set(var_name, "World", Context)},
   meck:new(pbx, [non_strict]),
   meck:expect(pbx, can_play, 1, true),
@@ -14,7 +14,7 @@ do_test() ->
   meck:unload().
 
 number_test() ->
-  Context = session:create_default_erjs_context(1),
+  Context = session:create_default_erjs_context(1, "44445555"),
   Session = #session{pbx = pbx, default_language = "en", js_context = erjs_context:set(var_foo, "12345", Context)},
   meck:new(pbx, [non_strict]),
   meck:expect(pbx, can_play, 1, true),
@@ -25,7 +25,7 @@ number_test() ->
   meck:unload().
 
 say_digits_test() ->
-  Context = session:create_default_erjs_context(1),
+  Context = session:create_default_erjs_context(1, "44445555"),
   Session = #session{pbx = pbx, default_language = "en", js_context = erjs_context:set(var_ssn, "123456", Context)},
   meck:new(pbx, [non_strict]),
   meck:expect(pbx, can_play, 1, true),
@@ -33,4 +33,15 @@ say_digits_test() ->
   {next, Session} = say:run([{text, "Your Social Security Number is{split_digits(ssn)}"}], Session),
 
   ?assert(meck:called(pbx, play, [{text, "en", <<"Your Social Security Number is 1 2 3 4 5 6">>}])),
+  meck:unload().
+
+say_phone_number_test() ->
+  Context = session:create_default_erjs_context(1, "44445555"),
+  Session = #session{pbx = pbx, default_language = "en", js_context = Context},
+  meck:new(pbx, [non_strict]),
+  meck:expect(pbx, can_play, 1, true),
+  meck:expect(pbx, play, 1, ok),
+  {next, Session} = say:run([{text, "Your phone number is {phone_number}"}], Session),
+
+  ?assert(meck:called(pbx, play, [{text, "en", <<"Your phone number is 44445555">>}])),
   meck:unload().
