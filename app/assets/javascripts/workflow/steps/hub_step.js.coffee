@@ -28,7 +28,7 @@ onWorkflow ->
       })
 
     default_name: () =>
-      'Hub Action'
+      'External Action'
 
     choose_hub_action: =>
       hubApi = new HubApi(window.hub_url)
