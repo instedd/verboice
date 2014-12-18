@@ -310,8 +310,12 @@ handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Se
   lager:error("PBX closed unexpectedly with reason: ~s", [Reason]),
   finalize({failed, {error, Reason}}, State);
 
-handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{flow_pid = Pid}) ->
-  {stop, Reason, State};
+handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Session, flow_pid = Pid}) ->
+  Pbx = Session#session.pbx,
+  Pbx:terminate(),
+  notify_status(failed, Session),
+  lager:error("Flow process died unexpectedly with reason: ~s", [Reason]),
+  finalize({failed, {error, Reason}}, State);
 
 handle_info(_Info, StateName, State) ->
   {next_state, StateName, State}.
