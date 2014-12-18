@@ -89,8 +89,13 @@ handle_call({execute, _}, _From, State = #state{closed = true}) ->
   {reply, hangup, State};
 
 handle_call({execute, Cmd}, From, State = #state{sock = Sock}) ->
-  gen_tcp:send(Sock, [Cmd | "\n"]),
-  {noreply, State#state{caller = From}};
+  case gen_tcp:send(Sock, [Cmd | "\n"]) of
+    ok ->
+      {noreply, State#state{caller = From}};
+    {error, Reason} ->
+      lager:warning("Error sending AGI command: ~p", [Reason]),
+      {reply, hangup, State#state{closed = true}, ?TIMEOUT}
+  end;
 
 handle_call(close, _From, State) ->
   {stop, normal, ok, State#state{closed = true}};
@@ -105,7 +110,7 @@ handle_cast(_Msg, State) ->
 %% @private
 handle_info({tcp, _, <<"HANGUP", _/binary>>}, State = #state{sock = Sock}) ->
   gen_tcp:close(Sock),
-  {noreply, State#state{closed = true}};
+  {noreply, State#state{closed = true}, ?TIMEOUT};
 
 handle_info({tcp, _, Line}, State = #state{caller = From}) ->
   Response = parse_response(Line),
