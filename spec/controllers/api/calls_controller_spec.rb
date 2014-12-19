@@ -48,6 +48,18 @@ describe Api::CallsController do
       QueuedCall.first.not_before.time.to_i.should == time.to_i
     end
 
+    it "schedule call with deadline" do
+      time = Time.now.utc + 1.hour
+      get :call, :address => 'foo', :not_after => time, :channel => channel.name
+      QueuedCall.first.not_after.time.to_i.should == time.to_i
+    end
+
+    it "doesn't schedule overdue call" do
+      time = Time.now.utc - 1.hour
+      get :call, :address => 'foo', :not_after => time, :channel => channel.name
+      QueuedCall.count.should be(0)
+    end
+
     it "schedule call in specific schedule" do
       get :call, :address => 'foo', :channel => channel.name, :schedule => schedule.name
       QueuedCall.first.schedule.should == schedule

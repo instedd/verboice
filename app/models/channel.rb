@@ -101,13 +101,20 @@ class Channel < ActiveRecord::Base
     schedule = options.has_key?(:schedule_id) ? project.schedules.find(options[:schedule_id]) : nil
     schedule ||= options.has_key?(:schedule) ? project.schedules.find_by_name!(options[:schedule]) : nil
 
-    time_zone = nil
-    not_before = nil
-    if options[:not_before].nil? || options[:not_before].is_a?(String)
-      time_zone = options[:time_zone].blank? ? ActiveSupport::TimeZone.new(project.time_zone || 'UTC') : (ActiveSupport::TimeZone.new(options[:time_zone]) or raise "Time zone #{options[:time_zone]} not supported")
-      not_before = time_zone.parse(options[:not_before]) if options[:not_before].present?
-    else
-      not_before = options[:not_before]
+    time_zone = parse_time_zone options[:time_zone], project
+    next_available_time = not_before = parse_date options[:not_before], time_zone, 'Not Before'
+    not_after = parse_date options[:not_after], time_zone, 'Not After'
+
+    if schedule
+      next_available_time = schedule.with_time_zone(time_zone) do |time_zoned_schedule|
+        time_zoned_schedule.next_available_time(not_before || Time.now.utc)
+      end
+    end
+
+    if not_after.present?
+      raise CallQueuingError.new("Not After date can't be in the past") if not_after.utc < Time.now.utc
+      raise CallQueuingError.new("Not After date can't be before Not Before date") if  not_before.present? && not_after.utc < not_before.utc
+      raise CallQueuingError.new("Not After date can't be before schedule's next available date") if next_available_time.present? && not_after.utc < next_available_time.utc
     end
 
     session_id = options[:session_id]
@@ -123,7 +130,8 @@ class Channel < ActiveRecord::Base
         :address => address,
         :state => :queued,
         :schedule => schedule,
-        :not_before => not_before
+        :not_before => not_before,
+        :not_after => not_after
       )
       call_log.save!
       call_log.info "Received via #{via}: call #{address}"
@@ -144,7 +152,8 @@ class Channel < ActiveRecord::Base
       :callback_url => callback_url,
       :status_callback_url => options[:status_callback_url],
       :flow => flow,
-      :not_before => not_before,
+      :not_before => next_available_time,
+      :not_after => not_after,
       :schedule => schedule,
       :call_flow => current_call_flow,
       :project => project,
@@ -154,13 +163,23 @@ class Channel < ActiveRecord::Base
       :callback_params => callback_params,
     )
 
-    queued_call.not_before = queued_call.schedule.with_time_zone(time_zone) do |time_zoned_schedule|
-      time_zoned_schedule.next_available_time(queued_call.not_before || Time.now.utc)
-    end if queued_call.schedule
-
     queued_call.save!
 
     queued_call
+  end
+
+  def parse_date date, time_zone, error_message
+    if date.is_a?(String)
+      time_zone.parse(date)
+    else
+      date
+    end
+  rescue
+    raise CallQueuingError.invalid_date error_message
+  end
+
+  def parse_time_zone time_zone, project
+    time_zone.blank? ? ActiveSupport::TimeZone.new(project.time_zone || 'UTC') : (ActiveSupport::TimeZone.new(time_zone) or raise CallQueuingError.unsuported_time_zone time_zone)
   end
 
   def has_limit?

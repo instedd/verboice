@@ -356,6 +356,9 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
     QueuedCall ->
       case QueuedCall:reschedule() of
         no_schedule -> failed;
+        overdue ->
+          CallLog:error("'Not Before' date exceeded", []),
+          "failed";
         max_retries ->
           CallLog:error("Max retries exceeded", []),
           "failed";

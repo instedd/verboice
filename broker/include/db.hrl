@@ -11,7 +11,7 @@
 -record(pbx_log, {id, guid, details, created_at, updated_at}).
 -record(project, {id, account_id, name, status_callback_url, default_language, languages, encrypted_config, created_at, updated_at}).
 -record(project_variable, {id, project_id, name, created_at, updated_at}).
--record(queued_call, {id, channel_id, call_log_id, address, callback_url, flow, call_flow_id, status_callback_url, schedule_id, not_before, retries, project_id, time_zone, variables, session_id, callback_params, created_at, updated_at}).
+-record(queued_call, {id, channel_id, call_log_id, address, callback_url, flow, call_flow_id, status_callback_url, schedule_id, not_before, not_after, retries, project_id, time_zone, variables, session_id, callback_params, created_at, updated_at}).
 -record(recorded_audio, {id, project_id, contact_id, call_log_id, key, description, created_at, updated_at}).
 -record(resource, {id, name, project_id, guid, created_at, updated_at}).
 -record(schedule, {id, name, retries, time_from, time_to, weekdays, project_id, created_at, updated_at}).

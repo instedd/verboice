@@ -20,9 +20,14 @@ reschedule(Q = #queued_call{retries = Retries, time_zone = TimeZone}, S) ->
   TimeZoneOffset = tz_server:get_timezone_offset(TimeZone),
   NextRetry = calendar:datetime_to_gregorian_seconds(calendar:universal_time()) + NextRetryOffset + TimeZoneOffset,
   RetryTime = calendar:gregorian_seconds_to_datetime(S:next_available_time(NextRetry) - TimeZoneOffset),
-  QueuedCall = queued_call:create(Q#queued_call{not_before = {datetime, RetryTime}, retries = Retries + 1}),
-  scheduler:enqueue(QueuedCall),
-  QueuedCall.
+  case should_skip(Q, RetryTime) of
+    false ->
+      QueuedCall = queued_call:create(Q#queued_call{not_before = {datetime, RetryTime}, retries = Retries + 1}),
+      scheduler:enqueue(QueuedCall),
+      QueuedCall;
+    true ->
+      overdue
+  end.
 
 start_session(QueuedCall = #queued_call{call_flow_id = CallFlowId}) when is_number(CallFlowId) ->
   CallFlow = call_flow:find(CallFlowId),
@@ -48,3 +53,8 @@ start_session(Session, QueuedCall) ->
     queued_call = QueuedCall,
     project = Project
   }.
+
+should_skip(#queued_call{not_after = undefined}, _) -> false;
+should_skip(#queued_call{not_after = {datetime, NotAfter}}, RetryTime) ->
+  NotAfter =< RetryTime;
+should_skip(_, _) -> false.
