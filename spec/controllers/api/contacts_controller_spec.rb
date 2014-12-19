@@ -69,6 +69,26 @@ describe Api::ContactsController do
     json['vars'].should eq({"var1" => "foo"})
   end
 
+  it "gets contacts if user is admin but not owner" do
+    # The first account grants admin permissions to another_account
+    another_account = Account.make
+    Permission.create!(account_id: another_account.id, type: "Project", model_id: project.id, role: :read)
+
+    sign_in another_account
+
+    get :index, project_id: project.id
+
+    response.should be_ok
+
+    json = JSON.parse response.body
+    json.length.should eq(1)
+
+    json = json[0]
+    json['id'].should eq(contact.id)
+    json['addresses'].should eq(contact.addresses.map(&:address))
+    json['vars'].should eq({"var1" => "foo"})
+  end
+
   it "gets contact by address" do
     get :show_by_address, project_id: project.id, address: contact.addresses.first.address
 
