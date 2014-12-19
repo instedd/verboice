@@ -26,6 +26,8 @@ module Parsers
         @name = params['name'] || ''
         @resource = Resource.new params['resource']
         @recipient = params['recipient']
+        # ensure channel belongs to account
+        @channel_id = call_flow.account.nuntium_channels.find_by_id(params['channel_id']).try(:id)
         @call_flow = call_flow
         @next = params['next']
         @root_index = params['root']
@@ -45,9 +47,9 @@ module Parsers
           compiler.StartUserStep :nuntium, @id, @name
           if @resource.guid
             if @recipient['caller']
-              compiler.Nuntium @resource.guid, :caller
+              compiler.Nuntium @resource.guid, @channel_id, :caller
             else
-              compiler.Nuntium @resource.guid, :expr, InputSetting.new(@recipient).expression()
+              compiler.Nuntium @resource.guid, @channel_id, :expr, InputSetting.new(@recipient).expression()
             end
           end
           compiler.Trace context_for '"Sent text message."'

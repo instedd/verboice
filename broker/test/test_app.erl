@@ -24,7 +24,8 @@ start() ->
 
   inets:start(),
   ssl:start(),
-  ok = application:start(verboice).
+  ok = application:start(verboice),
+  file:set_cwd(Cwd).
 
 stop(_) ->
   application:stop(verboice).

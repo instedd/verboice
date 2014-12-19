@@ -86,6 +86,7 @@ class CallFlowsController < ApplicationController
   def edit_workflow
     @variables = @project.defined_variables
     @external_steps = @call_flow.project.external_service_steps.includes(:external_service)
+    @sms_channels = current_account.nuntium_channels.order(:name)
   end
 
   def import

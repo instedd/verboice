@@ -21,6 +21,12 @@
       = text_field_tag :not_before_date, '', :class => "ux-custom-datepicker ux-datepicker w10"
       = text_field_tag :not_before_time, '00:00', :class => 'w10', :alt => 'time'
     %p
+      = check_box_tag :not_after
+      = label_tag :not_after, 'Not after'
+      %br/
+      = text_field_tag :not_after_date, '', :class => "ux-custom-datepicker ux-datepicker w10"
+      = text_field_tag :not_after_time, '00:00', :class => 'w10', :alt => 'time'
+    %p
       = label_tag :time_zone, 'On time zone'
       %br/
       = select_tag :time_zone, time_zone_options_for_select(project.time_zone, TZInfo::Timezone.all.sort, TZInfo::Timezone), :class => 'w30'

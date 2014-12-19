@@ -1,5 +1,5 @@
 -module(session).
--export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1, create_default_erjs_context/1]).
+-export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1, create_default_erjs_context/2]).
 -export([language/1]).
 -compile([{parse_transform, lager_transform}]).
 
@@ -110,6 +110,7 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
 
   NewSession = case State#state.session of
     undefined ->
+      StartedAt = calendar:universal_time(),
       Channel = channel:find(ChannelId),
       CallFlow = call_flow:find(Channel#channel.call_flow_id),
       Project = project:find(CallFlow#call_flow.project_id),
@@ -120,7 +121,7 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
         direction = "incoming",
         channel_id = ChannelId,
         address = CallerId,
-        started_at = calendar:universal_time(),
+        started_at = StartedAt,
         call_flow_id = CallFlow#call_flow.id
       }),
       Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
@@ -139,7 +140,8 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
         contact = Contact,
         status_callback_url = StatusUrl,
         status_callback_user = StatusUser,
-        status_callback_password = StatusPass
+        status_callback_password = StatusPass,
+        started_at = StartedAt
       };
     Session -> Session#session{pbx = Pbx}
   end,
@@ -215,7 +217,7 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
 dialing({answer, Pbx}, State = #state{session_id = SessionId, session = Session, resume_ptr = Ptr}) ->
   lager:info("Session (~p) answer", [SessionId]),
   monitor(process, Pbx:pid()),
-  NewSession = Session#session{pbx = Pbx},
+  NewSession = Session#session{pbx = Pbx, started_at = calendar:universal_time() },
   notify_status('in-progress', NewSession),
   FlowPid = spawn_run(NewSession, Ptr),
 
@@ -267,7 +269,7 @@ in_progress({hibernate, NewSession, Ptr}, _From, State = #state{session = _Sessi
   HibernatedSession:create(),
   {stop, normal, ok, State#state{hibernated = true}}.
 
-notify_status(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams}) ->
+notify_status(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams, started_at = StartedAt}) ->
   case Session#session.status_callback_url of
     undefined -> ok;
     <<>> -> ok;
@@ -275,7 +277,14 @@ notify_status(Status, Session = #session{call_log = CallLog, address = Address, 
       CallSid = util:to_string(CallLog:id()),
       spawn(fun() ->
         Uri = uri:parse(binary_to_list(Url)),
-        QueryString = [{"CallSid", CallSid}, {"CallStatus", Status}, {"From", Address} | CallbackParams],
+        Duration = case StartedAt of
+          undefined -> 0;
+          _ ->
+            StartedAtSeconds = calendar:datetime_to_gregorian_seconds(StartedAt),
+            Now = calendar:universal_time(),
+            calendar:datetime_to_gregorian_seconds(Now) - StartedAtSeconds
+        end,
+        QueryString = [{"CallSid", CallSid}, {"CallStatus", Status}, {"From", Address}, {"CallDuration", erlang:integer_to_list(Duration)} | CallbackParams],
         AuthOptions = case Session#session.status_callback_user of
           undefined -> [];
           [] -> [];
@@ -347,6 +356,9 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
     QueuedCall ->
       case QueuedCall:reschedule() of
         no_schedule -> failed;
+        overdue ->
+          CallLog:error("'Not Before' date exceeded", []),
+          "failed";
         max_retries ->
           CallLog:error("Max retries exceeded", []),
           "failed";
@@ -408,15 +420,15 @@ get_contact(ProjectId, undefined, CallLogId) ->
 get_contact(ProjectId, Address, _) ->
   contact:find_or_create_with_address(ProjectId, Address).
 
-default_variables(#session{contact = Contact, queued_call = QueuedCall, project = #project{id = ProjectId}, call_log = CallLog}) ->
+default_variables(#session{address = Address, contact = Contact, queued_call = QueuedCall, project = #project{id = ProjectId}, call_log = CallLog}) ->
   CallLogId = util:to_string(CallLog:id()),
-  Context = create_default_erjs_context(CallLogId),
+  Context = create_default_erjs_context(CallLogId, Address),
   ProjectVars = project_variable:names_for_project(ProjectId),
   Variables = persisted_variable:find_all({contact_id, Contact#contact.id}),
   DefaultContext = default_variables(Context, ProjectVars, Variables),
   initialize_context(DefaultContext, QueuedCall).
 
-create_default_erjs_context(CallLogId) ->
+create_default_erjs_context(CallLogId, PhoneNumber) ->
   erjs_context:new([
     {record_url, fun(Key) ->
       {ok, BaseUrl} = application:get_env(base_url),
@@ -435,7 +447,8 @@ create_default_erjs_context(CallLogId) ->
       Result = re:replace(Value,"\\d"," &",[{return,list}, global]),
       io:format("result: ~p~n", [Result]),
       Result
-    end}
+    end},
+    {phone_number, util:to_string(PhoneNumber)}
   ]).
 
 initialize_context(Context, #queued_call{variables = Vars}) ->

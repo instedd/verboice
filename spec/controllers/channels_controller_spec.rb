@@ -25,5 +25,4 @@ describe ChannelsController do
     assigns(:channel).should be_a_new(Channel)
     assigns(:projects).should eq([project, other_project])
   end
-
 end

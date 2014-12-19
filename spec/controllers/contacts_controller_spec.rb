@@ -37,6 +37,36 @@ describe ContactsController do
     end
   end
 
+  describe "GET index CSV" do
+    let!(:project_csv) { @account.projects.make }
+
+    let!(:call_flow) { project_csv.call_flows.make name: "Callflow 1" }
+
+    let!(:channel) { Channels::Custom.make call_flow: call_flow, name: "Channel 1" }
+
+    let!(:contact1) { Contact.make :project => project_csv, addresses_attributes: [{address: '1234'}, {address: '5678'}] }
+
+    let!(:contact2) { Contact.make :project => project_csv, addresses_attributes: [{address: '0123'}] }
+
+    let!(:contact1_lang) { contact1.persisted_variables.make implicit_key: 'language', value: 'es' }
+
+    def called(address, date, options)
+      Timecop.freeze date
+      call_flow.call_logs.make account_id: project_csv.account_id, project_id: project_csv.id, address: address, state: options[:state] ? options[:state] : :failed, channel: channel
+      Timecop.return
+    end
+
+    it "renders as CSV" do
+      called '1234', Time.utc(2012, 1, 1, 0, 0, 0), state: :completed
+      called '5678', Time.utc(2013, 1, 1, 0, 0, 0), state: :failed
+      called '0123', Time.utc(2013, 1, 1, 0, 0, 0), state: :failed
+      called '0123', Time.utc(2014, 1, 1, 0, 0, 0), state: :failed
+
+      response = get :index, format: :csv, project_id: project_csv.id
+      response.body.should eq File.read(File.join(Rails.root, 'spec/fixtures/phone_book.csv'))
+    end
+  end
+
   describe "GET new" do
     it "assigns a new contact as @contact" do
       get :new, {:project_id => @project.id}

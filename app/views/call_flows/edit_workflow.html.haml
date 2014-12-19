@@ -10,6 +10,7 @@
     var project_languages = #{ project_languages_json(@project) };
     var project_id = #{ @project.id };
     var nuntium_configured = #{ nuntium_configured?.to_json };
+    var sms_channels = #{ @sms_channels.to_json(only: [:id, :name]) };
 
     var menu_default_time_out_in_seconds = #{Parsers::UserFlowNode::Menu.default_time_out_in_seconds};
     var menu_default_number_of_attempts = #{Parsers::UserFlowNode::Menu.default_number_of_attempts};

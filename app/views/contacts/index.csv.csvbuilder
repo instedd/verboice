@@ -1,0 +1,20 @@
+header = ['Primary number', 'All Phone numbers', 'Language', 'First call', 'Last Call Timestamp', 'Last Call Callflow Name', 'Last Successful Call Timestamp', 'Last Successful Call CallFlow Name', 'Last Used Channel']
+
+csv << header
+
+@stats.each do |contact_stats|
+  line = []
+  line << contact_stats.contact.first_address
+  line << contact_stats.contact.semicolon_separated_addresses
+
+  language_variable = contact_stats.contact.persisted_variables.find{|v| v.respond_to?(:implicit_key) && v.implicit_key == ImplicitVariables::Language.key}
+
+  line << (language_variable ? language_variable.value : nil)
+  line << contact_stats.first_call
+  line << contact_stats.last_call
+  line << contact_stats.last_call_flow_name
+  line << contact_stats.last_successful_call
+  line << contact_stats.last_successful_call_flow_name
+  line << contact_stats.last_used_channel
+  csv << line
+end
