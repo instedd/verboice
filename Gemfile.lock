@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/instedd/alto_guisso.git
-  revision: a68286fa260dd092d54a5c471c252874d17feb51
+  revision: b767af4621523215b79fccafd1cb94ccd88df828
   branch: master
   specs:
     alto_guisso (0.0.2)
@@ -21,7 +21,7 @@ GIT
 
 GIT
   remote: git://github.com/instedd/ruby-hub_client.git
-  revision: 13777a4ad64f3d018a8989d4609d1e912aa94db2
+  revision: dc96567ccd1a1c5e1f3eb851c86da6cd8c6c64f8
   branch: master
   specs:
     hub_client (0.0.1)
@@ -182,7 +182,7 @@ GEM
     hike (1.2.3)
     httpauth (0.1)
     httpclient (2.5.3.3)
-    i18n (0.6.11)
+    i18n (0.7.0)
     instedd-pigeon (0.2.2)
       json
       rails (~> 3.2)
@@ -218,7 +218,7 @@ GEM
     net-ssh (2.7.0)
     net-ssh-gateway (1.2.0)
       net-ssh (>= 2.6.5)
-    netrc (0.9.0)
+    netrc (0.10.2)
     newrelic_rpm (3.7.3.204)
     nokogiri (1.4.4)
     oauth (0.4.7)
@@ -245,10 +245,10 @@ GEM
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
-    rack-oauth2 (1.0.8)
+    rack-oauth2 (1.0.9)
       activesupport (>= 2.3)
       attr_required (>= 0.0.5)
-      httpclient (>= 2.2.0.2)
+      httpclient (>= 2.4)
       multi_json (>= 1.3.6)
       rack (>= 1.1)
     rack-openid (1.3.1)

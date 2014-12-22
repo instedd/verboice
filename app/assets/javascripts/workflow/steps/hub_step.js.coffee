@@ -33,12 +33,19 @@ onWorkflow ->
     choose_hub_action: =>
       hubApi = new HubApi(window.hub_url)
       hubApi.openPicker('action')
-        .then((path) =>
+        .then((path, selection) =>
           @action_path(path)
+          @action_label(@compute_label(selection));
           $.get "/hub/reflect/#{path}", (data) =>
-            @action_label(data.label)
             @bindings(Hub.build_bindings(data.args))
         )
+
+    compute_label: (selection) =>
+      str = ""
+      for item in selection.parents
+        str += "/" unless str.length == 0
+        str += item.label
+      str
 
     @build_bindings: (args) =>
       bindings = []
