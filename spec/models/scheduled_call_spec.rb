@@ -4,17 +4,17 @@ describe ScheduledCall do
   it { should belong_to(:project) }
   it { should belong_to(:call_flow) }
   it { should belong_to(:channel) }
-  it { should belong_to(:schedule) }
 
   it { should validate_presence_of(:name) }
   it { should validate_presence_of(:project) }
   it { should validate_presence_of(:call_flow) }
   it { should validate_presence_of(:channel) }
-  it { should validate_presence_of(:schedule) }
-  it { should validate_presence_of(:frequency) }
   it { should validate_presence_of(:time_zone) }
+  it { should validate_presence_of(:recurrence) }
+  it { should validate_presence_of(:from_time) }
+  it { should validate_presence_of(:to_time) }
 
-  let(:scheduled_call) { ScheduledCall.make }
+  let!(:scheduled_call) { ScheduledCall.make }
 
   it "should find matched contacts" do
     scheduled_call.filters = {foo: 'bar'}
@@ -25,6 +25,12 @@ describe ScheduledCall do
     scheduled_call.matched_contacts.should eq([1,2,3])
   end
 
+  it 'should delete related jobs' do
+    Delayed::Job.where(scheduled_call_id: scheduled_call.id).count.should eq(1)
+    scheduled_call.delete_jobs
+    Delayed::Job.where(scheduled_call_id: scheduled_call.id).count.should eq(0)
+  end
+
   describe 'calls' do
     before :each do
       @contact_a = Contact.make project: scheduled_call.project
@@ -33,13 +39,16 @@ describe ScheduledCall do
       scheduled_call.stub(:matched_contacts).and_return([@contact_a, @contact_b])
     end
 
+    let(:from) { Time.new(2014,12,04,10) }
+    let(:to) { Time.new(2014,12,04,15) }
+
     let(:expected_options) do
       {
         account: scheduled_call.project.account,
-        schedule_id: scheduled_call.schedule_id,
-        time_zone: scheduled_call.time_zone,
         call_flow_id: scheduled_call.call_flow_id,
-        project_id: scheduled_call.project_id
+        project_id: scheduled_call.project_id,
+        not_before: from,
+        not_after: to
       }
     end
 
@@ -47,7 +56,7 @@ describe ScheduledCall do
       scheduled_call.channel.should_receive(:call).with(@contact_a.first_address, expected_options)
       scheduled_call.channel.should_receive(:call).with(@contact_b.first_address, expected_options)
 
-      scheduled_call.make_calls
+      scheduled_call.make_calls from, to
     end
 
     it "should not make calls if disabled" do
@@ -55,22 +64,102 @@ describe ScheduledCall do
 
       scheduled_call.channel.should_not_receive(:call)
 
-      scheduled_call.make_calls
-    end
-
-    it "should make calls with not_before if selected" do
-      time_zone = ActiveSupport::TimeZone.new scheduled_call.time_zone
-      not_before_local = time_zone.local 2014, 12, 04, 12
-
-      scheduled_call.not_before_enabled = true
-      scheduled_call.not_before = not_before_local.utc
-
-      options = expected_options.merge({not_before: not_before_local})
-
-      scheduled_call.channel.should_receive(:call).with(@contact_a.first_address, options)
-      scheduled_call.channel.should_receive(:call).with(@contact_b.first_address, options)
-
-      scheduled_call.make_calls
+      scheduled_call.make_calls from, to
     end
   end
+
+  describe 'triggers' do
+    it 'should schedule job when saved' do
+      scheduled_call.should_receive(:schedule_job)
+      scheduled_call.name = "new #{scheduled_call.name}"
+      scheduled_call.save
+    end
+
+    it 'should delete existing jobs when updated' do
+      scheduled_call.should_receive(:delete_jobs)
+      scheduled_call.name = "new #{scheduled_call.name}"
+      scheduled_call.save
+    end
+
+    it 'should delete existing jobs when destroyed' do
+      scheduled_call.should_receive(:delete_jobs)
+      scheduled_call.destroy
+    end
+  end
+
+  describe 'next occurrence' do
+    before :each do
+      Timecop.freeze(Time.utc(2014, 12, 4, 13, 0, 0))
+
+      scheduled_call.recurrence = IceCube::Schedule.new
+      scheduled_call.recurrence.add_recurrence_rule IceCube::Rule.weekly.day(:monday)
+    end
+
+    after :each do
+      Timecop.return
+    end
+
+    it 'should return next occurrence from now' do
+      # this is next monday
+      expected = Time.utc(2014, 12, 8, 13, 0, 0)
+
+      scheduled_call.next_occurrence.should eq(expected)
+    end
+
+    it 'should return next occurrence from not before' do
+      scheduled_call.not_before_enabled = true
+      # a date between next monday and the other monday
+      scheduled_call.not_before = Time.utc(2014, 12, 13)
+
+      # this is other monday
+      expected = Time.utc(2014, 12, 15, 13, 0, 0)
+
+      scheduled_call.next_occurrence.should eq(expected)
+    end
+  end
+
+  describe 'schedule job' do
+    let(:tz) do
+      ActiveSupport::TimeZone.new(scheduled_call.time_zone)
+    end
+
+    before(:each) do
+      scheduled_call.stub(:next_occurrence).and_return(Time.utc(2014, 12, 4, 13, 0, 0))
+    end
+
+    it 'should not schedule job if disabled' do
+      scheduled_call.enabled = false
+
+      Delayed::Job.should_not_receive(:enqueue)
+
+      scheduled_call.schedule_job
+    end
+
+    it 'should not scheduled job if next occurrence if after not after' do
+      scheduled_call.enabled = true
+      scheduled_call.not_after_enabled = true
+      scheduled_call.not_after = Time.utc(2014, 12, 3, 13, 0, 0)
+
+      Delayed::Job.should_not_receive(:enqueue)
+
+      scheduled_call.schedule_job
+    end
+
+    it 'should schedule job for next occurrence' do
+      expected_run_at = Time.new(2014, 12, 4, 0, 0, 0, tz.formatted_offset)
+      expected_from = Time.new(2014, 12, 4, scheduled_call.from_time.hour, scheduled_call.from_time.min, 0, tz.formatted_offset)
+      expected_to = Time.new(2014, 12, 4, scheduled_call.to_time.hour, scheduled_call.to_time.min, 0, tz.formatted_offset)
+
+      job = double('job')
+      Jobs::ScheduledCallJob.should_receive(:new)
+        .with(scheduled_call.id, expected_from, expected_to)
+        .and_return(job)
+
+      Delayed::Job.should_receive(:enqueue)
+        .with(job, {scheduled_call_id: scheduled_call.id, run_at: expected_run_at})
+
+      scheduled_call.schedule_job
+    end
+  end
+
 end

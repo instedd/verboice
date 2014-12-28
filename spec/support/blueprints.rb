@@ -208,9 +208,9 @@ ScheduledCall.blueprint do
   channel { Channel.all_leaf_subclasses.sample.make }
   call_flow { channel.call_flow }
   project { call_flow.project }
-  schedule
   name
-  frequency { 'weekly' }
   time_zone { 'Buenos Aires' }
+  from_time { '10:00' }
+  to_time { '15:00' }
 end
 

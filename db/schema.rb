@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141209200220) do
+ActiveRecord::Schema.define(:version => 20141219173826) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -105,6 +105,7 @@ ActiveRecord::Schema.define(:version => 20141209200220) do
     t.integer  "call_flow_id"
     t.string   "fail_reason"
     t.string   "pbx_logs_guid"
+    t.datetime "not_after"
   end
 
   add_index "call_logs", ["account_id", "id"], :name => "index_call_logs_on_account_id_and_id"
@@ -144,8 +145,8 @@ ActiveRecord::Schema.define(:version => 20141209200220) do
   add_index "contacts", ["project_id"], :name => "index_contacts_on_project_id"
 
   create_table "delayed_jobs", :force => true do |t|
-    t.integer  "priority",   :default => 0
-    t.integer  "attempts",   :default => 0
+    t.integer  "priority",          :default => 0
+    t.integer  "attempts",          :default => 0
     t.text     "handler"
     t.text     "last_error"
     t.datetime "run_at"
@@ -153,8 +154,9 @@ ActiveRecord::Schema.define(:version => 20141209200220) do
     t.datetime "failed_at"
     t.string   "locked_by"
     t.string   "queue"
-    t.datetime "created_at",                :null => false
-    t.datetime "updated_at",                :null => false
+    t.datetime "created_at",                       :null => false
+    t.datetime "updated_at",                       :null => false
+    t.integer  "scheduled_call_id"
   end
 
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
@@ -327,6 +329,7 @@ ActiveRecord::Schema.define(:version => 20141209200220) do
     t.text     "variables"
     t.string   "session_id"
     t.text     "callback_params"
+    t.datetime "not_after"
   end
 
   add_index "queued_calls", ["call_flow_id"], :name => "index_queued_calls_on_call_flow_id"
@@ -364,20 +367,22 @@ ActiveRecord::Schema.define(:version => 20141209200220) do
     t.integer  "project_id"
     t.integer  "call_flow_id"
     t.integer  "channel_id"
-    t.integer  "schedule_id"
-    t.string   "frequency"
     t.boolean  "not_before_enabled", :default => false
     t.datetime "not_before"
     t.string   "time_zone"
     t.text     "filters"
     t.datetime "created_at",                            :null => false
     t.datetime "updated_at",                            :null => false
+    t.boolean  "not_after_enabled",  :default => false
+    t.datetime "not_after"
+    t.time     "from_time"
+    t.time     "to_time"
+    t.text     "recurrence"
   end
 
   add_index "scheduled_calls", ["call_flow_id"], :name => "index_scheduled_calls_on_call_flow_id"
   add_index "scheduled_calls", ["channel_id"], :name => "index_scheduled_calls_on_channel_id"
   add_index "scheduled_calls", ["project_id"], :name => "index_scheduled_calls_on_project_id"
-  add_index "scheduled_calls", ["schedule_id"], :name => "index_scheduled_calls_on_schedule_id"
 
   create_table "schedules", :force => true do |t|
     t.string   "name"
