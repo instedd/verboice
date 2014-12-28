@@ -85,6 +85,8 @@ Verboice::Application.routes.draw do
       end
 
       resources :feeds
+
+      resources :scheduled_calls
     end
   end
 

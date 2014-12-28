@@ -12,6 +12,8 @@
     = link_to "Resources", project_resources_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "schedules"}" }
     = link_to "Schedules", project_schedules_path(project)
+  %li{ :class =>"#{"active" if params[:controller] == "scheduled_calls"}" }
+    = link_to "Scheduled Calls", project_scheduled_calls_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "contacts"}" }
     = link_to "Phone Book", project_contacts_path(project)
   %li{ :class =>"#{"active" if params[:controller] == "external_services"}"}

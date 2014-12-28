@@ -10,6 +10,7 @@ class ContactsFinder
   def find(filters = [])
     contacts = @project.contacts.includes(:persisted_variables)
     if filters.size > 0
+      filters = filters.map(&:with_indifferent_access)
       contacts.select do |contact|
         filters.map do |filter|
           matches contact, filter
@@ -43,7 +44,7 @@ private
       nil
     end
 
-    case filter[:operator]
+    case filter[:operator].try(:to_sym)
     when :eq
       variable.present? && variable.value == value.try(:to_s)
     when :geq

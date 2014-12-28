@@ -1,0 +1,79 @@
+= form_for [project, scheduled_call], :remote => true do |f|
+  .toptitle
+    %span Name
+  .middle
+    = f.text_field :name, :class => 'w30'
+    %p
+      = f.label :enabled do
+        = f.check_box :enabled
+        Enabled
+    %p Call flow
+    = f.collection_select :call_flow_id, call_flows, :id, :name, {prompt: 'Select a Call flow...'}, {class: 'w30'}
+    %p Channel
+    = f.collection_select :channel_id, channels, :id, :name, {prompt: 'Select a Channel...'}, {class: 'w30'}
+    %p Schedule
+    = f.select_recurring :recurrence_rule, [scheduled_call.recurrence_rule], {allow_blank: false}
+    %p From
+    = f.text_field :from_time_hours, :class => 'w10', :alt => 'time'
+    %p To
+    = f.text_field :to_time_hours, :class => 'w10', :alt => 'time'
+
+    .not_before
+      %p
+        = f.label :not_before_enabled do
+          = f.check_box :not_before_enabled, :class => 'not_before_enabled'
+          Not before enabled
+      = f.text_field :not_before_date, :class => "ux-datepicker w10 not_before_date"
+      = f.text_field :not_before_time, :class => 'w10 not_before_time', :alt => 'time'
+    .not_after
+      %p
+        = f.label :not_after_enabled do
+          = f.check_box :not_after_enabled, :class => 'not_after_enabled'
+          Not after enabled
+      = f.text_field :not_after_date, :class => "ux-datepicker w10 not_after_date"
+      = f.text_field :not_after_time, :class => 'w10 not_after_time', :alt => 'time'
+
+    %p Time zone
+    = f.time_zone_select :time_zone, nil, default: project.time_zone
+
+    %p Filters
+    = f.hidden_field :filters_json, 'data-bind' => 'value: json', 'class' => 'filters'
+    %ul{'data-bind' => 'foreach: filters'}
+      %li
+        %select{'data-bind' => "options: window.variables, optionsText: 'name', value: variable"}
+        %select{'data-bind' => "options: operators, optionsText: 'text', value: operator"}
+        %select{'data-bind' => "options: other_types, value: other_type"}
+        / ko if: other_type() == 'value'
+        %input{'type' => 'text', 'data-bind' => 'value: value'}
+        / /ko
+        / ko if: other_type() == 'variable'
+        %select{'data-bind' => "options: window.variables, optionsText: 'name', value: other_variable"}
+        / /ko
+    %button{'data-bind' => 'click: addFilter'} Add filter
+
+    / = f.collection_select :time_zone,
+    / = f.select :time_zone, time_zone_options_for_select(scheduled_call.time_zone, TZInfo::Timezone.all.sort, TZInfo::Timezone), :class => 'w30'
+    / = select_tag :call_flow_id, options_from_collection_for_select(call_flows, 'id', 'name'), :prompt => 'Select a Call Flow...', :class => 'w30'
+    / %p Days
+    / %ul.days
+    /   = f.hidden_field :weekdays
+    /   - %w(Sun Mon Tue Wed Thu Fri Sat).each_with_index do |day_name, i|
+    /     %li{:class => schedule.includes_day?(i) ? '' : 'no'}
+    /       = day_name
+    / %p
+    /   From
+    /   = f.text_field :time_from_str, :size => 4
+    /   to
+    /   = f.text_field :time_to_str, :size => 4
+
+    / %p Retries
+    / %p.desc Enter intervals separated with commas like: '2 m, 15 m, 1 h, 1d'
+    / = f.text_field :retries, :class => 'ux-text w30'
+    / %br
+    / %br
+  %hr
+  - if scheduled_call.new_record?
+    %button.white{:type => "submit"} Save
+  - else
+    %button.white{:type => "submit"} Update
+  = link_to 'Cancel', '#', :class => "tgrey #{scheduled_call.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'
