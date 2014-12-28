@@ -8,10 +8,15 @@ class ContactsFinder
   end
 
   def find(filters = [])
-    @project.contacts.includes(:persisted_variables).select do |contact|
-      filters.map do |filter|
-        matches contact, filter
-      end.all?
+    contacts = @project.contacts.includes(:persisted_variables)
+    if filters.size > 0
+      contacts.select do |contact|
+        filters.map do |filter|
+          matches contact, filter
+        end.all?
+      end
+    else
+      contacts
     end
   end
 
