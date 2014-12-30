@@ -12,7 +12,7 @@
 - if project_admin?
   .box.grey.addqueue.w60
     %span
-      = link_to_add_box :scheduled_call, "Add Scheduled Call", @project, :class => 'add_fields'
+      = link_to_add_scheduled_call "Add Scheduled Call", @project, :class => 'add_fields'
     %button.cadd.right{:onclick => "$('.add_fields').click();", :type => "button"}
     %br{clear: 'all'}
 

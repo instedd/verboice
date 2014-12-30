@@ -31,3 +31,9 @@ function initScheduledCall(container) {
 
   $(".ux-datepicker", container).datepicker({showButtonPanel: false, dateFormat: 'yy-mm-dd'});
 }
+
+function add_scheduled_call_box(e, fields) {
+  add_box(e, fields);
+  var container = $('.scheduled_call').last().get(0);
+  initScheduledCall(container);
+}

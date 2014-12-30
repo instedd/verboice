@@ -15,12 +15,12 @@ class ScheduledCallsController < ApplicationController
 
   def create
     scheduled_call.save
-    render :partial => "box_content", :locals => { :scheduled_call => scheduled_call, :expanded => scheduled_call.errors.any?}
+    render :partial => 'update'
   end
 
   def update
     scheduled_call.save
-    render :partial => "box_content", :locals => { :scheduled_call => scheduled_call, :expanded => scheduled_call.errors.any?}
+    render :partial => 'update'
   end
 
   def destroy

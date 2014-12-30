@@ -50,27 +50,6 @@
         %select{'data-bind' => "options: window.variables, optionsText: 'name', value: other_variable"}
         / /ko
     %button{'data-bind' => 'click: addFilter'} Add filter
-
-    / = f.collection_select :time_zone,
-    / = f.select :time_zone, time_zone_options_for_select(scheduled_call.time_zone, TZInfo::Timezone.all.sort, TZInfo::Timezone), :class => 'w30'
-    / = select_tag :call_flow_id, options_from_collection_for_select(call_flows, 'id', 'name'), :prompt => 'Select a Call Flow...', :class => 'w30'
-    / %p Days
-    / %ul.days
-    /   = f.hidden_field :weekdays
-    /   - %w(Sun Mon Tue Wed Thu Fri Sat).each_with_index do |day_name, i|
-    /     %li{:class => schedule.includes_day?(i) ? '' : 'no'}
-    /       = day_name
-    / %p
-    /   From
-    /   = f.text_field :time_from_str, :size => 4
-    /   to
-    /   = f.text_field :time_to_str, :size => 4
-
-    / %p Retries
-    / %p.desc Enter intervals separated with commas like: '2 m, 15 m, 1 h, 1d'
-    / = f.text_field :retries, :class => 'ux-text w30'
-    / %br
-    / %br
   %hr
   - if scheduled_call.new_record?
     %button.white{:type => "submit"} Save

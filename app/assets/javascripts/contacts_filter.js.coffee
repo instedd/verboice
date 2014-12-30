@@ -9,12 +9,6 @@ class @ContactsFilter
 
 class Filter
   constructor: (attrs = {}) ->
-    # @project_variable_id = ko.observable attrs.project_variable_id
-    # @implicit_key = ko.observable attrs.implicit_key
-    # @operator = ko.observable attrs.operator
-    # @other_project_variable_id = ko.observable attrs.other_project_variable_id
-    # @other_implicit_key = ko.observable attrs.other_implicit_key
-
     @variable = ko.observable()
     @other_variable = ko.observable()
     @value = ko.observable()
