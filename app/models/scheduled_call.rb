@@ -75,75 +75,46 @@ class ScheduledCall < ActiveRecord::Base
     self.filters = JSON.parse(value)
   end
 
-  def from_time_hours
-    self.from_time.present? ? self.from_time.strftime('%H:%M') : nil
-  end
+  [:from_time, :to_time].each do |attr|
+    define_method "#{attr}_hours" do
+      self.send(attr).try(:strftime, '%H:%M')
+    end
 
-  def from_time_hours=(value)
-    self.from_time = value
-  end
-
-  def to_time_hours
-    self.to_time.present? ? self.to_time.strftime('%H:%M') : nil
-  end
-
-  def to_time_hours=(value)
-    self.to_time = value
-  end
-
-  def not_before_date
-    self.not_before.present? ? self.not_before.strftime('%Y-%m-%d') : nil
-  end
-
-  def not_before_date=(value)
-    return unless value.present?
-    value = Time.parse(value)
-    if self.not_before.present?
-      self.not_before = self.not_before.change year: value.year, month: value.month, day: value.day
-    else
-      self.not_before = value
+    define_method "#{attr}_hours=" do |value|
+      self.send("#{attr}=", value)
     end
   end
 
-  def not_before_time
-    self.not_before.present? ? self.not_before.strftime('%H:%M') : nil
-  end
-
-  def not_before_time=(value)
-    return unless value.present?
-    value = Time.parse(value)
-    if self.not_before.present?
-      self.not_before = self.not_before.change hour: value.hour, min: value.min
-    else
-      self.not_before = value
+  # split handling of not_before/not_after in date and time
+  [:not_before, :not_after].each do |attr|
+    define_method "#{attr}_date" do
+      self.send(attr).try(:strftime, '%Y-%m-%d')
     end
-  end
 
-  def not_after_date
-    self.not_after.present? ? self.not_after.strftime('%Y-%m-%d') : nil
-  end
-
-  def not_after_date=(value)
-    return unless value.present?
-    value = Time.parse(value)
-    if self.not_after.present?
-      self.not_after = self.not_after.change year: value.year, month: value.month, day: value.day
-    else
-      self.not_after = value
+    define_method "#{attr}_date=" do |value|
+      return unless value.present?
+      value = Time.parse(value)
+      if self.send(attr).present?
+        new_value = self.send(attr).change year: value.year, month: value.month, day: value.day
+        self.send("#{attr}=", new_value)
+      else
+        self.send("#{attr}=", value)
+      end
     end
-  end
 
-  def not_after_time
-    self.not_after.present? ? self.not_after.strftime('%H:%M') : nil
-  end
+    define_method "#{attr}_time" do
+      self.send(attr).try(:strftime, '%H:%M')
+    end
 
-  def not_after_time=(value)
-    return unless value.present?
-    value = Time.parse(value)
-    if self.not_after.present?
-      self.not_after = self.not_after.change hour: value.hour, min: value.min
-    else
-      self.not_after = value
+    define_method "#{attr}_time=" do |value|
+      return unless value.present?
+      value = Time.parse(value)
+      if self.send(attr).present?
+        new_value = self.send(attr).change hour: value.hour, min: value.min
+        self.send("#{attr}=", new_value)
+      else
+        self.send("#{attr}=", value)
+      end
     end
   end
 

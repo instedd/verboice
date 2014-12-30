@@ -18,19 +18,19 @@
     %p To
     = f.text_field :to_time_hours, :class => 'w10', :alt => 'time'
 
-    .not_before
+    .date-time
       %p
         = f.label :not_before_enabled do
-          = f.check_box :not_before_enabled, :class => 'not_before_enabled'
+          = f.check_box :not_before_enabled, :class => 'date-time-trigger'
           Not before enabled
-      = f.text_field :not_before_date, :class => "ux-datepicker w10 not_before_date"
+      = f.text_field :not_before_date, :class => "datepicker w10", :id => nil
       = f.text_field :not_before_time, :class => 'w10 not_before_time', :alt => 'time'
-    .not_after
+    .date-time
       %p
         = f.label :not_after_enabled do
-          = f.check_box :not_after_enabled, :class => 'not_after_enabled'
+          = f.check_box :not_after_enabled, :class => 'date-time-trigger'
           Not after enabled
-      = f.text_field :not_after_date, :class => "ux-datepicker w10 not_after_date"
+      = f.text_field :not_after_date, :class => "datepicker w10", :id => nil
       = f.text_field :not_after_time, :class => 'w10 not_after_time', :alt => 'time'
 
     %p Time zone
