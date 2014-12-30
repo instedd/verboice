@@ -26,7 +26,7 @@ else
 end
 
 set :application, "verboice"
-set :repository,  "https://bitbucket.org/instedd/verboice"
+set :repository,  "https://github.com/instedd/verboice"
 set :scm, :git
 set :deploy_via, :remote_cache
 set :user, 'ubuntu'

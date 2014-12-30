@@ -32,6 +32,10 @@
         %select.w22{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name", optionsValue: "value", css: { error: !step_id() }'}
         %select.w22{'data-bind' => 'value: response, visible: content_kind() == "response", options: available_responses(), optionsText: "name", optionsValue: "value", css: { error: !response() }'}
       / /ko
+      %br
+      %div
+        %label Channel:
+        %select.w15{'data-bind' => "value: channel_id, options: window.sms_channels, optionsText: 'name', optionsValue: 'id'"}
 
       .bottom-actions
         %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

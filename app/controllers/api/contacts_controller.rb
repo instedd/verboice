@@ -15,9 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 class Api::ContactsController < ApiController
-  expose(:project) { current_account.projects.find params[:project_id] }
+  before_filter :check_project_admin, :except => [:index, :show_by_address]
+  before_filter :check_project_reader, :only => [:index, :show_by_address]
 
-  def index
+  expose(:project) { @project }
+
+  def index    
     contacts = project.contacts.includes(:addresses).all
     render json: contacts_to_json(contacts)
   end

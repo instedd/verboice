@@ -30,6 +30,9 @@ class ContactsController < ApplicationController
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @contacts }
+      format.csv do
+        @stats = ContactStats.for @project
+      end
     end
   end
 

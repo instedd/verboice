@@ -1,5 +1,5 @@
 -module(session).
--export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1, create_default_erjs_context/1]).
+-export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1, create_default_erjs_context/2]).
 -export([language/1]).
 -compile([{parse_transform, lager_transform}]).
 
@@ -319,8 +319,12 @@ handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Se
   lager:error("PBX closed unexpectedly with reason: ~s", [Reason]),
   finalize({failed, {error, Reason}}, State);
 
-handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{flow_pid = Pid}) ->
-  {stop, Reason, State};
+handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Session, flow_pid = Pid}) ->
+  Pbx = Session#session.pbx,
+  Pbx:terminate(),
+  notify_status(failed, Session),
+  lager:error("Flow process died unexpectedly with reason: ~s", [Reason]),
+  finalize({failed, {error, Reason}}, State);
 
 handle_info(_Info, StateName, State) ->
   {next_state, StateName, State}.
@@ -384,7 +388,7 @@ spawn_run(Session = #session{project = Project}, undefined) ->
 spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
   SessionPid = self(),
   SessionActivity = poirot:current(),
-  spawn_monitor(fun() ->
+  {Pid, _Ref} = spawn_monitor(fun() ->
     poirot:new_inside(SessionActivity, "Session worker process", async, fun() ->
       lager:info("Start"),
       try run(Session, Ptr) of
@@ -402,7 +406,8 @@ spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
         catch Pbx:terminate()
       end
     end)
-  end).
+  end),
+  Pid.
 
 close_user_step_activity(#session{in_user_step_activity = true}) -> poirot:pop();
 close_user_step_activity(_) -> ok.
@@ -417,15 +422,15 @@ get_contact(ProjectId, undefined, CallLogId) ->
 get_contact(ProjectId, Address, _) ->
   contact:find_or_create_with_address(ProjectId, Address).
 
-default_variables(#session{contact = Contact, queued_call = QueuedCall, project = #project{id = ProjectId}, call_log = CallLog}) ->
+default_variables(#session{address = Address, contact = Contact, queued_call = QueuedCall, project = #project{id = ProjectId}, call_log = CallLog}) ->
   CallLogId = util:to_string(CallLog:id()),
-  Context = create_default_erjs_context(CallLogId),
+  Context = create_default_erjs_context(CallLogId, Address),
   ProjectVars = project_variable:names_for_project(ProjectId),
   Variables = persisted_variable:find_all({contact_id, Contact#contact.id}),
   DefaultContext = default_variables(Context, ProjectVars, Variables),
   initialize_context(DefaultContext, QueuedCall).
 
-create_default_erjs_context(CallLogId) ->
+create_default_erjs_context(CallLogId, PhoneNumber) ->
   erjs_context:new([
     {record_url, fun(Key) ->
       {ok, BaseUrl} = application:get_env(base_url),
@@ -444,7 +449,8 @@ create_default_erjs_context(CallLogId) ->
       Result = re:replace(Value,"\\d"," &",[{return,list}, global]),
       io:format("result: ~p~n", [Result]),
       Result
-    end}
+    end},
+    {phone_number, util:to_string(PhoneNumber)}
   ]).
 
 initialize_context(Context, #queued_call{variables = Vars}) ->

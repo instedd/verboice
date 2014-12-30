@@ -47,6 +47,11 @@ class ApplicationController < ActionController::Base
     head :unauthorized unless @project_permission == "admin"
   end
 
+  def check_project_reader
+    load_project
+    head :unauthorized unless @project_permission == "read" || @project_permission == "admin"
+  end
+
   def load_channel
     return @channel if @channel
 
