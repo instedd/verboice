@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 class Api::ContactsController < ApiController
-  before_filter :check_project_admin
+  before_filter :check_project_admin, :except => [:index, :show_by_address]
+  before_filter :check_project_reader, :only => [:index, :show_by_address]
 
   expose(:project) { @project }
 

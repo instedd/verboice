@@ -319,8 +319,12 @@ handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Se
   lager:error("PBX closed unexpectedly with reason: ~s", [Reason]),
   finalize({failed, {error, Reason}}, State);
 
-handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{flow_pid = Pid}) ->
-  {stop, Reason, State};
+handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Session, flow_pid = Pid}) ->
+  Pbx = Session#session.pbx,
+  Pbx:terminate(),
+  notify_status(failed, Session),
+  lager:error("Flow process died unexpectedly with reason: ~s", [Reason]),
+  finalize({failed, {error, Reason}}, State);
 
 handle_info(_Info, StateName, State) ->
   {next_state, StateName, State}.
@@ -387,7 +391,7 @@ spawn_run(Session = #session{project = Project}, undefined) ->
 spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
   SessionPid = self(),
   SessionActivity = poirot:current(),
-  spawn_monitor(fun() ->
+  {Pid, _Ref} = spawn_monitor(fun() ->
     poirot:new_inside(SessionActivity, "Session worker process", async, fun() ->
       lager:info("Start"),
       try run(Session, Ptr) of
@@ -405,7 +409,8 @@ spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
         catch Pbx:terminate()
       end
     end)
-  end).
+  end),
+  Pid.
 
 close_user_step_activity(#session{in_user_step_activity = true}) -> poirot:pop();
 close_user_step_activity(_) -> ok.
