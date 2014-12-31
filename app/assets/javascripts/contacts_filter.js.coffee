@@ -5,7 +5,12 @@ class @ContactsFilter
       ko.toJSON(filter.to_hash() for filter in @filters())
 
   addFilter: =>
-    @filters.push(new Filter())
+    filter = new Filter()
+    filter.expand()
+    @filters.push(filter)
+
+  removeFilter: (filter) =>
+    @filters.remove(filter)
 
 class Filter
   constructor: (attrs = {}) ->
@@ -23,7 +28,7 @@ class Filter
       @other_variable(_.find(window.variables, (v) -> v.id == attrs.other_project_variable_id))
       @other_type('variable')
     else
-      @value(attrs.value)
+      @value(attrs.value || '')
       @other_type('value')
 
     @operators = [
@@ -32,12 +37,23 @@ class Filter
       {text: 'less or equal to', value: 'leq'},
       {text: 'greater than', value: 'gt'},
       {text: 'less than', value: 'lt'},
-      {text: 'is defined', value: 'defined'},
-      {text: 'is undefined', value: 'undefined'},
       {text: 'contains', value: 'includes'},
+      {text: 'is defined', value: 'defined', unary: true},
+      {text: 'is undefined', value: 'undefined', unary: true}
     ]
 
     @operator = ko.observable(_.find(@operators, (op) -> op.value == attrs.operator))
+
+    @expanded = ko.observable false
+    @unary = ko.computed =>
+      @operator()?.unary
+
+    @description = ko.computed =>
+      if @unary()
+        "#{@variable()?.name} #{@operator()?.text}"
+      else
+        right = if @other_type() == 'value' then @value() else @other_variable()?.name
+        "#{@variable()?.name} #{@operator()?.text} #{right}"
 
   to_hash: =>
     {
@@ -46,5 +62,11 @@ class Filter
       value: @value() if @other_type() == 'value'
       other_project_variable_id: @other_variable()?.id if @other_type() == 'variable'
     }
+
+  expand: =>
+    @expanded(true)
+
+  close: =>
+    @expanded(false)
 
 

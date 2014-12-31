@@ -40,8 +40,10 @@
     = f.hidden_field :filters_json, 'data-bind' => 'value: json', 'class' => 'filters'
     %ul{'data-bind' => 'foreach: filters'}
       %li
+        /ko if: expanded()
         %select{'data-bind' => "options: window.variables, optionsText: 'name', value: variable"}
         %select{'data-bind' => "options: operators, optionsText: 'text', value: operator"}
+        / ko ifnot: unary()
         %select{'data-bind' => "options: other_types, value: other_type"}
         / ko if: other_type() == 'value'
         %input{'type' => 'text', 'data-bind' => 'value: value'}
@@ -49,7 +51,14 @@
         / ko if: other_type() == 'variable'
         %select{'data-bind' => "options: window.variables, optionsText: 'name', value: other_variable"}
         / /ko
-    %button{'data-bind' => 'click: addFilter'} Add filter
+        / /ko
+        %button.faccept{'data-bind' => 'click: close'}
+        / /ko
+        /ko ifnot: expanded()
+        %p{'data-bind' => 'text: description, click: expand'}
+        %button.fclose{'data-bind' => 'click: $parent.removeFilter'}
+        / /ko
+    %button.fadd{'data-bind' => 'click: addFilter'} Add filter
   %hr
   - if scheduled_call.new_record?
     %button.white{:type => "submit"} Save
