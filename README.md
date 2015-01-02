@@ -8,10 +8,10 @@ Getting Started
 -------------
 [Start using Verboice now](http://verboice.instedd.org)
 
-[Verboice Help](https://bitbucket.org/instedd/verboice/wiki/Home)
+[Verboice Help](https://github.com/instedd/verboice/wiki)
 
-[What's coming next?](https://bitbucket.org/instedd/verboice/wiki/Roadmap)
+[What's coming next?](https://github.com/instedd/verboice/milestones)
 
-[Installing your own server](https://bitbucket.org/instedd/verboice/wiki/Installation.md)
+[Installing your own server](https://github.com/instedd/verboice/wiki/Installation)
 
-[Install Verboice on a Raspberry PI](https://bitbucket.org/instedd/verboice/wiki/Install%20Verboice%20on%20a%20Raspberry%20PI)
+[Install Verboice on a Raspberry PI](https://github.com/instedd/verboice/wiki/Install%20Verboice%20on%20a%20Raspberry%20PI)
