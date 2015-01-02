@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141219173826) do
+ActiveRecord::Schema.define(:version => 20150102151240) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -134,6 +134,17 @@ ActiveRecord::Schema.define(:version => 20141219173826) do
 
   add_index "contact_addresses", ["contact_id"], :name => "index_contact_addresses_on_contact_id"
   add_index "contact_addresses", ["project_id"], :name => "index_contact_addresses_on_project_id"
+
+  create_table "contact_scheduled_calls", :force => true do |t|
+    t.integer  "contact_id"
+    t.integer  "scheduled_call_id"
+    t.datetime "last_called_at"
+    t.datetime "created_at",        :null => false
+    t.datetime "updated_at",        :null => false
+  end
+
+  add_index "contact_scheduled_calls", ["contact_id"], :name => "index_contact_scheduled_calls_on_contact_id"
+  add_index "contact_scheduled_calls", ["scheduled_call_id"], :name => "index_contact_scheduled_calls_on_scheduled_call_id"
 
   create_table "contacts", :force => true do |t|
     t.datetime "created_at", :null => false
@@ -330,6 +341,8 @@ ActiveRecord::Schema.define(:version => 20141219173826) do
     t.string   "session_id"
     t.text     "callback_params"
     t.datetime "not_after"
+    t.integer  "contact_id"
+    t.integer  "scheduled_call_id"
   end
 
   add_index "queued_calls", ["call_flow_id"], :name => "index_queued_calls_on_call_flow_id"

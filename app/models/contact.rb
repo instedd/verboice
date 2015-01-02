@@ -21,6 +21,7 @@ class Contact < ActiveRecord::Base
   has_many :persisted_variables, :dependent => :destroy, :inverse_of => :contact
   has_many :recorded_audios, :dependent => :destroy
   has_many :project_variables, :through => :project
+  has_many :contact_scheduled_calls, :dependent => :destroy
 
   accepts_nested_attributes_for :persisted_variables,
     :reject_if => lambda { |attributes| attributes[:value].blank? || (attributes[:project_variable_id].blank? && attributes[:implicit_key].blank?) },

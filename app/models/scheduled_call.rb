@@ -3,6 +3,8 @@ class ScheduledCall < ActiveRecord::Base
   belongs_to :call_flow
   belongs_to :channel
 
+  has_many :contact_scheduled_calls, :dependent => :destroy
+
   attr_accessible :name, :enabled, :call_flow_id, :channel_id,
                   :not_before_enabled, :not_before_date, :not_before_time,
                   :not_after_enabled, :not_after_date, :not_after_time,
@@ -34,11 +36,32 @@ class ScheduledCall < ActiveRecord::Base
       call_flow_id: self.call_flow_id,
       project_id: self.project_id,
       not_before: from,
-      not_after: to
+      not_after: to,
+      scheduled_call_id: self.id
     }
 
-    matched_contacts.each do |contact|
-      self.channel.call contact.first_address, call_options
+    # get matched contacts and sort them by last called
+    contacts = matched_contacts
+    contacts_ids = contacts.map(&:id)
+    contact_scheduled_calls = self.contact_scheduled_calls.where(contact_id: contacts_ids)
+    contacts_last_called_at = contact_scheduled_calls.inject({}) do |h, x|
+      h[x.contact_id] = x.last_called_at
+      h
+    end
+    contacts.sort! do |a,b|
+      a_last_called = contacts_last_called_at[a.id]
+      b_last_called = contacts_last_called_at[b.id]
+      if a_last_called.nil?
+        -1
+      elsif b_last_called.nil?
+        1
+      else
+        a_last_called <=> b_last_called
+      end
+    end
+
+    contacts.each do |contact|
+      self.channel.call contact.first_address, call_options.merge(contact_id: contact.id)
     end
   end
 
@@ -121,7 +144,7 @@ class ScheduledCall < ActiveRecord::Base
 private
 
   def set_default_recurrence
-    if new_record? && !self.recurrence
+    if new_record? && !self.read_attribute(:recurrence)
       self.recurrence = default_recurrence
     end
   end

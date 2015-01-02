@@ -161,6 +161,8 @@ class Channel < ActiveRecord::Base
       :variables => variables,
       :session_id => session_id,
       :callback_params => callback_params,
+      :contact_id => options[:contact_id],
+      :scheduled_call_id => options[:scheduled_call_id]
     )
 
     queued_call.save!

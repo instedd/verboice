@@ -214,3 +214,8 @@ ScheduledCall.blueprint do
   to_time { '15:00' }
 end
 
+ContactScheduledCall.blueprint do
+  contact
+  scheduled_call
+end
+

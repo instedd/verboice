@@ -10,7 +10,6 @@ describe ScheduledCall do
   it { should validate_presence_of(:call_flow) }
   it { should validate_presence_of(:channel) }
   it { should validate_presence_of(:time_zone) }
-  it { should validate_presence_of(:recurrence) }
   it { should validate_presence_of(:from_time) }
   it { should validate_presence_of(:to_time) }
 
@@ -48,13 +47,14 @@ describe ScheduledCall do
         call_flow_id: scheduled_call.call_flow_id,
         project_id: scheduled_call.project_id,
         not_before: from,
-        not_after: to
+        not_after: to,
+        scheduled_call_id: scheduled_call.id
       }
     end
 
     it "should make calls" do
-      scheduled_call.channel.should_receive(:call).with(@contact_a.first_address, expected_options)
-      scheduled_call.channel.should_receive(:call).with(@contact_b.first_address, expected_options)
+      scheduled_call.channel.should_receive(:call).with(@contact_a.first_address, expected_options.merge(contact_id: @contact_a.id))
+      scheduled_call.channel.should_receive(:call).with(@contact_b.first_address, expected_options.merge(contact_id: @contact_b.id))
 
       scheduled_call.make_calls from, to
     end
@@ -65,6 +65,44 @@ describe ScheduledCall do
       scheduled_call.channel.should_not_receive(:call)
 
       scheduled_call.make_calls from, to
+    end
+
+    describe 'order' do
+      before :each do
+        @contact_c = Contact.make project: scheduled_call.project
+
+        scheduled_call.stub(:matched_contacts).and_return([@contact_a, @contact_b, @contact_c])
+      end
+
+      it 'should call contacts by last called order' do
+        a_last_called = Time.utc(2014, 12, 04)
+        b_last_called = a_last_called - 7.day
+        c_last_called = a_last_called - 3.day
+
+        ContactScheduledCall.make contact: @contact_a, scheduled_call: scheduled_call, last_called_at: a_last_called
+        ContactScheduledCall.make contact: @contact_b, scheduled_call: scheduled_call, last_called_at: b_last_called
+        ContactScheduledCall.make contact: @contact_c, scheduled_call: scheduled_call, last_called_at: c_last_called
+
+        scheduled_call.channel.should_receive(:call).with(@contact_b.first_address, anything).ordered
+        scheduled_call.channel.should_receive(:call).with(@contact_c.first_address, anything).ordered
+        scheduled_call.channel.should_receive(:call).with(@contact_a.first_address, anything).ordered
+
+        scheduled_call.make_calls from, to
+      end
+
+      it 'should call contacts that were never called first' do
+        a_last_called = Time.utc(2014, 12, 04)
+        b_last_called = a_last_called - 7.day
+
+        ContactScheduledCall.make contact: @contact_a, scheduled_call: scheduled_call, last_called_at: a_last_called
+        ContactScheduledCall.make contact: @contact_b, scheduled_call: scheduled_call, last_called_at: b_last_called
+
+        scheduled_call.channel.should_receive(:call).with(@contact_c.first_address, anything).ordered
+        scheduled_call.channel.should_receive(:call).with(@contact_b.first_address, anything).ordered
+        scheduled_call.channel.should_receive(:call).with(@contact_a.first_address, anything).ordered
+
+        scheduled_call.make_calls from, to
+      end
     end
   end
 
@@ -92,7 +130,7 @@ describe ScheduledCall do
       Timecop.freeze(Time.utc(2014, 12, 4, 13, 0, 0))
 
       scheduled_call.recurrence = IceCube::Schedule.new
-      scheduled_call.recurrence.add_recurrence_rule IceCube::Rule.weekly.day(:monday)
+      scheduled_call.recurrence_rule = IceCube::Rule.weekly.day(:monday)
     end
 
     after :each do
