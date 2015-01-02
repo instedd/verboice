@@ -37,8 +37,11 @@ update_voice_url(Channel, PhoneNumber) ->
 incoming_phone_number_sid(Channel, PhoneNumber) ->
   case incoming_phone_numbers(Channel, PhoneNumber) of
     {ok, Data} ->
-      [{IncomingPhoneNumber}] = proplists:get_value(<<"incoming_phone_numbers">>, Data),
-      PhoneSid = proplists:get_value(<<"sid">>, IncomingPhoneNumber),
-      {ok, PhoneSid};
+      case proplists:get_value(<<"incoming_phone_numbers">>, Data) of
+        [{IncomingPhoneNumber}] ->
+          PhoneSid = proplists:get_value(<<"sid">>, IncomingPhoneNumber),
+          {ok, PhoneSid};
+        [] -> {error, twilio_number_not_found}
+      end;
     Error -> Error
   end.
