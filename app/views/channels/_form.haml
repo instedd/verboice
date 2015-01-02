@@ -8,7 +8,7 @@
         - @channel.errors.full_messages.each do |msg|
           %li= msg
   - readonly = @channel.persisted? && @channel_permission != "admin"
-  %a{href: "https://bitbucket.org/instedd/verboice/wiki/ChannelHelp#{@channel.kind}", target: "channel_help_#{@channel.kind.downcase}"}
+  %a{href: "https://github.com/instedd/verboice/wiki/ChannelHelp#{@channel.kind}", target: "channel_help_#{@channel.kind.downcase}"}
     .i18b-information
     Help setting up #{@channel.kind.downcase} channels
   %br
