@@ -63,7 +63,15 @@ prepare_blob_resource(Name, UpdatedAt, Blob, #session{pbx = Pbx}) ->
   TargetPath = Pbx:sound_path_for(Name),
   case must_update(TargetPath, UpdatedAt) of
     false -> ok;
-    true -> sox:convert(Blob, "wav", TargetPath)
+    true ->
+      {A, B, C} = now(),
+      FileName = lists:flatten(io_lib:format("/tmp/verboice-resource-~p~p~p.wav", [A, B, C])),
+      file:write_file(FileName, Blob),
+      try
+        sox:convert(FileName, TargetPath)
+      after
+        file:delete(FileName)
+      end
   end,
   {file, Name}.
 

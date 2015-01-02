@@ -26,3 +26,17 @@ should_send_to_a_value_recipient_test() ->
 
   ?assert(meck:called(nuntium_api, send_ao, [[{from, <<"sms://verboice">>}, {to, <<"sms://555">>}, {body, "some text"}, {account_id, 1}]])),
   meck:unload().
+
+should_send_with_suggested_channel_test() ->
+  Session = #session{call_log = #call_log{}, js_context = erjs_context:new(), address = <<"123">>, project = #project{account_id = 1}},
+  meck:new(call_log, [stub_all]),
+  meck:new(nuntium_api, [stub_all]),
+  meck:new(resource),
+  meck:new(nuntium_channel),
+  meck:expect(resource, prepare, [resource_guid, '_'], {text, en, "some text"}),
+  meck:expect(nuntium_channel, find, [7], #nuntium_channel{channel_name = "channel name"}),
+
+  {next, #session{}} = nuntium:run([{rcpt_type, caller}, {resource_guid, resource_guid}, {channel_id, 7}], Session),
+
+  ?assert(meck:called(nuntium_api, send_ao, [[{suggested_channel, "channel name"}, {from, <<"sms://verboice">>}, {to, <<"sms://123">>}, {body, "some text"}, {account_id, 1}]])),
+  meck:unload().

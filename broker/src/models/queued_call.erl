@@ -16,7 +16,7 @@ reschedule(QueuedCall = #queued_call{schedule_id = ScheduleId}) ->
 reschedule(_, #schedule{retries = undefined}) -> max_retries;
 reschedule(Q, S) when Q#queued_call.retries >= length(S#schedule.retries) -> max_retries;
 reschedule(Q = #queued_call{retries = Retries, time_zone = TimeZone}, S) ->
-  NextRetryOffset = trunc(lists:nth(Retries + 1, S#schedule.retries) * 60 * 60),
+  NextRetryOffset = trunc(lists:nth(Retries + 1, S#schedule.retries)),
   TimeZoneOffset = tz_server:get_timezone_offset(TimeZone),
   NextRetry = calendar:datetime_to_gregorian_seconds(calendar:universal_time()) + NextRetryOffset + TimeZoneOffset,
   RetryTime = calendar:gregorian_seconds_to_datetime(S:next_available_time(NextRetry) - TimeZoneOffset),

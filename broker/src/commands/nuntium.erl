@@ -8,6 +8,7 @@ run(Args, Session = #session{project = Project}) ->
   Guid = proplists:get_value(resource_guid, Args),
   RcptType = proplists:get_value(rcpt_type, Args),
   Expr = proplists:get_value(expr, Args),
+  ChannelId = proplists:get_value(channel_id, Args),
 
   {Result, Message} = case rcpt_address(RcptType, Expr, Session) of
     undefined -> {error, "Missing recipient"};
@@ -20,8 +21,12 @@ run(Args, Session = #session{project = Project}) ->
             {body, Body},
             {account_id, Project#project.account_id}
           ],
-          poirot:log(debug, "Sending to nuntium: ~p", [NuntiumArgs]),
-          case nuntium_api:send_ao(NuntiumArgs) of
+          NuntiumArgs1 = case channel_name(ChannelId) of
+            undefined -> NuntiumArgs;
+            ChannelName -> [{suggested_channel, ChannelName} | NuntiumArgs]
+          end,
+          poirot:log(debug, "Sending to nuntium: ~p", [NuntiumArgs1]),
+          case nuntium_api:send_ao(NuntiumArgs1) of
             ok -> {info, "Sent"};
             {error, Reason} -> {error, Reason}
           end;
@@ -59,6 +64,17 @@ rcpt_address_from_session(expr, Expr, #session{js_context = JS}) ->
   case Value of
     null -> undefined;
     _ -> list_to_binary(util:to_string(Value))
+  end.
+
+channel_name(ChannelId) ->
+  case ChannelId of
+    undefined -> undefined;
+    _ ->
+      Channel = nuntium_channel:find(ChannelId),
+      case Channel of
+        undefined -> undefined;
+        _ -> Channel#nuntium_channel.channel_name
+      end
   end.
 
 can_play({text, _}) -> true;

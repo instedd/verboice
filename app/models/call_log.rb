@@ -118,22 +118,21 @@ class CallLog < ActiveRecord::Base
     self.entries.order('created_at DESC, id DESC').first
   end
 
-  def step_activities
-    Hercule::Activity.search({size: 1000, filter: {
-      and: [
-        {term: {call_log_id: id}},
-        {exists: {field: "step_type"}}
-      ]
-    }}).items
-  end
-
-  def self.step_activities_for(call_logs)
-    Hercule::Activity.search({size: 1000000, filter: {
-      and: [
-        {terms: {call_log_id: call_logs.map(&:id)}},
-        {exists: {field: "step_type"}}
-      ]
-    }}).items.group_by { |x| x.fields['call_log_id'] }
+  def self.poirot_activities(id_or_ids)
+    if Rails.configuration.verboice_configuration[:poirot_elasticsearch_url]
+      Hercule::Activity.search({size: 1000000, filter: {
+        and: [
+          { term: { call_log_id: id_or_ids } },
+          { exists: { field: "step_type" } }
+        ]
+      }}).items
+    else
+      entries = CallLogEntry.where(call_id: id_or_ids)
+      activities = entries.select { |x| x.details.has_key?(:activity) }.map do |x|
+        activity = JSON.load(x.details[:activity])
+        Hercule::Activity.new({'_source' => activity["body"]})
+      end
+    end
   end
 
   private

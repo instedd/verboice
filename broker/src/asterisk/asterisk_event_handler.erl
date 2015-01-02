@@ -50,6 +50,20 @@ handle_event({hangup, Packet}, State) ->
   asterisk_pbx_log_srv:hangup(Channel, Event),
   {ok, State};
 
+handle_event({peerstatus, Packet}, State) ->
+  Event = ami_client:decode_packet(Packet),
+  case proplists:get_value(peerstatus, Event) of
+    <<"Registered">> ->
+      case proplists:get_value(peer, Event) of
+        <<"SIP/verboice_", ChannelId/binary>> ->
+          [IP | _] = binary:split(proplists:get_value(address, Event), <<$:>>),
+          asterisk_channel_srv:register_channel(binary_to_integer(ChannelId), binary_to_list(IP));
+        _ -> ok
+      end;
+    _ -> ok
+  end,
+  {ok, State};
+
 handle_event(_Event, State) ->
   {ok, State}.
 

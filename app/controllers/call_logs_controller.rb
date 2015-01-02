@@ -30,7 +30,7 @@ class CallLogsController < ApplicationController
   def show
     set_fixed_width_content
     @log = current_account.call_logs.find params[:id]
-    @activities = @log.step_activities.sort_by(&:start)
+    @activities = CallLog.poirot_activities(@log.id).sort_by(&:start)
   end
 
   def progress

@@ -51,6 +51,7 @@ handle_cast(reload_channels, State) ->
   NewRegistry = lists:foldl(fun(Channel, Registry) ->
     AccountSid = channel:account_sid(Channel),
     Number = util:normalize_phone_number(channel:number(Channel)),
+    twilio_api:update_voice_url(Channel, Number),
     dict:store({AccountSid, Number}, Channel, Registry)
   end, dict:new(), Channels),
 

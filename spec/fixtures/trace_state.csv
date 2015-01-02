@@ -1,0 +1,4 @@
+Call ID,Phone Number,Channel,Direction,Start Time,End Time,Status,Initial menu (Result),Initial menu (Data),Menu Foo (Result),Menu Foo (Data),Menu Bar (Result),Menu Bar (Data),Menu Ok (Result),Menu Ok (Data),Menu not ok (Result),Menu not ok (Data),Menu Ok (Result),Menu Ok (Data),Menu Not ok (Result),Menu Not ok (Data)
+1,1000,Channel1,incoming,2012-01-01 00:00:00 UTC,2012-01-01 00:00:00 UTC,active,pressed,2
+2,1000,Channel1,outgoing,2012-01-01 00:00:00 UTC,2012-01-01 00:00:00 UTC,failed,pressed,1,pressed,1
+3,1000,Channel1,incoming,2012-01-01 00:00:00 UTC,2012-01-01 00:00:00 UTC,completed,timeout,""

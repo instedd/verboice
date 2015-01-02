@@ -20,6 +20,10 @@ onWorkflow ->
 
       @recipient = new NuntiumRecipient(attrs.recipient || { caller: true })
 
+      @channel_id = ko.observable(attrs.channel_id || window.last_selected_channel_id)
+      @channel_id.subscribe (new_id) ->
+        window.last_selected_channel_id = new_id
+
       @is_invalid = ko.computed () =>
         @is_name_invalid() or @is_resource_invalid() or @recipient.is_invalid()
 
@@ -39,7 +43,8 @@ onWorkflow ->
     to_hash: () =>
       $.extend(super,
         resource: @resource.to_hash(),
-        recipient: @recipient.to_hash()
+        recipient: @recipient.to_hash(),
+        channel_id: @channel_id()
       )
 
     show_resource: () =>

@@ -1,12 +1,12 @@
 = render 'shared/project_tabs_and_title', :project => @project, :shared_project => @shared_project
 
-%h2 Phone book
+%h2 Phone Book
 %p.desc List of all the people that have made or received calls in this project
 
 .ux-collapsible.collapsed.w40.file_upload{"data-on-expanded" => "box grey"}
   %span
     - if project_admin?
-      %a.button.fconfiguration{:href => "#"} Manage Phone book's columns
+      %a.button.fconfiguration{:href => "#"} Manage Phone Book's columns
   .ux-content
     = form_for(@project, :url => update_variables_project_path(@project)) do |f|
       %hr
@@ -22,6 +22,8 @@
         %a.button.ux-collapse-trigger Cancel
         %button.white{:type => "submit"} Confirm
       .clear
+
+%a.button.fimport{:href => project_contacts_path(@project, format: :csv)} Download Phone Book as CSV
 
 %br
 %br
