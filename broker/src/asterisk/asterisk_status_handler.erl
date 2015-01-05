@@ -42,14 +42,20 @@ handle_event({registrationscomplete, _}, State) ->
   {ok, State};
 
 handle_event({peerentry, Packet}, State) ->
-
   Event = ami_client:decode_packet(Packet),
   case proplists:get_value(dynamic, Event) of
     <<"yes">> ->
       case proplists:get_value(objectname, Event) of
-        <<"verboice_", ChannelId/binary>> ->
-          IP = proplists:get_value(ipaddress, Event),
-          asterisk_channel_srv:register_channel(binary_to_integer(ChannelId), binary_to_list(IP));
+        <<"verboice_", PeerName/binary>> ->
+          case string:to_integer(binary_to_list(PeerName)) of
+            {error, _} -> ok;
+            {ChannelId, _} ->
+              case proplists:get_value(ipaddress, Event) of
+                IP when is_binary(IP) ->
+                  asterisk_channel_srv:register_channel(ChannelId, binary_to_list(IP));
+                _ -> ok
+              end
+          end;
         _ -> ok
       end;
     _ -> ok
