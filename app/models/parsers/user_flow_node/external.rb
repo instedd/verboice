@@ -55,7 +55,7 @@ module Parsers
               external_service_guid: service.guid,
             }
             options[:async] = true if service_step.async
-            compiler.Callback service_step.callback_url, options
+            compiler.Callback service_step.absolute_callback_url, options
             assign_responses(compiler, service_step)
           when 'script'
             compiler.Trace context_for %("Executing External Service #{service.name}.")

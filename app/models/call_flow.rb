@@ -112,6 +112,10 @@ class CallFlow < ActiveRecord::Base
     BrokerClient.active_calls_by_call_flow(id)
   end
 
+  def force_update_flow_with_user_flow!
+    @force_update_flow_with_user_flow = true
+  end
+
   private
 
   def set_name_to_callback_url
@@ -119,7 +123,7 @@ class CallFlow < ActiveRecord::Base
   end
 
   def update_flow_with_user_flow
-    if user_flow.presence && user_flow_changed?
+    if @force_update_flow_with_user_flow || (user_flow.presence && user_flow_changed?)
       parser  = Parsers::UserFlow.new self, user_flow
       self.broker_flow = self.flow = parser.equivalent_flow
       self.variables = parser.variables.to_a.uniq

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141015135324) do
+ActiveRecord::Schema.define(:version => 20141021145802) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -190,6 +190,7 @@ ActiveRecord::Schema.define(:version => 20141015135324) do
     t.datetime "updated_at",      :null => false
     t.text     "global_settings"
     t.string   "guid"
+    t.string   "base_url"
   end
 
   add_index "external_services", ["guid"], :name => "index_external_services_on_guid"

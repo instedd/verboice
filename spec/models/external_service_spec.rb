@@ -22,10 +22,10 @@ describe ExternalService do
   let(:external_service) { ExternalService.new }
 
   it 'updates the manifest' do
-    external_service.url = 'service url'
+    external_service.url = 'http://service-url.com'
     xml = '<verboice-service><name>my_service</name></verboice-service>'
     response = double('response', :to_str => xml)
-    RestClient.should_receive(:get).with('service url').and_return(response)
+    RestClient.should_receive(:get).with(external_service.url).and_return(response)
 
     external_service.update_manifest!
     external_service.reload.xml.should eq(xml)
