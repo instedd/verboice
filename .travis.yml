@@ -1,0 +1,17 @@
+language: ruby
+rvm:
+- 1.9.3
+before_install:
+- wget http://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
+- sudo dpkg -i erlang-solutions_1.0_all.deb
+- sudo apt-get update
+- sudo apt-get install -y erlang libzmq3-dev festival
+before_script:
+- bundle exec rake db:setup
+- make -C broker deps
+script:
+- bundle exec rspec
+- make -C broker eunit
+notifications:
+  slack:
+    secure: GpzXwTvHwT3GV8QXktjODXPvXvmxV5CmJNu+MPKe1t4OGrtORRocZgEsmyH/rahuqq7zFCMGqLg4x2nKhLIcGM1+sleTz9lEPVSqE2jmk0NOwyrwa0G16dURZH4x8bb9w+EFaciGD2x83VkhaAaYdXpPXJ9SSqxdp66/0TRkQ6k=
