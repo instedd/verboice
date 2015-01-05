@@ -24,4 +24,3 @@ broker/rel/verboice
 config/nuntium.yml
 erl_crash.dump
 .vagrant
-hub.yml
