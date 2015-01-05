@@ -493,10 +493,11 @@ create_default_erjs_context(CallLogId, PhoneNumber) ->
     end},
     {phone_number, util:to_string(PhoneNumber)},
     {<<"hub_url">>, begin
-                {ok, HubUrl} = application:get_env(verboice, hub_url),
-                HubUrl
-              end
-    }
+      case application:get_env(verboice, hub_url) of
+        {ok, HubUrl} -> HubUrl;
+        _ -> ""
+      end
+    end}
   ]).
 
 initialize_context(Context, #queued_call{variables = Vars}) ->
