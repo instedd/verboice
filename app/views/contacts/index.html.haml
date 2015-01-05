@@ -28,6 +28,32 @@
 %br
 %br
 
+= form_tag search_project_contacts_path(@project), id: 'contactsFilter' do
+  %p Filters
+  = hidden_field_tag :filters_json, params[:filters_json] || '[]', 'data-bind' => 'value: json', 'class' => 'filters'
+  %ul{'data-bind' => 'foreach: filters'}
+    %li
+      /ko if: expanded()
+      %select{'data-bind' => "options: window.variables, optionsText: 'name', value: variable"}
+      %select{'data-bind' => "options: operators, optionsText: 'text', value: operator"}
+      / ko ifnot: unary()
+      %select{'data-bind' => "options: other_types, value: other_type"}
+      / ko if: other_type() == 'value'
+      %input{'type' => 'text', 'data-bind' => 'value: value'}
+      / /ko
+      / ko if: other_type() == 'variable'
+      %select{'data-bind' => "options: window.variables, optionsText: 'name', value: other_variable"}
+      / /ko
+      / /ko
+      %button.faccept{'data-bind' => 'click: close'}
+      / /ko
+      /ko ifnot: expanded()
+      %p{'data-bind' => 'text: description, click: expand'}
+      %button.fclose{'data-bind' => 'click: $parent.removeFilter'}
+      / /ko
+  %button.fadd{'data-bind' => 'click: addFilter'} Add filter
+  = submit_tag 'Search'
+
 .tablewrapp.no-wrap.scroll
   %table.GralTable
     %tr
@@ -61,3 +87,7 @@
 
 - if project_admin?
   = link_to 'New Contact', new_project_contact_path(@project), :class => 'cadd'
+
+:javascript
+  window.variables = #{@project_variables.to_json};
+  initContactsFilter()

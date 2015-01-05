@@ -48,3 +48,11 @@ $(function() {
     });
   });
 });
+
+function initContactsFilter() {
+  $(function() {
+    var filters = JSON.parse($('.filters').val());
+    var model = new ContactsFilter(filters);
+    ko.applyBindings(model, document.getElementById('contactsFilter'));
+  });
+}

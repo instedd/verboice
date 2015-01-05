@@ -7,8 +7,9 @@ class ContactsFinder
     self.new(project)
   end
 
-  def find(filters = [])
-    contacts = @project.contacts.includes(:persisted_variables)
+  def find(filters = [], options = {})
+    includes = (options[:includes] || []) | [:persisted_variables]
+    contacts = @project.contacts.includes(includes)
     if filters.size > 0
       filters = filters.map(&:with_indifferent_access)
       contacts.select do |contact|

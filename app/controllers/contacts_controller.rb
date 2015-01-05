@@ -22,7 +22,7 @@ class ContactsController < ApplicationController
   before_filter :check_project_admin, :only => [:create, :edit, :update, :destroy]
 
   def index
-    @contacts = @project.contacts.includes(:addresses).includes(:recorded_audios).includes(:persisted_variables).includes(:project_variables)
+    @contacts = ContactsFinder.for(@project).find(filters, includes: [:addresses, :recorded_audios, :persisted_variables, :project_variables])
     @project_variables = @project.project_variables
     @recorded_audio_descriptions = RecordedAudio.select(:description).where(:contact_id => @contacts.collect(&:id)).collect(&:description).to_set
     @implicit_variables = ImplicitVariable.subclasses
@@ -125,5 +125,9 @@ class ContactsController < ApplicationController
         variable['_destroy'] = "1"
       end
     end if params[:contact][:persisted_variables_attributes].present?
+  end
+
+  def filters
+    params[:filters_json].present? ? JSON.parse(params[:filters_json]) : []
   end
 end
