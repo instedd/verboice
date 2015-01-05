@@ -35,6 +35,7 @@ module Parsers
             c.Label 1
             c.StartUserStep :write_variable, 1, 'WriteVariable'
             c.PersistVariable 'foo', "'42'"
+            c.SetStepResult "foo = '42'"
             c.Trace call_flow_id: call_flow.id, step_id: 1, step_name: 'WriteVariable', store: '"Variable written."'
           end.first
         )
