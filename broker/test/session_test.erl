@@ -13,7 +13,7 @@ notify_status_on_completed_ok_test() ->
 
   RequestParams = [get, {"http://foo.com/?CallSid=1&CallStatus=completed&From=123&CallDuration=0", []}, '_', [{full_result, false}]],
   meck:expect(httpc, request, RequestParams, ok),
-  session:in_progress({completed, ok}, #state{session = Session}),
+  session:in_progress({completed, Session, ok}, #state{session = Session}),
 
   meck:wait(httpc, request, RequestParams, 1000),
   meck:unload().
