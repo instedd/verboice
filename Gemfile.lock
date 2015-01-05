@@ -1,14 +1,32 @@
 GIT
   remote: git://github.com/instedd/alto_guisso.git
-  revision: cda34b8e0bdc6a3758f1de429c5ee30197bd9dcf
+  revision: b767af4621523215b79fccafd1cb94ccd88df828
   branch: master
   specs:
-    alto_guisso (0.0.1)
+    alto_guisso (0.0.2)
+      rack-oauth2
+
+GIT
+  remote: git://github.com/instedd/alto_guisso_rails.git
+  revision: a9bb41430e636e3dec1a85a2be2af0fc27358a9c
+  branch: master
+  specs:
+    alto_guisso_rails (0.0.1)
+      alto_guisso
       omniauth
       omniauth-openid
       rack-oauth2
       rails (>= 3.0)
       ruby-openid
+
+GIT
+  remote: git://github.com/instedd/ruby-hub_client.git
+  revision: dc96567ccd1a1c5e1f3eb851c86da6cd8c6c64f8
+  branch: master
+  specs:
+    hub_client (0.0.1)
+      alto_guisso
+      rest-client
 
 GIT
   remote: https://github.com/edave/enumerated_attribute.git
@@ -36,18 +54,6 @@ GIT
       guid
       json
       rails (>= 3.2)
-
-GIT
-  remote: https://github.com/manastech/rack-oauth2.git
-  revision: 192e4d020a84432179297deb035f9716d4bf6622
-  branch: master
-  specs:
-    rack-oauth2 (1.0.5)
-      activesupport (>= 2.3)
-      attr_required (>= 0.0.5)
-      httpclient (>= 2.2.0.2)
-      multi_json (>= 1.3.6)
-      rack (>= 1.1)
 
 GIT
   remote: https://github.com/tbuehl/machinist.git
@@ -86,6 +92,7 @@ GEM
     activesupport (3.2.18)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
+    addressable (2.3.6)
     arel (3.0.3)
     attr_encrypted (1.2.0)
       encryptor (>= 1.1.1)
@@ -113,6 +120,7 @@ GEM
       execjs
     coffee-script-source (1.3.1)
     columnize (0.8.9)
+    crack (0.3.1)
     csv_builder (2.1.1)
       actionpack (>= 3.0.0)
     debugger (1.6.8)
@@ -173,8 +181,8 @@ GEM
     highline (1.6.19)
     hike (1.2.3)
     httpauth (0.1)
-    httpclient (2.3.4.1)
-    i18n (0.6.9)
+    httpclient (2.5.3.3)
+    i18n (0.7.0)
     instedd-pigeon (0.2.2)
       json
       rails (~> 3.2)
@@ -210,6 +218,7 @@ GEM
     net-ssh (2.7.0)
     net-ssh-gateway (1.2.0)
       net-ssh (>= 2.6.5)
+    netrc (0.10.2)
     newrelic_rpm (3.7.3.204)
     nokogiri (1.4.4)
     oauth (0.4.7)
@@ -236,6 +245,12 @@ GEM
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
+    rack-oauth2 (1.0.9)
+      activesupport (>= 2.3)
+      attr_required (>= 0.0.5)
+      httpclient (>= 2.4)
+      multi_json (>= 1.3.6)
+      rack (>= 1.1)
     rack-openid (1.3.1)
       rack (>= 1.1.0)
       ruby-openid (>= 2.1.8)
@@ -261,8 +276,9 @@ GEM
     rake (10.3.2)
     rdoc (3.12.2)
       json (~> 1.4)
-    rest-client (1.6.7)
-      mime-types (>= 1.16)
+    rest-client (1.7.2)
+      mime-types (>= 1.16, < 3.0)
+      netrc (~> 0.7)
     rspec (2.9.0)
       rspec-core (~> 2.9.0)
       rspec-expectations (~> 2.9.0)
@@ -310,6 +326,9 @@ GEM
       multi_json (>= 1.0.2)
     warden (1.1.0)
       rack (>= 1.0)
+    webmock (1.7.10)
+      addressable (~> 2.2, > 2.2.5)
+      crack (>= 0.1.7)
     will_paginate (3.0.3)
 
 PLATFORMS
@@ -317,6 +336,7 @@ PLATFORMS
 
 DEPENDENCIES
   alto_guisso!
+  alto_guisso_rails!
   attr_encrypted
   bertrpc
   capistrano
@@ -334,6 +354,7 @@ DEPENDENCIES
   guid
   haml-rails
   hercule!
+  hub_client!
   instedd-pigeon
   instedd-rails
   jquery-rails
@@ -349,7 +370,6 @@ DEPENDENCIES
   omniauth-openid
   poirot_rails!
   pry-debugger
-  rack-oauth2!
   rails (~> 3.2.0)
   rest-client
   rspec
@@ -363,4 +383,5 @@ DEPENDENCIES
   syntax
   timecop
   uglifier (>= 1.0.3)
+  webmock
   will_paginate (~> 3.0)

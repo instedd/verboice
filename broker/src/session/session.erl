@@ -233,13 +233,13 @@ dialing(timeout, State = #state{session = Session}) ->
   notify_status(busy, Session),
   finalize({failed, timeout}, State).
 
-in_progress({completed, ok}, State = #state{session = Session}) ->
-  notify_status(completed, Session),
-  finalize(completed, State);
+in_progress({completed, NewSession, ok}, State) ->
+  notify_status(completed, NewSession),
+  finalize(completed, State#state{session = NewSession});
 
-in_progress({completed, {failed, Reason}}, State = #state{session = Session}) ->
-  notify_status(failed, Session),
-  finalize({failed, Reason}, State).
+in_progress({completed, NewSession, {failed, Reason}}, State) ->
+  notify_status(failed, NewSession),
+  finalize({failed, Reason}, State#state{session = NewSession}).
 
 in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session = #session{session_id = SessionId}}) ->
   lager:info("Session (~p) suspended", [SessionId]),
@@ -269,7 +269,11 @@ in_progress({hibernate, NewSession, Ptr}, _From, State = #state{session = _Sessi
   HibernatedSession:create(),
   {stop, normal, ok, State#state{hibernated = true}}.
 
-notify_status(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams, started_at = StartedAt}) ->
+notify_status(Status, Session) ->
+  notify_status_to_callback_url(Status, Session),
+  notify_status_to_hub(Status, Session).
+
+notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams, started_at = StartedAt}) ->
   case Session#session.status_callback_url of
     undefined -> ok;
     <<>> -> ok;
@@ -294,6 +298,40 @@ notify_status(Status, Session = #session{call_log = CallLog, address = Address, 
         (Uri#uri{query_string = QueryString}):get([{full_result, false} | AuthOptions])
       end)
   end.
+
+notify_status_to_hub(Status, Session = #session{call_log = CallLog, js_context = JS, project = Project}) ->
+  case Status of
+    completed ->
+      HubEnabled = application:get_env(verboice, hub_enabled, false),
+      case HubEnabled of
+        false ->
+          ok;
+        true ->
+          Task = [
+            {payload, [
+              {call_id, CallLog:id()},
+              {project_id, Project:id()},
+              {call_flow_id, case Session#session.call_flow of
+                undefined -> undefined;
+                #call_flow{id = Id} -> Id
+              end},
+              {address, Session#session.address},
+              {vars, session_vars(JS)}
+            ]}
+          ],
+          delayed_job:enqueue(yaml:dump({map, Task, <<"!ruby/object:Jobs::HubJob">>}, [{schema, yaml_schema_ruby}]))
+      end;
+    _ ->
+       ok
+  end.
+
+session_vars(JS) ->
+  lists:foldl(fun({Name, Value}, Vars) ->
+    case Name of
+      <<"var_", VarName/binary>> -> [{binary_to_list(VarName), Value} | Vars];
+      _ -> Vars
+    end
+  end, [], erjs_context:to_list(JS)).
 
 handle_event(stop, _, State) ->
   {stop, normal, State}.
@@ -404,7 +442,7 @@ spawn_run(Session = #session{pbx = Pbx}, Ptr) ->
         {Result, NewSession = #session{js_context = JsContext}} ->
           close_user_step_activity(NewSession),
           Status = erjs_context:get(status, JsContext),
-          gen_fsm:send_event(SessionPid, {completed, flow_result(Result, Status)})
+          gen_fsm:send_event(SessionPid, {completed, NewSession, flow_result(Result, Status)})
       after
         catch Pbx:terminate()
       end
@@ -453,7 +491,12 @@ create_default_erjs_context(CallLogId, PhoneNumber) ->
       io:format("result: ~p~n", [Result]),
       Result
     end},
-    {phone_number, util:to_string(PhoneNumber)}
+    {phone_number, util:to_string(PhoneNumber)},
+    {<<"hub_url">>, begin
+                {ok, HubUrl} = application:get_env(verboice, hub_url),
+                HubUrl
+              end
+    }
   ]).
 
 initialize_context(Context, #queued_call{variables = Vars}) ->

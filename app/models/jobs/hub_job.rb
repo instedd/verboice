@@ -15,17 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-class ProjectVariable < ActiveRecord::Base
-  belongs_to :project, :inverse_of => :project_variables
-  has_many :persisted_variables, :dependent => :destroy, :inverse_of => :project_variable
-  attr_accessible :name
-  validates_uniqueness_of :name, :scope => :project_id, :case_sensitive => false
-  broker_cached
+class Jobs::HubJob
+  def initialize(payload)
+    @payload = payload
+  end
 
-  def to_json
-    {
-      id: id,
-      name: name,
-    }
+  def perform
+    HubClient.current.notify "projects/#{@payload[:project_id]}/call_flows/#{@payload[:call_flow_id]}/$events/call_finished", @payload.to_json
   end
 end

@@ -14,18 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+class Api::ProjectVariablesController < ApiController
+  expose(:project) { current_account.projects.find params[:project_id] }
 
-class ProjectVariable < ActiveRecord::Base
-  belongs_to :project, :inverse_of => :project_variables
-  has_many :persisted_variables, :dependent => :destroy, :inverse_of => :project_variable
-  attr_accessible :name
-  validates_uniqueness_of :name, :scope => :project_id, :case_sensitive => false
-  broker_cached
-
-  def to_json
-    {
-      id: id,
-      name: name,
-    }
+  def index
+    render json: project.project_variables.all.map(&:to_json)
   end
 end

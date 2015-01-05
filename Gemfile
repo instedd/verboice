@@ -21,14 +21,15 @@ gem 'rest-client'
 gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribute.git"
 gem 'csv_builder'
 gem 'newrelic_rpm'
+gem 'hub_client', github: 'instedd/ruby-hub_client', branch: 'master'
 gem 'language_list'
 gem 'bertrpc'
 gem 'formatted_rails_logger'
 gem 'instedd-pigeon', :require => 'pigeon'
 gem 'poirot_rails', git: 'https://github.com/instedd/poirot_rails.git', branch: 'master'
 gem 'hercule', git: 'https://github.com/instedd/poirot.git', branch: 'master'
-gem 'rack-oauth2', git: "https://github.com/manastech/rack-oauth2.git", branch: 'master'
 gem 'alto_guisso', github: "instedd/alto_guisso", branch: 'master'
+gem 'alto_guisso_rails', github: "instedd/alto_guisso_rails", branch: 'master'
 gem 'ruby-openid'
 gem 'omniauth'
 gem 'omniauth-openid'
@@ -58,4 +59,8 @@ group :development do
   gem 'rvm'
   gem 'rvm-capistrano'
   gem 'licit'
+end
+
+group :test do
+  gem 'webmock'
 end

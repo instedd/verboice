@@ -127,6 +127,8 @@ Verboice::Application.routes.draw do
       end
     end
     resources :projects, only: [:index, :show] do
+      resources :project_variables, only: :index
+      resources :call_flows, only: [:index, :show]
       resources :contacts do
         collection do
           get 'by_address/:address', :action => "show_by_address"
@@ -163,4 +165,6 @@ Verboice::Application.routes.draw do
   root :to => 'home#index'
 
   get 'terms_and_conditions', :to => redirect('/')
+
+  match '/hub/*path' => 'hub#api', format: false
 end

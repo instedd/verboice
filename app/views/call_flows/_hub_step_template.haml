@@ -1,0 +1,45 @@
+%script{type: "text/html", id: "hub_step_template"}
+  .feditor-sidebar.right.box.w28.iblock.h65
+    .tableheader
+      %span.left.i48grad-phone{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
+
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %th External Action
+        %th
+      %tr
+        %td
+          Action:
+          %span{'data-bind' => 'text: action_label'}
+        %td
+          %button.farrow{ :type => "button", 'data-bind' => 'click: choose_hub_action' }
+      %tr
+        %td{colspan: 2}
+          %div{style: 'height:450px;max-width:280px;overflow:auto'}
+            /ko foreach: bindings
+            %div{'data-bind' => "template: {name: 'hub_step_binding_template', data: $data}", 'style' => 'text-align:left'}
+            //ko
+
+    .content
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+
+%script{type: "text/html", id: "hub_step_binding_template"}
+  /ko if: bindings
+  %label{'data-bind' => 'text: label'}
+  //ko
+  /ko ifnot: bindings
+  %strong{'data-bind' => 'text: label'}
+  //ko
+  %div{style: 'margin-left:8px'}
+    /ko with: value
+    %select{'data-bind' => "value: content_kind, options: content_kinds(), optionsText: 'text', optionsValue: 'value'"}
+    %input.ux-text{:type => 'text', 'data-bind' => 'value: value, valueUpdate: "afterkeydown", visible: content_kind() == "value"', 'style' => 'width:120px'}
+    %select{'data-bind' => 'value: variable, visible: content_kind() == "variable", options: available_variables()'}
+    %select{'data-bind' => 'value: step_id, visible: content_kind() == "step", options: available_steps(), optionsText: "name", optionsValue: "value"'}
+    %select{'data-bind' => 'value: response, visible: content_kind() == "response", options: available_responses(), optionsText: "name", optionsValue: "value"'}
+    //ko
+    /ko foreach: bindings
+    %div{'data-bind' => "template: {name: 'hub_step_binding_template', data: $data}"}
+    //ko
