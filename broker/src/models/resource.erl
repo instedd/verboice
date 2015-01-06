@@ -1,5 +1,5 @@
 -module(resource).
--export([localized_resource/2, prepare/2, prepare/3, prepare_text_resource/2, prepare_text_resource/3, prepare_blob_resource/4, prepare_url_resource/2]).
+-export([localized_resource/2, prepare/2, prepare/3, prepare_text_resource/2, prepare_text_resource/3, prepare_blob_resource/5, prepare_url_resource/2]).
 -define(CACHE, true).
 -define(TABLE_NAME, "resources").
 -include_lib("erl_dbmodel/include/model.hrl").
@@ -59,19 +59,15 @@ file_name(Project, Language, Text) ->
   CacheData = <<ProjectId/integer, LanguageBin/binary, Timestamp/integer, Text/binary>>,
   util:md5hex(CacheData).
 
-prepare_blob_resource(Name, UpdatedAt, Blob, #session{pbx = Pbx}) ->
+prepare_blob_resource(Name, UpdatedAt, Blob, Extension, #session{pbx = Pbx}) ->
   TargetPath = Pbx:sound_path_for(Name),
   case must_update(TargetPath, UpdatedAt) of
     false -> ok;
     true ->
       {A, B, C} = now(),
-      FileName = lists:flatten(io_lib:format("/tmp/verboice-resource-~p~p~p.wav", [A, B, C])),
+      FileName = lists:flatten(io_lib:format("/tmp/verboice-resource-~p~p~p~s", [A, B, C, Extension])),
       file:write_file(FileName, Blob),
-      try
-        sox:convert(FileName, TargetPath)
-      after
-        file:delete(FileName)
-      end
+      convert_and_delete(FileName, TargetPath)
   end,
   {file, Name}.
 
@@ -85,17 +81,31 @@ prepare_url_resource(Url, #session{pbx = Pbx}) ->
         true -> ok;
         false ->
           TempFile = TargetPath ++ ".tmp",
-          try
-            {ok, {_, Headers, Body}} = httpc:request(Url),
-            file:write_file(TempFile, Body),
-            Type = guess_type(Url, Headers),
-            sox:convert(TempFile, Type, TargetPath)
-          after
-            file:delete(TempFile)
-          end
+          {ok, {_, Headers, Body}} = httpc:request(Url),
+          file:write_file(TempFile, Body),
+          Type = guess_type(Url, Headers),
+          convert_and_delete(TempFile, Type, TargetPath)
       end,
       {file, Name}
   end.
+
+convert_and_delete(TempFile, TargetPath) ->
+  convert_and_delete(TempFile, undefined, TargetPath).
+
+convert_and_delete(TempFile, Type, TargetPath) ->
+  try
+    SoxResult = case Type of
+      undefined -> sox:convert(TempFile, TargetPath);
+      _ -> sox:convert(TempFile, Type, TargetPath)
+    end,
+    case SoxResult of
+      error -> throw("Failed to convert audio file");
+      _ -> ok
+    end
+  after
+    file:delete(TempFile)
+  end.
+
 
 guess_type(Url, Headers) ->
   case proplists:get_value("content-type", Headers) of
