@@ -13,10 +13,9 @@
     = f.collection_select :channel_id, channels, :id, :name, {prompt: 'Select a Channel...'}, {class: 'w30'}
     %p Schedule
     = f.select_recurring :recurrence_rule, [scheduled_call.recurrence_rule], {allow_blank: false}
-    %p From
-    = f.text_field :from_time_hours, :class => 'w10', :alt => 'time'
-    %p To
-    = f.text_field :to_time_hours, :class => 'w10', :alt => 'time'
+    .time-range
+      = f.hidden_field :from_time, class: 'from'
+      = f.hidden_field :to_time, class: 'to'
 
     .date-time
       %p

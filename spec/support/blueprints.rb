@@ -210,8 +210,8 @@ ScheduledCall.blueprint do
   project { call_flow.project }
   name
   time_zone { 'Buenos Aires' }
-  from_time { '10:00' }
-  to_time { '15:00' }
+  from_time { 10 * 60 }
+  to_time { 15 * 60 }
 end
 
 ContactScheduledCall.blueprint do

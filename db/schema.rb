@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150102151240) do
+ActiveRecord::Schema.define(:version => 20150107193503) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -388,8 +388,8 @@ ActiveRecord::Schema.define(:version => 20150102151240) do
     t.datetime "updated_at",                            :null => false
     t.boolean  "not_after_enabled",  :default => false
     t.datetime "not_after"
-    t.time     "from_time"
-    t.time     "to_time"
+    t.integer  "from_time"
+    t.integer  "to_time"
     t.text     "recurrence"
   end
 

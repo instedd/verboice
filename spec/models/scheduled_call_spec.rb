@@ -13,7 +13,7 @@ describe ScheduledCall do
   it { should validate_presence_of(:from_time) }
   it { should validate_presence_of(:to_time) }
 
-  let!(:scheduled_call) { ScheduledCall.make }
+  let!(:scheduled_call) { ScheduledCall.make from_time: 10 * 60, to_time: 15 * 60 }
 
   it "should find matched contacts" do
     scheduled_call.filters = {foo: 'bar'}
@@ -185,8 +185,8 @@ describe ScheduledCall do
 
     it 'should schedule job for next occurrence' do
       expected_run_at = Time.new(2014, 12, 4, 0, 0, 0, tz.formatted_offset)
-      expected_from = Time.new(2014, 12, 4, scheduled_call.from_time.hour, scheduled_call.from_time.min, 0, tz.formatted_offset)
-      expected_to = Time.new(2014, 12, 4, scheduled_call.to_time.hour, scheduled_call.to_time.min, 0, tz.formatted_offset)
+      expected_from = Time.new(2014, 12, 4, 10, 0, 0, tz.formatted_offset)
+      expected_to = Time.new(2014, 12, 4, 15, 0, 0, tz.formatted_offset)
 
       job = double('job')
       Jobs::ScheduledCallJob.should_receive(:new)
@@ -198,6 +198,71 @@ describe ScheduledCall do
 
       scheduled_call.schedule_job
     end
+
+    describe 'time frame' do
+      it 'should schedule job from same day to same day' do
+        scheduled_call.from_time = 9 * 60 + 15 # 09:15
+        scheduled_call.to_time = 19 * 60 + 30 # 19:30
+
+        expected_from = Time.new(2014, 12, 4, 9, 15, 0, tz.formatted_offset)
+        expected_to = Time.new(2014, 12, 4, 19, 30, 0, tz.formatted_offset)
+
+        job = double('job', perform: nil)
+        Jobs::ScheduledCallJob.should_receive(:new)
+          .with(scheduled_call.id, expected_from, expected_to)
+          .and_return(job)
+
+        scheduled_call.schedule_job
+      end
+
+
+      it 'should schedule job from same day to next day' do
+        scheduled_call.from_time = 16 * 60 + 30 # 16:30
+        scheduled_call.to_time = 24 * 60 + 13 * 60 + 45 # 13:45 next day
+
+        # expected_run_at = Time.new(2014, 12, 4, 0, 0, 0, tz.formatted_offset)
+        expected_from = Time.new(2014, 12, 4, 16, 30, 0, tz.formatted_offset)
+        expected_to = Time.new(2014, 12, 5, 13, 45, 0, tz.formatted_offset)
+
+        job = double('job', perform: nil)
+        Jobs::ScheduledCallJob.should_receive(:new)
+          .with(scheduled_call.id, expected_from, expected_to)
+          .and_return(job)
+
+        scheduled_call.schedule_job
+      end
+
+      it 'should schedule job from next day to next day' do
+        scheduled_call.from_time = 24 * 60 + 15 * 60 # 15:00 next day
+        scheduled_call.to_time = 24 * 60 + 21 * 60 + 45 # 21:45 next day
+
+        expected_from = Time.new(2014, 12, 5, 15, 0, 0, tz.formatted_offset)
+        expected_to = Time.new(2014, 12, 5, 21, 45, 0, tz.formatted_offset)
+
+        job = double('job', perform: nil)
+        Jobs::ScheduledCallJob.should_receive(:new)
+          .with(scheduled_call.id, expected_from, expected_to)
+          .and_return(job)
+
+        scheduled_call.schedule_job
+      end
+
+      it 'should schedule job from next day to next day midnight' do
+        scheduled_call.from_time = 24 * 60 # 00:00 next day
+        scheduled_call.to_time = 2 * 24 * 60 # 24:00 next day (ie next next day)
+
+        expected_from = Time.new(2014, 12, 5, 0, 0, 0, tz.formatted_offset)
+        expected_to = Time.new(2014, 12, 6, 0, 0, 0, tz.formatted_offset)
+
+        job = double('job', perform: nil)
+        Jobs::ScheduledCallJob.should_receive(:new)
+          .with(scheduled_call.id, expected_from, expected_to)
+          .and_return(job)
+
+        scheduled_call.schedule_job
+      end
+    end
+
   end
 
 end

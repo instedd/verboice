@@ -8,11 +8,13 @@ class ScheduledCall < ActiveRecord::Base
   attr_accessible :name, :enabled, :call_flow_id, :channel_id,
                   :not_before_enabled, :not_before_date, :not_before_time,
                   :not_after_enabled, :not_after_date, :not_after_time,
-                  :time_zone, :filters, :from_time_hours, :to_time_hours, :recurrence_rule,
+                  :time_zone, :filters, :from_time, :to_time, :recurrence_rule,
                   :filters_json
 
   validates :name, :project, :call_flow, :channel, :time_zone,
             :recurrence, :from_time, :to_time, presence: true
+
+  validates :from_time, :to_time, numericality: {only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 2880}
 
   serialize :filters, Array
 
@@ -98,16 +100,6 @@ class ScheduledCall < ActiveRecord::Base
     self.filters = JSON.parse(value)
   end
 
-  [:from_time, :to_time].each do |attr|
-    define_method "#{attr}_hours" do
-      self.send(attr).try(:strftime, '%H:%M')
-    end
-
-    define_method "#{attr}_hours=" do |value|
-      self.send("#{attr}=", value)
-    end
-  end
-
   # split handling of not_before/not_after in date and time
   [:not_before, :not_after].each do |attr|
     define_method "#{attr}_date" do
@@ -179,9 +171,10 @@ private
     year = date.year
     month = date.month
     day = date.day
-    hour =  time.present? ? time.hour : 0
-    min = time.present? ? time.min : 0
+    hour =  time.present? ? (time / 60 % 24) : 0
+    min = time.present? ? (time % 60) : 0
     offset = tz.formatted_offset
-    Time.new(year, month, day, hour, min, 0, offset)
+    result = Time.new(year, month, day, hour, min, 0, offset)
+    time.present? ? result + (time / (24 * 60)).day : result
   end
 end
