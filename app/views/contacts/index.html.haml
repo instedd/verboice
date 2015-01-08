@@ -28,31 +28,36 @@
 %br
 %br
 
-= form_tag search_project_contacts_path(@project), id: 'contactsFilter' do
-  %p Filters
-  = hidden_field_tag :filters_json, params[:filters_json] || '[]', 'data-bind' => 'value: json', 'class' => 'filters'
-  %ul{'data-bind' => 'foreach: filters'}
-    %li
-      /ko if: expanded()
-      %select{'data-bind' => "options: window.variables, optionsText: 'name', value: variable"}
-      %select{'data-bind' => "options: operators, optionsText: 'text', value: operator"}
-      / ko ifnot: unary()
-      %select{'data-bind' => "options: other_types, value: other_type"}
-      / ko if: other_type() == 'value'
-      %input{'type' => 'text', 'data-bind' => 'value: value'}
-      / /ko
-      / ko if: other_type() == 'variable'
-      %select{'data-bind' => "options: window.variables, optionsText: 'name', value: other_variable"}
-      / /ko
-      / /ko
-      %button.faccept{'data-bind' => 'click: close'}
-      / /ko
-      /ko ifnot: expanded()
-      %p{'data-bind' => 'text: description, click: expand'}
-      %button.fclose{'data-bind' => 'click: $parent.removeFilter'}
-      / /ko
-  %button.fadd{'data-bind' => 'click: addFilter'} Add filter
-  = submit_tag 'Search'
+#contactsFilter
+  = form_tag search_project_contacts_path(@project) do
+    %p Filters
+    = hidden_field_tag :filters_json, params[:filters_json] || '[]', 'data-bind' => 'value: json', 'class' => 'filters'
+    %ul{'data-bind' => 'foreach: filters'}
+      %li
+        /ko if: expanded()
+        %select{'data-bind' => "options: window.variables, optionsText: 'name', value: variable"}
+        %select{'data-bind' => "options: operators, optionsText: 'text', value: operator"}
+        / ko ifnot: unary()
+        %select{'data-bind' => "options: other_types, value: other_type"}
+        / ko if: other_type() == 'value'
+        %input{'type' => 'text', 'data-bind' => 'value: value'}
+        / /ko
+        / ko if: other_type() == 'variable'
+        %select{'data-bind' => "options: window.variables, optionsText: 'name', value: other_variable"}
+        / /ko
+        / /ko
+        %button.faccept{'data-bind' => 'click: close'}
+        / /ko
+        /ko ifnot: expanded()
+        %p{'data-bind' => 'text: description, click: expand'}
+        %button.fclose{'data-bind' => 'click: $parent.removeFilter'}
+        / /ko
+    %button.fadd{'data-bind' => 'click: addFilter'} Add filter
+    = submit_tag 'Search'
+
+  = form_tag from_filter_project_scheduled_calls_path(@project) do
+    = hidden_field_tag :filters_json, params[:filters_json] || '[]', 'data-bind' => 'value: json'
+    = submit_tag 'Create a scheduled call from these filters'
 
 .tablewrapp.no-wrap.scroll
   %table.GralTable

@@ -90,7 +90,11 @@ Verboice::Application.routes.draw do
 
       resources :feeds
 
-      resources :scheduled_calls
+      resources :scheduled_calls do
+        collection do
+          post :from_filter, :action => :new, :as => 'from_filter'
+        end
+      end
     end
   end
 

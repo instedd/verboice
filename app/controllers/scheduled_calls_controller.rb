@@ -27,4 +27,13 @@ class ScheduledCallsController < ApplicationController
     scheduled_call.destroy
     redirect_to project_scheduled_calls_path(project), :notice => "Scheduled call #{scheduled_call.name} successfully deleted."
   end
+
+  def new
+    begin
+      scheduled_call.filters_json = params[:filters_json]
+    rescue
+      scheduled_call.filters = []
+    end
+    render :index
+  end
 end

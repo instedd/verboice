@@ -7,7 +7,7 @@
 %h1 Scheduled Calls
 
 - scheduled_calls.each do |scheduled_call|
-  = render 'box', :scheduled_call => scheduled_call, :expanded => scheduled_call.errors.any?
+  = render 'box', :scheduled_call => scheduled_call, :expanded => scheduled_call.errors.any? || scheduled_call.new_record?
 
 - if project_admin?
   .box.grey.addqueue.w60
