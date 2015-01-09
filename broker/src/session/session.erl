@@ -316,7 +316,7 @@ notify_status_to_hub(Status, Session = #session{call_log = CallLog, js_context =
                 #call_flow{id = Id} -> Id
               end},
               {address, Session#session.address},
-              {vars, session_vars(JS)}
+              {vars, {map, session_vars(JS)}}
             ]}
           ],
           delayed_job:enqueue(yaml:dump({map, Task, <<"!ruby/object:Jobs::HubJob">>}, [{schema, yaml_schema_ruby}]))
