@@ -17,8 +17,7 @@
       var offset = (Math.round(i / 12 * 10000) / 100) + '%';
       var e = $('<span></span>').html(time)
         .css('position', 'absolute')
-        .css('left', offset)
-        .css('margin-left', '-17.5px');
+        .css('left', offset);
       scale.append(e);
     }
 

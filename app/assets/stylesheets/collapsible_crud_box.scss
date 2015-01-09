@@ -66,19 +66,23 @@
   margin-bottom: 10px;
   .ux-time-range-label {
     color: #2f82cb;
-    margin-bottom: 3px;
+    margin-bottom: 10px;
   }
   .ui-slider-horizontal {
     height: .5em;
   }
   .ux-time-range-slider {
-    margin-left: 5px;
+    width: 97%;
+    margin-left: 1.5%;
   }
   .ux-time-range-scale {
-    font-size: 9px;
-    margin-left: 15px;
     width: 97%;
+    margin-left: 1.5%;
     margin-top: 3px;
+    span {
+      font-size: 9px;
+      margin-left: -11px;
+    }
   }
   .ui-slider-handle {
     width: .9em;
