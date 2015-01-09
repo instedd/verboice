@@ -108,6 +108,12 @@
         margin: 0;
         vertical-align: middle;
       }
+      p {
+        display: inline-block;
+        margin: 5px 0;
+        width: 86%;
+        cursor: pointer;
+      }
     }
   }
   .add-filter {
