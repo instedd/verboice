@@ -67,7 +67,11 @@ Verboice::Application.routes.draw do
 
       resources :schedules
 
-      resources :contacts, except: [:show]
+      resources :contacts, except: [:show] do
+        collection do
+          post :search, :action => :index, :as => 'search'
+        end
+      end
 
       resources :resources do
         collection do
@@ -85,6 +89,12 @@ Verboice::Application.routes.draw do
       end
 
       resources :feeds
+
+      resources :scheduled_calls do
+        collection do
+          post :from_filter, :action => :new, :as => 'from_filter'
+        end
+      end
     end
   end
 

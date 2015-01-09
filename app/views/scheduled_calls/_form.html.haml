@@ -1,0 +1,50 @@
+= form_for [project, scheduled_call], :remote => true do |f|
+  .middle
+    %div
+      %label Name
+      = f.text_field :name, :class => 'w30'
+    %div
+      = f.label :enabled do
+        = f.check_box :enabled
+        Enabled
+    %div
+      %label Call flow
+      = f.collection_select :call_flow_id, call_flows, :id, :name, {prompt: 'Select a Call flow...'}, {class: 'w30'}
+    %div
+      %label Channel
+      = f.collection_select :channel_id, channels, :id, :name, {prompt: 'Select a Channel...'}, {class: 'w30'}
+    %div
+      %label Schedule
+      = f.select_recurring :recurrence_rule, [scheduled_call.recurrence_rule], {allow_blank: false}, {:class => 'w30'}
+    .time-range.scaled
+      = f.hidden_field :from_time, class: 'from'
+      = f.hidden_field :to_time, class: 'to'
+
+    .date-time
+      = f.label :not_before_enabled do
+        = f.check_box :not_before_enabled, :class => 'date-time-trigger'
+        Not before enabled
+      = f.text_field :not_before_date, :class => "datepicker w15", :id => nil
+      = f.text_field :not_before_time, :class => 'w15 not_before_time', :alt => 'time'
+    .date-time
+      = f.label :not_after_enabled do
+        = f.check_box :not_after_enabled, :class => 'date-time-trigger'
+        Not after enabled
+      = f.text_field :not_after_date, :class => "datepicker w15", :id => nil
+      = f.text_field :not_after_time, :class => 'w15 not_after_time', :alt => 'time'
+
+    %div
+      %label Time zone
+      = f.time_zone_select :time_zone, nil, {default: project.time_zone}, {:class => 'w30'}
+    %hr
+
+    .filters-box.w30
+      %label Filters
+      = f.hidden_field :filters_json, 'data-bind' => 'value: json', 'class' => 'filters'
+      = render 'shared/contacts_filter'
+  %hr
+  - if scheduled_call.new_record?
+    %button.white{:type => "submit"} Save
+  - else
+    %button.white{:type => "submit"} Update
+  = link_to 'Cancel', '#', :class => "tgrey #{scheduled_call.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'

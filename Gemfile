@@ -33,6 +33,7 @@ gem 'alto_guisso_rails', github: "instedd/alto_guisso_rails", branch: 'master'
 gem 'ruby-openid'
 gem 'omniauth'
 gem 'omniauth-openid'
+gem 'recurring_select', git: "https://github.com/instedd/recurring_select", branch: 'instedd'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'

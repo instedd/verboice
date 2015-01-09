@@ -6,9 +6,11 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require jquery.migrate
 //= require jquery.fancybox-1.3.4.pack
 //= require underscore
 //= require pigeon
+//= require recurring_select
 //= require global
 //= require hub_client
 //= require_directory .

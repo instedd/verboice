@@ -1,0 +1,6 @@
+= render :partial => "box_content", :locals => { :scheduled_call => scheduled_call, :expanded => scheduled_call.errors.any?}
+
+:javascript
+  var form = $('#edit_scheduled_call_#{scheduled_call.id}');
+  var container = form.closest('.scheduled_call').get(0);
+  initScheduledCall(container);
