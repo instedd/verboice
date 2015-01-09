@@ -1,0 +1,23 @@
+%ul{'data-bind' => 'foreach: filters'}
+  %li
+    /ko if: expanded()
+    %select{'data-bind' => "options: window.variables, optionsText: 'name', value: variable"}
+    %select{'data-bind' => "options: operators, optionsText: 'text', value: operator"}
+    / ko ifnot: unary()
+    %select{'data-bind' => "options: other_types, value: other_type"}
+    / ko if: other_type() == 'value'
+    %input{'type' => 'text', 'data-bind' => 'value: value'}
+    / /ko
+    / ko if: other_type() == 'variable'
+    %select{'data-bind' => "options: window.variables, optionsText: 'name', value: other_variable"}
+    / /ko
+    / /ko
+    %button.faccept{'data-bind' => 'click: close'}
+    / /ko
+    /ko ifnot: expanded()
+    %p{'data-bind' => 'text: description, click: expand'}
+    %button.fclose{'data-bind' => 'click: $parent.removeFilter'}
+    / /ko
+.add-filter
+  %span Add condition
+  %button.fadd{'data-bind' => 'click: addFilter'}

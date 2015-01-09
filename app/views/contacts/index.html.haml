@@ -28,70 +28,56 @@
 %br
 %br
 
-#contactsFilter
-  = form_tag search_project_contacts_path(@project) do
-    %p Filters
-    = hidden_field_tag :filters_json, params[:filters_json] || '[]', 'data-bind' => 'value: json', 'class' => 'filters'
-    %ul{'data-bind' => 'foreach: filters'}
-      %li
-        /ko if: expanded()
-        %select{'data-bind' => "options: window.variables, optionsText: 'name', value: variable"}
-        %select{'data-bind' => "options: operators, optionsText: 'text', value: operator"}
-        / ko ifnot: unary()
-        %select{'data-bind' => "options: other_types, value: other_type"}
-        / ko if: other_type() == 'value'
-        %input{'type' => 'text', 'data-bind' => 'value: value'}
-        / /ko
-        / ko if: other_type() == 'variable'
-        %select{'data-bind' => "options: window.variables, optionsText: 'name', value: other_variable"}
-        / /ko
-        / /ko
-        %button.faccept{'data-bind' => 'click: close'}
-        / /ko
-        /ko ifnot: expanded()
-        %p{'data-bind' => 'text: description, click: expand'}
-        %button.fclose{'data-bind' => 'click: $parent.removeFilter'}
-        / /ko
-    %button.fadd{'data-bind' => 'click: addFilter'} Add filter
-    = submit_tag 'Search'
-
-  = form_tag from_filter_project_scheduled_calls_path(@project) do
-    = hidden_field_tag :filters_json, params[:filters_json] || '[]', 'data-bind' => 'value: json'
-    = submit_tag 'Create a scheduled call from these filters'
-
-.tablewrapp.no-wrap.scroll
-  %table.GralTable
-    %tr
-      %th{colspan: 2} Phone numbers
-      - @implicit_variables.each do |variable|
-        %th=variable.key
-      - @project_variables.each do |variable|
-        %th=variable.name
-      - @recorded_audio_descriptions.each do |audio_description|
-        %th=audio_description
-
-    - @contacts.each do |contact|
-      - link_opts = project_admin? ? {'data-url' => edit_project_contact_path(@project, contact), 'class' => 'link'} : {}
-      %tr{link_opts}
-        %td= addresses_for_contact(contact)
-        %td.right
-          - if project_admin?
-            = link_to '', project_contact_path(@project, contact), :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
-        - @implicit_variables.each do |implicit_variable|
-          - variable = contact.persisted_variables.detect{|v| v.implicit_key == implicit_variable.key}
-          %td= variable.try(:value)
-        - @project_variables.each do |project_variable|
-          - variable = contact.persisted_variables.detect do |variable|
-            - variable.project_variable == project_variable
-          %td= variable.try(:value)
-        - @recorded_audio_descriptions.each do |audio_description|
-          - audios = contact.recorded_audios.collect do |audio|
-            - audio.description == audio_description
-          %td= audios.size
-%br
-
 - if project_admin?
   = link_to 'New Contact', new_project_contact_path(@project), :class => 'cadd'
+
+.contacts-list
+  #contactsFilter.filters-box.w30.tablewrapp
+    .search
+      = form_tag search_project_contacts_path(@project) do
+        %p= "Filters (#{pluralize(@contacts.count, 'entry')} found)"
+        %hr
+        = hidden_field_tag :filters_json, params[:filters_json] || '[]', 'data-bind' => 'value: json', 'class' => 'filters'
+        = render 'shared/contacts_filter'
+        %button.fsearch Search
+
+    .create-scheduled-call
+      %hr
+      = form_tag from_filter_project_scheduled_calls_path(@project) do
+        = hidden_field_tag :filters_json, params[:filters_json] || '[]', 'data-bind' => 'value: json'
+        %button.fedit Create a scheduled call from these filters
+
+  .tablewrapp.no-wrap.scroll.contacts-table
+    %table.GralTable
+      %tr
+        %th{colspan: 2} Phone numbers
+        - @implicit_variables.each do |variable|
+          %th=variable.key
+        - @project_variables.each do |variable|
+          %th=variable.name
+        - @recorded_audio_descriptions.each do |audio_description|
+          %th=audio_description
+
+      - @contacts.each do |contact|
+        - link_opts = project_admin? ? {'data-url' => edit_project_contact_path(@project, contact), 'class' => 'link'} : {}
+        %tr{link_opts}
+          %td= addresses_for_contact(contact)
+          %td.right
+            - if project_admin?
+              = link_to '', project_contact_path(@project, contact), :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
+          - @implicit_variables.each do |implicit_variable|
+            - variable = contact.persisted_variables.detect{|v| v.implicit_key == implicit_variable.key}
+            %td= variable.try(:value)
+          - @project_variables.each do |project_variable|
+            - variable = contact.persisted_variables.detect do |variable|
+              - variable.project_variable == project_variable
+            %td= variable.try(:value)
+          - @recorded_audio_descriptions.each do |audio_description|
+            - audios = contact.recorded_audios.collect do |audio|
+              - audio.description == audio_description
+            %td= audios.size
+
+%br.clear
 
 :javascript
   window.variables = #{@project_variables.to_json};
