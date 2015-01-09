@@ -174,7 +174,7 @@ private
     hour =  time.present? ? (time / 60 % 24) : 0
     min = time.present? ? (time % 60) : 0
     offset = tz.formatted_offset
-    result = Time.new(year, month, day, hour, min, 0, offset)
+    result = DateTime.new(year, month, day, hour, min, 0, offset)
     time.present? ? result + (time / (24 * 60)).day : result
   end
 end

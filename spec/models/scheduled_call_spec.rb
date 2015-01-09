@@ -220,7 +220,6 @@ describe ScheduledCall do
         scheduled_call.from_time = 16 * 60 + 30 # 16:30
         scheduled_call.to_time = 24 * 60 + 13 * 60 + 45 # 13:45 next day
 
-        # expected_run_at = Time.new(2014, 12, 4, 0, 0, 0, tz.formatted_offset)
         expected_from = Time.new(2014, 12, 4, 16, 30, 0, tz.formatted_offset)
         expected_to = Time.new(2014, 12, 5, 13, 45, 0, tz.formatted_offset)
 

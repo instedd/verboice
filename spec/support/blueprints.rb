@@ -209,7 +209,7 @@ ScheduledCall.blueprint do
   call_flow { channel.call_flow }
   project { call_flow.project }
   name
-  time_zone { 'Buenos Aires' }
+  time_zone { 'Athens' }
   from_time { 10 * 60 }
   to_time { 15 * 60 }
 end
