@@ -8,9 +8,9 @@ class ScheduledCallsController < ApplicationController
 
   before_filter :load_project, only: [:index]
   before_filter :check_project_admin, only: [:create, :update, :destroy]
+  before_filter :setup_variables, only: [:index, :new]
 
   def index
-    @variables = project.project_variables.map{|x| {id: x.id, name: x.name} }
   end
 
   def create
@@ -35,5 +35,11 @@ class ScheduledCallsController < ApplicationController
       scheduled_call.filters = []
     end
     render :index
+  end
+
+private
+
+  def setup_variables
+    @variables = project.project_variables.map{|x| {id: x.id, name: x.name} }
   end
 end
