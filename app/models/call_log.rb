@@ -120,9 +120,10 @@ class CallLog < ActiveRecord::Base
 
   def self.poirot_activities(id_or_ids)
     if Rails.configuration.verboice_configuration[:poirot_elasticsearch_url]
+      id_or_ids = [id_or_ids] unless id_or_ids.is_a?(Array)
       Hercule::Activity.search({size: 1000000, filter: {
         and: [
-          { term: { call_log_id: id_or_ids } },
+          { terms: { call_log_id: id_or_ids } },
           { exists: { field: "step_type" } }
         ]
       }}).items
