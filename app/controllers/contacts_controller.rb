@@ -36,6 +36,9 @@ class ContactsController < ApplicationController
     end
   end
 
+  def calls
+  end
+
   def new
     @contact = Contact.new
 

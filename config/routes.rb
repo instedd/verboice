@@ -71,6 +71,9 @@ Verboice::Application.routes.draw do
         collection do
           post :search, :action => :index, :as => 'search'
         end
+        member do
+          get :calls
+        end
       end
 
       resources :resources do
