@@ -73,6 +73,7 @@ Verboice::Application.routes.draw do
         end
         member do
           get :calls
+          get :queued_calls
         end
       end
 

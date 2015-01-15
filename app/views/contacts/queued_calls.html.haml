@@ -1,0 +1,7 @@
+= render 'shared/project_tabs_and_title', :project => @project, :shared_project => @shared_project
+
+%h1 Queued Calls
+
+%ul
+  - @calls.each do |call|
+    %li= call.id
