@@ -319,7 +319,7 @@ notify_status_to_hub(Status, Session = #session{call_log = CallLog, js_context =
               {vars, {map, session_vars(JS)}}
             ]}
           ],
-          delayed_job:enqueue(yaml:dump({map, Task, <<"!ruby/object:Jobs::HubJob">>}, [{schema, yaml_schema_ruby}]))
+          delayed_job:enqueue("Jobs::HubJob", Task)
       end;
     _ ->
        ok
@@ -383,9 +383,8 @@ code_change(_OldVsn, StateName, State, _Extra) ->
   {ok, StateName, State}.
 
 push_results(#session{call_flow = #call_flow{id = CallFlowId, store_in_fusion_tables = 1}, call_log = CallLog}) ->
-  Task = ["--- !ruby/struct:CallFlow::FusionTablesPush::Pusher\ncall_flow_id: ", integer_to_list(CallFlowId),
-    "\ncall_log_id: ", integer_to_list(CallLog:id()), "\n"],
-  delayed_job:enqueue(Task, ?PUSH_DELAY_SECONDS);
+  Task = [{call_flow_id, CallFlowId}, {call_log_id, CallLog:id()}],
+  delayed_job:enqueue({struct, "CallFlow::FusionTablesPush::Pusher"}, Task, ?PUSH_DELAY_SECONDS);
 push_results(_) -> ok.
 
 finalize(completed, State = #state{session = #session{call_log = CallLog}}) ->
