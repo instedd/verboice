@@ -6,6 +6,9 @@ development:
   <<: *default_settings
   enabled: true
   server: localhost:2120
+  mute:
+   - /assets/
+   - /alerts.json
 
 test:
   <<: *default_settings
