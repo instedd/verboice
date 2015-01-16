@@ -37,6 +37,7 @@ module Parsers
         @next = params['next']
         @default = params['default']
         @variable = params['variable']
+        @remember = params['remember'] || false
       end
 
       def solve_links_with nodes
@@ -56,6 +57,15 @@ module Parsers
         Compiler.parse do |c|
           c.Label @id
           c.StartUserStep :impersonate, @id, @name
+
+          if @remember
+            c.RememberImpersonate
+            c.If 'impersonated' do |c|
+              c.SetStepResult :impersonated
+              c.Goto "end#{@id}"
+            end
+          end
+
           c.AssignValue "attempt_number#{@id}", 1
           c.While "attempt_number#{@id} <= #{@number_of_attempts}" do |c|
             c.Capture({
@@ -65,7 +75,7 @@ module Parsers
                 timeout: @timeout
               }.merge( @instructions_resource.capture_flow ))
             c.If 'digits != null' do |c|
-              c.Impersonate @variable, 'digits'
+              c.Impersonate @variable, 'digits', @remember
               c.If 'impersonated' do |c|
                 c.SetStepResult :impersonated
                 c.Goto "end#{@id}"

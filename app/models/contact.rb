@@ -22,6 +22,8 @@ class Contact < ActiveRecord::Base
   has_many :recorded_audios, :dependent => :destroy
   has_many :project_variables, :through => :project
   has_many :contact_scheduled_calls, :dependent => :destroy
+  has_many :impersonate_original_records, :class_name => 'ImpersonateRecord', :foreign_key => 'contact_id', :dependent => :destroy
+  has_many :impersonate_impersonated_records, :class_name => 'ImpersonateRecord', :foreign_key => 'impersonated_id', :dependent => :destroy
 
   accepts_nested_attributes_for :persisted_variables,
     :reject_if => lambda { |attributes| attributes[:value].blank? || (attributes[:project_variable_id].blank? && attributes[:implicit_key].blank?) },
