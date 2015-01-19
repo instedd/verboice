@@ -15,12 +15,14 @@
       %th Channel
       %th Date
       %th Schedule
+      %th
       - @calls.each do |call|
         %tr
-          %td=call.id
-          %td=call.channel.name
-          %td=call.not_before
-          %td=call.schedule.try(:name)
+          %td= call.id
+          %td= call.channel.name
+          %td= call.not_before
+          %td= call.schedule.try(:name)
+          %td= link_to 'view log details', call_log_path(call.call_log)
 
 %div#call_logs_paginator
   = form_tag({action: :queued_calls}, method: :get) do

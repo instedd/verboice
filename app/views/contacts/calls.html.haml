@@ -19,15 +19,17 @@
       %th Started
       %th Duration
       %th State
+      %th
       - @logs.each do |call|
         %tr
-          %td=call.id
-          %td=call.channel.name
-          %td=call.direction
-          %td=call.schedule.try(:name)
+          %td= call.id
+          %td= call.channel.name
+          %td= call.direction
+          %td= call.schedule.try(:name)
           %td= raw time_ago call.created_at
           %td= distance_of_time_in_words(call.finished_at, call.created_at, true) if call.finished_at
-          %td=call.state
+          %td= call.state
+          %td= link_to 'view details', call
 
 
 %div#call_logs_paginator
