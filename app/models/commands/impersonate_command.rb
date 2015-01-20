@@ -16,15 +16,17 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Commands::ImpersonateCommand < Command
-  def initialize(variable, value)
+  def initialize(variable, value, remember)
     @variable = variable
     @value = value
+    @remember = remember
   end
 
   def serialize_parameters
     {
       variable: @variable,
-      value: @value
+      value: @value,
+      remember: @remember
     }
   end
 end

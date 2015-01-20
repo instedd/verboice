@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150107193503) do
+ActiveRecord::Schema.define(:version => 20150116175501) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -233,6 +233,17 @@ ActiveRecord::Schema.define(:version => 20150107193503) do
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
+
+  create_table "impersonate_records", :force => true do |t|
+    t.integer  "call_flow_id"
+    t.integer  "contact_id"
+    t.integer  "impersonated_id"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "impersonate_records", ["call_flow_id"], :name => "index_impersonate_records_on_call_flow_id"
+  add_index "impersonate_records", ["contact_id"], :name => "index_impersonate_records_on_contact_id"
 
   create_table "localized_resources", :force => true do |t|
     t.string   "language"

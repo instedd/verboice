@@ -7,6 +7,7 @@
 -record(contact_address, {id, address, contact_id, project_id, created_at, updated_at}).
 -record(delayed_job, {id, handler, run_at, created_at, updated_at}).
 -record(external_service, {id, project_id, guid, global_settings, created_at, updated_at}).
+-record(impersonate_record, {id, call_flow_id, contact_id, impersonated_id, created_at, updated_at}).
 -record(localized_resource, {id, language, text, recorded_audio, uploaded_audio, url, type, guid, resource_id, extras, created_at, updated_at}).
 -record(persisted_variable, {id, contact_id, implicit_key, project_variable_id, value, created_at, updated_at}).
 -record(pbx_log, {id, guid, details, created_at, updated_at}).

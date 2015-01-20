@@ -28,6 +28,7 @@ class CallFlow < ActiveRecord::Base
   has_many :traces, :dependent => :destroy
   has_many :call_flow_external_services, :dependent => :destroy
   has_many :external_services, :through => :call_flow_external_services
+  has_many :impersonate_records, :dependent => :destroy
 
   has_one :account, :through => :project
   has_one :google_oauth_token, :through => :account
