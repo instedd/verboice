@@ -36,7 +36,7 @@ run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = Ca
           {activity, poirot:current_id()},
           {project_id, Project#project.id}
         ],
-        delayed_job:enqueue(yaml:dump({map, Task, <<"!ruby/object:Jobs::CallbackJob">>}, [{schema, yaml_schema_ruby}]))
+        delayed_job:enqueue("Jobs::CallbackJob", Task)
       end),
       {next, Session};
 

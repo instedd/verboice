@@ -118,6 +118,7 @@ do_dispatch(State = #state{current_calls = C, queued_calls = Q, sessions = S}) -
         true ->
           case broker:dispatch(State#state.channel, Call) of
             {ok, SessionPid} ->
+              contact_scheduled_call:record_last_call(Call),
               Call:delete(),
               monitor(process, SessionPid),
               NewSessions = ordsets:add_element(SessionPid, S),

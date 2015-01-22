@@ -7,15 +7,17 @@
 -record(contact_address, {id, address, contact_id, project_id, created_at, updated_at}).
 -record(delayed_job, {id, handler, run_at, created_at, updated_at}).
 -record(external_service, {id, project_id, guid, global_settings, created_at, updated_at}).
+-record(impersonate_record, {id, call_flow_id, contact_id, impersonated_id, created_at, updated_at}).
 -record(localized_resource, {id, language, text, recorded_audio, uploaded_audio, url, type, guid, resource_id, extras, created_at, updated_at}).
 -record(persisted_variable, {id, contact_id, implicit_key, project_variable_id, value, created_at, updated_at}).
 -record(pbx_log, {id, guid, details, created_at, updated_at}).
 -record(project, {id, account_id, name, status_callback_url, default_language, languages, encrypted_config, created_at, updated_at}).
 -record(project_variable, {id, project_id, name, created_at, updated_at}).
--record(queued_call, {id, channel_id, call_log_id, address, callback_url, flow, call_flow_id, status_callback_url, schedule_id, not_before, not_after, retries, project_id, time_zone, variables, session_id, callback_params, created_at, updated_at}).
+-record(queued_call, {id, channel_id, call_log_id, address, callback_url, flow, call_flow_id, status_callback_url, schedule_id, not_before, not_after, retries, project_id, time_zone, variables, session_id, callback_params, contact_id, scheduled_call_id, created_at, updated_at}).
 -record(recorded_audio, {id, project_id, contact_id, call_log_id, key, description, created_at, updated_at}).
 -record(resource, {id, name, project_id, guid, created_at, updated_at}).
 -record(schedule, {id, name, retries, time_from, time_to, weekdays, project_id, created_at, updated_at}).
 -record(trace_record, {id, call_flow_id, call_id, step_name, step_id, result, created_at, updated_at}).
 -record(hibernated_session, {id, session_id, data, created_at, updated_at}).
 -record(nuntium_channel, {id, channel_name, created_at, updated_at}).
+-record(contact_scheduled_call, {id, contact_id, scheduled_call_id, last_called_at, created_at, updated_at}).

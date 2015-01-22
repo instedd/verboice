@@ -47,4 +47,15 @@ $(function() {
       }
     });
   });
+  $('.call-selectors input[type="radio"]').on('change',function(){
+      window.location = $(this).data('path');
+  });
 });
+
+function initContactsFilter() {
+  $(function() {
+    var filters = JSON.parse($('.filters').val());
+    var model = new ContactsFilter(filters);
+    ko.applyBindings(model, document.getElementById('contactsFilter'));
+  });
+}

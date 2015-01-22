@@ -1,0 +1,19 @@
+:javascript
+  window.variables = #{@variables.to_json};
+  initScheduledCalls();
+
+= render 'shared/project_tabs_and_title', :project => project, :shared_project => @shared_project
+
+%h1 Scheduled Calls
+
+- scheduled_calls.each do |scheduled_call|
+  = render 'box', :scheduled_call => scheduled_call, :expanded => scheduled_call.errors.any? || scheduled_call.new_record?
+
+- if project_admin?
+  .box.grey.addqueue.w60
+    %span
+      = link_to_add_scheduled_call "Add Scheduled Call", @project, :class => 'add_fields'
+    %button.cadd.right{:onclick => "$('.add_fields').click();", :type => "button"}
+    %br{clear: 'all'}
+
+%br

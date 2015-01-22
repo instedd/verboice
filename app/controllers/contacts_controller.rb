@@ -20,9 +20,10 @@ class ContactsController < ApplicationController
   before_filter :load_project
   before_filter :initialize_context, :only => [:show, :edit, :update, :destroy]
   before_filter :check_project_admin, :only => [:create, :edit, :update, :destroy]
+  before_filter :init_calls_context, :only => [:calls, :queued_calls]
 
   def index
-    @contacts = @project.contacts.includes(:addresses).includes(:recorded_audios).includes(:persisted_variables).includes(:project_variables)
+    @contacts = ContactsFinder.for(@project).find(filters, includes: [:addresses, :recorded_audios, :persisted_variables, :project_variables])
     @project_variables = @project.project_variables
     @recorded_audio_descriptions = RecordedAudio.select(:description).where(:contact_id => @contacts.collect(&:id)).collect(&:description).to_set
     @implicit_variables = ImplicitVariable.subclasses
@@ -110,6 +111,20 @@ class ContactsController < ApplicationController
     end
   end
 
+  def calls
+    @logs = current_account.call_logs.includes(:channel, :schedule)
+      .where(address: @contact.addresses.map(&:address))
+      .order('id DESC')
+      .paginate(:page => @page, :per_page => @per_page)
+  end
+
+  def queued_calls
+    @calls = current_account.queued_calls.includes(:channel, :call_log, :schedule)
+      .where(address: @contact.addresses.map(&:address))
+      .order('id DESC')
+      .paginate(:page => @page, :per_page => @per_page)
+  end
+
   private
 
   def initialize_context
@@ -125,5 +140,15 @@ class ContactsController < ApplicationController
         variable['_destroy'] = "1"
       end
     end if params[:contact][:persisted_variables_attributes].present?
+  end
+
+  def filters
+    params[:filters_json].present? ? JSON.parse(params[:filters_json]) : []
+  end
+
+  def init_calls_context
+    @contact = @project.contacts.find(params[:id])
+    @page = params[:page] || 1
+    @per_page = 10
   end
 end

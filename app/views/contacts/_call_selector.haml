@@ -1,0 +1,8 @@
+.call-selectors
+  %label
+    Registered calls
+    =radio_button_tag 'call_type','', params[:action] == 'calls', 'data-path' => calls_project_contact_path(@project, @contact)
+
+  %label
+    Scheduled calls
+    =radio_button_tag 'call_type','', params[:action] == 'queued_calls', 'data-path' => queued_calls_project_contact_path(@project, @contact)

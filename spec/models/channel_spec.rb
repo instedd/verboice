@@ -148,6 +148,12 @@ describe Channel do
         call_log = channel.call 'foo', vars: {'bar' => '1', 'baz' => 'eee'}
         queued_call.variables.should eq({'bar' => 1, 'baz' => 'eee'})
       end
+
+      it "stores contact and schedule call" do
+        channel.call 'foo', contact_id: 7, scheduled_call_id: 13
+        queued_call.contact_id.should eq(7)
+        queued_call.scheduled_call_id.should eq(13)
+      end
     end
 
     it "call create_channel on broker client when create" do

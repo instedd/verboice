@@ -1,0 +1,15 @@
+.box.grey.w60.collapsible_crud_box.scheduled_call{:class => ("#{expanded ? 'expanded' : 'collapsed'}")}
+  - if scheduled_call.errors.any?
+    .error_explanation
+      %h2= "#{pluralize(scheduled_call.errors.count, "error")} prohibited this scheduled call from being saved:"
+      %ul
+        - scheduled_call.errors.full_messages.each do |msg|
+          %li= msg
+  .rightbuttons
+    - if project_admin?
+      = link_to '', [project, scheduled_call], :confirm => 'Are you sure?', :method => :delete , :class => "fdelete" unless scheduled_call.new_record?
+  .summary
+    = render 'summary', :scheduled_call => scheduled_call
+  .content
+    = render 'form', :scheduled_call => scheduled_call
+  .clear
