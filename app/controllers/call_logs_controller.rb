@@ -17,13 +17,11 @@
 
 class CallLogsController < ApplicationController
   before_filter :authenticate_account!
+  before_filter :prepare_logs, only: [:index, :download]
 
   def index
     @page = params[:page] || 1
-    @search = params[:search]
     @per_page = 10
-    @logs = current_account.call_logs.includes(:project).includes(:channel).order('id DESC')
-    @logs = @logs.search @search, :account => current_account if @search.present?
     @logs = @logs.paginate :page => @page, :per_page => @per_page
   end
 
@@ -61,6 +59,14 @@ class CallLogsController < ApplicationController
     @filename = "Call details #{@log.id} (#{Time.now}).csv"
     @streaming = true
     @csv_options = { :col_sep => ',' }
+  end
+
+private
+
+  def prepare_logs
+    @search = params[:search]
+    @logs = current_account.call_logs.includes(:project).includes(:channel).order('id DESC')
+    @logs = @logs.search @search, :account => current_account if @search.present?
   end
 
 end
