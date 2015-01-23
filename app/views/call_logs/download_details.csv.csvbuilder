@@ -1,4 +1,16 @@
-csv << ['Call ID', 'Phone Number', 'Time', 'Severity', 'Step name', 'Step ID', 'Command', 'Action', 'Detail']
-@log.entries.find_each do |entry|
-  csv << [@log.id, @log.address, entry.created_at, entry.severity, entry.step_name, entry.step_id, entry.command, entry.action, entry.description]
+csv << ['Start', 'Stop', 'Step type', 'Step ID', 'Step name', 'Step result', 'Step data', 'Error']
+@activities.each do |activity|
+  activity_start = activity.start.present? ? Time.parse(activity.start) : ''
+  activity_end = activity.stop.present? ? Time.parse(activity.stop) : ''
+  step_id = activity.fields['step_id'].present? ? activity.fields['step_id'].to_i : ''
+  csv << [
+    activity_start,
+    activity_end,
+    activity.fields['step_type'],
+    step_id,
+    activity.description,
+    activity.fields['step_result'],
+    activity.fields['step_data'],
+    activity.fields['error']
+  ]
 end
