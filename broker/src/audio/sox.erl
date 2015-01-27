@@ -1,5 +1,5 @@
 -module(sox).
--export([convert/2, convert/3]).
+-export([convert/2, convert/3, convert_with_quality/3]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -19,6 +19,10 @@ convert(Input, InType, OutPath) ->
   {ok, Pid} = start_link(),
   gen_server:call(Pid, {convert, Input, InType, OutPath}).
 
+convert_with_quality(Input, Quality, OutPath) ->
+  {ok, Pid} = start_link(),
+  gen_server:call(Pid, {convert_with_quality, Input, Quality, OutPath}).
+
 %% @private
 init({}) ->
   io:format("Sox converter: ~p~n", [self()]),
@@ -31,6 +35,10 @@ handle_call({convert, Input, OutPath}, From, State) ->
 
 handle_call({convert, Input, InputType, OutPath}, From, State) ->
   Port = do_convert(Input, InputType, OutPath),
+  {noreply, State#state{port = Port, caller = From}, ?TIMEOUT * 5};
+
+handle_call({convert_with_quality, Input, Quality, OutPath}, From, State) ->
+  Port = do_convert_with_quality(Input, Quality, OutPath),
   {noreply, State#state{port = Port, caller = From}, ?TIMEOUT * 5}.
 
 %% @private
@@ -75,5 +83,13 @@ do_convert(Input, InputType, OutPath) when is_list(Input) ->
 
 do_convert(Input, InputType, OutPath) when is_binary(Input) ->
   Port = open_port({spawn, "sox -t " ++ InputType ++ " - -e signed-integer -r 8000 -c1 " ++ OutPath}, [binary, exit_status, stderr_to_stdout]),
+  port_command(Port, Input),
+  Port.
+
+do_convert_with_quality(Input, Quality, OutPath) when is_list(Input) ->
+  open_port({spawn, "sox " ++ Input ++ " -e signed-integer -r " ++ Quality ++ " -c1 " ++ OutPath}, [exit_status, stderr_to_stdout]);
+
+do_convert_with_quality(Input, Quality, OutPath) when is_binary(Input) ->
+  Port = open_port({spawn, "sox - -e signed-integer -r " ++ Quality ++ " -c1 " ++ OutPath}, [binary, exit_status, stderr_to_stdout]),
   port_command(Port, Input),
   Port.
