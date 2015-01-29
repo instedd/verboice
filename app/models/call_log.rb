@@ -23,6 +23,7 @@ class CallLog < ActiveRecord::Base
   belongs_to :call_flow
   belongs_to :channel
   belongs_to :schedule
+  belongs_to :contact
   has_many :traces, :foreign_key => 'call_id'
   has_many :entries, :foreign_key => 'call_id', :class_name => "CallLogEntry"
   has_many :pbx_logs, :foreign_key => :guid, :primary_key => :pbx_logs_guid
