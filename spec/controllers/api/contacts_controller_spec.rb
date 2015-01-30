@@ -154,4 +154,28 @@ describe Api::ContactsController do
     json['addresses'].should eq(contact.addresses.map(&:address))
     json['vars'].should eq({"var1" => "foo", "var2" => "bar"})
   end
+
+  it "creates a new contact with a single address" do
+    lambda do
+      post :create, project_id: project.id, address: '123', vars: {var1: 'foo'}
+    end.should change(project.contacts, :count).by(1)
+
+    json = JSON.parse response.body
+    json['addresses'].should eq(['123'])
+    json['vars'].should eq({"var1" => "foo"})
+
+    project.contacts.find(json['id']).should be_present
+  end
+
+  it "creates a new contact with a multiple addresses" do
+    lambda do
+      post :create, project_id: project.id, addresses: ['123', '456'], vars: {var1: 'foo'}
+    end.should change(project.contacts, :count).by(1)
+
+    json = JSON.parse response.body
+    json['addresses'].should eq(['123', '456'])
+    json['vars'].should eq({"var1" => "foo"})
+
+    project.contacts.find(json['id']).should be_present
+  end
 end

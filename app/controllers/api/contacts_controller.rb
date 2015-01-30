@@ -25,6 +25,36 @@ class Api::ContactsController < ApiController
     render json: contacts_to_json(contacts)
   end
 
+  def create
+    # normalize address parameter in case we get a single address
+    if params[:address].present?
+      params[:addresses] = [params[:address]]
+    end
+    params[:addresses] = Array.wrap(params[:addresses])
+
+    contact = project.contacts.build
+    params[:addresses].each do |address|
+      contact.addresses.build address: address
+    end
+
+    project_vars = project.project_variables.all
+    project_vars = project_vars.index_by &:name
+
+    params[:vars].each do |key, value|
+      project_var = project_vars[key]
+      unless project_var
+        return render text: "No such variable: #{key}", status: :bad_reqeust
+      end
+      contact.persisted_variables.build project_variable_id: project_var.id, value: value
+    end
+
+    if contact.save
+      render json: contacts_to_json([contact])[0]
+    else
+      render json: contact.errors, status: :bad_request
+    end
+  end
+
   def show_by_address
     contact = project.contacts.joins(:addresses).where(contact_addresses: {address: params[:address]}).first or return head(:not_found)
     render json: contacts_to_json([contact])[0]
