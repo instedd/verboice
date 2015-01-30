@@ -117,6 +117,8 @@ class Channel < ActiveRecord::Base
       raise CallQueuingError.new("Not After date can't be before schedule's next available date") if next_available_time.present? && not_after.utc < next_available_time.utc
     end
 
+    contact_id = project.contact_addresses.find_by_address(address).try(:contact_id)
+
     session_id = options[:session_id]
 
     if session_id
@@ -131,7 +133,8 @@ class Channel < ActiveRecord::Base
         :state => :queued,
         :schedule => schedule,
         :not_before => not_before,
-        :not_after => not_after
+        :not_after => not_after,
+        :contact_id => contact_id
       )
       call_log.save!
       call_log.info "Received via #{via}: call #{address}"

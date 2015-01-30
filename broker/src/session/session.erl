@@ -114,6 +114,7 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
       Channel = channel:find(ChannelId),
       CallFlow = call_flow:find(Channel#channel.call_flow_id),
       Project = project:find(CallFlow#call_flow.project_id),
+      Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
       CallLog = call_log_srv:new(SessionId, #call_log{
         account_id = Channel#channel.account_id,
         project_id = CallFlow#call_flow.project_id,
@@ -122,9 +123,9 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
         channel_id = ChannelId,
         address = CallerId,
         started_at = StartedAt,
-        call_flow_id = CallFlow#call_flow.id
+        call_flow_id = CallFlow#call_flow.id,
+        contact_id = Contact#contact.id
       }),
-      Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
       Flow = call_flow:flow(CallFlow),
       {StatusUrl, StatusUser, StatusPass} = project:status_callback(Project),
 

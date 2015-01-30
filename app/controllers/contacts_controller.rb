@@ -113,7 +113,7 @@ class ContactsController < ApplicationController
 
   def calls
     @logs = current_account.call_logs.includes(:channel, :schedule)
-      .where(address: @contact.addresses.map(&:address))
+      .where(contact_id: @contact.id)
       .order('id DESC')
       .paginate(:page => @page, :per_page => @per_page)
   end

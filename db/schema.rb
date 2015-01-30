@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150116175501) do
+ActiveRecord::Schema.define(:version => 20150128194210) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -106,10 +106,12 @@ ActiveRecord::Schema.define(:version => 20150116175501) do
     t.string   "fail_reason"
     t.string   "pbx_logs_guid"
     t.datetime "not_after"
+    t.integer  "contact_id"
   end
 
   add_index "call_logs", ["account_id", "id"], :name => "index_call_logs_on_account_id_and_id"
   add_index "call_logs", ["call_flow_id"], :name => "index_call_logs_on_call_flow_id"
+  add_index "call_logs", ["contact_id"], :name => "index_call_logs_on_contact_id"
 
   create_table "channels", :force => true do |t|
     t.integer  "account_id"

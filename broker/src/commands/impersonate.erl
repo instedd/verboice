@@ -24,6 +24,8 @@ run(Args, Session = #session{js_context = JS, project = #project{id = ProjectId}
   {next, NewSession}.
 
 impersonate(Session, Contact) ->
+  CallLog = Session#session.call_log,
+  CallLog:update([{contact_id, Contact#contact.id}]),
   NewSession = Session#session{contact = Contact},
   Context = session:default_variables(NewSession),
   Context2 = erjs_context:set(impersonated, true, Context),
