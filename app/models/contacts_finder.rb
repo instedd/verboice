@@ -49,19 +49,19 @@ private
     when :eq
       variable.present? && variable.value == value.try(:to_s)
     when :geq
-      variable.present? && variable.typecasted_value >= value.try(:to_i)
+      variable.present? && variable.is_number? && variable.typecasted_value >= value.try(:to_i)
     when :gt
-      variable.present? && variable.typecasted_value > value.try(:to_i)
+      variable.present? && variable.is_number? && variable.typecasted_value > value.try(:to_i)
     when :leq
-      variable.present? && variable.typecasted_value <= value.try(:to_i)
+      variable.present? && variable.is_number? && variable.typecasted_value <= value.try(:to_i)
     when :lt
-      variable.present? && variable.typecasted_value < value.try(:to_i)
+      variable.present? && variable.is_number? && variable.typecasted_value < value.try(:to_i)
     when :defined
       variable.present? && !variable.value.nil?
     when :undefined
       variable.nil? || variable.value.nil?
     when :includes
-      variable.present? && !value.nil? && variable.value.include?(value)
+      variable.present? && !value.nil? && !variable.value.nil? && variable.value.include?(value)
     else
       false
     end
