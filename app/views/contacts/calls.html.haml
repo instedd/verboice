@@ -26,8 +26,8 @@
           %td= call.channel.name
           %td= call.direction
           %td= call.schedule.try(:name)
-          %td= raw time_ago call.created_at
-          %td= distance_of_time_in_words(call.finished_at, call.created_at, true) if call.finished_at
+          %td= raw time_ago call.started_at
+          %td= distance_of_time_in_words(call.finished_at, call.started_at, true) if call.finished_at
           %td= call.state
           %td= link_to 'view details', call
 

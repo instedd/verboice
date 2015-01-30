@@ -27,9 +27,9 @@
       - @logs.each do |log|
         %tr
           %td= log.id
-          %td= raw time_ago log.created_at
+          %td= raw time_ago log.started_at
           %td= raw time_ago log.finished_at
-          %td= distance_of_time_in_words(log.finished_at, log.created_at, true) if log.finished_at
+          %td= distance_of_time_in_words(log.finished_at, log.started_at, true) if log.finished_at
           - if log.address.present?
             %td= link_to log.address, call_logs_path(:search => "caller:#{log.address}")
           - else
