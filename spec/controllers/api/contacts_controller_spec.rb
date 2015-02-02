@@ -167,6 +167,18 @@ describe Api::ContactsController do
     project.contacts.find(json['id']).should be_present
   end
 
+  it "creates a new contact with no variables given" do
+    lambda do
+      post :create, project_id: project.id, address: '123'
+    end.should change(project.contacts, :count).by(1)
+
+    json = JSON.parse response.body
+    json['addresses'].should eq(['123'])
+    json['vars'].should eq({})
+
+    project.contacts.find(json['id']).should be_present
+  end
+
   it "creates a new contact with a multiple addresses" do
     lambda do
       post :create, project_id: project.id, addresses: ['123', '456'], vars: {var1: 'foo'}

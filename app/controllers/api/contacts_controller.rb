@@ -40,7 +40,7 @@ class Api::ContactsController < ApiController
     project_vars = project.project_variables.all
     project_vars = project_vars.index_by &:name
 
-    params[:vars].each do |key, value|
+    (params[:vars] || {}).each do |key, value|
       project_var = project_vars[key]
       unless project_var
         return render text: "No such variable: #{key}", status: :bad_reqeust
