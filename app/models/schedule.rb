@@ -126,8 +126,8 @@ class Schedule < ActiveRecord::Base
     if retries.present?
       retries_desc = retries.split(",").map(&:strip).map do |piece|
         parsed = parse_retry(piece)
-        "#{parsed[0]} #{parsed[1].to_s.pluralize(parsed[0].to_f)}"
-      end
+        "#{parsed[0]} #{parsed[1].to_s.pluralize(parsed[0].to_f)}" if parsed
+      end.compact
       desc << " Retry after #{retries_desc.to_sentence}."
     end
     desc
@@ -173,14 +173,14 @@ class Schedule < ActiveRecord::Base
   def parse_retry(piece)
     case piece
     when /\A(\d+)\s*da?y?s?\Z/
-      [$1.to_i, :days]
+      [$1.to_i, :day]
     when /\A(\d+)\s*ho?u?r?s?\Z/
-      [$1.to_i, :hours]
+      [$1.to_i, :hour]
     when /\A(\d+)\s*mi?n?u?t?e?s?\Z/
-      [$1.to_i, :minutes]
+      [$1.to_i, :minute]
     when /\A\d+(\.\d+)?\Z/
       # Ok: old format just supporting hours and fractions of hours
-      [piece.to_f, :hours]
+      [piece.to_f, :hour]
     else
       nil
     end
