@@ -133,6 +133,14 @@ class ScheduledCall < ActiveRecord::Base
     end
   end
 
+  def description
+    if from_time.present? && to_time.present?
+      "#{self.recurrence.to_s} from #{format_time(from_time)} to #{format_time(to_time)}"
+    else
+      self.recurrence.to_s
+    end
+  end
+
 private
 
   def set_default_recurrence
@@ -176,5 +184,14 @@ private
     offset = tz.formatted_offset
     result = DateTime.new(year, month, day, hour, min, 0, offset)
     time.present? ? result + (time / (24 * 60)).day : result
+  end
+
+  def format_time(time_in_mins)
+    h = (time_in_mins / 60 % 24).to_s
+    m = (time_in_mins % 60).to_s
+    h = h.length < 2 ? "0" + h : h;
+    m = m.length < 2 ? "0" + m : m;
+    s = "#{h}:#{m}"
+    time_in_mins > 1440 ? "#{s} on next day" : s
   end
 end
