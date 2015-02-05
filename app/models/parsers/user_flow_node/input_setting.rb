@@ -34,7 +34,11 @@ module Parsers
         if step.present?
           "value_#{step}"
         elsif variable.present?
-          "var_#{variable}"
+          if ReadVariable.keys.include?(variable)
+            variable
+          else
+            "var_#{variable}"
+          end
         elsif value.present?
           value_for_js value
         elsif response.present?
