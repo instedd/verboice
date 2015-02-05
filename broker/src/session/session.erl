@@ -227,7 +227,12 @@ dialing({answer, Pbx}, State = #state{session_id = SessionId, session = Session,
 dialing({reject, Reason}, State = #state{session = Session = #session{session_id = SessionId, call_log = CallLog}}) ->
   lager:info("Session (~p) rejected, reason: ~p", [SessionId, Reason]),
   CallLog:error(["Call was rejected. (Reason: ", atom_to_list(Reason),")"], []),
-  notify_status('no-answer', Session),
+  Status = case Reason of
+    busy -> busy;
+    no_answer -> 'no-answer';
+    _ -> failed
+  end,
+  notify_status(Status, Session),
   finalize({failed, Reason}, State);
 
 dialing(timeout, State = #state{session = Session}) ->
@@ -411,6 +416,8 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
   end,
   FailReason = case Reason of
     hangup -> "hangup";
+    busy -> "busy";
+    no_answer -> "no-answer";
     {error, _} -> "fatal error";
     _ -> "error"
   end,

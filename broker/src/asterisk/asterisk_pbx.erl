@@ -89,7 +89,7 @@ dial(Channel, Address, undefined, {?MODULE, Pid}) ->
                   AsBinary when is_binary(AsBinary) -> binary_to_list(AsBinary);
                   AsList -> AsList
                 end,
-  agi_session:dial(Pid, [DialAddress, "60", "m"]),
+  agi_session:dial(Pid, [DialAddress, "60", "mg"]),
   case agi_session:get_variable(Pid, "DIALSTATUS") of
     hangup -> throw(hangup);
     {ok, Value} -> case Value of

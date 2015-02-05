@@ -21,7 +21,7 @@ class ExternalService < ActiveRecord::Base
   has_many :call_flow_external_services, :dependent => :destroy
   has_many :call_flows, :through => :call_flow_external_services
 
-  attr_accessible :name, :url, :xml, :global_variables_attributes, :guid, :base_url
+  attr_accessible :name, :url, :xml, :global_variables_attributes, :guid, :global_settings, :base_url
 
   validates :guid, :presence => true, :uniqueness => { :scope => :project_id }
 
