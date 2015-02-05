@@ -108,9 +108,9 @@ handle_cast(_Msg, State) ->
   {noreply, State}.
 
 %% @private
-handle_info({tcp, _, <<"HANGUP", _/binary>>}, State = #state{sock = Sock}) ->
-  gen_tcp:close(Sock),
-  {noreply, State#state{closed = true}, ?TIMEOUT};
+handle_info({tcp, _, <<"HANGUP", _/binary>>}, State = #state{caller = From}) ->
+  reply_caller(From, hangup),
+  {noreply, State#state{closed = true, caller = undefined}, ?TIMEOUT};
 
 handle_info({tcp, _, Line}, State = #state{caller = From}) ->
   Response = parse_response(Line),
@@ -120,8 +120,9 @@ handle_info({tcp, _, Line}, State = #state{caller = From}) ->
 handle_info(timeout, State) ->
   {stop, timeout, State#state{closed = true}};
 
-handle_info({tcp_closed, _}, State) ->
-  {stop, closed, State#state{closed = true}};
+handle_info({tcp_closed, _}, State = #state{caller = From}) ->
+  reply_caller(From, hangup),
+  {stop, closed, State#state{closed = true, caller = undefined}};
 
 handle_info(_Info, State) ->
   {noreply, State}.
@@ -134,6 +135,10 @@ terminate(_Reason, #state{sock = Sock}) ->
 %% @private
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
+
+reply_caller(undefined, _) -> ok;
+reply_caller(From, Response) ->
+  gen_server:reply(From, Response).
 
 read_params(Sock, Params) ->
   case gen_tcp:recv(Sock, 0) of
