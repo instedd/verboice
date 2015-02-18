@@ -40,15 +40,21 @@ handle_call({find_channel, PeerIp, Number}, _From, State) ->
   case dict:find({PeerIp, Number}, State#state.channels) of
     {ok, ChannelId} -> {reply, ChannelId, State};
     error ->
-      case dict:find(PeerIp, State#state.dynamic_channels) of
+      case dict:find({PeerIp, Number}, State#state.dynamic_channels) of
         {ok, ChannelId} -> {reply, ChannelId, State};
         error -> {reply, not_found, State}
       end
   end;
 
 handle_call({register_channel, ChannelId, PeerIp}, _From, State) ->
-  NewDynChannels = dict:store(PeerIp, ChannelId, State#state.dynamic_channels),
-  {reply, ok, State#state{dynamic_channels = NewDynChannels}};
+  NewState = case channel:find(ChannelId) of
+    undefined ->
+      State;
+    Channel ->
+      NewDynChannels = dict:store({PeerIp, channel:number(Channel)}, ChannelId, State#state.dynamic_channels),
+      State#state{dynamic_channels = NewDynChannels}
+  end,
+  {reply, ok, NewState};
 
 handle_call({get_channel_status, ChannelIds}, _From, State) ->
   case State#state.channel_status of

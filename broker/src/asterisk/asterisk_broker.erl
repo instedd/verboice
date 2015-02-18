@@ -34,8 +34,11 @@ dial_address(#channel{type = <<"Channels::Custom">>, config = Config}, Address) 
     end
   end);
 
-dial_address(#channel{id = Id}, Address) ->
-  ["SIP/verboice_", integer_to_list(Id), "-outbound/", Address].
+dial_address(Channel = #channel{id = Id}, Address) ->
+  case channel:domain(Channel) of
+    [] -> ["SIP/verboice_", integer_to_list(Id), "/", Address];
+    _ -> ["SIP/verboice_", integer_to_list(Id), "-outbound/", Address]
+  end.
 
 dispatch(#session{session_id = SessionId, channel = Channel, address = Address}) ->
   DialAddress = dial_address(Channel, Address),

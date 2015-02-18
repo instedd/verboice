@@ -37,8 +37,9 @@ generate_config([Channel | Rest], RegFile, ChannelsFile, ResolvCache, ChannelInd
       file:write(ChannelsFile, "nat=yes\n"),
       file:write(ChannelsFile, "qualify=yes\n"),
       file:write(ChannelsFile, ["secret=", Password, "\n"]),
-      file:write(ChannelsFile, "insecure=invite,port\n"),
+      file:write(ChannelsFile, "insecure=no\n"),
       file:write(ChannelsFile, "context=verboice\n"),
+      file:write(ChannelsFile, "host=dynamic\n"),
       file:write(ChannelsFile, "\n"),
       generate_config(Rest, RegFile, ChannelsFile, ResolvCache, ChannelIndex, RegistryIndex);
 
