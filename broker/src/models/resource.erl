@@ -59,7 +59,8 @@ file_name(Project, Language, Text) ->
   CacheData = <<ProjectId/integer, LanguageBin/binary, Timestamp/integer, Text/binary>>,
   util:md5hex(CacheData).
 
-prepare_blob_resource(Name, UpdatedAt, Blob, Extension, #session{pbx = Pbx}) ->
+prepare_blob_resource(BlobName, UpdatedAt, Blob, Extension, #session{pbx = Pbx, project = Project}) ->
+  Name = integer_to_list(Project#project.id) ++ "-" ++ BlobName,
   TargetPath = Pbx:sound_path_for(Name),
   case must_update(TargetPath, UpdatedAt) of
     false -> ok;
