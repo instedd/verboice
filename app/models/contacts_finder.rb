@@ -45,9 +45,15 @@ private
       nil
     end
 
-    case filter[:operator].try(:to_sym)
+    operator = filter[:operator].try(:to_sym)
+
+    case operator
     when :eq
-      variable.present? && variable.value == value.try(:to_s)
+      if value.blank?
+        variable.blank? || variable.value.blank?
+      else
+        variable.present? && variable.value == value.try(:to_s)
+      end
     when :geq
       variable.present? && variable.is_number? && variable.typecasted_value >= value.try(:to_i)
     when :gt

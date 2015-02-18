@@ -135,6 +135,18 @@ describe ContactsFinder do
     contacts.should include(contact_b)
   end
 
+  it "should find contacts with undefined or blank variable when searching for blank value" do
+    PersistedVariable.make contact: contact_a, project_variable: age, value: ''
+
+    contacts = finder.find([
+      {project_variable_id: age.id, operator: :eq, value: ''}
+    ])
+
+    contacts.size.should eq(2)
+    contacts.should include(contact_a)
+    contacts.should include(contact_b)
+  end
+
   it "should find variable by includes value" do
     PersistedVariable.make contact: contact_a, project_variable: diseases, value: 'malaria h1n1 cholera'
     PersistedVariable.make contact: contact_b, project_variable: diseases, value: 'malaria cholera'
