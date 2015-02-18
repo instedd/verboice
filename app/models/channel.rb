@@ -248,7 +248,7 @@ class Channel < ActiveRecord::Base
   def as_json(options = {})
     options = { only: [:name, :config] }.merge(options)
     super(options).merge({
-      kind: kind.try(:downcase),
+      kind: kind.try(:downcase).try(:gsub, ' ', '_'),
       call_flow: call_flow.try(:name)
     })
   end

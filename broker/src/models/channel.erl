@@ -8,7 +8,7 @@
 -include_lib("erl_dbmodel/include/model.hrl").
 
 find_all_sip() ->
-  find_all({type, in, ["Channels::Sip", "Channels::CustomSip", "Channels::TemplateBasedSip"]}).
+  find_all({type, in, ["Channels::Sip", "Channels::CustomSip", "Channels::TemplateBasedSip", "Channels::SipServer"]}).
 
 find_all_twilio() ->
   find_all({type, "Channels::Twilio"}).
