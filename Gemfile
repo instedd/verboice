@@ -58,7 +58,7 @@ end
 group :development do
   gem 'capistrano'
   gem 'rvm'
-  gem 'rvm-capistrano'
+  gem 'rvm-capistrano', require: false
   gem 'licit'
 end
 
