@@ -64,6 +64,9 @@ module CallLogSearch
       if search[:project_id]
         result = result.where 'project_id = ?', search[:project_id]
       end
+      if search[:channel_id]
+        result = result.where 'channel_id = ?', search[:channel_id]
+      end
       if search[:project]
         if options[:account]
           app = options[:account].projects.select(:id).find_by_name search[:project]

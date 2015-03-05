@@ -63,12 +63,12 @@ private
 
   def prepare_logs
     @search = params[:search]
-    @logs = current_account.call_logs.includes(:project).includes(:channel).order('id DESC')
+    @logs = CallLog.for_account(current_account).includes(:project).includes(:channel).order('id DESC')
     @logs = @logs.search @search, :account => current_account if @search.present?
   end
 
   def prepare_log_detail
-    @log = current_account.call_logs.find params[:id]
+    @log = CallLog.for_account(current_account).find params[:id]
     @activities = CallLog.poirot_activities(@log.id).sort_by(&:start)
   end
 
