@@ -38,7 +38,7 @@ class CallLogsController < ApplicationController
   def queued
     @page = params[:page] || 1
     @per_page = 10
-    @calls = current_account.queued_calls.includes(:channel).includes(:call_log).includes(:schedule).order('id DESC')
+    @calls = QueuedCall.for_account(current_account).includes(:channel).includes(:call_log).includes(:schedule).order('queued_calls.id DESC')
     @calls = @calls.paginate :page => @page, :per_page => @per_page
   end
 
@@ -63,7 +63,7 @@ private
 
   def prepare_logs
     @search = params[:search]
-    @logs = CallLog.for_account(current_account).includes(:project).includes(:channel).order('id DESC')
+    @logs = CallLog.for_account(current_account).includes(:project).includes(:channel).order('call_logs.id DESC')
     @logs = @logs.search @search, :account => current_account if @search.present?
   end
 

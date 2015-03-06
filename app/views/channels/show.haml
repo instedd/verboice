@@ -32,7 +32,7 @@
   %li
     .i48grad-time
     %div
-      %span= pluralize @channel.queued_calls.size, 'queued call'
+      %span= pluralize @channel.queued_calls.for_account(current_account).count, 'queued call'
     = link_to "View calls", queued_call_logs_path, :class => "button farrow"
   - if @channel.is_a?(Channels::Sip)
     %li
