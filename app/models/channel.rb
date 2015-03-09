@@ -117,7 +117,7 @@ class Channel < ActiveRecord::Base
       raise CallQueuingError.new("Not After date can't be before schedule's next available date") if next_available_time.present? && not_after.utc < next_available_time.utc
     end
 
-    contact_id = project.contact_addresses.find_by_address(address).try(:contact_id)
+    contact_id = options[:contact_id] || project.contact_addresses.find_by_address(address).try(:contact_id)
 
     session_id = options[:session_id]
 
@@ -164,7 +164,7 @@ class Channel < ActiveRecord::Base
       :variables => variables,
       :session_id => session_id,
       :callback_params => callback_params,
-      :contact_id => options[:contact_id],
+      :contact_id => contact_id,
       :scheduled_call_id => options[:scheduled_call_id]
     )
 
