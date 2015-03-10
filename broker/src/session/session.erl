@@ -236,8 +236,8 @@ dialing({reject, Reason}, State = #state{session = Session = #session{session_id
   finalize({failed, Reason}, State);
 
 dialing(timeout, State = #state{session = Session}) ->
-  notify_status(busy, Session),
-  finalize({failed, timeout}, State).
+  notify_status('no-answer', Session),
+  finalize({failed, no_answer}, State).
 
 in_progress({completed, NewSession, ok}, State) ->
   notify_status(completed, NewSession),
