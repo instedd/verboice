@@ -24,6 +24,17 @@ number_test() ->
   ?assert(meck:called(pbx, play, [{text, "en", <<"Hello 12345">>}])),
   meck:unload().
 
+integer_test() ->
+  Context = session:create_default_erjs_context(1, "44445555"),
+  Session = #session{pbx = pbx, default_language = "en", js_context = erjs_context:set(var_foo, 12345, Context)},
+  meck:new(pbx, [non_strict]),
+  meck:expect(pbx, can_play, 1, true),
+  meck:expect(pbx, play, 1, ok),
+  {next, Session} = say:run([{text, "Hello {foo}"}], Session),
+
+  ?assert(meck:called(pbx, play, [{text, "en", <<"Hello 12345">>}])),
+  meck:unload().
+
 say_digits_test() ->
   Context = session:create_default_erjs_context(1, "44445555"),
   Session = #session{pbx = pbx, default_language = "en", js_context = erjs_context:set(var_ssn, "123456", Context)},

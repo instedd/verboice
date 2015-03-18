@@ -30,7 +30,10 @@ prepare_text_resource(Text, undefined, Session) ->
 prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_context = JsContext}) ->
   ReplacedText = util:interpolate(Text, fun(JsCode) ->
     {Value, _} = erjs:eval(JsCode, JsContext),
-    list_to_binary(Value)
+    if
+      is_integer(Value) -> list_to_binary(integer_to_list(Value));
+      true -> list_to_binary(Value)
+    end
   end),
   case Pbx:can_play({text, Language}) of
     false ->
