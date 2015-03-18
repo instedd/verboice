@@ -494,8 +494,11 @@ create_default_erjs_context(CallLogId, PhoneNumber) ->
       end
     end},
     {'split_digits', fun(Value) ->
-      Result = re:replace(Value,"\\d"," &",[{return,list}, global]),
-      io:format("result: ~p~n", [Result]),
+      StringValue = if
+        is_integer(Value) -> integer_to_list(Value);
+        true -> Value
+      end,
+      Result = re:replace(StringValue,"\\d"," &",[{return,list}, global]),
       Result
     end},
     {phone_number, util:to_string(PhoneNumber)},
