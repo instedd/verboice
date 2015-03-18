@@ -143,7 +143,7 @@ class Channel < ActiveRecord::Base
     if options[:vars].is_a?(Hash)
       variables = {}
       options[:vars].each do |name, value|
-        variables[name] = (value =~ /^\d+$/ ? value.to_i : value)
+        variables[name] = (value =~ /^(0|[1-9]\d*)$/ ? value.to_i : value)
       end
     end
 
