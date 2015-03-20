@@ -493,14 +493,17 @@ create_default_erjs_context(CallLogId, PhoneNumber) ->
         _ -> Value
       end
     end},
-    {'split_digits', fun(Value) ->
-      StringValue = if
-        is_integer(Value) -> integer_to_list(Value);
-        true -> Value
-      end,
-      Result = re:replace(StringValue,"\\d"," &",[{return,list}, global]),
-      Result
-    end},
+    {'split_digits', fun
+      (undefined) ->
+        [];
+      (Value) ->
+        StringValue = if
+          is_integer(Value) -> integer_to_list(Value);
+          true -> Value
+        end,
+        Result = re:replace(StringValue,"\\d"," &",[{return,list}, global]),
+        Result
+      end},
     {phone_number, util:to_string(PhoneNumber)},
     {<<"hub_url">>, begin
       case application:get_env(verboice, hub_url) of

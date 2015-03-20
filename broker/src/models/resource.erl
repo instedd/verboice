@@ -32,7 +32,8 @@ prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_
     {Value, _} = erjs:eval(JsCode, JsContext),
     if
       is_integer(Value) -> list_to_binary(integer_to_list(Value));
-      true -> list_to_binary(Value)
+      is_list(Value) -> list_to_binary(Value);
+      true -> <<>>
     end
   end),
   case Pbx:can_play({text, Language}) of
