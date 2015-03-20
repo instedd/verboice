@@ -30,7 +30,7 @@
     %span
       %a.button.fimport{:href => "#"} Import CSV
     .ux-content
-      = form_tag upload_csv_project_contacts_path(@project) do
+      = form_tag upload_csv_project_contacts_path(@project), enctype: "multipart/form-data" do
         %input#choose-file{:disabled => "disabled", :placeholder => "Choose File"}/
         .file-upload
           %a.button.farrow.choose-button{href: '#'} Choose a file

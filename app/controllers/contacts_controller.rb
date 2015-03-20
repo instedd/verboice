@@ -127,11 +127,13 @@ class ContactsController < ApplicationController
 
   def upload_csv
     @importer = ContactsImporter.new current_account, @project
-    if params[:file].present? && @importer.save_csv(params[:file])
-      @column_specs = @importer.guess_column_specs
-    else
-      flash[:alert] = 'The CSV file is blank or invalid'
+
+    error = @importer.save_csv(params[:file])
+    if error
+      flash[:alert] = error
       redirect_to project_contacts_path(@project)
+    else
+      @column_specs = @importer.guess_column_specs
     end
   end
 
