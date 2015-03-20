@@ -125,6 +125,16 @@ class ContactsController < ApplicationController
       .paginate(:page => @page, :per_page => @per_page)
   end
 
+  def upload_csv
+    @importer = ContactsImporter.new current_account, @project
+    if params[:file].present? && @importer.save_csv(params[:file])
+      @column_specs = @importer.guess_column_specs
+    else
+      flash[:alert] = 'The CSV file is blank or invalid'
+      redirect_to project_contacts_path(@project)
+    end
+  end
+
   private
 
   def initialize_context
