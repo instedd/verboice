@@ -71,6 +71,7 @@ Verboice::Application.routes.draw do
         collection do
           post :search, :action => :index, :as => 'search'
           post :upload_csv
+          post :import_csv
         end
         member do
           get :calls

@@ -55,14 +55,14 @@ describe ContactsImporter do
         @importer = ContactsImporter.new account, project
       end
 
-      it "returns phone and new_field" do
+      it "returns phone and new_variable" do
         @importer.rows = [['Phone', 'Color'], ['123', 'Foobar']]
 
         specs = @importer.guess_column_specs
         specs.size.should == 2
         specs[0][:action].should == 'phone_number'
         specs[0][:name].should == 'Phone number'
-        specs[1][:action].should == 'new_field'
+        specs[1][:action].should == 'new_variable'
         specs[1][:name].should == 'Color'
       end
 
@@ -91,12 +91,207 @@ describe ContactsImporter do
         specs[0][:name].should == 'Phone number'
         specs[1][:action].should == 'existing_variable'
         specs[1][:name].should == 'color'
-        specs[1][:project_variable].should eq(@var_color.id)
+        specs[1][:id].should eq(@var_color.id)
         specs[2][:action].should == 'existing_variable'
         specs[2][:name].should == 'age'
-        specs[2][:project_variable].should eq(@var_age.id)
+        specs[2][:id].should eq(@var_age.id)
         specs[3][:action].should == 'existing_variable'
         specs[3][:name].should == 'language'
+      end
+    end
+
+    context "import" do
+      it "creates new vars and new contacts" do
+        importer = ContactsImporter.new account, project
+        importer.column_specs = [{'action' => 'phone_number'}, {'action' => 'new_variable', 'name' => 'age'}]
+        importer.rows = [["Phone", "Age"], ["+(12) 3-4", "56"], ["hello", "78"]]
+        importer.import
+
+        vars = project.project_variables.all
+        vars.length.should eq(1)
+
+        var = vars[0]
+        var.name.should eq("age")
+
+        contacts = project.contacts.all
+        contacts.length.should eq(2)
+
+        contact = contacts[0]
+        addresses = contact.addresses.all
+        addresses.length.should eq(1)
+
+        address = addresses[0]
+        address.address.should eq("1234")
+
+        persisted_vars = contact.persisted_variables.all
+        persisted_vars.length.should eq(1)
+
+        persisted_var = persisted_vars[0]
+        persisted_var.project_variable_id.should eq(var.id)
+        persisted_var.value.should eq("56")
+
+        contact = contacts[1]
+        addresses = contact.addresses.all
+        addresses.length.should eq(1)
+
+        address = addresses[0]
+        address.address.should eq("hello")
+
+        persisted_vars = contact.persisted_variables.all
+        persisted_vars.length.should eq(1)
+
+        persisted_var = persisted_vars[0]
+        persisted_var.project_variable_id.should eq(var.id)
+        persisted_var.value.should eq("78")
+      end
+
+      %w(new_variable existing_variable).each do |action|
+        it "imports into existing variables with action '#{action}'" do
+          var_age = project.project_variables.make name: "age"
+
+          importer = ContactsImporter.new account, project
+          importer.column_specs = [{'action' => 'phone_number'}, {'action' => action, 'name' => 'age'}]
+          importer.rows = [["Phone", "Age"], ["+(12) 3-4", "56"], ["hello", "78"]]
+          importer.import
+
+          vars = project.project_variables.all
+          vars.length.should eq(1)
+
+          var = vars[0]
+          var.name.should eq("age")
+
+          contacts = project.contacts.all
+          contacts.length.should eq(2)
+
+          contact = contacts[0]
+          addresses = contact.addresses.all
+          addresses.length.should eq(1)
+
+          address = addresses[0]
+          address.address.should eq("1234")
+
+          persisted_vars = contact.persisted_variables.all
+          persisted_vars.length.should eq(1)
+
+          persisted_var = persisted_vars[0]
+          persisted_var.project_variable_id.should eq(var.id)
+          persisted_var.value.should eq("56")
+
+          contact = contacts[1]
+          addresses = contact.addresses.all
+          addresses.length.should eq(1)
+
+          address = addresses[0]
+          address.address.should eq("hello")
+
+          persisted_vars = contact.persisted_variables.all
+          persisted_vars.length.should eq(1)
+
+          persisted_var = persisted_vars[0]
+          persisted_var.project_variable_id.should eq(var.id)
+          persisted_var.value.should eq("78")
+        end
+      end
+
+      it "imports into existing contact" do
+        var_age = project.project_variables.make name: "age"
+
+        contact = project.contacts.new
+        contact.addresses.new address: "1234"
+        contact.save!
+
+        importer = ContactsImporter.new account, project
+        importer.column_specs = [{'action' => 'phone_number'}, {'action' => 'new_variable', 'name' => 'age'}]
+        importer.rows = [["Phone", "Age"], ["+(12) 3-4", "56"]]
+        importer.import
+
+        vars = project.project_variables.all
+        vars.length.should eq(1)
+
+        var = vars[0]
+        var.name.should eq("age")
+
+        contacts = project.contacts.all
+        contacts.length.should eq(1)
+
+        contact = contacts[0]
+        addresses = contact.addresses.all
+        addresses.length.should eq(1)
+
+        address = addresses[0]
+        address.address.should eq("1234")
+
+        persisted_vars = contact.persisted_variables.all
+        persisted_vars.length.should eq(1)
+
+        persisted_var = persisted_vars[0]
+        persisted_var.project_variable_id.should eq(var.id)
+        persisted_var.value.should eq("56")
+      end
+
+      it "imports into existing implicit variable" do
+        importer = ContactsImporter.new account, project
+        importer.column_specs = [{'action' => 'phone_number'}, {'action' => 'existing_variable', 'name' => 'language'}]
+        importer.rows = [["Phone", "Language"], ["+(12) 3-4", "es"]]
+        importer.import
+
+        vars = project.project_variables.all
+        vars.length.should eq(0)
+
+        contacts = project.contacts.all
+        contacts.length.should eq(1)
+
+        contact = contacts[0]
+        addresses = contact.addresses.all
+        addresses.length.should eq(1)
+
+        address = addresses[0]
+        address.address.should eq("1234")
+
+        persisted_vars = contact.persisted_variables.all
+        persisted_vars.length.should eq(1)
+
+        persisted_var = persisted_vars[0]
+        persisted_var.project_variable_id.should be_nil
+        persisted_var.implicit_key.should eq("language")
+        persisted_var.value.should eq("es")
+      end
+
+      it "imports into existing contact with existing variable value" do
+        var_age = project.project_variables.make name: "age"
+
+        contact = project.contacts.new
+        contact.addresses.new address: "1234"
+        contact.persisted_variables.new project_variable_id: var_age.id, value: "23"
+        contact.save!
+
+        importer = ContactsImporter.new account, project
+        importer.column_specs = [{'action' => 'phone_number'}, {'action' => 'new_variable', 'name' => 'age'}]
+        importer.rows = [["Phone", "Age"], ["+(12) 3-4", "56"]]
+        importer.import
+
+        vars = project.project_variables.all
+        vars.length.should eq(1)
+
+        var = vars[0]
+        var.name.should eq("age")
+
+        contacts = project.contacts.all
+        contacts.length.should eq(1)
+
+        contact = contacts[0]
+        addresses = contact.addresses.all
+        addresses.length.should eq(1)
+
+        address = addresses[0]
+        address.address.should eq("1234")
+
+        persisted_vars = contact.persisted_variables.all
+        persisted_vars.length.should eq(1)
+
+        persisted_var = persisted_vars[0]
+        persisted_var.project_variable_id.should eq(var.id)
+        persisted_var.value.should eq("56")
       end
     end
   end
