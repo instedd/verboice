@@ -277,7 +277,7 @@ in_progress({hibernate, NewSession, Ptr}, _From, State = #state{session = _Sessi
 
 notify_status(Status, Session) ->
   notify_status_to_callback_url(Status, Session),
-  notify_status_to_hub(Status, Session).
+  notify_status_to_hub_if_enabled(Status, Session).
 
 notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams, started_at = StartedAt}) ->
   case Session#session.status_callback_url of
@@ -305,7 +305,7 @@ notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, add
       end)
   end.
 
-notify_status_to_hub(Status, Session = #session{call_log = CallLog, js_context = JS, project = Project}) ->
+notify_status_to_hub_if_enabled(Status, Session = #session{call_log = CallLog, js_context = JS, project = Project}) ->
   case Status of
     completed ->
       HubEnabled = application:get_env(verboice, hub_enabled, false),
