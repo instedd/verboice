@@ -19,11 +19,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     wget --no-check-certificate https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
     sudo dpkg -i erlang-solutions_1.0_all.deb
 
+    # add zeromq PPA
+    sudo apt-get update
+
+    sudo apt-get -y install python-software-properties
+    sudo add-apt-repository -y ppa:chris-lea/zeromq
+
     # Install required packages
     sudo apt-get update
     export DEBIAN_FRONTEND=noninteractive
     sudo -E apt-get -y install ruby1.9.3 apache2 asterisk erlang erlang-dev mercurial git \
-      libxml2-dev libxslt1-dev libzmq-dev mysql-server libmysqlclient-dev sox libsox-fmt-mp3 nodejs \
+      libxml2-dev libxslt1-dev libzmq3-dev mysql-server libmysqlclient-dev sox libsox-fmt-mp3 nodejs \
       libcurl4-openssl-dev apache2-threaded-dev libapr1-dev libaprutil1-dev libyaml-dev postfix festival curl \
       openjdk-7-jre-headless avahi-daemon
 
