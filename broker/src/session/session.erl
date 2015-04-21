@@ -305,13 +305,21 @@ notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, add
       end)
   end.
 
-notify_status_to_hub_if_enabled(Status, Session = #session{call_log = CallLog, js_context = JS, project = Project}) ->
+status_completed_or_failed(Status) ->
   case Status of
-    completed ->
-      HubEnabled = application:get_env(verboice, hub_enabled, false),
-      case HubEnabled of
-        false ->
-          ok;
+    completed -> true;
+    failed -> true;
+    _ -> false
+end.
+
+notify_status_to_hub_if_enabled(Status, Session = #session{call_log = CallLog, js_context = JS, project = Project}) ->
+  HubEnabled = application:get_env(verboice, hub_enabled, false),
+  case HubEnabled of
+    false ->
+      ok;
+    true ->
+      case status_completed_or_failed(Status) of
+        false -> ok;
         true ->
           Task = [
             {payload, [
@@ -321,14 +329,13 @@ notify_status_to_hub_if_enabled(Status, Session = #session{call_log = CallLog, j
                 undefined -> undefined;
                 #call_flow{id = Id} -> Id
               end},
+              {status, Status},
               {address, Session#session.address},
               {vars, {map, session_vars(JS)}}
             ]}
           ],
           delayed_job:enqueue("Jobs::HubJob", Task)
-      end;
-    _ ->
-       ok
+        end
   end.
 
 session_vars(JS) ->
