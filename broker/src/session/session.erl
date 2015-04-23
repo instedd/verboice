@@ -276,8 +276,7 @@ in_progress({hibernate, NewSession, Ptr}, _From, State = #state{session = _Sessi
   {stop, normal, ok, State#state{hibernated = true}}.
 
 notify_status(Status, Session) ->
-  notify_status_to_callback_url(Status, Session),
-  notify_status_to_hub_if_enabled(Status, Session).
+  notify_status_to_callback_url(Status, Session).
 
 notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams, started_at = StartedAt}) ->
   case Session#session.status_callback_url of
@@ -305,12 +304,10 @@ notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, add
       end)
   end.
 
-status_completed_or_failed(Status) ->
-  case Status of
-    completed -> true;
-    failed -> true;
-    _ -> false
-end.
+status_completed_or_failed(completed) ->
+  completed;
+status_completed_or_failed({failed, _}) ->
+  failed.
 
 notify_status_to_hub_if_enabled(Status, Session = #session{call_log = CallLog, js_context = JS, project = Project}) ->
   HubEnabled = application:get_env(verboice, hub_enabled, false),
@@ -318,26 +315,28 @@ notify_status_to_hub_if_enabled(Status, Session = #session{call_log = CallLog, j
     false ->
       ok;
     true ->
-      case status_completed_or_failed(Status) of
-        false -> ok;
-        true ->
-          Task = [
-            {payload, [
-              {call_id, CallLog:id()},
-              {project_id, Project:id()},
-              {call_flow_id, case Session#session.call_flow of
-                undefined -> undefined;
-                #call_flow{id = Id} -> Id
-              end},
-              {status, Status},
-              {address, Session#session.address},
-              {vars, {map, session_vars(JS)}}
-            ]}
-          ],
-          delayed_job:enqueue("Jobs::HubJob", Task)
-        end
+      Task = [
+        {payload, [
+          {call_id, CallLog:id()},
+          {project_id, Project:id()},
+          {call_flow_id, case Session#session.call_flow of
+            undefined -> undefined;
+            #call_flow{id = Id} -> Id
+          end},
+          {status, status_completed_or_failed(Status)},
+          {fail_reason, case Status of
+            completed -> undefined;
+            {failed, FailReason} -> FailReason
+          end},
+          {address, Session#session.address},
+          {vars, {map, session_vars(JS)}}
+        ]}
+      ],
+      delayed_job:enqueue("Jobs::HubJob", Task)
   end.
 
+session_vars(undefined) ->
+  [];
 session_vars(JS) ->
   lists:foldl(fun({Name, Value}, Vars) ->
     case Name of
@@ -400,8 +399,9 @@ push_results(#session{call_flow = #call_flow{id = CallFlowId, store_in_fusion_ta
   delayed_job:enqueue({struct, "CallFlow::FusionTablesPush::Pusher"}, Task, ?PUSH_DELAY_SECONDS);
 push_results(_) -> ok.
 
-finalize(completed, State = #state{session = #session{call_log = CallLog}}) ->
+finalize(completed, State = #state{session = Session = #session{call_log = CallLog}}) ->
   CallLog:update([{state, "completed"}, {finished_at, calendar:universal_time()}]),
+  notify_status_to_hub_if_enabled(completed, Session),
   {stop, normal, State};
 
 finalize({failed, Reason}, State = #state{session = Session = #session{call_log = CallLog}}) ->
@@ -429,6 +429,7 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
     _ -> "error"
   end,
   CallLog:update([{state, NewState}, {fail_reason, FailReason}, {finished_at, calendar:universal_time()}]),
+  notify_status_to_hub_if_enabled({failed, FailReason}, Session),
   StopReason = case Reason of
     {error, Error} -> Error;
     _ -> normal
