@@ -1,6 +1,7 @@
 class ContactsImporter
   TmpDir = "#{Rails.root}/tmp"
   PhoneRegex = /phone|number|phone number/i
+  DefaultIgnoredColumns = ["First call", "Last Call Timestamp", "Last Call Callflow Name", "Last Successful Call Timestamp", "Last Successful Call CallFlow Name", "Last Used Channel"]
 
   attr_reader :account, :project, :project_variables
   attr_accessor :rows, :column_specs
@@ -59,19 +60,21 @@ class ContactsImporter
 
       case col
       when ""
-        {action: 'ignore', name: col, id: ''}
+        {action: 'ignore', name: col, id: '', source: col}
+      when *DefaultIgnoredColumns
+        {action: 'ignore', name: col, id: '', source: col}
       when PhoneRegex
-        {action: 'phone_number', name: 'Phone number', id: ''}
+        {action: 'phone_number', name: 'Phone number', id: '', source: col}
       else
         implicit_variable = find_implicit_variable(col)
         if implicit_variable
-          {action: 'existing_variable', name: implicit_variable.key, id: implicit_variable.key}
+          {action: 'existing_variable', name: implicit_variable.key, id: implicit_variable.key, source: col}
         else
           project_variable = find_project_variable(col)
           if project_variable
-            {action: 'existing_variable', name: project_variable.name, id: project_variable.id}
+            {action: 'existing_variable', name: project_variable.name, id: project_variable.id, source: col}
           else
-            {action: 'new_variable', name: col, id: ''}
+            {action: 'new_variable', name: col, id: '', source: col}
           end
         end
       end

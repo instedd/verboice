@@ -58,6 +58,7 @@ window.initContactsUploadCSV = (projectID, columnSpecs, variables) ->
       @name = ko.observable(data.name)
       @action = ko.observable(data.action)
       @id = ko.observable(data.id)
+      @source = ko.observable(data.source)
       @error = ko.observable("")
 
     toJSON: =>

@@ -10,6 +10,8 @@
         %tr
           /ko foreach: columnSpecs
           %th{style: 'vertical-align: baseline'}
+            %label{ko(text: 'source')}
+            %br
             %select{ko(options: '$root.actions', optionsText: "'label'", optionsValue: "'name'", value: 'action', css: '{error: error()}')}
             /ko if: action() == 'existing_variable'
             %br
