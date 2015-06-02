@@ -29,14 +29,25 @@ class ContactsController < ApplicationController
     @implicit_variables = ImplicitVariable.subclasses
 
     respond_to do |format|
+
       format.html do
         @contacts = @contacts.paginate(page: @page)
         @recorded_audio_descriptions = RecordedAudio.select(:description).where(:contact_id => @contacts.collect(&:id)).collect(&:description).to_set
       end
-      format.json { render json: @contacts }
+
+      format.js do
+        @contacts = @contacts.paginate(page: @page)
+        @recorded_audio_descriptions = RecordedAudio.select(:description).where(:contact_id => @contacts.collect(&:id)).collect(&:description).to_set
+      end
+
+      format.json do
+        render json: @contacts
+      end
+
       format.csv do
         @stats = ContactStats.for @project
       end
+
     end
   end
 

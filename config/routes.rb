@@ -69,7 +69,7 @@ Verboice::Application.routes.draw do
 
       resources :contacts, except: [:show] do
         collection do
-          post :search, :action => :index, :as => 'search'
+          post '/', :action => :index, :as => 'search'
         end
         member do
           get :calls
