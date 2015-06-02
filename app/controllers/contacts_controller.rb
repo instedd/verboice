@@ -23,13 +23,16 @@ class ContactsController < ApplicationController
   before_filter :init_calls_context, :only => [:calls, :queued_calls]
 
   def index
+    @page = params[:page] || 1
     @contacts = ContactsFinder.for(@project).find(filters, includes: [:addresses, :recorded_audios, :persisted_variables, :project_variables])
     @project_variables = @project.project_variables
-    @recorded_audio_descriptions = RecordedAudio.select(:description).where(:contact_id => @contacts.collect(&:id)).collect(&:description).to_set
     @implicit_variables = ImplicitVariable.subclasses
 
     respond_to do |format|
-      format.html # index.html.erb
+      format.html do
+        @contacts = @contacts.paginate(page: @page)
+        @recorded_audio_descriptions = RecordedAudio.select(:description).where(:contact_id => @contacts.collect(&:id)).collect(&:description).to_set
+      end
       format.json { render json: @contacts }
       format.csv do
         @stats = ContactStats.for @project
