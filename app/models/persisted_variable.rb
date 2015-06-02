@@ -34,6 +34,6 @@ class PersistedVariable < ActiveRecord::Base
   end
 
   def is_number?
-    value && value =~ /^[-+]?[0-9]+$/
+    value && value.is_integer?
   end
 end
