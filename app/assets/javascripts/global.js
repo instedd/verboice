@@ -16,6 +16,12 @@ $(function() {
     window.location = $(this).data('url');
   });
 
+  // AJAX pagination
+  $('body').on('click', '.pagination.remote a', function(e) {
+    e.preventDefault();
+    $.getScript(this.href);
+  });
+
   // Datetime components
   $(".ux-custom-datetimepicker:not([readonly])")
     .click(function(){ $(this).datepicker("show"); })

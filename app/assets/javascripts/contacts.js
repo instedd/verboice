@@ -47,6 +47,7 @@ $(function() {
       }
     });
   });
+
   $('.call-selectors input[type="radio"]').on('change',function(){
       window.location = $(this).data('path');
   });

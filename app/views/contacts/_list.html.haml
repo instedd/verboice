@@ -27,3 +27,7 @@
           - audios = contact.recorded_audios.collect do |audio|
             - audio.description == audio_description
           %td= audios.size
+
+%br/
+%div
+  = will_paginate @contacts, :param_name => 'page', :params => {filters_json: params[:filters_json]}, :class => 'pagination remote'
