@@ -22,7 +22,7 @@
             %input{ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{error: error()}'), type: 'text'}
             //ko
           //ko
-        - @importer.rows.take(11).drop(1).each do |row|
+        - @importer.rows_preview.drop(1).each do |row|
           %tr
             - row.each do |cell|
               %td= cell

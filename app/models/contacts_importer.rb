@@ -1,60 +1,51 @@
 class ContactsImporter
+
   TmpDir = "#{Rails.root}/tmp"
   PhoneRegex = /phone|number|phone number/i
   DefaultIgnoredColumns = ["First call", "Last Call Timestamp", "Last Call Callflow Name", "Last Successful Call Timestamp", "Last Successful Call CallFlow Name", "Last Used Channel"]
 
   attr_reader :account, :project, :project_variables
-  attr_accessor :rows, :column_specs
+  attr_accessor :rows_preview, :column_specs
 
   def initialize(account, project)
     @account = account
     @project = project
     @project_variables = project.project_variables.all
-    @rows = []
+    @rows_preview = []
     @column_specs = []
   end
 
   def save_csv(file_param)
+
     if file_param.blank?
       return "You didn't specify a CSV file"
     end
 
-    # TODO: don't read all the file in memory at once (use IO.copy_stream?)
-    contents = file_param.read
-
-    if contents.blank?
-      return "CSV file must not be empty"
+    if file_param.size == 0
+      return "The CSV file must not be empty"
     end
 
-    File.open(csv_filename, "wb") do |f|
-      f.write contents
-    end
+    FileUtils.move file_param.tempfile.path, csv_filename
 
-    # Validate that all rows have the same length
     begin
-      rows = read_csv
+      @rows_preview = read_preview
     rescue => ex
-      return "Invalid CSV: #{ex}"
+      return "Error reading CSV: #{ex}"
     end
 
-    if rows.empty?
-      return "The CSV file is blank"
+    if @rows_preview.empty?
+      return "The CSV file is empty"
     end
 
-    unless rows.all? {|row| row.size == rows[0].size}
-      return "Not all rows have the same number of columns"
-    end
-
-    headers = rows.first
-    if headers.grep(PhoneRegex).empty?
-      return "Missing 'Phone number' column"
+    unless @rows_preview.all? {|row| row.size == @rows_preview[0].size}
+      return "All rows in the CSV must have the same number of columns"
     end
 
     nil
   end
 
   def guess_column_specs
-    headers = read_csv.first
+    headers = @rows_preview.first
     headers.map do |col|
       col = col.strip
 
@@ -82,16 +73,41 @@ class ContactsImporter
   end
 
   def import
-    read_csv
+    page = []
+    headers = nil
+    total_counts = {created: 0, updated: 0, unchanged: 0}
 
-    # Drop headers
-    @rows.shift
+    # Import CSV in 'pages' of 100 items
+    CSV.foreach(csv_filename) do |row|
+      headers = row and next if headers.nil?
+
+      page << row
+      if page.size >= csv_page_size
+        update_counts(total_counts, page)
+        page = []
+      end
+    end
+
+    update_counts(total_counts, page) if not page.empty?
+    total_counts
+  end
+
+  def update_counts(total_counts, page)
+    Contact.transaction do
+      page_counts = import_page(page)
+      total_counts.keys.each do |key|
+        total_counts[key] += page_counts[key]
+      end
+    end
+  end
+
+  def import_page(rows)
 
     # Check where is the phone column
     phone_number_index = @column_specs.index { |spec| spec['action'] == 'phone_number' }
 
     # Gather all phone numbers
-    phones = @rows.map do |row|
+    phones = rows.map do |row|
       phone = row[phone_number_index].strip
 
       # If it looks like a phone number (could be a sip address), removing extraneous chars
@@ -116,7 +132,7 @@ class ContactsImporter
     unchanged_count = 0
 
     # Now process all rows
-    @rows.each do |row|
+    rows.each do |row|
       phone = row[phone_number_index]
 
       # Find contact address or create one (and its associated contact)
@@ -162,6 +178,7 @@ class ContactsImporter
             unless variable
               variable = project.project_variables.create! name: name
               project_variables_by_name[name] = variable
+              project_variables << variable
             end
 
             persisted_var = contact.persisted_variables.where(project_variable_id: variable.id).first
@@ -212,7 +229,21 @@ class ContactsImporter
     @rows
   end
 
+  def read_preview(n=20)
+    preview = []
+    CSV.foreach(csv_filename) do |row|
+      preview << row
+      break if preview.size >= n
+    end
+
+    preview
+  end
+
   def csv_filename
     "#{TmpDir}/#{@account.id}-#{@project.id}.csv"
+  end
+
+  def csv_page_size
+    100
   end
 end
