@@ -125,6 +125,34 @@ class ContactsController < ApplicationController
       .paginate(:page => @page, :per_page => @per_page)
   end
 
+  def upload_csv
+    @importer = ContactsImporter.new current_account, @project
+
+    error = @importer.save_csv(params[:file])
+    if error
+      flash[:alert] = error
+      redirect_to project_contacts_path(@project)
+    else
+      @column_specs = @importer.guess_column_specs
+      @variables = []
+      @importer.project_variables.each do |var|
+        @variables.push id: var.id, name: var.name
+      end
+      @importer.implicit_variables.map do |var|
+        @variables.push id: var.key, name: var.key
+      end
+      @variables.sort_by! { |var| var[:name].downcase }
+    end
+  end
+
+  def import_csv
+    @importer = ContactsImporter.new current_account, @project
+    @importer.column_specs = JSON.parse(request.body.read)['column_specs']
+    result = @importer.import
+    flash.notice = "Import successful. Created: #{result[:created]}, Updated: #{result[:updated]}, Unchanged: #{result[:unchanged]}"
+    render json: :ok
+  end
+
   private
 
   def initialize_context

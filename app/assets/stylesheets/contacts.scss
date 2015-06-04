@@ -56,3 +56,11 @@ td.right {
     margin-left: 315px;
   }
 }
+
+.file-upload {
+  display: inline;
+
+  input.choose {
+    display: none;
+  }
+}
