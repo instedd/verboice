@@ -2,6 +2,7 @@ window.initContactsUploadCSV = (projectID, columnSpecs, variables) ->
   class ContactsUploadCSVModel
     constructor: ->
       @columnSpecs = ko.observableArray _.map columnSpecs, (spec) -> new ColumnSpec(spec)
+      @importing = ko.observable(false)
       @variables = variables
       @actions = [
         {name: 'ignore', label: 'Ignore'},
@@ -49,6 +50,7 @@ window.initContactsUploadCSV = (projectID, columnSpecs, variables) ->
         ""
 
     importCSV: =>
+      @importing(true)
       json = _.map @columnSpecs(), (spec) -> spec.toJSON()
       $.post "/projects/#{projectID}/contacts/import_csv.json", JSON.stringify(column_specs: json), (data) ->
         window.location = "/projects/#{projectID}/contacts"

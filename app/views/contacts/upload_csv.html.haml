@@ -29,7 +29,7 @@
 
   .error{ko(text: 'error()'), style: 'margin-top:8px; margin-bottom:4px; height:20px; color: red'}
 
-  %button.white{ko(enable: 'error() == ""', click: 'importCSV'), :type => "submit"} Import
+  %button.white{ko(enable: 'error() == "" && !importing()', click: 'importCSV', text: 'importing() ? "Importing..." : "Import"'), :type => "submit"}
   = link_to 'Cancel', project_contacts_path(@project), :class => "tgrey", :style => 'top: 1px;'
 
 :javascript
