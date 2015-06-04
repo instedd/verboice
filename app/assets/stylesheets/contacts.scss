@@ -62,3 +62,11 @@ td.right {
     }
   }
 }
+
+.file-upload {
+  display: inline;
+
+  input.choose {
+    display: none;
+  }
+}

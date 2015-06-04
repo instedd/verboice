@@ -25,6 +25,18 @@
 
 %a.button.fimport{:href => project_contacts_path(@project, format: :csv)} Download Phone Book as CSV
 
+- if project_admin?
+  .ux-collapsible.collapsed.w40.import_csv{"data-on-expanded" => "box grey"}
+    %span
+      %a.button.fimport{:href => "#"} Import CSV
+    .ux-content
+      = form_tag upload_csv_project_contacts_path(@project), enctype: "multipart/form-data" do
+        %input#choose-file{:disabled => "disabled", :placeholder => "Choose File"}/
+        .file-upload
+          %a.button.farrow.choose-button{href: '#'} Choose a file
+          = file_field_tag 'file', class: 'choose'
+          %a.button.white.import Import
+
 %br
 %br
 

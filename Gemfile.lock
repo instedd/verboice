@@ -169,6 +169,7 @@ GEM
     erubis (2.7.0)
     execjs (1.3.0)
       multi_json (~> 1.0)
+    fakefs (0.6.7)
     faraday (0.8.0)
       multipart-post (~> 1.1)
     ffaker (1.4.0)
@@ -361,6 +362,7 @@ DEPENDENCIES
   devise
   enumerated_attribute!
   equivalent-xml
+  fakefs
   ffaker
   foreman
   formatted_rails_logger
