@@ -31,7 +31,7 @@ describe ContactsFinder do
     PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
 
     contacts = finder.find([
-      {project_variable_id: age.id, operator: :eq, value: 17}
+      {project_variable_id: age.id, operator: :eq, value: '17'}
     ])
 
     contacts.size.should eq(1)
@@ -42,7 +42,7 @@ describe ContactsFinder do
     PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
 
     contacts = finder.find([
-      {project_variable_id: age.id, operator: :eq, value: 17}
+      {project_variable_id: age.id, operator: :eq, value: '17'}
     ])
 
     contacts.size.should eq(1)
@@ -55,7 +55,7 @@ describe ContactsFinder do
     PersistedVariable.make contact: contact_b, project_variable: age, value: '17'
 
     contacts = finder.find([
-      {project_variable_id: age.id, operator: :eq, value: 17},
+      {project_variable_id: age.id, operator: :eq, value: '17'},
       {project_variable_id: sex.id, operator: :eq, value: 'female'}
     ])
 
@@ -68,7 +68,7 @@ describe ContactsFinder do
     PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
 
     contacts = finder.find([
-      {project_variable_id: age.id, operator: :geq, value: 17}
+      {project_variable_id: age.id, operator: :geq, value: '17'}
     ])
 
     contacts.size.should eq(2)
@@ -81,11 +81,23 @@ describe ContactsFinder do
     PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
 
     contacts = finder.find([
-      {project_variable_id: age.id, operator: :gt, value: 17}
+      {project_variable_id: age.id, operator: :gt, value: '17'}
     ])
 
     contacts.size.should eq(1)
     contacts.should include(contact_b)
+  end
+
+  it "should find contact by variable geq value using numeric ordering instead of lexicographic" do
+    PersistedVariable.make contact: contact_a, project_variable: age, value: '27'
+    PersistedVariable.make contact: contact_b, project_variable: age, value: '6'
+
+    contacts = finder.find([
+      {project_variable_id: age.id, operator: :geq, value: '20'}
+    ])
+
+    contacts.size.should eq(1)
+    contacts.should include(contact_a)
   end
 
   it "should find contact by variable leq value" do
@@ -93,7 +105,7 @@ describe ContactsFinder do
     PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
 
     contacts = finder.find([
-      {project_variable_id: age.id, operator: :leq, value: 23}
+      {project_variable_id: age.id, operator: :leq, value: '23'}
     ])
 
     contacts.size.should eq(2)
@@ -106,7 +118,7 @@ describe ContactsFinder do
     PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
 
     contacts = finder.find([
-      {project_variable_id: age.id, operator: :lt, value: 23}
+      {project_variable_id: age.id, operator: :lt, value: '23'}
     ])
 
     contacts.size.should eq(1)
@@ -124,8 +136,20 @@ describe ContactsFinder do
     contacts.should include(contact_a)
   end
 
-  it "should find variable by undefined" do
+  it "should find variable by undefined when variable is missing" do
     PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+
+    contacts = finder.find([
+      {project_variable_id: age.id, operator: :undefined}
+    ])
+
+    contacts.size.should eq(1)
+    contacts.should include(contact_b)
+  end
+
+  it "should find variable by undefined when variable is null" do
+    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+    PersistedVariable.make contact: contact_b, project_variable: age, value: nil
 
     contacts = finder.find([
       {project_variable_id: age.id, operator: :undefined}

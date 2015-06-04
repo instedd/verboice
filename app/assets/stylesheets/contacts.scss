@@ -55,6 +55,12 @@ td.right {
   .contacts-table {
     margin-left: 315px;
   }
+
+  .pagination {
+    a, em {
+      padding: 0 2px;
+    }
+  }
 }
 
 .file-upload {

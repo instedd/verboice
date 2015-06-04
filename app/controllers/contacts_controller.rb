@@ -18,22 +18,37 @@
 class ContactsController < ApplicationController
   before_filter :authenticate_account!
   before_filter :load_project
+  before_filter :load_filters, :only => :index
   before_filter :initialize_context, :only => [:show, :edit, :update, :destroy]
   before_filter :check_project_admin, :only => [:create, :edit, :update, :destroy]
   before_filter :init_calls_context, :only => [:calls, :queued_calls]
 
   def index
-    @contacts = ContactsFinder.for(@project).find(filters, includes: [:addresses, :recorded_audios, :persisted_variables, :project_variables])
+    @page = params[:page] || 1
+    @contacts = ContactsFinder.for(@project).find(@filters, includes: [:addresses, :recorded_audios, :persisted_variables, :project_variables])
     @project_variables = @project.project_variables
-    @recorded_audio_descriptions = RecordedAudio.select(:description).where(:contact_id => @contacts.collect(&:id)).collect(&:description).to_set
     @implicit_variables = ImplicitVariable.subclasses
 
     respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @contacts }
+
+      format.html do
+        @contacts = @contacts.paginate(page: @page, per_page: 15)
+        load_recorded_audio_descriptions
+      end
+
+      format.js do
+        @contacts = @contacts.paginate(page: @page, per_page: 15)
+        load_recorded_audio_descriptions
+      end
+
+      format.json do
+        render json: @contacts
+      end
+
       format.csv do
         @stats = ContactStats.for @project
       end
+
     end
   end
 
@@ -170,13 +185,17 @@ class ContactsController < ApplicationController
     end if params[:contact][:persisted_variables_attributes].present?
   end
 
-  def filters
-    params[:filters_json].present? ? JSON.parse(params[:filters_json]) : []
+  def load_filters
+    @filters = params[:filters_json].present? ? JSON.parse(params[:filters_json]) : []
   end
 
   def init_calls_context
     @contact = @project.contacts.find(params[:id])
     @page = params[:page] || 1
     @per_page = 10
+  end
+
+  def load_recorded_audio_descriptions
+    @recorded_audio_descriptions = RecordedAudio.select(:description).where(:contact_id => @contacts.collect(&:id)).collect(&:description).to_set
   end
 end

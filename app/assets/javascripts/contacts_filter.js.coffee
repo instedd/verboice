@@ -1,6 +1,9 @@
 class @ContactsFilter
-  constructor: (filters = []) ->
+  constructor: (filters = [], count=null) ->
+    @count = ko.observable(count)
     @filters = ko.observableArray(new Filter(filter) for filter in filters)
+    @countDescription = ko.computed =>
+      if @count()? then "(#{if @count() == 0 then 'no' else @count()} #{if @count() == 1 then 'contact' else 'contacts'} found)" else ""
     @json = ko.computed =>
       ko.toJSON(filter.to_hash() for filter in @filters())
 
@@ -11,6 +14,9 @@ class @ContactsFilter
 
   removeFilter: (filter) =>
     @filters.remove(filter)
+
+  setCount: (value) =>
+    @count(value)
 
 class Filter
   constructor: (attrs = {}) ->

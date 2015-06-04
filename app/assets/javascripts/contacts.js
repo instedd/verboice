@@ -47,6 +47,7 @@ $(function() {
       }
     });
   });
+
   $('.call-selectors input[type="radio"]').on('change',function(){
       window.location = $(this).data('path');
   });
@@ -64,10 +65,10 @@ $(function() {
   });
 });
 
-function initContactsFilter() {
+function initContactsFilter(count) {
   $(function() {
     var filters = JSON.parse($('.filters').val());
-    var model = new ContactsFilter(filters);
+    var model = window.contactsFilter = new ContactsFilter(filters, count);
     ko.applyBindings(model, document.getElementById('contactsFilter'));
   });
 }
