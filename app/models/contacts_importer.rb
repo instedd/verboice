@@ -120,7 +120,7 @@ class ContactsImporter
     end
 
     # Find all contacts address with those numbers
-    contact_addresses = ContactAddress.where(project_id: @project.id, address: phones).includes(:contact).all
+    contact_addresses = ContactAddress.where(project_id: @project.id, address: phones).includes(contact: :persisted_variables).all
 
     # And index them by their address, so we can look them up faster
     contact_addresses_by_address = contact_addresses.index_by &:address
@@ -162,7 +162,7 @@ class ContactsImporter
 
           implicit_variable = implicit_variables.find { |var| var.key == name }
           if implicit_variable
-            persisted_var = contact.persisted_variables.where(implicit_key: name).first
+            persisted_var = contact.persisted_variables.find{|var| var.implicit_key == name}
             if persisted_var
               if persisted_var.value != cell
                 persisted_var.value = cell
@@ -181,7 +181,7 @@ class ContactsImporter
               project_variables << variable
             end
 
-            persisted_var = contact.persisted_variables.where(project_variable_id: variable.id).first
+            persisted_var = contact.persisted_variables.find{|var| var.project_variable_id == variable.id}
             if persisted_var
               if persisted_var.value != cell
                 persisted_var.value = cell
