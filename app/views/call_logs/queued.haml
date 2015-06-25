@@ -5,7 +5,7 @@
   Here you can see the details of enqueued calls.
 %form
   %div= page_entries_info @calls, :entry_name => 'queued calls'
-  = will_paginate @calls, :param_name => 'page'
+  = paginate @calls, :param_name => 'page'
   - if @calls.present?
     %br/
     %table.GralTable
@@ -32,4 +32,4 @@
             = link_to '', [call.channel, call], :confirm => "Are you sure you want to delete the call #{call.address}?", :method => :delete, :class => "button fdelete"
     %br/
     %div= page_entries_info @calls, :entry_name => 'queued calls'
-    = will_paginate @calls, :param_name => 'page'
+    = paginate @calls, :param_name => 'page'

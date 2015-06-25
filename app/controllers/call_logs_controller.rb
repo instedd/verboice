@@ -23,7 +23,7 @@ class CallLogsController < ApplicationController
   def index
     @page = params[:page] || 1
     @per_page = 10
-    @logs = @logs.paginate :page => @page, :per_page => @per_page
+    @logs = @logs.page(@page).per(@per_page)
   end
 
   def show
@@ -39,7 +39,7 @@ class CallLogsController < ApplicationController
     @page = params[:page] || 1
     @per_page = 10
     @calls = current_account.queued_calls.includes(:channel).includes(:call_log).includes(:schedule).order('id DESC')
-    @calls = @calls.paginate :page => @page, :per_page => @per_page
+    @calls = @calls.page(@page).per(@per_page)
   end
 
   def play_result

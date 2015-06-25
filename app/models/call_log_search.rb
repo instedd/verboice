@@ -17,6 +17,7 @@
 
 module CallLogSearch
   extend ActiveSupport::Concern
+  # TODO it was included in CallLog and CallLogEntry. From CallLog it can be removed due to listings. Not sure where it was used form CallLogEntry
 
   module ClassMethods
     def search(search, options = {})

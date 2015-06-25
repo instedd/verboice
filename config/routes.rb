@@ -183,4 +183,6 @@ Verboice::Application.routes.draw do
   get 'terms_and_conditions', :to => redirect('/')
 
   match '/hub/*path' => 'hub#api', format: false
+
+  mount Listings::Engine => "/listings"
 end

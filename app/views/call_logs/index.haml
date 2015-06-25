@@ -1,3 +1,9 @@
+%h2 Call logs
+%p
+  Here you can see the details of incoming, outgoing and enqueued calls.
+
+= render_listing :call_logs #, push_url: true
+
 = render :partial => 'call_logs/tabs'
 
 %p
