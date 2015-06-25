@@ -9,15 +9,21 @@ class CallLogsListing < Listings::Base
   paginates_per 10
   layout filters: :top
 
-  filter :id, hidden: true
+  filter :id, render: false
   filter :direction, select_css_class: 'w10'
   filter :state, select_css_class: 'w10'
-  filter :address, title: 'Caller ID', hidden: true
+  filter :address, title: 'Caller ID', render: false
   filter channel: :name, title: 'Channel'
-  filter :project_id, hidden: true
+  filter :project_id, render: false
   filter project: :name, title: 'Project'
 
-  # filter by after/before
+  custom_filter :after do |items, value|
+    items.where "started_at >= ?", Time.smart_parse(value)
+  end
+
+  custom_filter :before do |items, value|
+    items.where "started_at <= ?", Time.smart_parse(value)
+  end
 
   export :csv, :xls
 
@@ -40,10 +46,7 @@ class CallLogsListing < Listings::Base
   end
   column :direction, searchable: true
   column channel: :name, title: 'Channel'
-  column 'Schedule' do |log|
-    log.schedule.try :name
-  end
-
+  column schedule: :name, title: 'Schedule'
   column project: :name, title: 'Project' do |_,value|
     if format == :html
       listings_link_to_filter value, :project_name, value

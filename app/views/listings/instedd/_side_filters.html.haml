@@ -1,5 +1,5 @@
 .filters
-  - listing.filters.reverse.each do |filter_view|
+  - listing.filters_to_render.reverse.each do |filter_view|
     %ul.nav.nav-list.well
       %li.nav-header
         = "Filter by #{filter_view.human_name}"

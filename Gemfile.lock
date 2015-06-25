@@ -30,7 +30,7 @@ GIT
 
 GIT
   remote: git://github.com/manastech/listings.git
-  revision: 8e0617f3397b0f6cbe1507b9af2810adab9f1f5e
+  revision: e35b4d587ace8fa47eb5a86bf936314f5330b439
   branch: master
   specs:
     listings (0.1.4)
