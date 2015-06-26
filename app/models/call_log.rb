@@ -16,8 +16,6 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class CallLog < ActiveRecord::Base
-  include CallLogSearch
-
   belongs_to :account
   belongs_to :project
   belongs_to :call_flow

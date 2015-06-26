@@ -1,9 +1,29 @@
+# Copyright (C) 2010-2012, InSTEDD
+#
+# This file is part of Verboice.
+#
+# Verboice is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Verboice is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
+
 class CallLogsListing < Listings::Base
   include ApplicationHelper
 
+  class << self
+    attr_accessor :test_account
+  end
+
   model do
-    # current_account.call_logs
-    CallLog.where(account_id: current_account.id).order('call_logs.id DESC')
+    CallLog.where(account_id: (self.class.test_account || current_account).id).order('call_logs.id DESC')
   end
 
   paginates_per 10
@@ -64,7 +84,7 @@ class CallLogsListing < Listings::Base
   end
   column '' do |log|
     if format == :html
-      details_link = link_to('view details', call_log_path(log), target: '_blank')
+      details_link = link_to('view details', call_log_path(log))
       if log.state == :queued
         call = current_account.queued_calls(call_log_id: log.id).first
         delete_link = link_to('', [call.channel, call], :confirm => "Are you sure you want to delete the call #{call.address}?", :method => :delete, :class => "button fdelete")

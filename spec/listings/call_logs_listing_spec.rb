@@ -17,16 +17,23 @@
 
 require 'spec_helper'
 
-describe CallLogsController do
-  include Devise::TestHelpers
-
+RSpec.describe CallLogsListing, type: :listing do
   let(:account) { Account.make }
   let(:project) { Project.make :account => account }
   let(:call_flow) { CallFlow.make :project => project }
   let(:channel) { Channel.all_leaf_subclasses.sample.make :call_flow => call_flow, :account => account }
 
   before(:each) do
-    sign_in account
+    CallLogsListing.test_account = account
+    # sign_in account
   end
 
+  let(:listing) { query_listing :call_logs }
+
+  it 'should get call logs' do
+    calls = 10.times.map { CallLog.make :channel => channel }
+    items = listing.items.to_a
+    expected = calls.sort_by(&:id).reverse.to_a
+    items.should == expected
+  end
 end
