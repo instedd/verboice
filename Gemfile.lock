@@ -29,18 +29,6 @@ GIT
       rest-client
 
 GIT
-  remote: git://github.com/manastech/listings.git
-  revision: a79e21935529e94e74dd848d48a617334658cd7b
-  branch: master
-  specs:
-    listings (0.1.4)
-      bootstrap-kaminari-views
-      haml-rails
-      kaminari
-      rails
-      sass-rails
-
-GIT
   remote: https://github.com/edave/enumerated_attribute.git
   revision: ec1021d11874f37d30589f91814d069884348fdf
   specs:
@@ -231,6 +219,12 @@ GEM
       activesupport (>= 3.0.0)
     language_list (1.0.0)
     licit (0.2.2)
+    listings (0.1.5)
+      bootstrap-kaminari-views
+      haml-rails
+      kaminari
+      rails
+      sass-rails
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
@@ -392,7 +386,7 @@ DEPENDENCIES
   jquery-rails
   language_list
   licit
-  listings!
+  listings
   machinist!
   mocha
   mysql2

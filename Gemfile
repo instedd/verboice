@@ -33,7 +33,7 @@ gem 'ruby-openid'
 gem 'omniauth'
 gem 'omniauth-openid'
 gem 'recurring_select', git: "https://github.com/instedd/recurring_select", branch: 'instedd'
-gem 'listings', github: 'manastech/listings', branch: 'master'
+gem 'listings'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
