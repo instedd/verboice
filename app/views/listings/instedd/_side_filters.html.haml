@@ -1,0 +1,11 @@
+.filters
+  - listing.filters_to_render.reverse.each do |filter_view|
+    %ul.nav.nav-list.well
+      %li.nav-header
+        = "Filter by #{filter_view.human_name}"
+      - filter_view.values.each do |value|
+        %li.filter
+          %a{:href => '#', :'data-key' => filter_view.key, :'data-value' => value}
+            = filter_view.value_for(value)
+            %i.icon-remove
+

@@ -9,7 +9,6 @@ gem 'mysql2'
 gem 'nokogiri'
 gem 'guid'
 gem 'devise'
-gem "will_paginate", "~> 3.0"
 gem "instedd-rails"
 gem 'decent_exposure'
 gem 'attr_encrypted'
@@ -34,6 +33,7 @@ gem 'ruby-openid'
 gem 'omniauth'
 gem 'omniauth-openid'
 gem 'recurring_select', git: "https://github.com/instedd/recurring_select", branch: 'instedd'
+gem 'listings'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'

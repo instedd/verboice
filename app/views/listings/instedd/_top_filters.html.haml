@@ -1,0 +1,8 @@
+.filter
+  - listing.filters_to_render.each do |filter_view|
+    %label= filter_view.human_name
+    %select{name: filter_view.key, class: filter_view.descriptor.props[:select_css_class] || "w20"}
+      %option{value: ''} All
+      - filter_view.values.each do |value|
+        %option{value: value}
+          = filter_view.value_for(value)

@@ -98,4 +98,19 @@ module ApplicationHelper
     return nil unless time
     "#{l(time.to_date, format: :long)}, #{time.strftime("%H:%M:%S")} (UTC)"
   end
+
+  def download_call_logs_path(options)
+    listings.listing_export_path(:call_logs, format: options[:format], s: options[:search])
+  end
+
+  def queued_call_logs_path(options = {})
+    search = "state:queued"
+    if options[:project_id]
+      search = "#{search} project_id:#{options[:project_id]}"
+    end
+    if options[:channel_id]
+      search = "#{search} channel_id:#{options[:channel_id]}"
+    end
+    call_logs_path(s: search)
+  end
 end

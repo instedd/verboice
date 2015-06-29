@@ -104,15 +104,11 @@ Verboice::Application.routes.draw do
     end
   end
 
-  resources :call_logs, path: :calls do
+  resources :call_logs, path: :calls, only: [:index, :show] do
     member do
       get :progress
       get 'results/:key', :action => :play_result, :as => 'result'
       get :download_details
-    end
-    collection do
-      get :queued
-      get :download
     end
   end
 
@@ -183,4 +179,6 @@ Verboice::Application.routes.draw do
   get 'terms_and_conditions', :to => redirect('/')
 
   match '/hub/*path' => 'hub#api', format: false
+
+  mount Listings::Engine => "/listings"
 end

@@ -22,6 +22,7 @@ require 'rspec/rails'
 require 'rspec/autorun'
 
 require 'webmock/rspec'
+require 'listings/rspec'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 

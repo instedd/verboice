@@ -32,12 +32,12 @@ class ContactsController < ApplicationController
     respond_to do |format|
 
       format.html do
-        @contacts = @contacts.paginate(page: @page, per_page: 15)
+        @contacts = @contacts.page(@page).per(15)
         load_recorded_audio_descriptions
       end
 
       format.js do
-        @contacts = @contacts.paginate(page: @page, per_page: 15)
+        @contacts = @contacts.page(@page).per(15)
         load_recorded_audio_descriptions
       end
 
@@ -130,14 +130,14 @@ class ContactsController < ApplicationController
     @logs = current_account.call_logs.includes(:channel, :schedule)
       .where(contact_id: @contact.id)
       .order('id DESC')
-      .paginate(:page => @page, :per_page => @per_page)
+      .page(@page).per(@per_page)
   end
 
   def queued_calls
     @calls = current_account.queued_calls.includes(:channel, :call_log, :schedule)
       .where(address: @contact.addresses.map(&:address))
       .order('id DESC')
-      .paginate(:page => @page, :per_page => @per_page)
+      .page(@page).per(@per_page)
   end
 
   def upload_csv

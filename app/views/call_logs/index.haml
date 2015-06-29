@@ -1,64 +1,6 @@
-= render :partial => 'call_logs/tabs'
-
+%h2 Call logs
 %p
-  Here you can see the details of incoming and outgoing calls.
-%form
-  %p
-    Search: #{text_field_tag :search, @search, :size => 80, :class => (@search.present? ? 'highlighted' : '')}
-  %p
-    = link_to 'Download as CSV', download_call_logs_path(:format => :csv, :search => @search), :class => "button fimport"
-  %div= page_entries_info @logs, :entry_name => 'call log'
-  - if @logs.present?
-    %br/
-    %table.GralTable
-      %tr
-        %th ID
-        %th Started
-        %th Finished
-        %th Duration
-        %th Caller ID
-        %th Direction
-        %th Channel
-        %th Schedule
-        %th Project
-        %th Call Flow
-        %th State
-        %th
-      - @logs.each do |log|
-        %tr
-          %td= log.id
-          %td= raw time_ago log.started_at
-          %td= raw time_ago log.finished_at
-          %td= distance_of_time_in_words(log.finished_at, log.started_at, true) if log.finished_at
-          - if log.address.present?
-            %td= link_to log.address, call_logs_path(:search => "caller:#{log.address}")
-          - else
-            %td= log.address
-          %td= log.direction
-          %td= log.channel.try(:name)
-          %td= log.schedule.try(:name)
-          %td= log.project.try(:name)
-          %td= log.call_flow.try(:name)
-          %td
-            = log.state
-            - if log.fail_reason.present?
-              = "(#{log.fail_reason})"
-          %td= link_to 'view details', call_log_path(log)
-    %br/
+  Here you can see the details of incoming, outgoing and enqueued calls.
 
-%div#call_logs_paginator
-  = form_tag({action: :index, controller: :call_logs}, method: :get) do
-    - total_pages = (@logs.count/@per_page)+1
+= render_listing :call_logs
 
-    - previous_btn_class = 'pprevious' + (if (@page.to_i - 1) < 1 then " disabled" else '' end)
-    = link_to '', {action: 'index', page: @page.to_i-1, search: @search}, class: previous_btn_class
-
-    - next_btn_class = 'pnext' + (if (@page.to_i + 1) > total_pages then " disabled" else '' end)
-    = link_to '', {action: 'index', page: @page.to_i+1, search: @search}, class: next_btn_class
-
-    = text_field_tag 'page', @page.to_i
-    = hidden_field_tag 'search', @search
-    %span.label-info="of #{total_pages}"
-    = submit_tag '', class: 'hidden'
-
-%br/
