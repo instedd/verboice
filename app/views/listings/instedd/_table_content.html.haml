@@ -33,8 +33,7 @@
                 = col.value_for(item)
 
       - if listing.paginated?
-        .pagination-container
-          = paginate listing.items, :remote => true, :params => listing.params, :remote => true
+        = paginate listing.items, :remote => true, :params => listing.params, :remote => true
 
   - else
     .well

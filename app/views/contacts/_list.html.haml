@@ -1,5 +1,5 @@
 .tablewrapp.no-wrap.scroll.contacts-table
-  %table.GralTable
+  %table.GralTable.w-pagination
     %tr
       %th{colspan: 2} Phone numbers
       - @implicit_variables.each do |variable|
@@ -28,6 +28,4 @@
             - audio.description == audio_description
           %td= audios.size
 
-%br/
-%div(style="position: relative; margin-top: 50px;")
-  = paginate @contacts, :param_name => 'page', :params => {filters_json: params[:filters_json]}, :css_class => 'pagination remote'
+  = paginate @contacts, :param_name => 'page', :params => {filters_json: params[:filters_json]}

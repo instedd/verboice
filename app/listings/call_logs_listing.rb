@@ -33,6 +33,7 @@ class CallLogsListing < Listings::Base
   filter :direction, select_css_class: 'w10'
   filter :state, select_css_class: 'w10'
   filter :address, title: 'Caller ID', render: false
+  filter :channel_id, render: false
   filter channel: :name, title: 'Channel'
   filter :project_id, render: false
   filter project: :name, title: 'Project'
