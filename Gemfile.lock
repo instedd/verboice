@@ -219,7 +219,7 @@ GEM
       activesupport (>= 3.0.0)
     language_list (1.0.0)
     licit (0.2.2)
-    listings (0.1.5)
+    listings (0.1.6)
       bootstrap-kaminari-views
       haml-rails
       kaminari

@@ -23,7 +23,11 @@ class CallLogsListing < Listings::Base
   end
 
   model do
-    CallLog.where(account_id: (self.class.test_account || current_account).id).order('call_logs.id DESC')
+    CallLog.where(account_id: listing_account.id).order('call_logs.id DESC')
+  end
+
+  def listing_account
+    self.class.test_account || current_account
   end
 
   paginates_per 10
@@ -87,10 +91,14 @@ class CallLogsListing < Listings::Base
     if format == :html
       details_link = link_to('view details', call_log_path(log))
       if log.state == :queued
-        call = current_account.queued_calls(call_log_id: log.id).first
-        delete_link = link_to('', [call.channel, call], :confirm => "Are you sure you want to delete the call #{call.address}?", :method => :delete, :class => "button fdelete")
+        call = listing_account.queued_calls(call_log_id: log.id).first
+        if call
+          delete_link = link_to('', [call.channel, call], :confirm => "Are you sure you want to delete the call #{call.address}?", :method => :delete, :class => "button fdelete")
 
-        delete_link + ' ' + details_link
+          delete_link + ' ' + details_link
+        else
+          details_link
+        end
       else
         details_link
       end
