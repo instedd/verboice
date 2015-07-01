@@ -52,8 +52,8 @@ window.initContactsUploadCSV = (projectID, columnSpecs, variables) ->
     importCSV: =>
       @importing(true)
       json = _.map @columnSpecs(), (spec) -> spec.toJSON()
-      $.post "/projects/#{projectID}/contacts/import_csv.json", JSON.stringify(column_specs: json), (data) ->
-        window.location = "/projects/#{projectID}/contacts"
+      $.post("/projects/#{projectID}/contacts/import_csv.json", JSON.stringify(column_specs: json))
+        .always (data) -> window.location = "/projects/#{projectID}/contacts"
 
   class ColumnSpec
     constructor: (data) ->
