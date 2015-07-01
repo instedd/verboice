@@ -36,4 +36,10 @@ RSpec.describe CallLogsListing, type: :listing do
     expected = calls.sort_by(&:id).reverse.to_a
     items.should == expected
   end
+
+  it 'should render' do
+    CallLog.make channel: channel
+    CallLog.make channel: channel, state: 'queued'
+    render_listing :call_logs
+  end
 end
