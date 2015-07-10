@@ -125,7 +125,7 @@ describe ScheduledCall do
     end
   end
 
-  describe 'next occurrence' do
+  describe 'next run at' do
     before :each do
       Timecop.freeze(Time.utc(2014, 12, 4, 13, 0, 0))
 
@@ -137,11 +137,15 @@ describe ScheduledCall do
       Timecop.return
     end
 
+    let(:tz) do
+      ActiveSupport::TimeZone.new(scheduled_call.time_zone)
+    end
+
     it 'should return next occurrence from now' do
       # this is next monday
-      expected = Time.utc(2014, 12, 8, 13, 0, 0)
+      expected = Time.new(2014, 12, 8, 0, 0, 0, tz.formatted_offset)
 
-      scheduled_call.next_occurrence.should eq(expected)
+      scheduled_call.next_run_at.should eq(expected)
     end
 
     it 'should return next occurrence from not before' do
@@ -150,9 +154,20 @@ describe ScheduledCall do
       scheduled_call.not_before = Time.utc(2014, 12, 13)
 
       # this is other monday
-      expected = Time.utc(2014, 12, 15, 13, 0, 0)
+      expected = Time.new(2014, 12, 15, 0, 0, 0, tz.formatted_offset)
 
-      scheduled_call.next_occurrence.should eq(expected)
+      scheduled_call.next_run_at.should eq(expected)
+    end
+
+    it 'should not return a time in the past' do
+      scheduled_call.time_zone = 'Auckland'
+      scheduled_call.recurrence = IceCube::Schedule.new
+      scheduled_call.recurrence_rule = IceCube::Rule.daily
+
+      now = Time.utc(2014, 12, 4, 22, 0, 0)
+      Timecop.freeze(now)
+
+      scheduled_call.next_run_at.should > now
     end
   end
 
@@ -161,8 +176,12 @@ describe ScheduledCall do
       ActiveSupport::TimeZone.new(scheduled_call.time_zone)
     end
 
+    let(:next_run_at_time) do
+      Time.utc(2014, 12, 4, 13, 0, 0)
+    end
+
     before(:each) do
-      scheduled_call.stub(:next_occurrence).and_return(Time.utc(2014, 12, 4, 13, 0, 0))
+      scheduled_call.stub(:next_run_at).and_return(next_run_at_time)
     end
 
     it 'should not schedule job if disabled' do
@@ -176,7 +195,7 @@ describe ScheduledCall do
     it 'should not scheduled job if next occurrence if after not after' do
       scheduled_call.enabled = true
       scheduled_call.not_after_enabled = true
-      scheduled_call.not_after = Time.utc(2014, 12, 3, 13, 0, 0)
+      scheduled_call.not_after = next_run_at_time.yesterday
 
       Delayed::Job.should_not_receive(:enqueue)
 
@@ -184,7 +203,7 @@ describe ScheduledCall do
     end
 
     it 'should schedule job for next occurrence' do
-      expected_run_at = Time.new(2014, 12, 4, 0, 0, 0, tz.formatted_offset)
+      expected_run_at = next_run_at_time
       expected_from = Time.new(2014, 12, 4, 10, 0, 0, tz.formatted_offset)
       expected_to = Time.new(2014, 12, 4, 15, 0, 0, tz.formatted_offset)
 
