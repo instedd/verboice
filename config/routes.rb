@@ -69,7 +69,7 @@ Verboice::Application.routes.draw do
 
       resources :contacts, except: [:show] do
         collection do
-          post '/', :action => :index, :as => 'search'
+          post :search, :action => :index, :as => 'search'
           post :upload_csv
           post :import_csv
         end
