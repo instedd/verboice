@@ -54,15 +54,8 @@ class ContactsController < ApplicationController
 
   def new
     @contact = Contact.new
-
-    ImplicitVariable.subclasses.each do |implicit_variable|
-      @contact.persisted_variables << PersistedVariable.new(:implicit_key => implicit_variable.key)
-    end
-
     @project_variables = @project.project_variables
-    @project_variables.each do |project_variable|
-      @contact.persisted_variables << PersistedVariable.new(project_variable: project_variable)
-    end
+    load_empty_variables(@contact)
     @persisted_variables = @contact.persisted_variables
 
     @contact.project = @project
@@ -74,17 +67,7 @@ class ContactsController < ApplicationController
   end
 
   def edit
-    ImplicitVariable.subclasses.each do |implicit_variable|
-      unless @contact.persisted_variables.any? { |persisted| persisted.implicit_key == implicit_variable.key }
-        @contact.persisted_variables << PersistedVariable.new(:implicit_key => implicit_variable.key)
-      end
-    end
-
-    @project_variables.each do |project_variable|
-      unless @contact.persisted_variables.any? { |persisted| persisted.project_variable == project_variable }
-        @contact.persisted_variables << PersistedVariable.new(project_variable: project_variable)
-      end
-    end
+    load_empty_variables(@contact)
     @persisted_variables = @contact.persisted_variables
   end
 
@@ -99,6 +82,7 @@ class ContactsController < ApplicationController
         format.html { redirect_to project_contacts_url(@project), notice: 'Contact was successfully created.' }
         format.json { render json: @contact, status: :created, location: @contact }
       else
+        load_empty_variables(@contact)
         format.html { render action: "new" }
         format.json { render json: @contact.errors, status: :unprocessable_entity }
       end
@@ -169,6 +153,20 @@ class ContactsController < ApplicationController
   end
 
   private
+
+  def load_empty_variables(contact)
+    ImplicitVariable.subclasses.each do |implicit_variable|
+      unless contact.persisted_variables.any? { |persisted| persisted.implicit_key == implicit_variable.key }
+        contact.persisted_variables << PersistedVariable.new(:implicit_key => implicit_variable.key)
+      end
+    end
+
+    @project.project_variables.each do |project_variable|
+      unless contact.persisted_variables.any? { |persisted| persisted.project_variable == project_variable }
+        contact.persisted_variables << PersistedVariable.new(project_variable: project_variable)
+      end
+    end
+  end
 
   def initialize_context
     @contact = @project.contacts.includes(:addresses).includes(:recorded_audios).includes(:persisted_variables).find(params[:id])
