@@ -23,7 +23,7 @@ class CallLogsListing < Listings::Base
   end
 
   model do
-    CallLog.where(account_id: listing_account.id).order('call_logs.id DESC')
+    CallLog.for_account(listing_account).order('call_logs.id DESC')
   end
 
   def listing_account

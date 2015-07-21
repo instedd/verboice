@@ -106,7 +106,7 @@ class CallFlowsController < ApplicationController
         end
         redirect_to({ :action => :edit_workflow }, {:notice => "Call Flow #{@call_flow.name} successfully updated."})
       rescue Exception => ex
-        redirect_to({:action => :edit_workflow}, :flash => {:error => "Invalid file: #{ex}"})
+        redirect_to({:action => :edit_workflow}, :flash => {:error => "Invalid file: #{ex.message.truncate(150)}"})
       end
     end
   end

@@ -30,7 +30,11 @@ prepare_text_resource(Text, undefined, Session) ->
 prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_context = JsContext}) ->
   ReplacedText = util:interpolate(Text, fun(JsCode) ->
     {Value, _} = erjs:eval(JsCode, JsContext),
-    list_to_binary(Value)
+    if
+      is_integer(Value) -> list_to_binary(integer_to_list(Value));
+      is_list(Value) -> list_to_binary(Value);
+      true -> <<>>
+    end
   end),
   case Pbx:can_play({text, Language}) of
     false ->
@@ -59,7 +63,8 @@ file_name(Project, Language, Text) ->
   CacheData = <<ProjectId/integer, LanguageBin/binary, Timestamp/integer, Text/binary>>,
   util:md5hex(CacheData).
 
-prepare_blob_resource(Name, UpdatedAt, Blob, Extension, #session{pbx = Pbx}) ->
+prepare_blob_resource(BlobName, UpdatedAt, Blob, Extension, #session{pbx = Pbx, project = Project}) ->
+  Name = integer_to_list(Project#project.id) ++ "-" ++ BlobName,
   TargetPath = Pbx:sound_path_for(Name),
   case must_update(TargetPath, UpdatedAt) of
     false -> ok;

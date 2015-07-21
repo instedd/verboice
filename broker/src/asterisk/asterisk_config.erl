@@ -17,6 +17,15 @@ generate(RegFilePath, ChannelsFilePath) ->
     file:close(RegFile)
   end.
 
+% returns a tuple with the channels index and registrations index for the generated files
+%
+% ChannelIndex = dict({ip, number}, [channel_id])
+% RegistryIndex = dict({username, domain}, channel_id)
+%
+% ChannelIndex's values are lists since after DNS resolution there might be
+% domain names mapped to identical IP addresses. A list of more than one
+% element might indicate someone attempting to steal SIP calls from another
+% user.
 generate_config(RegFile, ChannelsFile) ->
   Channels = channel:find_all_sip(),
   generate_config(Channels, RegFile, ChannelsFile, dict:new(), dict:new(), dict:new()).
@@ -37,8 +46,9 @@ generate_config([Channel | Rest], RegFile, ChannelsFile, ResolvCache, ChannelInd
       file:write(ChannelsFile, "nat=yes\n"),
       file:write(ChannelsFile, "qualify=yes\n"),
       file:write(ChannelsFile, ["secret=", Password, "\n"]),
-      file:write(ChannelsFile, "insecure=invite,port\n"),
+      file:write(ChannelsFile, "insecure=no\n"),
       file:write(ChannelsFile, "context=verboice\n"),
+      file:write(ChannelsFile, "host=dynamic\n"),
       file:write(ChannelsFile, "\n"),
       generate_config(Rest, RegFile, ChannelsFile, ResolvCache, ChannelIndex, RegistryIndex);
 
@@ -86,7 +96,7 @@ generate_config([Channel | Rest], RegFile, ChannelsFile, ResolvCache, ChannelInd
         file:write(ChannelsFile, "\n"),
 
         R3 = lists:foldl(fun (IP, R2) ->
-          dict:store({util:to_string(IP), Number}, Channel#channel.id, R2)
+          dict:append({util:to_string(IP), Number}, Channel#channel.id, R2)
         end, R1, IPs),
         {R3, I + 1}
       end, {ChannelIndex, 0}, Expanded),

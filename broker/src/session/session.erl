@@ -236,8 +236,8 @@ dialing({reject, Reason}, State = #state{session = Session = #session{session_id
   finalize({failed, Reason}, State);
 
 dialing(timeout, State = #state{session = Session}) ->
-  notify_status(busy, Session),
-  finalize({failed, timeout}, State).
+  notify_status('no-answer', Session),
+  finalize({failed, no_answer}, State).
 
 in_progress({completed, NewSession, ok}, State) ->
   notify_status(completed, NewSession),
@@ -493,11 +493,17 @@ create_default_erjs_context(CallLogId, PhoneNumber) ->
         _ -> Value
       end
     end},
-    {'split_digits', fun(Value) ->
-      Result = re:replace(Value,"\\d"," &",[{return,list}, global]),
-      io:format("result: ~p~n", [Result]),
-      Result
-    end},
+    {'split_digits', fun
+      (undefined) ->
+        [];
+      (Value) ->
+        StringValue = if
+          is_integer(Value) -> integer_to_list(Value);
+          true -> Value
+        end,
+        Result = re:replace(StringValue,"\\d"," &",[{return,list}, global]),
+        Result
+      end},
     {phone_number, util:to_string(PhoneNumber)},
     {<<"hub_url">>, begin
       case application:get_env(verboice, hub_url) of

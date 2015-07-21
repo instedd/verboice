@@ -44,7 +44,11 @@ private
 
     condition = case filter[:operator].to_s
     when "eq"
-      "vars.value = #{value}"
+      if filter[:value].blank?
+        "(vars.value = '' OR vars.value IS NULL)"
+      else
+        "vars.value = #{value}"
+      end
     when "geq"
       "vars.value >= #{value}"
     when "gt"
@@ -65,7 +69,7 @@ private
 
     query = "EXISTS (SELECT 1 FROM persisted_variables as vars WHERE vars.contact_id = contacts.id AND #{variable} AND #{condition} LIMIT 1)"
 
-    if filter[:operator].to_s == 'undefined'
+    if filter[:operator].to_s == 'undefined' || (filter[:operator].to_s == 'eq' && filter[:value].blank?)
       defined_query, *defined_args = query_for(filter.merge(operator: 'defined'))
       return ["(#{query} OR NOT #{defined_query})"] + args + defined_args
     end

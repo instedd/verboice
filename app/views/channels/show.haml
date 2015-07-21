@@ -6,8 +6,9 @@
 .sbox.grey.StateDisplay.w30
   .values
     .U
-      %span.big= @channel.call_logs.size
-      %span= "#{@channel.call_logs.size == 1 ? 'call' : 'calls'} registered"
+      - calls_count = @channel.call_logs.for_account(current_account).count
+      %span.big= calls_count
+      %span= "#{calls_count == 1 ? 'call' : 'calls'} registered"
   = link_to 'Download as CSV', download_call_logs_path(:format => :csv, :search => "channel_id:\"#{@channel.id}\""), :class => "button white"
 
 %br/
@@ -31,7 +32,7 @@
   %li
     .i48grad-time
     %div
-      %span= pluralize @channel.queued_calls.size, 'queued call'
+      %span= pluralize @channel.queued_calls.for_account(current_account).count, 'queued call'
     = link_to "View calls", queued_call_logs_path(channel_id: @channel.id), :class => "button farrow"
   - if @channel.is_a?(Channels::Sip)
     %li

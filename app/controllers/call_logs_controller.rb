@@ -45,7 +45,7 @@ class CallLogsController < ApplicationController
 private
 
   def prepare_log_detail
-    @log = current_account.call_logs.find params[:id]
+    @log = CallLog.for_account(current_account).find params[:id]
     @activities = CallLog.poirot_activities(@log.id).sort_by(&:start)
   end
 

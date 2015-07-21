@@ -76,6 +76,13 @@ Channels::CustomSip.blueprint do
   register { true }
 end
 
+Channels::SipServer.blueprint do
+  call_flow
+  account { call_flow.project.account }
+  name
+  direction { 'both' }
+end
+
 Channels::Voxeo.blueprint do
   call_flow
   account { call_flow.project.account }

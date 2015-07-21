@@ -18,21 +18,11 @@
 class QueuedCallsController < ApplicationController
   before_filter :authenticate_account!
 
-  def index
-    @page = params[:page] || 1
-    @per_page = 10
-    @channel = current_account.channels.find params[:channel_id]
-    @queued_calls = @channel.page(@page).per(@per_page)
-
-    render :layout => false
-  end
-
   def destroy
-    @channel = current_account.channels.includes(:queued_calls).find params[:channel_id]
-    @call = @channel.queued_calls.find(params[:id])
+    @call = QueuedCall.for_account(current_account).find(params[:id])
     @call.cancel_call!
     @call.destroy
 
-    redirect_to(queued_call_logs_path, :notice => "Call #{@call.address} successfully canceled.")
+    redirect_to(queued_call_logs_path, :notice => "Call to #{@call.address} successfully canceled.")
   end
 end
