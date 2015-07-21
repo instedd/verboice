@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150721221650) do
+ActiveRecord::Schema.define(:version => 20150721222807) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -136,6 +136,7 @@ ActiveRecord::Schema.define(:version => 20150721221650) do
   end
 
   add_index "contact_addresses", ["contact_id"], :name => "index_contact_addresses_on_contact_id"
+  add_index "contact_addresses", ["project_id", "address"], :name => "index_contact_addresses_on_project_id_and_address", :unique => true
   add_index "contact_addresses", ["project_id"], :name => "index_contact_addresses_on_project_id"
 
   create_table "contact_scheduled_calls", :force => true do |t|
