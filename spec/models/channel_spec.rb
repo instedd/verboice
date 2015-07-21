@@ -149,6 +149,12 @@ describe Channel do
         queued_call.variables.should eq({'bar' => 1, 'baz' => 'eee'})
       end
 
+      it "calls with numeric-like variables" do
+        BrokerClient.should_receive(:notify_call_queued)
+        call_log = channel.call 'foo', vars: {'bar' => '123', 'quux' => '0001', 'zero' => '0'}
+        queued_call.variables.should eq({'bar' => 123, 'quux' => '0001', 'zero' => 0})
+      end
+
       it "stores contact and schedule call" do
         channel.call 'foo', contact_id: 7, scheduled_call_id: 13
         queued_call.contact_id.should eq(7)

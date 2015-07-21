@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
-class Channels::CustomSip < Channels::Sip
+class Channels::SipServer < Channels::Sip
   def self.can_handle? a_kind
-    a_kind == 'sip_client' || a_kind == 'sip'
+    a_kind == 'sip_server'
   end
 
   def self.kind
-    'SIP Client'
+    'SIP Server'
   end
 end

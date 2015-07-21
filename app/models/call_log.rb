@@ -26,6 +26,10 @@ class CallLog < ActiveRecord::Base
   has_many :entries, :foreign_key => 'call_id', :class_name => "CallLogEntry"
   has_many :pbx_logs, :foreign_key => :guid, :primary_key => :pbx_logs_guid
 
+  scope :for_account, ->(account) {
+    joins(:channel).where('call_logs.project_id IN (?) OR call_logs.account_id = ? OR channels.account_id = ?', account.readable_project_ids, account.id, account.id)
+  }
+
   before_validation :set_account_to_project_account, :if => :call_flow_id?
 
   validates_presence_of :account

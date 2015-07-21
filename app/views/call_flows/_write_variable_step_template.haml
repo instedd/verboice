@@ -7,14 +7,14 @@
     %table.GralTable.TwoColumn.CleanTable.NoHead
       %tr
         %th
-          Request
+          Variable name
         %th
 
     .content{ ko('instedd_init' => true) }
       %input.ux-text.w22{ ko(value: 'variable', valueUpdate: '"afterkeydown"', css: '{ "error": is_variable_invalid }', initAutocomplete: '{source: workflow.all_variables()}', initMask: '{mask: $.mask.masks.token}'), placeholder: 'Address book variable' }
 
       %br
-      %label to be equal to
+      %label New value
 
       %br
       %input.ux-text.w22{ ko(value: 'value', valueUpdate: '"afterkeydown"'), placeholder: 'Enter the new value' }

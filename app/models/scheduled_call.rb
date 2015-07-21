@@ -70,9 +70,9 @@ class ScheduledCall < ActiveRecord::Base
   def schedule_job
     return unless self.enabled
 
-    run_at = run_time_at next_occurrence
+    run_at = next_run_at
 
-    return if self.not_after_enabled && run_at > self.not_after
+    return if self.not_after_enabled && run_at > not_after_with_tz
 
     start_time = start_time_at run_at
     end_time = end_time_at run_at
@@ -86,10 +86,23 @@ class ScheduledCall < ActiveRecord::Base
     Delayed::Job.where(scheduled_call_id: self.id).delete_all
   end
 
-  def next_occurrence
+  # Return the time at which to schedule the next job to enqueue the calls.
+  # This should be at 00:00 of the next occurrence according to the schedule,
+  # and the returned time must be in the scheduled call timezone.
+  def next_run_at
     now = Time.now
-    from = self.not_before_enabled ? [now, self.not_before].max : now
-    recurrence.next_occurrence(from)
+    from = self.not_before_enabled ? [now, not_before_with_tz].max : now
+    result = recurrence.next_occurrence(from).in_time_zone(tz)
+
+    # This resets the time to 00:00, preserving day and time zone
+    result = get_date_with_time result, nil, tz
+    if result <= from
+      # Skip a day if resulting time would be before the calculated from and try again
+      result = recurrence.next_occurrence(from + 1.day).in_time_zone(tz)
+      get_date_with_time result, nil, tz
+    else
+      result
+    end
   end
 
   def filters_json
@@ -159,16 +172,28 @@ private
     self.recurrence_start_time = get_date_with_time self.recurrence_start_time, nil, tz
   end
 
-  def run_time_at(date)
-    get_date_with_time date, nil, tz
-  end
-
   def start_time_at(date)
     get_date_with_time date, self.from_time, tz
   end
 
   def end_time_at(date)
     get_date_with_time date, self.to_time, tz
+  end
+
+  # not_before is saved in the table in UTC; this method returns it in the
+  # scheduled call time zone
+  def not_before_with_tz
+    return nil unless self.not_before_enabled
+    time = self.not_before.hour * 60 + self.not_before.min
+    get_date_with_time self.not_before, time, tz
+  end
+
+  # not_after is saved in the table in UTC; this method returns it in the
+  # scheduled call time zone
+  def not_after_with_tz
+    return nil unless self.not_after_enabled
+    time = self.not_after.hour * 60 + self.not_after.min
+    get_date_with_time self.not_after, time, tz
   end
 
   def tz
@@ -182,7 +207,7 @@ private
     hour =  time.present? ? (time / 60 % 24) : 0
     min = time.present? ? (time % 60) : 0
     offset = tz.formatted_offset
-    result = DateTime.new(year, month, day, hour, min, 0, offset)
+    result = Time.new(year, month, day, hour, min, 0, offset).in_time_zone(tz)
     time.present? ? result + (time / (24 * 60)).day : result
   end
 

@@ -117,7 +117,7 @@ class Channel < ActiveRecord::Base
       raise CallQueuingError.new("Not After date can't be before schedule's next available date") if next_available_time.present? && not_after.utc < next_available_time.utc
     end
 
-    contact_id = project.contact_addresses.find_by_address(address).try(:contact_id)
+    contact_id = options[:contact_id] || project.contact_addresses.find_by_address(address).try(:contact_id)
 
     session_id = options[:session_id]
 
@@ -143,7 +143,7 @@ class Channel < ActiveRecord::Base
     if options[:vars].is_a?(Hash)
       variables = {}
       options[:vars].each do |name, value|
-        variables[name] = (value =~ /^\d+$/ ? value.to_i : value)
+        variables[name] = (value =~ /^(0|[1-9]\d*)$/ ? value.to_i : value)
       end
     end
 
@@ -164,7 +164,7 @@ class Channel < ActiveRecord::Base
       :variables => variables,
       :session_id => session_id,
       :callback_params => callback_params,
-      :contact_id => options[:contact_id],
+      :contact_id => contact_id,
       :scheduled_call_id => options[:scheduled_call_id]
     )
 
@@ -248,7 +248,7 @@ class Channel < ActiveRecord::Base
   def as_json(options = {})
     options = { only: [:name, :config] }.merge(options)
     super(options).merge({
-      kind: kind.try(:downcase),
+      kind: kind.try(:downcase).try(:gsub, ' ', '_'),
       call_flow: call_flow.try(:name)
     })
   end

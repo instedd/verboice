@@ -47,7 +47,12 @@ run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = Ca
         UriOptions = case TrustedApp of
           true ->
             Account = account:find(Project#project.account_id),
-            [{oauth2, guisso:get_trusted_token(Uri#uri.host, Account#account.email)}];
+            Hostname = case Uri#uri.port of
+                         80 -> Uri#uri.host;
+                         443 -> Uri#uri.host;
+                         Other -> lists:flatten([Uri#uri.host, ":", integer_to_list(Other)])
+                       end,
+            [{oauth2, guisso:get_trusted_token(Hostname, Account#account.email)}];
           _ -> []
         end,
 

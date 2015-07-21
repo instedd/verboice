@@ -33,7 +33,8 @@ pid(?PBX) -> Pid.
 
 answer(?PBX(_)) -> ok.
 
-hangup(?PBX(_)) -> throw(not_implemented).
+hangup(?PBX) ->
+  gen_server:call(Pid, hangup).
 
 can_play(url, _) -> true;
 can_play({text, Lang}, _) -> lists:member(util:to_string(Lang), ["en", "es", "fr", "de", "it"]);
@@ -155,6 +156,10 @@ handle_call(user_hangup, _From, State) ->
     Session -> gen_server:reply(Session, hangup)
   end,
   {reply, ok, State, timer:seconds(5)};
+
+handle_call(hangup, _From, State) ->
+  {noreply, HangupState} = flush(undefined, append('Hangup', State)),
+  {reply, ok, HangupState};
 
 handle_call(terminate, _From, State) ->
   {stop, normal, ok, State}.

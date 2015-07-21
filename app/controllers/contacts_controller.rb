@@ -111,14 +111,14 @@ class ContactsController < ApplicationController
   end
 
   def calls
-    @logs = current_account.call_logs.includes(:channel, :schedule)
+    @logs = @project.call_logs.includes(:channel, :schedule)
       .where(contact_id: @contact.id)
       .order('id DESC')
       .page(@page).per(@per_page)
   end
 
   def queued_calls
-    @calls = current_account.queued_calls.includes(:channel, :call_log, :schedule)
+    @calls = @project.queued_calls.includes(:channel, :call_log, :schedule)
       .where(address: @contact.addresses.map(&:address))
       .order('id DESC')
       .page(@page).per(@per_page)

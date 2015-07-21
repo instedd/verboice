@@ -1,0 +1,16 @@
+- unless @channel.new_record?
+  .field
+    = f.label :username
+    %input{type: 'text', readonly: 'true', value: "verboice_#{@channel.id}"}
+.field
+  = f.label :password
+  = f.password_field :password, :value => @channel.password, :autocomplete => 'off', readonly: readonly
+.field
+  = f.label :number
+  = f.text_field :number, readonly: readonly
+.field
+  = f.label :limit
+  = f.text_field :limit, readonly: readonly
+.field
+  = f.label :direction
+  = f.select :direction, [['Incoming', 'inbound'], ['Outgoing', 'outbound'], ['Both directions', 'both']], {}, {disabled: readonly}

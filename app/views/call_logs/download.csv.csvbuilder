@@ -1,0 +1,18 @@
+csv << ['ID', 'Started', 'Finished', 'Duration', 'Caller ID', 'Direction', 'Channel', 'Queue', 'Project', 'Call Flow', 'State']
+@logs.each do |log|
+  duration = (log.finished_at && log.started_at) ? distance_of_time_in_words(log.finished_at, log.started_at, true) : ''
+  state = log.fail_reason.present? ? "#{log.state} (#{log.fail_reason})": log.state
+  csv << [
+    log.id,
+    log.started_at,
+    log.finished_at,
+    duration,
+    log.address,
+    log.direction,
+    log.channel.try(:name),
+    log.schedule.try(:name),
+    log.project.try(:name),
+    log.call_flow.try(:name),
+    state
+  ]
+end
