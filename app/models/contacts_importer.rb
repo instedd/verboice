@@ -135,6 +135,9 @@ class ContactsImporter
     rows.each do |row|
       phone = row[phone_number_index]
 
+      # Skip if phone is empty
+      next if phone.blank?
+
       # Find contact address or create one (and its associated contact)
       contact_address = contact_addresses_by_address[phone]
       if contact_address
@@ -143,7 +146,7 @@ class ContactsImporter
       else
         contact = project.contacts.new
         contact_address = contact.addresses.new address: phone
-        contact.save!
+        contact.save!(validate: false) # Skip uniqueness validation and delegate to unique index in DB
 
         contact_addresses_by_address[phone] = contact_address
         created = true
@@ -153,7 +156,7 @@ class ContactsImporter
 
       # Process all cells according to spec
       row.each_with_index do |cell, index|
-        cell = cell.strip
+        cell = cell.strip if cell
 
         spec = @column_specs[index]
         case spec['action']
