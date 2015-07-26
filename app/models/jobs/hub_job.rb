@@ -21,6 +21,18 @@ class Jobs::HubJob
   end
 
   def perform
-    HubClient.current.notify "projects/#{@payload[:project_id]}/call_flows/#{@payload[:call_flow_id]}/$events/call_finished", @payload.to_json
+    HubClient.current.notify "projects/#{@payload[:project_id]}/call_flows/#{@payload[:call_flow_id]}/$events/call_done", @payload.to_json
+
+    if @payload[:status] == :completed
+      # The endpoint call_finished was only receiving completed (successful) calls events, so we're
+      # deprecating it in favour of call_done/completed/failed (see #686)
+      #
+      # We'll briefly keep this endpoint for not breaking existing applications until they're migrated
+      HubClient.current.notify "projects/#{@payload[:project_id]}/call_flows/#{@payload[:call_flow_id]}/$events/call_finished", @payload.to_json
+
+      HubClient.current.notify "projects/#{@payload[:project_id]}/call_flows/#{@payload[:call_flow_id]}/$events/call_completed", @payload.to_json
+    else
+      HubClient.current.notify "projects/#{@payload[:project_id]}/call_flows/#{@payload[:call_flow_id]}/$events/call_failed", @payload.to_json
+    end
   end
 end
