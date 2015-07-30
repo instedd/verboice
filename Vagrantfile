@@ -14,6 +14,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--memory", "1024"]
   end
 
+  config.vm.synced_folder "backups/", "/home/vagrant/backups"
+
   config.vm.provision :shell, :privileged => false, :inline => <<-SH
 
     export DEBIAN_FRONTEND=noninteractive
@@ -57,13 +59,26 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     sudo passenger-install-apache2-module -a
     sudo sh -c 'passenger-install-apache2-module --snippet > /etc/apache2/mods-available/passenger.load'
     sudo a2enmod passenger
+
+    # Configure apache website for Verboice
     sudo sh -c 'echo "<VirtualHost *:80>
   DocumentRoot `pwd`/verboice/public
   PassengerSpawnMethod conservative
 </VirtualHost>" > /etc/apache2/sites-enabled/000-default'
+
+    # Configure apache website for admin UI
+    sudo sh -c 'echo "NameVirtualHost *:8080
+Listen 8080"' >> /etc/apache2/ports.conf
+    sudo sh -c 'echo "<VirtualHost *:8080>
+  DocumentRoot `pwd`/verboice/admin/public
+  PassengerSpawnMethod conservative
+  SetEnv RAILS_ENV production
+  SetEnv VERBOICE_BACKUPS /home/vagrant/backups
+</VirtualHost>" > /etc/apache2/sites-enabled/001-admin'
+
     sudo service apache2 restart
 
-    # Setup rails application
+    # Setup rails application and broker
     git clone /vagrant verboice
     cd verboice
     bundle install --deployment --path .bundle --without "development test"
@@ -81,7 +96,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     echo "HOME=$HOME" >> .env
     sudo -E bundle exec foreman export upstart /etc/init -a verboice -u `whoami` --concurrency="broker=1,delayed=1"
 
+    # Setup admin interface
+    cd ~/verboice/admin
+    bundle install --deployment --path .bundle --without "development test"
+    mkdir -p ~/verboice/data/call_logs
+    mkdir -p ~/backups
+
+    # Schedule regular backups
+    sudo cp /home/vagrant/verboice/admin/etc/backup-verboice /etc/cron.weekly/
+    sudo chmod a+x /etc/cron.weekly/backup-verboice
+
     # Setup asterisk
+    cd ~/verboice
     sudo rm -rf /etc/asterisk/*
     sudo cp etc/asterisk/* /etc/asterisk/
     sudo touch /etc/asterisk/sip_verboice_registrations.conf /etc/asterisk/sip_verboice_channels.conf
