@@ -1,8 +1,8 @@
 <h1>Settings</h1>
 
 <ul>
-<li>Environment: <%= @@environment %></li>
-<li>Backups folder: <%= @@backups_folder %></li>
+<li>Environment: <%= ENVIRONMENT %></li>
+<li>Backups folder: <%= BACKUPS_FOLDER %></li>
 <li>Database:
   <ul>
     <li>Name: <%= @database['database']%></li>
@@ -18,8 +18,8 @@
 </li>
 <li>Web app:
   <ul>
-    <li>Environment: <%= @@environment %></li>
-    <li>Folder: <%= @@rails_path %></li>
+    <li>Environment: <%= ENVIRONMENT %></li>
+    <li>Folder: <%= RAILS_PATH %></li>
   </ul>
 </li>
 </ul>

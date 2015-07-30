@@ -1,5 +1,6 @@
 require 'date'
 require 'yaml'
+require 'pathname'
 
 require './config'
 
@@ -21,7 +22,7 @@ def run_backup
   bname = "verboice-#{stamp.strftime('%Y%m%dT%H%M%S')}"
   logs_dir = File.expand_path(load_broker_config['record_dir'])
 
-  Dir.chdir(@@backups_folder) do
+  Dir.chdir(BACKUPS_FOLDER) do
     File.write("#{bname}.lck", 1)
     backup_call_logs("#{bname}.tar", logs_dir)
     backup_db("#{bname}.sql")
@@ -35,7 +36,7 @@ end
 # Restores a full backup given its full path
 def restore_backup(name)
   bname = name.gsub(/\.tar\.gz$/, '')
-  source = File.expand_path(File.join(@@backups_folder, name))
+  source = File.expand_path(File.join(BACKUPS_FOLDER, name))
   data_dir = File.dirname(File.expand_path(load_broker_config['record_dir']))
 
   Dir.chdir(data_dir) do
@@ -77,7 +78,7 @@ end
 
 # Invokes rails db:migrate command
 def migrate_db
-  Dir.chdir(@@rails_path) { checked_exec "RAILS_ENV=#{@@environment} BUNDLE_GEMFILE=#{File.join(@@rails_path, 'Gemfile')} bundle exec rake db:migrate --trace " }
+  Dir.chdir(RAILS_PATH) { checked_exec "RAILS_ENV=#{ENVIRONMENT} BUNDLE_GEMFILE=#{File.join(RAILS_PATH, 'Gemfile')} bundle exec rake db:migrate --trace " }
 end
 
 # Perform actual db backup
@@ -92,12 +93,12 @@ end
 
 # Load dbconfig from rails path
 def load_dbconfig
-  YAML.load(File.read(@@database_config_path))[@@environment]
+  YAML.load(File.read(DATABASE_CONFIG_PATH))[ENVIRONMENT]
 end
 
 # Load erlang config from broker path
 def load_broker_config
-  raw = File.read(@@broker_config_path)
+  raw = File.read(BROKER_CONFIG_PATH)
   return {
     'record_dir' => extract_erl_config(raw, 'record_dir'),
     'asterisk_sounds_dir' => extract_erl_config(raw, 'asterisk_sounds_dir')

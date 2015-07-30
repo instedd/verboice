@@ -38,7 +38,7 @@ end
 
 # List backups
 get '/backups' do
-  @entries = Dir.glob("#{@@backups_folder}/*.tar.gz").map { |entry| entry_info(entry) }
+  @entries = Dir.glob("#{BACKUPS_FOLDER}/*.tar.gz").map { |entry| entry_info(entry) }
   erb :backups
 end
 
@@ -52,7 +52,7 @@ end
 
 # View details of a backup
 get '/backups/:path' do
-  path = File.join(@@backups_folder, params[:path])
+  path = File.join(BACKUPS_FOLDER, params[:path])
   if File.exists?(path)
     contents = get_backup_contents(path)
     info = entry_info(path)
@@ -71,7 +71,7 @@ end
 
 # Download backup
 get '/download/:path' do
-  path = File.join(@@backups_folder, params[:path])
+  path = File.join(BACKUPS_FOLDER, params[:path])
   send_file path
 end
 
@@ -79,7 +79,7 @@ end
 # Upload a backup file
 post '/upload' do
   name = params[:file][:filename]
-  target = File.join(@@backups_folder, name)
+  target = File.join(BACKUPS_FOLDER, name)
   file = params[:file][:tempfile]
   File.open(target, 'wb') { |f| f.write(file.read) }
   redirect to("/backups/#{name}")
