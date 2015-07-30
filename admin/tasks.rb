@@ -59,13 +59,6 @@ def backup_call_logs(target, logs_dir)
   checked_exec(cmd)
 end
 
-# Restore call logs
-def restore_call_logs(source)
-  dir = Pathname.new(File.expand_path(load_broker_config['record_dir']))
-  cmd = "(cd #{dir.dirname} && tar xf #{File.expand_path(source)} --wildcards --no-anchored 'call_logs*')"
-  checked_exec(cmd)
-end
-
 # Restore DB from sql gz file
 def restore_db(source)
   dbconfig = load_dbconfig
