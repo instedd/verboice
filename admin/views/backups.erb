@@ -1,17 +1,26 @@
 <h1>Backups</h1>
 
-<ul>
-<% @entries.each do |entry| %>
-  <li>
-    <% if entry[:locked]%>
-      <%= entry[:time].to_s %> [in progress]
-    <% else %>
-      <a href="#"><%= entry[:time].to_s %></a>
-    <% end %>
-  </li>
+<% if @entries.empty? %>
+  There are no backups on this instance.
+<% else %>
+  <ul>
+  <% @entries.each do |entry| %>
+    <li>
+      <% if entry[:locked]%>
+        <%= entry[:time].to_s %> [in progress]
+      <% else %>
+        <a href="/backups/<%= entry[:path] %>"><%= entry[:time].to_s %></a>
+      <% end %>
+    </li>
+  <% end %>
+  </ul>
 <% end %>
-</ul>
 
 <form action="/backups" method="POST">
   <input type="submit" value="Create new backup"/>
+</form>
+
+<form action="/upload" method="POST">
+  <input type="file" name="file" />
+  <input type="submit" value="Upload a new backup"/>
 </form>
