@@ -27,13 +27,21 @@ class ExecutionException < StandardError
 end
 
 error ExecutionException do
-  env['sinatra.error'].message
+  @ex = env['sinatra.error']
+  erb :error
 end
 
 
 # Home
 get '/' do
   redirect to('/backups')
+end
+
+
+# Success
+get '/success/:name' do
+  @name = params[:name]
+  erb :success
 end
 
 
@@ -98,6 +106,7 @@ end
 # Restore a backup
 post '/restore/:path' do
   restore_backup(params[:path])
+  redirect to("/success/#{params[:path]}")
 end
 
 
@@ -130,7 +139,6 @@ def restore_backup(name)
   end
 
   migrate_db
-  redirect to("/backups/#{name}")
 end
 
 # Inspects contents of backup

@@ -9,9 +9,11 @@
   <li>DB size: <%= @db_dump_size / 1024 %> kb</li>
 </ul>
 
+<hr/>
+
 <% unless @locked %>
-  <form action="/restore/<%= @path %>" method="POST">
-    <input type="submit" value="Restore this backup" />
+  <form action="/restore/<%= @path %>" method="POST" class="form-inline">
+    <a class="btn btn-primary" href="/download/<%= @path %>">Download this backup</a>
+    <input type="submit" class="btn btn-danger" value="Restore this backup" onclick="return window.confirm('Are you sure you want to restore this backup?')" />
   </form>
-  <a href="/download/<%= @path %>">Download this backup</a>
 <% end %>
