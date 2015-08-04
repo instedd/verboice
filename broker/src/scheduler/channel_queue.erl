@@ -102,7 +102,8 @@ remove_session(SessionPid, State = #state{current_calls = C, sessions = Sessions
   case ordsets:is_element(SessionPid, Sessions) of
     true ->
       NewSessions = ordsets:del_element(SessionPid, Sessions),
-      timer:apply_after(timer:seconds(2), gen_server, cast, [self(), wakeup]),
+      WaitTime = application:get_env(verboice, seconds_between_calls, 2),
+      timer:apply_after(timer:seconds(WaitTime), gen_server, cast, [self(), wakeup]),
       State#state{sessions = NewSessions, current_calls = C - 1};
     false ->
       State
