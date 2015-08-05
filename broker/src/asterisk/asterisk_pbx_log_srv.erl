@@ -1,6 +1,6 @@
 -module(asterisk_pbx_log_srv).
 -include("db.hrl").
--export([start_link/1, varset/2, hangup/2]).
+-export([start_link/1, varset/2, hangup/2, associate_pbx_log/2]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -19,6 +19,9 @@ hangup(Channel, Event) ->
 create_log(Guid, Details) ->
   PbxLog = #pbx_log{guid = Guid, details = Details},
   PbxLog:create().
+
+associate_pbx_log(Channel, SessionId) ->
+  gen_server:cast(?SERVER(Channel), {associate_pbx_log, SessionId}).
 
 %% @private
 init(Channel) ->
@@ -49,7 +52,12 @@ handle_cast({hangup, Event}, Guid) ->
   create_log(Guid, ["Channel hangup. Reason: ", Reason]),
   {stop, normal, Guid};
 
-handle_cast(_Msg, Guid) ->
+handle_cast({associate_pbx_log, Value}, Guid) ->
+  call_log_srv:associate_pbx_log(Value, Guid),
+  {noreply, Guid};
+
+handle_cast(Msg, Guid) ->
+  io:format("Message: ~p~n", [Msg]),
   {noreply, Guid}.
 
 %% @private

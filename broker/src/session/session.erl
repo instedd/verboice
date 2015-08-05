@@ -1,5 +1,5 @@
 -module(session).
--export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1, create_default_erjs_context/2]).
+-export([start_link/1, new/0, find/1, answer/2, answer/4, dial/4, reject/2, stop/1, resume/1, default_variables/1, create_default_erjs_context/2, id/1]).
 -export([language/1]).
 -compile([{parse_transform, lager_transform}]).
 
@@ -93,6 +93,9 @@ language(#session{js_context = JsContext, default_language = DefaultLanguage}) -
     undefined -> DefaultLanguage;
     Language -> Language
   end.
+
+id(SessionPid) ->
+  gen_fsm:sync_send_all_state_event(SessionPid, id).
 
 %% @private
 init(HibernatedSession = #hibernated_session{ data = #hibernated_session_data{resume_ptr = ResumePtr, poirot_activity = Activity }}) ->
@@ -341,6 +344,9 @@ session_vars(JS) ->
 
 handle_event(stop, _, State) ->
   {stop, normal, State}.
+
+handle_sync_event(id, _From, StateName, State = #state{session_id = SessionId}) ->
+  {reply, SessionId, StateName, State};
 
 handle_sync_event({matches, Criteria}, _From, StateName, State = #state{session = Session}) ->
   MatchResult = case Criteria of
