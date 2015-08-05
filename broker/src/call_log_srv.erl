@@ -1,5 +1,5 @@
 -module(call_log_srv).
--export([new/2, error/3, info/3, trace/3, trace_record/5, update/2, id/1, associate_pbx_log/2]).
+-export([new/2, error/3, info/3, trace/3, trace_record/5, update/2, id/1, associate_pbx_log/2, hangup/2]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -32,6 +32,9 @@ update(Fields, {?MODULE, Pid}) ->
 
 associate_pbx_log(SessionId, PbxLogId) ->
   gen_server:cast({global, {call_log_srv, SessionId}}, {associate_pbx_log, PbxLogId}).
+
+hangup(SessionId, Reason) ->
+  gen_server:cast({global, {call_log_srv, SessionId}}, {hangup, Reason}).
 
 id({?MODULE, Pid}) ->
   gen_server:call(Pid, get_id).
@@ -77,6 +80,15 @@ handle_cast({trace_record, CallFlowId, StepId, StepName, Result}, State = #state
 
 handle_cast({associate_pbx_log, PbxLogId}, State = #state{call_log = CallLog, timeout = Timeout}) ->
   NewCallLog = call_log:update(CallLog#call_log{pbx_logs_guid = PbxLogId}),
+  {noreply, State#state{call_log = NewCallLog}, Timeout};
+
+handle_cast({hangup, {Code, Reason}}, State = #state{call_log = CallLog, timeout = Timeout}) ->
+  FullCode = case Code of
+    undefined -> undefined;
+    <<"0">> -> undefined;
+    _ -> "ISDN:" ++ binary_to_list(Code)
+  end,
+  NewCallLog = call_log:update(CallLog#call_log{fail_code = FullCode, fail_details = Reason}),
   {noreply, State#state{call_log = NewCallLog}, Timeout}.
 
 %% @private

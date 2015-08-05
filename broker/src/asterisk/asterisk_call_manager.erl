@@ -52,7 +52,7 @@ handle_event({new_session, Pid, Env}, State) ->
                     X -> X
                   end,
                   session:answer(SessionPid, Pbx, ChannelId, CallerId),
-                  asterisk_pbx_log_srv:associate_pbx_log(AsteriskChannelId, session:id(SessionPid)),
+                  asterisk_pbx_log_srv:associate_call_log(AsteriskChannelId, session:id(SessionPid)),
                   {ok, State};
                 {error, _Reason} ->
                   agi_session:close(Pid),
