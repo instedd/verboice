@@ -7,6 +7,8 @@
 -define(SERVER, ?MODULE).
 -record(state, {call_log, owner_pid, timeout}).
 
+-define(STOP_TIMEOUT, 500).
+
 -include("db.hrl").
 
 new(SessionId, CallLog) ->
@@ -79,8 +81,8 @@ handle_cast({associate_pbx_log, PbxLogId}, State = #state{call_log = CallLog, ti
 
 %% @private
 handle_info({'DOWN', _Ref, process, Pid, _Reason}, State = #state{owner_pid = Pid}) ->
-  % Wait for 500 milliseconds before actually stopping, to receive any pending updates (see issue 708)
-  {noreply, State#state{timeout = 500}, 500};
+  % Wait for STOP_TIMEOUT milliseconds before actually stopping, to receive any pending updates (see issue 708)
+  {noreply, State#state{timeout = ?STOP_TIMEOUT}, ?STOP_TIMEOUT};
 
 handle_info(timeout, State) ->
   {stop, normal, State};
