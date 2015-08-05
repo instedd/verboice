@@ -81,15 +81,20 @@ class CallLogsListing < Listings::Base
   end
   column call_flow: :name, title: 'Call Flow'
   column :state, searchable: true do |log, value|
-    if log.fail_reason.present?
-      "#{value} (#{log.fail_reason})"
+    text = if log.fail_reason.present?
+      "#{value.capitalize} (#{log.fail_reason})"
     else
-      value
+      value.capitalize
+    end
+    if format == :html
+      content_tag(:div, listings_link_to_filter(text, :state, value.to_s), title: log.fail_details)
+    else
+      text
     end
   end
   column '' do |log|
     if format == :html
-      details_link = link_to('view details', call_log_path(log))
+      details_link = link_to('View details', call_log_path(log))
       if log.state == :queued
         call = listing_account.queued_calls(call_log_id: log.id).first
         if call

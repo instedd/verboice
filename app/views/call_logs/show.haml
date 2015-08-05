@@ -33,9 +33,10 @@
   .item
     %b State:
     = @log.state
-  .item
-    %b Fail Reason:
-    = @log.fail_reason
+  - if @log.fail_reason
+    .item
+      %b Failure information:
+      = call_log_fail_info(@log)
 %br/
 %p
   = link_to 'Download CSV', download_details_call_log_path(@log, :format => :csv), :class => "button fimport"
@@ -59,14 +60,16 @@
             = activity.fields['step_data']
 
 - if @log.pbx_logs_guid
+  %br/
   %h3 Network Logs
-  %table.GralTable
+  %table.GralTable.PbxLogTable
     %tr
-      %th{style: 'width:162px;'} When
+      %th{style: 'width:162px'} When
       %th Details
     - @log.pbx_logs.each do |pbx_log|
       %tr
-        %td= pbx_log.created_at
-        %td= pbx_log.details
+        %td{style: 'width:162px'}= pbx_log.created_at
+        %td.call-log-pbx-details
+          %span= pbx_log.details
   %br
 
