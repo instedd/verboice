@@ -56,9 +56,6 @@ class CallLogsListing < Listings::Base
   column :started_at, title: 'Started' do |_,value|
     render_time value
   end
-  column :finished_at, title: 'Finished' do |_,value|
-    render_time value
-  end
   column 'Duration' do |log|
     distance_of_time_in_words(log.finished_at, log.started_at, true) if log.finished_at
   end
@@ -91,6 +88,9 @@ class CallLogsListing < Listings::Base
     else
       text
     end
+  end
+  column :fail_details, title: "Failure" do |log, value|
+    value if log.state == :failed
   end
   column '' do |log|
     if format == :html
