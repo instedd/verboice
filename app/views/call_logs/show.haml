@@ -1,11 +1,13 @@
 %h2 Call log ##{@log.id}
 .call-log-header
-  .item
-    %b Not Before:
-    = @log.not_before
-  .item
-    %b Not After:
-    = @log.not_after
+  - if @log.not_before
+    .item
+      %b Not Before:
+      = @log.not_before
+  - if @log.not_after
+    .item
+      %b Not After:
+      = @log.not_after
   .item
     %b Started:
     = format_timestamp(@log.started_at)
@@ -20,19 +22,19 @@
     = @log.address
   .item
     %b Direction:
-    = @log.direction
+    = @log.direction.capitalize
   .item
     %b Channel:
     = @log.channel.try(:name)
   .item
     %b Schedule:
-    = @log.schedule.try(:name)
+    = @log.schedule.try(:name) || 'None'
   .item
     %b Project:
     = @log.project.try(:name)
   .item
     %b State:
-    = @log.state
+    = @log.state.capitalize
   - if @log.fail_reason
     .item
       %b Failure information:
