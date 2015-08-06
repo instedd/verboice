@@ -45,8 +45,13 @@ prepare_text_resource(Text, Language, #session{pbx = Pbx, project = Project, js_
           poirot:log(info, "Audio file already exists, no need to synthesize"),
           ok;
         false ->
-          poirot:log(info, "Synthesizing"),
-          ok = tts:synthesize(ReplacedText, Project, Language, TargetPath)
+          poirot:log(info, "Synthesizing to ~s", [TargetPath]),
+          case tts:synthesize(ReplacedText, Project, Language, TargetPath) of
+            ok -> ok;
+            Error ->
+              poirot:log(warn, "Error synthesizing audio resource: ~p", [Error]),
+              throw({error, "Could not synthesize audio resource"})
+          end
       end,
       {file, Name};
     true ->

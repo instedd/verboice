@@ -36,6 +36,7 @@ handle_event({new_session, Pid, Env}, State) ->
           % Incoming call, find called channel
           {ok, PeerIp} = agi_session:get_variable(Pid, "CHANNEL(peerip)"),
           SipTo = binary_to_list(proplists:get_value(dnid, Env)),
+          AsteriskChannelId = proplists:get_value(channel, Env),
           case asterisk_channel_srv:find_channel(PeerIp, SipTo) of
             not_found ->
               lager:info("Could not find associated channel to peer IP ~s and number ~s", [PeerIp, SipTo]),
@@ -51,6 +52,7 @@ handle_event({new_session, Pid, Env}, State) ->
                     X -> X
                   end,
                   session:answer(SessionPid, Pbx, ChannelId, CallerId),
+                  asterisk_pbx_log_srv:associate_call_log(AsteriskChannelId, session:id(SessionPid)),
                   {ok, State};
                 {error, _Reason} ->
                   agi_session:close(Pid),

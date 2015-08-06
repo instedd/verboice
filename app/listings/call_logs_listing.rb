@@ -56,9 +56,6 @@ class CallLogsListing < Listings::Base
   column :started_at, title: 'Started' do |_,value|
     render_time value
   end
-  column :finished_at, title: 'Finished' do |_,value|
-    render_time value
-  end
   column 'Duration' do |log|
     distance_of_time_in_words(log.finished_at, log.started_at, true) if log.finished_at
   end
@@ -81,15 +78,23 @@ class CallLogsListing < Listings::Base
   end
   column call_flow: :name, title: 'Call Flow'
   column :state, searchable: true do |log, value|
-    if log.fail_reason.present?
-      "#{value} (#{log.fail_reason})"
+    text = if log.fail_reason.present?
+      "#{value.capitalize} (#{log.fail_reason})"
     else
-      value
+      value.capitalize
     end
+    if format == :html
+      content_tag(:div, listings_link_to_filter(text, :state, value.to_s), title: log.fail_details)
+    else
+      text
+    end
+  end
+  column :fail_details, title: "Failure" do |log, value|
+    value if log.state == :failed
   end
   column '' do |log|
     if format == :html
-      details_link = link_to('view details', call_log_path(log))
+      details_link = link_to('View details', call_log_path(log))
       if log.state == :queued
         call = listing_account.queued_calls(call_log_id: log.id).first
         if call

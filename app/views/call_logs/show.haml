@@ -1,11 +1,13 @@
 %h2 Call log ##{@log.id}
 .call-log-header
-  .item
-    %b Not Before:
-    = @log.not_before
-  .item
-    %b Not After:
-    = @log.not_after
+  - if @log.not_before
+    .item
+      %b Not Before:
+      = @log.not_before
+  - if @log.not_after
+    .item
+      %b Not After:
+      = @log.not_after
   .item
     %b Started:
     = format_timestamp(@log.started_at)
@@ -20,22 +22,23 @@
     = @log.address
   .item
     %b Direction:
-    = @log.direction
+    = @log.direction.capitalize
   .item
     %b Channel:
     = @log.channel.try(:name)
   .item
     %b Schedule:
-    = @log.schedule.try(:name)
+    = @log.schedule.try(:name) || 'None'
   .item
     %b Project:
     = @log.project.try(:name)
   .item
     %b State:
-    = @log.state
-  .item
-    %b Fail Reason:
-    = @log.fail_reason
+    = @log.state.capitalize
+  - if @log.fail_reason
+    .item
+      %b Failure information:
+      = call_log_fail_info(@log)
 %br/
 %p
   = link_to 'Download CSV', download_details_call_log_path(@log, :format => :csv), :class => "button fimport"
@@ -59,14 +62,16 @@
             = activity.fields['step_data']
 
 - if @log.pbx_logs_guid
+  %br/
   %h3 Network Logs
-  %table.GralTable
+  %table.GralTable.PbxLogTable
     %tr
-      %th{style: 'width:162px;'} When
+      %th{style: 'width:162px'} When
       %th Details
     - @log.pbx_logs.each do |pbx_log|
       %tr
-        %td= pbx_log.created_at
-        %td= pbx_log.details
+        %td{style: 'width:162px'}= pbx_log.created_at
+        %td.call-log-pbx-details
+          %span= pbx_log.details
   %br
 
