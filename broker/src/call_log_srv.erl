@@ -82,6 +82,9 @@ handle_cast({associate_pbx_log, PbxLogId}, State = #state{call_log = CallLog, ti
   NewCallLog = call_log:update(CallLog#call_log{pbx_logs_guid = PbxLogId}),
   {noreply, State#state{call_log = NewCallLog}, Timeout};
 
+handle_cast({hangup, {_Code, <<"Unknown">>}}, State = #state{timeout = Timeout}) ->
+  {noreply, State, Timeout};
+
 handle_cast({hangup, {Code, Reason}}, State = #state{call_log = CallLog, timeout = Timeout}) ->
   FullCode = case Code of
     undefined -> undefined;
