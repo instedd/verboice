@@ -1,0 +1,35 @@
+<h1>Backups</h1>
+
+<% if @entries.empty? %>
+  There are no backups on this instance.
+<% else %>
+  <h4>List of backups in this instance</h4>
+  <ul>
+  <% @entries.each do |entry| %>
+    <li>
+      <% if entry[:locked]%>
+        <%= entry[:time].to_s %> [in progress]
+      <% else %>
+        <a href="/backups/<%= entry[:path] %>"><%= entry[:time].to_s %></a>
+      <% end %>
+    </li>
+  <% end %>
+  </ul>
+<% end %>
+
+<hr />
+
+<form action="/backups" method="POST">
+  <input type="submit" class="btn btn-primary" value="Create new backup"/>
+</form>
+
+<hr />
+
+<h4>Upload a new backup file</h4>
+<form action="/upload" method="POST" class="form-inline">
+  <div class="form-group">
+    <label for="file">Choose a .tar.gz file</label>
+    <input type="file" name="file" accept=".gz" />
+  </div>
+  <input type="submit" class="btn btn-primary" value="Upload"/>
+</form>

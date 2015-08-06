@@ -1,0 +1,25 @@
+<h1>Settings</h1>
+
+<ul>
+<li>Environment: <%= ENVIRONMENT %></li>
+<li>Backups folder: <%= BACKUPS_FOLDER %></li>
+<li>Database:
+  <ul>
+    <li>Name: <%= @database['database']%></li>
+    <li>User: <%= @database['username']%></li>
+    <li>Pass: <%= @database['password']%></li>
+  </ul>
+</li>
+<li>Broker:
+  <ul>
+    <li>Records folder: <%= @broker['record_dir'] %></li>
+    <li>Asterisk sounds folder: <%= @broker['asterisk_sounds_dir'] %></li>
+  </ul>
+</li>
+<li>Web app:
+  <ul>
+    <li>Environment: <%= ENVIRONMENT %></li>
+    <li>Folder: <%= RAILS_PATH %></li>
+  </ul>
+</li>
+</ul>

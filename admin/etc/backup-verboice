@@ -1,0 +1,1 @@
+su vagrant -c 'export RAILS_ENV=production; export VERBOICE_BACKUPS=/home/vagrant/backups; cd /home/vagrant/verboice/admin; /usr/bin/ruby -e "require \"./tasks\"; run_backup"'
