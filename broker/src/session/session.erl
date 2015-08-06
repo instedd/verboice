@@ -420,14 +420,14 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
           "queued"
       end
   end,
-  FailReason = case Reason of
-    hangup -> "hangup";
-    busy -> "busy";
-    no_answer -> "no-answer";
-    {error, _} -> "fatal error";
-    _ -> "error"
+  FailInfo = case Reason of
+    hangup ->          [{fail_reason, "hangup"}];
+    busy ->            [{fail_reason, "busy"}];
+    no_answer ->       [{fail_reason, "no-answer"}];
+    {error, Reason} -> [{fail_reason, "fatal error"}, {fail_details, Reason}];
+    _ ->               [{fail_reason, "error"}]
   end,
-  CallLog:update([{state, NewState}, {fail_reason, FailReason}, {finished_at, calendar:universal_time()}]),
+  CallLog:update([{state, NewState}, {finished_at, calendar:universal_time()}] ++ FailInfo),
   StopReason = case Reason of
     {error, Error} -> Error;
     _ -> normal
