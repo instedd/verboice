@@ -27,7 +27,7 @@ class ChannelsController < ApplicationController
     @shared_channels = current_account.shared_channels.all
     all_channels = @channels + @shared_channels.map(&:channel)
 
-    @channel_kinds = Channel.all_leaf_subclasses.map(&:kinds).flatten(1).sort_by{|x| x[0]}
+    @channel_kinds = Channel.all_leaf_subclasses.select(&:enabled).map(&:kinds).flatten(1).sort_by{|x| x[0]}
 
     grouped_channels = all_channels.each_with_object(Hash.new { |h,k| h[k] = [] }) { |ch, h| h[ch.broker] << ch.id }
     @channel_status = BrokerClient.channel_status(grouped_channels) rescue {}

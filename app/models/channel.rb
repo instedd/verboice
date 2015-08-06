@@ -54,6 +54,10 @@ class Channel < ActiveRecord::Base
     super
   end
 
+  def self.enabled
+    true
+  end
+
   def call(address, options = {})
     raise "Call address cannot be empty" unless address.present?
 
