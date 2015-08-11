@@ -16,7 +16,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.synced_folder "backups/", "/home/vagrant/backups"
 
-  config.vm.provision :shell, :privileged => false, :inline => <<-SH
+  config.vm.provision :shell do |s|
+    s.privileged = false
+    s.args = [ENV['WITH_ELASTICSEARCH'] || "", ENV['REVISION'] || ""]
+    s.inline = <<-SH
 
     export DEBIAN_FRONTEND=noninteractive
 
@@ -46,10 +49,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       erlang-tools=1:17.5.3 erlang-tv=1:17.5.3 erlang-typer=1:17.5.3 erlang-webtool=1:17.5.3 erlang-wx=1:17.5.3 erlang-xmerl=1:17.5.3
 
     # Install ElasticSearch
-    wget -q https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.1.0.deb
-    sudo dpkg -i elasticsearch-1.1.0.deb
-    sudo service elasticsearch restart
-    update-rc.d elasticsearch defaults
+    if [ "$1" == '1' ]; then
+      wget -q https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.1.0.deb
+      sudo dpkg -i elasticsearch-1.1.0.deb
+      sudo service elasticsearch restart
+      update-rc.d elasticsearch defaults
+    fi
 
     # Install bundler
     sudo gem install bundler --no-ri --no-rdoc
@@ -85,10 +90,20 @@ Listen 8080"' >> /etc/apache2/ports.conf
     # Setup rails application and broker
     git clone /vagrant verboice
     cd verboice
+    if [ "$2" != '' ]; then git checkout $2; fi
+
     bundle install --deployment --path .bundle --without "development test"
     bundle exec rake db:setup RAILS_ENV=production
     bundle exec rake assets:precompile
     make -C broker deps
+
+    # Configuration for not using elasticsearch
+    if [ "$1" != '1' ]; then
+      cp broker/verboice.config.no-es broker/verboice.config
+      script/update_yml_config config/verboice.yml poirot_elasticsearch_url nil
+    fi
+
+    # Configuration changes
     echo "Verboice::Application.config.action_mailer.delivery_method = :sendmail" > config/initializers/sendmail.rb
     script/update_erl_config broker/verboice.config verboice db_name verboice
     script/update_erl_config broker/verboice.config verboice asterisk_config_dir /etc/asterisk
@@ -123,4 +138,5 @@ Listen 8080"' >> /etc/apache2/ports.conf
     # Start verboice services
     sudo start verboice
   SH
+  end
 end
