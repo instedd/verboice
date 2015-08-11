@@ -78,6 +78,10 @@ Listen 8080"' >> /etc/apache2/ports.conf
 
     sudo service apache2 restart
 
+    # Create logs folder
+    sudo mkdir -p /var/log/verboice
+    sudo chown `whoami` /var/log/verboice
+
     # Setup rails application and broker
     git clone /vagrant verboice
     cd verboice
