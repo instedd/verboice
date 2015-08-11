@@ -1,0 +1,60 @@
+[
+  {verboice, [
+    {asterisk_config_dir, "/usr/local/asterisk/etc/asterisk"},
+    {asterisk_sounds_dir, "/usr/local/asterisk/var/lib/asterisk/sounds"},
+    {asterisk_agi_use_pipe_separator, false},
+    {broker_port, 19000},
+    {base_url, "http://localhost:3000"},
+    {record_dir, "../data/call_logs/"},
+
+    {seconds_between_calls, 8},
+    {seconds_for_call_back, 30},
+
+    {db_name, "verboice_development"},
+    {db_user, "root"},
+    {db_pass, ""},
+
+    {crypt_secret, "secret"},
+
+    {nuntium_host, "https://nuntium.instedd.org"},
+    {nuntium_account, "waj"},
+    {nuntium_app, "verboice"},
+    {nuntium_app_password, "verboice"},
+
+    {guisso_client_id, ""},
+    {guisso_client_secret, ""},
+    {guisso_url, ""},
+
+    {twilio_callback_url, "http://localhost:8080/"},
+
+    {hub_enabled, true},
+    {hub_url, ""}
+  ]},
+
+  {lager, [
+    {handlers, [
+      {lager_console_backend, [info, {lager_default_formatter, [time,color," [",severity,"] [",{pid,"unknown_pid"},"|",{short_activity,"undefined"},"] ",{module,"unknown_module"},": ",message,"\e[0m\r\n"]}]}
+    ]},
+    {colored, true}
+  ]},
+
+  {poirot, [
+    {source, <<"verboice-broker">>},
+    {sender, local},
+    {receiver, undefined}
+  ]},
+
+  {inets, [
+    {services, [
+      {httpd, [
+        {server_name, "verboice_broker"},
+        {server_root, "."},
+        {document_root, "tmp/www"},
+        {port, 8080},
+        {modules, [twilio_httpd_module, mod_get, mod_log]},
+        {transfer_log, "log/httpd.log"},
+        {error_log, "log/httpd_error.log"}
+      ]}
+    ]}
+  ]}
+].
