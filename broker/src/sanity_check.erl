@@ -4,7 +4,7 @@
 
 -define(CHECKS, [
   {<<"Write permissions on 'sip_verboice_channels.conf'">>, fun verify_write_permission_on_sip_file/1, ["sip_verboice_channels.conf"]},
-  {<<"Write permissions on 'sip_verboice_registry.conf'">>, fun verify_write_permission_on_sip_file/1, ["sip_verboice_registry.conf"]},
+  {<<"Write permissions on 'sip_verboice_registrations.conf'">>, fun verify_write_permission_on_sip_file/1, ["sip_verboice_registrations.conf"]},
   {<<"Write permissions on audio directory">>, fun verify_write_permission_on_audio_directory/0, []},
   {<<"Write permissions on recordings directory">>, fun verify_write_permission_on_recording_directory/0, []},
   {<<"Verify SOX is installed">>, fun verify_sox/0, []}
