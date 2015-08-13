@@ -66,5 +66,8 @@ window.initContactsUploadCSV = (projectID, columnSpecs, variables) ->
     toJSON: =>
       action: @action()
       name: @name()
+      id: @id()
+      source: @source()
 
-  ko.applyBindings(new ContactsUploadCSVModel(), document.getElementById('contacts-upload-csv'))
+  window.contactsUploadCSVModel = new ContactsUploadCSVModel()
+  ko.applyBindings(window.contactsUploadCSVModel, document.getElementById('contacts-upload-csv'))

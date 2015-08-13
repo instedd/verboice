@@ -15,7 +15,7 @@
             %select{ko(options: '$root.actions', optionsText: "'label'", optionsValue: "'name'", value: 'action', css: '{error: error()}')}
             /ko if: action() == 'existing_variable'
             %br
-            %select{ko(options: '$root.variables', optionsText: "'name'", optionsValue: "'id'", value: 'id', css: '{error: error()}')}
+            %select{ko(options: '$root.variables', optionsText: "'name'", optionsValue: "'name'", value: 'name', css: '{error: error()}')}
             //ko
             /ko if: action() == 'new_variable'
             %br

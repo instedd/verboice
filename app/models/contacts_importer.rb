@@ -146,6 +146,7 @@ class ContactsImporter
       else
         contact = project.contacts.new
         contact_address = contact.addresses.new address: phone
+        contact_address.project_id = project.id
         contact.save!(validate: false) # Skip uniqueness validation and delegate to unique index in DB
 
         contact_addresses_by_address[phone] = contact_address
