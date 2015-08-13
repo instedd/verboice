@@ -70,6 +70,9 @@ function initContactsFilter(count) {
     var filters = JSON.parse($('.filters').val());
     var model = window.contactsFilter = new ContactsFilter(filters, count);
     ko.applyBindings(model, document.getElementById('contactsFilter'));
+    if (model.filters().length > 0) {
+      $('.search form').submit();
+    }
   });
 }
 
