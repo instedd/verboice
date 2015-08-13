@@ -46,7 +46,7 @@
 .contacts-list
   #contactsFilter.filters-box.w30.tablewrapp
     .search
-      = form_tag search_project_contacts_path(@project), remote: true do
+      = form_tag search_project_contacts_path(@project), remote: true, method: 'GET' do
         %p
           Filters
           %span{'data-bind' => 'text: countDescription'}

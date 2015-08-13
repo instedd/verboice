@@ -28,4 +28,4 @@
             - audio.description == audio_description
           %td= audios.size
 
-  = paginate @contacts, :param_name => 'page', :params => {filters_json: params[:filters_json]}
+  = paginate @contacts, :param_name => 'page', :params => {filters_json: params[:filters_json]}, :remote => true
