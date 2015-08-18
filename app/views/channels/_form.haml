@@ -1,4 +1,7 @@
 = form_for(@channel, :html => {:autocomplete => 'off'}) do |f|
+
+  = chrome_do_not_autocomplete_hack
+
   - if @channel.errors.any?
     #error_explanation
       %h2
