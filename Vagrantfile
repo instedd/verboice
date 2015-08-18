@@ -90,7 +90,10 @@ Listen 8080"' >> /etc/apache2/ports.conf
     # Setup rails application and broker
     git clone /vagrant verboice
     cd verboice
-    if [ "$2" != '' ]; then git checkout $2; fi
+    if [ "$2" != '' ]; then
+      git checkout $2;
+      echo $2 > VERSION;
+    fi
 
     bundle install --deployment --path .bundle --without "development test"
     bundle exec rake db:setup RAILS_ENV=production
