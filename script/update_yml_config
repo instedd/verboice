@@ -7,5 +7,5 @@ config = YAML.load_file filename
 section = config
 section = section[ARGV.shift] while ARGV.length > 2
 
-section[ARGV[0]] = ARGV[1]
+section[ARGV[0]] = ARGV[1] == 'null' ? nil : ARGV[1]
 File.write filename, config.to_yaml
