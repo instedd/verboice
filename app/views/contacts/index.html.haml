@@ -30,6 +30,8 @@
     %span
       %a.button.fimport{:href => "#"} Import CSV
     .ux-content
+      %span
+        The CSV file must be comma-separated and have a header row. After uploading the file, you will be able to choose how each column will be imported.
       = form_tag upload_csv_project_contacts_path(@project), enctype: "multipart/form-data" do
         %input#choose-file{:disabled => "disabled", :placeholder => "Choose File"}/
         .file-upload
