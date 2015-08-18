@@ -56,9 +56,15 @@ class ExternalServicesController < ApplicationController
     begin
       external_service.update_manifest!
       flash[:notice] = 'Manifest successfully updated'
+    rescue Parsers::ExternalService::ParseException => pex
+      flash[:error] = 'Error updating manifest: Invalid manifest format'
+      Rails.logger.warn "Parsing error updating manifest for service #{external_service.try(:id)}: #{pex}"
+    rescue RestClient::Exception => rex
+      flash[:error] = 'Error updating manifest: Cannot download manifest'
+      Rails.logger.warn "Connection error updating manifest for service #{external_service.try(:id)}: #{rex}"
     rescue Exception => ex
       flash[:error] = 'Error updating manifest'
-      logger.warn ex
+      Rails.logger.warn "Error updating manifest for service #{external_service.try(:id)}: #{ex}"
     end
     if request.xhr?
       render :partial => "box_content", :locals => { :external_service => external_service, :expanded => true}

@@ -18,28 +18,35 @@
 module Parsers
   class ExternalService
 
+    class ParseException < StandardError
+    end
+
     def initialize(external_service=nil)
       @external_service = external_service || ::ExternalService.new
     end
 
     def parse(xml_string)
-      xml = Nokogiri::XML.parse(xml_string)
+      begin
+        xml = Nokogiri::XML.parse(xml_string)
 
-      @external_service.name = xml.root.xpath('./name').text rescue nil
+        @external_service.name = xml.root.xpath('./name').text rescue nil
 
-      parse_global_settings xml.root
+        parse_global_settings xml.root
 
-      existing_steps_ids = @external_service.steps.pluck :id
-      xml.root.xpath('./steps/step').each do |step_node|
-        step = parse_step step_node
-        existing_steps_ids.delete(step.id) unless step.new_record?
+        existing_steps_ids = @external_service.steps.pluck :id
+        xml.root.xpath('./steps/step').each do |step_node|
+          step = parse_step step_node
+          existing_steps_ids.delete(step.id) unless step.new_record?
+        end
+
+        @external_service.steps.each do |step|
+          step.mark_for_destruction if !step.new_record? && existing_steps_ids.include?(step.id)
+        end
+
+        @external_service
+      rescue Exception => ex
+        raise ParseException, ex.to_s
       end
-
-      @external_service.steps.each do |step|
-        step.mark_for_destruction if !step.new_record? && existing_steps_ids.include?(step.id)
-      end
-
-      @external_service
     end
 
     private

@@ -80,9 +80,9 @@ class ProjectsController < ApplicationController
       @channel.call(address.strip, options)
     end
 
-    redirect_to project_path(params[:id], {:notice => "Enqueued calls to #{pluralize(addresses.count, 'address')} on channel #{@channel.name}"})
+    redirect_to project_path(params[:id]), :notice => "Enqueued calls to #{pluralize(addresses.count, 'address')} on channel #{@channel.name}"
   rescue CallQueuingError => e
-    redirect_to project_path(params[:id], flash: {error: e.message})
+    redirect_to project_path(params[:id]), flash: {error: e.message}
   end
 
   def destroy
