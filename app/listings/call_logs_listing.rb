@@ -98,7 +98,7 @@ class CallLogsListing < Listings::Base
       if log.state == :queued
         call = listing_account.queued_calls(call_log_id: log.id).first
         if call
-          delete_link = link_to('', [call.channel, call], :confirm => "Are you sure you want to delete the call #{call.address}?", :method => :delete, :class => "button fdelete")
+          delete_link = link_to('', [call.channel, call], :confirm => "Are you sure you want to delete the call #{log.id} to #{call.address}?", :method => :delete, :class => "button fdelete")
 
           delete_link + ' ' + details_link
         else
