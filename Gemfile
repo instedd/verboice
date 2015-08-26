@@ -53,6 +53,7 @@ group :development, :test do
   gem 'pry-debugger'
   gem 'syntax'
   gem 'timecop'
+  gem 'quiet_assets'
 end
 
 group :development do
