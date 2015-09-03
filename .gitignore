@@ -26,3 +26,6 @@ config/nuntium.yml
 erl_crash.dump
 .vagrant
 admin/backups/verboice*
+
+*.sublime-project
+*.sublime-workspace
