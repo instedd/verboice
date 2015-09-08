@@ -68,8 +68,8 @@ GIT
       sass-rails (>= 3.1)
 
 GIT
-  remote: https://github.com/instedd/temetry_rails
-  revision: c15db463ae631cefe43d20a8e9b0f86e1e1ad27a
+  remote: https://github.com/instedd/telemetry_rails
+  revision: 0abd44c549944cfebfb7ec5712d14ab39d5e74c6
   branch: master
   specs:
     instedd_telemetry (0.0.1)
