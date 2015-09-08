@@ -7,7 +7,7 @@ module Telemetry::LanguagesPerProjectCollector
       sets << {
         "type" => "languages",
         "key" => { "project_id" => project.id },
-        "value" => project.languages.count
+        "elements" => project.languages
       }
     end
 
