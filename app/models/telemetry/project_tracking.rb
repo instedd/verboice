@@ -8,7 +8,7 @@ module Telemetry::ProjectTracking
   end
 
   def telemetry_track_activity
-    project.telemetry_track_activity
+    project.telemetry_track_activity if project.present?
   end
 
 end

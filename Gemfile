@@ -68,4 +68,5 @@ end
 group :test do
   gem 'webmock'
   gem 'fakefs', :require => 'fakefs/safe'
+  gem 'database_cleaner'
 end

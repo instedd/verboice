@@ -13,7 +13,7 @@ describe "project lifespan tracking" do
   end
   
   def should_update_lifespan(project, &block)
-    Timecop.travel(3.seconds)
+    Timecop.freeze(Time.now + 3.seconds)
     block.call
     verify_lifespan(Timespan.first, project, Time.now)
   end

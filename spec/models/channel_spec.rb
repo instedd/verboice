@@ -27,7 +27,7 @@ describe Channel do
 
   after(:each) do
     BrokerClient.stub(:destroy_channel)
-    [Account, Channel.all_leaf_subclasses, CallLog, Schedule, QueuedCall].flatten.each &:destroy_all
+    DatabaseCleaner.clean_with(:truncation)
     Timecop.return
   end
 
