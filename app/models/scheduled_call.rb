@@ -1,4 +1,6 @@
 class ScheduledCall < ActiveRecord::Base
+  include Telemetry::ProjectTracking
+
   belongs_to :project
   belongs_to :call_flow
   belongs_to :channel
@@ -219,4 +221,5 @@ private
     s = "#{h}:#{m}"
     time_in_mins > 1440 ? "#{s} on next day" : s
   end
+
 end

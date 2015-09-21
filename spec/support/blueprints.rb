@@ -226,3 +226,7 @@ ContactScheduledCall.blueprint do
   scheduled_call
 end
 
+Feed.blueprint do
+  name
+  project
+end

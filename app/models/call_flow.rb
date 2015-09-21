@@ -17,6 +17,7 @@
 
 class CallFlow < ActiveRecord::Base
   include FusionTablesPush
+  include Telemetry::ProjectTracking
 
   attr_accessible :name, :error_flow, :flow, :user_flow, :callback_url, :mode, :callback_url_user, :callback_url_password, :store_in_fusion_tables, :fusion_table_name, :current_fusion_table_id
 
@@ -49,7 +50,7 @@ class CallFlow < ActiveRecord::Base
   before_save :clear_flow, :if => lambda { mode_callback_url?}
   before_save :clear_callback_url, :if => lambda { mode_flow? }
   before_save :update_flow_with_user_flow
-
+  
   enum_attr :mode, %w(callback_url ^flow)
   config_accessor :callback_url_user, :callback_url_password
   attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true

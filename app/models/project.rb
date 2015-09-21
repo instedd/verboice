@@ -60,6 +60,8 @@ class Project < ActiveRecord::Base
 
   broker_cached
 
+  after_save :telemetry_track_activity
+
   def defined_variables
     project_variables.collect(&:name)
   end
@@ -92,6 +94,10 @@ class Project < ActiveRecord::Base
 
   def active_calls
     BrokerClient.active_calls_by_project(id)
+  end
+
+  def telemetry_track_activity
+    InsteddTelemetry.timespan_since_creation_update(:project_lifespan, {project_id: self.id}, self)
   end
 
   private
