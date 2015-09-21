@@ -399,11 +399,13 @@ push_results(#session{call_flow = #call_flow{id = CallFlowId, store_in_fusion_ta
   delayed_job:enqueue({struct, "CallFlow::FusionTablesPush::Pusher"}, Task, ?PUSH_DELAY_SECONDS);
 push_results(_) -> ok.
 
-finalize(completed, State = #state{session = #session{call_log = CallLog}}) ->
+finalize(completed, State = #state{session = #session{call_log = CallLog, project = Project}}) ->
+  telemetry_util:call_ended(Project),
   CallLog:update([{state, "completed"}, {finished_at, calendar:universal_time()}]),
   {stop, normal, State};
 
-finalize({failed, Reason}, State = #state{session = Session = #session{call_log = CallLog}}) ->
+finalize({failed, Reason}, State = #state{session = Session = #session{call_log = CallLog, project = Project}}) ->
+  telemetry_util:call_ended(Project),
   NewState = case Session#session.queued_call of
     undefined -> "failed";
     QueuedCall ->

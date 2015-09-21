@@ -20,6 +20,7 @@ config/oauth.yml
 broker/deps
 broker/ebin
 broker/.eunit
+broker/.rebar
 broker/*.plt
 broker/rel/verboice
 config/nuntium.yml
