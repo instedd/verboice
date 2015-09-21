@@ -3,7 +3,10 @@
 
 -include("db.hrl").
 
-call_ended(Project) ->
+call_ended(undefined) ->
+  ok;
+
+call_ended(Project) when is_record(Project, project) ->
   Kind = <<"project_lifespan">>,
   Attributes = {[{<<"project_id">>, Project#project.id}]},
   {datetime, CreatedAt} = Project#project.created_at,
