@@ -399,13 +399,13 @@ push_results(#session{call_flow = #call_flow{id = CallFlowId, store_in_fusion_ta
   delayed_job:enqueue({struct, "CallFlow::FusionTablesPush::Pusher"}, Task, ?PUSH_DELAY_SECONDS);
 push_results(_) -> ok.
 
-finalize(completed, State = #state{session = #session{call_log = CallLog, project = Project}}) ->
-  telemetry_util:call_ended(Project),
+finalize(completed, State = #state{session = Session = #session{call_log = CallLog}}) ->
+  track_call_finished(Session),
   CallLog:update([{state, "completed"}, {finished_at, calendar:universal_time()}]),
   {stop, normal, State};
 
-finalize({failed, Reason}, State = #state{session = Session = #session{call_log = CallLog, project = Project}}) ->
-  telemetry_util:call_ended(Project),
+finalize({failed, Reason}, State = #state{session = Session = #session{call_log = CallLog}}) ->
+  track_call_finished(Session),
   NewState = case Session#session.queued_call of
     undefined -> "failed";
     QueuedCall ->
@@ -602,3 +602,24 @@ has_ended(Flow, Ptr) -> lists:nth(Ptr, Flow) =:= stop.
 eval(stop, Session) -> {finish, Session};
 eval([Command, Args], Session) -> Command:run(Args, Session);
 eval(Command, Session) -> Command:run(Session).
+
+
+track_call_finished(#session{project = Project}) when is_record(Project, project) ->
+  AccountId = Project#project.account_id,
+  Account = account:find(AccountId),
+  {datetime, AccountCreatedAt} = Account#account.created_at,
+  {datetime, ProjectCreatedAt} = Project#project.created_at,
+
+  telemetry:report(timespan_update, [
+    <<"account_lifespan">>,
+    {[{<<"account_id">>, AccountId}]},
+    iso8601:format(AccountCreatedAt)
+  ]),
+  telemetry:report(timespan_update, [
+    <<"project_lifespan">>,
+    {[{<<"project_id">>, Project#project.id}]},
+    iso8601:format(ProjectCreatedAt)
+  ]);
+
+track_call_finished(_) ->
+  ok.
