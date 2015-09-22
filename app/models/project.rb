@@ -98,6 +98,7 @@ class Project < ActiveRecord::Base
 
   def telemetry_track_activity
     InsteddTelemetry.timespan_since_creation_update(:project_lifespan, {project_id: self.id}, self)
+    account.telemetry_track_activity
   end
 
   private
