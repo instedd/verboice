@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe Telemetry::StepsPerCallFlowCollector do
-  
+
   it "builds counters for steps in each call flow" do
     p1 = Project.make languages: [:eng, :spa]
     p2 = Project.make languages: [:ger, :afr]
-    
+
     f1 = p1.call_flows.make user_flow: [step, step, step]
     f2 = p1.call_flows.make user_flow: [step, step]
     f3 = p2.call_flows.make user_flow: [step]
@@ -13,17 +13,17 @@ describe Telemetry::StepsPerCallFlowCollector do
     current_stats.should eq({
       "counters"=> [
         {
-          "type" => "steps",
+          "metric" => "steps",
           "key" => {"project_id" => p1.id, "call_flow"=>f1.id},
           "value" => 3
         },
         {
-          "type" => "steps",
+          "metric" => "steps",
           "key" => {"project_id" => p1.id, "call_flow"=>f2.id},
           "value" => 2
         },
         {
-          "type" => "steps",
+          "metric" => "steps",
           "key" => {"project_id" => p2.id, "call_flow"=>f3.id},
           "value" => 1
         }

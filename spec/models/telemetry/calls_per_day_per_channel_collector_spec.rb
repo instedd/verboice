@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Telemetry::StepsPerCallFlowCollector do
-  
+
   let(:channel_1) { Channels::SipServer.make }
   let(:channel_2) { Channels::Twilio.make }
 
@@ -17,27 +17,27 @@ describe Telemetry::StepsPerCallFlowCollector do
     current_stats.should eq({
       "counters" => [
         {
-          "type" => "calls",
+          "metric" => "calls",
           "key" => { "date" => Date.new(2015,01,1).iso8601, "channel_id" => channel_1.id, "state" => "completed" },
           "value" => 5
         },
         {
-          "type" => "calls",
+          "metric" => "calls",
           "key" => { "date" => Date.new(2015,01,1).iso8601, "channel_id" => channel_1.id, "state" => "failed" },
           "value" => 3
         },
         {
-          "type" => "calls",
+          "metric" => "calls",
           "key" => { "date" => Date.new(2015,01,1).iso8601, "channel_id" => channel_2.id, "state" => "completed" },
           "value" => 8
         },
         {
-          "type" => "calls",
+          "metric" => "calls",
           "key" => { "date" => Date.new(2015,01,2).iso8601, "channel_id" => channel_1.id, "state" => "failed" },
           "value" => 3
         },
         {
-          "type" => "calls",
+          "metric" => "calls",
           "key" => { "date" => Date.new(2015,01,2).iso8601, "channel_id" => channel_2.id, "state" => "completed" },
           "value" => 4
         }

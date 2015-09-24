@@ -8,7 +8,7 @@ describe Telemetry::ProjectCountCollector do
     current_stats.should eq({
       "counters" => [
         {
-          "type"  => "projects",
+          "metric"  => "projects",
           "key"   => {},
           "value" => 40
         }

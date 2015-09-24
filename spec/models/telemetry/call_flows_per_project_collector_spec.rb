@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Telemetry::CallFlowsPerProjectCollector do
-  
+
   it "builds counts of current call flows per project" do
     p1 = Project.make languages: [:eng, :spa]
     p2 = Project.make languages: [:ger, :afr]
@@ -12,12 +12,12 @@ describe Telemetry::CallFlowsPerProjectCollector do
     current_stats.should eq({
       "counters" => [
         {
-          "type"  => "call_flows",
+          "metric"  => "call_flows",
           "key"   => {"project_id" => p1.id},
           "value" => 10
         },
         {
-          "type"  => "call_flows",
+          "metric"  => "call_flows",
           "key"   => {"project_id" => p2.id},
           "value" => 30
         }

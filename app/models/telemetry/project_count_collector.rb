@@ -4,7 +4,7 @@ module Telemetry::ProjectCountCollector
     {
       "counters" => [
         {
-          "type" => "projects",
+          "metric" => "projects",
           "key" => {},
           "value" => Project.count
         }

@@ -10,7 +10,7 @@ module Telemetry::CallFlowsPerProjectCollector
 
     counters = results.map do |project_id, count|
       {
-        "type" => "call_flows",
+        "metric" => "call_flows",
         "key" => { "project_id" => project_id },
         "value" => count
       }

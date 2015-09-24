@@ -10,7 +10,7 @@ module Telemetry::CallsPerDayPerChannelCollector
 
     counters = results.map do |date, channel_id, state, count|
       {
-        "type" => "calls",
+        "metric" => "calls",
         "key" => { "channel_id" => channel_id, "date" => date.iso8601, "state" => state },
         "value" => count
       }

@@ -17,7 +17,7 @@ module Telemetry::CallersPerCountryCodeCollector
       key   = { "project_id" => project_id, "country_code" => country_code }.select {|k,v| v.present?}
 
       ret.push({
-        "type"  => "callers",
+        "metric"  => "callers",
         "key"   => key,
         "value" => total
       })
