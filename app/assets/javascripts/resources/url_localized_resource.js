@@ -1,13 +1,13 @@
 #= require resources/localized_resource
 
-onResources(function(){
+onResourcesWorkflow(function(){
   window['UrlLocalizedResource']= function UrlLocalizedResource(hash, resource){
     LocalizedResource.call( this, hash, resource );
     this.label = 'Online resource';
     this.template = 'url_localized_resource_template';
     this.url = ko.observable(hash.url);
     this.isValid = ko.computed(function(){
-      return this.url() && this.url().length > 0
+      return this.url() != undefined && this.url().length > 0
     }, this);
   }
   UrlLocalizedResource.prototype = new LocalizedResource();

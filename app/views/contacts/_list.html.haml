@@ -1,0 +1,31 @@
+.tablewrapp.no-wrap.scroll.contacts-table
+  %table.GralTable.w-pagination
+    %tr
+      %th{colspan: 2} Phone numbers
+      - @implicit_variables.each do |variable|
+        %th=variable.key
+      - @project_variables.each do |variable|
+        %th=variable.name
+      - @recorded_audio_descriptions.each do |audio_description|
+        %th=audio_description
+
+    - @contacts.each do |contact|
+      - link_opts = project_admin? ? {'data-url' => edit_project_contact_path(@project, contact), 'class' => 'link'} : {}
+      %tr{link_opts}
+        %td= addresses_for_contact(contact)
+        %td.right
+          - if project_admin?
+            = link_to '', project_contact_path(@project, contact), :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
+        - @implicit_variables.each do |implicit_variable|
+          - variable = contact.persisted_variables.detect{|v| v.implicit_key == implicit_variable.key}
+          %td= variable.try(:value)
+        - @project_variables.each do |project_variable|
+          - variable = contact.persisted_variables.detect do |variable|
+            - variable.project_variable == project_variable
+          %td= variable.try(:value)
+        - @recorded_audio_descriptions.each do |audio_description|
+          - audios = contact.recorded_audios.collect do |audio|
+            - audio.description == audio_description
+          %td= audios.size
+
+  = paginate @contacts, :param_name => 'page', :params => {filters_json: params[:filters_json]}, :remote => true

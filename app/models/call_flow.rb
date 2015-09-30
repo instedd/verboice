@@ -28,6 +28,7 @@ class CallFlow < ActiveRecord::Base
   has_many :traces, :dependent => :destroy
   has_many :call_flow_external_services, :dependent => :destroy
   has_many :external_services, :through => :call_flow_external_services
+  has_many :impersonate_records, :dependent => :destroy
 
   has_one :account, :through => :project
   has_one :google_oauth_token, :through => :account
@@ -112,6 +113,10 @@ class CallFlow < ActiveRecord::Base
     BrokerClient.active_calls_by_call_flow(id)
   end
 
+  def force_update_flow_with_user_flow!
+    @force_update_flow_with_user_flow = true
+  end
+
   private
 
   def set_name_to_callback_url
@@ -119,7 +124,7 @@ class CallFlow < ActiveRecord::Base
   end
 
   def update_flow_with_user_flow
-    if user_flow.presence && user_flow_changed?
+    if @force_update_flow_with_user_flow || (user_flow.presence && user_flow_changed?)
       parser  = Parsers::UserFlow.new self, user_flow
       self.broker_flow = self.flow = parser.equivalent_flow
       self.variables = parser.variables.to_a.uniq

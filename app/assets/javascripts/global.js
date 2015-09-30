@@ -16,6 +16,12 @@ $(function() {
     window.location = $(this).data('url');
   });
 
+  // AJAX pagination
+  $('body').on('click', '.pagination.remote a', function(e) {
+    e.preventDefault();
+    $.getScript(this.href);
+  });
+
   // Datetime components
   $(".ux-custom-datetimepicker:not([readonly])")
     .click(function(){ $(this).datepicker("show"); })
@@ -50,6 +56,14 @@ function onWorkflow(callback) {
 function onResources(callback) {
   $(function() {
     if($('#resources').length > 0) {
+      callback();
+    }
+  });
+}
+
+function onResourcesWorkflow(callback) {
+  $(function() {
+    if($('#resources').length > 0 || $('#workflow').length > 0) {
       callback();
     }
   });

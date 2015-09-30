@@ -17,12 +17,16 @@
 
 class Commands::SayCommand < Command
   attr_accessor :text
+  attr_accessor :language
 
-  def initialize(text)
+  def initialize(text, language = nil)
     @text = text
+    @language = language
   end
 
   def serialize_parameters
-    {text: @text}
+    result = {text: @text}
+    result[:language] = @language unless @language.blank?
+    result
   end
 end

@@ -18,10 +18,19 @@ trace(CallLogId, CallFlowId, StepId, StepName, Result) ->
 
 %% @private
 init({}) ->
+  case application:get_env(poirot, sender) of
+    {ok, local} -> poirot_local_saver:start();
+    _ -> ok
+  end,
   {ok, DbName} = application:get_env(db_name),
   {ok, DbUser} = application:get_env(db_user),
   {ok, DbPass} = application:get_env(db_pass),
-  mysql:connect(log, "localhost", undefined, DbUser, DbPass, DbName, true),
+  DbHost = case application:get_env(db_host) of
+    {ok, Value} -> Value;
+    undefined -> "localhost"
+  end,
+
+  mysql:connect(log, DbHost, undefined, DbUser, DbPass, DbName, true),
   db:set_db(log),
   {ok, undefined}.
 

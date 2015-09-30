@@ -4,6 +4,7 @@
 
 run(Args, Session = #session{pbx = Pbx}) ->
   Text = proplists:get_value(text, Args),
-  Resource = resource:prepare_text_resource(list_to_binary(Text), Session),
+  Language = proplists:get_value(language, Args),
+  Resource = resource:prepare_text_resource(list_to_binary(Text), Language, Session),
   Pbx:play(Resource),
   {next, Session}.

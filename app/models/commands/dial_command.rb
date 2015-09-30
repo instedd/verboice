@@ -19,17 +19,20 @@ class Commands::DialCommand < Command
   attr_accessor :number
   attr_accessor :channel_name
   attr_accessor :caller_id
+  attr_accessor :successful_after
 
   def initialize(number, options = {})
     @number = number
     @channel_name = options[:channel]
     @caller_id = options[:caller_id]
+    @successful_after = options[:successful_after]
   end
 
   def serialize_parameters
     params = {number: @number}
     params[:channel_name] = @channel_name if @channel_name.present?
     params[:caller_id] = @caller_id if @caller_id.present?
+    params[:successful_after] = @successful_after if @successful_after.present?
     params
   end
 end

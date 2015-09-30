@@ -1,9 +1,18 @@
 GIT
-  remote: https://bitbucket.org/instedd/alto_guisso.git
-  revision: 98617c7d74de3f56d43b70df198fe13027552061
+  remote: git://github.com/instedd/alto_guisso.git
+  revision: b767af4621523215b79fccafd1cb94ccd88df828
   branch: master
   specs:
-    alto_guisso (0.0.1)
+    alto_guisso (0.0.2)
+      rack-oauth2
+
+GIT
+  remote: git://github.com/instedd/alto_guisso_rails.git
+  revision: 9d4aa030f4e02ce63014aa7519078780e2eb25d0
+  branch: master
+  specs:
+    alto_guisso_rails (0.0.1)
+      alto_guisso
       omniauth
       omniauth-openid
       rack-oauth2
@@ -11,24 +20,13 @@ GIT
       ruby-openid
 
 GIT
-  remote: https://bitbucket.org/instedd/poirot.git
-  revision: a835c6953b72734f9f0ed99c61a45fa3fc2fb7e9
+  remote: git://github.com/instedd/ruby-hub_client.git
+  revision: dc96567ccd1a1c5e1f3eb851c86da6cd8c6c64f8
   branch: master
   specs:
-    hercule (0.0.2)
-      elasticsearch
-
-GIT
-  remote: https://bitbucket.org/instedd/poirot_rails.git
-  revision: 793de4cfb67e271a777a083b281b9baa9c5063a2
-  branch: master
-  specs:
-    poirot_rails (0.0.1)
-      bertrpc
-      guid
-      json
-      rails (>= 3.2)
-      zmq
+    hub_client (0.0.1)
+      alto_guisso
+      rest-client
 
 GIT
   remote: https://github.com/edave/enumerated_attribute.git
@@ -38,16 +36,36 @@ GIT
       meta_programming (>= 0.2.1)
 
 GIT
-  remote: https://github.com/manastech/rack-oauth2.git
-  revision: 192e4d020a84432179297deb035f9716d4bf6622
+  remote: https://github.com/instedd/poirot.git
+  revision: ea1615dbd6f93b1808521e3869d1fca3a4ede894
   branch: master
   specs:
-    rack-oauth2 (1.0.5)
-      activesupport (>= 2.3)
-      attr_required (>= 0.0.5)
-      httpclient (>= 2.2.0.2)
-      multi_json (>= 1.3.6)
-      rack (>= 1.1)
+    hercule (0.0.2)
+      elasticsearch
+
+GIT
+  remote: https://github.com/instedd/poirot_rails.git
+  revision: 22bbb52ca0fba0603873ed7d9b0c976d2675664c
+  branch: master
+  specs:
+    poirot_rails (0.0.4)
+      bertrpc
+      ffi-rzmq (~> 2.0.1)
+      guid
+      json
+      rails (>= 3.2)
+
+GIT
+  remote: https://github.com/instedd/recurring_select
+  revision: 84beb95166bf7451c7415f7edfbcdbf8a0db1472
+  branch: instedd
+  specs:
+    recurring_select (1.2.1)
+      coffee-rails (>= 3.1)
+      ice_cube (>= 0.11)
+      jquery-rails (>= 3.0)
+      rails (>= 3.2)
+      sass-rails (>= 3.1)
 
 GIT
   remote: https://github.com/tbuehl/machinist.git
@@ -59,12 +77,12 @@ GIT
 GEM
   remote: http://rubygems.org/
   specs:
-    actionmailer (3.2.17)
-      actionpack (= 3.2.17)
+    actionmailer (3.2.18)
+      actionpack (= 3.2.18)
       mail (~> 2.5.4)
-    actionpack (3.2.17)
-      activemodel (= 3.2.17)
-      activesupport (= 3.2.17)
+    actionpack (3.2.18)
+      activemodel (= 3.2.18)
+      activesupport (= 3.2.18)
       builder (~> 3.0.0)
       erubis (~> 2.7.0)
       journey (~> 1.0.4)
@@ -72,20 +90,21 @@ GEM
       rack-cache (~> 1.2)
       rack-test (~> 0.6.1)
       sprockets (~> 2.2.1)
-    activemodel (3.2.17)
-      activesupport (= 3.2.17)
+    activemodel (3.2.18)
+      activesupport (= 3.2.18)
       builder (~> 3.0.0)
-    activerecord (3.2.17)
-      activemodel (= 3.2.17)
-      activesupport (= 3.2.17)
+    activerecord (3.2.18)
+      activemodel (= 3.2.18)
+      activesupport (= 3.2.18)
       arel (~> 3.0.2)
       tzinfo (~> 0.3.29)
-    activeresource (3.2.17)
-      activemodel (= 3.2.17)
-      activesupport (= 3.2.17)
-    activesupport (3.2.17)
+    activeresource (3.2.18)
+      activemodel (= 3.2.18)
+      activesupport (= 3.2.18)
+    activesupport (3.2.18)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
+    addressable (2.3.6)
     arel (3.0.3)
     attr_encrypted (1.2.0)
       encryptor (>= 1.1.1)
@@ -94,6 +113,9 @@ GEM
     bert (1.1.6)
     bertrpc (1.3.1)
       bert (>= 1.1.0, < 2.0.0)
+    bootstrap-kaminari-views (0.0.5)
+      kaminari (>= 0.13)
+      rails (>= 3.1)
     breadcrumbs_on_rails (2.2.0)
     builder (3.0.4)
     capistrano (2.15.5)
@@ -112,27 +134,30 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.3.1)
-    columnize (0.3.6)
+    columnize (0.8.9)
+    crack (0.3.1)
     csv_builder (2.1.1)
       actionpack (>= 3.0.0)
-    debugger (1.6.5)
+    debugger (1.6.8)
       columnize (>= 0.3.1)
       debugger-linecache (~> 1.2.0)
-      debugger-ruby_core_source (~> 1.3.1)
+      debugger-ruby_core_source (~> 1.3.5)
     debugger-linecache (1.2.0)
-    debugger-ruby_core_source (1.3.1)
+    debugger-ruby_core_source (1.3.7)
     decent_exposure (1.0.1)
-    delayed_job (3.0.2)
-      activesupport (~> 3.0)
-    delayed_job_active_record (0.3.2)
-      activerecord (> 2.1.0)
-      delayed_job (~> 3.0.0)
+    delayed_job (4.0.1)
+      activesupport (>= 3.0, < 4.2)
+    delayed_job_active_record (4.0.1)
+      activerecord (>= 3.0, < 4.2)
+      delayed_job (>= 3.0, < 4.1)
     devise (1.5.2)
       bcrypt-ruby (~> 3.0)
       orm_adapter (~> 0.0.3)
       warden (~> 1.1)
     diff-lcs (1.1.3)
-    dotenv (0.7.0)
+    dotenv (0.11.1)
+      dotenv-deployment (~> 0.0.2)
+    dotenv-deployment (0.0.2)
     elasticsearch (1.0.0)
       elasticsearch-api (= 1.0.0)
       elasticsearch-transport (= 1.0.0)
@@ -147,12 +172,18 @@ GEM
     erubis (2.7.0)
     execjs (1.3.0)
       multi_json (~> 1.0)
+    fakefs (0.6.7)
     faraday (0.8.0)
       multipart-post (~> 1.1)
     ffaker (1.4.0)
-    foreman (0.63.0)
-      dotenv (>= 0.7)
-      thor (>= 0.13.6)
+    ffi (1.9.6)
+    ffi-rzmq (2.0.1)
+      ffi-rzmq-core (>= 1.0.1)
+    ffi-rzmq-core (1.0.3)
+      ffi (~> 1.9)
+    foreman (0.71.0)
+      dotenv (~> 0.11.1)
+      thor (~> 0.19.1)
     formatted_rails_logger (0.3.0)
       rails (~> 3.2.0)
     guid (0.1.1)
@@ -166,8 +197,9 @@ GEM
     highline (1.6.19)
     hike (1.2.3)
     httpauth (0.1)
-    httpclient (2.3.4.1)
-    i18n (0.6.9)
+    httpclient (2.5.3.3)
+    i18n (0.7.0)
+    ice_cube (0.12.1)
     instedd-pigeon (0.2.2)
       json
       rails (~> 3.2)
@@ -178,12 +210,21 @@ GEM
       haml-rails
       rails (>= 3.0)
     journey (1.0.4)
-    jquery-rails (1.0.19)
-      railties (~> 3.0)
-      thor (~> 0.14)
+    jquery-rails (3.1.2)
+      railties (>= 3.0, < 5.0)
+      thor (>= 0.14, < 2.0)
     json (1.8.1)
+    kaminari (0.16.3)
+      actionpack (>= 3.0.0)
+      activesupport (>= 3.0.0)
     language_list (1.0.0)
     licit (0.2.2)
+    listings (0.1.6)
+      bootstrap-kaminari-views
+      haml-rails
+      kaminari
+      rails
+      sass-rails
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
@@ -193,7 +234,7 @@ GEM
     mime-types (1.25.1)
     mocha (0.10.5)
       metaclass (~> 0.0.1)
-    multi_json (1.9.2)
+    multi_json (1.10.1)
     multipart-post (1.1.5)
     mysql2 (0.3.11)
     net-scp (1.1.2)
@@ -203,6 +244,7 @@ GEM
     net-ssh (2.7.0)
     net-ssh-gateway (1.2.0)
       net-ssh (>= 2.6.5)
+    netrc (0.10.2)
     newrelic_rpm (3.7.3.204)
     nokogiri (1.4.4)
     oauth (0.4.7)
@@ -218,7 +260,7 @@ GEM
       omniauth (~> 1.0)
       rack-openid (~> 1.3.1)
     orm_adapter (0.0.5)
-    polyglot (0.3.4)
+    polyglot (0.3.5)
     pry (0.9.12.4)
       coderay (~> 1.0)
       method_source (~> 0.8)
@@ -226,9 +268,17 @@ GEM
     pry-debugger (0.2.2)
       debugger (~> 1.3)
       pry (~> 0.9.10)
+    quiet_assets (1.1.0)
+      railties (>= 3.1, < 5.0)
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
+    rack-oauth2 (1.0.9)
+      activesupport (>= 2.3)
+      attr_required (>= 0.0.5)
+      httpclient (>= 2.4)
+      multi_json (>= 1.3.6)
+      rack (>= 1.1)
     rack-openid (1.3.1)
       rack (>= 1.1.0)
       ruby-openid (>= 2.1.8)
@@ -236,26 +286,27 @@ GEM
       rack
     rack-test (0.6.2)
       rack (>= 1.0)
-    rails (3.2.17)
-      actionmailer (= 3.2.17)
-      actionpack (= 3.2.17)
-      activerecord (= 3.2.17)
-      activeresource (= 3.2.17)
-      activesupport (= 3.2.17)
+    rails (3.2.18)
+      actionmailer (= 3.2.18)
+      actionpack (= 3.2.18)
+      activerecord (= 3.2.18)
+      activeresource (= 3.2.18)
+      activesupport (= 3.2.18)
       bundler (~> 1.0)
-      railties (= 3.2.17)
-    railties (3.2.17)
-      actionpack (= 3.2.17)
-      activesupport (= 3.2.17)
+      railties (= 3.2.18)
+    railties (3.2.18)
+      actionpack (= 3.2.18)
+      activesupport (= 3.2.18)
       rack-ssl (~> 1.3.2)
       rake (>= 0.8.7)
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
-    rake (10.3.1)
+    rake (10.4.2)
     rdoc (3.12.2)
       json (~> 1.4)
-    rest-client (1.6.7)
-      mime-types (>= 1.16)
+    rest-client (1.7.2)
+      mime-types (>= 1.16, < 3.0)
+      netrc (~> 0.7)
     rspec (2.9.0)
       rspec-core (~> 2.9.0)
       rspec-expectations (~> 2.9.0)
@@ -281,7 +332,7 @@ GEM
       tilt (~> 1.3)
     shoulda-matchers (1.0.0)
     slop (3.4.7)
-    sprockets (2.2.2)
+    sprockets (2.2.3)
       hike (~> 1.2)
       multi_json (~> 1.0)
       rack (~> 1.0)
@@ -303,14 +354,16 @@ GEM
       multi_json (>= 1.0.2)
     warden (1.1.0)
       rack (>= 1.0)
-    will_paginate (3.0.3)
-    zmq (2.1.4)
+    webmock (1.7.10)
+      addressable (~> 2.2, > 2.2.5)
+      crack (>= 0.1.7)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   alto_guisso!
+  alto_guisso_rails!
   attr_encrypted
   bertrpc
   capistrano
@@ -322,17 +375,20 @@ DEPENDENCIES
   devise
   enumerated_attribute!
   equivalent-xml
+  fakefs
   ffaker
   foreman
   formatted_rails_logger
   guid
   haml-rails
   hercule!
+  hub_client!
   instedd-pigeon
   instedd-rails
   jquery-rails
   language_list
   licit
+  listings
   machinist!
   mocha
   mysql2
@@ -343,8 +399,9 @@ DEPENDENCIES
   omniauth-openid
   poirot_rails!
   pry-debugger
-  rack-oauth2!
+  quiet_assets
   rails (~> 3.2.0)
+  recurring_select!
   rest-client
   rspec
   rspec-rails
@@ -357,4 +414,4 @@ DEPENDENCIES
   syntax
   timecop
   uglifier (>= 1.0.3)
-  will_paginate (~> 3.0)
+  webmock

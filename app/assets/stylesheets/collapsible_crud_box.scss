@@ -1,3 +1,4 @@
+@import 'mixins';
 .collapsible_crud_box {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -9,6 +10,24 @@
   a {
     color: black;
   }
+  .middle {
+    label {
+      color: #2f82cb;
+      display: block;
+      margin-bottom: 3px;
+
+      &.inline {
+        display: inline-block;
+      }
+    }
+    input[type="text"],
+    select {
+      @include box-sizing(border-box);
+    }
+    > div {
+      padding: 5px 0;
+    }
+  }
   .bottom {
     a {
       margin-bottom: 0px !important;
@@ -19,6 +38,7 @@
 }
 
 .collapsible_crud_box.expanded {
+  background: #cce2f1;
   .summary {
     display: none;
   }
@@ -34,5 +54,83 @@
   padding:0 5px !important;
   button {
     margin-right:-1px !important;
+  }
+}
+.from-to {
+  > div {
+    display: inline-block;
+    vertical-align: top;
+  }
+}
+.time-range.scaled {
+  margin-bottom: 10px;
+  .ux-time-range-label {
+    color: #2f82cb;
+    margin-bottom: 10px;
+  }
+  .ui-slider-horizontal {
+    height: .5em;
+  }
+  .ux-time-range-slider {
+    width: 97%;
+    margin-left: 1.5%;
+  }
+  .ux-time-range-scale {
+    width: 97%;
+    margin-left: 1.5%;
+    margin-top: 3px;
+    span {
+      font-size: 9px;
+      margin-left: -11px;
+    }
+  }
+  .ui-slider-handle {
+    width: .9em;
+    height: .9em;
+  }
+}
+.filters-box {
+  ul {
+    @include border-radius(5px);
+    background: #a7c6e6;
+    margin: 0;
+    padding: 0;
+
+    li {
+      list-style-type: none;
+      display: block;
+      padding: 5px;
+
+      select,
+      input[type="text"] {
+        @include box-sizing(border-box);
+        width: 85%;
+        margin-bottom: 3px;
+      }
+
+      button {
+        margin: 0;
+        vertical-align: middle;
+      }
+      p {
+        display: inline-block;
+        margin: 5px 0;
+        width: 86%;
+        cursor: pointer;
+      }
+    }
+  }
+  .add-filter {
+    padding: 5px;
+    span {
+      line-height: 24px;
+      display: inline-block;
+      vertical-align: middle;
+      width: 86%;
+    }
+    button {
+      margin: 0;
+      vertical-align: middle;
+    }
   }
 }

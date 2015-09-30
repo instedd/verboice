@@ -1,3 +1,5 @@
+@import 'mixins';
+
 .add_project_variable .ux-optext, .button.ux-collapse-trigger {
   cursor: pointer;
 }
@@ -20,4 +22,51 @@
 td.right {
   text-align: right;
   float: none;
+}
+
+.contacts-list {
+  overflow: auto;
+  padding: 1px;
+
+  .filters-box {
+    @include box-sizing(border-box);
+    padding: 10px;
+    float: left;
+
+    .search {
+      margin-bottom: 40px;
+    }
+
+    .create-scheduled-call {
+      position: absolute;
+      bottom: 0;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    ul {
+      background: #d0d0d0;
+    }
+  }
+
+  .contacts-table {
+    margin-left: 315px;
+  }
+
+  .pagination {
+    a, em {
+      padding: 0 2px;
+    }
+  }
+}
+
+.file-upload {
+  display: inline;
+
+  input.choose {
+    display: none;
+  }
 }

@@ -1,11 +1,18 @@
-csv << ['Call ID', 'Phone Number', 'Time', 'Severity', 'Step name', 'Step ID', 'Command', 'Action', 'Detail']
-@entries = CallLogEntry.joins(:call).where('account_id = ?', current_account.id).where('severity <> "trace"').order('call_logs.id DESC, call_log_entries.id')
-@entries = @entries.search params[:search], :account => current_account if params[:search].present?
-@entries = @entries.select('call_log_entries.created_at, severity, details, call_logs.id as call_id, call_logs.address as call_address')
-
-@entries = ActiveRecord::Base.connection.execute(@entries.to_sql)
-
-@entries.each do |entry|
-  details = SerializableHash.load(entry[2]) || {}
-  csv << [entry[3], entry[4], entry[0], entry[1], details[:step_name], details[:step_id], details[:command], details[:action], details[:description]]
+csv << ['ID', 'Started', 'Finished', 'Duration', 'Caller ID', 'Direction', 'Channel', 'Queue', 'Project', 'Call Flow', 'State']
+@logs.each do |log|
+  duration = (log.finished_at && log.started_at) ? distance_of_time_in_words(log.finished_at, log.started_at, true) : ''
+  state = log.fail_reason.present? ? "#{log.state} (#{log.fail_reason})": log.state
+  csv << [
+    log.id,
+    log.started_at,
+    log.finished_at,
+    duration,
+    log.address,
+    log.direction,
+    log.channel.try(:name),
+    log.schedule.try(:name),
+    log.project.try(:name),
+    log.call_flow.try(:name),
+    state
+  ]
 end

@@ -16,7 +16,8 @@
   status_callback_user,
   status_callback_password,
   callback_params = [],
-  in_user_step_activity = false
+  in_user_step_activity = false,
+  started_at
 }).
 
 -record(hibernated_session_data, {

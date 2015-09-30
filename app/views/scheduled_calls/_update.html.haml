@@ -1,0 +1,8 @@
+= render :partial => "box_content", :locals => { :scheduled_call => scheduled_call, :expanded => scheduled_call.errors.any?}
+
+- dom_id = scheduled_call.new_record? ? "#new_scheduled_call" : "#edit_scheduled_call_#{scheduled_call.id}"
+
+:javascript
+  var form = $('#{dom_id}');
+  var container = form.closest('.scheduled_call').get(0);
+  initScheduledCall(container);

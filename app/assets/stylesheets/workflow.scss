@@ -305,3 +305,30 @@ select.error {
   border: 2px solid #ff6600;
 }
 
+
+// ----------
+
+.transfer_successful_after {
+  label {
+    color: #000000;
+  }
+  input[type="text"] {
+    width: 140px;
+    display: block;
+  }
+  .block {
+    margin-top:  8px;
+    margin-left: 22px;
+  }
+  .examples {
+    color: #555555;
+    font-size: 12px;
+    padding-left: 4px;
+    ul {
+      list-style-type: none;
+      margin-top: 3px;
+      padding: 0;
+    }
+  }
+  
+}

@@ -35,6 +35,7 @@ onWorkflow ->
         @is_name_invalid() or @is_instructions_resource_invalid()
 
       @variable = ko.observable attrs.variable
+      @remember = ko.observable attrs.remember
 
 
     get_default_skip_step: () =>
@@ -71,6 +72,7 @@ onWorkflow ->
         number_of_attempts: @number_of_attempts()
         default: @default().next_id
         variable: @variable()
+        remember: @remember()
       )
 
     resource: (res) =>

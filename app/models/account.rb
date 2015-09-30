@@ -37,6 +37,7 @@ class Account < ActiveRecord::Base
   has_many :queued_calls, :through => :channels
   has_many :nuntium_channels, :dependent => :destroy
   has_many :permissions, :dependent => :destroy
+  has_many :alerts, :dependent => :destroy
 
   has_many :identities, dependent: :destroy
 
@@ -60,6 +61,10 @@ class Account < ActiveRecord::Base
     return shared_project.project if shared_project
 
     nil
+  end
+
+  def readable_project_ids
+    projects.pluck(:id) + ProjectPermission.where(account_id: id).pluck(:model_id)
   end
 
   def find_call_flow_by_id(flow_id)
@@ -97,7 +102,7 @@ class Account < ActiveRecord::Base
       options[:account] = self
       channel.call options[:address], options
     else
-      raise "Channel not found: #{channel_name}"
+      raise "Channel not found: #{options[:channel]}"
     end
   end
 end

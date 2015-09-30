@@ -31,18 +31,18 @@ init({}) ->
   % Check every 10 seconds for due calls
   timer:send_interval(timer:seconds(10), dispatch),
 
-  {ok, #state{last_id = 0, waiting_calls = ordsets:new()}}.
+  {ok, #state{last_id = 0, waiting_calls = gb_sets:empty()}}.
 
 %% @private
+handle_call(get_queued_calls, _From, State = #state{waiting_calls = WaitingCalls}) ->
+  {reply, gb_sets:to_list(WaitingCalls), State};
+
 handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast(load, State = #state{last_id = LastId}) ->
-  LoadedCalls = queued_call:find_all([{call_log_id, '>', LastId}], [{order_by, not_before}]),
-  NewState = lists:foldl(fun process_call/2, State, LoadedCalls),
-
-  {noreply, NewState};
+handle_cast(load, State) ->
+  {noreply, load_queued_calls(State)};
 
 handle_cast({enqueue, #queued_call{call_log_id = Id}}, State = #state{last_id = LastId})
   when is_integer(Id), Id > LastId ->
@@ -69,11 +69,27 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
 
+load_queued_calls(State = #state{last_id = LastId}) ->
+  case queued_call:find_all([{call_log_id, '>', LastId}], [{order_by, call_log_id}, {limit, 5000}]) of
+    [] -> State;
+    LoadedCalls ->
+      NewState = lists:foldl(fun process_call/2, State, LoadedCalls),
+      load_queued_calls(NewState)
+  end.
+
 process_call(Call, State = #state{last_id = LastId, waiting_calls = WaitingCalls}) ->
   NewWaitingCalls = case should_trigger(Call) of
     true ->
-      channel_queue:enqueue(Call),
-      WaitingCalls;
+      case should_skip(Call) of
+        false ->
+          channel_queue:enqueue(Call),
+          WaitingCalls;
+        true ->
+          poirot:log(info, "Call 'not after' date overdue ~p", [Call#queued_call.id]),
+          Call:delete(),
+          io:format("call: ~p~n", [Call]),
+          WaitingCalls
+      end;
     false ->
       enqueue(Call, WaitingCalls)
   end,
@@ -81,19 +97,28 @@ process_call(Call, State = #state{last_id = LastId, waiting_calls = WaitingCalls
 
 enqueue(Call, WaitingCalls) ->
   {datetime, NotBefore} = Call#queued_call.not_before,
-  ordsets:add_element({NotBefore, Call}, WaitingCalls).
+  gb_sets:add_element({NotBefore, Call}, WaitingCalls).
 
-dispatch([]) -> [];
-dispatch(Queue = [{_, Call} | Rest]) ->
-  case should_trigger(Call) of
-    true ->
-      channel_queue:enqueue(Call),
-      dispatch(Rest);
-    false ->
-      Queue
+dispatch(Queue) ->
+  case gb_sets:is_empty(Queue) of
+    true -> Queue;
+    _ ->
+      {{_, Call}, Queue2} = gb_sets:take_smallest(Queue),
+      case should_trigger(Call) of
+        true ->
+          channel_queue:enqueue(Call),
+          dispatch(Queue2);
+        false ->
+          Queue
+      end
   end.
 
 should_trigger(#queued_call{not_before = undefined}) -> true;
 should_trigger(#queued_call{not_before = {datetime, NotBefore}}) ->
   NotBefore =< calendar:universal_time();
 should_trigger(_) -> false.
+
+should_skip(#queued_call{not_after = undefined}) -> false;
+should_skip(#queued_call{not_after = {datetime, NotAfter}}) ->
+  NotAfter =< calendar:universal_time();
+should_skip(_) -> false.

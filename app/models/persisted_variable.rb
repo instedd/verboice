@@ -26,10 +26,14 @@ class PersistedVariable < ActiveRecord::Base
   attr_accessible :contact, :value, :project_variable, :project_variable_id, :implicit_key
 
   def typecasted_value
-    if value && value =~ /^[-+]?[0-9]+$/
+    if is_number?
       value.to_i
     else
       value
     end
+  end
+
+  def is_number?
+    value && value.is_integer?
   end
 end

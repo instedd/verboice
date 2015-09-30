@@ -22,9 +22,15 @@ class QueuedCall < ActiveRecord::Base
   belongs_to :project
   belongs_to :call_flow
 
-  serialize :flow, Command::BrokerFlow
+  scope :for_account, ->(account) {
+    joins(:channel).where('queued_calls.project_id IN (?) OR channels.account_id = ?', account.readable_project_ids, account.id)
+  }
+
   serialize :variables, Hash
   serialize :callback_params, Hash
+
+  validates_presence_of :address
+  validates_presence_of :channel
 
   def cancel_call!
     call_log.state = :cancelled

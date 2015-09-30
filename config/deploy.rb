@@ -16,13 +16,17 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'bundler/capistrano'
-require 'rvm/capistrano'
 
-set :rvm_ruby_string, '1.9.3'
-set :rvm_type, :system
+if ENV['RVM']
+  require 'rvm/capistrano'
+  set :rvm_ruby_string, '1.9.3'
+  set :rvm_type, :system
+else
+  default_run_options[:shell] = "/bin/bash --login"
+end
 
 set :application, "verboice"
-set :repository,  "https://bitbucket.org/instedd/verboice"
+set :repository,  "https://github.com/instedd/verboice"
 set :scm, :git
 set :deploy_via, :remote_cache
 set :user, 'ubuntu'
@@ -54,7 +58,7 @@ namespace :deploy do
   end
 
   task :symlink_configs, :roles => :app do
-    %W(credentials verboice newrelic oauth nuntium poirot guisso).each do |file|
+    %W(credentials verboice newrelic oauth nuntium poirot guisso database hub).each do |file|
       run "ln -nfs #{shared_path}/#{file}.yml #{release_path}/config/"
     end
   end
@@ -71,8 +75,13 @@ end
 namespace :foreman do
   desc 'Export the Procfile to Ubuntu upstart scripts'
   task :export, :roles => :app do
-    run "echo -e \"PATH=$PATH\\nGEM_HOME=$GEM_HOME\\nGEM_PATH=$GEM_PATH\\nRAILS_ENV=production\" >  #{current_path}/.env"
-    run "cd #{current_path} && rvmsudo bundle exec foreman export upstart /etc/init -f #{current_path}/Procfile -a #{application} -u #{user} --concurrency=\"broker=1,delayed=1\""
+    if ENV['RVM']
+      run "echo -e \"HOME=$HOME\\nPATH=$PATH\\nGEM_HOME=$GEM_HOME\\nGEM_PATH=$GEM_PATH\\nRAILS_ENV=production\" >  #{current_path}/.env"
+      run "cd #{current_path} && rvmsudo bundle exec foreman export upstart /etc/init -f #{current_path}/Procfile -a #{application} -u #{user} --concurrency=\"broker=1,delayed=1\""
+    else
+      run "echo -e \"HOME=$HOME\\nPATH=$PATH\\nRAILS_ENV=production\" >  #{current_path}/.env"
+      run "cd #{current_path} && #{try_sudo} `which bundle` exec foreman export upstart /etc/init -f #{current_path}/Procfile -a #{application} -u #{user} --concurrency=\"broker=1,delayed=1\""
+    end
   end
 
   desc "Start the application services"

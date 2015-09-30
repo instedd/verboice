@@ -3,8 +3,14 @@
 -export([ensure_all_started/1, ensure_all_started/2]).
 
 start() ->
-  ensure_all_started(verboice, permanent),
-  ensure_all_started(ernie_server, permanent).
+  application:load(verboice),
+  case sanity_check:check_all() of
+    {error, Reason} ->
+      error({"Startup check failed", Reason});
+    ok ->
+      ensure_all_started(verboice, permanent),
+      ensure_all_started(ernie_server, permanent)
+  end.
 
 
 ensure_all_started(Application) ->

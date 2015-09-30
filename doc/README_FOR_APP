@@ -19,6 +19,7 @@ Verboice Installation Guide
 
  $ gem install bundler
  $ bundle install
+ $ rake db:setup
 
   * Asterisk
 
@@ -34,10 +35,6 @@ Verboice Installation Guide
 
     * Run Asterisk:
      $ /usr/local/asterisk/sbin/asterisk -c
-
-    * Copy Asterisk configuration
-      * In the application root run:
-        $ cp -R etc/ /usr/local/asterisk/etc/
 
   * Compile the Broker
     $ make -C broker

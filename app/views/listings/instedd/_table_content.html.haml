@@ -1,0 +1,40 @@
+.listings-table-content
+  - unless listing.export_formats.empty?
+    %p
+      - listing.export_formats.each do |format|
+        = link_to "Download as #{format.upcase}", listing.url_for_format(format), class: "button fimport", download: true
+
+  - unless listing.items.empty?
+    %div= page_entries_info listing.items, :entry_name => listing.kind
+    %br
+
+    .tablewrapp
+      %table.GralTable.ButtonTable.w-pagination{'class' => listing.table_css_class}
+        - if listing.selectable?
+          %th.batch-selection-header
+            %input#batch-selection{:type => "checkbox"}
+
+        - listing.columns.each do |col|
+          %th{'class' => "#{'sort ' + ({'desc' => 'down', 'asc' => 'up'}[col.sort] || '') if col.sortable?}" }
+            - if col.sortable?
+              = link_to col.human_name, listing.url_for_sort(col.key, col.next_sort_direction), remote: true
+              - if col.sort
+                %span
+            - else
+              = col.human_name
+
+        - listing.items.each do |item|
+          %tr{class: listing.row_style_for(item)}
+            - if listing.selectable?
+              %td
+                %input.checkbox-selection{:name => "selected", :type => "checkbox", :value => item.id}
+            - listing.columns.each do |col|
+              %td{class: col.cell_css_class}
+                = col.value_for(item)
+
+      - if listing.paginated?
+        = paginate listing.items, :remote => true, :params => listing.params, :remote => true
+
+  - else
+    .well
+      = listing.no_data_message

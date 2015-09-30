@@ -18,9 +18,13 @@ module Api
   class CallsController < ApiController
 
     def call
-      params[:flow] = Parsers::Xml.parse request.body if request.post?
-      call_log = current_account.call params
-      render :json => {:call_id => call_log.id, :state => call_log.state}
+      begin
+        params[:flow] = request.body.read if request.post?
+        call_log = current_account.call params
+        render :json => {:call_id => call_log.id, :state => call_log.state}
+      rescue Exception => ex
+        render :status => 400, :json => {error: ex.message}
+      end
     end
 
     def redirect

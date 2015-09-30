@@ -21,6 +21,9 @@ class Contact < ActiveRecord::Base
   has_many :persisted_variables, :dependent => :destroy, :inverse_of => :contact
   has_many :recorded_audios, :dependent => :destroy
   has_many :project_variables, :through => :project
+  has_many :contact_scheduled_calls, :dependent => :destroy
+  has_many :impersonate_original_records, :class_name => 'ImpersonateRecord', :foreign_key => 'contact_id', :dependent => :destroy
+  has_many :impersonate_impersonated_records, :class_name => 'ImpersonateRecord', :foreign_key => 'impersonated_id', :dependent => :destroy
 
   accepts_nested_attributes_for :persisted_variables,
     :reject_if => lambda { |attributes| attributes[:value].blank? || (attributes[:project_variable_id].blank? && attributes[:implicit_key].blank?) },
@@ -39,6 +42,10 @@ class Contact < ActiveRecord::Base
   def next_address(address)
     addresses = self.addresses.order(:id).map(&:address)
     addresses.drop_while { |addr| addr != address }.second 
+  end
+
+  def semicolon_separated_addresses
+    "#{addresses.map(&:address).join(";")}"
   end
 
   private

@@ -35,4 +35,8 @@ class Channels::Voxeo < Channel
   def broker
     :voxeo_broker
   end
+
+  def self.enabled
+    false
+  end
 end

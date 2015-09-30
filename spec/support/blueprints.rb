@@ -76,6 +76,13 @@ Channels::CustomSip.blueprint do
   register { true }
 end
 
+Channels::SipServer.blueprint do
+  call_flow
+  account { call_flow.project.account }
+  name
+  direction { 'both' }
+end
+
 Channels::Voxeo.blueprint do
   call_flow
   account { call_flow.project.account }
@@ -201,5 +208,21 @@ end
 CallFlowExternalService.blueprint do
   call_flow
   external_service
+end
+
+ScheduledCall.blueprint do
+  enabled { true }
+  channel { Channel.all_leaf_subclasses.sample.make }
+  call_flow { channel.call_flow }
+  project { call_flow.project }
+  name
+  time_zone { 'Athens' }
+  from_time { 10 * 60 }
+  to_time { 15 * 60 }
+end
+
+ContactScheduledCall.blueprint do
+  contact
+  scheduled_call
 end
 

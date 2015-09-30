@@ -7,9 +7,11 @@
     var distinct_variables = #{ @variables.to_json };
     var call_flow = #{ raw (@call_flow.user_flow || []).to_json };
     var external_steps = #{ @external_steps.to_json };
-    var languages = #{ project_languages_json(@project) };
+    var project_languages = #{ project_languages_json(@project) };
     var project_id = #{ @project.id };
     var nuntium_configured = #{ nuntium_configured?.to_json };
+    var sms_channels = #{ @sms_channels.to_json(only: [:id, :name]) };
+    var read_variables = #{ ReadVariable.keys.to_json };
 
     var menu_default_time_out_in_seconds = #{Parsers::UserFlowNode::Menu.default_time_out_in_seconds};
     var menu_default_number_of_attempts = #{Parsers::UserFlowNode::Menu.default_number_of_attempts};
@@ -33,7 +35,9 @@
         iframe.src = url;
     }
 
-  - %W(external_step hang_up_step workflow_step capture_step menu_step play_step mark_as_failed_step mark_as_successful_step transfer_step goto_step branch_step record_step language_step text_localized_resource url_localized_resource record_localized_resource upload_localized_resource command_selector call_simulator branch_option external_setting resource_editor hang_up_and_call_back nuntium_step impersonate_step).each do |template|
+    window.hub_url = "#{HubClient.current.url}"
+
+  - %W(external_step hang_up_step workflow_step capture_step menu_step play_step mark_as_failed_step mark_as_successful_step transfer_step goto_step branch_step record_step language_step text_localized_resource url_localized_resource record_localized_resource upload_localized_resource command_selector call_simulator branch_option external_setting resource_editor hang_up_and_call_back nuntium_step impersonate_step write_variable_step hub_step).each do |template|
     = render "call_flows/#{template}_template"
 
 = render 'shared/project_tabs_and_title', :project => @project, :shared_project => @shared_project
@@ -62,7 +66,7 @@
 %hr
 
 = form_tag update_workflow_project_call_flow_path(@project, @call_flow), :method => "PUT", :'data-bind' => "submit: serialize_workflow" do
-  #wami
+  = render 'shared/recorder'
   #workflow
     #workflow-page
       %p.left.title.clickable{ 'data-bind' => 'click: show_new_step_selector' } Create new sub flow
@@ -81,7 +85,6 @@
       .clear
 
 #call-flow-simulator{style: 'display: none'}
-  HOLA!
 
 :javascript
   window.callFlowId = #{@call_flow.id}

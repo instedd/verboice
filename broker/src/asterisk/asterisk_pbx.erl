@@ -1,5 +1,5 @@
 -module(asterisk_pbx).
--export([new/1, pid/1, answer/1, hangup/1, can_play/2, play/2, capture/6, record/4, terminate/1, sound_path_for/2, dial/4]).
+-export([new/1, pid/1, answer/1, hangup/1, can_play/2, play/2, capture/6, record/4, terminate/1, sound_path_for/2, sound_quality/1, dial/4]).
 
 -behaviour(pbx).
 
@@ -11,6 +11,9 @@ pid({?MODULE, Pid}) -> Pid.
 sound_path_for(Name, _) ->
   {ok, SoundsDir} = application:get_env(asterisk_sounds_dir),
   filename:join([SoundsDir, "verboice", Name ++ ".gsm"]).
+
+sound_quality(_) ->
+  "8000".
 
 terminate({?MODULE, Pid}) ->
   agi_session:close(Pid).
@@ -82,8 +85,11 @@ record(FileName, StopKeys, Timeout, {?MODULE, Pid}) ->
   end.
 
 dial(Channel, Address, undefined, {?MODULE, Pid}) ->
-  DialAddress = binary_to_list(asterisk_broker:dial_address(Channel, Address)),
-  agi_session:dial(Pid, [DialAddress, "60", "m"]),
+  DialAddress = case asterisk_broker:dial_address(Channel, Address) of
+                  AsBinary when is_binary(AsBinary) -> binary_to_list(AsBinary);
+                  AsList -> AsList
+                end,
+  agi_session:dial(Pid, [DialAddress, "60", "mg"]),
   case agi_session:get_variable(Pid, "DIALSTATUS") of
     hangup -> throw(hangup);
     {ok, Value} -> case Value of

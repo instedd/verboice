@@ -1,0 +1,7 @@
+.toptitle
+  %span.title{:class => ('disabled' unless scheduled_call.enabled)}= scheduled_call.name
+.middle
+  = scheduled_call.description
+.bottom
+  - if project_admin?
+    = link_to 'Edit', '#', :class => 'farrow collapse_trigger'

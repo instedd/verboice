@@ -16,8 +16,6 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class CallLogEntry < ActiveRecord::Base
-  include CallLogSearch
-
   belongs_to :call, :class_name => 'CallLog'
   attr_accessible :details, :severity, :call, :step_name, :step_id, :command, :action, :description
   serialize :details, SerializableHash

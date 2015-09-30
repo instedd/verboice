@@ -69,4 +69,4 @@ window.initProjectSettings = (defaultLanguage, languages, voices) ->
           voices = lang.voices()
           lang.voice(if voices?.length > 0 then voices[0] else null)
 
-  ko.applyBindings new ProjectSettingsViewModel(defaultLanguage, languages, voices)
+  ko.applyBindings new ProjectSettingsViewModel(defaultLanguage, languages, voices), document.getElementById('container')

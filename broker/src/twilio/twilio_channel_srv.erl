@@ -1,5 +1,5 @@
 -module(twilio_channel_srv).
--export([start_link/0, reload_channels/0, find_channel/2, get_channel_status/1]).
+-export([start_link/0, reload_channels/0, channel_updated/1, channel_destroyed/1, find_channel/2, get_channel_status/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -13,6 +13,12 @@ start_link() ->
 
 reload_channels() ->
   gen_server:cast(?SERVER, reload_channels).
+
+channel_updated(ChannelId) ->
+  gen_server:cast(?SERVER, {reload_and_update_channels, [ChannelId]}).
+
+channel_destroyed(_ChannelId) ->
+  gen_server:cast(?SERVER, {reload_and_update_channels, []}).
 
 find_channel(AccountSid, Number) ->
   gen_server:call(?SERVER, {find_channel, AccountSid, Number}).
@@ -48,11 +54,19 @@ handle_call(_Request, _From, State) ->
 %% @private
 handle_cast(reload_channels, State) ->
   Channels = channel:find_all_twilio(),
-  NewRegistry = lists:foldl(fun(Channel, Registry) ->
-    AccountSid = channel:account_sid(Channel),
-    Number = util:normalize_phone_number(channel:number(Channel)),
-    dict:store({AccountSid, Number}, Channel, Registry)
-  end, dict:new(), Channels),
+  NewRegistry = build_registry(Channels),
+  configure_channels_at_twilio(Channels),
+
+  {noreply, State#state{registry = NewRegistry}};
+
+handle_cast({reload_and_update_channels, Ids}, State) ->
+  Channels = channel:find_all_twilio(),
+  NewRegistry = build_registry(Channels),
+
+  ReconfigureChannels = lists:filter(fun(Channel) ->
+    lists:member(Channel#channel.id, Ids)
+  end, Channels),
+  configure_channels_at_twilio(ReconfigureChannels),
 
   {noreply, State#state{registry = NewRegistry}};
 
@@ -96,3 +110,21 @@ terminate(_Reason, _State) ->
 %% @private
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
+
+build_registry(Channels) ->
+  lists:foldl(fun(Channel, Registry) ->
+    AccountSid = channel:account_sid(Channel),
+    Number = util:normalize_phone_number(channel:number(Channel)),
+    dict:store({AccountSid, Number}, Channel, Registry)
+  end, dict:new(), Channels).
+
+configure_channels_at_twilio([]) ->
+  ok;
+configure_channels_at_twilio(Channels) ->
+  spawn(fun() ->
+    lists:foreach(fun(Channel) ->
+      Number = util:normalize_phone_number(channel:number(Channel)),
+      twilio_api:update_voice_url(Channel, Number)
+    end, Channels)
+  end).
+

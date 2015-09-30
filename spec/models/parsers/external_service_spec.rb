@@ -292,6 +292,99 @@ describe Parsers::ExternalService do
     step.script.should eq('1')
   end
 
+  it "should use base_url attribute to build absolute_callback_url if relative callback_url" do
+    parse <<-XML
+      <verboice-service>
+        <name>My service</name>
+        <steps>
+          <step name="my-step"
+            display-name="My step"
+            icon="http://example.com/icon.png"
+            type="callback"
+            callback-url="/callback">
+          </step>
+        </steps>
+      <verboice-service>
+    XML
+
+    service.name.should eq('My service')
+    service.steps.should have(1).item
+    service.base_url = 'http://mybaseurl.com'
+    service.should be_valid
+
+    step = service.steps.first
+    step.external_service = service
+    step.name.should eq('my-step')
+    step.display_name.should eq('My step')
+    step.icon.should eq('http://example.com/icon.png')
+    step.kind.should eq('callback')
+    step.absolute_callback_url.should eq('http://mybaseurl.com/callback')
+    step.should_not be_async
+  end
+
+  it "should not use base_url attribute to build absolute_callback_url if callback_url is absolute" do
+    parse <<-XML
+      <verboice-service>
+        <name>My service</name>
+        <steps>
+          <step name="my-step"
+            display-name="My step"
+            icon="http://example.com/icon.png"
+            type="callback"
+            callback-url="http://othersite.com/callback">
+          </step>
+        </steps>
+      <verboice-service>
+    XML
+
+    service.name.should eq('My service')
+    service.steps.should have(1).item
+    service.base_url = 'http://mybaseurl.com'
+    service.should be_valid
+
+    step = service.steps.first
+    step.external_service = service
+    step.name.should eq('my-step')
+    step.display_name.should eq('My step')
+    step.icon.should eq('http://example.com/icon.png')
+    step.kind.should eq('callback')
+    step.absolute_callback_url.should eq('http://othersite.com/callback')
+    step.should_not be_async
+  end
+
+  it "should allow variables interpolation in url" do
+    parse <<-XML
+      <verboice-service>
+        <name>My service</name>
+        <global-settings>
+          <variable name="service_domain" display-name="Service Domain" type="string"/>
+        </global-settings>
+        <steps>
+          <step name="my-step"
+            display-name="My step"
+            icon="http://example.com/icon.png"
+            type="callback"
+            callback-url="http://{service_domain}/callback">
+          </step>
+        </steps>
+      <verboice-service>
+    XML
+
+    service.name.should eq('My service')
+    service.steps.should have(1).item
+    service.base_url = 'http://mybaseurl.com'
+    service.should be_valid
+
+    step = service.steps.first
+    step.external_service = service
+    step.name.should eq('my-step')
+    step.display_name.should eq('My step')
+    step.icon.should eq('http://example.com/icon.png')
+    step.kind.should eq('callback')
+    step.absolute_callback_url.should eq('http://{service_domain}/callback')
+    step.should_not be_async
+  end
+
   context "updating" do
 
     before(:each) do

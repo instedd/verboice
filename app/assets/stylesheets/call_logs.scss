@@ -15,3 +15,24 @@
     color: #555;
   }
 }
+
+.call-log-header {
+  a.call-log-fail-info {
+    text-decoration: underline;
+  }
+}
+
+.PbxLogTable {
+  table-layout: fixed;
+  .call-log-pbx-details {
+    span {
+      word-wrap: break-word;
+    }
+  }
+}
+
+#call_logs {
+  .ButtonTable tr td:last-child {
+    width: initial;
+  }
+}

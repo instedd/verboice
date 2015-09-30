@@ -49,6 +49,46 @@ describe Api::ContactsController do
     json['vars'].should eq({"var1" => "foo"})
   end
 
+  it "gets contacts if user is admin but not owner" do
+    # The first account grants admin permissions to another_account
+    another_account = Account.make
+    Permission.create!(account_id: another_account.id, type: "Project", model_id: project.id, role: :admin)
+
+    sign_in another_account
+
+    get :index, project_id: project.id
+
+    response.should be_ok
+
+    json = JSON.parse response.body
+    json.length.should eq(1)
+
+    json = json[0]
+    json['id'].should eq(contact.id)
+    json['addresses'].should eq(contact.addresses.map(&:address))
+    json['vars'].should eq({"var1" => "foo"})
+  end
+
+  it "gets contacts if user is admin but not owner" do
+    # The first account grants admin permissions to another_account
+    another_account = Account.make
+    Permission.create!(account_id: another_account.id, type: "Project", model_id: project.id, role: :read)
+
+    sign_in another_account
+
+    get :index, project_id: project.id
+
+    response.should be_ok
+
+    json = JSON.parse response.body
+    json.length.should eq(1)
+
+    json = json[0]
+    json['id'].should eq(contact.id)
+    json['addresses'].should eq(contact.addresses.map(&:address))
+    json['vars'].should eq({"var1" => "foo"})
+  end
+
   it "gets contact by address" do
     get :show_by_address, project_id: project.id, address: contact.addresses.first.address
 
@@ -113,5 +153,41 @@ describe Api::ContactsController do
     json['id'].should eq(contact.id)
     json['addresses'].should eq(contact.addresses.map(&:address))
     json['vars'].should eq({"var1" => "foo", "var2" => "bar"})
+  end
+
+  it "creates a new contact with a single address" do
+    lambda do
+      post :create, project_id: project.id, address: '123', vars: {var1: 'foo'}
+    end.should change(project.contacts, :count).by(1)
+
+    json = JSON.parse response.body
+    json['addresses'].should eq(['123'])
+    json['vars'].should eq({"var1" => "foo"})
+
+    project.contacts.find(json['id']).should be_present
+  end
+
+  it "creates a new contact with no variables given" do
+    lambda do
+      post :create, project_id: project.id, address: '123'
+    end.should change(project.contacts, :count).by(1)
+
+    json = JSON.parse response.body
+    json['addresses'].should eq(['123'])
+    json['vars'].should eq({})
+
+    project.contacts.find(json['id']).should be_present
+  end
+
+  it "creates a new contact with a multiple addresses" do
+    lambda do
+      post :create, project_id: project.id, addresses: ['123', '456'], vars: {var1: 'foo'}
+    end.should change(project.contacts, :count).by(1)
+
+    json = JSON.parse response.body
+    json['addresses'].should eq(['123', '456'])
+    json['vars'].should eq({"var1" => "foo"})
+
+    project.contacts.find(json['id']).should be_present
   end
 end

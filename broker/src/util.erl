@@ -1,5 +1,5 @@
 -module(util).
--export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1, interpolate/2, to_poirot/1, parse_short_time/1, time_from_now/1]).
+-export([md5hex/1, to_string/1, binary_to_lower_atom/1, strip_nl/1, binary_to_integer/1, parse_qs/1, normalize_phone_number/1, interpolate/2, to_poirot/1, parse_short_time/1, time_from_now/1, deflate/1, as_binary/1]).
 
 md5hex(Data) ->
   Hash = crypto:md5(Data),
@@ -8,6 +8,11 @@ md5hex(Data) ->
 to_string(Value) when is_atom(Value) -> atom_to_list(Value);
 to_string(Value) when is_binary(Value) -> binary_to_list(Value);
 to_string(Value) when is_integer(Value) -> integer_to_list(Value);
+to_string(Value) when is_list(Value) ->
+  case lists:all(fun(X) -> is_integer(X) end, Value) of
+    true -> Value;
+    _ -> binary_to_list(iolist_to_binary(Value))
+  end;
 to_string(Value) -> Value.
 
 binary_to_lower_atom(Bin) -> list_to_atom(string:to_lower(binary_to_list(Bin))).
@@ -62,6 +67,8 @@ to_poirot([{Key, Value} | T], Metadata) ->
   end,
   to_poirot(T, [{Key, NewValue} | Metadata]).
 
+parse_short_time(Binary) when is_binary(Binary) ->
+  parse_short_time(binary_to_list(Binary));
 parse_short_time(String) ->
   {Amount, Unit} = string:to_integer(string:strip(String)),
   case Amount of
@@ -84,3 +91,15 @@ parse_short_time(String) ->
 
 time_from_now(Seconds) ->
   calendar:gregorian_seconds_to_datetime(calendar:datetime_to_gregorian_seconds(calendar:universal_time()) + Seconds).
+
+deflate(Binary) ->
+  Z = zlib:open(),
+  zlib:deflateInit(Z),
+  CompTerm = iolist_to_binary(zlib:deflate(Z, Binary, finish)),
+  zlib:close(Z),
+  CompTerm.
+
+as_binary(X) when is_binary(X) ->
+  X;
+as_binary(X) when is_list(X) ->
+  list_to_binary(X).

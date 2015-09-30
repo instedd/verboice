@@ -33,12 +33,7 @@ class CallFlowsController < ApplicationController
     @csv_options = { :col_sep => ',' }
 
     @call_logs = @call_flow.call_logs
-    @activities = Hercule::Activity.search({size: 1000000, filter: {
-      and: [
-        {terms: {call_log_id: @call_logs.map(&:id)}},
-        {exists: {field: "step_type"}}
-      ]
-    }}).items.group_by { |x| x.fields['call_log_id'] }
+    @activities = CallLog.poirot_activities(@call_logs.map(&:id)).group_by { |x| x.fields['call_log_id'] }
   end
 
   def index
@@ -91,6 +86,7 @@ class CallFlowsController < ApplicationController
   def edit_workflow
     @variables = @project.defined_variables
     @external_steps = @call_flow.project.external_service_steps.includes(:external_service)
+    @sms_channels = current_account.nuntium_channels.order(:name)
   end
 
   def import
@@ -110,7 +106,7 @@ class CallFlowsController < ApplicationController
         end
         redirect_to({ :action => :edit_workflow }, {:notice => "Call Flow #{@call_flow.name} successfully updated."})
       rescue Exception => ex
-        redirect_to({:action => :edit_workflow}, :flash => {:error => "Invalid file: #{ex}"})
+        redirect_to({:action => :edit_workflow}, :flash => {:error => "Invalid file: #{ex.message.truncate(150)}"})
       end
     end
   end

@@ -28,6 +28,9 @@ describe Schedule do
     it { should allow_value("5").for(:retries) }
     it { should allow_value("1,2,3").for(:retries) }
     it { should allow_value("1.5").for(:retries) }
+    it { should allow_value("2m, 15m, 1h, 1d").for(:retries) }
+    it { should allow_value("2 minutes, 15 minutes, 1 hour, 1 day").for(:retries) }
+    it { should_not allow_value("2 garbage").for(:retries) }
     it { should_not allow_value("1,,2").for(:retries) }
     it { should validate_presence_of(:time_from) }
     it { should validate_presence_of(:time_to) }

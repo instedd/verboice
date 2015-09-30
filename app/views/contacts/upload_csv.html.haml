@@ -1,0 +1,36 @@
+= render 'shared/project_tabs_and_title', :project => @project, :shared_project => @shared_project
+
+#contacts-upload-csv
+  %h2 Import contacts
+  %p.desc Specify how you want to convert the columns imported from the CSV below.
+
+  .tablewrapp.no-wrap.scroll.contacts-table
+    %table.GralTable
+      %thead
+        %tr
+          /ko foreach: columnSpecs
+          %th{style: 'vertical-align: baseline'}
+            %label{ko(text: 'source')}
+            %br
+            %select{ko(options: '$root.actions', optionsText: "'label'", optionsValue: "'name'", value: 'action', css: '{error: error()}')}
+            /ko if: action() == 'existing_variable'
+            %br
+            %select{ko(options: '$root.variables', optionsText: "'name'", optionsValue: "'name'", value: 'name', css: '{error: error()}')}
+            //ko
+            /ko if: action() == 'new_variable'
+            %br
+            %input{ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{error: error()}'), type: 'text'}
+            //ko
+          //ko
+        - @importer.rows_preview.drop(1).each do |row|
+          %tr
+            - row.each do |cell|
+              %td= cell
+
+  .error{ko(text: 'error()'), style: 'margin-top:8px; margin-bottom:4px; height:20px; color: red'}
+
+  %button.white{ko(enable: 'error() == "" && !importing()', click: 'importCSV', text: 'importing() ? "Importing..." : "Import"'), :type => "submit"}
+  = link_to 'Cancel', project_contacts_path(@project), :class => "tgrey", :style => 'top: 1px;'
+
+:javascript
+  initContactsUploadCSV(#{@project.id}, #{@column_specs.to_json}, #{@variables.to_json})

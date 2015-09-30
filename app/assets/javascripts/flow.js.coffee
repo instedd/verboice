@@ -29,13 +29,15 @@ onWorkflow ->
       $(element).addClass(value)
       element['__ko__previousClassValue__'] = value
 
-  window.step_types = [Play, Menu, Capture, Transfer, Goto, Branch, HangUp, Record, Language, MarkAsFailed, MarkAsSuccessful, HangUpAndCallBack, Nuntium, Impersonate].concat(External.classes())
+  window.step_types = [Play, Menu, Capture, Transfer, Goto, Branch, HangUp, Record, Language, MarkAsFailed, MarkAsSuccessful, HangUpAndCallBack, Nuntium, Impersonate, WriteVariable, Hub].concat(External.classes())
   for step_type in window.step_types
     window[step_type.type] = step_type
 
+  loadRecorderSwf();
+
   window.workflow = new Workflow()
   window.workflow.after_initialize()
-  ko.applyBindings(workflow)
+  ko.applyBindings(workflow, document.getElementById('container'))
 
   $(window).bind 'beforeunload', () ->
     if window.workflow.has_changed()

@@ -17,10 +17,10 @@
 
 class Channels::CustomSip < Channels::Sip
   def self.can_handle? a_kind
-    a_kind == 'sip'
+    a_kind == 'sip_client' || a_kind == 'sip'
   end
 
   def self.kind
-    'Sip'
+    'SIP Client'
   end
 end

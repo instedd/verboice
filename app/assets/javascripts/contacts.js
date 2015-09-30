@@ -47,4 +47,32 @@ $(function() {
       }
     });
   });
+
+  $('.call-selectors input[type="radio"]').on('change',function(){
+      window.location = $(this).data('path');
+  });
+
+  $('.file-upload .choose-button').click(function (elem) {
+    $(this).closest('form').find('.choose').click();
+  });
+
+  $('input.choose').change(function (elem) {
+    $(this).closest('form').find('#choose-file').val(this.files[0].name);
+  });
+
+  $('.file-upload .import').click(function (elem) {
+    $(this).closest('form').submit();
+  });
 });
+
+function initContactsFilter(count) {
+  $(function() {
+    var filters = JSON.parse($('.filters').val());
+    var model = window.contactsFilter = new ContactsFilter(filters, count);
+    ko.applyBindings(model, document.getElementById('contactsFilter'));
+    if (model.filters().length > 0) {
+      $('.search form').submit();
+    }
+  });
+}
+

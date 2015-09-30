@@ -11,6 +11,9 @@
     - unless external_service.new_record?
       .external_service_settings
         %p Settings
+        .field
+          = f.label :base_url, 'Base URL'
+          = f.text_field :base_url, :class => "w30"
         = f.fields_for :global_variables, external_service.global_variables do |variables_form|
           .field
             = variables_form.label :value, variables_form.object.display_name

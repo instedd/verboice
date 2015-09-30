@@ -1,0 +1,2 @@
+$('#contactsList').html('<%= escape_javascript(render("list")) %>');
+window.contactsFilter.setCount(<%= @contacts.total_count %>);

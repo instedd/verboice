@@ -1,0 +1,15 @@
+- unless listing.scopes.empty?
+  %ul
+    - listing.scopes.each do |scope|
+      %li{class: "#{'active' if listing.is_active_scope(scope)}"}
+        = link_to scope.human_name, listing.url_for_scope(scope), :remote => true, class: 'scope_link'
+- if listing.searchable? || listing.filterable?
+  %form{:action => listings.listing_content_url(listing.name), :'data-remote' => true}
+    - listing.scoped_params.each do |key,value|
+      %input{type: 'hidden', name: key, value: value}
+    %p
+      Search:
+      %input.ls-search-field{type: 'text', name: listing.param_search, value: listing.scoped_params[listing.param_search], placeholder: listing.search_placeholder, size: '80'}
+- if listing.render_filters_at?(:top)
+  %p
+    = listings_partial_render 'top_filters', listing

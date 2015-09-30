@@ -39,9 +39,9 @@ class Channels::Sip < Channel
 
   def server_username_uniqueness
     return unless self.username.present?
-    conflicting_channels = Channels::CustomSip
+    conflicting_channels = Channels::Sip
     conflicting_channels = conflicting_channels.where('id != ?', id) if id
-    conflicting_channels = conflicting_channels.all.any? { |c| c.username == self.username && c.domain == self.domain }
+    conflicting_channels = conflicting_channels.all.any? { |c| c.domain == self.domain && c.username == self.username }
     errors.add(:base, 'Username and domain have already been taken') if conflicting_channels
   end
 

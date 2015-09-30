@@ -15,11 +15,44 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 class Api::ContactsController < ApiController
-  expose(:project) { current_account.projects.find params[:project_id] }
+  before_filter :check_project_admin, :except => [:index, :show_by_address]
+  before_filter :check_project_reader, :only => [:index, :show_by_address]
 
-  def index
+  expose(:project) { @project }
+
+  def index    
     contacts = project.contacts.includes(:addresses).all
     render json: contacts_to_json(contacts)
+  end
+
+  def create
+    # normalize address parameter in case we get a single address
+    if params[:address].present?
+      params[:addresses] = [params[:address]]
+    end
+    params[:addresses] = Array.wrap(params[:addresses])
+
+    contact = project.contacts.build
+    params[:addresses].each do |address|
+      contact.addresses.build address: address
+    end
+
+    project_vars = project.project_variables.all
+    project_vars = project_vars.index_by &:name
+
+    (params[:vars] || {}).each do |key, value|
+      project_var = project_vars[key]
+      unless project_var
+        return render text: "No such variable: #{key}", status: :bad_reqeust
+      end
+      contact.persisted_variables.build project_variable_id: project_var.id, value: value
+    end
+
+    if contact.save
+      render json: contacts_to_json([contact])[0]
+    else
+      render json: contact.errors, status: :bad_request
+    end
   end
 
   def show_by_address

@@ -1,4 +1,7 @@
 = form_for(@channel, :html => {:autocomplete => 'off'}) do |f|
+
+  = chrome_do_not_autocomplete_hack
+
   - if @channel.errors.any?
     #error_explanation
       %h2
@@ -8,11 +11,16 @@
         - @channel.errors.full_messages.each do |msg|
           %li= msg
   - readonly = @channel.persisted? && @channel_permission != "admin"
+  %a{href: "https://github.com/instedd/verboice/wiki/ChannelHelp#{@channel.kind}", target: "channel_help_#{@channel.kind.downcase}"}
+    .i18b-information
+    Help setting up #{@channel.kind} channels
+  %br
+  %br
   .field
     = f.label :name
     = f.text_field :name, readonly: readonly
   .field
-    = f.label :call_flow_id
+    = f.label :call_flow_id, "Call flow for incoming calls"
     = f.select :call_flow_id, option_groups_from_collection_for_select(@projects, :call_flows, :name, :id, :name, @channel.call_flow_id), {:include_blank => 'None'}, {disabled: readonly}
   = f.hidden_field :type
   = render "form_#{@channel.class.name.split('::').last.underscore}", :f => f, :readonly => readonly

@@ -34,11 +34,12 @@
       /   %span.alert-orange
       %hr
       %div Languages
-      / ko foreach: localized_resources
+      / ko foreach: localizedResources
       %div
-        %a{:href => '#', 'data-bind' => 'click: $parent.edit'}
-          %span{'data-bind' => "css: {'arrow-col': $parent.current_editing_localized_resource() != $data, 'arrow-exp': $parent.current_editing_localized_resource() == $data}"}
-          %span{'data-bind' => 'text: title'}
+        %span{'data-bind' => "css: {'alert-orange': uploadStatus() == 'error'}"}
+          %a{:href => '#', 'data-bind' => "click: $parent.editLocalizedResource"}
+            %span{'data-bind' => "css: {'arrow-col': $parent.current_editing_localized_resource() != $data, 'arrow-exp': $parent.current_editing_localized_resource() == $data}"}
+            %span{'data-bind' => 'text: title'}
       / ko if: $parent.current_editing_localized_resource() == $data
       .text-right
         %select.w100{ko(options: "options", optionsText: "'label'", value: "current")}
@@ -49,7 +50,7 @@
 
       %hr
 
-      %button.white{'data-bind' => 'click: save'} Save
+      %button#save-resource.white{ko(click: 'save', text: "resource().saving() ? 'Saving...' : 'Save'", disable: "resource().saving()")}
       %a.cancel{:href => '#', 'data-bind' => 'click: cancel'} Cancel
       %button.fsync.right{'data-bind' => 'click: replace'} Replace
 

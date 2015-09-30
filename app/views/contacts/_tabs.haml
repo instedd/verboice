@@ -1,0 +1,6 @@
+%ul.tabs.top
+  %li{ :class =>"#{"active" if params[:action] == 'edit'}"}
+    = link_to "Properties", edit_project_contact_path(@project, @contact)
+  %li{ :class =>"#{"active" if (params[:action] == 'calls' || params[:action] == 'queued_calls')}"}
+    = link_to "Calls", calls_project_contact_path(@project, @contact)
+.tabsline

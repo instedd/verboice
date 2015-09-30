@@ -23,7 +23,13 @@ module JavascriptUtils
   end
 
   def is_numeric?(obj)
-     obj.to_s.match(/\A\d+?(\.\d+)?\Z/) == nil ? false : true
+    if obj.to_s.match(/\A\d+\Z/) == nil
+      obj.to_s.match(/\A\d+?(\.\d+)?\Z/) == nil ? false : true
+    else
+      # Integers bigger than Int32::MAX can lead to JSON encoding problems in
+      # Erlang (see https://github.com/instedd/verboice/issues/670) 
+      obj.to_i < 2**31
+    end
   end
 
 end

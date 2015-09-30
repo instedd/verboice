@@ -16,16 +16,19 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class CallLog < ActiveRecord::Base
-  include CallLogSearch
-
   belongs_to :account
   belongs_to :project
   belongs_to :call_flow
   belongs_to :channel
   belongs_to :schedule
+  belongs_to :contact
   has_many :traces, :foreign_key => 'call_id'
   has_many :entries, :foreign_key => 'call_id', :class_name => "CallLogEntry"
   has_many :pbx_logs, :foreign_key => :guid, :primary_key => :pbx_logs_guid
+
+  scope :for_account, ->(account) {
+    joins(:channel).where('call_logs.project_id IN (?) OR call_logs.account_id = ? OR channels.account_id = ?', account.readable_project_ids, account.id, account.id)
+  }
 
   before_validation :set_account_to_project_account, :if => :call_flow_id?
 
@@ -116,6 +119,24 @@ class CallLog < ActiveRecord::Base
 
   def last_entry
     self.entries.order('created_at DESC, id DESC').first
+  end
+
+  def self.poirot_activities(id_or_ids)
+    if Rails.configuration.verboice_configuration[:poirot_elasticsearch_url]
+      id_or_ids = [id_or_ids] unless id_or_ids.is_a?(Array)
+      Hercule::Activity.search({size: 1000000, filter: {
+        and: [
+          { terms: { call_log_id: id_or_ids } },
+          { exists: { field: "step_type" } }
+        ]
+      }}).items
+    else
+      entries = CallLogEntry.where(call_id: id_or_ids)
+      activities = entries.select { |x| x.details.has_key?(:activity) }.map do |x|
+        activity = JSON.load(x.details[:activity])
+        Hercule::Activity.new({'_source' => activity["body"]})
+      end
+    end
   end
 
   private

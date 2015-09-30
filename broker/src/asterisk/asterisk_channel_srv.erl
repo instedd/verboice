@@ -1,5 +1,5 @@
 -module(asterisk_channel_srv).
--export([start_link/0, find_channel/2, regenerate_config/0, set_channel_status/1, get_channel_status/1]).
+-export([start_link/0, find_channel/2, register_channel/2, regenerate_config/0, set_channel_status/1, get_channel_status/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -7,13 +7,29 @@
 -define(SERVER, ?MODULE).
 -define(RELOAD_INTERVAL, timer:minutes(2)).
 
--record(state, {channels, registry, channel_status, config_job_state = idle, status_job_state = idle}).
+% channels: dict({ip, number}, [channel_id])
+%   Static host registered peers. This is built by asterisk_config:generate/2.
+%
+% dynamic_channels: dict({ip, number}, channel_id)
+%   Dynamic host connected peers. This is constructed from AMI events, either
+%   peerstatus or peerentry (received after a sippeers command is issued)
+%
+% registry: dict({username, domain}, channel_id)
+%   Channels for Asterisk to register, as built by asterisk_config:generate/2.
+%
+% channel_status: dict(channel_id, {channel_id, registration_ok, error_message})
+%   Registration statuses
+%
+-record(state, {channels, dynamic_channels, registry, channel_status, config_job_state = idle, status_job_state = idle}).
 
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
 
 find_channel(PeerIp, SipTo) ->
   gen_server:call(?MODULE, {find_channel, PeerIp, SipTo}).
+
+register_channel(ChannelId, PeerIp) ->
+  gen_server:call(?MODULE, {register_channel, ChannelId, PeerIp}).
 
 regenerate_config() ->
   gen_server:cast(?MODULE, regenerate_config).
@@ -30,14 +46,40 @@ init({}) ->
   regenerate_config(),
   timer:send_interval(timer:seconds(30), check_status),
   timer:send_after(?RELOAD_INTERVAL, sip_reload),
-  {ok, #state{channels = dict:new(), registry = dict:new()}}.
+  {ok, #state{channels = dict:new(), dynamic_channels = dict:new(), registry = dict:new()}}.
 
 %% @private
 handle_call({find_channel, PeerIp, Number}, _From, State) ->
   case dict:find({PeerIp, Number}, State#state.channels) of
-    {ok, ChannelId} -> {reply, ChannelId, State};
-    error -> {reply, not_found, State}
+    {ok, [ChannelId]} ->
+      {reply, ChannelId, State};
+    {ok, ChannelIds} ->
+      % Return the channel id which has registered successfully, or the first
+      % of the list.  This ensures that if a user is attempting to steal calls
+      % from another user (by registering a channel on the same IP address/es
+      % and the same number), he must also successfully register with the SIP
+      % peer (ie. know the credentials).
+      ChannelId = case find_registered_channel(ChannelIds, State#state.channel_status) of
+        undefined -> lists:nth(1, ChannelIds);
+        Other -> Other
+      end,
+      {reply, ChannelId, State};
+    error ->
+      case dict:find({PeerIp, Number}, State#state.dynamic_channels) of
+        {ok, ChannelId} -> {reply, ChannelId, State};
+        error -> {reply, not_found, State}
+      end
   end;
+
+handle_call({register_channel, ChannelId, PeerIp}, _From, State) ->
+  NewState = case channel:find(ChannelId) of
+    undefined ->
+      State;
+    Channel ->
+      NewDynChannels = dict:store({PeerIp, channel:number(Channel)}, ChannelId, State#state.dynamic_channels),
+      State#state{dynamic_channels = NewDynChannels}
+  end,
+  {reply, ok, NewState};
 
 handle_call({get_channel_status, ChannelIds}, _From, State) ->
   case State#state.channel_status of
@@ -115,3 +157,18 @@ terminate(_Reason, _State) ->
 %% @private
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
+
+% returns the first channel id in the list that successfully registered according to the ChannelStatus dict()
+find_registered_channel(_, undefined) ->
+  undefined;
+find_registered_channel(ChannelIds, ChannelStatus) ->
+  lists:foldl(fun
+      (ChannelId, undefined) ->
+        case dict:find(ChannelId, ChannelStatus) of
+          {ok, {ChannelId, true, _}} -> ChannelId;
+          _ -> undefined
+        end;
+      (_, Result) ->
+        Result
+    end, undefined, ChannelIds).
+

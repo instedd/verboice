@@ -84,6 +84,55 @@ span.forwardto { display:inline-block; width:66px; margin:6px 0 !important }
 span.alert-orange { background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat right; padding-right:18px; color:#ff6600; display:inline-block }
 span.alert-orange-b { background:url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat left; padding-left:18px; color:#ff6600; display:inline-block }
 
+.alerts {
+  position: relative;
+
+  span.summary {
+    cursor: pointer;
+    background: url(http://theme.instedd.org/theme/images/icons/18/orange/alert.png) no-repeat left;
+    padding-left: 18px;
+    margin-left: 5px;
+    margin-top: 8px;
+    margin-right: 5px;
+    color:#ff6600;
+    display:inline-block;
+  }
+
+  .box {
+    display: none;
+    position: absolute;
+    width: 300px;
+    right: 0px;
+    margin-top: 5px;
+    padding: 2px;
+
+    &.visible {
+      display: inherit;
+    }
+
+    .item {
+      margin: 0px 5px;
+      border-bottom: 1px solid #b3b3b3;
+      font-size: 13px;
+      padding: 3px;
+      padding-right: 20px;
+      padding-top: 8px;
+      min-height: 20px;
+      position: relative;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    button.farrow {
+      position: absolute;
+      right: 0px;
+      top: 0px;
+    }
+  }
+}
+
 
 .content-header { padding:10px 50px; text-align:center }
 .content-header h1 { font-size:16px; color:#000000; margin:0 }
@@ -198,7 +247,7 @@ input+label { color:#000 }
 
 .resource-name { margin-bottom:3px; text-align:right }
 
-.file-name { width:148px; overflow:hidden; float:left; text-align:left; margin:3px 0; padding-top:7px; position:relative }
+.file-name { width:190px; overflow:hidden; float:left; text-align:left; margin:3px 0; padding-top:7px; position:relative }
 .file-name span.fade { position:absolute; right:0; top:0; width:28px; height:28px; display:block; background:white;background:-webkit-gradient(linear,0% 50%,100% 50%,color-stop(0%,rgba(255,255,255,0)),color-stop(100%,#fff));background:-webkit-linear-gradient(left,rgba(255,255,255,0),#fff);background:-moz-linear-gradient(left,rgba(255,255,255,0),#fff);background:-o-linear-gradient(left,rgba(255,255,255,0),#fff);background:-ms-linear-gradient(left,rgba(255,255,255,0),#fff);background:linear-gradient(left,rgba(255,255,255,0),#fff); z-index:10 }
 span.alert-orange-b + span.fade { display:none }
 .file-name + button { float:right; margin:8px 0 }

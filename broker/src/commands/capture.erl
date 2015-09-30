@@ -11,7 +11,7 @@ run(Args, Session = #session{pbx = Pbx, js_context = JS}) ->
   Caption = prepare_caption(Args, Session),
   {_, JS2} = erjs:eval("digits = timeout = finish_key = null", JS),
 
-  poirot:log(info, "Waiting user input (timeout: ~B, min: ~B, max: ~B, finish: ~s)", [Timeout, Min, Max, FinishOnKey]),
+  poirot:log(info, "Waiting user input (timeout: ~p, min: ~p, max: ~p, finish: ~s)", [Timeout, Min, Max, FinishOnKey]),
 
   JS3 = case Pbx:capture(Caption, Timeout, FinishOnKey, Min, Max) of
     finish_key ->

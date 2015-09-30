@@ -66,5 +66,9 @@
       %select.w22{'data-bind' => 'value: variable, options: available_variables(), css: { error: !variable() }'}
 
       %hr
+      %input{'type' => 'checkbox', 'data-bind' => 'checked: remember', 'id' => 'remember-impersonated'}
+      %label{:for => 'remember-impersonated'} Remember impersonated phone number
+
+      %hr
       .bottom-actions
         %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step

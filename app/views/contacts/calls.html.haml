@@ -1,0 +1,49 @@
+= render 'shared/project_tabs_and_title', :project => @project, :shared_project => @shared_project
+
+%h2 Calls
+%p.desc Calls made and received from this number
+
+= render 'tabs'
+
+%br
+= render 'call_selector'
+%br
+
+.tablewrapp.no-wrap.scroll.contacts-table
+  %table.GralTable
+    %tr
+      %th ID
+      %th Channel
+      %th Direction
+      %th Schedule
+      %th Started
+      %th Duration
+      %th State
+      %th
+      - @logs.each do |call|
+        %tr
+          %td= call.id
+          %td= call.channel.name
+          %td= call.direction
+          %td= call.schedule.try(:name)
+          %td= raw time_ago call.started_at
+          %td= distance_of_time_in_words(call.finished_at, call.started_at, true) if call.finished_at
+          %td= call.state
+          %td= link_to 'view details', call
+
+
+%div#call_logs_paginator
+  = form_tag({action: :calls}, method: :get) do
+    - total_pages = (@logs.count/@per_page)+1
+
+    - previous_btn_class = 'pprevious' + (if (@page.to_i - 1) < 1 then " disabled" else '' end)
+    = link_to '', {action: 'calls', page: @page.to_i-1}, class: previous_btn_class
+
+    - next_btn_class = 'pnext' + (if (@page.to_i + 1) > total_pages then " disabled" else '' end)
+    = link_to '', {action: 'calls', page: @page.to_i+1}, class: next_btn_class
+
+    = text_field_tag 'page', @page.to_i
+    %span.label-info="of #{total_pages}"
+    = submit_tag '', class: 'hidden'
+
+%br/

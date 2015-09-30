@@ -1,11 +1,9 @@
-#= require workflow/resources/resource
-
+#= require resources/resource
 onWorkflow ->
   class window.ResourceEditor
 
     constructor: (parent, hash = {}) ->
       @parent = parent
-
       @resource = ko.observable null
       @type = ko.observable 'new'
       @name = ko.observable null
@@ -25,17 +23,19 @@ onWorkflow ->
       if hash.guid?
         Resource.find hash.guid, (result) =>
           @resource(result)
-
       @is_valid = ko.computed =>
         if @resource()? then @resource().is_valid() else false
       @is_text = ko.computed =>
         if @resource()? then @resource().is_text() else false
+
 
     get_resources: (query, source) =>
       Resource.search query, (results) =>
         source(results)
 
     cancel: =>
+      if @resource()
+        _.each(@resource().localizedResources(), (localized) => localized.current().uploadStatus('standBy'))
       @parent.current_editing_resource(null)
 
     next: =>
@@ -47,8 +47,14 @@ onWorkflow ->
             @resource(result)
 
     save: =>
-      @resource().save =>
-        @cancel()
+      @resource().save()
+      subscription = @resource().uploadOk.subscribe (upload_ok) =>
+        # if the resource finished saving and there without any errors, the edit window needs to be closed
+        if(upload_ok)
+          @cancel()
+
+          # We no longer want this event to be triggered again
+          subscription.dispose()
 
     replace: =>
       @resource(null)

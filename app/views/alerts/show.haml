@@ -1,0 +1,8 @@
+%h1
+  .i48grad.alert.red
+  = alert.message
+
+= render alert.type.underscore, alert: alert
+%hr
+= link_to 'Dismiss', dismiss_alert_url(alert), class: "button orange"
+

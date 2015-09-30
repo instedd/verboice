@@ -3,7 +3,6 @@
 -define(TABLE_NAME, "queued_calls").
 -include("session.hrl").
 -define(MAP, [
-  {flow, flow_serializer},
   {callback_params, yaml_serializer},
   {variables, yaml_serializer}
 ]).
@@ -17,13 +16,18 @@ reschedule(QueuedCall = #queued_call{schedule_id = ScheduleId}) ->
 reschedule(_, #schedule{retries = undefined}) -> max_retries;
 reschedule(Q, S) when Q#queued_call.retries >= length(S#schedule.retries) -> max_retries;
 reschedule(Q = #queued_call{retries = Retries, time_zone = TimeZone}, S) ->
-  NextRetryOffset = trunc(lists:nth(Retries + 1, S#schedule.retries) * 60 * 60),
+  NextRetryOffset = trunc(lists:nth(Retries + 1, S#schedule.retries)),
   TimeZoneOffset = tz_server:get_timezone_offset(TimeZone),
   NextRetry = calendar:datetime_to_gregorian_seconds(calendar:universal_time()) + NextRetryOffset + TimeZoneOffset,
   RetryTime = calendar:gregorian_seconds_to_datetime(S:next_available_time(NextRetry) - TimeZoneOffset),
-  QueuedCall = queued_call:create(Q#queued_call{not_before = {datetime, RetryTime}, retries = Retries + 1}),
-  scheduler:enqueue(QueuedCall),
-  QueuedCall.
+  case should_skip(Q, RetryTime) of
+    false ->
+      QueuedCall = queued_call:create(Q#queued_call{not_before = {datetime, RetryTime}, retries = Retries + 1}),
+      scheduler:enqueue(QueuedCall),
+      QueuedCall;
+    true ->
+      overdue
+  end.
 
 start_session(QueuedCall = #queued_call{call_flow_id = CallFlowId}) when is_number(CallFlowId) ->
   CallFlow = call_flow:find(CallFlowId),
@@ -31,7 +35,7 @@ start_session(QueuedCall = #queued_call{call_flow_id = CallFlowId}) when is_numb
 start_session(QueuedCall = #queued_call{callback_url = CallbackUrl}) when is_binary(CallbackUrl) ->
   start_session(#session{flow = flow:callback_flow(CallbackUrl)}, QueuedCall);
 start_session(QueuedCall = #queued_call{flow = Flow}) ->
-  start_session(#session{flow = Flow}, QueuedCall).
+  start_session(#session{flow = twiml:parse(Flow)}, QueuedCall).
 
 start_session(Session, QueuedCall) ->
   Project = project:find(QueuedCall#queued_call.project_id),
@@ -49,3 +53,8 @@ start_session(Session, QueuedCall) ->
     queued_call = QueuedCall,
     project = Project
   }.
+
+should_skip(#queued_call{not_after = undefined}, _) -> false;
+should_skip(#queued_call{not_after = {datetime, NotAfter}}, RetryTime) ->
+  NotAfter =< RetryTime;
+should_skip(_, _) -> false.

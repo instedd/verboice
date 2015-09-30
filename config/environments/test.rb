@@ -58,3 +58,9 @@ Verboice::Application.configure do
   # Print deprecation notices to the log
   config.active_support.deprecation = :log
 end
+
+# Silence deprecation warnings during test runs: serializing with compat 11
+# produces start_date fields for IceCube schedules, which later produce
+# warnings when deserializing.
+IceCube.compatibility = 12
+

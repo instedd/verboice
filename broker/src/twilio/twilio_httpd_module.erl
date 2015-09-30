@@ -32,7 +32,7 @@ do(#mod{request_uri = RequestUri, method = "POST", entity_body = Body}) ->
     Pbx ->
       CallStatus = proplists:get_value("CallStatus", Params),
       case CallStatus of
-        "completed" -> Pbx:terminate(), "OK";
+        "completed" -> Pbx:user_hangup(), "OK";
         _ -> Pbx:resume(Params)
       end
   end,

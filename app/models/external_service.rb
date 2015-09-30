@@ -21,7 +21,7 @@ class ExternalService < ActiveRecord::Base
   has_many :call_flow_external_services, :dependent => :destroy
   has_many :call_flows, :through => :call_flow_external_services
 
-  attr_accessible :name, :url, :xml, :global_variables_attributes, :guid
+  attr_accessible :name, :url, :xml, :global_variables_attributes, :guid, :global_settings, :base_url
 
   validates :guid, :presence => true, :uniqueness => { :scope => :project_id }
 
@@ -33,6 +33,24 @@ class ExternalService < ActiveRecord::Base
 
   after_initialize do
     self.guid ||= Guid.new.to_s
+  end
+
+  before_create do
+    # fill a base url with the url used to download the manifest
+    self.url = "http://#{self.url}" unless self.url.match /^(http|https):\/\//
+    uri = URI.parse(self.url)
+    self.base_url = "#{uri.scheme}://#{uri.host}#{':' + uri.port.to_s if uri.port != 80}"
+  end
+
+  after_save do
+    return unless base_url_changed?
+
+    ExternalService.transaction do
+      self.call_flows.each do |call_flow|
+        call_flow.force_update_flow_with_user_flow!
+        call_flow.save!
+      end
+    end
   end
 
   def update_manifest!
@@ -86,6 +104,18 @@ class ExternalService < ActiveRecord::Base
         call_flow.clean_external_service self
         call_flow.save!
       end
+    end
+  end
+
+  def to_absolute_url(url)
+    # can't use URI.parse since url may be http://{domain}/path
+    if url.match /(http|https):\/\//
+      url
+    else
+      base = base_url
+      base.chop! if base[-1] == '/'
+      url = url[1..-1] if url[0] == '/'
+      "#{base}/#{url}"
     end
   end
 

@@ -1,0 +1,19 @@
+<h1>Backup details</h1>
+
+<h2><%= @path %></h2>
+<%= "in progress" if @locked %>
+
+<ul>
+  <li>Timestamp: <%= @time.to_s %></li>
+  <li>Call logs: <%= @call_logs.size %></li>
+  <li>DB size: <%= @db_dump_size / 1024 %> kb</li>
+</ul>
+
+<hr/>
+
+<% unless @locked %>
+  <form action="/restore/<%= @path %>" method="POST" class="form-inline">
+    <a class="btn btn-primary" href="/download/<%= @path %>">Download this backup</a>
+    <input type="submit" class="btn btn-danger" value="Restore this backup" onclick="return window.confirm('Are you sure you want to restore this backup?')" />
+  </form>
+<% end %>

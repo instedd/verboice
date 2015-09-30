@@ -21,4 +21,11 @@ class ProjectVariable < ActiveRecord::Base
   attr_accessible :name
   validates_uniqueness_of :name, :scope => :project_id, :case_sensitive => false
   broker_cached
+
+  def to_json
+    {
+      id: id,
+      name: name,
+    }
+  end
 end

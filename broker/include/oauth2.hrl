@@ -1,0 +1,1 @@
+-record(oauth2_config, {base_url, client_id, client_secret, token_path = "/oauth2/token"}).

@@ -29,7 +29,7 @@ onWorkflow ->
       {text: 'Value', value: 'value'}]
 
     available_variables: () =>
-      workflow.all_variables().sort()
+      workflow.all_variables().concat(read_variables).sort()
 
     available_steps: () =>
       {name: step.name(), value: step.id} for step in workflow.steps() when (step.type() == 'capture') || (step.type() == 'menu')

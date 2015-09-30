@@ -85,8 +85,8 @@ describe Channel do
 
       it "call with custom flow" do
         BrokerClient.should_receive(:notify_call_queued)
-        channel.call 'foo', :flow => Compiler.make { Answer(); Hangup() }
-        queued_call.flow.should == Compiler.make { Answer(); Hangup() }.to_a
+        channel.call 'foo', :flow => %(<Response><Hangup/></Response>)
+        queued_call.flow.should == %(<Response><Hangup/></Response>)
       end
 
       it "call with custom status callback url" do
@@ -147,6 +147,18 @@ describe Channel do
         BrokerClient.should_receive(:notify_call_queued)
         call_log = channel.call 'foo', vars: {'bar' => '1', 'baz' => 'eee'}
         queued_call.variables.should eq({'bar' => 1, 'baz' => 'eee'})
+      end
+
+      it "calls with numeric-like variables" do
+        BrokerClient.should_receive(:notify_call_queued)
+        call_log = channel.call 'foo', vars: {'bar' => '123', 'quux' => '0001', 'zero' => '0'}
+        queued_call.variables.should eq({'bar' => 123, 'quux' => '0001', 'zero' => 0})
+      end
+
+      it "stores contact and schedule call" do
+        channel.call 'foo', contact_id: 7, scheduled_call_id: 13
+        queued_call.contact_id.should eq(7)
+        queued_call.scheduled_call_id.should eq(13)
       end
     end
 

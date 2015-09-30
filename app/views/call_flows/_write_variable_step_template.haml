@@ -1,0 +1,27 @@
+%script{type: "text/html", id: "write_variable_step_template"}
+  .feditor-sidebar.right.box.w28.iblock.h65
+    .tableheader
+      %span.left.i48grad-addressbook{ ko(css: '{ "orange": is_invalid }') }
+      %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
+
+    %table.GralTable.TwoColumn.CleanTable.NoHead
+      %tr
+        %th
+          Variable name
+        %th
+
+    .content{ ko('instedd_init' => true) }
+      %input.ux-text.w22{ ko(value: 'variable', valueUpdate: '"afterkeydown"', css: '{ "error": is_variable_invalid }', initAutocomplete: '{source: workflow.all_variables()}', initMask: '{mask: $.mask.masks.token}'), placeholder: 'Address book variable' }
+
+      %br
+      %label New value
+
+      %br
+      %input.ux-text.w22{ ko(value: 'value', valueUpdate: '"afterkeydown"'), placeholder: 'Enter the new value' }
+
+      %hr
+
+    .content
+      .bottom-actions
+        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+

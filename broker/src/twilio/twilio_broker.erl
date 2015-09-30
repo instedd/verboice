@@ -14,9 +14,9 @@ get_channel_status(ChannelIds) ->
 init() ->
   ok.
 
-create_channel(_Id) -> twilio_channel_srv:reload_channels(), ok.
+create_channel(Id) -> twilio_channel_srv:channel_updated(Id), ok.
 
-destroy_channel(_Id) -> twilio_channel_srv:reload_channels(), ok.
+destroy_channel(Id) -> twilio_channel_srv:channel_destroyed(Id), ok.
 
 dispatch(_Session = #session{session_id = SessionId, channel = Channel, address = Address}) ->
   AccountSid = channel:account_sid(Channel),

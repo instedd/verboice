@@ -12,6 +12,7 @@
 .DS_Store
 tmp/*
 spec/reports/*
+spec/tmp
 public/assets
 public/applications
 data
@@ -24,3 +25,4 @@ broker/rel/verboice
 config/nuntium.yml
 erl_crash.dump
 .vagrant
+admin/backups/verboice*

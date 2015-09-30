@@ -4,7 +4,7 @@
 -include("db.hrl").
 -include("uri.hrl").
 
-run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = CallFlow, callback_params = CallbackParams}) ->
+run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = CallFlow, callback_params = CallbackParams, project = Project}) ->
   Url = case proplists:get_value(url, Args) of
     undefined -> CallFlow#call_flow.callback_url;
     X -> list_to_binary(X)
@@ -12,11 +12,14 @@ run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = Ca
   ResponseType = proplists:get_value(response_type, Args, flow),
   Params = proplists:get_value(params, Args, []),
   Variables = proplists:get_value(variables, Args, []),
-  Method = proplists:get_value(method, Args, "post"),
+  Method = util:to_string(proplists:get_value(method, Args, "post")),
   Async = proplists:get_value(async, Args),
+  JsonBody = proplists:get_value(json_body, Args),
+  TrustedApp = proplists:get_value(trusted_app, Args, false),
 
   QueryString = prepare_params(Params ++ Variables, [{"CallSid", CallLog:id()} | CallbackParams], JS),
   RequestUrl = interpolate(Url, Args, Session),
+
   PoirotMeta = [
     {url, iolist_to_binary(RequestUrl)},
     {method, iolist_to_binary(Method)},
@@ -30,26 +33,55 @@ run(Args, Session = #session{js_context = JS, call_log = CallLog, call_flow = Ca
           {url, RequestUrl},
           {method, Method},
           {body, QueryString},
-          {activity, poirot:current_id()}
+          {activity, poirot:current_id()},
+          {project_id, Project#project.id}
         ],
-        delayed_job:enqueue(yaml:dump({map, Task, <<"!ruby/object:Jobs::CallbackJob">>}, [{schema, yaml_schema_ruby}]))
+        delayed_job:enqueue("Jobs::CallbackJob", Task)
       end),
       {next, Session};
 
     _ ->
       poirot:new("Callback to " ++ RequestUrl, [{metadata, PoirotMeta}], fun() ->
         Uri = uri:parse(RequestUrl),
+
+        UriOptions = case TrustedApp of
+          true ->
+            Account = account:find(Project#project.account_id),
+            Hostname = case Uri#uri.port of
+                         80 -> Uri#uri.host;
+                         443 -> Uri#uri.host;
+                         Other -> lists:flatten([Uri#uri.host, ":", integer_to_list(Other)])
+                       end,
+            [{oauth2, guisso:get_trusted_token(Hostname, Account#account.email)}];
+          _ -> []
+        end,
+
         {ok, {_StatusLine, _Headers, Body}} = case Method of
           "get" ->
-            (Uri#uri{query_string = QueryString}):get([]);
+            (Uri#uri{query_string = QueryString}):get(UriOptions);
           _ ->
-            Uri:post_form(QueryString, [])
+            case JsonBody of
+              undefined -> Uri:post_form(QueryString, UriOptions);
+              _ ->
+                {PostBodyRef, _} = erjs:eval(JsonBody, JS),
+                (Uri#uri{query_string = QueryString}):post("application/json", to_json(PostBodyRef, JS), UriOptions)
+            end
         end,
 
         poirot:add_meta([{response, iolist_to_binary(Body)}]),
         handle_response(ResponseType, Body, Session)
       end)
   end.
+
+to_json(Value, JS) ->
+  {ok, Json} = json:encode(to_json_tuple(Value, JS)),
+  Json.
+to_json_tuple(Ref, JS) when is_reference(Ref) ->
+  ObjList = erjs_context:get_object(Ref, JS),
+  {lists:map(fun({K, V}) -> {K, to_json_tuple(V, JS)} end, ObjList)};
+to_json_tuple(String, _JS) when is_list(String) ->
+  list_to_binary(String);
+to_json_tuple(Value, _) -> Value.
 
 handle_response(flow, Body, Session) ->
   Commands = twiml:parse(Body),
@@ -91,10 +123,12 @@ assign_from_js(QueryString, Prefix, Value, JS) ->
     true -> [{iolist_to_binary(Prefix), Value} | QueryString]
   end.
 
-interpolate(Url, Args, #session{project = #project{id = ProjectId}}) ->
+interpolate(Url, Args, #session{project = #project{id = ProjectId}, js_context = JsContext}) ->
   InterpolatedUrl = util:interpolate(Url, fun(VarNameBin) ->
     case proplists:get_value(external_service_guid, Args) of
-      undefined -> <<>>;
+      undefined ->
+        {Value, _} = erjs:eval(VarNameBin, JsContext),
+        list_to_binary(Value);
       SvcGuid ->
         Svc = external_service:find([{project_id, ProjectId}, {guid, SvcGuid}]),
         case Svc:global_variable_value_for(binary_to_list(VarNameBin)) of

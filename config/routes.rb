@@ -67,7 +67,17 @@ Verboice::Application.routes.draw do
 
       resources :schedules
 
-      resources :contacts, except: [:show]
+      resources :contacts, except: [:show] do
+        collection do
+          get :search, :action => :index, :as => 'search'
+          post :upload_csv
+          post :import_csv
+        end
+        member do
+          get :calls
+          get :queued_calls
+        end
+      end
 
       resources :resources do
         collection do
@@ -85,23 +95,31 @@ Verboice::Application.routes.draw do
       end
 
       resources :feeds
+
+      resources :scheduled_calls do
+        collection do
+          post :from_filter, :action => :new, :as => 'from_filter'
+        end
+      end
     end
   end
 
-  resources :call_logs, path: :calls do
+  resources :call_logs, path: :calls, only: [:index, :show] do
     member do
       get :progress
       get 'results/:key', :action => :play_result, :as => 'result'
       get :download_details
     end
-    collection do
-      get :queued
-      get :download
-    end
   end
 
   resource :synthesizer do
     get :voices
+  end
+
+  resources :alerts do
+    member do
+      get :dismiss
+    end
   end
 
   namespace :api do
@@ -120,7 +138,9 @@ Verboice::Application.routes.draw do
         delete ":name", :action => "destroy"
       end
     end
-    resources :projects, only: [:index] do
+    resources :projects, only: [:index, :show] do
+      resources :project_variables, only: :index
+      resources :call_flows, only: [:index, :show]
       resources :contacts do
         collection do
           get 'by_address/:address', :action => "show_by_address"
@@ -157,4 +177,8 @@ Verboice::Application.routes.draw do
   root :to => 'home#index'
 
   get 'terms_and_conditions', :to => redirect('/')
+
+  match '/hub/*path' => 'hub#api', format: false
+
+  mount Listings::Engine => "/listings"
 end

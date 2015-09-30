@@ -57,3 +57,9 @@ end
 ActionDispatch::Reloader.to_prepare do
   class_reloader.execute_if_updated
 end
+
+# Silence deprecation warnings for IceCube: serializing with compat 11
+# produces start_date fields for IceCube schedules, which later produce
+# warnings when deserializing.
+IceCube.compatibility = 12
+

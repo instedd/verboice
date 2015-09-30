@@ -27,18 +27,31 @@ describe Api::ProjectsController do
   let!(:project) { account.projects.make }
   let!(:call_flow) { project.call_flows.make }
   let!(:schedule) { project.schedules.make }
+  let!(:variable) { project.project_variables.make }
 
   it "should list all projects" do
     get :index
 
     response = JSON.parse(@response.body)
     response.length.should == 1
-    response[0]['id'].should eq(project.id)
-    response[0]['name'].should eq(project.name)
-    response[0]['call_flows'].length.should eq(1)
-    response[0]['call_flows'][0]['id'].should eq(call_flow.id)
-    response[0]['call_flows'][0]['name'].should eq(call_flow.name)
-    response[0]['schedules'].length.should eq(1)
-    response[0]['schedules'][0].should eq(schedule.name)
+    assert_project_json response[0]
+  end
+
+  it "should show one projects" do
+    get :show, id: project.id
+
+    response = JSON.parse(@response.body)
+    assert_project_json response
+  end
+
+  def assert_project_json(json)
+    json['id'].should eq(project.id)
+    json['name'].should eq(project.name)
+    json['call_flows'].length.should eq(1)
+    json['call_flows'][0]['id'].should eq(call_flow.id)
+    json['call_flows'][0]['name'].should eq(call_flow.name)
+    json['schedules'].length.should eq(1)
+    json['schedules'][0].should eq(schedule.name)
+    json['contact_vars'].should eq([variable.name])
   end
 end
