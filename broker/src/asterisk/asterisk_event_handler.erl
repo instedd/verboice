@@ -57,7 +57,7 @@ handle_event({peerstatus, Packet}, State) ->
       case proplists:get_value(peer, Event) of
         <<"SIP/verboice_", ChannelId/binary>> ->
           [IP | _] = binary:split(proplists:get_value(address, Event), <<$:>>),
-          asterisk_channel_srv:register_channel(binary_to_integer(ChannelId), binary_to_list(IP));
+          asterisk_channel_srv:register_channel(util:binary_to_integer(ChannelId), binary_to_list(IP));
         _ -> ok
       end;
     _ -> ok
