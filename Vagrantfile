@@ -48,6 +48,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       erlang-reltool=1:17.5.3 erlang-snmp=1:17.5.3 erlang-ssh=1:17.5.3 erlang-test-server=1:17.5.3 erlang-toolbar=1:17.5.3 \
       erlang-tools=1:17.5.3 erlang-tv=1:17.5.3 erlang-typer=1:17.5.3 erlang-webtool=1:17.5.3 erlang-wx=1:17.5.3 erlang-xmerl=1:17.5.3
 
+    # Configure mysql
+    sudo sh -c 'echo "[mysqld]
+max_allowed_packet = 256M" > /etc/mysql/conf.d/mysqld.cnf'
+    sudo service mysql restart
+
     # Install ElasticSearch
     if [ "$1" == '1' ]; then
       wget -q https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.1.0.deb
