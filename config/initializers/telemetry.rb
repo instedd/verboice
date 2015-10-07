@@ -1,6 +1,13 @@
 InsteddTelemetry.setup do |conf|
  
-  conf.server_url = "http://localhost:3001"
+  custom_config = Rails.configuration.telemetry_configuration rescue {} 
+
+  conf.server_url           = custom_config[:server_url]                   if custom_config.include? :server_url
+  conf.period_size          = custom_config[:period_size_days].days        if custom_config.include? :period_size_days
+  conf.process_run_interval = custom_config[:run_interval_minutes].minutes if custom_config.include? :run_interval_minutes
+
+  
+  # Verboice custom collectors
 
   conf.add_collector Telemetry::ProjectCountCollector
   conf.add_collector Telemetry::CallFlowsPerProjectCollector
