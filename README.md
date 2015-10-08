@@ -12,6 +12,4 @@ Getting Started
 
 [What's coming next?](https://github.com/instedd/verboice/milestones)
 
-[Installing your own server](https://github.com/instedd/verboice/wiki/Installation)
-
-[Install Verboice on a Raspberry PI](https://github.com/instedd/verboice/wiki/Install%20Verboice%20on%20a%20Raspberry%20PI)
+[Installing your own server](https://github.com/instedd/verboice/wiki/Installing)
