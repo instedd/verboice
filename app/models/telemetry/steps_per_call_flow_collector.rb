@@ -4,10 +4,11 @@ module Telemetry::StepsPerCallFlowCollector
     counters = []
 
     CallFlow.select([:id, :project_id, :user_flow]).find_each do |flow|
+      step_count = flow.user_flow.present? ? flow.user_flow.count : 0
       counters << {
         "metric" => "steps",
         "key" => { "project_id" => flow.project_id, "call_flow" => flow.id },
-        "value" => flow.user_flow.count
+        "value" => step_count
       }
     end
 

@@ -30,6 +30,20 @@ describe Telemetry::StepsPerCallFlowCollector do
       ]})
   end
 
+  it "supports empty call_flows" do
+    p = Project.make languages: [:eng, :spa]
+    f = p.call_flows.make user_flow: nil
+    
+    current_stats.should eq({
+      "counters"=> [
+        {
+          "metric" => "steps",
+          "key" => {"project_id" => p.id, "call_flow"=>f.id},
+          "value" => 0
+        }
+    ]})
+  end
+
   def current_stats
     period  = InsteddTelemetry.current_period
     Telemetry::StepsPerCallFlowCollector.collect_stats(p)
