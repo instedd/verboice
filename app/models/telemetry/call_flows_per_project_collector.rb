@@ -1,11 +1,12 @@
 module Telemetry::CallFlowsPerProjectCollector
 
   def self.collect_stats(period)
-    results = ActiveRecord::Base.connection.execute <<-SQL
-      SELECT project_id, count(1)
-      FROM call_flows
-      GROUP BY project_id
-    SQL
+    query = CallFlow.select(["project_id", "count(*)"])
+                    .where("created_at < ?", period.end)
+                    .group("project_id")
+                    .to_sql
+
+    results = ActiveRecord::Base.connection.execute query
 
 
     counters = results.map do |project_id, count|

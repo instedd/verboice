@@ -6,7 +6,7 @@ module Telemetry::ProjectCountCollector
         {
           "metric" => "projects",
           "key" => {},
-          "value" => Project.count
+          "value" => Project.where("created_at < ?", period.end).count
         }
       ]
     }

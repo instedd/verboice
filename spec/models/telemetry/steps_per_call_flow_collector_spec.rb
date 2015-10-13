@@ -3,6 +3,10 @@ require 'spec_helper'
 describe Telemetry::StepsPerCallFlowCollector do
 
   it "builds counters for steps in each call flow" do
+    d0 = DateTime.new(2011,1,1,8,0,0)
+    d1 = d0 + InsteddTelemetry::Period.span
+
+    Timecop.freeze(d0)
     p1 = Project.make languages: [:eng, :spa]
     p2 = Project.make languages: [:ger, :afr]
 
@@ -10,7 +14,12 @@ describe Telemetry::StepsPerCallFlowCollector do
     f2 = p1.call_flows.make user_flow: [step, step]
     f3 = p2.call_flows.make user_flow: [step]
 
-    current_stats.should eq({
+    period = InsteddTelemetry::Period.current
+
+    Timecop.freeze(d1)
+    p2.call_flows.make user_flow: [step]
+
+    stats(period).should eq({
       "counters"=> [
         {
           "metric" => "steps",
@@ -33,8 +42,9 @@ describe Telemetry::StepsPerCallFlowCollector do
   it "supports empty call_flows" do
     p = Project.make languages: [:eng, :spa]
     f = p.call_flows.make user_flow: nil
-    
-    current_stats.should eq({
+    period = InsteddTelemetry::Period.current
+
+    stats(period).should eq({
       "counters"=> [
         {
           "metric" => "steps",
@@ -44,9 +54,8 @@ describe Telemetry::StepsPerCallFlowCollector do
     ]})
   end
 
-  def current_stats
-    period  = InsteddTelemetry.current_period
-    Telemetry::StepsPerCallFlowCollector.collect_stats(p)
+  def stats(period)
+    Telemetry::StepsPerCallFlowCollector.collect_stats(period)
   end
 
   def step

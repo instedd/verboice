@@ -69,7 +69,7 @@ GIT
 
 GIT
   remote: https://github.com/instedd/telemetry_rails
-  revision: f874a3059d46aced8059d51fb7e55b433b6c59a6
+  revision: b4af2010304359aee3c3b2d140719628674e5c51
   branch: master
   specs:
     instedd_telemetry (0.0.1)

@@ -3,10 +3,19 @@ require 'spec_helper'
 describe Telemetry::LanguagesPerProjectCollector do
 
   it "builds a set containing languages for all current projects" do
+    d0 = DateTime.new(2011,1,1,8,0,0)
+    d1 = d0 + InsteddTelemetry::Period.span
+
+    Timecop.freeze(d0)
     p1 = Project.make languages: [:eng, :spa]
     p2 = Project.make languages: [:ger, :afr]
+    period = InsteddTelemetry::Period.current
+    
+    # project created after period ended
+    Timecop.freeze(d1)
+    Project.make languages: [:eng]
 
-    current_stats["sets"].should eq([
+    stats(period)["sets"].should eq([
       {
       "metric" => "languages",
       "key" => {"project_id" => p1.id},
@@ -20,9 +29,8 @@ describe Telemetry::LanguagesPerProjectCollector do
     ])
   end
 
-  def current_stats
-    period  = InsteddTelemetry.current_period
-    Telemetry::LanguagesPerProjectCollector.collect_stats(p)
+  def stats(period)
+    Telemetry::LanguagesPerProjectCollector.collect_stats(period)
   end
 
 end

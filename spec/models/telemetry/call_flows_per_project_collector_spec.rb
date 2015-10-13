@@ -2,14 +2,27 @@ require 'spec_helper'
 
 describe Telemetry::CallFlowsPerProjectCollector do
 
-  it "builds counts of current call flows per project" do
+  it "builds counts of current call flows per project" do    
+    d0 = DateTime.new(2011,1,1,8,0,0)
+    d1 = d0 + InsteddTelemetry::Period.span
+    d2 = d1 + InsteddTelemetry::Period.span
+
+    Timecop.freeze(d0)
     p1 = Project.make languages: [:eng, :spa]
     p2 = Project.make languages: [:ger, :afr]
+    5.times { p1.call_flows.make }
 
-    10.times { p1.call_flows.make }
+    Timecop.travel(d1)
+    5.times  { p1.call_flows.make }
     30.times { p2.call_flows.make }
 
-    current_stats.should eq({
+    period  = InsteddTelemetry.current_period
+
+    Timecop.travel(d2)
+    p1.call_flows.make
+    p2.call_flows.make
+
+    stats(period).should eq({
       "counters" => [
         {
           "metric"  => "call_flows",
@@ -25,9 +38,8 @@ describe Telemetry::CallFlowsPerProjectCollector do
     })
   end
 
-  def current_stats
-    period  = InsteddTelemetry.current_period
-    Telemetry::CallFlowsPerProjectCollector.collect_stats(p)
+  def stats(period)
+    Telemetry::CallFlowsPerProjectCollector.collect_stats(period)
   end
 
 end

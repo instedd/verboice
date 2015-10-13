@@ -1,12 +1,14 @@
 module Telemetry::CallsPerDayPerChannelCollector
 
   def self.collect_stats(period)
-    results = ActiveRecord::Base.connection.execute <<-SQL
-      SELECT DATE(started_at), channel_id, state, count(1)
-      FROM call_logs
-      WHERE state != "active" AND state != "queued"
-      GROUP BY DATE(started_at), channel_id, state
-    SQL
+    query = CallLog.select(['DATE(started_at)', 'channel_id', 'state', 'count(*)'])
+                   .where('state != "active"')
+                   .where('state != "queued"')
+                   .where('created_at < ?', period.end)
+                   .group(['DATE(started_at)', 'channel_id', 'state'])
+                   .to_sql
+
+    results = ActiveRecord::Base.connection.execute query
 
     counters = results.map do |date, channel_id, state, count|
       {

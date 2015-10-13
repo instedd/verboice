@@ -1,10 +1,11 @@
 module Telemetry::CallersPerCountryCodeCollector
 
   def self.collect_stats(period)
-    results = ActiveRecord::Base.connection.execute <<-SQL
-      SELECT address, project_id
-      FROM contact_addresses
-    SQL
+    query = ContactAddress.select(["address", "project_id"])
+                          .where("created_at < ?", period.end)
+                          .to_sql
+
+    results = ActiveRecord::Base.connection.execute query
 
     grouped = results.group_by do |address, project_id|
       country_code = InsteddTelemetry::Util.country_code(address) rescue nil

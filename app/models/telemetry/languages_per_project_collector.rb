@@ -3,7 +3,10 @@ module Telemetry::LanguagesPerProjectCollector
   def self.collect_stats(period)
     sets = []
 
-    Project.select([:id, :languages]).find_each do |project|
+    projects = Project.select([:id, :languages])
+                      .where('created_at < ?', period.end)
+
+    projects.find_each do |project|
       sets << {
         "metric" => "languages",
         "key" => { "project_id" => project.id },
