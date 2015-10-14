@@ -6,6 +6,7 @@ InsteddTelemetry.setup do |conf|
   conf.period_size          = custom_config[:period_size_days].days        if custom_config.include? :period_size_days
   conf.process_run_interval = custom_config[:run_interval_minutes].minutes if custom_config.include? :run_interval_minutes
 
+  conf.remote_api_enabled = true
   
   # Verboice custom collectors
 
