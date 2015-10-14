@@ -7,8 +7,8 @@ describe Telemetry::LanguagesPerProjectCollector do
     d1 = d0 + InsteddTelemetry::Period.span
 
     Timecop.freeze(d0)
-    p1 = Project.make languages: [:eng, :spa]
-    p2 = Project.make languages: [:ger, :afr]
+    p1 = Project.make languages: [{'language' => 'eng'}, {'language' => 'spa'}]
+    p2 = Project.make languages: [{'language' => 'ger'}, {'language' => 'afr'}]
     period = InsteddTelemetry::Period.current
     
     # project created after period ended
@@ -19,12 +19,12 @@ describe Telemetry::LanguagesPerProjectCollector do
       {
       "metric" => "languages",
       "key" => {"project_id" => p1.id},
-      "elements" => [:eng, :spa]
+      "elements" => ["eng", "spa"]
       },
       {
       "metric" => "languages",
       "key" => {"project_id" => p2.id},
-      "elements" => [:ger, :afr]
+      "elements" => ["ger", "afr"]
       }
     ])
   end

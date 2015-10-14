@@ -8,8 +8,8 @@ describe Telemetry::CallFlowsPerProjectCollector do
     d2 = d1 + InsteddTelemetry::Period.span
 
     Timecop.freeze(d0)
-    p1 = Project.make languages: [:eng, :spa]
-    p2 = Project.make languages: [:ger, :afr]
+    p1 = Project.make
+    p2 = Project.make
     5.times { p1.call_flows.make }
 
     Timecop.travel(d1)

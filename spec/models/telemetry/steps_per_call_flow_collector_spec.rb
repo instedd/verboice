@@ -7,8 +7,8 @@ describe Telemetry::StepsPerCallFlowCollector do
     d1 = d0 + InsteddTelemetry::Period.span
 
     Timecop.freeze(d0)
-    p1 = Project.make languages: [:eng, :spa]
-    p2 = Project.make languages: [:ger, :afr]
+    p1 = Project.make
+    p2 = Project.make
 
     f1 = p1.call_flows.make user_flow: [step, step, step]
     f2 = p1.call_flows.make user_flow: [step, step]
@@ -40,7 +40,7 @@ describe Telemetry::StepsPerCallFlowCollector do
   end
 
   it "supports empty call_flows" do
-    p = Project.make languages: [:eng, :spa]
+    p = Project.make
     f = p.call_flows.make user_flow: nil
     period = InsteddTelemetry::Period.current
 

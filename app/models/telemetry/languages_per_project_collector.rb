@@ -8,9 +8,9 @@ module Telemetry::LanguagesPerProjectCollector
 
     projects.find_each do |project|
       sets << {
-        "metric" => "languages",
-        "key" => { "project_id" => project.id },
-        "elements" => project.languages
+        "metric" => 'languages',
+        "key" => { 'project_id' => project.id },
+        "elements" => project.languages.map { |l| l['language']}
       }
     end
 
