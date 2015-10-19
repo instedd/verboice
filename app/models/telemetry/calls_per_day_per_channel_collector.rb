@@ -4,6 +4,8 @@ module Telemetry::CallsPerDayPerChannelCollector
     query = CallLog.select(['DATE(started_at)', 'channel_id', 'state', 'count(*)'])
                    .where('state != "active"')
                    .where('state != "queued"')
+                   .where('started_at IS NOT NULL')
+                   .where('channel_id IS NOT NULL')
                    .where('created_at < ?', period.end)
                    .group(['DATE(started_at)', 'channel_id', 'state'])
                    .to_sql

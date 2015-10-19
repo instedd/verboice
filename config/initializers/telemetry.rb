@@ -10,9 +10,11 @@ InsteddTelemetry.setup do |conf|
   
   # Verboice custom collectors
 
-  conf.add_collector Telemetry::ProjectCountCollector
+  conf.add_collector Telemetry::CallersPerCountryCodeCollector
   conf.add_collector Telemetry::CallFlowsPerProjectCollector
+  conf.add_collector Telemetry::CallsPerDayPerChannelCollector
   conf.add_collector Telemetry::LanguagesPerProjectCollector
+  conf.add_collector Telemetry::ProjectCountCollector
   conf.add_collector Telemetry::StepsPerCallFlowCollector
 
 end
