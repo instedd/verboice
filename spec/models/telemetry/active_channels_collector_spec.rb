@@ -11,6 +11,7 @@ describe Telemetry::ActiveChannelsCollector do
     channel_2 = Channels::SipServer.make created_at: to - 30.days
     channel_3 = Channels::CustomSip.make created_at: to + 1.day
     channel_4 = Channels::Twilio.make created_at: to - 5.days
+    channel_5 = Channels::Twilio.make created_at: to - 15.days
 
     CallLog.make channel: channel_1, state: 'completed'
 
@@ -22,14 +23,24 @@ describe Telemetry::ActiveChannelsCollector do
 
     CallLog.make channel: channel_4, state: 'failed'
 
-    stats = Telemetry::ActiveChannelsCollector.collect_stats period
+    CallLog.make channel: channel_5, state: 'failed'
+    CallLog.make channel: channel_5, state: 'completed'
 
-    stats.should eq({
-      counters: [{
-        metric: 'active_channels',
-        key: {},
-        value: 2
-      }]
+    stats = Telemetry::ActiveChannelsCollector.collect_stats period
+    counters = stats[:counters]
+
+    counters.size.should eq(2)
+
+    counters.should include({
+      metric: 'active_channels',
+      key: {type: 'twilio'},
+      value: 2
+    })
+
+    counters.should include({
+      metric: 'active_channels',
+      key: {type: 'sip_server'},
+      value: 1
     })
   end
 

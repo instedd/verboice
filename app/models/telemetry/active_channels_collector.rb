@@ -1,11 +1,9 @@
 module Telemetry::ActiveChannelsCollector
-  extend InsteddTelemetry::StatCollectors::Utils
-
   def self.collect_stats(period)
     period_end = ActiveRecord::Base.sanitize(period.end)
 
-    result = ActiveRecord::Base.connection.execute <<-SQL
-      SELECT count(*)
+    results = ActiveRecord::Base.connection.execute <<-SQL
+      SELECT channels.type, count(*)
       FROM channels
       WHERE channels.created_at < #{period_end}
       AND EXISTS (
@@ -15,10 +13,18 @@ module Telemetry::ActiveChannelsCollector
         AND call_logs.state = 'completed'
         LIMIT 1
       )
+      GROUP BY channels.type
     SQL
 
-    count = result.first.first
+    counters = results.map do |type, count|
+      type = type.split('::').last.underscore
+      {
+        metric: 'active_channels',
+        key: {type: type},
+        value: count
+      }
+    end
 
-    simple_counter('active_channels', {}, count)
+    {counters: counters}
   end
 end
