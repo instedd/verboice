@@ -6,6 +6,7 @@ module Telemetry::CallsPerDayPerChannelCollector
                    .where('state != "queued"')
                    .where('started_at IS NOT NULL')
                    .where('channel_id IS NOT NULL')
+                   .where('created_at >= ?', period.beginning)
                    .where('created_at < ?', period.end)
                    .group(['DATE(started_at)', 'channel_id', 'state'])
                    .to_sql
