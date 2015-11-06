@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Telemetry::CallFlowsPerProjectCollector do
 
-  it "builds counts of current call flows per project" do    
+  it "builds counts of current call flows per project" do
     d0 = DateTime.new(2011,1,1,8,0,0)
     d1 = d0 + InsteddTelemetry::Period.span
     d2 = d1 + InsteddTelemetry::Period.span
@@ -35,6 +35,36 @@ describe Telemetry::CallFlowsPerProjectCollector do
           "value" => 30
         }
       ]
+    })
+  end
+
+  it "projects with 0 call flows" do
+    period = InsteddTelemetry::Period.current
+
+    project_1 = Project.make created_at: period.end - 5.days
+    project_2 = Project.make created_at: period.end - 1.day
+    project_3 = Project.make created_at: period.end + 1.day
+
+    CallFlow.make project: project_2, created_at: period.end + 1.day
+    CallFlow.make project: project_3, created_at: period.end + 3.days
+
+    counters = stats(period)['counters']
+
+    counters.size.should eq(2)
+
+    project_1_stat = counters.find{|x| x['key']['project_id'] == project_1.id}
+    project_2_stat = counters.find{|x| x['key']['project_id'] == project_2.id}
+
+    project_1_stat.should eq({
+      "metric"  => "call_flows",
+      "key"   => {"project_id" => project_1.id},
+      "value" => 0
+    })
+
+    project_2_stat.should eq({
+      "metric"  => "call_flows",
+      "key"   => {"project_id" => project_2.id},
+      "value" => 0
     })
   end
 
