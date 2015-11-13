@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150918131111) do
+ActiveRecord::Schema.define(:version => 20151113155648) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -283,7 +283,6 @@ ActiveRecord::Schema.define(:version => 20150918131111) do
   add_index "instedd_telemetry_settings", ["key"], :name => "index_instedd_telemetry_settings_on_key", :unique => true
 
   create_table "instedd_telemetry_timespans", :force => true do |t|
-    t.integer  "period_id"
     t.string   "bucket"
     t.text     "key_attributes"
     t.datetime "since"
