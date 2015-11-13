@@ -6,15 +6,15 @@ describe Telemetry::ProjectCountCollector do
     d0 = DateTime.new(2011,1,1,8,0,0)
     d1 = d0 + InsteddTelemetry::Period.span
     d2 = d1 + InsteddTelemetry::Period.span
+
     Timecop.freeze(d0)
-    
     10.times { Project.make }
-    
-    Timecop.travel(d1)
+
+    Timecop.freeze(d1)
     20.times { Project.make }
     period  = InsteddTelemetry.current_period
 
-    Timecop.travel(d2)
+    Timecop.freeze(d2)
     Project.make
 
     stats(period).should eq({
