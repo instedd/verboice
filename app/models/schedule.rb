@@ -16,6 +16,8 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Schedule < ActiveRecord::Base
+  include Telemetry::ProjectTracking
+
   belongs_to :project
   has_many :queued_calls
   has_many :call_logs, :dependent => :nullify
@@ -32,7 +34,7 @@ class Schedule < ActiveRecord::Base
   validate :time_from_is_before_time_to
 
   before_destroy :cancel_calls_and_destroy_queued_calls
-
+  
   broker_cached
 
   def time_from_is_before_time_to
@@ -185,4 +187,5 @@ class Schedule < ActiveRecord::Base
       nil
     end
   end
+
 end

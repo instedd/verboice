@@ -34,6 +34,7 @@ gem 'omniauth'
 gem 'omniauth-openid'
 gem 'recurring_select', git: "https://github.com/instedd/recurring_select", branch: 'instedd'
 gem 'listings'
+gem 'instedd_telemetry', git: "https://github.com/instedd/telemetry_rails", branch: 'master'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
@@ -61,9 +62,11 @@ group :development do
   gem 'rvm'
   gem 'rvm-capistrano', require: false
   gem 'licit'
+  gem 'thin'
 end
 
 group :test do
   gem 'webmock'
   gem 'fakefs', :require => 'fakefs/safe'
+  gem 'database_cleaner'
 end

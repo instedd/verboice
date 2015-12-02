@@ -16,6 +16,8 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class ExternalService < ActiveRecord::Base
+  include Telemetry::ProjectTracking
+
   belongs_to :project
   has_many :external_service_steps, :autosave => true, :dependent => :destroy
   has_many :call_flow_external_services, :dependent => :destroy

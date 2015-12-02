@@ -1,4 +1,6 @@
 class Feed < ActiveRecord::Base
+  include Telemetry::ProjectTracking
+
   attr_accessible :name, :key, :project
   belongs_to :project
   before_save :generate_key, unless: :key?
@@ -6,4 +8,5 @@ class Feed < ActiveRecord::Base
   def generate_key
     self.key = Guid.new.to_s
   end
+
 end

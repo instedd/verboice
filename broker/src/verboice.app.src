@@ -9,7 +9,8 @@
                   inets,
                   ssl,
                   lager,
-                  poirot
+                  poirot,
+                  telemetry
                  ]},
   {mod, { verboice_app, []}},
   {env, []}

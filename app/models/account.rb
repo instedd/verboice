@@ -43,6 +43,8 @@ class Account < ActiveRecord::Base
 
   has_one :google_oauth_token, :class_name => 'OAuthToken', :conditions => {:service => :google}, :dependent => :destroy
 
+  after_save :telemetry_track_activity
+
   def shared_projects
     ProjectPermission.where(account_id: id).includes(:project)
   end
@@ -104,5 +106,9 @@ class Account < ActiveRecord::Base
     else
       raise "Channel not found: #{options[:channel]}"
     end
+  end
+
+  def telemetry_track_activity
+    InsteddTelemetry.timespan_since_creation_update(:account_lifespan, {account_id: self.id}, self)
   end
 end

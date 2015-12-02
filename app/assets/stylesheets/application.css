@@ -6,5 +6,6 @@
  *= require pigeon
  *= require recurring_select
  *= require listings
+ *= require instedd_telemetry
  *= require_tree .
 */

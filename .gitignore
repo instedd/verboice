@@ -20,9 +20,13 @@ config/oauth.yml
 broker/deps
 broker/ebin
 broker/.eunit
+broker/.rebar
 broker/*.plt
 broker/rel/verboice
 config/nuntium.yml
 erl_crash.dump
 .vagrant
 admin/backups/verboice*
+
+*.sublime-project
+*.sublime-workspace
