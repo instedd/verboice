@@ -57,7 +57,7 @@ class CallLogsListing < Listings::Base
     render_time value
   end
   column 'Duration' do |log|
-    distance_of_time_in_words(log.finished_at, log.started_at, true) if log.finished_at
+    distance_of_time_in_words(log.finished_at, log.started_at, true) if log.finished_at && log.started_at
   end
   column :address, title: 'Caller ID', searchable: true do |_,value|
     if value.present? && format == :html
