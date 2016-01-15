@@ -40,8 +40,9 @@
 
   {poirot, [
     {source, <<"verboice-broker">>},
-    {sender, local},
-    {receiver, undefined}
+    {modules, [
+      zmq_receiver
+    ]}
   ]},
 
   {inets, [

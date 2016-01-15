@@ -108,7 +108,6 @@ Listen 8080"' >> /etc/apache2/ports.conf
     # Configuration for not using elasticsearch
     if [ "$1" != '1' ]; then
       cp broker/verboice.config.no-es broker/verboice.config
-      script/update_yml_config config/verboice.yml poirot_elasticsearch_url null
     fi
 
     # Configuration changes
