@@ -6,4 +6,3 @@ default_url_options:
   protocol: "http"
 default_mailer_options:
   from: "verboice@instedd.org"
-poirot_elasticsearch_url: http://localhost:9200

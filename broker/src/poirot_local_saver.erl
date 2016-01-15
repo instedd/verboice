@@ -7,7 +7,7 @@
 -include_lib("poirot/include/poirot.hrl").
 
 start() ->
-  gen_event:add_sup_handler(poirot_local, ?MODULE, []).
+  poirot_event:add_sup_handler(?MODULE, []).
 
 init(_) ->
   {ok, undefined}.
