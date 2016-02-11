@@ -62,7 +62,6 @@ handle_call(_Request, _From, State) ->
 handle_cast(connect, State = #state{connected = false}) ->
   case gen_tcp:connect("localhost", 5038, [binary, {packet, line}], 1000) of
     {ok, Sock} ->
-      ami_events:notify_event(connected),
       {noreply, #state{sock = Sock, connected = true, state = initial, reply_queue = queue:new()}};
     _ ->
       {ok, _} = timer:apply_after(1000, gen_server, cast, [?SERVER, connect]),
@@ -74,6 +73,7 @@ handle_cast(_Msg, State) ->
 
 %% @private
 handle_info({tcp, _, _}, State = #state{state = initial}) ->
+  ami_events:notify_event(connected),
   {noreply, State#state{state = waiting}};
 
 handle_info({tcp, _, <<"\r\n">>}, State = #state{state = receiving, reply_queue = Queue, packet = Packet}) ->
@@ -95,7 +95,7 @@ handle_info({tcp, _, Line}, State) ->
   handle_line(util:strip_nl(Line), State);
 
 handle_info({tcp_closed, _}, _State) ->
-  gen_server:cast(?SERVER, connect),
+  timer:apply_after(1000, gen_server, cast, [?SERVER, connect]),
   {noreply, #state{connected = false}};
 
 handle_info(_Info, State) ->
