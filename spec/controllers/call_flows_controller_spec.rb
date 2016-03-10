@@ -54,7 +54,7 @@ describe CallFlowsController do
       call_log5 = CallLog.make id: 5, address: 1000, call_flow: call_flow, channel: channel, direction: :incoming, started_at: Time.now, finished_at: Time.now
       call_log6 = CallLog.make id: 6, address: 1000, call_flow: call_flow, channel: channel, direction: :outgoing, started_at: Time.now, finished_at: Time.now
 
-      Hercule::Activity.stub(:search).and_return(hercule_activity_result [
+      make_call_log_entries([
         { 'call_log_id' => call_log3.id, 'step_id' => 1, 'step_result' => 'timeout' },
         { 'call_log_id' => call_log1.id, 'step_id' => 1, 'step_result' => 'pressed', 'step_data' => '2' },
         { 'call_log_id' => call_log2.id, 'step_id' => 1, 'step_result' => 'pressed', 'step_data' => '1' },
@@ -76,7 +76,7 @@ describe CallFlowsController do
       failed_call = CallLog.make id: 2, address: 1000, call_flow: call_flow, channel: channel, direction: :outgoing, started_at: Time.now, finished_at: Time.now, state: :failed
       completed_call = CallLog.make id: 3, address: 1000, call_flow: call_flow, channel: channel, direction: :incoming, started_at: Time.now, finished_at: Time.now, state: :completed
 
-      Hercule::Activity.stub(:search).and_return(hercule_activity_result [
+      make_call_log_entries([
         { 'call_log_id' => completed_call.id, 'step_id' => 1, 'step_result' => 'timeout' },
         { 'call_log_id' => active_call.id, 'step_id' => 1, 'step_result' => 'pressed', 'step_data' => '2' },
         { 'call_log_id' => failed_call.id, 'step_id' => 1, 'step_result' => 'pressed', 'step_data' => '1' },
@@ -193,15 +193,11 @@ describe CallFlowsController do
 
   private
 
-  def hercule_activity_result(activity_fields)
-    Hercule::Activity::Result.new({
-      'hits' => {
-        'total' => activity_fields.length,
-        'hits' => activity_fields.map do |fields|
-          { '_source' => { '@fields' => fields } }
-        end
-      }
-    })
+  def make_call_log_entries(entries)
+    entries.each do |entry|
+      activity = {body: {'@fields' => entry}}.to_json
+      CallLogEntry.make call_id: entry['call_log_id'], details: {activity: activity}
+    end
   end
 
 end
