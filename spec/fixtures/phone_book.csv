@@ -1,3 +1,3 @@
-Primary number,All Phone numbers,Language,First call,Last Call Timestamp,Last Call Callflow Name,Last Successful Call Timestamp,Last Successful Call CallFlow Name,Last Used Channel
-1234,1234;5678,es,2012-01-01 00:00:00 UTC,2013-01-01 00:00:00 UTC,Callflow 1,2012-01-01 00:00:00 UTC,Callflow 1,Channel 1
-0123,0123,"",2013-01-01 00:00:00 UTC,2014-01-01 00:00:00 UTC,Callflow 1,"","",Channel 1
+Primary number,All Phone numbers,Language,First call,Last Call Timestamp,Last Call Callflow Name,Last Successful Call Timestamp,Last Successful Call CallFlow Name,Last Used Channel,sms_number,ProjectVar
+1234,1234;5678,es,2012-01-01 00:00:00 UTC,2013-01-01 00:00:00 UTC,Callflow 1,2012-01-01 00:00:00 UTC,Callflow 1,Channel 1,"",""
+0123,0123,"",2013-01-01 00:00:00 UTC,2014-01-01 00:00:00 UTC,Callflow 1,"","",Channel 1,"",vartest

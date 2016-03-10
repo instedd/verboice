@@ -1,5 +1,13 @@
 header = ['Primary number', 'All Phone numbers', 'Language', 'First call', 'Last Call Timestamp', 'Last Call Callflow Name', 'Last Successful Call Timestamp', 'Last Successful Call CallFlow Name', 'Last Used Channel']
 
+# Language implicit variable is stored in a separate column
+other_implicit_vars = @implicit_variables.reject do |var|
+  var.key == ImplicitVariables::Language.key
+end
+
+header += other_implicit_vars.map(&:key)
+header += @project_variables.map(&:name)
+
 csv << header
 
 @stats.each do |contact_stats|
@@ -16,5 +24,18 @@ csv << header
   line << contact_stats.last_successful_call
   line << contact_stats.last_successful_call_flow_name
   line << contact_stats.last_used_channel
+
+  other_implicit_vars.each do |implicit_var|
+    line << contact_stats.contact.persisted_variables.detect do |var|
+      var.implicit_key == implicit_var.key
+    end.try(:value)
+  end
+
+  @project_variables.each do |project_var|
+    line << contact_stats.contact.persisted_variables.detect do |var|
+      var.project_variable == project_var
+    end.try(:value)
+  end
+
   csv << line
 end
