@@ -20,13 +20,13 @@ originate(Parameters) ->
   send_command("Originate", Parameters).
 
 sip_reload() ->
-  send_command("Command", [{command, "sip reload"}]).
+  send_command("Command", [{command, "pjsip reload"}]).
 
 sip_show_registry() ->
-  send_command("sipshowregistry", []).
+  send_command("PJSIPShowRegistrationsOutbound", []).
 
 sip_peers() ->
-  send_command("sippeers", []).
+  send_command("PJSIPShowEndpoints", []).
 
 send_command(Action, Parameters) ->
   gen_server:call(?SERVER, {send_command, Action, Parameters}).

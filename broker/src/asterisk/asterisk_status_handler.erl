@@ -14,6 +14,31 @@ init(RegistryIndex) ->
     _ -> {ok, #state{registry = RegistryIndex, status = dict:new()}}
   end.
 
+handle_event({outboundregistrationdetail, Packet}, State = #state{status = Status}) ->
+  Event = ami_client:decode_packet(Packet),
+  ObjectName = proplists:get_value(objectname, Event),
+  EntryState = proplists:get_value(status, Event),
+  Host = proplists:get_value(serveruri, Event),
+
+  NewStatus = case re:run(ObjectName, "^verboice_(\\d+)$", [{capture, all_but_first, binary}]) of
+    nomatch -> Status;
+    {match, [ChannelIdBin]} ->
+      ChannelId = binary_to_integer(ChannelIdBin),
+      Status2 = {_, _, Messages} = case dict:find(ChannelId, Status) of
+        error -> {ChannelId, true, []};
+        {ok, S} -> S
+      end,
+      ChannelStatus = case EntryState of
+        <<"Registered">> -> Status2;
+        _ ->
+          Message = iolist_to_binary(["Host ", Host, ", status: ", EntryState]),
+          {ChannelId, false, [Message | Messages]}
+      end,
+      dict:store(ChannelId, ChannelStatus, Status)
+  end,
+
+  {ok, State#state{status = NewStatus}};
+
 handle_event({registryentry, Packet}, State = #state{registry = Registry, status = Status}) ->
   Event = ami_client:decode_packet(Packet),
   Username = binary_to_list(proplists:get_value(username, Event)),
@@ -37,35 +62,9 @@ handle_event({registryentry, Packet}, State = #state{registry = Registry, status
   end,
   {ok, State#state{status = NewStatus}};
 
-handle_event({registrationscomplete, _}, State) ->
-  ami_client:sip_peers(),
-  {ok, State};
-
-handle_event({peerentry, Packet}, State) ->
-  Event = ami_client:decode_packet(Packet),
-  case proplists:get_value(dynamic, Event) of
-    <<"yes">> ->
-      case proplists:get_value(objectname, Event) of
-        <<"verboice_", PeerName/binary>> ->
-          case string:to_integer(binary_to_list(PeerName)) of
-            {error, _} -> ok;
-            {ChannelId, _} ->
-              case proplists:get_value(ipaddress, Event) of
-                IP when is_binary(IP) ->
-                  asterisk_channel_srv:register_channel(ChannelId, binary_to_list(IP));
-                _ -> ok
-              end
-          end;
-        _ -> ok
-      end;
-    _ -> ok
-  end,
-  {ok, State};
-
-handle_event({peerlistcomplete, _}, #state{status = Status}) ->
+handle_event({outboundregistrationdetailcomplete, _}, #state{status = Status}) ->
   asterisk_channel_srv:set_channel_status(Status),
   remove_handler;
-
 
 handle_event(_Event, State) ->
   {ok, State}.
