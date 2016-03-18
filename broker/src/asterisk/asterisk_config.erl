@@ -130,28 +130,22 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
       file:write(ConfigFile, ["[", Section, "]\n"]),
       file:write(ConfigFile, "type=identify\n"),
       file:write(ConfigFile, ["endpoint=", Section, "\n"]),
-      file:write(ConfigFile, ["match=", Domain, "\n"]),
-      file:write(ConfigFile, "\n"),
 
       {Expanded, NewCache} = expand_domain(Domain, ResolvCache),
       {NewChannelIndex, _} = lists:foldl(fun ({_Host, IPs, Port}, {R1, I}) ->
-        % file:write(ConfigFile, ["[", Section, "-inbound-", integer_to_list(I), "](", Section, ")\n"]),
-        % file:write(ConfigFile, ["host=", Host, "\n"]),
         case Port of
           undefined -> ok;
           _ -> ok
             % file:write(ConfigFile, ["port=", integer_to_list(Port), "\n"])
         end,
-        % file:write(ConfigFile, ["domain=", Host, "\n"]),
-        % file:write(ConfigFile, ["fromdomain=", Host, "\n"]),
-        % file:write(ConfigFile, "type=user\n"),
-        % file:write(ConfigFile, "\n"),
 
         R3 = lists:foldl(fun (IP, R2) ->
+          file:write(ConfigFile, ["match=", IP, "\n"]),
           dict:append({util:to_string(IP), Number}, Channel#channel.id, R2)
         end, R1, IPs),
         {R3, I + 1}
       end, {ChannelIndex, 0}, Expanded),
+      file:write(ConfigFile, "\n"),
 
       generate_config(Rest, ConfigFile, NewCache, NewChannelIndex, NewRegistryIndex)
   end.
