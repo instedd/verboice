@@ -34,8 +34,12 @@ handle_event({new_session, Pid, Env}, State) ->
 
         _ ->
           % Incoming call, find called channel
-          {ok, PeerIp} = agi_session:get_variable(Pid, "CHANNEL(peerip)"),
-          SipTo = binary_to_list(proplists:get_value(dnid, Env)),
+          {ok, RemoteAddr} = agi_session:get_variable(Pid, "CHANNEL(pjsip,remote_addr)"),
+          [PeerIp | _] = string:tokens(RemoteAddr, [$:]),
+
+          {ok, SipToHeader} = agi_session:get_variable(Pid, "PJSIP_HEADER(read,To)"),
+          SipTo = parse_sip_address(SipToHeader),
+          % SipTo = binary_to_list(proplists:get_value(extension, Env)),
           AsteriskChannelId = proplists:get_value(channel, Env),
           case asterisk_channel_srv:find_channel(PeerIp, SipTo) of
             not_found ->
@@ -80,3 +84,9 @@ terminate(_Reason, _State) ->
 %% @private
 code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
+
+parse_sip_address(SipAddr) ->
+  case re:run(SipAddr, "^<sip:(.*)@.*>$", [{capture, all_but_first, list}]) of
+    {match, [SipTo]} -> SipTo;
+    _ -> ""
+  end.
