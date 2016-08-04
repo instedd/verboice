@@ -13,3 +13,27 @@ Getting Started
 [What's coming next?](https://github.com/instedd/verboice/milestones)
 
 [Installing your own server](https://github.com/instedd/verboice/wiki/Installing)
+
+Development
+===========
+
+Docker development
+------------------
+
+`docker-compose.yml` file build a development environment mounting the current folder and running rails in development environment.
+
+Run the following commands to have a stable development environment.
+
+```
+$ docker-compose run --rm --no-deps web bundle install
+$ docker-compose up -d db
+$ docker-compose run --rm web rake db:setup
+$ docker-compose up
+```
+
+To setup and run test, once the web container is running:
+
+```
+$ docker-compose exec web bash
+root@web_1 $ rake
+```

@@ -1,0 +1,35 @@
+version: '2.0'
+
+services:
+  db:
+    image: mysql:5.6
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - db:/var/lib/mysql
+
+  web: &rails
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    environment:
+      RAILS_ENV:
+      DATABASE_HOST: db
+    pid: host
+    volumes:
+      - .:/app
+      - bundle:/usr/local/bundle
+    depends_on:
+      - db
+    command: '' # rails server
+    ports:
+      - 3000:3000
+
+  # Missing images:
+  # broker: make -C broker run
+  #         `make -C broker deps` and `make -C broker eunit` should be added to readme
+  # delayed: bundle exec rake jobs:work
+
+volumes:
+  db:
+  bundle:
