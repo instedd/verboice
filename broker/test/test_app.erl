@@ -8,7 +8,7 @@ start() ->
     {description, ""},
     {vsn, "1"},
     {registered, []},
-    {applications, [kernel, stdlib, inets]},
+    {applications, [kernel, stdlib, inets, ssl, poirot]},
     {mod, { verboice_app, []}},
     {env, [
       {db_name, "verboice_test"},
@@ -22,9 +22,7 @@ start() ->
     ]}
   ]}),
 
-  inets:start(),
-  ssl:start(),
-  ok = application:start(verboice),
+  {ok, _} = application:ensure_all_started(verboice),
   file:set_cwd(Cwd).
 
 stop(_) ->

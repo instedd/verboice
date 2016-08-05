@@ -40,6 +40,8 @@ describe ContactsController do
   describe "GET index CSV" do
     let!(:project_csv) { @account.projects.make }
 
+    let!(:project_variable) { project_csv.project_variables.make name: 'ProjectVar' }
+
     let!(:call_flow) { project_csv.call_flows.make name: "Callflow 1" }
 
     let!(:channel) { Channels::Custom.make call_flow: call_flow, name: "Channel 1" }
@@ -49,6 +51,8 @@ describe ContactsController do
     let!(:contact2) { Contact.make :project => project_csv, addresses_attributes: [{address: '0123'}] }
 
     let!(:contact1_lang) { contact1.persisted_variables.make implicit_key: 'language', value: 'es' }
+
+    let!(:contact2_var) { contact2.persisted_variables.make project_variable: project_variable, value: 'vartest' }
 
     def called(address, date, options)
       Timecop.freeze date

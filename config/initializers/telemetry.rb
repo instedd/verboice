@@ -17,5 +17,6 @@ InsteddTelemetry.setup do |conf|
   conf.add_collector Telemetry::ProjectCountCollector
   conf.add_collector Telemetry::StepsPerCallFlowCollector
   conf.add_collector Telemetry::ActiveChannelsCollector
+  conf.add_collector Telemetry::AccountsCollector
 
 end
