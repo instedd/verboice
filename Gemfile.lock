@@ -69,8 +69,8 @@ GIT
 
 GIT
   remote: https://github.com/instedd/telemetry_rails
-  revision: b361d4cf3167a7184f77c678d77c517f5680f032
-  branch: master
+  revision: db0ef5c0e72b8a944befb7b9b88beedb876b296c
+  ref: db0ef5c0e72b8a944befb7b9b88beedb876b296c
   specs:
     instedd_telemetry (0.0.1)
       global_phone
@@ -440,3 +440,6 @@ DEPENDENCIES
   timecop
   uglifier (>= 1.0.3)
   webmock
+
+BUNDLED WITH
+   1.10.6
