@@ -1,6 +1,7 @@
 development:
   adapter: mysql2
   encoding: utf8
+  host: <%= ENV["DATABASE_HOST"] %>
   database: verboice_development
   pool: 5
   username: root
@@ -13,6 +14,7 @@ development:
 test:
   adapter: mysql2
   encoding: utf8
+  host: <%= ENV["DATABASE_HOST"] %>
   database: verboice_test
   pool: 5
   username: root

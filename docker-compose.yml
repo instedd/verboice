@@ -1,0 +1,29 @@
+version: '2.0'
+
+services:
+  db:
+    image: mysql:5.6
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - db:/var/lib/mysql
+
+  web: &rails
+    build: .
+    environment:
+      RAILS_ENV:
+      DATABASE_HOST: 'db'
+    pid: host
+    volumes:
+      - .:/app
+      - bundle:/usr/local/bundle
+    tmpfs: /app/tmp
+    depends_on:
+      - db
+    command: rails server -b 0.0.0.0 -p 80
+    ports:
+      - 3001:80
+
+volumes:
+  db:
+  bundle:

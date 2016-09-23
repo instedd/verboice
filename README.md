@@ -13,3 +13,19 @@ Getting Started
 [What's coming next?](https://github.com/instedd/verboice/milestones)
 
 [Installing your own server](https://github.com/instedd/verboice/wiki/Installing)
+
+Docker development
+------------------
+
+IMPORTANT: as of Sep 23rd, 2016, only Verboice's web app and DB components are dockerised. This is mainly useful to test interactions with other InSTEDD platform components that DON'T involve actually making or receiving calls (for example: managing channels with the help of Guisso and Pigeon).
+
+`docker-compose.yml` file build a development environment mounting the current folder and running rails in development environment.
+
+Run the following commands to have a stable development environment.
+
+```
+$ docker-compose run --rm --no-deps web bundle install
+$ docker-compose run --rm web bash
+root@web_1 $ rake db:setup db:seed
+$ docker-compose up
+```
