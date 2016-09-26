@@ -130,7 +130,7 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
         contact_id = Contact#contact.id
       }),
       Flow = call_flow:flow(CallFlow),
-      {StatusUrl, StatusUser, StatusPass} = project:status_callback(Project),
+      {StatusUrl, StatusUser, StatusPass, StatusIncludeVars} = project:status_callback(Project),
 
       #session{
         session_id = SessionId,
@@ -143,6 +143,7 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
         address = CallerId,
         contact = Contact,
         status_callback_url = StatusUrl,
+        status_callback_include_vars = StatusIncludeVars,
         status_callback_user = StatusUser,
         status_callback_password = StatusPass,
         started_at = StartedAt
@@ -269,6 +270,7 @@ in_progress({hibernate, NewSession, Ptr}, _From, State = #state{session = _Sessi
     contact_id = NewSession#session.contact#contact.id,
     default_language = NewSession#session.default_language,
     status_callback_url = NewSession#session.status_callback_url,
+    status_callback_include_vars = NewSession#session.status_callback_include_vars,
     status_callback_user = NewSession#session.status_callback_user,
     status_callback_password = NewSession#session.status_callback_password,
     resume_ptr = Ptr,

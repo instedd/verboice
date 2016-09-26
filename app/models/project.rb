@@ -43,7 +43,7 @@ class Project < ActiveRecord::Base
     :reject_if => lambda { |attributes| attributes[:name].blank?},
     :allow_destroy => true
 
-  attr_accessible :name, :account, :status_callback_url, :status_callback_url_user, :status_callback_url_password, :time_zone, :project_variables_attributes, :languages, :default_language
+  attr_accessible :name, :account, :status_callback_url, :status_callback_include_vars, :status_callback_url_user, :status_callback_url_password, :time_zone, :project_variables_attributes, :languages, :default_language
   attr_accessible :tts_engine, :tts_ispeech_api_key
 
   validates_presence_of :name

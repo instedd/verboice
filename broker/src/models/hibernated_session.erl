@@ -19,6 +19,7 @@ wake_up(HibernatedSession = #hibernated_session{session_id = SessionId, data = #
     contact_id = ContactId,
     default_language = DefaultLanguage,
     status_callback_url = StatusCallbackUrl,
+    status_callback_include_vars = StatusCallbackIncludeVars,
     status_callback_user = StatusCallbackUser,
     status_callback_password = StatusCallbackPassword
   }}) ->
@@ -35,9 +36,9 @@ wake_up(HibernatedSession = #hibernated_session{session_id = SessionId, data = #
     contact = contact:find(ContactId),
     default_language = DefaultLanguage,
     status_callback_url = StatusCallbackUrl,
+    status_callback_include_vars = StatusCallbackIncludeVars,
     status_callback_user = StatusCallbackUser,
     status_callback_password = StatusCallbackPassword
   },
   HibernatedSession:delete(),
   Session.
-

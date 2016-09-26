@@ -11,7 +11,7 @@
 -record(localized_resource, {id, language, text, recorded_audio, uploaded_audio, url, type, guid, resource_id, extras, created_at, updated_at}).
 -record(persisted_variable, {id, contact_id, implicit_key, project_variable_id, value, created_at, updated_at}).
 -record(pbx_log, {id, guid, details, created_at, updated_at}).
--record(project, {id, account_id, name, status_callback_url, default_language, languages, encrypted_config, created_at, updated_at}).
+-record(project, {id, account_id, name, status_callback_url, status_callback_include_vars, default_language, languages, encrypted_config, created_at, updated_at}).
 -record(project_variable, {id, project_id, name, created_at, updated_at}).
 -record(queued_call, {id, channel_id, call_log_id, address, callback_url, flow, call_flow_id, status_callback_url, schedule_id, not_before, not_after, retries, project_id, time_zone, variables, session_id, callback_params, contact_id, scheduled_call_id, created_at, updated_at}).
 -record(recorded_audio, {id, project_id, contact_id, call_log_id, key, description, created_at, updated_at}).
