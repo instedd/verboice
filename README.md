@@ -29,3 +29,10 @@ $ docker-compose run --rm web bash
 root@web_1 $ rake db:setup db:seed
 $ docker-compose up
 ```
+
+You can also run the frontend unit tests inside the docker container. Here's how:
+
+```
+$ docker-compose run --rm web rake db:test:prepare
+$ docker-compose run --rm web rspec
+```
