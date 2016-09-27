@@ -230,3 +230,19 @@ Feed.blueprint do
   name
   project
 end
+
+class Resource
+  def self.make_with_text(params)
+    text = params.delete(:text) || Faker::Lorem.sentence
+    Resource.make(params).tap do |resource|
+      TextLocalizedResource.make(text: text, resource: resource)
+    end
+  end
+
+  def self.make_with_recording(params)
+    file = params.delete(:file)
+    Resource.make(params).tap do |resource|
+      RecordLocalizedResource.make(recorded_audio: File.read(file), resource: resource)
+    end
+  end
+end

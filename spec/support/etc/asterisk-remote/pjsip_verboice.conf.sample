@@ -1,0 +1,120 @@
+; #channel{id = 3,account_id = 1,call_flow_id = 9,name = <<"Local VoiceBlue">>,
+;          config = [{"limit","1"},
+;                    {"direction","both"},
+;                    {"number","1234"},
+;                    {"password",[]},
+;                    {"register","0"},
+;                    {"domain","192.168.1.2"},
+;                    {"username",[]}],
+;          type = <<"Channels::CustomSip">>,
+;          created_at = {datetime,{{2015,7,21},{22,44,6}}},
+;          updated_at = {datetime,{{2015,9,3},{17,31,30}}}}
+
+[verboice_3]
+type=endpoint
+context=verboice
+aors=verboice_3
+from_user=1234
+from_domain=192.168.1.2
+disallow=all
+allow=ulaw
+allow=gsm
+
+[verboice_3]
+type=aor
+qualify_frequency=60
+contact=sip:192.168.1.2
+
+[verboice_3]
+type=identify
+endpoint=verboice_3
+match=192.168.1.2
+
+; #channel{id = 7,account_id = 1,call_flow_id = 1,name = <<"Callcentric 102">>,
+;          config = [{"limit","1"},
+;                    {"number","17772941385102"},
+;                    {"password","Manas.03"},
+;                    {"kind","Callcentric"},
+;                    {"username","17772941385102"}],
+;          type = <<"Channels::TemplateBasedSip">>,
+;          created_at = {datetime,{{2015,8,27},{17,36,8}}},
+;          updated_at = {datetime,{{2016,9,27},{14,48,36}}}}
+
+[verboice_7]
+type=registration
+outbound_auth=verboice_7
+server_uri=sip:callcentric.com
+client_uri=sip:17772941385102@callcentric.com
+
+[verboice_7]
+type=endpoint
+context=verboice
+aors=verboice_7
+outbound_auth=verboice_7
+from_user=17772941385102
+from_domain=callcentric.com
+disallow=all
+allow=ulaw
+allow=gsm
+
+[verboice_7]
+type=auth
+auth_type=userpass
+username=17772941385102
+password=Manas.03
+
+[verboice_7]
+type=aor
+qualify_frequency=60
+contact=sip:callcentric.com
+
+[verboice_7]
+type=identify
+endpoint=verboice_7
+match=204.11.192.161
+match=204.11.192.39
+match=204.11.192.22
+match=204.11.192.171
+match=204.11.192.170
+match=204.11.192.169
+match=204.11.192.163
+
+; #channel{id = 8,account_id = 1,call_flow_id = undefined,name = <<"Wrong">>,
+;          config = [{"limit","1"},
+;                    {"direction","both"},
+;                    {"number","1234"},
+;                    {"password","bar"},
+;                    {"register","0"},
+;                    {"domain","example.com"},
+;                    {"username","foo"}],
+;          type = <<"Channels::CustomSip">>,
+;          created_at = {datetime,{{2015,8,27},{17,41,57}}},
+;          updated_at = {datetime,{{2016,9,27},{14,44,0}}}}
+
+[verboice_8]
+type=endpoint
+context=verboice
+aors=verboice_8
+outbound_auth=verboice_8
+from_user=1234
+from_domain=example.com
+disallow=all
+allow=ulaw
+allow=gsm
+
+[verboice_8]
+type=auth
+auth_type=userpass
+username=foo
+password=bar
+
+[verboice_8]
+type=aor
+qualify_frequency=60
+contact=sip:example.com
+
+[verboice_8]
+type=identify
+endpoint=verboice_8
+match=93.184.216.34
+

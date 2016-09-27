@@ -1,0 +1,33 @@
+[verboice]
+type=registration
+outbound_auth=verboice
+server_uri=sip:172.28.128.10
+client_uri=sip:verboice_<%= channel_id %>@172.28.128.10
+retry_interval=10
+
+[verboice]
+type=endpoint
+context=verboice
+aors=verboice
+outbound_auth=verboice
+from_user=verboice_<%= channel_id %>
+from_domain=172.28.128.10
+disallow=all
+allow=ulaw
+allow=gsm
+
+[verboice]
+type=auth
+auth_type=userpass
+username=verboice_<%= channel_id %>
+password=1234
+
+[verboice]
+type=aor
+qualify_frequency=60
+contact=sip:172.28.128.10:5060
+
+[verboice]
+type=identify
+endpoint=verboice
+match=172.28.128.10

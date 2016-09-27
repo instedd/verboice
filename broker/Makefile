@@ -48,6 +48,14 @@ run:
 run-prod:
 	$(APP_CMD) -noinput +Bd
 
+run-integration:
+	$(APP_CMD) -noinput \
+		-verboice record_dir \""$(INTEGRATION_DIR)/asterisk-recordings\"" \
+		-verboice asterisk_record_dir \""/var/lib/asterisk/recordings\"" \
+		-verboice asterisk_config_dir \""$(INTEGRATION_DIR)/asterisk-verboice\"" \
+		-verboice asterisk_sounds_dir \""$(INTEGRATION_DIR)/asterisk-sounds\"" \
+		-verboice db_name \""verboice_test\""
+
 remsh:
 	erl -remsh verboice_broker@localhost -sname remsh +Bd
 
