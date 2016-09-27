@@ -55,6 +55,8 @@ RSpec.configure do |config|
   # rspec-rails.
   config.infer_base_class_for_anonymous_controllers = false
 
+  config.include AsteriskCall, integration: true
+
   config.before(:each) do
     Timecop.return
   end
