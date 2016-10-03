@@ -125,11 +125,11 @@ module AsteriskCall
   end
 
   def assert_dtmf(file, digit_or_digits)
-    source_path = File.join(Rails.root, "spec/support/etc/asterisk-sounds", "#{file}.au")
-    file_path = File.join(Rails.root, "spec/support/etc/asterisk-sounds", "#{file}-processed.au")
+    source_path = File.join(Rails.root, "spec/support/etc/", file)
+    file_path = File.join(Rails.root, "spec/support/etc/", file.gsub(/\.\w+$/, "-processed.au"))
     detector_path = File.join(Rails.root, "spec/support/bin/detect-dtmf-au")
     Rails.logger.info `ffmpeg -y -i #{source_path} -map_metadata 0 -ar 8000 -acodec pcm_s8 #{file_path} 2>&1`
-    detection = `#{detector_path} #{file_path}`
+    detection = `#{detector_path} #{file_path} 2>&1`
     found = detection.scan(/`(\d)'/).flatten.uniq
     expected = Array.wrap(digit_or_digits).map(&:to_s)
     found.should eq(expected)
@@ -158,6 +158,16 @@ module AsteriskCall
     def record_call(file, timeout = 20000)
       @socket.puts "RECORD FILE \"#{file}\" au \"#\" 10000"
       Rails.logger.debug "RECORDING: #{@socket.gets}"
+    end
+
+    def play_file(file)
+      @socket.puts "STREAM FILE \"#{file}\" \"\""
+      Rails.logger.debug "STREAMING FILE: #{@socket.gets}"
+    end
+
+    def hangup
+      @socket.puts "HANGUP"
+      Rails.logger.debug "HANGUP: #{@socket.gets}"
     end
   end
 

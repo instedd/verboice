@@ -20,6 +20,7 @@ ERLANG_DIALYZER_APPS = asn1 \
                      xmerl
 
 APP_CMD =  erl -smp enable -pa ebin/ deps/*/ebin -boot start_sasl -s main -config verboice -sname verboice_broker@localhost
+INTEGRATION_DIR = $(PWD)/spec/support/etc
 
 all: compile
 

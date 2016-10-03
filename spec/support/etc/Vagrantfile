@@ -11,6 +11,7 @@ Vagrant.configure(2) do |config|
   config.vm.define "verboice" do |verboice|
     verboice.vm.synced_folder "./asterisk-verboice", "/etc/asterisk"
     verboice.vm.synced_folder "./asterisk-sounds", "/var/lib/asterisk/sounds"
+    verboice.vm.synced_folder "./asterisk-recordings", "/var/lib/asterisk/recordings"
     verboice.vm.network "private_network", ip: "172.28.128.10"
     verboice.vm.network "forwarded_port", guest: 5038, host: 5038
     verboice.vm.hostname = "verboice"
