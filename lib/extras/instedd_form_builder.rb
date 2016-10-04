@@ -35,7 +35,7 @@ class InsteddFormBuilder < ActionView::Helpers::FormBuilder
   end
 
   def self.helpers_that_mustnt_be_redefined
-    ['label', 'submit', 'hidden_field']
+    ['label', 'submit', 'hidden_field', 'check_box']
   end
 
   def self.define_field_helpers
