@@ -4,7 +4,7 @@
     %input{type: 'text', readonly: 'true', value: "verboice_#{@channel.id}"}
 .field
   = f.label :password
-  = f.password_field :password, :value => @channel.password, :autocomplete => 'off', readonly: readonly
+  = f.password_field :password, :value => @channel.password, :autocomplete => 'new-password', readonly: readonly
 .field
   = f.label :number
   = f.text_field :number, readonly: readonly
