@@ -284,12 +284,17 @@ notify_status(Status, Session) ->
   notify_status_to_callback_url(Status, Session),
   notify_status_to_hub(Status, Session).
 
-notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams, started_at = StartedAt}) ->
+notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams, started_at = StartedAt, js_context = JS}) ->
   case Session#session.status_callback_url of
     undefined -> ok;
     <<>> -> ok;
     Url ->
       CallSid = util:to_string(CallLog:id()),
+      SessionVars = case Session#session.status_callback_include_vars of
+        true -> session_vars(JS);
+        1 -> session_vars(JS);
+        _ -> []
+      end,
       spawn(fun() ->
         Uri = uri:parse(binary_to_list(Url)),
         Duration = case StartedAt of
@@ -299,7 +304,7 @@ notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, add
             Now = calendar:universal_time(),
             calendar:datetime_to_gregorian_seconds(Now) - StartedAtSeconds
         end,
-        QueryString = [{"CallSid", CallSid}, {"CallStatus", Status}, {"From", Address}, {"CallDuration", erlang:integer_to_list(Duration)} | CallbackParams],
+        QueryString = [{"CallSid", CallSid}, {"CallStatus", Status}, {"From", Address}, {"CallDuration", erlang:integer_to_list(Duration)} | (CallbackParams ++ SessionVars)],
         AuthOptions = case Session#session.status_callback_user of
           undefined -> [];
           [] -> [];
@@ -336,6 +341,8 @@ notify_status_to_hub(Status, Session = #session{call_log = CallLog, js_context =
        ok
   end.
 
+session_vars(undefined) ->
+  [];
 session_vars(JS) ->
   lists:foldl(fun({Name, Value}, Vars) ->
     case Name of
