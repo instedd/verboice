@@ -18,8 +18,12 @@
 class Account < ActiveRecord::Base
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable, :lockable and :timeoutable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable, :confirmable, :omniauthable
+  DEVISE_MODULES = [:database_authenticatable, :registerable,
+                    :recoverable, :rememberable, :trackable, :validatable, :omniauthable]
+  DEVISE_CONFIRMABLE = Rails.configuration.verboice_configuration[:skip_account_confirmation] \
+                        ? [] : [:confirmable]
+
+  devise *(DEVISE_MODULES + DEVISE_CONFIRMABLE)
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me
