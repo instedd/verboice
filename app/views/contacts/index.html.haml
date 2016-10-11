@@ -48,12 +48,14 @@
 .contacts-list
   #contactsFilter.filters-box.w30.tablewrapp
     .search
-      = form_tag search_project_contacts_path(@project), remote: true, method: 'GET' do
+      = form_tag search_project_contacts_path(@project), remote: true, method: 'GET', id: 'filters-form' do
         %p
           Filters
           %span{'data-bind' => 'text: countDescription'}
         %hr
         = hidden_field_tag :filters_json, params[:filters_json] || '[]', 'data-bind' => 'value: json', 'class' => 'filters'
+        - [:sort_key, :sort_type, :sort_dir].each do |key|
+          = hidden_field_tag key, params[key]
         = render 'shared/contacts_filter'
         %button.fsearch Search
 
