@@ -27,212 +27,303 @@ describe ContactsFinder do
     finder.find.should_not include(other_contact)
   end
 
-  it "should find contact by variable eq value" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+  context "filtering" do
 
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :eq, value: '17'}
-    ])
+    it "should find contact by variable eq value" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
 
-    contacts.size.should eq(1)
-    contacts.should include(contact_a)
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :eq, value: '17'}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_a)
+    end
+
+    it "should find contact by variable eq value" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :eq, value: '17'}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_a)
+    end
+
+    it "should find contact by multiple variable eq value" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+      PersistedVariable.make contact: contact_a, project_variable: sex, value: 'female'
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '17'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :eq, value: '17'},
+        {project_variable_id: sex.id, operator: :eq, value: 'female'}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_a)
+    end
+
+    it "should find contact by variable geq value" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :geq, value: '17'}
+      ])
+
+      contacts.size.should eq(2)
+      contacts.should include(contact_a)
+      contacts.should include(contact_b)
+    end
+
+    it "should find contact by variable gt value" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :gt, value: '17'}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_b)
+    end
+
+    it "should find contact by variable geq value using numeric ordering instead of lexicographic" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '27'
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '6'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :geq, value: '20'}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_a)
+    end
+
+    it "should find contact by variable leq value" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :leq, value: '23'}
+      ])
+
+      contacts.size.should eq(2)
+      contacts.should include(contact_a)
+      contacts.should include(contact_b)
+    end
+
+    it "should find contact by variable lt value" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :lt, value: '23'}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_a)
+    end
+
+    it "should find variable by defined" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :defined}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_a)
+    end
+
+    it "should find variable by undefined when variable is missing" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :undefined}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_b)
+    end
+
+    it "should find variable by undefined when variable is null" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+      PersistedVariable.make contact: contact_b, project_variable: age, value: nil
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :undefined}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_b)
+    end
+
+    it "should find contacts with undefined or blank variable when searching for blank value" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: ''
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :eq, value: ''}
+      ])
+
+      contacts.size.should eq(2)
+      contacts.should include(contact_a)
+      contacts.should include(contact_b)
+    end
+
+    it "should find variable by includes value" do
+      PersistedVariable.make contact: contact_a, project_variable: diseases, value: 'malaria h1n1 cholera'
+      PersistedVariable.make contact: contact_b, project_variable: diseases, value: 'malaria cholera'
+
+      contacts = finder.find([
+        {project_variable_id: diseases.id, operator: :includes, value: 'h1n1'}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_a)
+
+      contacts = finder.find([
+        {project_variable_id: diseases.id, operator: :includes, value: 'cholera'}
+      ])
+
+      contacts.size.should eq(2)
+      contacts.should include(contact_a)
+      contacts.should include(contact_b)
+    end
+
+    it "should find with implicit variables" do
+      PersistedVariable.make contact: contact_a, implicit_key: 'language', value: 'en'
+      PersistedVariable.make contact: contact_b, implicit_key: 'language', value: 'es'
+
+      contacts = finder.find([
+        {implicit_key: 'language', operator: :eq, value: 'es'}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_b)
+    end
+
+    it "should find with variable compared to variable" do
+      other = ProjectVariable.make name: 'other', project: project
+
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+      PersistedVariable.make contact: contact_a, project_variable: other, value: '20'
+
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
+      PersistedVariable.make contact: contact_b, project_variable: other, value: '20'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :geq, other_project_variable_id: other.id}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_b)
+    end
+
+    it "should find with variable compared to implicit variable" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+      PersistedVariable.make contact: contact_a, implicit_key: 'other', value: '20'
+
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
+      PersistedVariable.make contact: contact_b, implicit_key: 'other', value: '20'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :leq, other_implicit_key: 'other'}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_a)
+    end
+
   end
 
-  it "should find contact by variable eq value" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+  context "sorting" do
 
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :eq, value: '17'}
-    ])
+    let!(:contact_c) { Contact.make project: project }
+    let!(:contact_d) { Contact.make project: project }
 
-    contacts.size.should eq(1)
-    contacts.should include(contact_a)
-  end
+    it "should sort contacts by persisted variable" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '30'
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '10'
+      PersistedVariable.make contact: contact_c, project_variable: age, value: '20'
+      PersistedVariable.make contact: contact_d, project_variable: age, value: '15'
 
-  it "should find contact by multiple variable eq value" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
-    PersistedVariable.make contact: contact_a, project_variable: sex, value: 'female'
-    PersistedVariable.make contact: contact_b, project_variable: age, value: '17'
+      contacts = finder.find([], {sorting: {project_variable_id: age.id, direction: 'ASC'}})
+      contacts.map(&:id).should eq([contact_b, contact_d, contact_c, contact_a].map(&:id))
+    end
 
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :eq, value: '17'},
-      {project_variable_id: sex.id, operator: :eq, value: 'female'}
-    ])
+    it "should sort contacts by persisted variable including nulls" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '30'
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '10'
+      PersistedVariable.make contact: contact_c, project_variable: age, value: '20'
 
-    contacts.size.should eq(1)
-    contacts.should include(contact_a)
-  end
+      contacts = finder.find([], {sorting: {project_variable_id: age.id, direction: 'ASC'}})
+      contacts.map(&:id).should eq([contact_d, contact_b, contact_c, contact_a].map(&:id))
+    end
 
-  it "should find contact by variable geq value" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
-    PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
+    it "should sort contacts by persisted variable in descending order" do
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '30'
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '10'
+      PersistedVariable.make contact: contact_c, project_variable: age, value: '20'
+      PersistedVariable.make contact: contact_d, project_variable: age, value: '15'
 
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :geq, value: '17'}
-    ])
+      contacts = finder.find([], {sorting: {project_variable_id: age.id, direction: 'DESC'}})
+      contacts.map(&:id).should eq([contact_a, contact_c, contact_d, contact_b].map(&:id))
+    end
 
-    contacts.size.should eq(2)
-    contacts.should include(contact_a)
-    contacts.should include(contact_b)
-  end
+    it "should sort contacts by address" do
+      ContactAddress.delete_all
+      contact_a.addresses.create(project_id: project.id, address: '30')
+      contact_b.addresses.create(project_id: project.id, address: '10')
+      contact_c.addresses.create(project_id: project.id, address: '20')
+      contact_d.addresses.create(project_id: project.id, address: '15')
 
-  it "should find contact by variable gt value" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
-    PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
+      contacts = finder.find([], {sorting: {address: true, direction: 'ASC'}})
+      contacts.map(&:id).should eq([contact_b, contact_d, contact_c, contact_a].map(&:id))
+    end
 
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :gt, value: '17'}
-    ])
+    it "should sort contacts by address in descending order" do
+      ContactAddress.delete_all
+      contact_a.addresses.create(project_id: project.id, address: '30')
+      contact_b.addresses.create(project_id: project.id, address: '10')
+      contact_c.addresses.create(project_id: project.id, address: '20')
+      contact_d.addresses.create(project_id: project.id, address: '15')
 
-    contacts.size.should eq(1)
-    contacts.should include(contact_b)
-  end
+      contacts = finder.find([], {sorting: {address: true, direction: 'DESC'}})
+      contacts.map(&:id).should eq([contact_a, contact_c, contact_d, contact_b].map(&:id))
+    end
 
-  it "should find contact by variable geq value using numeric ordering instead of lexicographic" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '27'
-    PersistedVariable.make contact: contact_b, project_variable: age, value: '6'
+    it "should sort contacts by address handling multiple and no addresses using the first one" do
+      ContactAddress.delete_all
 
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :geq, value: '20'}
-    ])
+      contact_a.addresses.create(project_id: project.id, address: '30')
+      contact_a.addresses.create(project_id: project.id, address: '15')
 
-    contacts.size.should eq(1)
-    contacts.should include(contact_a)
-  end
+      contact_b.addresses.create(project_id: project.id, address: '10')
+      contact_b.addresses.create(project_id: project.id, address: '40')
 
-  it "should find contact by variable leq value" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
-    PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
+      contact_c.addresses.create(project_id: project.id, address: '20')
+      contact_c.addresses.create(project_id: project.id, address: '60')
 
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :leq, value: '23'}
-    ])
+      contacts = finder.find([], {sorting: {address: true, direction: 'ASC'}})
+      contacts.map(&:id).should eq([contact_d, contact_b, contact_c, contact_a].map(&:id))
+    end
 
-    contacts.size.should eq(2)
-    contacts.should include(contact_a)
-    contacts.should include(contact_b)
-  end
+    it "should sort contacts by implicit variable" do
+      # Ensure implicit vars are properly loaded
+      ImplicitVariables::SmsNumber; ImplicitVariables::Language
 
-  it "should find contact by variable lt value" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
-    PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
+      PersistedVariable.make contact: contact_a, implicit_key: 'language', value: 'it'
+      PersistedVariable.make contact: contact_b, implicit_key: 'language', value: 'en'
+      PersistedVariable.make contact: contact_c, implicit_key: 'language', value: 'es'
+      PersistedVariable.make contact: contact_d, implicit_key: 'sms_number', value: '15'
 
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :lt, value: '23'}
-    ])
+      contacts = finder.find([], {sorting: {implicit_key: 'language', direction: 'ASC'}})
+      contacts.map(&:id).should eq([contact_d, contact_b, contact_c, contact_a].map(&:id))
+    end
 
-    contacts.size.should eq(1)
-    contacts.should include(contact_a)
-  end
-
-  it "should find variable by defined" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
-
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :defined}
-    ])
-
-    contacts.size.should eq(1)
-    contacts.should include(contact_a)
-  end
-
-  it "should find variable by undefined when variable is missing" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
-
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :undefined}
-    ])
-
-    contacts.size.should eq(1)
-    contacts.should include(contact_b)
-  end
-
-  it "should find variable by undefined when variable is null" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
-    PersistedVariable.make contact: contact_b, project_variable: age, value: nil
-
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :undefined}
-    ])
-
-    contacts.size.should eq(1)
-    contacts.should include(contact_b)
-  end
-
-  it "should find contacts with undefined or blank variable when searching for blank value" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: ''
-
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :eq, value: ''}
-    ])
-
-    contacts.size.should eq(2)
-    contacts.should include(contact_a)
-    contacts.should include(contact_b)
-  end
-
-  it "should find variable by includes value" do
-    PersistedVariable.make contact: contact_a, project_variable: diseases, value: 'malaria h1n1 cholera'
-    PersistedVariable.make contact: contact_b, project_variable: diseases, value: 'malaria cholera'
-
-    contacts = finder.find([
-      {project_variable_id: diseases.id, operator: :includes, value: 'h1n1'}
-    ])
-
-    contacts.size.should eq(1)
-    contacts.should include(contact_a)
-
-    contacts = finder.find([
-      {project_variable_id: diseases.id, operator: :includes, value: 'cholera'}
-    ])
-
-    contacts.size.should eq(2)
-    contacts.should include(contact_a)
-    contacts.should include(contact_b)
-  end
-
-  it "should find with implicit variables" do
-    PersistedVariable.make contact: contact_a, implicit_key: 'language', value: 'en'
-    PersistedVariable.make contact: contact_b, implicit_key: 'language', value: 'es'
-
-    contacts = finder.find([
-      {implicit_key: 'language', operator: :eq, value: 'es'}
-    ])
-
-    contacts.size.should eq(1)
-    contacts.should include(contact_b)
-  end
-
-  it "should find with variable compared to variable" do
-    other = ProjectVariable.make name: 'other', project: project
-
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
-    PersistedVariable.make contact: contact_a, project_variable: other, value: '20'
-
-    PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
-    PersistedVariable.make contact: contact_b, project_variable: other, value: '20'
-
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :geq, other_project_variable_id: other.id}
-    ])
-
-    contacts.size.should eq(1)
-    contacts.should include(contact_b)
-  end
-
-  it "should find with variable compared to implicit variable" do
-    PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
-    PersistedVariable.make contact: contact_a, implicit_key: 'other', value: '20'
-
-    PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
-    PersistedVariable.make contact: contact_b, implicit_key: 'other', value: '20'
-
-    contacts = finder.find([
-      {project_variable_id: age.id, operator: :leq, other_implicit_key: 'other'}
-    ])
-
-    contacts.size.should eq(1)
-    contacts.should include(contact_a)
   end
 
 end
