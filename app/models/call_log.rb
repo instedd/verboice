@@ -84,6 +84,8 @@ class CallLog < ActiveRecord::Base
     self.finished_at = Time.now.utc
     self.save!
 
+    self.contact.update_column(:last_activity_at, self.finished_at) if self.contact && self.finished_at > self.contact.finished_at
+
     begin
       call_flow.try(:push_results, self) if call_flow && call_flow.store_in_fusion_tables
     rescue Exception => ex

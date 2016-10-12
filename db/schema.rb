@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160926180733) do
+ActiveRecord::Schema.define(:version => 20161012205827) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -153,10 +153,11 @@ ActiveRecord::Schema.define(:version => 20160926180733) do
   add_index "contact_scheduled_calls", ["scheduled_call_id"], :name => "index_contact_scheduled_calls_on_scheduled_call_id"
 
   create_table "contacts", :force => true do |t|
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
     t.boolean  "anonymous"
     t.integer  "project_id"
+    t.datetime "last_activity_at"
   end
 
   add_index "contacts", ["project_id"], :name => "index_contacts_on_project_id"
@@ -379,12 +380,12 @@ ActiveRecord::Schema.define(:version => 20160926180733) do
 
   create_table "projects", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at",                             :null => false
-    t.datetime "updated_at",                             :null => false
+    t.datetime "created_at",                                      :null => false
+    t.datetime "updated_at",                                      :null => false
     t.integer  "account_id"
     t.string   "status_callback_url"
     t.text     "encrypted_config"
-    t.string   "time_zone",           :default => "UTC"
+    t.string   "time_zone",                    :default => "UTC"
     t.text     "languages"
     t.string   "default_language"
     t.boolean  "status_callback_include_vars", :default => false

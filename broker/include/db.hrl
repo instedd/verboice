@@ -3,7 +3,7 @@
 -record(call_log, {id, account_id, project_id, finished_at, direction, address, state, created_at, updated_at, channel_id, started_at, schedule_id, not_before, call_flow_id, pbx_logs_guid, fail_reason, contact_id, fail_code, fail_details}).
 -record(call_log_entry, {id, call_id, severity, details, created_at, updated_at}).
 -record(channel, {id, account_id, call_flow_id, name, config, type, created_at, updated_at}).
--record(contact, {id, project_id, anonymous, created_at, updated_at}).
+-record(contact, {id, project_id, anonymous, created_at, updated_at, last_activity_at}).
 -record(contact_address, {id, address, contact_id, project_id, created_at, updated_at}).
 -record(delayed_job, {id, handler, run_at, created_at, updated_at}).
 -record(external_service, {id, project_id, guid, global_settings, created_at, updated_at}).
