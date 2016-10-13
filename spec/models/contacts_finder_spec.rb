@@ -237,6 +237,23 @@ describe ContactsFinder do
       contacts.should include(contact_a)
     end
 
+    it "should find with variable equal to variable" do
+      other = ProjectVariable.make name: 'other', project: project
+
+      PersistedVariable.make contact: contact_a, project_variable: age, value: '17'
+      PersistedVariable.make contact: contact_a, project_variable: other, value: '20'
+
+      PersistedVariable.make contact: contact_b, project_variable: age, value: '23'
+      PersistedVariable.make contact: contact_b, project_variable: other, value: '23'
+
+      contacts = finder.find([
+        {project_variable_id: age.id, operator: :eq, other_project_variable_id: other.id}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_b)
+    end
+
   end
 
   context "sorting" do

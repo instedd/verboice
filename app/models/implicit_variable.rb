@@ -29,8 +29,20 @@ class ImplicitVariable
     subclass_responsibility
   end
 
+  def self.label
+    self.key.humanize
+  end
+
   def self.find(key)
     self.subclasses.detect{|s| s.key == key}
+  end
+
+  def self.implicit
+    true
+  end
+
+  def self.as_json(opts={})
+    { key: key, id: key, name: label, implicit: implicit }
   end
 
 end

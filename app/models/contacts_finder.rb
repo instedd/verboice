@@ -31,6 +31,7 @@ private
       "FALSE"
     end
 
+    has_value = true
     value = if filter[:value].present?
       args << filter[:value].try_as_number
       "?"
@@ -41,12 +42,13 @@ private
       args << filter[:other_implicit_key]
       "(SELECT value FROM persisted_variables as other_vars WHERE other_vars.contact_id = contacts.id AND other_vars.implicit_key = ? LIMIT 1)"
     else
+      has_value = false
       "FALSE"
     end
 
     condition = case filter[:operator].to_s
     when "eq"
-      if filter[:value].blank?
+      unless has_value
         "(vars.value = '' OR vars.value IS NULL)"
       else
         "vars.value = #{value}"
@@ -71,7 +73,7 @@ private
 
     query = "EXISTS (SELECT 1 FROM persisted_variables as vars WHERE vars.contact_id = contacts.id AND #{variable} AND #{condition} LIMIT 1)"
 
-    if filter[:operator].to_s == 'undefined' || (filter[:operator].to_s == 'eq' && filter[:value].blank?)
+    if filter[:operator].to_s == 'undefined' || (filter[:operator].to_s == 'eq' && !has_value)
       defined_query, *defined_args = query_for(filter.merge(operator: 'defined'))
       return ["(#{query} OR NOT #{defined_query})"] + args + defined_args
     end
