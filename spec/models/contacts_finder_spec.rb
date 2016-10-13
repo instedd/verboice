@@ -299,7 +299,6 @@ describe ContactsFinder do
       ContactAddress.delete_all
 
       contact_a.addresses.create(project_id: project.id, address: '30')
-      contact_a.addresses.create(project_id: project.id, address: '15')
 
       contact_b.addresses.create(project_id: project.id, address: '10')
       contact_b.addresses.create(project_id: project.id, address: '40')
@@ -322,6 +321,16 @@ describe ContactsFinder do
 
       contacts = finder.find([], {sorting: {implicit_key: 'language', direction: 'ASC'}})
       contacts.map(&:id).should eq([contact_d, contact_b, contact_c, contact_a].map(&:id))
+    end
+
+    it "should sort contacts by last activity" do
+      contact_a.update_column :last_activity_at, 5.days.ago
+      contact_b.update_column :last_activity_at, 8.days.ago
+      contact_c.update_column :last_activity_at, nil
+      contact_d.update_column :last_activity_at, 1.day.ago
+
+      contacts = finder.find([], {sorting: {last_activity: true, direction: 'ASC'}})
+      contacts.map(&:id).should eq([contact_c, contact_b, contact_a, contact_d].map(&:id))
     end
 
   end
