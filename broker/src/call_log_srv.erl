@@ -64,9 +64,12 @@ handle_cast({log, Level, Message, Details}, State = #state{call_log = CallLog, t
 
 handle_cast({update, Fields}, State = #state{call_log = CallLog, timeout = Timeout}) ->
   NewCallLog = CallLog:update(Fields),
-  case proplists:get_value(finished_at, Fields) of
-    undefined -> ok;
-    FinishedAt -> contact:update_last_activity(CallLog#call_log.contact_id, FinishedAt)
+  case is_list(Fields) of
+    true -> case proplists:get_value(finished_at, Fields) of
+              undefined -> ok;
+              FinishedAt -> contact:update_last_activity(CallLog#call_log.contact_id, FinishedAt)
+            end;
+    _ -> ok
   end,
   {noreply, State#state{call_log = NewCallLog}, Timeout};
 
