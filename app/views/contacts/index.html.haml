@@ -71,5 +71,5 @@
 %br.clear
 
 :javascript
-  window.variables = #{@project_variables.to_json};
+  window.variables = #{(@project_variables + @implicit_variables).to_json};
   initContactsFilter(#{@contacts.total_count})

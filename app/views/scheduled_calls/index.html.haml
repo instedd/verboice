@@ -1,5 +1,5 @@
 :javascript
-  window.variables = #{@variables.to_json};
+  window.variables = #{(@variables + @implicit_variables).to_json};
   initScheduledCalls();
 
 = render 'shared/project_tabs_and_title', :project => project, :shared_project => @shared_project

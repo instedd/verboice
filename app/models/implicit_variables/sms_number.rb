@@ -33,5 +33,9 @@ module ImplicitVariables
       'sms_number'
     end
 
+    def self.label
+      "SMS number"
+    end
+
   end
 end
