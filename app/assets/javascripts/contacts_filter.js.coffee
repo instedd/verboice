@@ -6,6 +6,7 @@ class @ContactsFilter
       if @count()? then "(#{if @count() == 0 then 'no' else @count()} #{if @count() == 1 then 'contact' else 'contacts'} found)" else ""
     @json = ko.computed =>
       ko.toJSON(filter.to_hash() for filter in @filters())
+    @variablesAndFields = window.fields.concat(window.variables);
 
   addFilter: =>
     filter = new Filter()
@@ -29,6 +30,8 @@ class Filter
 
     if variable_id = attrs.project_variable_id or attrs.implicit_key
       @variable(_.find(window.variables, (v) -> v.id == variable_id))
+    else if attrs.field_name
+      @variable(_.find(window.fields, (v) -> v.id == attrs.field_name))
 
     if other_variable_id = attrs.other_project_variable_id or attrs.other_implicit_key
       @other_variable(_.find(window.variables, (v) -> v.id == other_variable_id))
@@ -66,6 +69,8 @@ class Filter
 
     if @variable()?.implicit
       hash.implicit_key = @variable().id
+    else if @variable()?.field
+      hash.field_name = @variable().id
     else if @variable()?.id?
       hash.project_variable_id = @variable().id
 

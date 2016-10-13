@@ -42,5 +42,6 @@ private
   def setup_variables
     @variables = project.project_variables.map{|x| {id: x.id, name: x.name} }
     @implicit_variables = ImplicitVariable.subclasses
+    @fields = ContactsFinder.contact_fields
   end
 end

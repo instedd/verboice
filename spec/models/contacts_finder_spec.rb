@@ -254,6 +254,69 @@ describe ContactsFinder do
       contacts.should include(contact_b)
     end
 
+    context "by address" do
+
+      let!(:contact_c) { Contact.make project: project }
+      let!(:contact_d) { Contact.make project: project }
+
+      before(:each) do
+        ContactAddress.delete_all
+
+        contact_a.addresses.create!(project_id: project.id, address: '30')
+        contact_a.addresses.create!(project_id: project.id, address: '10')
+
+        contact_b.addresses.create!(project_id: project.id, address: '15')
+        contact_b.addresses.create!(project_id: project.id, address: '40')
+
+        contact_c.addresses.create!(project_id: project.id, address: '20')
+        contact_c.addresses.create!(project_id: project.id, address: '60')
+      end
+
+      it "should find contacts by address equal to a value" do
+        contacts = finder.find([
+          {field_name: "address", operator: :eq, value: '15'}
+        ])
+
+        contacts.should include(contact_b)
+      end
+
+      it "should find contacts by address defined" do
+        contacts = finder.find([
+          {field_name: "address", operator: :defined}
+        ])
+
+        contacts.should include(contact_a, contact_b, contact_c)
+      end
+
+      it "should find contacts by address undefined" do
+        contacts = finder.find([
+          {field_name: "address", operator: :undefined}
+        ])
+
+        contacts.should include(contact_d)
+      end
+
+      it "should find contacts by address greater than a value" do
+        contacts = finder.find([
+          {field_name: "address", operator: :geq, value: '35'}
+        ])
+
+        contacts.should include(contact_b, contact_c)
+      end
+
+      it "should find contacts by address equal to a variable" do
+        PersistedVariable.make contact: contact_a, project_variable: age, value: '30'
+        PersistedVariable.make contact: contact_b, project_variable: age, value: '35'
+
+        contacts = finder.find([
+          {field_name: "address", operator: :eq, other_project_variable_id: age.id}
+        ])
+
+        contacts.should include(contact_a)
+      end
+
+    end
+
   end
 
   context "sorting" do
