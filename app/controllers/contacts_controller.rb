@@ -28,6 +28,7 @@ class ContactsController < ApplicationController
     @page = params[:page] || 1
     @contacts = ContactsFinder.for(@project).find(@filters, includes: [:addresses, :recorded_audios, :persisted_variables, :project_variables], sorting: @sorting)
     @project_variables = @project.project_variables
+    @fields = ContactsFinder.contact_fields
     @implicit_variables = ImplicitVariable.subclasses
 
     respond_to do |format|

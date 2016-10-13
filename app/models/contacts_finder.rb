@@ -3,6 +3,10 @@ class ContactsFinder
     @project = project
   end
 
+  def self.contact_fields
+    [{id: 'address', key: 'address', name: 'Phone number', field: true}]
+  end
+
   def self.for(project)
     self.new(project)
   end
@@ -21,12 +25,15 @@ private
   def query_for(filter)
     args = []
 
+    variable_value_name = 'vars.value'
     variable = if filter[:project_variable_id].present?
       args << filter[:project_variable_id]
       "vars.project_variable_id = ?"
     elsif filter[:implicit_key].present?
       args << filter[:implicit_key]
       "vars.implicit_key = ?"
+    elsif filter[:field_name] == 'address'
+      variable_value_name = 'addresses.address'
     else
       "FALSE"
     end
@@ -49,29 +56,33 @@ private
     condition = case filter[:operator].to_s
     when "eq"
       unless has_value
-        "(vars.value = '' OR vars.value IS NULL)"
+        "(#{variable_value_name} = '' OR #{variable_value_name} IS NULL)"
       else
-        "vars.value = #{value}"
+        "#{variable_value_name} = #{value}"
       end
     when "geq"
-      "vars.value >= #{value}"
+      "#{variable_value_name} >= #{value}"
     when "gt"
-      "vars.value > #{value}"
+      "#{variable_value_name} > #{value}"
     when "leq"
-      "vars.value <= #{value}"
+      "#{variable_value_name} <= #{value}"
     when "lt"
-      "vars.value < #{value}"
+      "#{variable_value_name} < #{value}"
     when "defined"
-      "vars.value IS NOT NULL"
+      "#{variable_value_name} IS NOT NULL"
     when "undefined"
-      "vars.value IS NULL"
+      "#{variable_value_name} IS NULL"
     when "includes"
-      "vars.value LIKE ('%' ? '%')"
+      "#{variable_value_name} LIKE ('%' ? '%')"
     else
       "FALSE"
     end
 
-    query = "EXISTS (SELECT 1 FROM persisted_variables as vars WHERE vars.contact_id = contacts.id AND #{variable} AND #{condition} LIMIT 1)"
+    query = if filter[:field_name] == 'address'
+      "EXISTS (SELECT 1 FROM contact_addresses AS addresses WHERE addresses.contact_id = contacts.id AND #{condition} LIMIT 1)"
+    else
+      "EXISTS (SELECT 1 FROM persisted_variables as vars WHERE vars.contact_id = contacts.id AND #{variable} AND #{condition} LIMIT 1)"
+    end
 
     if filter[:operator].to_s == 'undefined' || (filter[:operator].to_s == 'eq' && !has_value)
       defined_query, *defined_args = query_for(filter.merge(operator: 'defined'))
