@@ -44,11 +44,14 @@ describe Api::SchedulesController do
   end
 
   it "create custom schedule" do
-    data = {project_id: project.id, name: "foo", :time_from_str => Time.now.to_s, :time_to_str => (Time.now + 1.hour).to_s}
+    data = {project_id: project.id, name: "foo", :time_from_str => Time.gm(2000, 1, 1, 10, 0), :time_to_str => Time.gm(2000, 1, 1, 11, 0)}
     @request.env['RAW_POST_DATA'] = data.to_json
     post :create, project_id: project.id, format: :json
 
     assert_response :ok
+    response = JSON.parse(@response.body).with_indifferent_access
+    response[:name].should eq("foo"), "Expected response to contain schedule name 'foo', but was: #{@response.body}"
+
     schedules = project.schedules.all
     schedules.size.should == 1
     schedules[0].name.should == data[:name]
