@@ -19,13 +19,14 @@ class ContactsController < ApplicationController
   before_filter :authenticate_account!
   before_filter :load_project
   before_filter :load_filters, :only => :index
+  before_filter :load_sorting, :only => :index
   before_filter :initialize_context, :only => [:show, :edit, :update, :destroy]
   before_filter :check_project_admin, :only => [:create, :edit, :update, :destroy]
   before_filter :init_calls_context, :only => [:calls, :queued_calls]
 
   def index
     @page = params[:page] || 1
-    @contacts = ContactsFinder.for(@project).find(@filters, includes: [:addresses, :recorded_audios, :persisted_variables, :project_variables])
+    @contacts = ContactsFinder.for(@project).find(@filters, includes: [:addresses, :recorded_audios, :persisted_variables, :project_variables], sorting: @sorting)
     @project_variables = @project.project_variables
     @implicit_variables = ImplicitVariable.subclasses
 
@@ -185,6 +186,12 @@ class ContactsController < ApplicationController
 
   def load_filters
     @filters = params[:filters_json].present? ? JSON.parse(params[:filters_json]) : []
+  end
+
+  def load_sorting
+    @sorting = if params[:sort_type].presence
+      { params[:sort_type] => params[:sort_key], :direction => (params[:sort_dir] == 'down' ? 'DESC' : 'ASC')  }.with_indifferent_access
+    end
   end
 
   def init_calls_context

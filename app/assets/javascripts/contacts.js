@@ -63,6 +63,28 @@ $(function() {
   $('.file-upload .import').click(function (elem) {
     $(this).closest('form').submit();
   });
+
+  var contactsList = $('.contacts-list'),
+      sortKeyField = $('#sort_key'),
+      sortTypeField = $('#sort_type'),
+      sortDirField = $('#sort_dir'),
+      filtersForm = $('#filters-form');
+
+  contactsList.on('click', '.GralTable th.sort', function(evt) {
+    var header = $(evt.target);
+    var sortDir = $(header).hasClass('up') ? 'down' : 'up';
+    var sortKey = $(header).data('sort-key');
+    var sortType = $(header).data('sort-type');
+    $('th', contactsList).removeClass('sort').removeClass('up').removeClass('down');
+    $(header).addClass('sort').addClass(sortDir);
+
+    sortKeyField.val(sortKey);
+    sortTypeField.val(sortType);
+    sortDirField.val(sortDir);
+
+    filtersForm.submit();
+    return false;
+  });
 });
 
 function initContactsFilter(count) {
@@ -75,4 +97,3 @@ function initContactsFilter(count) {
     }
   });
 }
-

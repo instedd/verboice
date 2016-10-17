@@ -9,9 +9,11 @@ class ContactsFinder
 
   def find(filters = [], options = {})
     contacts = @project.contacts.includes(options[:includes] || [])
-    filters.inject contacts do |contacts, filter|
+    contacts = filters.inject contacts do |contacts, filter|
       contacts.where(*query_for(filter.with_indifferent_access))
     end
+    contacts = with_sorting(contacts, options[:sorting])
+    return contacts
   end
 
 private
@@ -75,7 +77,27 @@ private
     end
 
     [query] + args
+  end
 
+  def with_sorting(contacts, options)
+    sorting, join = sorting_for(options)
+    return contacts if sorting.nil?
+    contacts.order("#{sorting} #{options[:direction] || 'ASC'}").joins(join)
+  end
+
+  def sorting_for(options)
+    return nil if options.nil?
+
+    if variable_id = options[:project_variable_id]
+      ["sorting_var.value",
+       "LEFT JOIN persisted_variables AS sorting_var ON sorting_var.contact_id = contacts.id AND sorting_var.project_variable_id = #{variable_id.to_i}"]
+    elsif implicit_key = options[:implicit_key] and ImplicitVariable.subclasses.map(&:key).include?(implicit_key)
+      ["sorting_var.value",
+       "LEFT JOIN persisted_variables AS sorting_var ON sorting_var.contact_id = contacts.id AND sorting_var.implicit_key = '#{implicit_key}'"]
+    elsif options[:address]
+      ["sorting_address.first_address",
+       "LEFT JOIN (SELECT contact_id, COALESCE(address) as first_address FROM contact_addresses WHERE project_id = #{@project.id} GROUP BY contact_id ORDER BY id) AS sorting_address ON sorting_address.contact_id = contacts.id"]
+    end
   end
 
 end

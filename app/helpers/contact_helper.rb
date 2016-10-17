@@ -17,10 +17,9 @@
 
 module ContactHelper
   def addresses_for_contact(contact)
-    address_count = contact.addresses.count
+    address_count = contact.addresses.size
     result = contact.addresses.take(2).map(&:address).join(', ')
     result << " and #{address_count - 2} more" if address_count > 2
     result
   end
 end
-

@@ -1,11 +1,17 @@
 .tablewrapp.no-wrap.scroll.contacts-table
   %table.GralTable.w-pagination
     %tr
-      %th{colspan: 2} Phone numbers
+      %th.sort{colspan: 2, data: {"sort-key" => true, "sort-type" => "address"}, class: ((params[:sort_type].try(&:to_s) == 'address') ? params[:sort_dir] || 'up' : nil)}
+        Phone numbers
+        %span
       - @implicit_variables.each do |variable|
-        %th=variable.key
+        %th.sort{data: {"sort-key" => variable.key, "sort-type" => "implicit_key"}, class: ((params[:sort_key] == variable.key) ? params[:sort_dir] || 'up' : nil)}
+          =variable.key
+          %span
       - @project_variables.each do |variable|
-        %th=variable.name
+        %th.sort{data: {"sort-key" => variable.id, "sort-type" => "project_variable_id"}, class: ((params[:sort_key] == variable.id.to_s) ? params[:sort_dir] || 'up' : nil)}
+          =variable.name
+          %span
       - @recorded_audio_descriptions.each do |audio_description|
         %th=audio_description
 
@@ -21,11 +27,12 @@
           %td= variable.try(:value)
         - @project_variables.each do |project_variable|
           - variable = contact.persisted_variables.detect do |variable|
-            - variable.project_variable == project_variable
+            - variable.project_variable_id == project_variable.id
           %td= variable.try(:value)
         - @recorded_audio_descriptions.each do |audio_description|
           - audios = contact.recorded_audios.collect do |audio|
             - audio.description == audio_description
           %td= audios.size
 
-  = paginate @contacts, :param_name => 'page', :params => {filters_json: params[:filters_json]}, :remote => true
+  = paginate @contacts, :param_name => 'page', :remote => true,
+      :params => { filters_json: params[:filters_json], sort_key: params[:sort_key], sort_dir: params[:sort_dir], sort_type: params[:sort_type] }
