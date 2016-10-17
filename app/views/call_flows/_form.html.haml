@@ -25,7 +25,7 @@
     %br/
     = f.label :callback_url_password, 'Password'
     %br/
-    = f.password_field :callback_url_password, :class => "w30"
+    = f.password_field :callback_url_password, :class => "w30", autocomplete: 'new-password', value: call_flow.callback_url_password
 
   - if OAuth2::Client.service_configured?(:google) && !call_flow.new_record?
     %hr
