@@ -71,6 +71,10 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
 
     _ ->
       HasAuth = length(Username) > 0 andalso length(Password) > 0,
+      ClientUriUser = case length(Username) > 0 of
+        true -> Username;
+        _ -> Number
+      end,
 
       % Registration
       NewRegistryIndex = case channel:register(Channel) of
@@ -82,7 +86,7 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
             true -> ok
           end,
           file:write(ConfigFile, ["server_uri=sip:", Domain, "\n"]),
-          file:write(ConfigFile, ["client_uri=sip:", Number, "@", Domain, "\n"]),
+          file:write(ConfigFile, ["client_uri=sip:", ClientUriUser, "@", Domain, "\n"]),
           %% When Asterisk Version > 13.1...
           % file:write(ConfigFile, "line=yes\n"),
           % file:write(ConfigFile, ["endpoint=", Section, "\n"]),
