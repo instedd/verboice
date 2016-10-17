@@ -31,7 +31,7 @@ default_language(#project{default_language = undefined, languages = [LangConfig 
 default_language(#project{default_language = undefined}) -> <<"en">>;
 default_language(#project{default_language = Lang}) -> Lang.
 
-status_callback(#project{status_callback_url = Url, encrypted_config = Config}) ->
+status_callback(#project{status_callback_url = Url, status_callback_include_vars = IncludeVars, encrypted_config = Config}) ->
   User = proplists:get_value("status_callback_url_user", Config),
   Pass = proplists:get_value("status_callback_url_password", Config),
-  {Url, User, Pass}.
+  {Url, User, Pass, IncludeVars}.

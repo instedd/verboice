@@ -39,16 +39,17 @@ start_session(QueuedCall = #queued_call{flow = Flow}) ->
 
 start_session(Session, QueuedCall) ->
   Project = project:find(QueuedCall#queued_call.project_id),
-  {StatusUrl, StatusUser, StatusPass} = case QueuedCall#queued_call.status_callback_url of
+  {StatusUrl, StatusUser, StatusPass, StatusIncludeVars} = case QueuedCall#queued_call.status_callback_url of
     undefined -> project:status_callback(Project);
     <<>> -> project:status_callback(Project);
-    Url -> {Url, undefined, undefined}
+    Url -> {Url, undefined, undefined, false}
   end,
   Session#session{
     address = QueuedCall#queued_call.address,
     status_callback_url = StatusUrl,
     status_callback_user = StatusUser,
     status_callback_password = StatusPass,
+    status_callback_include_vars = StatusIncludeVars,
     callback_params = QueuedCall#queued_call.callback_params,
     queued_call = QueuedCall,
     project = Project

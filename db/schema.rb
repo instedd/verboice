@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160311164153) do
+ActiveRecord::Schema.define(:version => 20160926180733) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -387,6 +387,7 @@ ActiveRecord::Schema.define(:version => 20160311164153) do
     t.string   "time_zone",           :default => "UTC"
     t.text     "languages"
     t.string   "default_language"
+    t.boolean  "status_callback_include_vars", :default => false
   end
 
   create_table "queued_calls", :force => true do |t|
