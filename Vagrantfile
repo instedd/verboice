@@ -14,8 +14,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--memory", "1024"]
   end
 
-  config.vm.synced_folder "backups/", "/home/vagrant/backups"
-
   config.vm.provision :shell do |s|
     s.privileged = false
     s.args = [ENV['WITH_ELASTICSEARCH'] || "", ENV['REVISION'] || ""]
@@ -34,10 +32,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # Install required packages
     sudo apt-get update
-    sudo -E apt-get -y install ruby1.9.3 apache2 asterisk mercurial git \
+    sudo -E apt-get -y install ruby1.9.3 apache2 mercurial git \
       libxml2-dev libxslt1-dev libzmq3-dbg libzmq3-dev libzmq3 mysql-server libmysqlclient-dev sox libsox-fmt-mp3 nodejs \
       libcurl4-openssl-dev apache2-threaded-dev libapr1-dev libaprutil1-dev libyaml-dev postfix festival curl \
-      openjdk-7-jre-headless avahi-daemon
+      openjdk-7-jre-headless avahi-daemon \
+      build-essential pkg-config libncurses5-dev uuid-dev libjansson-dev libsqlite3-dev
     sudo -E apt-get -y install erlang-ic=1:17.5.3 erlang-diameter=1:17.5.3 erlang-eldap=1:17.5.3 erlang-base=1:17.5.3 \
       erlang-crypto=1:17.5.3 erlang-runtime-tools=1:17.5.3 erlang-mnesia=1:17.5.3 erlang-ssl=1:17.5.3 \
       erlang-syntax-tools=1:17.5.3 erlang-asn1=1:17.5.3 erlang-public-key=1:17.5.3 erlang=1:17.5.3 erlang-dev=1:17.5.3 \
@@ -47,6 +46,52 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       erlang-odbc=1:17.5.3 erlang-os-mon=1:17.5.3 erlang-parsetools=1:17.5.3 erlang-percept=1:17.5.3 erlang-pman=1:17.5.3 \
       erlang-reltool=1:17.5.3 erlang-snmp=1:17.5.3 erlang-ssh=1:17.5.3 erlang-test-server=1:17.5.3 erlang-toolbar=1:17.5.3 \
       erlang-tools=1:17.5.3 erlang-tv=1:17.5.3 erlang-typer=1:17.5.3 erlang-webtool=1:17.5.3 erlang-wx=1:17.5.3 erlang-xmerl=1:17.5.3
+
+    # Install PJproject for PJSIP
+    PJPROJECT_VERSION=2.5.5
+    PJPROJECT_URL=http://www.pjsip.org/release/${PJPROJECT_VERSION}/pjproject-${PJPROJECT_VERSION}.tar.bz2
+
+
+    if [ ! -f /usr/lib/libpj.so ]; then
+      if [ ! -d pjproject-${PJPROJECT_VERSION} ]; then
+        curl -s $PJPROJECT_URL | tar -xj
+      fi
+
+      cd pjproject-${PJPROJECT_VERSION}
+      ./configure --prefix=/usr \
+                  --enable-shared \
+                  --disable-sound \
+                  --disable-resample \
+                  --disable-video \
+                  --disable-opencore-amr \
+                  CFLAGS='-O2 -DNDEBUG'
+
+      make dep
+      make
+      sudo make install
+      sudo ldconfig
+      cd ..
+    fi
+
+    # Install Asterisk
+    ASTERISK_VERSION=13.8
+    ASTERISK_URL=http://downloads.asterisk.org/pub/telephony/certified-asterisk/asterisk-certified-${ASTERISK_VERSION}-current.tar.gz
+
+    if [ ! -f /etc/init.d/asterisk ]; then
+      if [ ! -d asterisk-${ASTERISK_VERSION} ]; then
+        mkdir asterisk-${ASTERISK_VERSION}
+        curl -s $ASTERISK_URL | tar -xvz --strip-components=1 -C asterisk-${ASTERISK_VERSION}
+      fi
+
+      cd asterisk-${ASTERISK_VERSION}
+      ./configure
+      make menuselect.makeopts
+      make
+      sudo make install
+      sudo make config
+
+      cd ..
+    fi
 
     # Configure mysql
     sudo sh -c 'echo "[mysqld]
@@ -136,8 +181,8 @@ Listen 8080"' >> /etc/apache2/ports.conf
     cd ~/verboice
     sudo rm -rf /etc/asterisk/*
     sudo cp etc/asterisk/* /etc/asterisk/
-    sudo touch /etc/asterisk/sip_verboice_registrations.conf /etc/asterisk/sip_verboice_channels.conf
-    sudo chown `whoami` /etc/asterisk/sip_verboice_*
+    sudo touch /etc/asterisk/pjsip_verboice.conf
+    sudo chown `whoami` /etc/asterisk/pjsip_verboice.conf
     sudo mkdir -p /usr/share/asterisk/sounds/verboice
     sudo chown `whoami` /usr/share/asterisk/sounds/verboice
     sudo /etc/init.d/asterisk restart
