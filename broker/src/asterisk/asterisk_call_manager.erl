@@ -86,7 +86,7 @@ code_change(_OldVsn, State, _Extra) ->
   {ok, State}.
 
 parse_sip_address(SipAddr) ->
-  case re:run(SipAddr, "^<sip:(.*)@.*>$", [{capture, all_but_first, list}]) of
+  case re:run(SipAddr, "<sip:(.*)@.*>$", [{capture, all_but_first, list}]) of
     {match, [SipTo]} -> SipTo;
     _ -> ""
   end.
