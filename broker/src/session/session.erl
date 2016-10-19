@@ -431,16 +431,19 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
           "queued"
       end
   end,
+  lager:info("Call failed with reason ~p", [Reason]),
   FailInfo = case Reason of
-    hangup ->          [{fail_reason, "hangup"}];
-    busy ->            [{fail_reason, "busy"}];
-    no_answer ->       [{fail_reason, "no-answer"}];
-    {error, Reason} -> [{fail_reason, "fatal error"}, {fail_details, Reason}];
-    _ ->               [{fail_reason, "error"}]
+    hangup ->                    [{fail_reason, "hangup"}];
+    busy ->                      [{fail_reason, "busy"}];
+    no_answer ->                 [{fail_reason, "no-answer"}];
+    {error, ErrDetails} ->       [{fail_reason, "fatal error"}, {fail_details, ErrDetails}];
+    {error, ErrDetails, Code} -> [{fail_reason, "fatal error"}, {fail_details, ErrDetails}, {fail_code, Code}];
+    _ ->                         [{fail_reason, "error"}]
   end,
   CallLog:update([{state, NewState}, {finished_at, calendar:universal_time()}] ++ FailInfo),
   StopReason = case Reason of
-    {error, Error} -> Error;
+    {error, ErrDetails} -> ErrDetails;
+    {error, ErrDetails, _} -> ErrDetails;
     _ -> normal
   end,
   {stop, StopReason, State}.
