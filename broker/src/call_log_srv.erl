@@ -93,12 +93,7 @@ handle_cast({hangup, {_Code, <<"Unknown">>}}, State = #state{timeout = Timeout})
   {noreply, State, Timeout};
 
 handle_cast({hangup, {Code, Reason}}, State = #state{call_log = CallLog, timeout = Timeout}) ->
-  FullCode = case Code of
-    undefined -> undefined;
-    <<"0">> -> undefined;
-    _ -> "ISDN:" ++ binary_to_list(Code)
-  end,
-  NewCallLog = call_log:update(CallLog#call_log{fail_code = FullCode, fail_details = Reason}),
+  NewCallLog = call_log:update(CallLog#call_log{fail_code = Code, fail_details = Reason}),
   {noreply, State#state{call_log = NewCallLog}, Timeout}.
 
 %% @private
