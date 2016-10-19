@@ -54,7 +54,11 @@ handle_cast({varset, Event}, State=#state{guid=Guid}) ->
 
 handle_cast({hangup, Event}, State=#state{guid=Guid,session_id=SessionId}) ->
   Reason = proplists:get_value('cause-txt', Event),
-  Code = proplists:get_value(cause, Event),
+  Code = case proplists:get_value(cause, Event) of
+    undefined -> undefined;
+    <<"0">> -> undefined;
+    C -> "ISDN:" ++ binary_to_list(C)
+  end,
   create_log(Guid, ["Channel hangup. Reason: ", Reason]),
   call_log_srv:hangup(SessionId, {Code, Reason}),
   {stop, normal, State};
