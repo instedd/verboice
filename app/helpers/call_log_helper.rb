@@ -20,8 +20,9 @@ module CallLogHelper
     return nil if call_log.fail_reason.nil?
     info = content_tag(:span, "#{call_log.fail_reason.capitalize}. ")
     if call_log.fail_code
-      fail_details = call_log.fail_details ? "#{call_log.fail_details} (#{call_log.fail_code})" : "Code #{call_log.fail_code}."
-      info << link_to_if(link, fail_details, error_code_url(call_log.fail_code), class: 'call-log-fail-info')
+      fail_details = call_log.fail_details ? "#{call_log.fail_details} (#{call_log.fail_code.slice(/\w+:(.+)/, 1)})" : "Code #{call_log.fail_code}."
+      url = error_code_url(call_log.fail_code)
+      info << link_to_if(link && url, fail_details, url, class: 'call-log-fail-info')
     elsif call_log.fail_details
       info << content_tag(:span, "#{call_log.fail_details}.")
     end
@@ -29,9 +30,10 @@ module CallLogHelper
   end
 
   def error_code_url(code)
-    url = "https://github.com/instedd/verboice/wiki/Error-codes"
-    url << "##{code.gsub(':', '').downcase}" if code
-    url
+    if code.downcase.starts_with?("twilio:")
+      "https://www.twilio.com/docs/errors/#{code.slice(/twilio:(.+)/, 1)}"
+    elsif code.downcase.starts_with?("isdn:")
+      "https://github.com/instedd/verboice/wiki/Error-codes##{code.gsub(':', '').downcase}"
+    end
   end
 end
-
