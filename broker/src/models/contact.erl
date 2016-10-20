@@ -21,5 +21,5 @@ create_anonymous(ProjectId, Address) ->
 update_last_activity(undefined, LastActivity) ->
   LastActivity;
 update_last_activity(ContactId, LastActivity) ->
-  db:update(io_lib:format("UPDATE contacts SET last_activity_at = GREATEST(last_activity_at, CAST('~s' AS datetime)) WHERE id = ~b", [mysql:encode(LastActivity), ContactId])),
+  db:update(io_lib:format("UPDATE contacts SET last_activity_at = IF(last_activity_at IS NULL, CAST('~s' AS datetime), GREATEST(last_activity_at, CAST('~s' AS datetime))) WHERE id = ~b", [mysql:encode(LastActivity), mysql:encode(LastActivity), ContactId])),
   LastActivity.
