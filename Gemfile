@@ -33,7 +33,7 @@ gem 'ruby-openid'
 gem 'omniauth'
 gem 'omniauth-openid'
 gem 'recurring_select', git: "https://github.com/instedd/recurring_select", branch: 'instedd'
-gem 'listings'
+gem 'listings', '~> 0.1.7'
 gem 'instedd_telemetry', git: "https://github.com/instedd/telemetry_rails", ref: 'db0ef5c0e72b8a944befb7b9b88beedb876b296c'
 
 group :assets do
