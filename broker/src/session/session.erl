@@ -442,8 +442,8 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
   end,
   CallLog:update([{state, NewState}, {finished_at, calendar:universal_time()}] ++ FailInfo),
   StopReason = case Reason of
-    {error, ErrDetails} -> ErrDetails;
-    {error, ErrDetails, _} -> ErrDetails;
+    {error, ErrDetails2} -> ErrDetails2;
+    {error, ErrDetails2, _} -> ErrDetails2;
     _ -> normal
   end,
   {stop, StopReason, State}.
