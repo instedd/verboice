@@ -4,6 +4,7 @@
     {asterisk_sounds_dir, "/usr/local/asterisk/var/lib/asterisk/sounds"},
     {asterisk_agi_use_pipe_separator, false},
     {broker_port, 19000},
+    {broker_ip, loopback},
     {base_url, "http://localhost:3000"},
     {record_dir, "../data/call_logs/"},
 
@@ -17,9 +18,9 @@
     {crypt_secret, "secret"},
 
     {nuntium_host, "https://nuntium.instedd.org"},
-    {nuntium_account, "waj"},
-    {nuntium_app, "verboice"},
-    {nuntium_app_password, "verboice"},
+    {nuntium_account, ""},
+    {nuntium_app, ""},
+    {nuntium_app_password, ""},
 
     {guisso_client_id, ""},
     {guisso_client_secret, ""},

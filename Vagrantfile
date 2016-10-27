@@ -110,7 +110,8 @@ max_allowed_packet = 256M" > /etc/mysql/conf.d/mysqld.cnf'
     sudo gem install bundler --no-ri --no-rdoc
 
     # Install passenger
-    sudo gem install passenger --no-ri --no-rdoc
+    sudo gem install rack -v 1.6.4 --no-ri --no-rdoc
+    sudo gem install passenger -v 5.0.23 --no-ri --no-rdoc
     sudo passenger-install-apache2-module -a
     sudo sh -c 'passenger-install-apache2-module --snippet > /etc/apache2/mods-available/passenger.load'
     sudo a2enmod passenger
@@ -159,10 +160,11 @@ Listen 8080"' >> /etc/apache2/ports.conf
     echo "Verboice::Application.config.action_mailer.delivery_method = :sendmail" > config/initializers/sendmail.rb
     script/update_erl_config broker/verboice.config verboice db_name verboice
     script/update_erl_config broker/verboice.config verboice asterisk_config_dir /etc/asterisk
-    script/update_erl_config broker/verboice.config verboice asterisk_sounds_dir /usr/share/asterisk/sounds
+    script/update_erl_config broker/verboice.config verboice asterisk_sounds_dir /var/lib/asterisk/sounds
     script/update_erl_config broker/verboice.config verboice base_url "http://verboice.local"
     script/update_erl_config broker/verboice.config verboice crypt_secret super_secret
     script/update_yml_config config/verboice.yml default_url_options host verboice.local
+    script/update_yml_config config/verboice.yml skip_account_confirmation true
     echo "RAILS_ENV=production" > .env
     echo "HOME=$HOME" >> .env
     sudo -E bundle exec foreman export upstart /etc/init -a verboice -u `whoami` --concurrency="broker=1,delayed=1"
@@ -183,8 +185,8 @@ Listen 8080"' >> /etc/apache2/ports.conf
     sudo cp etc/asterisk/* /etc/asterisk/
     sudo touch /etc/asterisk/pjsip_verboice.conf
     sudo chown `whoami` /etc/asterisk/pjsip_verboice.conf
-    sudo mkdir -p /usr/share/asterisk/sounds/verboice
-    sudo chown `whoami` /usr/share/asterisk/sounds/verboice
+    sudo mkdir -p /var/lib/asterisk/sounds/verboice
+    sudo chown `whoami` /var/lib/asterisk/sounds/verboice
     sudo /etc/init.d/asterisk restart
 
     # Start verboice services
