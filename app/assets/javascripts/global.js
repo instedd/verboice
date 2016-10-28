@@ -16,6 +16,10 @@ $(function() {
     window.location = $(this).data('url');
   });
 
+  $('body').on('click', '.swallow-click', function(e) {
+    e.stopPropagation();
+  });
+
   // AJAX pagination
   $('body').on('click', '.pagination.remote a', function(e) {
     e.preventDefault();

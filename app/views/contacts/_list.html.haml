@@ -21,7 +21,8 @@
     - @contacts.each do |contact|
       - link_opts = project_admin? ? {'data-url' => edit_project_contact_path(@project, contact), 'class' => 'link'} : {}
       %tr{link_opts}
-        %td= addresses_for_contact(contact)
+        %td
+          %span.swallow-click.cursor-text= addresses_for_contact(contact)
         %td.right
           - if project_admin?
             = link_to '', project_contact_path(@project, contact), :confirm => 'Are you sure?', :method => :delete, :class => 'button premove'
