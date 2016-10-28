@@ -12,7 +12,8 @@ start_link() ->
 %% @private
 init({}) ->
   {ok, BrokerPort} = application:get_env(broker_port),
-  {ok, ListenSock} = gen_tcp:listen(BrokerPort, [{active, false}, {reuseaddr, true}, binary, {packet, line}]),
+  BrokerIP = application:get_env(verboice, broker_ip, loopback),
+  {ok, ListenSock} = gen_tcp:listen(BrokerPort, [{active, false}, {reuseaddr, true}, binary, {packet, line}, {ip, BrokerIP}]),
   spawn_link(fun() -> server(ListenSock) end),
   {ok, ListenSock}.
 

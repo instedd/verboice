@@ -1,0 +1,81 @@
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+
+  # config.vm.network "forwarded_port", guest: 5038, host: 5038
+  # config.vm.network "public_network", use_dhcp_assigned_default_route: true
+
+  # config.vm.provider "virtualbox" do |vb|
+  #   vb.memory = "1024"
+  # end
+
+  config.vm.define "verboice" do |verboice|
+    verboice.vm.synced_folder "./asterisk-verboice", "/etc/asterisk"
+    verboice.vm.synced_folder "./asterisk-sounds", "/var/lib/asterisk/sounds"
+    verboice.vm.synced_folder "./asterisk-recordings", "/var/lib/asterisk/recordings"
+    verboice.vm.network "private_network", ip: "172.28.128.10"
+    verboice.vm.network "forwarded_port", guest: 5038, host: 5038
+    verboice.vm.hostname = "verboice"
+  end
+
+  config.vm.define "remote" do |remote|
+    remote.vm.synced_folder "./asterisk-remote", "/etc/asterisk"
+    remote.vm.synced_folder "./asterisk-sounds", "/var/lib/asterisk/sounds"
+    remote.vm.network "private_network", ip: "172.28.128.20"
+    remote.vm.network "forwarded_port", guest: 5038, host: 5039
+    remote.vm.hostname = "remote"
+  end
+
+  config.vm.provision "shell", privileged: false, inline: <<-SH
+    PJPROJECT_VERSION=2.5.5
+    ASTERISK_VERSION=13.8
+
+    PJPROJECT_URL=http://www.pjsip.org/release/${PJPROJECT_VERSION}/pjproject-${PJPROJECT_VERSION}.tar.bz2
+    ASTERISK_URL=http://downloads.asterisk.org/pub/telephony/certified-asterisk/asterisk-certified-${ASTERISK_VERSION}-current.tar.gz
+
+    sudo apt-get install -y build-essential pkg-config libncurses5-dev uuid-dev libjansson-dev libxml2-dev libsqlite3-dev
+
+    if [ ! -f /usr/lib/libpj.so ]; then
+      echo "Installing PJSIP"
+
+      if [ ! -d pjproject-${PJPROJECT_VERSION} ]; then
+        echo "Downloading PSJIP sources"
+        curl -s $PJPROJECT_URL | tar -xj
+      fi
+
+      cd pjproject-${PJPROJECT_VERSION}
+      ./configure --prefix=/usr \
+                  --enable-shared \
+                  --disable-sound \
+                  --disable-resample \
+                  --disable-video \
+                  --disable-opencore-amr \
+                  CFLAGS='-O2 -DNDEBUG'
+
+      make dep
+      make
+      sudo make install
+      sudo ldconfig
+
+      cd ..
+    fi
+
+    if [ ! -f /etc/init.d/asterisk ]; then
+      echo "Installing Asterisk"
+
+      if [ ! -d asterisk-${ASTERISK_VERSION} ]; then
+        echo "Downloading Asterisk sources"
+        mkdir asterisk-${ASTERISK_VERSION}
+        curl -s $ASTERISK_URL | tar -xvz --strip-components=1 -C asterisk-${ASTERISK_VERSION}
+      fi
+
+      cd asterisk-${ASTERISK_VERSION}
+      ./configure
+      make menuselect.makeopts
+      make
+      sudo make install
+      sudo make config
+
+      cd ..
+    fi
+  SH
+end

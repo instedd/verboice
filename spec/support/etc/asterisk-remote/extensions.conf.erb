@@ -1,0 +1,4 @@
+[verboice]
+exten => h,1,NoOp()
+exten => _X.,1,AGI(agi://<%= host_ip %>:19001,,${EXTEN})
+exten => s,1,AGI(agi://<%= host_ip %>:19001,,${EXTEN})

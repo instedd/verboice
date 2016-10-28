@@ -10,11 +10,12 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact, p
   Timeout = proplists:get_value(timeout, Args, 10),
 
   CallLogId = CallLog:id(),
-  Filename = filename(CallLogId, Key),
-  filelib:ensure_dir(Filename),
+  LocalFilename = local_filename(CallLogId, Key),
+  AsteriskFilename = asterisk_filename(CallLogId, Key),
+  filelib:ensure_dir(LocalFilename),
 
-  poirot:log(info, "Recording to filename: ~s, stop keys: ~s, timeout: ~B", [Filename, StopKeys, Timeout]),
-  case Pbx:record(Filename, StopKeys, Timeout) of
+  poirot:log(info, "Recording to filename: ~s, stop keys: ~s, timeout: ~B, as: ~s", [LocalFilename, StopKeys, Timeout, AsteriskFilename]),
+  case Pbx:record(AsteriskFilename, LocalFilename, StopKeys, Timeout) of
     ok ->
       RecordedAudio = #recorded_audio{
         contact_id = Contact#contact.id,
@@ -31,6 +32,15 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact, p
       throw({error_recording, Reason})
   end.
 
-filename(CallLogId, Key) ->
-  {ok, RecordDir} = application:get_env(record_dir),
+filename(RecordDir, CallLogId, Key) ->
   filename:join([RecordDir, util:to_string(CallLogId), "results", Key ++ ".wav"]).
+
+local_filename(CallLogId, Key) ->
+  {ok, RecordDir} = application:get_env(record_dir),
+  filename(RecordDir, CallLogId, Key).
+
+asterisk_filename(CallLogId, Key) ->
+  case application:get_env(asterisk_record_dir) of
+    {ok, RecordDir} -> filename(RecordDir, CallLogId, Key);
+    _ -> local_filename(CallLogId, Key)
+  end.

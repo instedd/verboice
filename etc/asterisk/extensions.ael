@@ -1,9 +1,0 @@
-context verboice {
-    h => NoOp();
-    _. => AGI(agi://localhost:19000,,${EXTEN});
-}
-
-context verboice-restart {
-    h => NoOp();
-    _. => AGI(agi://localhost:19000,${EXTEN});
-}

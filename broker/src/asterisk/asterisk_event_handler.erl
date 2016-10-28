@@ -33,7 +33,6 @@ handle_event({originateresponse, Packet}, State) ->
 
 handle_event({newchannel, Packet}, State) ->
   NewChannel = ami_client:decode_packet(Packet),
-  io:format("New channel: ~p~n", [NewChannel]),
   Channel = proplists:get_value(channel, NewChannel),
   asterisk_pbx_log_srv:start_link(Channel),
   {ok, State};
@@ -50,16 +49,13 @@ handle_event({hangup, Packet}, State) ->
   asterisk_pbx_log_srv:hangup(Channel, Event),
   {ok, State};
 
-handle_event({peerstatus, Packet}, State) ->
+handle_event({successfulauth, Packet}, State) ->
   Event = ami_client:decode_packet(Packet),
-  case proplists:get_value(peerstatus, Event) of
-    <<"Registered">> ->
-      case proplists:get_value(peer, Event) of
-        <<"SIP/verboice_", ChannelId/binary>> ->
-          [IP | _] = binary:split(proplists:get_value(address, Event), <<$:>>),
-          asterisk_channel_srv:register_channel(binary_to_integer(ChannelId), binary_to_list(IP));
-        _ -> ok
-      end;
+  case proplists:get_value(accountid, Event) of
+    <<"verboice_", ChannelId/binary>> ->
+      RemoteAddress = proplists:get_value(remoteaddress, Event),
+      [_AF, _Transport, IP, _Port] = binary:split(RemoteAddress, <<$/>>, [global]),
+      asterisk_channel_srv:register_channel(binary_to_integer(ChannelId), binary_to_list(IP));
     _ -> ok
   end,
   {ok, State};
