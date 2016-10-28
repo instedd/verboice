@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20161012205827) do
+ActiveRecord::Schema.define(:version => 20161028153200) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -320,9 +320,9 @@ ActiveRecord::Schema.define(:version => 20161012205827) do
     t.integer  "account_id"
     t.string   "name"
     t.string   "channel_name"
-    t.boolean  "enabled"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
+    t.boolean  "enabled",      :default => true
+    t.datetime "created_at",                     :null => false
+    t.datetime "updated_at",                     :null => false
   end
 
   add_index "nuntium_channels", ["account_id"], :name => "index_nuntium_channels_on_account_id"
