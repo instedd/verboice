@@ -64,6 +64,10 @@
       = form_tag from_filter_project_scheduled_calls_path(@project) do
         = hidden_field_tag :filters_json, params[:filters_json] || '[]', 'data-bind' => 'value: json'
         %button.fedit Create a scheduled call from these filters
+      - if project_admin?
+        = form_tag destroy_from_filter_project_contacts_path(@project), method: 'DELETE' do
+          = hidden_field_tag :filters_json, params[:filters_json] || '[]', 'data-bind' => 'value: json'
+          %button.fdelete{'data-confirm' => "Are you sure you want to delete all the filtered contacts?"} Delete all filtered contacts
 
   #contactsList
     = render 'list'

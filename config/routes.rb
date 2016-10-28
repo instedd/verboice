@@ -72,6 +72,7 @@ Verboice::Application.routes.draw do
           get :search, :action => :index, :as => 'search'
           post :upload_csv
           post :import_csv
+          delete :destroy_from_filter
         end
         member do
           get :calls
