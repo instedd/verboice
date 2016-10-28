@@ -48,7 +48,8 @@
 = form_tag export_project_call_flow_path(@project, @call_flow), :method => :get do
   %button.fimport Export Call flow
   = check_box_tag :export_audios
-  include audio recordings
+  %label{for: 'export_audios', alt: 'If checked, all text and audio resources will be exported with the call flow. Otherwise, just the call flow structure will be exported, and you will need to associate all resources after import in the new project.'}
+    include resources
 
 - if project_admin?
   .ux-collapsible.collapsed.w40.file_upload{"data-on-expanded" => "box grey"}
