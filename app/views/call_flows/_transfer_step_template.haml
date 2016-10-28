@@ -5,18 +5,18 @@
       %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
 
     .content
-      %label Forward to
+      %label Forward to:
       %br
 
       %span.forwardto{ko(css: "{ orange: is_address_invalid }")}
-        Phone number:
+        Phone
         %span{ko(css: "{ alert: is_address_invalid }")}
       %input.ux-text.w20{ 'data-bind' => 'value: address, valueUpdate: "afterkeydown"' }
       %br
 
       %span.forwardto
-        Channel:
-      %select{ko(value: 'channel')}
+        Channel
+      %select.w20{ko(value: 'channel')}
         %option{:value => nil} Use current channel
         = options_from_collection_for_select(current_account.channels, 'name', 'name')
       %br
