@@ -63,7 +63,7 @@ class Project < ActiveRecord::Base
   after_save :telemetry_track_activity
 
   def defined_variables
-    project_variables.collect(&:name)
+    project_variables.collect(&:name) + [ImplicitVariables::Language.key, ImplicitVariables::SmsNumber.key]
   end
 
   def update_variables_with variable_names
