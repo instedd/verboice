@@ -193,6 +193,26 @@ describe ContactsFinder do
       contacts.should include(contact_b)
     end
 
+    it "should find variable by includes numerical value" do
+      PersistedVariable.make contact: contact_a, project_variable: diseases, value: 'malaria 1010'
+      PersistedVariable.make contact: contact_b, project_variable: diseases, value: 'malaria 2010'
+
+      contacts = finder.find([
+        {project_variable_id: diseases.id, operator: :includes, value: '20'}
+      ])
+
+      contacts.size.should eq(1)
+      contacts.should include(contact_b)
+
+      contacts = finder.find([
+        {project_variable_id: diseases.id, operator: :includes, value: '10'}
+      ])
+
+      contacts.size.should eq(2)
+      contacts.should include(contact_a)
+      contacts.should include(contact_b)
+    end
+
     it "should find with implicit variables" do
       PersistedVariable.make contact: contact_a, implicit_key: 'language', value: 'en'
       PersistedVariable.make contact: contact_b, implicit_key: 'language', value: 'es'
@@ -278,6 +298,14 @@ describe ContactsFinder do
         ])
 
         contacts.should include(contact_b)
+      end
+
+      it "should find contacts by address containing a numerical value" do
+        contacts = finder.find([
+          {field_name: "address", operator: :includes, value: '3'}
+        ])
+
+        contacts.should include(contact_a)
       end
 
       it "should find contacts by address defined" do

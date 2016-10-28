@@ -73,7 +73,7 @@ private
     when "undefined"
       "#{variable_value_name} IS NULL"
     when "includes"
-      "#{variable_value_name} LIKE ('%' ? '%')"
+      "#{variable_value_name} LIKE CONCAT('%', ?, '%')"
     else
       "FALSE"
     end
