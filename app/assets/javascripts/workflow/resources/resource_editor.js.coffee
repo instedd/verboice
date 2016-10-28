@@ -66,4 +66,4 @@ onWorkflow ->
         {}
 
     show_language: (language) =>
-      @resource().show_language(language)
+      @resource().showLanguage(language)

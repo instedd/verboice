@@ -101,6 +101,15 @@ onResourcesWorkflow(function(){
     this.editLocalizedResource = function(resource) {
       self.current_editing_localized_resource(resource);
     }
+
+    this.showLanguage = function(lang) {
+      var langRes = _.find(this.localizedResources(), function(res) {
+        return res.language() == lang;
+      });
+      if (langRes) {
+        this.editLocalizedResource(langRes);
+      }
+    }
   }
 
   Resource.find = function(guid, callback) {
