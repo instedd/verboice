@@ -1,4 +1,6 @@
 = form_for [project, scheduled_call], :remote => true do |f|
+  - if scheduled_call.new_record?
+    = hidden_field_tag :random_id, ''
   .middle
     %div
       %label Name
@@ -47,4 +49,4 @@
     %button.white{:type => "submit"} Save
   - else
     %button.white{:type => "submit"} Update
-  = link_to 'Cancel', '#', :class => "tgrey #{scheduled_call.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;'
+  = link_to 'Cancel', '#', :class => "tgrey #{scheduled_call.new_record? ? 'remove_unsaved_element' : 'collapse_trigger'}", :style => 'top: 1px;', :onclick => 'setTimeout(toggleAddScheduledCallsButton, 1)'

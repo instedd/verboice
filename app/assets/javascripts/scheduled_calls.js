@@ -5,6 +5,7 @@ function initScheduledCalls() {
     $('.scheduled_call').each(function(i, e) {
       initScheduledCall(e);
     });
+    toggleAddScheduledCallsButton();
   });
 }
 
@@ -39,8 +40,15 @@ function initScheduledCall(container) {
   });
 }
 
+function toggleAddScheduledCallsButton() {
+  var addButton = $('#add_scheduled_call');
+  var show = $('#new_scheduled_call').length == 0;
+  addButton.toggle(show);
+};
+
 function add_scheduled_call_box(e, fields) {
   add_box(e, fields);
   var container = $('.scheduled_call').last().get(0);
   initScheduledCall(container);
+  toggleAddScheduledCallsButton();
 }
