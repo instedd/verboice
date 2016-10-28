@@ -15,25 +15,6 @@ onWorkflow ->
         display_name: @display_name
       }
 
-    content_kinds: () =>
-      return [{text: 'Variable', value: 'variable'},
-      {text: 'Step', value: 'step'},
-      {text: 'Response', value: 'response'},
-      {text: 'Value', value: 'value'}]
-
-    available_variables: () =>
-      workflow.all_variables().sort()
-
-    available_steps: () =>
-      {name: step.name(), value: step.id} for step in workflow.steps() when (step.type() == 'capture') || (step.type() == 'menu')
-
-    available_responses: () =>
-      _.flatten({name: "#{step.name()} - #{variable.display_name}", value: "#{step.id}_#{variable.name}"} for variable in step.response_variables() for step in workflow.steps() when step.response_variables?)
-
-    on_step_removed: (step) =>
-      @step_id(null) if step.id == parseInt(@step_id())
-      @response(null) if step.id == parseInt(@response()) # Note that parseInt("123_resp") == "123"
-
     description: () =>
       desc = super()
       if desc? then "(#{desc})" else null
