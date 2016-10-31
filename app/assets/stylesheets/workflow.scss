@@ -267,6 +267,7 @@ span.orange {
   right:1px;
   top:1px;
   z-index:2;
+  pointer-events: none;
 }
 
 
@@ -330,5 +331,5 @@ select.error {
       padding: 0;
     }
   }
-  
+
 }
