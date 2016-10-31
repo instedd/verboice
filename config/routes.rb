@@ -129,6 +129,7 @@ Verboice::Application.routes.draw do
       member do
         match :state
         match :redirect
+        get :details
       end
     end
     get "channels" => "channels#list"
