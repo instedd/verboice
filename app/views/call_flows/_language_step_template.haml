@@ -25,8 +25,8 @@
       / /ko
     .content
       %hr
-      %input{ type: 'checkbox', 'data-bind' => 'checked: force_question' }
-      %label Force question
+      %input{ type: 'checkbox', 'data-bind' => 'checked: force_question, attr: { id: ("force_question_" + id) }' }
+      %label{ title: 'When checked, the caller will always be asked to enter his/her language. Otherwise, the question will only be asked if there is no language set for the caller.', 'data-bind' => 'attr: { for: ("force_question_" + id) }'} Force question
       %br
 
       .bottom-actions
