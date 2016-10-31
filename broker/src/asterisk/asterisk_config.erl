@@ -71,7 +71,7 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
 
     _ ->
       HasAuth = length(Username) > 0 andalso length(Password) > 0,
-      ClientUriUser = case length(Username) > 0 of
+      UserOrNumber = case length(Username) > 0 of
         true -> Username;
         _ -> Number
       end,
@@ -86,7 +86,7 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
             true -> ok
           end,
           file:write(ConfigFile, ["server_uri=sip:", Domain, "\n"]),
-          file:write(ConfigFile, ["client_uri=sip:", ClientUriUser, "@", Domain, "\n"]),
+          file:write(ConfigFile, ["client_uri=sip:", UserOrNumber, "@", Domain, "\n"]),
           %% When Asterisk Version > 13.1...
           % file:write(ConfigFile, "line=yes\n"),
           % file:write(ConfigFile, ["endpoint=", Section, "\n"]),
@@ -105,7 +105,7 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
         file:write(ConfigFile, ["outbound_auth=", Section, "\n"]);
         true -> ok
       end,
-      file:write(ConfigFile, ["from_user=", Number, "\n"]),
+      file:write(ConfigFile, ["from_user=", UserOrNumber, "\n"]),
       file:write(ConfigFile, ["from_domain=", Domain, "\n"]),
       file:write(ConfigFile, "disallow=all\n"),
       file:write(ConfigFile, "allow=ulaw\n"),
