@@ -12,6 +12,13 @@ onResourcesWorkflow(function(){
     this.filename = ko.observable(hash.filename);
     this.uploadedfile = null;
 
+    this.playUrl = ko.computed(function(){
+      if(this.isSaved()) {
+        return "/projects/" + project_id + "/resources/" + this.parent().id() + "/localized_resources/" + this.id() + "/play_file";
+      } else {
+        return null
+      }
+    }, this);
 
     this.url = ko.computed(function(){
       if(this.isSaved()) {
@@ -64,7 +71,7 @@ onResourcesWorkflow(function(){
       return false;
     }
 
-    return downloadURL("/projects/" + project_id + "/resources/" + this.parent().id() + "/localized_resources/" + this.id() + "/play_file");
+    return downloadURL(this.playUrl());
   }
 
   UploadLocalizedResource.prototype.preserveCurrentValues= function() {
@@ -90,4 +97,3 @@ onResourcesWorkflow(function(){
     }
   }
 })
-

@@ -1,7 +1,7 @@
 %script{type: "text/html", id: "upload_localized_resource_template"}
   .file-name
     / ko if:  uploadStatus() == 'standBy' && !hasAudio()
-    %span.alert-orange-b Select a file to upload
+    %span.alert-orange-b Select a file
     / /ko
     / ko if: hasAudio()
     %span.clickable.audio-name{'data-bind' => 'text: "File: " + filename(), click: download'}
@@ -22,6 +22,12 @@
     .upload-file.fsync
       %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadAdd: add'}
     Replace
+    / /ko
+    / ko if: hasAudio() && (uploadStatus() == 'ok' || uploadStatus() == 'standBy')
+    %br
+    %audio{'controls' => true, "style" => "width: 250px"}
+      %source{'data-bind' => 'attr: { src: playUrl }'}
+    %br
     / /ko
   %br{clear: 'all'}
   .w22

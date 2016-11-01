@@ -28,6 +28,12 @@
           %input{:type => 'file', 'data-bind' => 'fileupload: url, fileuploadAdd: add, fileuploadprogressall: showProgress'}
         Replace
       / /ko
+      / ko if: hasAudio() && (uploadStatus() == 'ok' || uploadStatus() == 'standBy')
+      %br
+      %audio{'controls' => true, "style" => "width: 450px", "preload" => "none"}
+        %source{'data-bind' => 'attr: { src: playUrl }'}
+      %br
+      / /ko
   .w100
     %textarea{:rows => 6, :placeholder => 'Write here a description of the recording, either as a reminder for you or as a reference for the person that will record the message.', 'data-bind' => 'value: description, visible: $parent.editing()'}
   %span.i18b-file{ko(visible: '! $parent.editing()')}
