@@ -1,7 +1,7 @@
 onWorkflow ->
   class window.Workflow
     constructor: () ->
-      @steps = ko.observableArray(Step.from_hash(hash) for hash in call_flow)
+      @steps = ko.observableArray()
       @command_selector = new CommandSelector(new AddRootRequestor)
       @add_new_step = new window.New({id: -1})
 
@@ -11,6 +11,9 @@ onWorkflow ->
       @is_valid = ko.computed () =>
         (return false for step in @steps() when step.is_invalid())
         true
+
+    load_steps: () =>
+      @steps(Step.from_hash(hash) for hash in call_flow)
 
     get_step: (id) =>
       return null if not id?
@@ -40,8 +43,14 @@ onWorkflow ->
     remove_step: (step_to_remove) =>
       for step in @steps()
         step.on_step_removed(step_to_remove) if step.on_step_removed
+      if step_to_remove.root() and step_to_remove.next_id? and step_to_remove.next_id > 0
+        step_to_remove.next().root(true)
       @steps.remove(step_to_remove)
       @set_as_current(null) if @current_step() == step_to_remove
+
+    set_as_initial: (step) =>
+      @steps.remove(step)
+      @steps.unshift(step)
 
     set_as_current: (step) =>
       @sidebar_content(step || @command_selector.with_requestor(new AddRootRequestor))

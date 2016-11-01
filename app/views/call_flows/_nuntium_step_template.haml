@@ -38,4 +38,4 @@
         %select.w15{'data-bind' => "value: channel_id, options: window.sms_channels, optionsText: 'name', optionsValue: 'id'"}
 
       .bottom-actions
-        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+        = render partial: 'bottom_actions'

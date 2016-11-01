@@ -15,7 +15,7 @@ onWorkflow ->
       @container.empty()
 
       i = 0
-      roots = (step for step in steps when step.root)
+      roots = (step for step in steps when step.root())
 
       for root in roots
         [i,_j] = @recursive_draw_workflow

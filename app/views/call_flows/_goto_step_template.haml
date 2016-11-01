@@ -15,4 +15,4 @@
           %select.w100{'data-bind' => "value: jump_id, options: available_steps(), optionsText: 'name', optionsValue: 'id', optionsCaption: 'Select one...'"}
     .content
       .bottom-actions
-        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+        = render partial: 'bottom_actions'
