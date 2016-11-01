@@ -5,7 +5,12 @@
       %input.ux-text.w20.right{ ko(value: 'name', valueUpdate: '"afterkeydown"', css: '{ "error": is_name_invalid }')}
 
     .content
-      %label Forward to:
+      %p
+        %label
+          Forward to the specified phone number.
+          %br
+          You can use interpolation to refer to variables in the number, such as
+          %code 5551000{ext}.
       %br
 
       %span.forwardto{ko(css: "{ orange: is_address_invalid }")}
