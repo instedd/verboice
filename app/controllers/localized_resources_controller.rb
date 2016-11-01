@@ -17,7 +17,10 @@
 
 class LocalizedResourcesController < ApplicationController
 
-  expose(:project) { current_account.projects.find(params[:project_id]) }
+  before_filter :check_project_admin, only: [:save_recording, :save_file]
+  before_filter :check_project_reader, only: [:play_recording, :play_file]
+
+  expose(:project) { @project }
   expose(:resource) { project.resources.find(params[:resource_id]) }
   expose(:localized_resources) { resource.localized_resources }
   expose(:localized_resource)
