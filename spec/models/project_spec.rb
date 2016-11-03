@@ -109,7 +109,7 @@ describe Project do
       'max_input_length' => 2,
       'timeout' => 10 }]
 
-      project.reload.defined_variables.should eq(['some_variable', 'foo'])
+      project.reload.defined_variables.should eq(['some_variable', 'foo', 'language', 'sms_number'])
     end
   end
 
