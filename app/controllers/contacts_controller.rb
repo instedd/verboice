@@ -18,10 +18,10 @@
 class ContactsController < ApplicationController
   before_filter :authenticate_account!
   before_filter :load_project
-  before_filter :load_filters, :only => :index
+  before_filter :load_filters, :only => [:index, :destroy_from_filter]
   before_filter :load_sorting, :only => :index
   before_filter :initialize_context, :only => [:show, :edit, :update, :destroy]
-  before_filter :check_project_admin, :only => [:create, :edit, :update, :destroy]
+  before_filter :check_project_admin, :only => [:create, :edit, :update, :destroy, :destroy_from_filter]
   before_filter :init_calls_context, :only => [:calls, :queued_calls]
 
   def index
@@ -110,6 +110,11 @@ class ContactsController < ApplicationController
       format.html { redirect_to project_contacts_url(@project) }
       format.json { head :no_content }
     end
+  end
+
+  def destroy_from_filter
+    contacts = ContactsFinder.for(@project).find(@filters).destroy_all
+    redirect_to project_contacts_path(@project), notice: "#{pluralize(contacts.count, 'contact')} were deleted"
   end
 
   def calls
