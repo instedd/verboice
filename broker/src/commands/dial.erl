@@ -4,8 +4,9 @@
 -include("db.hrl").
 
 run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, js_context = JS}) ->
-  Number = proplists:get_value(number, Args),
+  RawNumber = proplists:get_value(number, Args),
   CallerId = proplists:get_value(caller_id, Args),
+  Number = util:interpolate_js(util:as_binary(RawNumber), JS),
 
   Channel = case proplists:get_value(channel_name, Args) of
     undefined -> CurrentChannel;
@@ -32,7 +33,7 @@ run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, js_context = J
   DialStart = erlang:now(),
 
   try
-    Result = Pbx:dial(Channel, list_to_binary(Number), CallerId),
+    Result = Pbx:dial(Channel, Number, CallerId),
     ResultJS = erjs_context:set(dial_status, Result, JS),
     NewJS = maybe_mark_session_successful(DialStart, SuccessAfterSeconds, ResultJS),
 
@@ -55,4 +56,3 @@ maybe_mark_session_successful(DialStart, SuccessAfterSeconds, JS) ->
     true ->
       JS
   end.
-
