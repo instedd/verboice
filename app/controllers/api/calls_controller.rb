@@ -57,5 +57,32 @@ module Api
       call_log = current_account.call_logs.where(:id => params[:id]).first
       render :json => {:call_id => call_log.id, :state => call_log.state}
     end
+
+    def details
+      call_log = current_account.call_logs.where(:id => params[:id]).first
+      return head :not_found if call_log.nil?
+
+      render :json => {
+        :call_id => call_log.id,
+        :state => call_log.state,
+        :project_id => call_log.project.id,
+        :project_name => call_log.project.try(:name),
+        :started_at => call_log.started_at,
+        :finished_at => call_log.finished_at,
+        :not_before => call_log.not_before,
+        :direction => call_log.direction,
+        :channel_id => call_log.channel.id,
+        :channel_name => call_log.channel.try(:name),
+        :call_flow_id => call_log.call_flow.id,
+        :call_flow_name => call_log.call_flow.try(:name),
+        :contact_id => call_log.contact_id,
+        :contact_address => call_log.address,
+        :schedule_id => call_log.schedule_id,
+        :schedule_name => call_log.schedule.try(:name),
+        :fail_reason => call_log.fail_reason,
+        :fail_code => call_log.fail_code,
+        :fail_details => call_log.fail_details
+      }.reject {|k,v| v.nil?}
+    end
   end
 end
