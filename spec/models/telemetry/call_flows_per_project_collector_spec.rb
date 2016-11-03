@@ -12,13 +12,13 @@ describe Telemetry::CallFlowsPerProjectCollector do
     p2 = Project.make
     5.times { p1.call_flows.make }
 
-    Timecop.travel(d1)
+    Timecop.freeze(d1)
     5.times  { p1.call_flows.make }
     30.times { p2.call_flows.make }
 
     period  = InsteddTelemetry.current_period
 
-    Timecop.travel(d2)
+    Timecop.freeze(d2)
     p1.call_flows.make
     p2.call_flows.make
 
