@@ -1,9 +1,8 @@
 onWorkflow ->
   class window.Step
     constructor: (attrs) ->
-      @root = false
       @id = attrs.id || workflow.generate_id()
-      @root = attrs.root
+      @root = ko.observable(attrs.root || false)
       @name = ko.observable(attrs.name || @default_name())
       @next_id = attrs.next
 
@@ -12,6 +11,9 @@ onWorkflow ->
 
       @is_invalid = ko.computed () =>
         @is_name_invalid()
+
+      @show_set_as_initial_subflow = ko.computed () =>
+        @root() && workflow.steps().length > 0 && workflow.steps()[0] != @
 
     @from_hash: (hash) ->
       if typeof(hash.type) == "string"
@@ -44,7 +46,7 @@ onWorkflow ->
       id: @id
       name: @name()
       type: @type()
-      root: @root
+      root: @root()
       next: (if @next_id > 0 then @next_id else null)
 
     parent: () =>
@@ -61,6 +63,9 @@ onWorkflow ->
 
     is_serializable: () =>
       true
+
+    set_as_initial_subflow: () =>
+      workflow.set_as_initial(@)
 
     remove_with_confirm: () =>
       name = @name?() || "this step"
@@ -84,7 +89,7 @@ onWorkflow ->
           parent.next_id = null
       else
         if @next_id? and @next_id > 0
-          @next()?.root = @root
+          @next()?.root(@root())
       workflow.remove_step @
 
     child_removed: () =>

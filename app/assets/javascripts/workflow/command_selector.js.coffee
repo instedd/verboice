@@ -50,8 +50,8 @@ onWorkflow ->
       parent = @step.parent()
       workflow.create_step cmd_type, parent, (new_step) =>
         new_step.next_id = @step.id
-        new_step.root = @step.root
-        @step.root = false
+        new_step.root(@step.root())
+        @step.root(false)
         workflow.set_as_current(new_step)
         if parent
           workflow.steps.push new_step
@@ -70,4 +70,3 @@ onWorkflow ->
         new_step.next_id = next_id
         workflow.set_as_current(new_step)
         workflow.steps.push new_step
-

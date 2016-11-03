@@ -19,4 +19,4 @@
             %button.farrow{ :type => "button", 'data-bind' => 'click: show_resource' }
     .content
       .bottom-actions
-        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+        = render partial: 'bottom_actions'

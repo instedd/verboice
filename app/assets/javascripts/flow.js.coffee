@@ -36,6 +36,7 @@ onWorkflow ->
   loadRecorderSwf();
 
   window.workflow = new Workflow()
+  window.workflow.load_steps()
   window.workflow.after_initialize()
   ko.applyBindings(workflow, document.getElementById('container'))
 

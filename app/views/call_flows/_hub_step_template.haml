@@ -23,7 +23,7 @@
 
     .content
       .bottom-actions
-        %button.fdelete{ 'data-bind' => 'click: remove_with_confirm' } Remove this step
+        = render partial: 'bottom_actions'
 
 %script{type: "text/html", id: "hub_step_binding_template"}
   /ko if: bindings
