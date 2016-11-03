@@ -60,6 +60,8 @@ module Api
 
     def details
       call_log = current_account.call_logs.where(:id => params[:id]).first
+      return head :not_found if call_log.nil?
+
       render :json => {
         :call_id => call_log.id,
         :state => call_log.state,
