@@ -45,27 +45,16 @@ dispatch(_Session = #session{session_id = SessionId, channel = Channel, address 
       {error, unavailable}
   end.
 
-parse_exception(Reason, Message) ->
+parse_exception(Reason, Body) ->
   try
-    {#xmlElement{content = [RestException]}, _} = xmerl_scan:string(Message),
-    case RestException#xmlElement.name of
-      'RestException' ->
-        Content = RestException#xmlElement.content,
-        FullCode = case extract_exception_item('Code', Content) of
-          undefined -> undefined;
-          Code -> "twilio:" ++ Code
-        end,
-        {error, extract_exception_item('Message', Content), FullCode};
-      _ -> Reason
-    end
+    {Doc, []} = xmerl_scan:string(Body),
+    [Exception] = xmerl_xs:select("/TwilioResponse/RestException", Doc),
+    FullCode = case xmerl_xs:value_of(xmerl_xs:select("./Code", Exception)) of
+      [Code] -> "twilio:" ++ Code;
+      _ -> undefined
+    end,
+    [Message] = xmerl_xs:value_of(xmerl_xs:select("./Message", Exception)),
+    {error, Message, FullCode}
   catch
     _ -> Reason
   end.
-
-extract_exception_item(TargetName, [#xmlElement{name = Name, content = [#xmlText{value = Text}]} | Rest]) ->
-  case Name of
-    TargetName -> Text;
-    _ -> extract_exception_item(TargetName, Rest)
-  end;
-extract_exception_item(_, []) ->
-  undefined.
