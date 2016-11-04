@@ -29,6 +29,16 @@ GIT
       rest-client
 
 GIT
+  remote: git://github.com/instedd/telemetry_rails.git
+  revision: aee5fc99e3dbe06e6cdd077c8042a2ada0bb6995
+  ref: aee5fc99e3dbe06e6cdd077c8042a2ada0bb6995
+  specs:
+    instedd_telemetry (0.0.1)
+      global_phone
+      global_phone_dbgen
+      rails
+
+GIT
   remote: https://github.com/edave/enumerated_attribute.git
   revision: ec1021d11874f37d30589f91814d069884348fdf
   specs:
@@ -66,16 +76,6 @@ GIT
       jquery-rails (>= 3.0)
       rails (>= 3.2)
       sass-rails (>= 3.1)
-
-GIT
-  remote: https://github.com/instedd/telemetry_rails
-  revision: db0ef5c0e72b8a944befb7b9b88beedb876b296c
-  ref: db0ef5c0e72b8a944befb7b9b88beedb876b296c
-  specs:
-    instedd_telemetry (0.0.1)
-      global_phone
-      global_phone_dbgen
-      rails
 
 GIT
   remote: https://github.com/tbuehl/machinist.git
