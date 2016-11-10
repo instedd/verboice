@@ -28,6 +28,10 @@ td.right {
   overflow: auto;
   padding: 1px;
 
+  .swallow-click {
+    padding: 10px 20px;
+  }
+
   .filters-box {
     @include box-sizing(border-box);
     padding: 10px;
