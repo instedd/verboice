@@ -1,0 +1,16 @@
+pre-start script
+
+bash << "EOF"
+<% run_dir = "/var/run/#{app}"  %>
+mkdir -p <%= run_dir %>
+chown -R <%= user %> <%= run_dir %>
+
+mkdir -p <%= log %>
+chown -R <%= user %> <%= log %>
+EOF
+
+end script
+
+start on runlevel [2345]
+
+stop on runlevel [016]
