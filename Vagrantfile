@@ -169,7 +169,7 @@ Listen 8080"' >> /etc/apache2/ports.conf
     script/update_yml_config config/verboice.yml skip_account_confirmation true
     echo "RAILS_ENV=production" > .env
     echo "HOME=$HOME" >> .env
-    sudo -E bundle exec foreman export upstart /etc/init -a verboice -u `whoami` --concurrency="broker=1,delayed=1"
+    sudo -E bundle exec foreman export upstart /etc/init -a verboice -u `whoami` -t etc/upstart --concurrency="broker=1,delayed=1"
 
     # Setup admin interface
     cd ~/verboice/admin
