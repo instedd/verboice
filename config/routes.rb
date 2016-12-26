@@ -178,7 +178,7 @@ Verboice::Application.routes.draw do
 
   root :to => 'home#index'
 
-  get 'terms_and_conditions', :to => redirect('/')
+  get 'terms_and_conditions', :to => redirect('http://instedd.org/terms-of-service/')
 
   match '/hub/*path' => 'hub#api', format: false
 
