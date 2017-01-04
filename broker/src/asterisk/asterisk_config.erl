@@ -50,6 +50,10 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
       file:write(ConfigFile, "disallow=all\n"),
       file:write(ConfigFile, "allow=ulaw\n"),
       file:write(ConfigFile, "allow=gsm\n"),
+      file:write(ConfigFile, "rtp_symmetric=yes\n"),
+      file:write(ConfigFile, "direct_media=no\n"),
+      file:write(ConfigFile, "rewrite_contact=yes\n"),
+      file:write(ConfigFile, "identify_by=auth_username\n"),
       file:write(ConfigFile, "\n"),
 
       % Auth
@@ -58,6 +62,7 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
       file:write(ConfigFile, "auth_type=userpass\n"),
       file:write(ConfigFile, ["username=", Section, "\n"]),
       file:write(ConfigFile, ["password=", Password, "\n"]),
+      file:write(ConfigFile, "remove_existing=yes\n"),
       file:write(ConfigFile, "\n"),
 
       % AOR
