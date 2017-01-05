@@ -135,6 +135,8 @@ Verboice::Application.routes.draw do
     get "channels" => "channels#list"
     resources :channels, only: [:create] do
       collection do
+        get "all", :action => "all"
+        get "all/:id", :action => "get_by_id"
         get ":name", :action => "get"
         put ":name", :action => "update"
         delete ":name", :action => "destroy"

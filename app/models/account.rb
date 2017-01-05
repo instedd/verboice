@@ -96,6 +96,12 @@ class Account < ActiveRecord::Base
     nil
   end
 
+  def find_channel_by_id(channel_id)
+    channel = channels.find_by_id(channel_id)
+    channel ||= shared_channels.find_by_model_id(channel_id).try(&:channel)
+    channel
+  end
+
   def find_channel_by_name(channel_name)
     channel = channels.find_by_name(channel_name)
     channel ||= shared_channels.all.map(&:channel).find { |c| c.name == channel_name }
@@ -103,12 +109,17 @@ class Account < ActiveRecord::Base
   end
 
   def call(options = {})
-    channel = find_channel_by_name options[:channel]
+    channel = if options[:channel].present?
+      find_channel_by_name options[:channel]
+    else
+      find_channel_by_id options[:channel_id]
+    end
+
     if channel
       options[:account] = self
       channel.call options[:address], options
     else
-      raise "Channel not found: #{options[:channel]}"
+      raise "Channel not found: #{options[:channel] || options[:channel_id]}"
     end
   end
 

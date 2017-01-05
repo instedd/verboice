@@ -27,6 +27,17 @@ module Api
       end
     end
 
+    def get_by_id
+      id = params[:id]
+      channel = current_account.channels.find_by_id(id) || current_account.shared_channels.find_by_model_id(id).try(:channel)
+
+      if channel.present?
+        render :json => channel
+      else
+        head :not_found
+      end
+    end
+
     def create
       data = request.raw_post
       data = JSON.parse(data).with_indifferent_access
@@ -71,6 +82,12 @@ module Api
     def list
       channel_names = current_account.channels.map(&:name)
       render :json => channel_names
+    end
+
+    def all
+      owned_channels = current_account.channels.all
+      shared_channels = current_account.shared_channels.all.map(&:channel)
+      render :json => (owned_channels + shared_channels).uniq
     end
 
   end

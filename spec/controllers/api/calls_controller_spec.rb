@@ -40,6 +40,15 @@ describe Api::CallsController do
       call_log = CallLog.last
       result = JSON.parse(@response.body)
       result['call_id'].should == call_log.id
+      call_log.channel_id.should eq(channel.id)
+    end
+
+    it "calls with channel id" do
+      get :call, :address => 'foo', :channel_id => channel.id, :callback => 'bar'
+      call_log = CallLog.last
+      result = JSON.parse(@response.body)
+      result['call_id'].should == call_log.id
+      call_log.channel_id.should eq(channel.id)
     end
 
     it "schedule call in the future" do
