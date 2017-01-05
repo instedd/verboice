@@ -109,7 +109,7 @@ class Account < ActiveRecord::Base
   end
 
   def call(options = {})
-    channel = if !options[:channel].blank?
+    channel = if options[:channel].present?
       find_channel_by_name options[:channel]
     else
       find_channel_by_id options[:channel_id]
