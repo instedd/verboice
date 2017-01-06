@@ -62,7 +62,6 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
       file:write(ConfigFile, "auth_type=userpass\n"),
       file:write(ConfigFile, ["username=", Section, "\n"]),
       file:write(ConfigFile, ["password=", Password, "\n"]),
-      file:write(ConfigFile, "remove_existing=yes\n"),
       file:write(ConfigFile, "\n"),
 
       % AOR
@@ -70,6 +69,7 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
       file:write(ConfigFile, "type=aor\n"),
       file:write(ConfigFile, "qualify_frequency=60\n"),
       file:write(ConfigFile, "max_contacts=1\n"),
+      file:write(ConfigFile, "remove_existing=yes\n"),
       file:write(ConfigFile, "\n"),
 
       generate_config(Rest, ConfigFile, ResolvCache, ChannelIndex, RegistryIndex);
