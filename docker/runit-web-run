@@ -1,0 +1,4 @@
+#!/bin/bash
+source /etc/envvars
+cd /app
+exec puma --preload -w 4 -e $RAILS_ENV -b unix:///var/run/app.sock

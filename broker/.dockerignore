@@ -1,0 +1,6 @@
+.eunit
+deps
+ebin
+log
+test
+tmp
