@@ -131,7 +131,7 @@ get_attribute(#xmlElement{attributes = Attributes}, AttrName) ->
   end.
 
 inner_text(Contents) -> inner_text(Contents, []).
-inner_text([], Acc) -> binary_to_list(iolist_to_binary(lists:reverse(Acc)));
+inner_text([], Acc) -> binary_to_list(unicode:characters_to_binary(lists:reverse(Acc)));
 inner_text([#xmlText{value = Text} | Rest], Acc) -> inner_text(Rest, [Text | Acc]);
 inner_text([_ | Rest], Acc) -> inner_text(Rest, Acc).
 
@@ -143,7 +143,7 @@ parse_method(Str) ->
 
 start_activity(XmlElement, StepType) ->
   [start_activity, [
-    {name, iolist_to_binary(xmerl:export_simple_element(XmlElement, xmerl_xml))},
+    {name, unicode:characters_to_binary(xmerl:export_simple_element(XmlElement, xmerl_xml))},
     {metadata, [{step_type, StepType}]}
   ]].
 

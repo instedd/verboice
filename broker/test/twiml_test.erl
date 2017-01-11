@@ -6,6 +6,9 @@ parse_cases() -> [
     [start_activity("<Play>http://foo</Play>", "twiml_play"), [play_url, [{url, "http://foo"}]]]},
   {?LINE, "<Response><Play>http://foo?bar&amp;baz</Play></Response>",
     [start_activity("<Play>http://foo?bar&amp;baz</Play>", "twiml_play"), [play_url, [{url, "http://foo?bar&baz"}]]]},
+  % Test for https://github.com/instedd/verboice/issues/779 (the unicode character 8217 is encoded in UTF-8 as [226,128,153])
+  {?LINE, "<Response><Say>" ++ [226,128,153] ++ "</Say></Response>",
+    [start_activity("<Say>’</Say>", "twiml_say"), [say, [{text, [226,128,153]}]]]},
   {?LINE, "<Response><Say>Hello &amp; Bye</Say></Response>",
     [start_activity("<Say>Hello &amp; Bye</Say>", "twiml_say"), [say, [{text, "Hello & Bye"}]]]},
   {?LINE, "<Response><Say language=\"en\">Hello</Say></Response>",
@@ -52,7 +55,7 @@ parse_test_() ->
   [{Line, ?_assertEqual(begin io:format("~p~n~p~n", [Commands, twiml:parse(Xml)]), Commands end, twiml:parse(Xml))} || {Line, Xml, Commands} <- parse_cases()].
 
 start_activity(Name, StepType) ->
-  [start_activity, [{name, iolist_to_binary(Name)}, {metadata, [{step_type, StepType}]}]].
+  [start_activity, [{name, unicode:characters_to_binary(Name)}, {metadata, [{step_type, StepType}]}]].
 
 set_metadata(Result, Data) ->
   [set_metadata, [{step_result, Result}, {step_data, Data}]].
