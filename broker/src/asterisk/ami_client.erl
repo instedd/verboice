@@ -60,7 +60,9 @@ handle_call(_Request, _From, State) ->
 
 %% @private
 handle_cast(connect, State = #state{connected = false}) ->
-  case gen_tcp:connect("localhost", 5038, [binary, {packet, line}], 1000) of
+  AmiHost = application:get_env(verboice, ami_host, "localhost"),
+  AmiPort = application:get_env(verboice, ami_port, 5038),
+  case gen_tcp:connect(AmiHost, AmiPort, [binary, {packet, line}], 1000) of
     {ok, Sock} ->
       {noreply, #state{sock = Sock, connected = true, state = initial, reply_queue = queue:new()}};
     _ ->
