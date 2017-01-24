@@ -266,7 +266,8 @@ class Channel < ActiveRecord::Base
     super(options).merge({
       kind: kind.try(:downcase).try(:gsub, ' ', '_'),
       call_flow: call_flow.try(:name),
-      call_flow_id: call_flow.try(:id)
+      call_flow_id: call_flow.try(:id),
+      enabled: enabled
     })
   end
 end

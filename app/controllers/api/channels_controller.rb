@@ -79,6 +79,26 @@ module Api
       end
     end
 
+    def enable
+      channel = current_account.channels.find_by_id(params[:id])
+      if channel.present?
+        channel.enable!
+        head :ok
+      else
+        head :not_found
+      end
+    end
+
+    def disable
+      channel = current_account.channels.find_by_id(params[:id])
+      if channel.present?
+        channel.disable!
+        head :ok
+      else
+        head :not_found
+      end
+    end
+
     def list
       channel_names = current_account.channels.map(&:name)
       render :json => channel_names
