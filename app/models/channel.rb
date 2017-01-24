@@ -26,6 +26,8 @@ class Channel < ActiveRecord::Base
 
   config_accessor :limit
 
+  scope :enabled_channels, ->() { where(enabled: true) }
+
   validates_presence_of :account
 
   validates_presence_of :name
@@ -56,6 +58,16 @@ class Channel < ActiveRecord::Base
 
   def self.enabled
     true
+  end
+
+  def enable!
+    self.enabled = true
+    save!
+  end
+
+  def disable!
+    self.enabled = false
+    save!
   end
 
   def call(address, options = {})

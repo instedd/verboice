@@ -1,7 +1,12 @@
-- if @shared_channel
-  %h1 #{channel.name} (#{channel.kind}, shared as #{@channel_permission})
-- else
-  %h1 #{channel.name} (#{channel.kind})
+%h1
+  = channel.name
+  - if @shared_channel
+    (#{channel.kind}, shared as #{@channel_permission})
+  - else
+    (#{channel.kind})
+  - unless channel.enabled?
+    &mdash;
+    %span.channel-disabled channel disabled
 
 %ul.tabs.top
   %li{ :class =>"#{"active" if params[:controller] == "channels" && params[:action] == 'show'}" }

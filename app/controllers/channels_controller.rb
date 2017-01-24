@@ -19,7 +19,7 @@ class ChannelsController < ApplicationController
   before_filter :authenticate_account!
   before_filter :load_call_flows, only: [:new, :edit, :create]
   before_filter :load_channel, only: [:show, :edit, :update, :destroy, :call]
-  before_filter :check_channel_admin, only: [:update, :destroy]
+  before_filter :check_channel_admin, only: [:update, :destroy, :enable, :disable]
 
   # GET /channels
   def index
@@ -98,6 +98,20 @@ class ChannelsController < ApplicationController
     @channel.destroy
 
     redirect_to(channels_url)
+  end
+
+  # POST /channels/1/enable
+  def enable
+    @channel.enable!
+
+    redirect_to(@channel)
+  end
+
+  # POST /channels/1/disable
+  def disable
+    @channel.disable!
+
+    redirect_to(@channel)
   end
 
   def call

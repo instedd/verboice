@@ -1,0 +1,22 @@
+td.channel-disabled, span.channel-disabled {
+  font-style: italic;
+  color: #888;
+
+  span.channel-status {
+    background-color: transparent;
+  }
+}
+
+span.channel-status {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #d0d0d0;
+
+  &.channel-status-ok {
+    background-color: #6bd346;
+  }
+  &.channel-status-error {
+    background-color: #ff642a;
+  }
+}

@@ -21,6 +21,8 @@ Verboice::Application.routes.draw do
     resources :queued_calls
     member do
       get :call
+      post :enable
+      post :disable
     end
   end
 
