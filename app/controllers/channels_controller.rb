@@ -115,7 +115,7 @@ class ChannelsController < ApplicationController
   end
 
   def call
-    render :layout => false
+    redirect_to(@channel, :notice => "Channel is disabled") unless @channel.enabled?
   end
 
   private

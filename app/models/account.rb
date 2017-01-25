@@ -46,6 +46,7 @@ class Account < ActiveRecord::Base
   has_many :identities, dependent: :destroy
 
   has_one :google_oauth_token, :class_name => 'OAuthToken', :conditions => {:service => :google}, :dependent => :destroy
+  has_many :enabled_channels, :class_name => 'Channel', :conditions => {:enabled => true}
 
   after_save :telemetry_track_activity
 

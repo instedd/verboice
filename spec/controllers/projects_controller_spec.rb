@@ -195,6 +195,15 @@ describe ProjectsController do
       flash[:error].should eq('You need to select a Call Flow')
     end
 
+    it 'should fail if the channel is disabled' do
+      channel.disable!
+      expect {
+        post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id
+      }.to_not change(QueuedCall, :count).by(1)
+      response.should be_redirect
+      flash[:error].should eq('You need to select a channel')
+    end
+
     it 'should not enqueue multiple calls to the same number' do
       expect {
         post :enqueue_call, :id => project.id, :addresses => "0\n0\n0", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id

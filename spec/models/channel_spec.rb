@@ -23,6 +23,7 @@ describe Channel do
 
   before(:each) do
     Timecop.freeze(Time.parse("2012-01-01T12:00:00Z"))
+    BrokerClient.stub(:create_channel)
   end
 
   after(:each) do
@@ -168,6 +169,19 @@ describe Channel do
         channel_id == channel.id
       end
       channel.save!
+    end
+
+    it "disable cancels queued calls" do
+      channel = a_channel.make
+
+      call_log = channel.call 'foo'
+      channel.queued_calls.count.should eq(1)
+
+      channel.disable!
+
+      channel.should_not be_enabled
+      channel.reload.queued_calls.should be_empty
+      call_log.state.should == :cancelled
     end
 
     if a_channel.is_a?(Channels::Sip)

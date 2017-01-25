@@ -34,6 +34,7 @@ class ScheduledCall < ActiveRecord::Base
 
   def make_calls(from, to)
     return unless self.enabled
+    return unless self.channel.enabled?
 
     call_options = {
       account: self.project.account,

@@ -42,6 +42,15 @@ class Channel < ActiveRecord::Base
 
   broker_cached
 
+  # Name to display in a select combo box
+  def name_for_combo
+    if enabled?
+      name
+    else
+      "#{name} (disabled)"
+    end
+  end
+
   def config
     self[:config] ||= {}
   end
@@ -68,9 +77,15 @@ class Channel < ActiveRecord::Base
   def disable!
     self.enabled = false
     save!
+
+    queued_calls.each do |call|
+      call.cancel_call!
+    end
+    queued_calls.destroy_all
   end
 
   def call(address, options = {})
+    raise "Channel is disabled" unless enabled?
     raise "Call address cannot be empty" unless address.present?
 
     queued_call = enqueue_call_to address, options

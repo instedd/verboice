@@ -62,6 +62,7 @@ class ProjectsController < ApplicationController
 
     @channel = @channels.find { |c| c.id == params[:channel_id].to_i }
     redirect_to project_path(params[:id]), flash: {error: 'You need to select a channel'} and return unless @channel
+    redirect_to project_path(params[:id]), flash: {error: 'The channel is disabled'} and return unless @channel.enabled?
 
     addresses = params[:addresses].split(/\n/).map(&:strip).select(&:presence)
 
@@ -103,7 +104,7 @@ class ProjectsController < ApplicationController
 
   def load_enqueue_call_fields
     load_project
-    @channels = current_account.channels.all
+    @channels = current_account.enabled_channels.all
 
     shared_channels = current_account.shared_channels.all.map(&:channel)
     shared_channels.each { |c| c.name = "#{c.name} (shared)" }

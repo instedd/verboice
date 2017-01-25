@@ -14,7 +14,7 @@
       = f.collection_select :call_flow_id, call_flows, :id, :name, {prompt: 'Select a Call flow...'}, {class: 'w30'}
     %div
       %label Channel
-      = f.collection_select :channel_id, channels, :id, :name, {prompt: 'Select a Channel...'}, {class: 'w30'}
+      = f.collection_select :channel_id, channels, :id, :name_for_combo, {prompt: 'Select a Channel...'}, {class: 'w30'}
     %div
       %label Schedule
       = f.select_recurring :recurrence_rule, [scheduled_call.recurrence_rule], {allow_blank: false}, {:class => 'w30'}
