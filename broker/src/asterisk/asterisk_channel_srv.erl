@@ -1,4 +1,5 @@
 -module(asterisk_channel_srv).
+-compile([{parse_transform, lager_transform}]).
 -export([start_link/0, find_channel/2, register_channel/2, regenerate_config/0, set_channel_status/1, get_channel_status/1]).
 
 -behaviour(gen_server).
@@ -117,7 +118,9 @@ handle_cast(regenerate_config, State = #state{config_job_state = JobState}) ->
   {noreply, NewState};
 
 handle_cast({set_channels, ChannelIndex, RegistryIndex}, State = #state{config_job_state = JobState}) ->
-  io:format("Updated registry: ~n~p~n~p~n", [ChannelIndex, RegistryIndex]),
+  lager:info("Updated Asterisk Channel registry: ~B IP-number and ~B SIP registrations",
+             [dict:size(ChannelIndex), dict:size(RegistryIndex)]),
+  lager:debug("Asterisk Channel registry: ~n~p~n~p~n", [ChannelIndex, RegistryIndex]),
   case JobState of
     must_regenerate -> regenerate_config();
     _ -> ok
