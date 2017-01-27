@@ -75,89 +75,108 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
       generate_config(Rest, ConfigFile, ResolvCache, ChannelIndex, RegistryIndex);
 
     _ ->
-      HasAuth = length(Username) > 0 andalso length(Password) > 0,
-      UserOrNumber = case length(Username) > 0 of
-        true -> Username;
-        _ -> Number
-      end,
-
-      % Registration
-      NewRegistryIndex = case channel:register(Channel) of
+      {Expanded, NewCache} = expand_domain(Domain, ResolvCache),
+      % TODO: if we consider the channel's direction (ie. inbound/outbound) we
+      % may relax this condition since we only need a set of resolved IP
+      % addresses to match incoming calls. Although, the domain needs to be
+      % resolvable also if registration is enabled.
+      case is_resolved(Expanded) of
         true ->
+          HasAuth = length(Username) > 0 andalso length(Password) > 0,
+          UserOrNumber = case length(Username) > 0 of
+            true -> Username;
+            _ -> Number
+          end,
+
+          % Registration
+          NewRegistryIndex = case channel:register(Channel) of
+            true ->
+              file:write(ConfigFile, ["[", Section, "]\n"]),
+              file:write(ConfigFile, "type=registration\n"),
+              if HasAuth ->
+                file:write(ConfigFile, ["outbound_auth=", Section, "\n"]);
+                true -> ok
+              end,
+              file:write(ConfigFile, ["server_uri=sip:", Domain, "\n"]),
+              file:write(ConfigFile, ["client_uri=sip:", UserOrNumber, "@", Domain, "\n"]),
+              %% When Asterisk Version > 13.1...
+              % file:write(ConfigFile, "line=yes\n"),
+              % file:write(ConfigFile, ["endpoint=", Section, "\n"]),
+              file:write(ConfigFile, "\n"),
+              dict:store({Username, Domain}, Channel#channel.id, RegistryIndex);
+
+            _ -> RegistryIndex
+          end,
+
+          % Endpoint
           file:write(ConfigFile, ["[", Section, "]\n"]),
-          file:write(ConfigFile, "type=registration\n"),
+          file:write(ConfigFile, "type=endpoint\n"),
+          file:write(ConfigFile, "context=verboice\n"),
+          file:write(ConfigFile, ["aors=", Section, "\n"]),
           if HasAuth ->
             file:write(ConfigFile, ["outbound_auth=", Section, "\n"]);
             true -> ok
           end,
-          file:write(ConfigFile, ["server_uri=sip:", Domain, "\n"]),
-          file:write(ConfigFile, ["client_uri=sip:", UserOrNumber, "@", Domain, "\n"]),
-          %% When Asterisk Version > 13.1...
-          % file:write(ConfigFile, "line=yes\n"),
-          % file:write(ConfigFile, ["endpoint=", Section, "\n"]),
+          file:write(ConfigFile, ["from_user=", UserOrNumber, "\n"]),
+          file:write(ConfigFile, ["from_domain=", Domain, "\n"]),
+          file:write(ConfigFile, "disallow=all\n"),
+          file:write(ConfigFile, "allow=ulaw\n"),
+          file:write(ConfigFile, "allow=gsm\n"),
           file:write(ConfigFile, "\n"),
-          dict:store({Username, Domain}, Channel#channel.id, RegistryIndex);
 
-        _ -> RegistryIndex
-      end,
+          % Auth
+          if HasAuth ->
+            file:write(ConfigFile, ["[", Section, "]\n"]),
+            file:write(ConfigFile, "type=auth\n"),
+            file:write(ConfigFile, "auth_type=userpass\n"),
+            file:write(ConfigFile, ["username=", Username, "\n"]),
+            file:write(ConfigFile, ["password=", Password, "\n"]),
+            file:write(ConfigFile, "\n");
+            true -> ok
+          end,
 
-      % Endpoint
-      file:write(ConfigFile, ["[", Section, "]\n"]),
-      file:write(ConfigFile, "type=endpoint\n"),
-      file:write(ConfigFile, "context=verboice\n"),
-      file:write(ConfigFile, ["aors=", Section, "\n"]),
-      if HasAuth ->
-        file:write(ConfigFile, ["outbound_auth=", Section, "\n"]);
-        true -> ok
-      end,
-      file:write(ConfigFile, ["from_user=", UserOrNumber, "\n"]),
-      file:write(ConfigFile, ["from_domain=", Domain, "\n"]),
-      file:write(ConfigFile, "disallow=all\n"),
-      file:write(ConfigFile, "allow=ulaw\n"),
-      file:write(ConfigFile, "allow=gsm\n"),
-      file:write(ConfigFile, "\n"),
+          % AOR
+          file:write(ConfigFile, ["[", Section, "]\n"]),
+          file:write(ConfigFile, "type=aor\n"),
+          file:write(ConfigFile, "qualify_frequency=60\n"),
+          file:write(ConfigFile, ["contact=sip:", Domain, "\n"]),
+          file:write(ConfigFile, "\n"),
 
-      % Auth
-      if HasAuth ->
-        file:write(ConfigFile, ["[", Section, "]\n"]),
-        file:write(ConfigFile, "type=auth\n"),
-        file:write(ConfigFile, "auth_type=userpass\n"),
-        file:write(ConfigFile, ["username=", Username, "\n"]),
-        file:write(ConfigFile, ["password=", Password, "\n"]),
-        file:write(ConfigFile, "\n");
-        true -> ok
-      end,
+          % Identify
+          file:write(ConfigFile, ["[", Section, "]\n"]),
+          file:write(ConfigFile, "type=identify\n"),
+          file:write(ConfigFile, ["endpoint=", Section, "\n"]),
 
-      % AOR
-      file:write(ConfigFile, ["[", Section, "]\n"]),
-      file:write(ConfigFile, "type=aor\n"),
-      file:write(ConfigFile, "qualify_frequency=60\n"),
-      file:write(ConfigFile, ["contact=sip:", Domain, "\n"]),
-      file:write(ConfigFile, "\n"),
+          {NewChannelIndex, _} = lists:foldl(fun ({_Host, IPs, Port}, {R1, I}) ->
+            case Port of
+              undefined -> ok;
+              _ -> ok
+                % file:write(ConfigFile, ["port=", integer_to_list(Port), "\n"])
+            end,
 
-      % Identify
-      file:write(ConfigFile, ["[", Section, "]\n"]),
-      file:write(ConfigFile, "type=identify\n"),
-      file:write(ConfigFile, ["endpoint=", Section, "\n"]),
+            R3 = lists:foldl(fun (IP, R2) ->
+              file:write(ConfigFile, ["match=", IP, "\n"]),
+              dict:append({util:to_string(IP), Number}, Channel#channel.id, R2)
+            end, R1, IPs),
+            {R3, I + 1}
+          end, {ChannelIndex, 0}, Expanded),
+          file:write(ConfigFile, "\n"),
 
-      {Expanded, NewCache} = expand_domain(Domain, ResolvCache),
-      {NewChannelIndex, _} = lists:foldl(fun ({_Host, IPs, Port}, {R1, I}) ->
-        case Port of
-          undefined -> ok;
-          _ -> ok
-            % file:write(ConfigFile, ["port=", integer_to_list(Port), "\n"])
-        end,
+          generate_config(Rest, ConfigFile, NewCache, NewChannelIndex, NewRegistryIndex);
 
-        R3 = lists:foldl(fun (IP, R2) ->
-          file:write(ConfigFile, ["match=", IP, "\n"]),
-          dict:append({util:to_string(IP), Number}, Channel#channel.id, R2)
-        end, R1, IPs),
-        {R3, I + 1}
-      end, {ChannelIndex, 0}, Expanded),
-      file:write(ConfigFile, "\n"),
-
-      generate_config(Rest, ConfigFile, NewCache, NewChannelIndex, NewRegistryIndex)
+        false ->
+          % Domain could not be resolved, we cannot generate the endpoint
+          % information for Asterisk
+          generate_config(Rest, ConfigFile, NewCache, ChannelIndex, RegistryIndex)
+      end
   end.
+
+is_resolved([]) ->
+  false;
+is_resolved([{_Host, [_Ip|_], _Port}|_]) ->
+  true;
+is_resolved([_|Rest]) ->
+  is_resolved(Rest).
 
 expand_domain(<<>>, ResolvCache) -> {[], ResolvCache};
 expand_domain(Domain, ResolvCache) ->
@@ -191,7 +210,7 @@ expand_domain(Domain) ->
         {ok, #hostent{h_addr_list = IpList}} ->
           IPs = map_ips(IpList),
           [{Domain, IPs, undefined}];
-        _ -> [{Domain, [Domain], undefined}]
+        _ -> [{Domain, [], undefined}]
       end
   end.
 
