@@ -21,7 +21,11 @@
 % channel_status: dict(channel_id, {channel_id, registration_ok, error_message})
 %   Registration statuses
 %
--record(state, {channels, dynamic_channels, registry, channel_status, config_job_state = idle, status_job_state = idle}).
+% config_channel_status: dict(channel_id, {channel_id, registration_ok, error_message})
+%   Channel configuration errors; if a channel fails to configure correctly,
+%   there will be an entry for it here
+%
+-record(state, {channels, dynamic_channels, registry, channel_status, config_channel_status, config_job_state = idle, status_job_state = idle}).
 
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
@@ -83,20 +87,17 @@ handle_call({register_channel, ChannelId, PeerIp}, _From, State) ->
   {reply, ok, NewState};
 
 handle_call({get_channel_status, ChannelIds}, _From, State) ->
-  case State#state.channel_status of
-    undefined -> {reply, [], State};
-    Status ->
-      Result = lists:foldl(fun(ChannelId, R) ->
-        case dict:find(ChannelId, Status) of
-          {ok, ChannelStatus} -> [ChannelStatus | R];
-          _ -> R
-        end
-      end, [], ChannelIds),
-      {reply, Result, State}
-  end;
+  Result = lists:foldl(fun(ChannelId, R) ->
+    case find_channel_status(ChannelId, State) of
+      undefined -> R;
+      ChannelStatus -> [ChannelStatus | R]
+    end
+  end, [], ChannelIds),
+  {reply, Result, State};
 
 handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
+
 
 %% @private
 handle_cast(regenerate_config, State = #state{config_job_state = JobState}) ->
@@ -105,11 +106,11 @@ handle_cast(regenerate_config, State = #state{config_job_state = JobState}) ->
       spawn_link(fun() ->
         {ok, BaseConfigPath} = application:get_env(asterisk_config_dir),
         ConfigFilePath = filename:join(BaseConfigPath, "pjsip_verboice.conf"),
-        {ChannelIndex, RegistryIndex} = asterisk_config:generate(ConfigFilePath),
+        {ChannelIndex, RegistryIndex, ConfigErrors} = asterisk_config:generate(ConfigFilePath),
         ami_client:sip_reload(),
-        gen_server:cast(?MODULE, {set_channels, ChannelIndex, RegistryIndex})
+        gen_server:cast(?MODULE, {set_channels, ChannelIndex, RegistryIndex, ConfigErrors})
       end),
-      State#state{config_job_state = working};
+      State#state{config_job_state = working, config_channel_status = undefined};
     working ->
       State#state{config_job_state = must_regenerate};
     must_regenerate ->
@@ -117,15 +118,18 @@ handle_cast(regenerate_config, State = #state{config_job_state = JobState}) ->
   end,
   {noreply, NewState};
 
-handle_cast({set_channels, ChannelIndex, RegistryIndex}, State = #state{config_job_state = JobState}) ->
-  lager:info("Updated Asterisk Channel registry: ~B IP-number and ~B SIP registrations",
-             [dict:size(ChannelIndex), dict:size(RegistryIndex)]),
-  lager:debug("Asterisk Channel registry: ~n~p~n~p~n", [ChannelIndex, RegistryIndex]),
+handle_cast({set_channels, ChannelIndex, RegistryIndex, ConfigErrors}, State = #state{config_job_state = JobState}) ->
+  lager:info("Updated Asterisk Channel registry: ~B IP-number and ~B SIP registrations, ~B errors",
+             [dict:size(ChannelIndex), dict:size(RegistryIndex), length(ConfigErrors)]),
+  lager:debug("Asterisk Registrations: ~p", [RegistryIndex]),
+  lager:debug("Asterisk Channels: ~p", [ChannelIndex]),
+  lager:debug("Asterisk Configuration Errors: ~p", [ConfigErrors]),
   case JobState of
     must_regenerate -> regenerate_config();
     _ -> ok
   end,
-  {noreply, State#state{channels = ChannelIndex, registry = RegistryIndex, config_job_state = idle}};
+  ConfigChannelStatus = dict:from_list(lists:map(fun(Value = {ChannelId, _, _}) -> {ChannelId, Value} end, ConfigErrors)),
+  {noreply, State#state{channels = ChannelIndex, registry = RegistryIndex, config_channel_status = ConfigChannelStatus, config_job_state = idle}};
 
 handle_cast({set_channel_status, Status}, State = #state{channel_status = PrevStatus}) ->
   channel:log_broken_channels(PrevStatus, Status),
@@ -174,3 +178,20 @@ find_registered_channel(ChannelIds, ChannelStatus) ->
         Result
     end, undefined, ChannelIds).
 
+find_channel_status(ChannelId, #state{channel_status = ChannelStatus, config_channel_status = ConfigChannelStatus}) ->
+  case find_channel_status(ChannelId, ChannelStatus) of
+    undefined ->
+      find_channel_status(ChannelId, ConfigChannelStatus);
+    Status ->
+      Status
+  end;
+
+find_channel_status(_, undefined) ->
+  undefined;
+find_channel_status(ChannelId, StatusDict) ->
+  case dict:find(ChannelId, StatusDict) of
+    {ok, Status} ->
+      Status;
+    _ ->
+      undefined
+  end.
