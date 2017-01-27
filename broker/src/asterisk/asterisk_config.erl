@@ -23,17 +23,18 @@ generate(ConfigFilePath) ->
 % user.
 generate_config(ConfigFile) ->
   Channels = channel:find_all_sip(),
-  generate_config(Channels, ConfigFile, dict:new(), dict:new(), dict:new()).
+  generate_config(Channels, ConfigFile, dict:new(), dict:new(), dict:new(), []).
 
-generate_config([], _, _, ChannelIndex, RegistryIndex) -> {ChannelIndex, RegistryIndex};
-generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, RegistryIndex) ->
+generate_config([], _, _, ChannelIndex, RegistryIndex, ConfigErrors) -> {ChannelIndex, RegistryIndex, ConfigErrors};
+generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, RegistryIndex, ConfigErrors) ->
   HeaderLines = binary:split(erlang:iolist_to_binary(pretty_print(Channel)), <<"\n">>, [global]),
   lists:foreach(fun(Line) ->
     file:write(ConfigFile, ["; ", Line, "\n"])
   end, HeaderLines),
   file:write(ConfigFile, "\n"),
 
-  Section = ["verboice_", integer_to_list(Channel#channel.id)],
+  ChannelId = Channel#channel.id,
+  Section = ["verboice_", integer_to_list(ChannelId)],
   Username = channel:username(Channel),
   Password = channel:password(Channel),
   Domain = channel:domain(Channel),
@@ -72,7 +73,7 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
       file:write(ConfigFile, "remove_existing=yes\n"),
       file:write(ConfigFile, "\n"),
 
-      generate_config(Rest, ConfigFile, ResolvCache, ChannelIndex, RegistryIndex);
+      generate_config(Rest, ConfigFile, ResolvCache, ChannelIndex, RegistryIndex, ConfigErrors);
 
     _ ->
       {Expanded, NewCache} = expand_domain(Domain, ResolvCache),
@@ -162,12 +163,14 @@ generate_config([Channel | Rest], ConfigFile, ResolvCache, ChannelIndex, Registr
           end, {ChannelIndex, 0}, Expanded),
           file:write(ConfigFile, "\n"),
 
-          generate_config(Rest, ConfigFile, NewCache, NewChannelIndex, NewRegistryIndex);
+          generate_config(Rest, ConfigFile, NewCache, NewChannelIndex, NewRegistryIndex, ConfigErrors);
 
         false ->
           % Domain could not be resolved, we cannot generate the endpoint
           % information for Asterisk
-          generate_config(Rest, ConfigFile, NewCache, ChannelIndex, RegistryIndex)
+          Message = iolist_to_binary(["Error: could not resolve domain ", Domain]),
+          NewConfigErrors = [{ChannelId, false, [Message]}|ConfigErrors],
+          generate_config(Rest, ConfigFile, NewCache, ChannelIndex, RegistryIndex, NewConfigErrors)
       end
   end.
 
