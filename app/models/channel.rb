@@ -40,6 +40,10 @@ class Channel < ActiveRecord::Base
 
   broker_cached
 
+  def name=(value)
+    super(value.try(:strip))
+  end
+
   def config
     self[:config] ||= {}
   end

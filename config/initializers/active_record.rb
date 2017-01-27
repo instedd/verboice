@@ -19,6 +19,7 @@ class ActiveRecord::Base
   def self.config_accessor(*names)
     options = names.extract_options!
     default = options[:default]
+    strip = options[:strip]
 
     names.each do |name|
       self.config_attrs << name
@@ -31,6 +32,7 @@ class ActiveRecord::Base
         respond_to?(:encrypted_config_will_change!) ? encrypted_config_will_change! : config_will_change!
 
         self.config ||= {}
+        value = value.try(:strip) if strip
         self.config[name.to_s] = value
 
         # this is needed so attr_encrypted encrypts the value correctly

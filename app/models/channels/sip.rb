@@ -18,12 +18,12 @@
 class Channels::Sip < Channel
   validate :server_username_uniqueness
 
-  config_accessor :username
-  config_accessor :password
-  config_accessor :domain
+  config_accessor :username, strip: true
+  config_accessor :password, strip: true
+  config_accessor :domain, strip: true
   config_accessor :direction
   config_accessor :register
-  config_accessor :number
+  config_accessor :number, strip: true
 
   def register?
     register == true || register == "1"
