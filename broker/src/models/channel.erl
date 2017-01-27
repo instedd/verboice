@@ -15,9 +15,10 @@ find_all_twilio() ->
 
 domain(Channel = #channel{type = <<"Channels::TemplateBasedSip">>}) ->
   case proplists:get_value("kind", Channel#channel.config) of
-    % TODO: Load template domains from yaml file
+    % Keep in sync with config/sip_channel_templates.yml
     "Callcentric" -> "callcentric.com";
-    "Skype" -> "sip.skype.com"
+    "Skype" -> "sip.skype.com";
+    "Nexmo" -> "sip.nexmo.com"
   end;
 
 domain(#channel{config = Config}) ->
