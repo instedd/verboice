@@ -6,7 +6,15 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
+
+% chan_pjsip will stop attempting outbound registrations if it receives a
+% 401/403, until the next reload. Since failure counts are incremented on each
+% check_status, care must be taken to allow at least two reloads before
+% disabling a channel.
+
 -define(RELOAD_INTERVAL, timer:minutes(2)).
+-define(STATUS_INTERVAL, timer:seconds(30)).
+-define(REGISTRATION_FAILURES_THRESHOLD, 7).
 
 % channels: dict({ip, number}, [channel_id])
 %   Static host registered peers. This is built by asterisk_config:generate/2.
@@ -21,7 +29,12 @@
 % channel_status: dict(channel_id, {channel_id, registration_ok, error_message})
 %   Registration statuses
 %
--record(state, {channels, dynamic_channels, registry, channel_status, config_job_state = idle, status_job_state = idle}).
+% registration_failures: dict(channel_id, count)
+%   Number of times a registration failures has been seen after last
+%   configuration rewrite. If more than ?REGISTRATION_FAILURES_THRESHOLD, the
+%   channel will be automatically disabled.
+%
+-record(state, {channels, dynamic_channels, registry, channel_status, config_job_state = idle, status_job_state = idle, registration_failures}).
 
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
@@ -45,9 +58,9 @@ get_channel_status(ChannelIds) ->
 init({}) ->
   agi_events:add_sup_handler(asterisk_call_manager, []),
   regenerate_config(),
-  timer:send_interval(timer:seconds(30), check_status),
+  timer:send_interval(?STATUS_INTERVAL, check_status),
   timer:send_after(?RELOAD_INTERVAL, sip_reload),
-  {ok, #state{channels = dict:new(), dynamic_channels = dict:new(), registry = dict:new()}}.
+  {ok, #state{channels = dict:new(), dynamic_channels = dict:new(), registry = dict:new(), registration_failures = dict:new()}}.
 
 %% @private
 handle_call({find_channel, PeerIp, Number}, _From, State) ->
@@ -109,7 +122,8 @@ handle_cast(regenerate_config, State = #state{config_job_state = JobState}) ->
         ami_client:sip_reload(),
         gen_server:cast(?MODULE, {set_channels, ChannelIndex, RegistryIndex})
       end),
-      State#state{config_job_state = working};
+      % reset the count of registration failures
+      State#state{config_job_state = working, registration_failures = dict:new()};
     working ->
       State#state{config_job_state = must_regenerate};
     must_regenerate ->
@@ -127,9 +141,24 @@ handle_cast({set_channels, ChannelIndex, RegistryIndex}, State = #state{config_j
   end,
   {noreply, State#state{channels = ChannelIndex, registry = RegistryIndex, config_job_state = idle}};
 
-handle_cast({set_channel_status, Status}, State = #state{channel_status = PrevStatus}) ->
+handle_cast({set_channel_status, Status}, State = #state{channel_status = PrevStatus, registration_failures = RegFailures}) ->
   channel:log_broken_channels(PrevStatus, Status),
-  {noreply, State#state{channel_status = Status, status_job_state = idle}};
+
+  % increment the registration failures
+  {NewRegFailures, DisableChannels} = update_registration_failures(Status, RegFailures),
+  if
+    length(DisableChannels) > 0 ->
+      % disable channels that have excedeed the number of failed status checks
+      lists:foreach(fun(ChannelId) ->
+                        channel:disable_by_id(ChannelId)
+                    end, DisableChannels),
+      % and rewrite configuration
+      timer:apply_after(0, ?MODULE, regenerate_config, []);
+    true ->
+      ok
+  end,
+
+  {noreply, State#state{channel_status = Status, status_job_state = idle, registration_failures = NewRegFailures}};
 
 handle_cast(_Msg, State) ->
   {noreply, State}.
@@ -174,3 +203,19 @@ find_registered_channel(ChannelIds, ChannelStatus) ->
         Result
     end, undefined, ChannelIds).
 
+update_registration_failures(ChannelStatus, RegFailures) ->
+  dict:fold(fun
+              (ChannelId, {_, true, _}, {RegIn, DisableIn}) ->
+                {dict:erase(ChannelId, RegIn), DisableIn};
+              (ChannelId, {_, false, _}, {RegIn, DisableIn}) ->
+                FailureCount = case dict:find(ChannelId, RegIn) of
+                                 {ok, Count} -> Count + 1;
+                                 _ -> 1
+                               end,
+                if
+                  FailureCount >= ?REGISTRATION_FAILURES_THRESHOLD ->
+                    {dict:erase(ChannelId, RegIn), [ChannelId | DisableIn]};
+                  true ->
+                    {dict:store(ChannelId, FailureCount, RegIn), DisableIn}
+                end
+            end, {RegFailures, []}, ChannelStatus).

@@ -75,6 +75,7 @@ class Channel < ActiveRecord::Base
   end
 
   def disable!
+    # Keep in sync with channel.erl
     self.enabled = false
     save!
 

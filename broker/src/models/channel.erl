@@ -1,5 +1,5 @@
 -module(channel).
--export([find_all_sip/0, find_all_twilio/0, domain/1, number/1, limit/1, broker/1, username/1, password/1, is_outbound/1, register/1, log_broken_channels/2]).
+-export([find_all_sip/0, find_all_twilio/0, domain/1, number/1, limit/1, broker/1, username/1, password/1, is_outbound/1, register/1, log_broken_channels/2, disable_by_id/1]).
 -export([account_sid/1, auth_token/1]).
 -compile([{parse_transform, lager_transform}]).
 -define(CACHE, true).
@@ -87,4 +87,29 @@ channel_was_disconnected(ChannelId, Status) ->
   case dict:find(ChannelId, Status) of
     {ok, {_, false, _}} -> true;
     _ -> false
+  end.
+
+disable_by_id(ChannelId) ->
+  case channel:find(ChannelId) of
+    Channel = #channel{} ->
+      lager:info("Disabling channel ~s (id: ~B)", [Channel#channel.name, ChannelId]),
+      % Keep in sync with channel.rb
+      %   self.enabled = false
+      %   save!
+      %   queued_calls.each do |call|
+      %     call.cancel_call!
+      %   end
+      %   queued_calls.destroy_all
+
+      db:update(["UPDATE channels SET enabled = 0 WHERE id = ",
+                 mysql:encode(ChannelId)]),
+      db:update(["UPDATE call_logs SET state = 'cancelled' WHERE id IN ",
+                 "(SELECT call_log_id FROM queued_calls WHERE channel_id = ",
+                 mysql:encode(ChannelId), ")"]),
+      db:update(["DELETE FROM queued_calls WHERE channel_id = ",
+                 mysql:encode(ChannelId)]),
+      ok;
+    _ ->
+      % channel not found
+      ok
   end.
