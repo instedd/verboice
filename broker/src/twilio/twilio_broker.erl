@@ -39,7 +39,7 @@ dispatch(_Session = #session{session_id = SessionId, channel = Channel, address 
   lager:info("Twilio response: ~p~n", [Response]),
   case Response of
     {ok, {{_, 201, _}, _, _}} -> ok;
-    {ok, {{_, _, Reason}, _, Msg}} -> {error, parse_exception(Reason, Msg)};
+    {ok, {{_, _, Reason}, _, Msg}} -> parse_exception(Reason, Msg);
     _ ->
       timer:apply_after(timer:minutes(1), broker, notify_ready, [?MODULE]),
       {error, unavailable}
@@ -56,5 +56,5 @@ parse_exception(Reason, Body) ->
     [Message] = xmerl_xs:value_of(xmerl_xs:select("./Message", Exception)),
     {error, Message, FullCode}
   catch
-    _ -> Reason
+    _ -> {error, Reason}
   end.
