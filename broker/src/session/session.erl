@@ -173,50 +173,33 @@ ready({dial, _, _, QueuedCall = #queued_call{address = undefined}}, _From, State
 ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id = SessionId, resume_ptr = ResumePtr}) ->
   lager:info("Session (~p) dial", [SessionId]),
 
-  NewSession = case State#state.session of
-    undefined ->
-      CallLog = call_log_srv:new(SessionId, call_log:find(QueuedCall#queued_call.call_log_id)),
-      Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, QueuedCall#queued_call.call_log_id),
-      Session = QueuedCall:start_session(),
+  NewSession = #session{call_log = CallLog, flow = Flow} = prepare_session(QueuedCall, Channel, State),
 
-      poirot:add_meta([
-        {address, QueuedCall#queued_call.address},
-        {project_id, QueuedCall#queued_call.project_id},
-        {call_log_id, QueuedCall#queued_call.call_log_id},
-        {channel_id, Channel#channel.id},
-        {channel_name, Channel#channel.name}
-      ]),
-
-      Session#session{
-        session_id = SessionId,
-        channel = Channel,
-        call_log = CallLog,
-        contact = Contact
-      };
-
-    Session ->
-      CallLog = Session#session.call_log,
-      Session#session{queued_call = QueuedCall, address = QueuedCall#queued_call.address}
-  end,
-
-  % Don't the started_at if we are resuming an existing session
+  %% Don't set the started_at if we are resuming an existing session
   case ResumePtr of
     undefined ->
       CallLog:update({started_at, calendar:universal_time()});
-    _ -> ok
+    _ ->
+      ok
   end,
 
-  case RealBroker:dispatch(NewSession) of
-    {error, unavailable} ->
-      {stop, normal, unavailable, State#state{session = NewSession}};
-    {error, Reason} ->
-      {_, _, NewSession2} = finalize({failed, Reason}, State#state{session = NewSession}),
-      {stop, normal, error, State#state{session = NewSession2}};
+  case Flow of
+    undefined ->
+      {_, _, NewSession1} = finalize({failed, {error, "Invalid Flow"}}, State#state{session = NewSession}),
+      {stop, normal, error, State#state{session = NewSession1}};
     _ ->
-      lager:info("Dialing to ~s through channel ~s", [QueuedCall#queued_call.address, Channel#channel.name]),
-      notify_status(ringing, NewSession),
-      CallLog:update([{state, "active"}, {fail_reason, undefined}]),
-      {reply, ok, dialing, State#state{session = NewSession}, timer:minutes(2)}
+      case RealBroker:dispatch(NewSession) of
+        {error, unavailable} ->
+          {stop, normal, unavailable, State#state{session = NewSession}};
+        {error, Reason} ->
+          {_, _, NewSession2} = finalize({failed, Reason}, State#state{session = NewSession}),
+          {stop, normal, error, State#state{session = NewSession2}};
+        _ ->
+          lager:info("Dialing to ~s through channel ~s", [QueuedCall#queued_call.address, Channel#channel.name]),
+          notify_status(ringing, NewSession),
+          CallLog:update([{state, "active"}, {fail_reason, undefined}]),
+          {reply, ok, dialing, State#state{session = NewSession}, timer:minutes(2)}
+      end
   end.
 
 dialing({answer, Pbx}, State = #state{session_id = SessionId, session = Session, resume_ptr = Ptr}) ->
@@ -279,6 +262,30 @@ in_progress({hibernate, NewSession, Ptr}, _From, State = #state{session = _Sessi
   HibernatedSession = #hibernated_session{session_id = SessionId, data = Data},
   HibernatedSession:create(),
   {stop, normal, ok, State#state{hibernated = true}}.
+
+
+prepare_session(QueuedCall, Channel, #state{session_id = SessionId, session = undefined}) ->
+  Session = QueuedCall:start_session(),
+  NewCallLog = call_log_srv:new(SessionId, call_log:find(QueuedCall#queued_call.call_log_id)),
+  Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, QueuedCall#queued_call.call_log_id),
+
+  poirot:add_meta([
+                   {address, QueuedCall#queued_call.address},
+                   {project_id, QueuedCall#queued_call.project_id},
+                   {call_log_id, QueuedCall#queued_call.call_log_id},
+                   {channel_id, Channel#channel.id},
+                   {channel_name, Channel#channel.name}
+                  ]),
+
+  Session#session{
+    session_id = SessionId,
+    channel = Channel,
+    call_log = NewCallLog,
+    contact = Contact
+   };
+
+prepare_session(QueuedCall, _, #state{session = Session}) ->
+  Session#session{queued_call = QueuedCall, address = QueuedCall#queued_call.address}.
 
 notify_status(Status, Session) ->
   notify_status_to_callback_url(Status, Session),

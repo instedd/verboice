@@ -43,3 +43,31 @@ start_session_with_flow_test() ->
   ?assertEqual(twiml:parse(QueuedCall#queued_call.flow), Session#session.flow),
 
   meck:unload().
+
+%% Test case for #780
+start_session_with_invalid_flow_test() ->
+  QueuedCall = #queued_call{flow = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Say voice=\"woman\">Hello.</Say>\n</Hangup>", project_id = project_id},
+  meck:new(project),
+  meck:expect(project, find, [project_id], #project{}),
+  meck:expect(project, status_callback, 1, {undefined, undefined, undefined, false}),
+
+  Session = queued_call:start_session(QueuedCall),
+
+  ?assertEqual(undefined, Session#session.call_flow),
+  ?assertEqual(undefined, Session#session.flow),
+
+  meck:unload().
+
+%% Test case for #780
+start_session_with_invalid_xml_flow_test() ->
+  QueuedCall = #queued_call{flow = "<Response>\n  <Gather numDigits=\"1\" action=\"http://twimlets.com/voicemail?Email=nicp%40textit.in&Message=https%3A%2F%2example.com%2F/voicemail.wav&Transcribe=false\">\n    <Say language=\"en\">Pick a number, zero through nine.</Say>\n  </Gather>\n</Response>", project_id = project_id},
+  meck:new(project),
+  meck:expect(project, find, [project_id], #project{}),
+  meck:expect(project, status_callback, 1, {undefined, undefined, undefined, false}),
+
+  Session = queued_call:start_session(QueuedCall),
+
+  ?assertEqual(undefined, Session#session.call_flow),
+  ?assertEqual(undefined, Session#session.flow),
+
+  meck:unload().
