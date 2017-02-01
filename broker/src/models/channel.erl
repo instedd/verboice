@@ -1,7 +1,12 @@
 -module(channel).
--export([find_all_sip/0, find_all_twilio/0, domain/1, number/1, limit/1, broker/1, username/1, password/1, is_outbound/1, register/1, log_broken_channels/2, disable_by_id/1]).
--export([account_sid/1, auth_token/1]).
 -compile([{parse_transform, lager_transform}]).
+-export([find_all_sip/0, find_all_twilio/0,
+         domain/1, number/1, username/1, password/1,
+         broker/1, is_outbound/1, limit/1, register/1,
+         log_broken_channels/2,
+         disable_by_id/1, disable_by_ids/1,
+         account_sid/1, auth_token/1]).
+
 -define(CACHE, true).
 -define(TABLE_NAME, "channels").
 -define(MAP, [{config, yaml_serializer}]).
@@ -113,3 +118,6 @@ disable_by_id(ChannelId) ->
       % channel not found
       ok
   end.
+
+disable_by_ids(ChannelIds) ->
+  lists:foreach(fun disable_by_id/1, ChannelIds).
