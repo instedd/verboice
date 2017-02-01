@@ -376,14 +376,14 @@ handle_sync_event(_Event, _From, StateName, State) ->
 handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Session, pbx_pid = Pid}) ->
   notify_status(failed, Session),
   lager:error("PBX closed unexpectedly with reason: ~s", [Reason]),
-  finalize({failed, {error, Reason}}, State);
+  finalize({failed, {internal_error, Reason}}, State);
 
 handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Session, flow_pid = Pid}) ->
   Pbx = Session#session.pbx,
   Pbx:terminate(),
   notify_status(failed, Session),
   lager:error("Flow process died unexpectedly with reason: ~s", [Reason]),
-  finalize({failed, {error, Reason}}, State);
+  finalize({failed, {internal_error, Reason}}, State);
 
 handle_info(_Info, StateName, State) ->
   {next_state, StateName, State}.
@@ -436,14 +436,16 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
     hangup ->                    [{fail_reason, "hangup"}];
     busy ->                      [{fail_reason, "busy"}];
     no_answer ->                 [{fail_reason, "no-answer"}];
-    {error, ErrDetails} ->       [{fail_reason, "fatal error"}, {fail_details, ErrDetails}];
-    {error, ErrDetails, Code} -> [{fail_reason, "fatal error"}, {fail_details, ErrDetails}, {fail_code, Code}];
-    _ ->                         [{fail_reason, "error"}]
+    {error, ErrDetails} ->       [{fail_reason, "error"}, {fail_details, ErrDetails}];
+    {error, ErrDetails, Code} -> [{fail_reason, "error"}, {fail_details, ErrDetails}, {fail_code, Code}];
+    {internal_error, Details} -> [{fail_reason, "internal error"}, {fail_details, io_lib:format("~p", [Details])}];
+    _ ->                         [{fail_reason, "unknown error"}]
   end,
   CallLog:update([{state, NewState}, {finished_at, calendar:universal_time()}] ++ FailInfo),
   StopReason = case Reason of
     {error, ErrDetails2} -> ErrDetails2;
     {error, ErrDetails2, _} -> ErrDetails2;
+    {internal_error, FatalError} -> FatalError;
     _ -> normal
   end,
   {stop, StopReason, State}.
@@ -598,10 +600,10 @@ run(Session = #session{flow = Flow, stack = Stack}, Ptr) ->
       lager:error("~p", [Reason]),
       {{failed, Reason}, Session};
     Class:Error ->
-      poirot:add_meta([{error, iolist_to_binary(io_lib:format("Fatal Error: ~p", [Error]))}]),
+      poirot:add_meta([{error, iolist_to_binary(io_lib:format("Fatal Internal Error: ~p", [Error]))}]),
       lager:error("Error during session ~p: ~p:~p~n~p~n",
         [Session#session.session_id, Class, Error, erlang:get_stacktrace()]),
-      {{failed, {error, Error}}, Session}
+      {{failed, {internal_error, Error}}, Session}
   end.
 
 end_flow(Session = #session{stack = []}) -> {ok, Session};
