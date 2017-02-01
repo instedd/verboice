@@ -49,5 +49,9 @@
 %hr
 
 - if channel_admin?
+  - if @channel.enabled?
+    = link_to 'Disable this channel', disable_channel_path(@channel), :confirm => "Disable the channel #{@channel.name}? All pending queued calls will be cancelled.", :method => :post, :class => "button fstop"
+  - else
+    = link_to 'Enable this channel', enable_channel_path(@channel), :confirm => "Enable the channel #{@channel.name}?", :method => :post, :class => "button fplay"
   = link_to 'Delete this channel', @channel, :confirm => "Are you sure you want to delete the channel #{@channel.name}?", :method => :delete, :class => "button fdelete"
 .clear

@@ -8,10 +8,10 @@
 -include_lib("erl_dbmodel/include/model.hrl").
 
 find_all_sip() ->
-  find_all({type, in, ["Channels::Sip", "Channels::CustomSip", "Channels::TemplateBasedSip", "Channels::SipServer"]}).
+  find_all([{enabled, 1}, {type, in, ["Channels::Sip", "Channels::CustomSip", "Channels::TemplateBasedSip", "Channels::SipServer"]}]).
 
 find_all_twilio() ->
-  find_all({type, "Channels::Twilio"}).
+  find_all([{enabled, 1}, {type, "Channels::Twilio"}]).
 
 domain(Channel = #channel{type = <<"Channels::TemplateBasedSip">>}) ->
   case proplists:get_value("kind", Channel#channel.config) of

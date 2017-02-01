@@ -234,4 +234,40 @@ describe Api::ChannelsController do
       @account.channels.count.should == 0
     end
   end
+
+  describe "enable" do
+    it "should return not found for non existing channel" do
+      post :enable, :id => 1
+      assert_response :not_found
+    end
+
+    it "enables a channel" do
+      chan = Channel.all_leaf_subclasses.sample.make :name => 'foo', :account => @account, :enabled => false
+
+      chan.should_not be_enabled
+
+      post :enable, :id => chan.id
+      assert_response :ok
+
+      chan.reload.should be_enabled
+    end
+  end
+
+  describe "disable" do
+    it "should return not found for non existing channel" do
+      post :enable, :id => 1
+      assert_response :not_found
+    end
+
+    it "disables a channel" do
+      chan = Channel.all_leaf_subclasses.sample.make :name => 'foo', :account => @account
+
+      chan.should be_enabled
+
+      post :disable, :id => chan.id
+      assert_response :ok
+
+      chan.reload.should_not be_enabled
+    end
+  end
 end

@@ -95,6 +95,12 @@ describe Api::CallsController do
       get :call, :channel => channel.name
       response.should_not be_success
     end
+
+    it "rejects a call using a disabled channel" do
+      channel.disable!
+      get :call, :address => 'foo', :channel_id => channel.id, :callback => 'bar'
+      response.should_not be_success
+    end
   end
 
   it "call state" do

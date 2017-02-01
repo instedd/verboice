@@ -67,6 +67,14 @@ describe ScheduledCall do
       scheduled_call.make_calls from, to
     end
 
+    it "should not make calls if the channel is disabled" do
+      scheduled_call.channel.disable!
+
+      scheduled_call.channel.should_not_receive(:call)
+
+      scheduled_call.make_calls from, to
+    end
+
     describe 'order' do
       before :each do
         @contact_c = Contact.make project: scheduled_call.project

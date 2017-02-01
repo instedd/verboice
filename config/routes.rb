@@ -21,6 +21,8 @@ Verboice::Application.routes.draw do
     resources :queued_calls
     member do
       get :call
+      post :enable
+      post :disable
     end
   end
 
@@ -140,6 +142,8 @@ Verboice::Application.routes.draw do
         get ":name", :action => "get"
         put ":name", :action => "update"
         delete ":name", :action => "destroy"
+        post ":id/enable", :action => "enable"
+        post ":id/disable", :action => "disable"
       end
     end
     resources :projects, only: [:index, :show] do

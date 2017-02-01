@@ -26,6 +26,8 @@ class Channel < ActiveRecord::Base
 
   config_accessor :limit
 
+  scope :enabled_channels, ->() { where(enabled: true) }
+
   validates_presence_of :account
 
   validates_presence_of :name
@@ -39,6 +41,15 @@ class Channel < ActiveRecord::Base
   serialize :config, Hash
 
   broker_cached
+
+  # Name to display in a select combo box
+  def name_for_combo
+    if enabled?
+      name
+    else
+      "#{name} (disabled)"
+    end
+  end
 
   def config
     self[:config] ||= {}
@@ -58,7 +69,23 @@ class Channel < ActiveRecord::Base
     true
   end
 
+  def enable!
+    self.enabled = true
+    save!
+  end
+
+  def disable!
+    self.enabled = false
+    save!
+
+    queued_calls.each do |call|
+      call.cancel_call!
+    end
+    queued_calls.destroy_all
+  end
+
   def call(address, options = {})
+    raise "Channel is disabled" unless enabled?
     raise "Call address cannot be empty" unless address.present?
 
     queued_call = enqueue_call_to address, options
@@ -254,7 +281,8 @@ class Channel < ActiveRecord::Base
     super(options).merge({
       kind: kind.try(:downcase).try(:gsub, ' ', '_'),
       call_flow: call_flow.try(:name),
-      call_flow_id: call_flow.try(:id)
+      call_flow_id: call_flow.try(:id),
+      enabled: enabled
     })
   end
 end

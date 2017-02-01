@@ -17,7 +17,7 @@
 
 class CallLogsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :prepare_log_detail, only: [:show, :download_details]
+  before_filter :prepare_log_detail, only: [:show, :progress, :download_details]
 
   def index
   end
@@ -27,7 +27,12 @@ class CallLogsController < ApplicationController
   end
 
   def progress
-    @log = current_account.call_logs.find params[:id]
+    @log.entries.each do |entry|
+      if entry.details.has_key?(:activity)
+        activity = JSON.load(entry.details[:activity]) rescue {}
+        entry.details[:description] = activity["body"]["@description"] rescue nil
+      end
+    end
     render :layout => false
   end
 
