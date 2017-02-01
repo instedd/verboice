@@ -318,7 +318,9 @@ notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, add
           <<>> -> [];
           User -> [{basic_auth, {User, Session#session.status_callback_password}}]
         end,
-        (Uri#uri{query_string = QueryString}):get([{full_result, false} | AuthOptions])
+        MergedQueryString = Uri#uri.query_string ++ QueryString,
+        NewUri = Uri#uri{query_string = MergedQueryString},
+        NewUri:get([{full_result, false} | AuthOptions])
       end)
   end.
 
