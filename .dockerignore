@@ -1,0 +1,11 @@
+.bundle
+.git
+tmp
+log
+backups
+broker
+data
+doc
+etc
+samples
+spec

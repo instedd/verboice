@@ -1,14 +1,14 @@
 -module(ami_client).
--export([start_link/0, connect/0, send_command/2, login/2, originate/1, sip_reload/0, sip_show_registry/0, sip_peers/0, decode_packet/1]).
+-export([start_link/1, connect/0, send_command/2, login/2, originate/1, sip_reload/0, sip_show_registry/0, sip_peers/0, decode_packet/1]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
--record(state, {sock, connected, state, reply_queue, packet}).
+-record(state, {sock, connected, state, reply_queue, packet, host, port}).
 
-start_link() ->
-  gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
+start_link(Options) ->
+  gen_server:start_link({local, ?SERVER}, ?MODULE, [Options], []).
 
 connect() ->
   gen_server:cast(?SERVER, connect).
@@ -39,8 +39,10 @@ decode_packet([Line | Rest], Decoded) ->
   decode_packet(Rest, NewDecoded).
 
 %% @private
-init({}) ->
-  {ok, #state{connected = false}}.
+init([Options]) ->
+  Host = proplists:get_value(ami_host, Options),
+  Port = proplists:get_value(ami_port, Options),
+  {ok, #state{connected = false, host = Host, port = Port}}.
 
 %% @private
 handle_call({send_command, _, _}, _, State = #state{connected = false}) ->
@@ -59,8 +61,8 @@ handle_call(_Request, _From, State) ->
   {reply, {error, unknown_call}, State}.
 
 %% @private
-handle_cast(connect, State = #state{connected = false}) ->
-  case gen_tcp:connect("localhost", 5038, [binary, {packet, line}], 1000) of
+handle_cast(connect, State = #state{connected = false, host = AmiHost, port = AmiPort}) ->
+  case gen_tcp:connect(AmiHost, AmiPort, [binary, {packet, line}], 1000) of
     {ok, Sock} ->
       {noreply, #state{sock = Sock, connected = true, state = initial, reply_queue = queue:new()}};
     _ ->
