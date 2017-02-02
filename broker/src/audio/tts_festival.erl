@@ -5,10 +5,18 @@ synthesize(Text, Project, Language, TargetPath) ->
   Voice = Project:voice(Language),
   synthesize(Text, Voice, TargetPath).
 
+synthesize(Text, Voice, TargetPath) when is_binary(Text) ->
+  ConvertedText = case unicode:characters_to_binary(Text, unicode) of
+                    L when is_list(L)   -> L;
+                    {error, _, _}       -> binary_to_list(Text);
+                    {incomplete, L1, _} -> L1
+                  end,
+  synthesize(ConvertedText, Voice, TargetPath);
+
 synthesize(Text, Voice, TargetPath) ->
   TempFile = TargetPath ++ ".wav",
   InputFile = TargetPath ++ ".txt",
-  file:write_file(InputFile, Text),
+  file:write_file(InputFile, Text, [{encoding, latin1}]),
   try
     Exec = os:find_executable("text2wave"),
     Port = open_port({spawn_executable, Exec}, [exit_status,
