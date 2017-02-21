@@ -84,5 +84,24 @@ module Api
         :fail_details => call_log.fail_details
       }.reject {|k,v| v.nil?}
     end
+
+    def cancel
+      call_log = current_account.call_logs.where(:id => params[:id]).first
+      return head :not_found if call_log.nil?
+
+      queued_calls = QueuedCall.where(call_log_id: call_log.id).all
+      queued_calls.each do |qc|
+        qc.cancel_call!
+        qc.destroy
+      end
+
+      call_log.state = "canceled"
+      call_log.save!
+
+      render :json => {
+        :call_id => call_log.id,
+        :state => call_log.state,
+      }
+    end
   end
 end
