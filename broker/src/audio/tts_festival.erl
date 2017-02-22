@@ -6,7 +6,7 @@ synthesize(Text, Project, Language, TargetPath) ->
   synthesize(Text, Voice, TargetPath).
 
 synthesize(Text, Voice, TargetPath) when is_binary(Text) ->
-  ConvertedText = case unicode:characters_to_binary(Text, unicode) of
+  ConvertedText = case unicode:characters_to_list(Text, unicode) of
                     L when is_list(L)   -> L;
                     {error, _, _}       -> binary_to_list(Text);
                     {incomplete, L1, _} -> L1
