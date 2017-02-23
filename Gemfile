@@ -65,6 +65,7 @@ group :development do
   gem 'rvm-capistrano', require: false
   gem 'licit'
   gem 'thin'
+  gem 'rails-dev-tweaks'
 end
 
 group :test do

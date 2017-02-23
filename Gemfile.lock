@@ -313,6 +313,9 @@ GEM
       activesupport (= 3.2.22)
       bundler (~> 1.0)
       railties (= 3.2.22)
+    rails-dev-tweaks (1.2.0)
+      actionpack (>= 3.1)
+      railties (>= 3.1)
     railties (3.2.22)
       actionpack (= 3.2.22)
       activesupport (= 3.2.22)
@@ -428,6 +431,7 @@ DEPENDENCIES
   puma (= 2.16.0)
   quiet_assets
   rails (~> 3.2.0)
+  rails-dev-tweaks
   recurring_select!
   rest-client
   rspec
@@ -444,3 +448,6 @@ DEPENDENCIES
   timecop
   uglifier (>= 1.0.3)
   webmock
+
+BUNDLED WITH
+   1.10.6
