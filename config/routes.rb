@@ -127,11 +127,11 @@ Verboice::Application.routes.draw do
 
   namespace :api do
     match "call" => "calls#call"
-    resources :calls, only: [] do
+    resources :calls, only: [:destroy] do
       member do
         match :state
         match :redirect
-        get :details
+        match :cancel
       end
     end
     get "channels" => "channels#list"
