@@ -5,20 +5,19 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "precise64"
-  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+  config.vm.box = "ubuntu/trusty64"
   config.vm.hostname = "verboice.local"
 
-  config.vm.network :forwarded_port, guest: "80", host: "8080", host_ip: "127.0.0.1"
-  config.vm.network :public_network, ip: '192.168.1.10'
+  config.vm.network :forwarded_port, guest: "80", host: "8085", host_ip: "127.0.0.1"
+  config.vm.network :public_network, ip: '192.168.1.15'
 
   config.vm.provider :virtualbox do |vb|
-    vb.customize ["modifyvm", :id, "--memory", "1024"]
+    vb.customize ["modifyvm", :id, "--memory", "4096"]
   end
 
   config.vm.provision :shell do |s|
     s.privileged = false
-    s.args = [ENV['WITH_ELASTICSEARCH'] || "", ENV['REVISION'] || ""]
+    s.args = [ENV['REVISION'] || "3.1"]
     s.inline = <<-SH
 
     export DEBIAN_FRONTEND=noninteractive
@@ -76,7 +75,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     fi
 
     # Install Asterisk
-    ASTERISK_VERSION=13.8
+    ASTERISK_VERSION=13.13
     ASTERISK_URL=http://downloads.asterisk.org/pub/telephony/certified-asterisk/asterisk-certified-${ASTERISK_VERSION}-current.tar.gz
 
     if [ ! -f /etc/init.d/asterisk ]; then
@@ -100,14 +99,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 max_allowed_packet = 256M" > /etc/mysql/conf.d/mysqld.cnf'
     sudo service mysql restart
 
-    # Install ElasticSearch
-    if [ "$1" == '1' ]; then
-      wget -q https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.1.0.deb
-      sudo dpkg -i elasticsearch-1.1.0.deb
-      sudo service elasticsearch restart
-      update-rc.d elasticsearch defaults
-    fi
-
     # Install bundler
     sudo gem install bundler --no-ri --no-rdoc
 
@@ -122,7 +113,12 @@ max_allowed_packet = 256M" > /etc/mysql/conf.d/mysqld.cnf'
     sudo sh -c 'echo "<VirtualHost *:80>
   DocumentRoot `pwd`/verboice/public
   PassengerSpawnMethod conservative
-</VirtualHost>" > /etc/apache2/sites-enabled/000-default'
+  <Directory `pwd`/verboice/public>
+    Allow from all
+    Options -MultiViews
+    Require all granted
+  </Directory>
+</VirtualHost>" > /etc/apache2/sites-available/000-default.conf'
 
     # Configure apache website for admin UI
     sudo sh -c 'echo "NameVirtualHost *:8080
@@ -132,7 +128,12 @@ Listen 8080"' >> /etc/apache2/ports.conf
   PassengerSpawnMethod conservative
   SetEnv RAILS_ENV production
   SetEnv VERBOICE_BACKUPS /home/vagrant/backups
-</VirtualHost>" > /etc/apache2/sites-enabled/001-admin'
+  <Directory `pwd`/verboice/admin/public>
+    Allow from all
+    Options -MultiViews
+    Require all granted
+  </Directory>
+</VirtualHost>" > /etc/apache2/sites-enabled/001-admin.conf'
 
     sudo service apache2 restart
 
@@ -143,9 +144,9 @@ Listen 8080"' >> /etc/apache2/ports.conf
     # Setup rails application and broker
     git clone /vagrant verboice
     cd verboice
-    if [ "$2" != '' ]; then
-      git checkout $2;
-      echo $2 > VERSION;
+    if [ "$1" != '' ]; then
+      git checkout $1;
+      echo $1 > VERSION;
     fi
 
     bundle install --deployment --path .bundle --without "development test"
@@ -154,9 +155,7 @@ Listen 8080"' >> /etc/apache2/ports.conf
     make -C broker deps
 
     # Configuration for not using elasticsearch
-    if [ "$1" != '1' ]; then
-      cp broker/verboice.config.no-es broker/verboice.config
-    fi
+    cp broker/verboice.config.no-es broker/verboice.config
 
     # Configuration changes
     echo "Verboice::Application.config.action_mailer.delivery_method = :sendmail" > config/initializers/sendmail.rb
