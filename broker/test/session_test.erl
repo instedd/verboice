@@ -18,6 +18,32 @@ notify_status_on_completed_ok_test() ->
   meck:wait(httpc, request, RequestParams, 1000),
   meck:unload().
 
+notify_status_on_failed_test() ->
+  Session = #session{address = <<"123">>, call_log = {call_log_srv}, status_callback_url = <<"http://foo.com">>},
+  meck:new(call_log_srv, [stub_all]),
+  meck:expect(call_log_srv, id, 1, 1),
+  meck:new(httpc),
+
+  RequestParams = [get, {"http://foo.com/?CallSid=1&CallStatus=failed&From=123&CallDuration=0&CallStatusReason=Random%20error", []}, '_', [{full_result, false}]],
+  meck:expect(httpc, request, RequestParams, ok),
+  session:in_progress({completed, Session, {failed, "Random error"}}, #state{session = Session}),
+
+  meck:wait(httpc, request, RequestParams, 1000),
+  meck:unload().
+
+notify_status_on_failed_with_code_test() ->
+  Session = #session{address = <<"123">>, call_log = {call_log_srv}, status_callback_url = <<"http://foo.com">>},
+  meck:new(call_log_srv, [stub_all]),
+  meck:expect(call_log_srv, id, 1, 1),
+  meck:new(httpc),
+
+  RequestParams = [get, {"http://foo.com/?CallSid=1&CallStatus=failed&From=123&CallDuration=0&CallStatusReason=Random%20error&CallStatusCode=42", []}, '_', [{full_result, false}]],
+  meck:expect(httpc, request, RequestParams, ok),
+  session:in_progress({completed, Session, {failed, {error, "Random error", 42}}}, #state{session = Session}),
+
+  meck:wait(httpc, request, RequestParams, 1000),
+  meck:unload().
+
 notify_status_on_completed_sends_call_duration_test() ->
   Session = #session{address = <<"123">>, call_log = {call_log_srv}, status_callback_url = <<"http://foo.com">>, started_at = {{2014,12,11},{16,0,0}}},
   meck:new(calendar, [unstick, passthrough]),

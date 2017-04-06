@@ -219,7 +219,7 @@ dialing({reject, Reason}, State = #state{session = Session = #session{session_id
     no_answer -> 'no-answer';
     _ -> failed
   end,
-  notify_status(Status, Session),
+  notify_status(Status, Session, Reason),
   finalize({failed, Reason}, State);
 
 dialing(timeout, State = #state{session = Session}) ->
@@ -231,7 +231,7 @@ in_progress({completed, NewSession, ok}, State) ->
   finalize(completed, State#state{session = NewSession});
 
 in_progress({completed, NewSession, {failed, Reason}}, State) ->
-  notify_status(failed, NewSession),
+  notify_status(failed, NewSession, Reason),
   finalize({failed, Reason}, State#state{session = NewSession}).
 
 in_progress({suspend, NewSession, Ptr}, _From, State = #state{session = Session = #session{session_id = SessionId}}) ->
@@ -288,10 +288,13 @@ prepare_session(QueuedCall, _, #state{session = Session}) ->
   Session#session{queued_call = QueuedCall, address = QueuedCall#queued_call.address}.
 
 notify_status(Status, Session) ->
-  notify_status_to_callback_url(Status, Session),
+  notify_status(Status, Session, undefined).
+
+notify_status(Status, Session, Reason) ->
+  notify_status_to_callback_url(Status, Session, Reason),
   notify_status_to_hub(Status, Session).
 
-notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams, started_at = StartedAt, js_context = JS}) ->
+notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams, started_at = StartedAt, js_context = JS}, Reason) ->
   case Session#session.status_callback_url of
     undefined -> ok;
     <<>> -> ok;
@@ -311,7 +314,17 @@ notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, add
             Now = calendar:universal_time(),
             calendar:datetime_to_gregorian_seconds(Now) - StartedAtSeconds
         end,
-        QueryString = [{"CallSid", CallSid}, {"CallStatus", Status}, {"From", Address}, {"CallDuration", erlang:integer_to_list(Duration)} | (CallbackParams ++ SessionVars)],
+        CallReasonParams = case Reason of
+          undefined -> [];
+          busy -> [];
+          no_answer -> [];
+          hangup -> [{"CallStatusReason", "Busy"}];
+          {internal_error, ErrDetails} -> [{"CallStatusReason", ErrDetails}];
+          {error, ErrDetails} -> [{"CallStatusReason", ErrDetails}];
+          {error, ErrDetails, ErrCode} -> [{"CallStatusReason", ErrDetails}, {"CallStatusCode", ErrCode}];
+          _ -> [{"CallStatusReason", Reason}]
+        end,
+        QueryString = [{"CallSid", CallSid}, {"CallStatus", Status}, {"From", Address}, {"CallDuration", erlang:integer_to_list(Duration)} | (CallReasonParams ++ CallbackParams ++ SessionVars)],
         AuthOptions = case Session#session.status_callback_user of
           undefined -> [];
           [] -> [];
@@ -383,14 +396,14 @@ handle_sync_event(_Event, _From, StateName, State) ->
 
 %% @private
 handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Session, pbx_pid = Pid}) ->
-  notify_status(failed, Session),
+  notify_status(failed, Session, "PBX unexpected error"),
   lager:error("PBX closed unexpectedly with reason: ~s", [Reason]),
   finalize({failed, {internal_error, Reason}}, State);
 
 handle_info({'DOWN', _Ref, process, Pid, Reason}, _, State = #state{session = Session, flow_pid = Pid}) ->
   Pbx = Session#session.pbx,
   Pbx:terminate(),
-  notify_status(failed, Session),
+  notify_status(failed, Session, "Verboice flow unexpected error"),
   lager:error("Flow process died unexpectedly with reason: ~s", [Reason]),
   finalize({failed, {internal_error, Reason}}, State);
 
