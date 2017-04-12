@@ -322,7 +322,12 @@ notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, add
           {internal_error, ErrDetails} -> [{"CallStatusReason", ErrDetails}];
           {error, ErrDetails} -> [{"CallStatusReason", ErrDetails}];
           {error, ErrDetails, ErrCode} -> [{"CallStatusReason", ErrDetails}, {"CallStatusCode", ErrCode}];
-          _ -> [{"CallStatusReason", Reason}]
+          _ ->
+            case CallLog:hangup_status() of
+              ok -> [];
+              {fail, HangupCode, HangupReason} ->
+                [{"CallStatusReason", HangupReason}, {"CallStatusCode", HangupCode}]
+            end
         end,
         QueryString = [{"CallSid", CallSid}, {"CallStatus", Status}, {"From", Address}, {"CallDuration", erlang:integer_to_list(Duration)} | (CallReasonParams ++ CallbackParams ++ SessionVars)],
         AuthOptions = case Session#session.status_callback_user of
