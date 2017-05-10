@@ -8,8 +8,18 @@ services:
     volumes:
       - db:/var/lib/mysql
 
+  broker:
+    build: ./broker
+    volumes:
+      - ./broker/src:/app/src
+      - ./broker/test:/app/test
+    depends_on:
+      - db
+
   web: &rails
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     environment:
       RAILS_ENV:
       DATABASE_HOST: 'db'
