@@ -22,9 +22,10 @@ notify_status_on_failed_test() ->
   Session = #session{address = <<"123">>, call_log = {call_log_srv}, status_callback_url = <<"http://foo.com">>},
   meck:new(call_log_srv, [stub_all]),
   meck:expect(call_log_srv, id, 1, 1),
+  meck:expect(call_log_srv, hangup_status, 1, {fail, "30", "Random error"}),
   meck:new(httpc),
 
-  RequestParams = [get, {"http://foo.com/?CallSid=1&CallStatus=failed&From=123&CallDuration=0&CallStatusReason=Random%20error", []}, '_', [{full_result, false}]],
+  RequestParams = [get, {"http://foo.com/?CallSid=1&CallStatus=failed&From=123&CallDuration=0&CallStatusReason=Random%20error&CallStatusCode=30", []}, '_', [{full_result, false}]],
   meck:expect(httpc, request, RequestParams, ok),
   session:in_progress({completed, Session, {failed, "Random error"}}, #state{session = Session}),
 
