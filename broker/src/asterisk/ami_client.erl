@@ -54,7 +54,7 @@ handle_call({send_command, Action, Parameters}, From, State = #state{sock = Sock
     _ ->
       gen_tcp:close(Sock),
       gen_server:cast(?SERVER, connect),
-      {reply, {error, unavailable}, #state{connected = false}}
+      {reply, {error, unavailable}, State#state{connected = false}}
   end;
 
 handle_call(_Request, _From, State) ->
@@ -64,7 +64,7 @@ handle_call(_Request, _From, State) ->
 handle_cast(connect, State = #state{connected = false, host = AmiHost, port = AmiPort}) ->
   case gen_tcp:connect(AmiHost, AmiPort, [binary, {packet, line}], 1000) of
     {ok, Sock} ->
-      {noreply, #state{sock = Sock, connected = true, state = initial, reply_queue = queue:new()}};
+      {noreply, State#state{sock = Sock, connected = true, state = initial, reply_queue = queue:new()}};
     _ ->
       {ok, _} = timer:apply_after(1000, gen_server, cast, [?SERVER, connect]),
       {noreply, State}
@@ -96,9 +96,9 @@ handle_info({tcp, _, <<"\r\n">>}, State = #state{state = receiving, reply_queue 
 handle_info({tcp, _, Line}, State) ->
   handle_line(util:strip_nl(Line), State);
 
-handle_info({tcp_closed, _}, _State) ->
+handle_info({tcp_closed, _}, State) ->
   timer:apply_after(1000, gen_server, cast, [?SERVER, connect]),
-  {noreply, #state{connected = false}};
+  {noreply, State#state{connected = false}};
 
 handle_info(_Info, State) ->
   {noreply, State}.
