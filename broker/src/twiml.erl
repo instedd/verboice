@@ -122,7 +122,24 @@ scan(Flow, [Record = #xmlElement{name = 'Record'} | Rest]) ->
     [record, [{key, Key}, {description, "Recorded from external flow"}|RecordOpts]],
     [callback, CallbackOpts]
   ],
-  scan(Flow ++ Commands, Rest).
+  scan(Flow ++ Commands, Rest);
+
+scan(Flow, [Dial = #xmlElement{name = 'Dial', content = Content} | Rest]) ->
+  DialOpts =
+    lists:foldl(fun(Attr, Opts) ->
+      case Attr#xmlAttribute.name of
+        channel ->
+          [{channel_name, Attr#xmlAttribute.value} | Opts];
+        callerId ->
+          [{caller_id, Attr#xmlAttribute.value} | Opts];
+        successfulAfter ->
+          [{successful_after, list_to_integer(Attr#xmlAttribute.value)} | Opts]
+      end
+    end, [{number, inner_text(Content)}], Dial#xmlElement.attributes),
+  scan(Flow ++ [
+    start_activity(Dial, "twiml_dial"),
+    [dial, DialOpts]
+  ], Rest).
 
 get_attribute(#xmlElement{attributes = Attributes}, AttrName) ->
   case lists:keyfind(AttrName, #xmlAttribute.name, Attributes) of
