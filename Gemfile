@@ -6,7 +6,7 @@ gem "puma", "2.16.0"
 gem 'haml-rails'
 gem "jquery-rails"
 
-gem 'mysql2'
+gem 'mysql2', '~> 0.3.21'
 gem 'nokogiri'
 gem 'guid'
 gem 'devise'
@@ -36,7 +36,6 @@ gem 'omniauth-openid'
 gem 'recurring_select', git: "https://github.com/instedd/recurring_select", branch: 'instedd'
 gem 'listings', '~> 0.1.7'
 gem 'instedd_telemetry', github: "instedd/telemetry_rails", ref: "aee5fc99e3dbe06e6cdd077c8042a2ada0bb6995"
-gem 'ruby-asterisk'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
@@ -50,10 +49,10 @@ group :development, :test do
   gem 'mocha', :require => false
   gem 'rspec'
   gem 'rspec-rails'
-  gem "shoulda-matchers"
+  gem 'rspec-collection_matchers'
   gem 'ci_reporter'
   gem 'equivalent-xml'
-  gem 'pry-debugger'
+  gem 'byebug'
   gem 'syntax'
   gem 'timecop'
   gem 'quiet_assets'
@@ -69,6 +68,8 @@ group :development do
 end
 
 group :test do
+  gem 'test-unit-minitest', require: nil # Needed for backwards compatibility of ruby 2.x with ralis 3.2
+  gem "shoulda-matchers"
   gem 'webmock'
   gem 'fakefs', :require => 'fakefs/safe'
   gem 'database_cleaner'

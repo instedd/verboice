@@ -33,7 +33,7 @@ module Parsers
       end
 
       it "should compile to a verboice equivalent flow" do
-        File.stub(:exists?).and_return{true}
+        File.stub(:exists?).and_return(true)
         nuntium = Nuntium.new call_flow, 'id' => 1,
           'type' => 'nuntium',
           'name' => 'Nuntium',
@@ -56,7 +56,7 @@ module Parsers
       end
 
       it "shouldn't compile the nuntium command if no resource is given" do
-        File.stub(:exists?).and_return{true}
+        File.stub(:exists?).and_return(true)
         nuntium = Nuntium.new call_flow, 'id' => 1,
           'type' => 'nuntium',
           'name' => 'Nuntium',
@@ -82,7 +82,7 @@ module Parsers
        [{ 'variable' => 'foo' }, 'var_foo'],
        [{ 'response' => 20 }, 'external_20']].each do |recipient, expr|
         it "should compile the nuntium command with a value recipient" do
-          File.stub(:exists?).and_return{true}
+          File.stub(:exists?).and_return(true)
           nuntium = Nuntium.new call_flow, 'id' => 1,
             'type' => 'nuntium',
             'name' => 'Nuntium',

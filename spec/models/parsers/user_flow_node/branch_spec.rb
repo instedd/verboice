@@ -121,8 +121,8 @@ module Parsers
       end
 
       it "should handle a branch input stream"do
-        (Branch.can_handle? 'id' => 27, 'type' => 'branch').should be_true
-        (Branch.can_handle? 'id' => 27, 'type' => 'answer').should be_false
+        (Branch.can_handle? 'id' => 27, 'type' => 'branch').should be(true)
+        (Branch.can_handle? 'id' => 27, 'type' => 'answer').should be(false)
       end
 
       it "should resolve it's next links from a given list of commands" do
@@ -158,8 +158,8 @@ module Parsers
         branch_2 = Branch.new call_flow, 'id' => 14,
           'type' => 'branch',
           'explanation_message' => {"guid" => 123}
-        branch_1.is_root?.should be_true
-        branch_2.is_root?.should be_false
+        branch_1.is_root?.should be(true)
+        branch_2.is_root?.should be(false)
       end
 
       def id

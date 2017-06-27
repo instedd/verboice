@@ -165,7 +165,7 @@ describe Channel do
 
     it "call create_channel on broker client when create" do
       channel = a_channel.make_unsaved
-      BrokerClient.should_receive(:create_channel).with do |channel_id|
+      BrokerClient.should_receive(:create_channel) do |channel_id|
         channel_id == channel.id
       end
       channel.save!
@@ -192,7 +192,7 @@ describe Channel do
 
       it "register? and_return false" do
         channel = a_channel.new
-        channel.register?.should be_false
+        channel.register?.should be(false)
       end
     end
   end

@@ -24,7 +24,7 @@ describe ContactsImporter do
     it "should succeed with a valid CSV file" do
       valid_file = uploaded_file "Phone,foo,bar\n1,2,3\n"
       @importer.save_csv(valid_file).should be_nil
-      File.file?(@importer.csv_filename).should be_true
+      File.file?(@importer.csv_filename).should be(true)
     end
 
     it "should return false for nil" do

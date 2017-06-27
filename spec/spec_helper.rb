@@ -23,6 +23,7 @@ require 'rspec/autorun'
 
 require 'webmock/rspec'
 require 'listings/rspec'
+require 'rspec/collection_matchers'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -65,10 +66,10 @@ RSpec.configure do |config|
   end
 
   def expect_em_http(method, url, options = {})
-    http = mock('http')
+    http = double('http')
     EventMachine::HttpRequest.should_receive(:new).with(url).and_return(http)
 
-    http2 = mock('http2')
+    http2 = double('http2')
     http.should_receive(method).with(options[:with]).and_return(http2)
 
     headers = stub('headers', :status => 200)

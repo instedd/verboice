@@ -10,9 +10,14 @@ services:
 
   broker:
     build: ./broker
+    environment:
+      AMI_HOST: 'asterisk'
+      AMI_PORT: 5038
     volumes:
       - ./broker/src:/app/src
       - ./broker/test:/app/test
+      - asterisk:/usr/local/etc/asterisk
+      - sounds:/usr/local/var/lib/asterisk/sounds
     depends_on:
       - db
 
@@ -21,8 +26,9 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     environment:
-      RAILS_ENV:
       DATABASE_HOST: 'db'
+      BROKER_HOST: 'broker'
+      BROKER_PORT: 9999
     pid: host
     volumes:
       - .:/app
@@ -30,10 +36,19 @@ services:
     tmpfs: /app/tmp
     depends_on:
       - db
+      - asterisk
     command: rails server -b 0.0.0.0 -p 80
     ports:
       - 3001:80
 
+  asterisk:
+    image: respoke/asterisk:13.15
+    volumes:
+      - asterisk:/usr/local/etc/asterisk
+      - sounds:/usr/local/var/lib/asterisk/sounds
+
 volumes:
   db:
   bundle:
+  asterisk:
+  sounds:

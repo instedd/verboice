@@ -48,14 +48,14 @@ describe NuntiumChannel do
     nc = NuntiumChannel.new kind: 'foo', name: 'bar'
     nc.account = account
     nc.channel.should_receive(:save!)
-    nc.save.should be_true
+    nc.save.should be(true)
   end
 
   it "should find the Pigeon channel if channel_name is present (ie. it's a persisted record)" do
     nc = NuntiumChannel.new kind: 'foo', name: 'bar'
     nc.account = account
     nc.channel.should_receive(:save!)
-    nc.save.should be_true
+    nc.save.should be(true)
 
     nc2 = NuntiumChannel.find(nc.id)
     Pigeon::NuntiumChannel.should_receive(:find).with(nc.channel_name).and_return(nc.channel)
@@ -66,17 +66,17 @@ describe NuntiumChannel do
     nc = NuntiumChannel.new kind: 'foo', name: 'bar', enabled: false
     nc.account = account
     nc.channel.should_receive(:save!)
-    nc.save.should be_true
+    nc.save.should be(true)
 
     nc.channel.restrictions.should include({ "name" => "account_id", "value" => account.id.to_s })
-    nc.channel.should_not be_enabled
+    nc.channel.enabled.should be(false)
   end
 
   it "should destroy the Pigeon channel when destroying the record" do
     nc = NuntiumChannel.new kind: 'foo', name: 'bar'
     nc.account = account
     nc.channel.should_receive(:save!)
-    nc.save.should be_true
+    nc.save.should be(true)
 
     nc.channel.should_receive(:destroy)
     nc.destroy
@@ -86,6 +86,6 @@ describe NuntiumChannel do
     nc = NuntiumChannel.new kind: 'foo', name: 'bar'
     nc.account = account
     nc.channel.should_receive(:save!).and_raise(Pigeon::ChannelInvalid.new(nc.channel))
-    nc.save.should be_false
+    nc.save.should be(false)
   end
 end

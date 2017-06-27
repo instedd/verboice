@@ -1,4 +1,4 @@
-FROM instedd/nginx-rails:1.9
+FROM instedd/nginx-rails:2.3.4
 
 # Install dependencies
 RUN apt-get update && \
