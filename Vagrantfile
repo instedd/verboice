@@ -1,23 +1,30 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
-VAGRANTFILE_API_VERSION = "2"
-
-Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "ubuntu/trusty64"
+Vagrant.configure("2") do |config|
+  config.vm.box = "withinboredom/Trusty64"
   config.vm.hostname = "verboice.local"
 
   config.vm.network :forwarded_port, guest: "80", host: "8085", host_ip: "127.0.0.1"
   config.vm.network :public_network, ip: '192.168.1.15'
 
-  config.vm.provider :virtualbox do |vb|
-    vb.customize ["modifyvm", :id, "--memory", "4096"]
+  config.vm.provider :hyperv do |h|
+    h.vm_integration_services = {
+        guest_service_interface: true,
+        heartbeat: true,
+        key_value_pair_exchange: false,
+        shutdown: true,
+        time_synchronization: true,
+        vss: true
+    }
+    h.ip_address_timeout = 240
+    h.memory = 4096
+    h.vmname = "verboice.local"
   end
 
   config.vm.provision :shell do |s|
     s.privileged = false
-    s.args = [ENV['REVISION'] || "3.1"]
+    s.args = [ENV['REVISION'] || "3.1.4"]
     s.inline = <<-SH
 
     export DEBIAN_FRONTEND=noninteractive
@@ -142,7 +149,7 @@ Listen 8080"' >> /etc/apache2/ports.conf
     sudo chown `whoami` /var/log/verboice
 
     # Setup rails application and broker
-    git clone /vagrant verboice
+    git clone https://github.com/instedd/verboice.git verboice
     cd verboice
     if [ "$1" != '' ]; then
       git checkout $1;
