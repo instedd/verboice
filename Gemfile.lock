@@ -448,6 +448,3 @@ DEPENDENCIES
   timecop
   uglifier (>= 1.0.3)
   webmock
-
-BUNDLED WITH
-   1.10.6
