@@ -8,6 +8,8 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install gem bundle
+RUN gem install zeus
+
 ADD Gemfile /app/
 ADD Gemfile.lock /app/
 WORKDIR /app
