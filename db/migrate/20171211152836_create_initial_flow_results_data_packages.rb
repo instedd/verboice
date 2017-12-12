@@ -10,6 +10,8 @@ class CreateInitialFlowResultsDataPackages < ActiveRecord::Migration
         flow_results_data_packages.updated_at)
         SELECT UUID(), c.id, NOW(), NULL, NOW(), NOW()
         FROM call_flows c
+        WHERE c.mode = 'flow'
+        AND NOT EXISTS (SELECT 1 FROM flow_results_data_packages f WHERE f.call_flow_id = c.id AND f.until IS NULL)
     SQL
   end
 
