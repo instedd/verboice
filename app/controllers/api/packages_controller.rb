@@ -21,12 +21,36 @@ module Api::FlowResults
       call_flow_id = params[:call_flow_id]
       call_flow = CallFlow.where(:project_id => project_id, :id => call_flow_id).first
 
-      return head :not_found unless call_flow
-      return render(json: []) unless call_flow.current_data_package
+      unless call_flow
+        return error(404, "Call flow does not exist",
+          "Call flow does not exist, does not belong to project, or you don't have permissions to access it.")
+      end
+
+      unless call_flow.current_data_package
+        return error(404, "Call flow does not export a FLOIP package",
+          "Call flow does not export a data package, probably because it's driven by a third-party app.")
+      end
 
       data_package_uuid = call_flow.current_data_package.uuid
-      data_package_urls = [api_project_call_flow_flow_results_package_url(project_id, call_flow_id, data_package_uuid)]
-      render json: data_package_urls
+      data_package_uri = api_project_call_flow_flow_results_package_url(project_id, call_flow_id, data_package_uuid)
+      data_packages = {
+        data: [
+          type: "packages",
+          id: data_package_uuid
+        ],
+        links: {
+          self: data_package_uri
+        }
+      }
+      render json: data_packages
+    end
+
+    private
+
+    def error(http_status, title, detail)
+      render(json: {
+        errors: [{ status: http_status.to_s, title: title, detail: detail  }]
+      }, status: http_status)
     end
   end
 end

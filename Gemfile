@@ -57,6 +57,7 @@ group :development, :test do
   gem 'syntax'
   gem 'timecop'
   gem 'quiet_assets'
+  gem 'json-schema'
 end
 
 group :development do

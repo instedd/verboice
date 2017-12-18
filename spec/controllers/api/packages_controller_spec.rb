@@ -16,6 +16,7 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'spec_helper'
+require 'json-schema'
 
 describe Api::FlowResults::PackagesController do
   include Devise::TestHelpers
@@ -27,34 +28,54 @@ describe Api::FlowResults::PackagesController do
     sign_in account
   end
 
-  describe("happy path") do
-    let!(:call_flow) { project.call_flows.make :name => "Flow", :mode => :flow }
-
-    it "gets data packages for a call flow" do
-      get :index, project_id: project.id, call_flow_id: call_flow.id
-
-      response.should be_ok
-
-      json = JSON.parse response.body
-      json.length.should eq(1)
-      json[0].should eq(api_project_call_flow_flow_results_package_url(project.id, call_flow.id, call_flow.current_data_package.uuid))
-    end
+  def assert_json_api_compliance(json)
+    schema = File.join(Rails.root, 'spec/fixtures/json_api_schema.json')
+    JSON::Validator.validate!(schema, json)
   end
 
-  describe("error modes") do
-    it "returns 404 when callflow does not belong to project" do
-      call_flow = CallFlow.make :name => "Flow", :mode => :flow
-      get :index, project_id: project.id, call_flow_id: call_flow.id
-      response.should be_not_found
+  describe("list data packages for a call flow") do
+    describe("happy path") do
+      let!(:call_flow) { project.call_flows.make :name => "Flow", :mode => :flow }
+
+      it "gets data packages for a call flow" do
+        get :index, project_id: project.id, call_flow_id: call_flow.id
+
+        response.should be_ok
+
+        json = JSON.parse response.body
+
+        assert_json_api_compliance(json)
+
+        json["data"].length.should eq(1)
+
+        package = json["data"][0]
+        package["type"].should eq("packages")
+        package["id"].should eq(call_flow.current_data_package.uuid)
+
+        json["links"]["self"].should eq(api_project_call_flow_flow_results_package_url(project.id, call_flow.id, call_flow.current_data_package.uuid))
+      end
     end
 
-    it "returns empty array when callflow has works in callback mode" do
-      call_flow = project.call_flows.make :name => "Flow", :mode => "callback_url"
-      get :index, project_id: project.id, call_flow_id: call_flow.id
-      response.should be_ok
+    describe("error modes") do
+      it "returns 404 when callflow does not belong to project" do
+        call_flow = CallFlow.make :name => "Flow", :mode => :flow
+        get :index, project_id: project.id, call_flow_id: call_flow.id
 
-      json = JSON.parse response.body
-      json.length.should eq(0)
+        response.should be_not_found
+
+        json = JSON.parse response.body
+        assert_json_api_compliance(json)
+      end
+
+      it "returns 404 when callflow works in callback mode" do
+        call_flow = project.call_flows.make :name => "Flow", :mode => "callback_url"
+        get :index, project_id: project.id, call_flow_id: call_flow.id
+
+        response.should be_not_found
+
+        json = JSON.parse response.body
+        assert_json_api_compliance(json)
+      end
     end
   end
 end
