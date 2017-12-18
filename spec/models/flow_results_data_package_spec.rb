@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 require 'spec_helper'
+require 'json-schema'
 
 describe FlowResultsDataPackage do
   describe "relationship with CallFlow" do
@@ -89,7 +90,7 @@ describe FlowResultsDataPackage do
     end
   end
 
-  describe ("relationship with callback mode CallFlows") do
+  describe("relationship with callback mode CallFlows") do
     let(:call_flow) do
       Timecop.freeze Date.new(2017, 12, 1)
       cf = CallFlow.make :name => "Flow", :mode => :callback_url
@@ -110,6 +111,25 @@ describe FlowResultsDataPackage do
 
       subject.current_data_package.should_not be_nil
       subject.flow_results_data_packages.length.should eq(1)
+    end
+  end
+
+  describe("get descriptor for one package") do
+    describe("happy path") do
+      it "returns a valid data package descriptor" do
+        call_flow = CallFlow.make :name => "Flow", :mode => :flow
+        data_package = call_flow.current_data_package
+
+        json = JSON.parse data_package.descriptor("http://foo.com")
+
+        schema = File.join(Rails.root, 'spec/fixtures/data_package_schema.json')
+        JSON::Validator.validate!(schema, json)
+
+        json["profile"].should eq("flow-results-package")
+        json["name"].should eq(data_package.name)
+        json["flow-results-specification"].should eq("1.0.0-rc1")
+        json["resources"][0]["path"].should eq("http://foo.com/responses")
+      end
     end
   end
 end
