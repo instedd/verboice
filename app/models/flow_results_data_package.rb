@@ -35,7 +35,7 @@ class FlowResultsDataPackage < ActiveRecord::Base
         "schema" => floip_schema,
         "name" => name
       }]
-    }.to_json
+    }
   end
 
   def name
@@ -43,6 +43,28 @@ class FlowResultsDataPackage < ActiveRecord::Base
   end
 
   def floip_schema
-    {}
+    {
+      "fields" => [
+        field("timestamp", "Timestamp", "datetime"),
+        field("row_id", "Row ID", "string"),
+        field("contact_id", "Contact ID", "string"),
+        field("question_id", "Question ID", "string"),
+        field("response", "Response", "any"),
+        field("response_metadata", "Response Metadata", "object")
+      ],
+      "questions" => floip_questions(call_flow)
+    }
+  end
+
+  private
+
+  def questions(call_flow)
+    call_flow.user_flow
+      .map{|step| Question.from_step(step)}
+      .compact
+  end
+
+  def field(name, title, type)
+    { "name" => name, "title" => title, "type" => type}
   end
 end

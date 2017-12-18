@@ -17,6 +17,7 @@
 
 module Parsers
   module UserFlowNode
+    # AKA "Input" in the flow designer
     class Capture < UserCommand
       attr_reader :id, :name, :call_flow
       attr_accessor :next

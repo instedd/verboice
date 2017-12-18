@@ -120,7 +120,7 @@ describe FlowResultsDataPackage do
         call_flow = CallFlow.make :name => "Flow", :mode => :flow
         data_package = call_flow.current_data_package
 
-        json = JSON.parse data_package.descriptor("http://foo.com")
+        json = JSON.parse data_package.descriptor("http://foo.com").to_json
 
         schema = File.join(Rails.root, 'spec/fixtures/data_package_schema.json')
         JSON::Validator.validate!(schema, json)
@@ -130,6 +130,17 @@ describe FlowResultsDataPackage do
         json["flow-results-specification"].should eq("1.0.0-rc1")
         json["resources"][0]["path"].should eq("http://foo.com/responses")
       end
+    end
+  end
+
+  describe("#floip_schema") do
+    it "must contain fields attribute" do
+      call_flow = CallFlow.make :name => "Flow", :mode => :flow
+      data_package = call_flow.current_data_package
+
+      json = JSON.parse data_package.floip_schema.to_json
+
+      json["fields"].should eq([])
     end
   end
 end
