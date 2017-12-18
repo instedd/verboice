@@ -1,4 +1,5 @@
-broker_port: 9999
+broker_port: <%= ENV["BROKER_PORT"] || 9999 %>
+broker_host: <%= ENV["BROKER_HOST"] || '127.0.0.1' %>
 ispeech_format: mp3
 asset_host: "http://default-domain.com"
 skip_account_confirmation: false

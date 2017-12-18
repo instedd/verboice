@@ -9,7 +9,7 @@ RUN apt-get update && \
 RUN /usr/bin/gem install bundler -v 1.13.6
 RUN /usr/bin/gem install tzinfo -v 0.3.44
 RUN /usr/bin/gem install activesupport -v 3.2.22
- 
+
 # Install broker deps
 ADD Makefile /app/
 ADD rebar /app/
@@ -20,6 +20,7 @@ RUN make deps
 
 # Install the application
 ADD . /app
+RUN mkdir -p tmp/www log
 
 # Compile
 RUN make compile
