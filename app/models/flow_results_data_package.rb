@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 require 'json'
+
 class FlowResultsDataPackage < ActiveRecord::Base
   belongs_to :call_flow
 
@@ -52,7 +53,7 @@ class FlowResultsDataPackage < ActiveRecord::Base
         field("response", "Response", "any"),
         field("response_metadata", "Response Metadata", "object")
       ],
-      "questions" => floip_questions(call_flow)
+      "questions" => questions(call_flow)
     }
   end
 
@@ -60,7 +61,7 @@ class FlowResultsDataPackage < ActiveRecord::Base
 
   def questions(call_flow)
     call_flow.user_flow
-      .map{|step| Question.from_step(step)}
+      .map{|step| ::FlowResults::Question.from_step(step)}
       .compact
   end
 

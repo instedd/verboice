@@ -118,6 +118,19 @@ describe FlowResultsDataPackage do
     describe("happy path") do
       it "returns a valid data package descriptor" do
         call_flow = CallFlow.make :name => "Flow", :mode => :flow
+        call_flow.user_flow = [
+          {
+            'id' => 1,
+            'root' => 1,
+            'type' => 'play',
+            'name' => 'Play number one',
+            'resource' => {
+              "guid" => "foo"
+            }
+          }
+        ]
+        call_flow.save!
+
         data_package = call_flow.current_data_package
 
         json = JSON.parse data_package.descriptor("http://foo.com").to_json
@@ -136,11 +149,24 @@ describe FlowResultsDataPackage do
   describe("#floip_schema") do
     it "must contain fields attribute" do
       call_flow = CallFlow.make :name => "Flow", :mode => :flow
+      call_flow.user_flow = [
+        {
+          'id' => 1,
+          'root' => 1,
+          'type' => 'play',
+          'name' => 'Play number one',
+          'resource' => {
+            "guid" => "foo"
+          }
+        }
+      ]
+      call_flow.save!
+
       data_package = call_flow.current_data_package
 
       json = JSON.parse data_package.floip_schema.to_json
 
-      json["fields"].should eq([])
+      json["fields"].should_not be_nil
     end
   end
 end
