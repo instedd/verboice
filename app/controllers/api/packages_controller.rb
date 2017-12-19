@@ -16,36 +16,54 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 module Api::FlowResults
   class PackagesController < ApiController
+    before_filter :load_entities, :only => [:index, :show]
+
     def index
-      project_id = params[:project_id]
-      call_flow_id = params[:call_flow_id]
-      call_flow = CallFlow.where(:project_id => project_id, :id => call_flow_id).first
-
-      unless call_flow
-        return error(404, "Call flow does not exist",
-          "Call flow does not exist, does not belong to project, or you don't have permissions to access it.")
-      end
-
-      unless call_flow.current_data_package
-        return error(404, "Call flow does not export a FLOIP package",
-          "Call flow does not export a data package, probably because it's driven by a third-party app.")
-      end
-
-      data_package_uuid = call_flow.current_data_package.uuid
-      data_package_uri = api_project_call_flow_flow_results_package_url(project_id, call_flow_id, data_package_uuid)
       data_packages = {
-        data: [
+        data: [{
           type: "packages",
-          id: data_package_uuid
-        ],
+          id: @data_package.uuid
+        }],
         links: {
-          self: data_package_uri
+          self: api_project_call_flow_flow_results_packages_url(@project.id, @call_flow.id)
         }
       }
       render json: data_packages
     end
 
+    def show
+      data_package_uri = api_project_call_flow_flow_results_package_url(@project.id, @call_flow.id, @data_package.uuid)
+
+      render json: {
+        data: {
+          type: "packages",
+          id: @data_package.uuid,
+          attributes: @data_package.descriptor(data_package_uri)
+        },
+        links: {
+          self: data_package_uri
+        }
+      }
+    end
+
     private
+
+    def load_entities
+      @project = Project.find(params[:project_id])
+      @call_flow = CallFlow.find(params[:call_flow_id])
+      @data_package = !params[:id] ||
+        (@call_flow.current_data_package && params[:id] == @call_flow.current_data_package.uuid) ? @call_flow.current_data_package : nil
+
+      unless @project && @call_flow && @project.id == @call_flow.project_id
+        return error(404, "Call flow does not exist",
+          "Call flow does not exist, does not belong to project, or you don't have permissions to access it.")
+      end
+
+      unless @data_package
+        return error(404, "Call flow does not export a FLOIP package",
+          "Call flow does not export a data package, probably because it's driven by a third-party app.")
+      end
+    end
 
     def error(http_status, title, detail)
       render(json: {

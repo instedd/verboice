@@ -29,12 +29,12 @@ class FlowResultsDataPackage < ActiveRecord::Base
       "id" => uuid,
       "title" => call_flow.name,
       "resources" => [{
+        "name" => "#{name}_responses",
         "path" => "#{data_package_uri}/responses",
         "api-data-url" => "#{data_package_uri}/responses",
         "mediatype" => "application/json",
         "encoding" => "utf-8",
-        "schema" => floip_schema,
-        "name" => name
+        "schema" => floip_schema
       }]
     }
   end

@@ -33,6 +33,12 @@ describe Api::FlowResults::PackagesController do
     JSON::Validator.validate!(schema, json)
   end
 
+  def assert_json_api_not_found_error(response)
+    response.should be_not_found
+    json = JSON.parse response.body
+    assert_json_api_compliance(json)
+  end
+
   describe("list data packages for a call flow") do
     describe("happy path") do
       let!(:call_flow) { project.call_flows.make :name => "Flow", :mode => :flow }
@@ -52,7 +58,7 @@ describe Api::FlowResults::PackagesController do
         package["type"].should eq("packages")
         package["id"].should eq(call_flow.current_data_package.uuid)
 
-        json["links"]["self"].should eq(api_project_call_flow_flow_results_package_url(project.id, call_flow.id, call_flow.current_data_package.uuid))
+        json["links"]["self"].should eq(api_project_call_flow_flow_results_packages_url(project.id, call_flow.id))
       end
     end
 
@@ -60,22 +66,60 @@ describe Api::FlowResults::PackagesController do
       it "returns 404 when callflow does not belong to project" do
         call_flow = CallFlow.make :name => "Flow", :mode => :flow
         get :index, project_id: project.id, call_flow_id: call_flow.id
-
-        response.should be_not_found
-
-        json = JSON.parse response.body
-        assert_json_api_compliance(json)
+        assert_json_api_not_found_error(response)
       end
 
       it "returns 404 when callflow works in callback mode" do
         call_flow = project.call_flows.make :name => "Flow", :mode => "callback_url"
         get :index, project_id: project.id, call_flow_id: call_flow.id
-
-        response.should be_not_found
-
-        json = JSON.parse response.body
-        assert_json_api_compliance(json)
+        assert_json_api_not_found_error(response)
       end
+
+      it "returns 404 when project does not exist" do
+        call_flow = CallFlow.make :name => "Flow", :mode => :flow
+        get :index, project_id: project.id * 100, call_flow_id: call_flow.id
+        assert_json_api_not_found_error(response)
+      end
+
+      it "returns 404 when call flow does not exist" do
+        get :index, project_id: project.id, call_flow_id: 42
+        assert_json_api_not_found_error(response)
+      end
+    end
+  end
+
+  describe("descriptor") do
+    it "returns a valid descriptor wrapped in a valid jsonapi envelope" do
+      call_flow = project.call_flows.make :name => "Flow", :mode => :flow
+      call_flow.user_flow = [
+        {
+          'id' => 1,
+          'root' => 1,
+          'type' => 'play',
+          'name' => 'Play number one',
+          'resource' => {
+            "guid" => "foo"
+          }
+        }
+      ]
+      call_flow.save!
+
+      get :show, project_id: project.id, call_flow_id: call_flow.id, id: call_flow.current_data_package.uuid
+
+      response.should be_ok
+
+      json = JSON.parse response.body
+      assert_json_api_compliance(json)
+
+      descriptor = json["data"]["attributes"]
+      schema = File.join(Rails.root, 'spec/fixtures/data_package_schema.json')
+      JSON::Validator.validate!(schema, descriptor.to_json)
+    end
+
+    it "returns 404 when requested package is not current call flow package" do
+      call_flow = CallFlow.make :name => "Flow", :mode => :flow
+      get :show, project_id: project.id, call_flow_id: call_flow.id, id: "foo"
+      assert_json_api_not_found_error(response)
     end
   end
 end
