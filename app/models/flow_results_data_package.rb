@@ -53,17 +53,21 @@ class FlowResultsDataPackage < ActiveRecord::Base
         field("response", "Response", "any"),
         field("response_metadata", "Response Metadata", "object")
       ],
-      "questions" => questions(call_flow)
+      "questions" => FlowResultsDataPackage.schema_questions(questions())
     }
   end
 
-  private
-
-  def questions(call_flow)
-    call_flow.user_flow
+  def questions
+    self.call_flow.user_flow
       .map{|step| ::FlowResults::Question.from_step(step)}
       .compact
   end
+
+  def self.schema_questions(questions)
+    questions.map(&:to_h).reduce({}, :merge)
+  end
+
+  private
 
   def field(name, title, type)
     { "name" => name, "title" => title, "type" => type}

@@ -168,5 +168,111 @@ describe FlowResultsDataPackage do
 
       json["fields"].should_not be_nil
     end
+
+    it "must include questions" do
+      call_flow = CallFlow.make :name => "Flow", :mode => :flow
+      call_flow.user_flow = [
+        {
+          'id' => 1,
+          'type' => 'capture',
+          'name' => 'Capture sth',
+        },
+        {
+          'id' => 2,
+          'type' => 'menu',
+          'name' => 'Menu sth',
+          "options"=>[{"number"=>4, "next"=>1}, {"number"=>5, "next"=>1}],
+        }
+      ]
+      call_flow.save!
+
+      data_package = call_flow.current_data_package
+      json = JSON.parse data_package.floip_schema.to_json
+
+      json["fields"].should_not be_nil
+      json["questions"].should eq({
+        "1" => {
+          "type" => "numeric",
+          "label" => "Capture sth"
+        },
+        "2" => {
+          "type" => "select_one",
+          "label" => "Menu sth",
+          "choices" => ["4", "5"]
+        }
+      })
+    end
+  end
+
+  # TODO: language, record, write_variable
+  describe("#questions") do
+    it "prunes non-collection steps" do
+      call_flow = CallFlow.make :name => "Flow", :mode => :flow
+      call_flow.user_flow = [
+        { 'id' => 1, 'type' => 'branch' },
+        { 'id' => 2, 'type' => 'external' },
+        { 'id' => 3, 'type' => 'goto' },
+        { 'id' => 4, 'type' => 'hang_up_and_call_back' },
+        { 'id' => 5, 'type' => 'hang_up' },
+        { 'id' => 6, 'type' => 'mark_as_failed' },
+        { 'id' => 7, 'type' => 'mark_as_successful' },
+        { 'id' => 8, 'type' => 'nuntium' },
+        { 'id' => 9, 'type' => 'play' },
+        { 'id' => 10, 'type' => 'transfer' }
+      ]
+      call_flow.save!
+
+      data_package = call_flow.current_data_package
+      data_package.questions.should eq([])
+    end
+
+    it "maps capture step to FLOIP numeric question" do
+      call_flow = CallFlow.make :name => "Flow", :mode => :flow
+      call_flow.user_flow = [
+        { 'id' => 1, 'type' => 'capture', 'name' => 'Age' }
+      ]
+      call_flow.save!
+
+      data_package = call_flow.current_data_package
+      data_package.questions.should eq([FlowResults::Question::Numeric.new(1, 'Age')])
+    end
+
+    it "maps menu step to FLOIP select one question" do
+      call_flow = CallFlow.make :name => "Flow", :mode => :flow
+      call_flow.user_flow = [
+        {
+          'id' => 1,
+          'type' => 'menu',
+          'name' => 'Favorite icecream flavor',
+          'options' =>[
+            {
+              'number' => 1,
+              'next' => 1
+            },
+            {
+              'number' => 2,
+              'next' => 1
+            },
+            {
+              'number' => 3,
+              'next' => 1
+            }
+          ]
+        }
+      ]
+      call_flow.save!
+
+      data_package = call_flow.current_data_package
+      data_package.questions.should eq([FlowResults::Question::SelectOne.new(1, 'Favorite icecream flavor', ["1","2","3"])])
+    end
+
+    it "indexes questions by id" do
+      questions = [
+        FlowResults::Question::Numeric.new("23", "Foo"),
+        FlowResults::Question::SelectOne.new("42", "Bar", ["6", "7", "8"]),
+        FlowResults::Question::Numeric.new("84", "Baz")
+      ]
+      FlowResultsDataPackage.schema_questions(questions).keys.should eq(["23", "42", "84"])
+    end
   end
 end

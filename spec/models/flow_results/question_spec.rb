@@ -81,4 +81,14 @@ describe FlowResults::Question do
     q = FlowResults::Question.from_step(step)
     q.should be_nil
   end
+
+  it "converts numeric question to hash" do
+    h = FlowResults::Question::Numeric.new("1", "Foo").to_h
+    h.should eq({"1" => {"type" => "numeric", "label" => "Foo"}})
+  end
+
+  it "converts select one question to hash" do
+    h = FlowResults::Question::SelectOne.new("2", "Bar", ["3", "5", "7"]).to_h
+    h.should eq({"2" => {"type" => "select_one", "label" => "Bar", "choices" => ["3", "5", "7"]}})
+  end
 end

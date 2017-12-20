@@ -16,10 +16,12 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 class FlowResults::Question
   attr_accessor :type
+  attr_accessor :id
   attr_accessor :label
 
-  def initialize(type, label)
+  def initialize(type, id, label)
     @type = type
+    @id = id
     @label = label
   end
 
@@ -27,26 +29,48 @@ class FlowResults::Question
   def self.from_step(step)
     case step["type"]
     when "capture"
-      FlowResults::Question::Numeric.new(step["name"])
+      FlowResults::Question::Numeric.new(step["id"], step["name"])
     when "menu"
-      FlowResults::Question::SelectOne.new(step["name"], step["options"].map{|o| o["number"].to_s})
+      FlowResults::Question::SelectOne.new(step["id"], step["name"], step["options"].map{|o| o["number"].to_s})
     else
       nil
     end
   end
+
+  def ==(other)
+    @type == other.type && @id == other.id && @label == other.label
+  end
+
+  def to_h
+    { @id => specific_properties }
+  end
+
+  private
+
+  def specific_properties
+    { "type" => @type.to_s, "label" => @label }
+  end
 end
 
 class FlowResults::Question::Numeric < FlowResults::Question
-  def initialize(label)
-    super(:numeric, label)
+  def initialize(id, label)
+    super(:numeric, id, label)
   end
 end
 
 class FlowResults::Question::SelectOne < FlowResults::Question
   attr_accessor :choices
 
-  def initialize(label, choices)
-    super(:select_one, label)
+  def initialize(id, label, choices)
+    super(:select_one, id, label)
     @choices = choices
+  end
+
+  def ==(other)
+    super && @choices == other.choices
+  end
+
+  def specific_properties
+    super.merge({"choices" => @choices})
   end
 end
