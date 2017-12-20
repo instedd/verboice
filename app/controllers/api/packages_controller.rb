@@ -49,15 +49,16 @@ module Api::FlowResults
     private
 
     def load_entities
-      @project = Project.find(params[:project_id])
-      @call_flow = CallFlow.find(params[:call_flow_id])
-      @data_package = !params[:id] ||
-        (@call_flow.current_data_package && params[:id] == @call_flow.current_data_package.uuid) ? @call_flow.current_data_package : nil
+      @project = (Project.find(params[:project_id]) rescue nil)
+      @call_flow = (CallFlow.find(params[:call_flow_id]) rescue nil)
 
       unless @project && @call_flow && @project.id == @call_flow.project_id
         return error(404, "Call flow does not exist",
           "Call flow does not exist, does not belong to project, or you don't have permissions to access it.")
       end
+
+      @data_package = !params[:id] ||
+        (@call_flow.current_data_package && params[:id] == @call_flow.current_data_package.uuid) ? @call_flow.current_data_package : nil
 
       unless @data_package
         return error(404, "Call flow does not export a FLOIP package",
