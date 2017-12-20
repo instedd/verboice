@@ -85,6 +85,16 @@ describe Api::FlowResults::PackagesController do
         get :index, project_id: project.id, call_flow_id: 42
         assert_json_api_not_found_error(response)
       end
+
+      it "returns 404 when user cannot read project" do
+        project2 = Project.make
+
+        account.id.should_not eq(project2.account.id)
+
+        call_flow = project2.call_flows.make :name => "Flow", :mode => :flow
+        get :index, project_id: project2.id, call_flow_id: call_flow.id
+        assert_json_api_not_found_error(response)
+      end
     end
   end
 
@@ -119,6 +129,16 @@ describe Api::FlowResults::PackagesController do
     it "returns 404 when requested package is not current call flow package" do
       call_flow = CallFlow.make :name => "Flow", :mode => :flow
       get :show, project_id: project.id, call_flow_id: call_flow.id, id: "foo"
+      assert_json_api_not_found_error(response)
+    end
+
+    it "returns 404 when user cannot read project" do
+      project2 = Project.make
+
+      account.id.should_not eq(project2.account.id)
+
+      call_flow = project2.call_flows.make :name => "Flow", :mode => :flow
+      get :show, project_id: project2.id, call_flow_id: call_flow.id, id: call_flow.current_data_package.uuid
       assert_json_api_not_found_error(response)
     end
   end

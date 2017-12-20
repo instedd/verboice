@@ -49,8 +49,8 @@ module Api::FlowResults
     private
 
     def load_entities
-      @project = (Project.find(params[:project_id]) rescue nil)
-      @call_flow = (CallFlow.find(params[:call_flow_id]) rescue nil)
+      @project = (current_account.projects.find(params[:project_id]) rescue nil)
+      @call_flow = (current_account.call_flows.find(params[:call_flow_id]) rescue nil)
 
       unless @project && @call_flow && @project.id == @call_flow.project_id
         return error(404, "Call flow does not exist",
