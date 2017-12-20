@@ -13,7 +13,7 @@ start() ->
     {env, [
       {db_name, "verboice_test"},
       {db_user, "root"},
-      {db_host, "db"},
+      % {db_host, "db"},
       {db_pass, ""},
       {asterisk_config_dir, "/usr/local/asterisk/etc/asterisk"},
       {asterisk_sounds_dir, "/usr/local/asterisk/var/lib/asterisk/sounds"},
