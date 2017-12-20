@@ -124,6 +124,9 @@ describe Api::FlowResults::PackagesController do
       descriptor = json["data"]["attributes"]
       schema = File.join(Rails.root, 'spec/fixtures/data_package_schema.json')
       JSON::Validator.validate!(schema, descriptor.to_json)
+
+      expected_relationship_link = api_project_call_flow_flow_results_package_responses_url(project.id, call_flow.id, call_flow.current_data_package.uuid)
+      json["data"]["relationships"]["responses"]["links"]["related"].should eq(expected_relationship_link)
     end
 
     it "returns 404 when requested package is not current call flow package" do

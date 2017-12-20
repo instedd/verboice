@@ -38,7 +38,14 @@ module Api::FlowResults
         data: {
           type: "packages",
           id: @data_package.uuid,
-          attributes: @data_package.descriptor(data_package_uri)
+          attributes: @data_package.descriptor(data_package_uri),
+          relationships: {
+            responses: {
+              links: {
+                related: api_project_call_flow_flow_results_package_responses_url(@project.id, @call_flow.id, @data_package.uuid)
+              }
+            }
+          }
         },
         links: {
           self: data_package_uri

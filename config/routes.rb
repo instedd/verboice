@@ -150,7 +150,9 @@ Verboice::Application.routes.draw do
       resources :project_variables, only: :index
       resources :call_flows, only: [:index, :show] do
         namespace :flow_results do
-          resources :packages, only: [:index, :show]
+          resources :packages, only: [:index, :show] do
+            get "responses", :action => "responses"
+          end
         end
       end
       resources :contacts do
