@@ -1,19 +1,31 @@
-language: ruby
-rvm:
-- 1.9.3
+language: generic
+sudo: required
+services:
+  - docker
+
+env:
+  COMPOSE_VERSION: 1.18.0
+
 before_install:
-- wget http://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
-- sudo dpkg -i erlang-solutions_1.0_all.deb
-- sudo apt-get update
-- sudo apt-get install -y erlang-ic=1:17.5.3 erlang-diameter=1:17.5.3 erlang-eldap=1:17.5.3 erlang-base=1:17.5.3 erlang-crypto=1:17.5.3 erlang-runtime-tools=1:17.5.3 erlang-mnesia=1:17.5.3 erlang-ssl=1:17.5.3 erlang-syntax-tools=1:17.5.3 erlang-asn1=1:17.5.3 erlang-public-key=1:17.5.3 erlang=1:17.5.3 erlang-dev=1:17.5.3 erlang-appmon=1:17.5.3 erlang-common-test=1:17.5.3 erlang-corba=1:17.5.3 erlang-debugger=1:17.5.3 erlang-dialyzer=1:17.5.3 erlang-edoc=1:17.5.3 erlang-erl-docgen=1:17.5.3 erlang-et=1:17.5.3 erlang-eunit=1:17.5.3 erlang-gs=1:17.5.3 erlang-inets=1:17.5.3 erlang-inviso=1:17.5.3 erlang-megaco=1:17.5.3 erlang-observer=1:17.5.3 erlang-odbc=1:17.5.3 erlang-os-mon=1:17.5.3 erlang-parsetools=1:17.5.3 erlang-percept=1:17.5.3 erlang-pman=1:17.5.3 erlang-reltool=1:17.5.3 erlang-snmp=1:17.5.3 erlang-ssh=1:17.5.3 erlang-test-server=1:17.5.3 erlang-toolbar=1:17.5.3 erlang-tools=1:17.5.3 erlang-tv=1:17.5.3 erlang-typer=1:17.5.3 erlang-webtool=1:17.5.3 erlang-wx=1:17.5.3 erlang-xmerl=1:17.5.3 erlang-nox=1:17.5.3 erlang-jinterface=1:17.5.3 erlang-mode=1:17.5.3
-- sudo apt-get install -y libzmq3-dev festival
-- gem update bundler
+ - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+ - chmod +x docker-compose
+ - sudo mv docker-compose /usr/local/bin
+
+install:
+  - docker-compose pull
+
 before_script:
-- bundle exec rake db:setup
-- make -C broker deps
+  - docker-compose build
+  - docker-compose run --rm broker ./rebar get-deps
+  - docker-compose run --rm broker ./rebar compile
+  - docker-compose run --rm web bundle install
+  - docker-compose run --rm web rake db:setup
+  - docker-compose run --rm web rake db:test:prepare
+
 script:
-- bundle exec rspec
-- make -C broker eunit
+  - docker-compose run --rm web rspec
+  - docker-compose run --rm broker make eunit
+
 notifications:
   slack:
     secure: GpzXwTvHwT3GV8QXktjODXPvXvmxV5CmJNu+MPKe1t4OGrtORRocZgEsmyH/rahuqq7zFCMGqLg4x2nKhLIcGM1+sleTz9lEPVSqE2jmk0NOwyrwa0G16dURZH4x8bb9w+EFaciGD2x83VkhaAaYdXpPXJ9SSqxdp66/0TRkQ6k=

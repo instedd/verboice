@@ -12,14 +12,16 @@ services:
     build: ./broker
     environment:
       AMI_HOST: 'asterisk'
-      AMI_PORT: 5038
     volumes:
-      - ./broker/src:/app/src
-      - ./broker/test:/app/test
+      - ./broker:/app
       - asterisk:/usr/local/etc/asterisk
       - sounds:/usr/local/var/lib/asterisk/sounds
+      - deps:/app/deps
+      - ebin:/app/ebin
     depends_on:
       - db
+    tty: true
+    pid: host
 
   web: &rails
     build:
@@ -32,7 +34,7 @@ services:
     pid: host
     volumes:
       - .:/app
-      - bundle:/usr/local/bundle
+      - bundle_23:/usr/local/bundle
     tmpfs: /app/tmp
     depends_on:
       - db
@@ -49,6 +51,8 @@ services:
 
 volumes:
   db:
-  bundle:
+  bundle_23:
   asterisk:
   sounds:
+  deps:
+  ebin:

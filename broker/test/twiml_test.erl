@@ -34,7 +34,12 @@ parse_cases() -> [
   {?LINE, "<Response><Redirect>http://foo.com</Redirect></Response>",
     [start_activity("<Redirect>http://foo.com</Redirect>", "twiml_redirect"), [callback, [{url, "http://foo.com"}]]]},
   {?LINE, "<Response><Redirect method=\"get\">http://foo.com</Redirect></Response>",
-    [start_activity("<Redirect method=\"get\">http://foo.com</Redirect>", "twiml_redirect"), [callback, [{url, "http://foo.com"}, {method, get}]]]}
+    [start_activity("<Redirect method=\"get\">http://foo.com</Redirect>", "twiml_redirect"), [callback, [{url, "http://foo.com"}, {method, get}]]]},
+
+  {?LINE, "<Response><Dial>5550000</Dial></Response>",
+    [start_activity("<Dial>5550000</Dial>", "twiml_dial"), [dial, [{number, "5550000"}]]]},
+  {?LINE, "<Response><Dial channel=\"foo\" callerId=\"999\" successfulAfter=\"30\">5550000</Dial></Response>",
+    [start_activity("<Dial channel=\"foo\" callerId=\"999\" successfulAfter=\"30\">5550000</Dial>", "twiml_dial"), [dial, [{successful_after, 30}, {caller_id, "999"}, {channel_name, "foo"}, {number, "5550000"}]]]}
 ].
 
 gather_commands(Name, CaptureOptions) -> gather_commands(Name, CaptureOptions, []).
@@ -79,4 +84,3 @@ parse_record_test_() ->
      [record, [{key, _}, {description, _}]],
      [callback, [{method, get}, {url, "http://foo"}, {params, [{"RecordingUrl", "record_url" ++ _}]}]]],
     twiml:parse("<Response><Record action=\"http://foo\" method=\"get\"/></Response>"))}].
-

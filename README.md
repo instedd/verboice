@@ -36,3 +36,14 @@ You can also run the frontend unit tests inside the docker container. Here's how
 $ docker-compose run --rm web rake db:test:prepare
 $ docker-compose run --rm web rspec
 ```
+
+Deploying with Capistrano
+-------------------------
+
+Verboice is deployed with Capistrano. After `bundle install`ing, run:
+
+```
+$ cap -s branch=feature/my_branch deploy HOSTS=verboice-stg.instedd.org RVM=1
+```
+
+This will deploy `feature/my_branch` code to the host at `verboice-stg.instedd.org` using RVM. Your mileage may vary.
