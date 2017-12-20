@@ -21,6 +21,7 @@ services:
     depends_on:
       - db
     tty: true
+    pid: host
 
   web: &rails
     build:
