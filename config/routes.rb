@@ -151,7 +151,9 @@ Verboice::Application.routes.draw do
       resources :call_flows, only: [:index, :show] do
         namespace :flow_results do
           resources :packages, only: [:index, :show] do
-            get "responses", :action => "responses"
+            member do
+              get "responses", :action => "responses"
+            end
           end
         end
       end

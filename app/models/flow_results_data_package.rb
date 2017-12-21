@@ -67,7 +67,53 @@ class FlowResultsDataPackage < ActiveRecord::Base
     questions.map(&:to_h).reduce({}, :merge)
   end
 
+  def responses
+    res = []
+
+    call_flow.call_logs.includes(:contact).includes(:entries).where("updated_at >= ?", from).find_each do |call_log|
+      call_log.entries.each do |entry|
+        if entry.details.has_key?(:activity)
+          activity = JSON.load(entry.details[:activity]) rescue next
+          response = floip_response(activity)
+          next unless response
+          res.push([
+            response[:timestamp],
+            entry.id,
+            call_log.contact.id,
+            response[:step_id],
+            response[:value],
+            {}
+          ])
+        end
+      end
+    end
+
+    res
+  end
+
   private
+
+  def floip_response(activity)
+    return nil unless activity["body"]
+    return nil unless activity["body"]["@timestamp"]
+    return nil unless activity["body"]["@fields"]
+    return nil unless activity["body"]["@fields"]["step_type"]
+
+    step_type = activity["body"]["@fields"]["step_type"]
+
+    return nil unless step_type == "menu" || step_type == "input"
+
+    return nil unless activity["body"]["@fields"]["step_result"] == "pressed"
+    return nil unless activity["body"]["@fields"]["step_data"]
+    return nil unless activity["body"]["@fields"]["step_id"]
+
+    return {
+      type: step_type,
+      step_id: activity["body"]["@fields"]["step_id"],
+      value: activity["body"]["@fields"]["step_data"],
+      timestamp: activity["body"]["@timestamp"]
+    }
+  end
 
   def field(name, title, type)
     { "name" => name, "title" => title, "type" => type}

@@ -16,7 +16,7 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 module Api::FlowResults
   class PackagesController < ApiController
-    before_filter :load_entities, :only => [:index, :show]
+    before_filter :load_entities, :only => [:index, :show, :responses]
 
     def index
       data_packages = {
@@ -42,13 +42,25 @@ module Api::FlowResults
           relationships: {
             responses: {
               links: {
-                related: api_project_call_flow_flow_results_package_responses_url(@project.id, @call_flow.id, @data_package.uuid)
+                related: responses_api_project_call_flow_flow_results_package_url(@project.id, @call_flow.id, @data_package.uuid)
               }
             }
           }
         },
         links: {
           self: data_package_uri
+        }
+      }
+    end
+
+    def responses
+      render json: {
+        data: {
+          type: "flow-results-data",
+          id: @data_package.uuid,
+          attributes: {
+            responses: @data_package.responses
+          }
         }
       }
     end
