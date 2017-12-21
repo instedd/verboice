@@ -175,30 +175,36 @@ ready({dial, RealBroker, Channel, QueuedCall}, _From, State = #state{session_id 
 
   NewSession = #session{call_log = CallLog, flow = Flow} = prepare_session(QueuedCall, Channel, State),
 
-  %% Don't set the started_at if we are resuming an existing session
-  case ResumePtr of
-    undefined ->
-      CallLog:update({started_at, calendar:universal_time()});
-    _ ->
-      ok
-  end,
-
-  case Flow of
-    undefined ->
-      {_, _, NewSession1} = finalize({failed, {error, "Invalid Flow"}}, State#state{session = NewSession}),
-      {stop, normal, error, State#state{session = NewSession1}};
-    _ ->
-      case RealBroker:dispatch(NewSession) of
-        {error, unavailable} ->
-          {stop, normal, unavailable, State#state{session = NewSession}};
-        {error, Reason} ->
-          {_, _, NewSession2} = finalize({failed, Reason}, State#state{session = NewSession}),
-          {stop, normal, error, State#state{session = NewSession2}};
+  case queued_call:should_skip(QueuedCall) of
+    true ->
+      {_, _, NewSession3} = finalize(overdue, State#state{session = NewSession}),
+      {stop, normal, ok, NewSession3};
+    false ->
+      %% Don't set the started_at if we are resuming an existing session
+      case ResumePtr of
+        undefined ->
+          CallLog:update({started_at, calendar:universal_time()});
         _ ->
-          lager:info("Dialing to ~s through channel ~s", [QueuedCall#queued_call.address, Channel#channel.name]),
-          notify_status(ringing, NewSession),
-          CallLog:update([{state, "active"}, {fail_reason, undefined}]),
-          {reply, ok, dialing, State#state{session = NewSession}, timer:minutes(2)}
+          ok
+      end,
+
+      case Flow of
+        undefined ->
+          {_, _, NewSession1} = finalize({failed, {error, "Invalid Flow"}}, State#state{session = NewSession}),
+          {stop, normal, error, State#state{session = NewSession1}};
+        _ ->
+          case RealBroker:dispatch(NewSession) of
+            {error, unavailable} ->
+              {stop, normal, unavailable, State#state{session = NewSession}};
+            {error, Reason} ->
+              {_, _, NewSession2} = finalize({failed, Reason}, State#state{session = NewSession}),
+              {stop, normal, error, State#state{session = NewSession2}};
+            _ ->
+              lager:info("Dialing to ~s through channel ~s", [QueuedCall#queued_call.address, Channel#channel.name]),
+              notify_status(ringing, NewSession),
+              CallLog:update([{state, "active"}, {fail_reason, undefined}]),
+              {reply, ok, dialing, State#state{session = NewSession}, timer:minutes(2)}
+          end
       end
   end.
 
@@ -448,8 +454,9 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
       case QueuedCall:reschedule() of
         no_schedule -> failed;
         overdue ->
-          CallLog:error("'Not Before' date exceeded", []),
-          "failed";
+          CallLog:error("'Not After' date exceeded", []),
+          notify_status("expired", Session),
+          "expired";
         max_retries ->
           CallLog:error("Max retries exceeded", []),
           "failed";
@@ -475,7 +482,12 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
     {internal_error, FatalError} -> FatalError;
     _ -> normal
   end,
-  {stop, StopReason, State}.
+  {stop, StopReason, State};
+
+finalize(overdue, State = #state{session = Session = #session{call_log = CallLog}}) ->
+  CallLog:update([{state, "expired"}, {finished_at, calendar:universal_time()}]),
+  notify_status("expired", Session),
+  {stop, normal, State}.
 
 spawn_run(Session = #session{project = Project}, undefined) ->
   JsContext = default_variables(Session),
