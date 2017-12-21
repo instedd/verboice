@@ -79,7 +79,7 @@ class FlowResultsDataPackage < ActiveRecord::Base
           res.push([
             response[:timestamp],
             entry.id,
-            call_log.contact.id,
+            call_log.address,
             response[:step_id],
             response[:value],
             {}
