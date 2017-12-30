@@ -74,6 +74,8 @@ module Verboice
     config.google_analytics = ''
     config.version_name = (File.read('VERSION').strip rescue File.read('REVISION').strip rescue 'Development')
 
+    config.assets.precompile += ['channels_ui.js', 'channels_ui.css']
+
     config.after_initialize do
       Rails.application.eager_load!
     end

@@ -86,6 +86,7 @@ GIT
 
 GEM
   remote: http://rubygems.org/
+  remote: https://rails-assets.org/
   specs:
     actionmailer (3.2.22.5)
       actionpack (= 3.2.22.5)
@@ -305,6 +306,7 @@ GEM
       activesupport (= 3.2.22.5)
       bundler (~> 1.0)
       railties (= 3.2.22.5)
+    rails-assets-material-components-web (0.26.0)
     rails-dev-tweaks (1.2.0)
       actionpack (>= 3.1)
       railties (>= 3.1)
@@ -439,6 +441,7 @@ DEPENDENCIES
   puma (= 2.16.0)
   quiet_assets
   rails (~> 3.2.0)
+  rails-assets-material-components-web!
   rails-dev-tweaks
   recurring_select!
   rest-client

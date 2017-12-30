@@ -1,0 +1,9 @@
+.row
+  = f.text_field :number, colspan: 's9'
+  = f.text_field :ext, colspan: 's3'
+
+.row
+  = f.password_field :password, value: @config[:password]
+
+.row
+  = f.text_field :limit, colspan: 's4', helper: 'Number of concurrent calls'

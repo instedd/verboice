@@ -1,0 +1,30 @@
+%h4 Choose a channel type
+
+%h5 Choose from different channel options according to your project needs
+
+%div.item-list
+  %div.item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :callcentric)}')"}
+    %h5 Callcentric
+    %p
+      Callcentric is a service that lets you make and receive free phone calls
+      to other Callcentric members; and to traditional phones
+
+  %div.item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :nexmo)}')"}
+    %h5 Nexmo
+    %p
+      Nexmo is a global aggregator with support for Voice and SMS in over 200 countries
+
+  %div.item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :sip_client)}')"}
+    %h5 SIP Client
+    %p
+      Connect to VoIP SIP providers
+
+  %div.item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :skype)}')"}
+    %h5 Skype
+    %p
+      Use Skype Connect accounts
+
+  %div.item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :twilio)}')"}
+    %h5 Twilio
+    %p
+      Twilio is a cloud based tool that allows software developers to programmatically make and receive phone calls and send and receive text messages using its web service APIs.

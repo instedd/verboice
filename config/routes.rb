@@ -125,6 +125,9 @@ Verboice::Application.routes.draw do
     end
   end
 
+  resources :channels_ui, only: [:new, :create, :show] do
+  end
+
   namespace :api do
     match "call" => "calls#call"
     resources :calls, only: [:destroy] do

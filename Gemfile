@@ -38,6 +38,7 @@ gem 'omniauth-openid'
 gem 'recurring_select', git: "https://github.com/instedd/recurring_select", branch: 'instedd'
 gem 'listings', '~> 0.1.7'
 gem 'instedd_telemetry', github: "instedd/telemetry_rails", branch: 'master'
+gem 'rails-assets-material-components-web', source: 'https://rails-assets.org'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
