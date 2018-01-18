@@ -125,7 +125,7 @@ describe Api::FlowResults::PackagesController do
       schema = File.join(Rails.root, 'spec/fixtures/data_package_schema.json')
       JSON::Validator.validate!(schema, descriptor.to_json)
 
-      expected_relationship_link = api_project_call_flow_flow_results_package_responses_url(project.id, call_flow.id, call_flow.current_data_package.uuid)
+      expected_relationship_link = responses_api_project_call_flow_flow_results_package_url(project.id, call_flow.id, call_flow.current_data_package.uuid)
       json["data"]["relationships"]["responses"]["links"]["related"].should eq(expected_relationship_link)
     end
 
@@ -143,6 +143,24 @@ describe Api::FlowResults::PackagesController do
       call_flow = project2.call_flows.make :name => "Flow", :mode => :flow
       get :show, project_id: project2.id, call_flow_id: call_flow.id, id: call_flow.current_data_package.uuid
       assert_json_api_not_found_error(response)
+    end
+  end
+
+  describe("responses") do
+    it "has a happy path" do
+      call_flow = project.call_flows.make :name => "Flow", :mode => :flow
+
+      get :responses, project_id: project.id, call_flow_id: call_flow.id, id: call_flow.current_data_package.uuid
+
+      response.should be_ok
+
+      json = JSON.parse response.body
+      assert_json_api_compliance(json)
+
+      data = json["data"]
+      data["type"].should eq("flow-results-data")
+      data["id"].should eq(call_flow.current_data_package.uuid)
+      data["attributes"]["responses"].should eq([])
     end
   end
 end

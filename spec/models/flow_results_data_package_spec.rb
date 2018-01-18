@@ -274,5 +274,46 @@ describe FlowResultsDataPackage do
       ]
       FlowResultsDataPackage.schema_questions(questions).keys.should eq(["23", "42", "84"])
     end
+
+    describe("#responses") do
+      let!(:call_flow) do
+        call_flow = CallFlow.make :name => "Flow", :mode => :flow
+        call_flow.user_flow = [
+          {
+            'id' => 1,
+            'type' => 'capture',
+            'name' => 'Capture sth',
+          },
+          {
+            'id' => 2,
+            'type' => 'menu',
+            'name' => 'Menu sth',
+            "options"=>[{"number"=>4, "next"=>1}, {"number"=>5, "next"=>1}],
+          }
+        ]
+        call_flow.save!
+        call_flow
+      end
+
+      it "computes its responses" do
+        data_package = call_flow.current_data_package
+        data_package.responses.should eq([])
+      end
+
+      it "works" do
+        # call_log = CallLog.make call_flow: call_flow
+        # make_call_log_entries([{ 'call_log_id' => call_log3.id, 'step_id' => 1, 'step_result' => 'timeout' }])
+
+
+        # data_package.responses.length.should eq(1)
+      end
+    end
+  end
+
+  def make_call_log_entries(entries)
+    entries.each do |entry|
+      activity = {body: {'@fields' => entry}}.to_json
+      CallLogEntry.make call_id: entry['call_log_id'], details: {activity: activity}
+    end
   end
 end
