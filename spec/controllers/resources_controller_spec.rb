@@ -32,12 +32,12 @@ describe ResourcesController do
   describe "GET index" do
     it "assigns all project resources as @resources" do
       get :index, :project_id => @project.id, :format => :json
-      controller.resources.should eq([resource1, resource2])
+      expect(controller.resources).to eq([resource1, resource2])
     end
 
     it "searches project resources" do
       get :index, :project_id => @project.id, :q => 'foo', :format => :json
-      controller.resources.should eq([resource1])
+      expect(controller.resources).to eq([resource1])
     end
 
   end
@@ -45,7 +45,7 @@ describe ResourcesController do
   describe "GET show" do
     it "assigns resource as @resource" do
       get :show, :project_id => @project.id, :id => resource1.to_param, :format => :json
-      controller.resource.should eq(resource1)
+      expect(controller.resource).to eq(resource1)
     end
 
     it "fails if the requested resource is not in current project" do
@@ -58,7 +58,7 @@ describe ResourcesController do
   describe "GET find" do
     it "finds resources by guid" do
       get :find, :project_id => @project.id, :guid => resource1.guid, :format => :json
-      response.body.should eq(resource1.to_json(:include => :localized_resources))
+      expect(response.body).to eq(resource1.to_json(:include => :localized_resources))
     end
   end
 
@@ -72,18 +72,18 @@ describe ResourcesController do
 
       it "assigns a newly created resource as @resource" do
           post :create, {:project_id => @project.id, :resource => Resource.plan}
-          controller.resource.should be_a(Resource)
-          controller.resource.should be_persisted
+          expect(controller.resource).to be_a(Resource)
+          expect(controller.resource).to be_persisted
         end
 
       it "renders the newly created resources as json" do
         post :create, :project_id => @project.id, :resource => {:name => 'foo'}, :format => :json
-        response.body.should eq(Resource.order(:id).last.to_json(:include => :localized_resources))
+        expect(response.body).to eq(Resource.order(:id).last.to_json(:include => :localized_resources))
       end
 
       it "assigns the current project to the resource" do
         post :create, {:project_id => @project.id, :resource => Resource.plan}
-        controller.resource.project.should eq(@project)
+        expect(controller.resource.project).to eq(@project)
       end
 
       it "returns the correct amount of nested localized_resources" do
@@ -93,7 +93,7 @@ describe ResourcesController do
             {"0"=>{"language"=>"en", "type"=>"TextLocalizedResource", "text"=>"Hello"},
             "1"=>{"language"=>"es", "type"=>"TextLocalizedResource"}}}
         post :create, :project_id => @project.id, :resource => resource_json, :format => :json
-        JSON.parse(response.body)["localized_resources"].count.should eq(2)
+        expect(JSON.parse(response.body)["localized_resources"].count).to eq(2)
       end
     end
 
@@ -105,17 +105,17 @@ describe ResourcesController do
     describe "with valid params" do
       it "updates the requested resource" do
         put :update, {:project_id => @project.id, :id => resource1.to_param, :resource => {:name => 'new name'}}
-        resource1.reload.name.should eq('new name')
+        expect(resource1.reload.name).to eq('new name')
       end
 
       it "assigns the requested resource as @resource" do
         put :update, {:id => resource1.to_param, :resource => Resource.plan, :project_id => @project.to_param}
-        controller.resource.should eq(resource1)
+        expect(controller.resource).to eq(resource1)
       end
 
       it "renders the requested resources as json" do
         put :update, {:project_id => @project.id, :id => resource1.to_param, :resource => {}, :format => :json}
-        response.body.should eq(resource1.to_json(:include => :localized_resources))
+        expect(response.body).to eq(resource1.to_json(:include => :localized_resources))
       end
 
       it "returns the correct amount of nested localized_resources" do
@@ -130,7 +130,7 @@ describe ResourcesController do
              "filename"=>"05 Ipanema.mp3"},
            "1"=>{"id"=>localized_res2.id, "language"=>"es", "type"=>"TextLocalizedResource"}}}
         put :update, {:id => resource1.to_param, :project_id => @project.id, :resource => resource_json, :format => :json}
-        JSON.parse(response.body)["localized_resources"].count.should eq(2)
+        expect(JSON.parse(response.body)["localized_resources"].count).to eq(2)
       end
 
     end

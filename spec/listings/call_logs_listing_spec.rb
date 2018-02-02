@@ -34,7 +34,7 @@ RSpec.describe CallLogsListing, type: :listing do
     calls = 10.times.map { CallLog.make :channel => channel }
     items = listing.items.to_a
     expected = calls.sort_by(&:id).reverse.to_a
-    items.should == expected
+    expect(items).to eq(expected)
   end
 
   it 'should render' do

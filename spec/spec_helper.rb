@@ -72,20 +72,20 @@ RSpec.configure do |config|
 
   def expect_em_http(method, url, options = {})
     http = double('http')
-    EventMachine::HttpRequest.should_receive(:new).with(url).and_return(http)
+    expect(EventMachine::HttpRequest).to receive(:new).with(url).and_return(http)
 
     http2 = double('http2')
-    http.should_receive(method).with(options[:with]).and_return(http2)
+    expect(http).to receive(method).with(options[:with]).and_return(http2)
 
-    headers = stub('headers', :status => 200)
+    headers = double('headers', :status => 200)
     if options[:content_type]
-      headers.stub(:[]).with('CONTENT_TYPE').and_return(options[:content_type])
+      allow(headers).to receive(:[]).with('CONTENT_TYPE').and_return(options[:content_type])
     else
-      headers.stub(:[]).with('CONTENT_TYPE')
+      allow(headers).to receive(:[]).with('CONTENT_TYPE')
     end
-    http2.stub(:response_header).and_return(headers)
+    allow(http2).to receive(:response_header).and_return(headers)
 
-    http2.should_receive(:response).and_return(options[:and_return]) if options[:and_return]
+    expect(http2).to receive(:response).and_return(options[:and_return]) if options[:and_return]
 
     the_block = nil
     unless options[:callback] == false
@@ -93,7 +93,7 @@ RSpec.configure do |config|
         the_block = block
       end
     end
-    http2.should_receive(:errback) unless options[:errback] == false
+    expect(http2).to receive(:errback) unless options[:errback] == false
 
     if block_given?
       Fiber.new { yield }.resume

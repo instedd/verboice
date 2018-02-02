@@ -36,7 +36,7 @@ module Parsers
           'timeout' => 7,
           'stop_key' => '#'
 
-        record.equivalent_flow.first.should eq(
+        expect(record.equivalent_flow.first).to eq(
           Compiler.parse do
             Label 1
             StartUserStep :record, 1, "Record Step"

@@ -27,13 +27,13 @@ module Parsers
         account = double('account')
         nuntium_channels = double('nuntium_channels')
         channel = double('channel', id: 7)
-        call_flow.should_receive(:account).and_return(account)
-        account.should_receive(:nuntium_channels).and_return(nuntium_channels)
-        nuntium_channels.should_receive(:find_by_id).with(7).and_return(channel)
+        expect(call_flow).to receive(:account).and_return(account)
+        expect(account).to receive(:nuntium_channels).and_return(nuntium_channels)
+        expect(nuntium_channels).to receive(:find_by_id).with(7).and_return(channel)
       end
 
       it "should compile to a verboice equivalent flow" do
-        File.stub(:exists?).and_return(true)
+        allow(File).to receive(:exists?).and_return(true)
         nuntium = Nuntium.new call_flow, 'id' => 1,
           'type' => 'nuntium',
           'name' => 'Nuntium',
@@ -45,7 +45,7 @@ module Parsers
           },
           'channel_id' => 7
 
-        nuntium.equivalent_flow.first.should eq(
+        expect(nuntium.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :nuntium, 1, "Nuntium"
@@ -56,7 +56,7 @@ module Parsers
       end
 
       it "shouldn't compile the nuntium command if no resource is given" do
-        File.stub(:exists?).and_return(true)
+        allow(File).to receive(:exists?).and_return(true)
         nuntium = Nuntium.new call_flow, 'id' => 1,
           'type' => 'nuntium',
           'name' => 'Nuntium',
@@ -68,7 +68,7 @@ module Parsers
           },
           'channel_id' => 7
 
-        nuntium.equivalent_flow.first.should eq(
+        expect(nuntium.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :nuntium, 1, "Nuntium"
@@ -82,7 +82,7 @@ module Parsers
        [{ 'variable' => 'foo' }, 'var_foo'],
        [{ 'response' => 20 }, 'external_20']].each do |recipient, expr|
         it "should compile the nuntium command with a value recipient" do
-          File.stub(:exists?).and_return(true)
+          allow(File).to receive(:exists?).and_return(true)
           nuntium = Nuntium.new call_flow, 'id' => 1,
             'type' => 'nuntium',
             'name' => 'Nuntium',
@@ -90,7 +90,7 @@ module Parsers
             'recipient' => recipient,
             'channel_id' => 7
 
-          nuntium.equivalent_flow.first.should eq(
+          expect(nuntium.equivalent_flow.first).to eq(
             Compiler.parse do |c|
               c.Label 1
               c.StartUserStep :nuntium, 1, "Nuntium"

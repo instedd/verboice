@@ -18,13 +18,13 @@
 require 'spec_helper'
 
 describe CallLog do
-  it { should belong_to(:account) }
-  it { should belong_to(:project) }
-  it { should belong_to(:channel) }
+  it { is_expected.to belong_to(:account) }
+  it { is_expected.to belong_to(:project) }
+  it { is_expected.to belong_to(:channel) }
 
-  it { should validate_presence_of(:account) }
-  it { should validate_presence_of(:project) }
-  it { should validate_presence_of(:channel) }
+  it { is_expected.to validate_presence_of(:account) }
+  it { is_expected.to validate_presence_of(:project) }
+  it { is_expected.to validate_presence_of(:channel) }
 
   it "call log structured details" do
     call = CallLog.make
@@ -36,7 +36,7 @@ describe CallLog do
     CallLogEntry.make description: 'Callback returned: http://localhost:4567/guess.mp3', severity: :trace, call: call
 
     details = call.structured_details
-    details.length.should == 3
+    expect(details.length).to eq(3)
     assert_equal({:severity => :info, :time => Time.local(2012, 1, 1, 0, 0, 13), :text => 'Answer'}, details[0])
     assert_equal({:severity => :trace, :time => Time.local(2012, 1, 1, 0, 12, 25), :text => 'Callback http://localhost:4567 with CallSid=b1cc8e26-21b3-1b16-d97d-bf18033e314d&Digits='}, details[1])
     assert_equal({:severity => :trace, :time => Time.local(2012, 1, 1, 1, 23, 48), :text => 'Callback returned: http://localhost:4567/guess.mp3'}, details[2])
@@ -47,21 +47,21 @@ describe CallLog do
     channel = Channel.all_leaf_subclasses.sample.make
     call_flow = channel.call_flow
     call_log = call_flow.call_logs.create! :channel => channel
-    call_log.account_id.should == call_flow.account.id
+    expect(call_log.account_id).to eq(call_flow.account.id)
   end
 
   it "save started at when starting an outgoing call" do
     call_log = CallLog.make
-    call_log.started_at.should == nil
+    expect(call_log.started_at).to eq(nil)
 
     time = Time.now
-    Time.stub(:now => time)
+    allow(Time).to receive_messages(:now => time)
 
     call_log.start_outgoing '1234'
-    call_log.started_at.should == time
+    expect(call_log.started_at).to eq(time)
     assert_match /Calling 1234/, call_log.entries.first.description
-    call_log.state.should == :active
-    call_log.address.should == '1234'
+    expect(call_log.state).to eq(:active)
+    expect(call_log.address).to eq('1234')
   end
 
   context "finishing call" do
@@ -77,33 +77,33 @@ describe CallLog do
     end
 
     before(:each) do
-      CallFlow.any_instance.should_receive(:push_results).with(call_log)
+      expect_any_instance_of(CallFlow).to receive(:push_results).with(call_log)
     end
 
     after(:each) do
-      CallFlow.any_instance.unstub(:push_results)
+      allow_any_instance_of(CallFlow).to receive(:push_results).and_call_original
     end
 
     it "should push data on success" do
       call_log.start
       call_log.finish_successfully
-      call_log.state.should eq(:completed)
+      expect(call_log.state).to eq(:completed)
     end
 
     it "should push data on error" do
       call_log.start
       call_log.finish_with_error("Error")
-      call_log.state.should eq(:failed)
+      expect(call_log.state).to eq(:failed)
     end
 
   end
 
   it 'should return last entry' do
     call = CallLog.make
-    call.last_entry.should be_nil
+    expect(call.last_entry).to be_nil
     entry1 = CallLogEntry.make :call => call
-    call.last_entry.should eq(entry1)
+    expect(call.last_entry).to eq(entry1)
     entry2 = CallLogEntry.make :call => call
-    call.last_entry.should eq(entry2)
+    expect(call.last_entry).to eq(entry2)
   end
 end

@@ -20,7 +20,7 @@ require 'spec_helper'
 describe Parsers::Xml do
   it "parse TwiML" do
     commands = Parsers::Xml.parse('<Response><Hangup/></Response>')
-    commands.should == Commands::HangupCommand.new
+    expect(commands).to eq(Commands::HangupCommand.new)
   end
 
   it "parse invalid XML" do
@@ -37,7 +37,7 @@ describe Parsers::Xml do
 
   it "should parse formatted TwiML XML (e.g. generated from haml)" do
     commands = Parsers::Xml.parse("<?xml version='1.0' encoding='utf-8' ?>\n<Response>\n  <Say>\n    Hello World\n  </Say>\n  <Hangup></Hangup>\n</Response>\n")
-    commands.should == Compiler.make { Say 'Hello World'; Hangup() }
+    expect(commands).to eq(Compiler.make { Say 'Hello World'; Hangup() })
   end
 
 end

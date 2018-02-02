@@ -25,7 +25,7 @@ describe Telemetry::CallsPerDayPerChannelCollector do
     Timecop.freeze(d1)
     CallLog.make channel: channel_1, started_at: Time.utc(2015, 1, 2, 12, 0, 0), state: :completed
 
-    stats(period).should eq({
+    expect(stats(period)).to eq({
       "counters" => [
         {
           "metric" => "calls",
@@ -63,12 +63,12 @@ describe Telemetry::CallsPerDayPerChannelCollector do
 
     period = InsteddTelemetry::Period.current
     counters = stats(period)["counters"]
-    counters.should have(1).item
+    expect(counters).to have(1).item
 
     counter = counters[0].tap do |c|
-      c["value"].should be(4)
-      c["key"]["state"].should eq("completed")
-      c["key"]["channel_id"].should be(channel_1.id)
+      expect(c["value"]).to be(4)
+      expect(c["key"]["state"]).to eq("completed")
+      expect(c["key"]["channel_id"]).to be(channel_1.id)
     end
   end
 
@@ -83,7 +83,7 @@ describe Telemetry::CallsPerDayPerChannelCollector do
     CallLog.make started_at: from - 1.day, created_at: from - 1.day, channel: channel_1, state: :completed
     CallLog.make started_at: from - 5.days, created_at: from - 5.days, channel: channel_1, state: :completed
 
-    stats(period).should eq({
+    expect(stats(period)).to eq({
       "counters" => [
         {
           "metric" => "calls",

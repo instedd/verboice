@@ -17,7 +17,7 @@ describe Telemetry::ProjectCountCollector do
     Timecop.freeze(d2)
     Project.make
 
-    stats(period).should eq({
+    expect(stats(period)).to eq({
       "counters" => [
         {
           "metric"  => "projects",

@@ -37,10 +37,10 @@ describe Parsers::ExternalService do
         </verboice-service>
       XML
 
-      service.name.should eq('Empty service')
-      service.steps.should be_empty
-      service.global_variables.should be_empty
-      service.should be_valid
+      expect(service.name).to eq('Empty service')
+      expect(service.steps).to be_empty
+      expect(service.global_variables).to be_empty
+      expect(service).to be_valid
     end
 
     it "should create a new external service with a callback step" do
@@ -58,17 +58,17 @@ describe Parsers::ExternalService do
         <verboice-service>
       XML
 
-      service.name.should eq('My service')
-      service.steps.should have(1).item
-      service.should be_valid
+      expect(service.name).to eq('My service')
+      expect(service.steps).to have(1).item
+      expect(service).to be_valid
 
       step = service.steps.first
-      step.name.should eq('my-step')
-      step.display_name.should eq('My step')
-      step.icon.should eq('http://example.com/icon.png')
-      step.kind.should eq('callback')
-      step.callback_url.should eq('http://example.com/callback/')
-      step.should_not be_async
+      expect(step.name).to eq('my-step')
+      expect(step.display_name).to eq('My step')
+      expect(step.icon).to eq('http://example.com/icon.png')
+      expect(step.kind).to eq('callback')
+      expect(step.callback_url).to eq('http://example.com/callback/')
+      expect(step).not_to be_async
     end
 
     it "should create a new external service with an async callback step" do
@@ -87,17 +87,17 @@ describe Parsers::ExternalService do
         <verboice-service>
       XML
 
-      service.name.should eq('My service')
-      service.steps.should have(1).item
-      service.should be_valid
+      expect(service.name).to eq('My service')
+      expect(service.steps).to have(1).item
+      expect(service).to be_valid
 
       step = service.steps.first
-      step.name.should eq('my-step')
-      step.display_name.should eq('My step')
-      step.icon.should eq('http://example.com/icon.png')
-      step.kind.should eq('callback')
-      step.callback_url.should eq('http://example.com/callback/')
-      step.should be_async
+      expect(step.name).to eq('my-step')
+      expect(step.display_name).to eq('My step')
+      expect(step.icon).to eq('http://example.com/icon.png')
+      expect(step.kind).to eq('callback')
+      expect(step.callback_url).to eq('http://example.com/callback/')
+      expect(step).to be_async
     end
 
 
@@ -121,25 +121,25 @@ describe Parsers::ExternalService do
         <verboice-service>
       XML
 
-      service.steps.should have(1).item
-      service.should be_valid
+      expect(service.steps).to have(1).item
+      expect(service).to be_valid
 
       step = service.steps.first
-      step.name.should eq('my-step')
+      expect(step.name).to eq('my-step')
 
-      step.should have(2).variables
+      expect(step).to have(2).variables
       var_1, var_2 = step.variables
 
-      var_1.name.should eq('myvar1')
-      var_1.display_name.should eq('Variable One')
-      var_1.type.should eq('string')
+      expect(var_1.name).to eq('myvar1')
+      expect(var_1.display_name).to eq('Variable One')
+      expect(var_1.type).to eq('string')
 
-      var_2.name.should eq('myvar2')
-      var_2.display_name.should eq('Variable Two')
-      var_2.type.should eq('numeric')
+      expect(var_2.name).to eq('myvar2')
+      expect(var_2.display_name).to eq('Variable Two')
+      expect(var_2.type).to eq('numeric')
 
-      step.should have(1).session_variables
-      step.session_variables.first.should eq('myvar3')
+      expect(step).to have(1).session_variables
+      expect(step.session_variables.first).to eq('myvar3')
     end
 
     it "should create a new external service with a callback step with several responses" do
@@ -164,22 +164,22 @@ describe Parsers::ExternalService do
         <verboice-service>
       XML
 
-      service.steps.should have(1).item
-      service.should be_valid
+      expect(service.steps).to have(1).item
+      expect(service).to be_valid
 
       step = service.steps.first
-      step.name.should eq('my-step')
+      expect(step.name).to eq('my-step')
 
-      step.should have(2).response_variables
+      expect(step).to have(2).response_variables
       var_1, var_2 = step.response_variables
 
-      var_1.name.should eq('myresp1')
-      var_1.display_name.should eq('Response One')
-      var_1.type.should eq('string')
+      expect(var_1.name).to eq('myresp1')
+      expect(var_1.display_name).to eq('Response One')
+      expect(var_1.type).to eq('string')
 
-      var_2.name.should eq('myresp2')
-      var_2.display_name.should eq('Response Two')
-      var_2.type.should eq('numeric')
+      expect(var_2.name).to eq('myresp2')
+      expect(var_2.display_name).to eq('Response Two')
+      expect(var_2.type).to eq('numeric')
     end
 
 
@@ -202,13 +202,13 @@ describe Parsers::ExternalService do
         <verboice-service>
       XML
 
-      service.steps.should have(1).item
-      service.should be_valid
+      expect(service.steps).to have(1).item
+      expect(service).to be_valid
 
       step = service.steps.first
-      step.name.should eq('my-step')
-      step.response_type.should eq('flow')
-      step.should have(0).response_variables
+      expect(step.name).to eq('my-step')
+      expect(step.response_type).to eq('flow')
+      expect(step).to have(0).response_variables
     end
 
 
@@ -223,20 +223,20 @@ describe Parsers::ExternalService do
         </verboice-service>
       XML
 
-      service.global_variables.should have(2).item
-      service.should be_valid
+      expect(service.global_variables).to have(2).item
+      expect(service).to be_valid
 
       global_var_1 = service.global_variables.first
-      global_var_1.name.should eq('globalvar1')
-      global_var_1.display_name.should eq('Global Var One')
-      global_var_1.type.should eq('string')
-      global_var_1.value.should be_nil
+      expect(global_var_1.name).to eq('globalvar1')
+      expect(global_var_1.display_name).to eq('Global Var One')
+      expect(global_var_1.type).to eq('string')
+      expect(global_var_1.value).to be_nil
 
       global_var_2 = service.global_variables.last
-      global_var_2.name.should eq('globalvar2')
-      global_var_2.display_name.should eq('Global Var Two')
-      global_var_2.type.should eq('numeric')
-      global_var_2.value.should be_nil
+      expect(global_var_2.name).to eq('globalvar2')
+      expect(global_var_2.display_name).to eq('Global Var Two')
+      expect(global_var_2.type).to eq('numeric')
+      expect(global_var_2.value).to be_nil
     end
 
     it "should not create a new external service with invalid variable names" do
@@ -258,9 +258,9 @@ describe Parsers::ExternalService do
         <verboice-service>
       XML
 
-      service.steps.should have(1).item
-      service.steps.first.should be_invalid
-      service.should be_invalid
+      expect(service.steps).to have(1).item
+      expect(service.steps.first).to be_invalid
+      expect(service).to be_invalid
     end
 
   end
@@ -280,16 +280,16 @@ describe Parsers::ExternalService do
       <verboice-service>
     XML
 
-    service.name.should eq('My service')
-    service.steps.should have(1).item
-    service.should be_valid
+    expect(service.name).to eq('My service')
+    expect(service.steps).to have(1).item
+    expect(service).to be_valid
 
     step = service.steps.first
-    step.name.should eq('my-step')
-    step.display_name.should eq('My step')
-    step.icon.should eq('http://example.com/icon.png')
-    step.kind.should eq('script')
-    step.script.should eq('1')
+    expect(step.name).to eq('my-step')
+    expect(step.display_name).to eq('My step')
+    expect(step.icon).to eq('http://example.com/icon.png')
+    expect(step.kind).to eq('script')
+    expect(step.script).to eq('1')
   end
 
   it "should use base_url attribute to build absolute_callback_url if relative callback_url" do
@@ -307,19 +307,19 @@ describe Parsers::ExternalService do
       <verboice-service>
     XML
 
-    service.name.should eq('My service')
-    service.steps.should have(1).item
+    expect(service.name).to eq('My service')
+    expect(service.steps).to have(1).item
     service.base_url = 'http://mybaseurl.com'
-    service.should be_valid
+    expect(service).to be_valid
 
     step = service.steps.first
     step.external_service = service
-    step.name.should eq('my-step')
-    step.display_name.should eq('My step')
-    step.icon.should eq('http://example.com/icon.png')
-    step.kind.should eq('callback')
-    step.absolute_callback_url.should eq('http://mybaseurl.com/callback')
-    step.should_not be_async
+    expect(step.name).to eq('my-step')
+    expect(step.display_name).to eq('My step')
+    expect(step.icon).to eq('http://example.com/icon.png')
+    expect(step.kind).to eq('callback')
+    expect(step.absolute_callback_url).to eq('http://mybaseurl.com/callback')
+    expect(step).not_to be_async
   end
 
   it "should not use base_url attribute to build absolute_callback_url if callback_url is absolute" do
@@ -337,19 +337,19 @@ describe Parsers::ExternalService do
       <verboice-service>
     XML
 
-    service.name.should eq('My service')
-    service.steps.should have(1).item
+    expect(service.name).to eq('My service')
+    expect(service.steps).to have(1).item
     service.base_url = 'http://mybaseurl.com'
-    service.should be_valid
+    expect(service).to be_valid
 
     step = service.steps.first
     step.external_service = service
-    step.name.should eq('my-step')
-    step.display_name.should eq('My step')
-    step.icon.should eq('http://example.com/icon.png')
-    step.kind.should eq('callback')
-    step.absolute_callback_url.should eq('http://othersite.com/callback')
-    step.should_not be_async
+    expect(step.name).to eq('my-step')
+    expect(step.display_name).to eq('My step')
+    expect(step.icon).to eq('http://example.com/icon.png')
+    expect(step.kind).to eq('callback')
+    expect(step.absolute_callback_url).to eq('http://othersite.com/callback')
+    expect(step).not_to be_async
   end
 
   it "should allow variables interpolation in url" do
@@ -370,19 +370,19 @@ describe Parsers::ExternalService do
       <verboice-service>
     XML
 
-    service.name.should eq('My service')
-    service.steps.should have(1).item
+    expect(service.name).to eq('My service')
+    expect(service.steps).to have(1).item
     service.base_url = 'http://mybaseurl.com'
-    service.should be_valid
+    expect(service).to be_valid
 
     step = service.steps.first
     step.external_service = service
-    step.name.should eq('my-step')
-    step.display_name.should eq('My step')
-    step.icon.should eq('http://example.com/icon.png')
-    step.kind.should eq('callback')
-    step.absolute_callback_url.should eq('http://{service_domain}/callback')
-    step.should_not be_async
+    expect(step.name).to eq('my-step')
+    expect(step.display_name).to eq('My step')
+    expect(step.icon).to eq('http://example.com/icon.png')
+    expect(step.kind).to eq('callback')
+    expect(step.absolute_callback_url).to eq('http://{service_domain}/callback')
+    expect(step).not_to be_async
   end
 
   context "updating" do
@@ -398,8 +398,8 @@ describe Parsers::ExternalService do
         </verboice-service>
       XML
 
-      service.name.should eq('Empty service')
-      service.should be_valid
+      expect(service.name).to eq('Empty service')
+      expect(service).to be_valid
     end
 
     it "should update an existing service creating a new step" do
@@ -417,15 +417,15 @@ describe Parsers::ExternalService do
         <verboice-service>
       XML
 
-      service.name.should eq('My service')
-      service.steps.should have(1).item
-      service.should be_valid
+      expect(service.name).to eq('My service')
+      expect(service.steps).to have(1).item
+      expect(service).to be_valid
 
       step = service.steps.first
-      step.name.should eq('my-step')
-      step.display_name.should eq('My step')
-      step.icon.should eq('http://example.com/icon.png')
-      step.callback_url.should eq('http://example.com/callback/')
+      expect(step.name).to eq('my-step')
+      expect(step.display_name).to eq('My step')
+      expect(step.icon).to eq('http://example.com/icon.png')
+      expect(step.callback_url).to eq('http://example.com/callback/')
     end
 
     it "should update an existing service creating a new step, updating an existing one and deleting another existing one" do
@@ -442,20 +442,20 @@ describe Parsers::ExternalService do
         <verboice-service>
       XML
 
-      service.should be_valid
+      expect(service).to be_valid
       service.save!
-      service.reload.steps.should have(2).items
+      expect(service.reload.steps).to have(2).items
 
       updated_step = service.steps.first
-      updated_step.name.should eq('step_to_be_updated')
-      updated_step.display_name.should eq('To be updated')
-      updated_step.icon.should eq('http://example.com/icon.png')
+      expect(updated_step.name).to eq('step_to_be_updated')
+      expect(updated_step.display_name).to eq('To be updated')
+      expect(updated_step.icon).to eq('http://example.com/icon.png')
 
       created_step = service.steps.last
-      created_step.name.should eq('step_to_be_created')
-      created_step.display_name.should eq('New step')
+      expect(created_step.name).to eq('step_to_be_created')
+      expect(created_step.display_name).to eq('New step')
 
-      service.steps.where(:id => to_be_deleted.id).should have(0).items
+      expect(service.steps.where(:id => to_be_deleted.id)).to have(0).items
     end
 
     context "global settings" do
@@ -480,13 +480,13 @@ describe Parsers::ExternalService do
           </verboice-service>
         XML
 
-        service.global_variables.should have(1).items
+        expect(service.global_variables).to have(1).items
 
         updated_global_var_1 = service.global_variables.first
-        updated_global_var_1.name.should eq('globalvar1')
-        updated_global_var_1.display_name.should eq('Updated Global Var One')
-        updated_global_var_1.type.should eq('numeric')
-        updated_global_var_1.value.should eq('global_var_1_value')
+        expect(updated_global_var_1.name).to eq('globalvar1')
+        expect(updated_global_var_1.display_name).to eq('Updated Global Var One')
+        expect(updated_global_var_1.type).to eq('numeric')
+        expect(updated_global_var_1.value).to eq('global_var_1_value')
       end
 
       it "should delete removed variables" do
@@ -499,8 +499,8 @@ describe Parsers::ExternalService do
           </verboice-service>
         XML
 
-        service.global_variables.should have(1).items
-        service.global_variables.detect{|v| v.name == 'globalvar1'}.should be_nil
+        expect(service.global_variables).to have(1).items
+        expect(service.global_variables.detect{|v| v.name == 'globalvar1'}).to be_nil
       end
 
       it "should add new variables" do
@@ -514,13 +514,13 @@ describe Parsers::ExternalService do
           </verboice-service>
         XML
 
-        service.global_variables.should have(2).items
+        expect(service.global_variables).to have(2).items
 
         global_var_2 = service.global_variables.detect{|v| v.name == 'globalvar2'}
-        global_var_2.name.should eq('globalvar2')
-        global_var_2.display_name.should eq('Global Var Two')
-        global_var_2.type.should eq('numeric')
-        global_var_2.value.should be_nil
+        expect(global_var_2.name).to eq('globalvar2')
+        expect(global_var_2.display_name).to eq('Global Var Two')
+        expect(global_var_2.type).to eq('numeric')
+        expect(global_var_2.value).to be_nil
       end
     end
 

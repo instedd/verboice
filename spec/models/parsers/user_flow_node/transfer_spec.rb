@@ -30,7 +30,7 @@ module Parsers
           'channel' => 'foo',
           'address' => '1234-5678'
 
-        transfer.equivalent_flow.first.should eq(
+        expect(transfer.equivalent_flow.first).to eq(
           Compiler.parse do
             Label 1
             StartUserStep :transfer, 1, "Transfer"
@@ -47,7 +47,7 @@ module Parsers
           'name' => 'Transfer',
           'address' => '1234-5678'
 
-        transfer.equivalent_flow.first.should eq(
+        expect(transfer.equivalent_flow.first).to eq(
           Compiler.parse do
             Label 2
             StartUserStep :transfer, 2, "Transfer"

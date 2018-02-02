@@ -31,7 +31,7 @@ module Parsers
              "value"=>{"step"=>nil, "variable"=>nil, "value"=>"BAR", "response"=>nil},
              "bindings"=>[]}]
 
-        hub.bindings_js.should eq(
+        expect(hub.bindings_js).to eq(
           "hub_payload = {};" \
           "hub_payload['foo'] = 'FOO';" \
           "hub_payload['bar'] = 'BAR';" \
@@ -52,7 +52,7 @@ module Parsers
                 "value"=>{"step"=>nil, "variable"=>nil, "value"=>"B", "response"=>nil},
                 "bindings"=>[]}]}]
 
-        hub.bindings_js.should eq(
+        expect(hub.bindings_js).to eq(
           "hub_payload = {};" \
           "hub_payload['properties'] = {};" \
           "hub_payload['properties']['Name'] = 'A';" \
@@ -71,7 +71,7 @@ module Parsers
              "value"=>{"step"=>nil, "variable"=>nil, "value"=>"", "response"=>nil},
              "bindings"=>[]}]
 
-        hub.bindings_js.should eq(
+        expect(hub.bindings_js).to eq(
           "hub_payload = {};" \
           "hub_payload['foo'] = 'FOO';" \
         )

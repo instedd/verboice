@@ -27,7 +27,7 @@ module AsteriskCall
   def originate_call(ami)
     originate = ami.originate("PJSIP/1234567890@verboice", "verboice", "1234567890", "1", "")
     Rails.logger.info "Originate call response:\n#{originate.raw_response}"
-    originate.success.should be_true, "Expected originate call to be successful, but was:\n#{originate.inspect}"
+    expect(originate.success).to be_truthy, "Expected originate call to be successful, but was:\n#{originate.inspect}"
   end
 
   def asterisk_ami(target, &block)
@@ -39,7 +39,7 @@ module AsteriskCall
 
     begin
       ami = RubyAsterisk::AMI.new('127.0.0.1', port)
-      ami.login('verboice', 'verboice').success.should be_true
+      expect(ami.login('verboice', 'verboice').success).to be_truthy
       block.call(ami)
     ensure
       ami.try(&:disconnect)
@@ -53,7 +53,7 @@ module AsteriskCall
       break if call_log.state == :completed || call_log.state == :failed
     end
 
-    call_log.state.should eq(:completed)
+    expect(call_log.state).to eq(:completed)
   end
 
   def wait_for_channel_definition(channel_id)
@@ -121,7 +121,7 @@ module AsteriskCall
       Rails.logger.debug("Response: #{status}")
       sleep 1
     end
-    status.should eq("Registered")
+    expect(status).to eq("Registered")
   end
 
   def assert_dtmf(file, digit_or_digits)
@@ -132,7 +132,7 @@ module AsteriskCall
     detection = `#{detector_path} #{file_path} 2>&1`
     found = detection.scan(/`(\d)'/).flatten.uniq
     expected = Array.wrap(digit_or_digits).map(&:to_s)
-    found.should eq(expected)
+    expect(found).to eq(expected)
   end
 
   class TestSession

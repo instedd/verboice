@@ -26,7 +26,7 @@ describe Telemetry::CallersPerCountryCodeCollector do
     Timecop.freeze(d1)
     create_contact p1, "54 11 4666 6666"
 
-    stats(period)["counters"].should =~ [
+    expect(stats(period)["counters"]).to match_array([
       {
         "metric" => "unique_phone_numbers_by_project_and_country",
         "key" => { "project_id" => p1.id, "country_code" => "54" },
@@ -62,7 +62,7 @@ describe Telemetry::CallersPerCountryCodeCollector do
         "key" => { "country_code" => "855" },
         "value" => 7
       }
-    ]
+    ])
   end
 
   def create_contact(project, address)

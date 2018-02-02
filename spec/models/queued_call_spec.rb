@@ -21,8 +21,8 @@ describe QueuedCall do
   it 'should cancel call log' do
     qcall = QueuedCall.make
     call_log = qcall.call_log
-    call_log.state.should_not eq(:cancelled)
+    expect(call_log.state).not_to eq(:cancelled)
     qcall.cancel_call!
-    call_log.reload.state.should eq(:cancelled)
+    expect(call_log.reload.state).to eq(:cancelled)
   end
 end

@@ -20,63 +20,63 @@ require 'spec_helper'
 describe SuitableClassFinder do
 
   it "should find a direct subclass suitable for an object" do
-    (SuitableClassFinder.find_direct_subclass_of AbstractClass1, suitable_for: 1).should eq(ConcreteClass1)
-    (SuitableClassFinder.find_direct_subclass_of AbstractClass1, suitable_for: 3).should eq(AbstractClass2)
+    expect(SuitableClassFinder.find_direct_subclass_of AbstractClass1, suitable_for: 1).to eq(ConcreteClass1)
+    expect(SuitableClassFinder.find_direct_subclass_of AbstractClass1, suitable_for: 3).to eq(AbstractClass2)
   end
   it "should find a class suitable for an object from a given collection of classes" do
-    (SuitableClassFinder.find_in [ConcreteClass1, ConcreteClass2], suitable_for: 1).should eq(ConcreteClass1)
+    expect(SuitableClassFinder.find_in [ConcreteClass1, ConcreteClass2], suitable_for: 1).to eq(ConcreteClass1)
   end
 
   it "should find a leaf subclass of a class for a given object" do
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: 2).should eq(ConcreteClass2)
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: 2).to eq(ConcreteClass2)
   end
 
   it "should be able to define a custom message to send to the classes to search" do
-    (SuitableClassFinder.find_in [ConcreteClass1, ConcreteClass2], suitable_for: 2, sending: :foo?).should eq(ConcreteClass2)
+    expect(SuitableClassFinder.find_in [ConcreteClass1, ConcreteClass2], suitable_for: 2, sending: :foo?).to eq(ConcreteClass2)
   end
 
   it "shuld be able to define a behavior when no class is found" do
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: 1, if_none: lambda{|finder| 'foo'} ).should eq(ConcreteClass1)
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: 12345, if_none: lambda{|finder| 'foo'}).should eq('foo')
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: 1, if_none: lambda{|finder| 'foo'} ).to eq(ConcreteClass1)
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: 12345, if_none: lambda{|finder| 'foo'}).to eq('foo')
   end
 
   it "should be able to define a behavior when multiple classes are found"do
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1,
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1,
       suitable_for: 1,
       if_multiple: lambda{|potential_classes, finder|
         'foo'
       }
-    ).should eq(ConcreteClass1)
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1,
+    ).to eq(ConcreteClass1)
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1,
       suitable_for: 12345,
       sending: :bar?,
       if_multiple: lambda{|potential_classes, finder|
         'foo'
       }
-    ).should eq('foo')
+    ).to eq('foo')
   end
 
   it "should be able to add extra collaborators if the condition requires it" do
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: [1, 2, 3], sending: :zzz?).should eq(ConcreteClass1)
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: [3, 2, 3], sending: :zzz?).should eq(ConcreteClass3)
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: [3, {a:2, b:3}], sending: :nn?).should eq(ConcreteClass2)
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: [3, {c:2, d:3}], sending: :nn?).should eq(ConcreteClass3)
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: [1, 2, 3], sending: :zzz?).to eq(ConcreteClass1)
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: [3, 2, 3], sending: :zzz?).to eq(ConcreteClass3)
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: [3, {a:2, b:3}], sending: :nn?).to eq(ConcreteClass2)
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1, suitable_for: [3, {c:2, d:3}], sending: :nn?).to eq(ConcreteClass3)
   end
 
   it "should allow to specify a block of actions to be carried with the class that has been found" do
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1,
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1,
       suitable_for: 1,
       if_found: lambda{ |class_found|
         'foo'
       }
-    ).should eq('foo')
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1,
+    ).to eq('foo')
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1,
       suitable_for: 1,
       if_found: lambda{|class_found|
         class_found
       }
-    ).should eq(ConcreteClass1)
-    (SuitableClassFinder.find_leaf_subclass_of AbstractClass1,
+    ).to eq(ConcreteClass1)
+    expect(SuitableClassFinder.find_leaf_subclass_of AbstractClass1,
       suitable_for: 12345,
       sending: :bar?,
       if_multiple: lambda{|potential_classes, finder|
@@ -85,7 +85,7 @@ describe SuitableClassFinder do
       if_found: lambda{|class_found|
         'bar'
       }
-    ).should eq('foo')
+    ).to eq('foo')
   end
 
 end

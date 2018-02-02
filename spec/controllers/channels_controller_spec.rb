@@ -13,14 +13,14 @@ describe ChannelsController do
 
   it "shows call flows in new form" do
     get :new, type: "Channels::Custom", template: "Custom"
-    assigns(:channel).should be_a_new(Channel)
-    assigns(:projects).should eq([project])
+    expect(assigns(:channel)).to be_a_new(Channel)
+    expect(assigns(:projects)).to eq([project])
   end
 
   it "load shared projects in new form" do
     Permission.create!(account_id: account.id, type: "Project", model_id: other_project.id, role: :admin)
     get :new, type: "Channels::Custom", template: "Custom"
-    assigns(:channel).should be_a_new(Channel)
-    assigns(:projects).should eq([project, other_project])
+    expect(assigns(:channel)).to be_a_new(Channel)
+    expect(assigns(:projects)).to eq([project, other_project])
   end
 end

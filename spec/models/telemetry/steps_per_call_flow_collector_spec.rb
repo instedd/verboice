@@ -19,7 +19,7 @@ describe Telemetry::StepsPerCallFlowCollector do
     Timecop.freeze(d1)
     p2.call_flows.make user_flow: [step]
 
-    stats(period).should eq({
+    expect(stats(period)).to eq({
       "counters"=> [
         {
           "metric" => "steps",
@@ -44,7 +44,7 @@ describe Telemetry::StepsPerCallFlowCollector do
     f = p.call_flows.make user_flow: nil
     period = InsteddTelemetry::Period.current
 
-    stats(period).should eq({
+    expect(stats(period)).to eq({
       "counters"=> [
         {
           "metric" => "steps",

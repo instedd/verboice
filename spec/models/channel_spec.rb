@@ -23,11 +23,11 @@ describe Channel do
 
   before(:each) do
     Timecop.freeze(Time.parse("2012-01-01T12:00:00Z"))
-    BrokerClient.stub(:create_channel)
+    allow(BrokerClient).to receive(:create_channel)
   end
 
   after(:each) do
-    BrokerClient.stub(:destroy_channel)
+    allow(BrokerClient).to receive(:destroy_channel)
     DatabaseCleaner.clean_with(:truncation)
     Timecop.return
   end
@@ -37,12 +37,12 @@ describe Channel do
     context "validations" do
       before(:each) { a_channel.make }
 
-      it { should belong_to(:account) }
-      it { should belong_to(:call_flow) }
+      it { is_expected.to belong_to(:account) }
+      it { is_expected.to belong_to(:call_flow) }
 
-      it { should validate_presence_of(:account) }
-      it { should validate_presence_of(:name) }
-      it { should validate_uniqueness_of(:name).scoped_to(:account_id) }
+      it { is_expected.to validate_presence_of(:account) }
+      it { is_expected.to validate_presence_of(:name) }
+      it { is_expected.to validate_uniqueness_of(:name).scoped_to(:account_id) }
     end
 
     context "call" do
@@ -50,122 +50,122 @@ describe Channel do
       let (:queued_call) { channel.reload.queued_calls.first }
 
       it "call ok" do
-        BrokerClient.should_receive(:notify_call_queued).with(channel.id)
+        expect(BrokerClient).to receive(:notify_call_queued).with(channel.id)
 
         call_log = channel.call 'foo'
-        call_log.state.should == :queued
-        call_log.address.should == 'foo'
+        expect(call_log.state).to eq(:queued)
+        expect(call_log.address).to eq('foo')
 
         queued_calls = channel.queued_calls
-        queued_calls.length.should == 1
-        queued_calls[0].address.should == 'foo'
-        queued_calls[0].call_log_id.should == call_log.id
+        expect(queued_calls.length).to eq(1)
+        expect(queued_calls[0].address).to eq('foo')
+        expect(queued_calls[0].call_log_id).to eq(call_log.id)
       end
 
       it "call raises" do
-        BrokerClient.should_receive(:notify_call_queued).with(channel.id).and_raise("Oh no!")
+        expect(BrokerClient).to receive(:notify_call_queued).with(channel.id).and_raise("Oh no!")
 
         call_log = channel.call 'foo'
-        call_log.state.should == :queued
+        expect(call_log.state).to eq(:queued)
       end
 
       it "call and set direction outgoing" do
-        BrokerClient.should_receive(:notify_call_queued)
+        expect(BrokerClient).to receive(:notify_call_queued)
 
         call_log = channel.call 'foo'
-        call_log.direction.should == :outgoing
+        expect(call_log.direction).to eq(:outgoing)
       end
 
       it "call with custom callback url" do
-        BrokerClient.should_receive(:notify_call_queued)
+        expect(BrokerClient).to receive(:notify_call_queued)
 
         channel.call 'foo', :callback_url => 'bar'
-        queued_call.callback_url.should == 'bar'
-        queued_call.call_flow.should be_nil
+        expect(queued_call.callback_url).to eq('bar')
+        expect(queued_call.call_flow).to be_nil
       end
 
       it "call with custom flow" do
-        BrokerClient.should_receive(:notify_call_queued)
+        expect(BrokerClient).to receive(:notify_call_queued)
         channel.call 'foo', :flow => %(<Response><Hangup/></Response>)
-        queued_call.flow.should == %(<Response><Hangup/></Response>)
+        expect(queued_call.flow).to eq(%(<Response><Hangup/></Response>))
       end
 
       it "call with custom status callback url" do
-        BrokerClient.should_receive(:notify_call_queued)
+        expect(BrokerClient).to receive(:notify_call_queued)
 
         channel.call 'foo', :status_callback_url => 'bar'
-        queued_call.status_callback_url.should == 'bar'
+        expect(queued_call.status_callback_url).to eq('bar')
       end
 
       it "notify with time when scheduling delayed call" do
         time = Time.now.utc + 1.hour
-        BrokerClient.should_receive(:notify_call_queued).with(channel.id, time)
+        expect(BrokerClient).to receive(:notify_call_queued).with(channel.id, time)
         channel.call 'foo', :not_before => time
       end
 
       it "notify with time when scheduling delayed call with time as string" do
         time = Time.now.utc + 1.hour
-        BrokerClient.should_receive(:notify_call_queued).with(channel.id, time).once
+        expect(BrokerClient).to receive(:notify_call_queued).with(channel.id, time).once
         channel.call 'foo', :not_before => time.to_s
       end
 
       it "obey queue lower time bound" do
         schedule = channel.project.schedules.make :time_from => '10:00', :time_to => '12:00'
-        BrokerClient.should_receive(:notify_call_queued)
+        expect(BrokerClient).to receive(:notify_call_queued)
         channel.call 'foo', :not_before => '2012-12-20T08:00:00Z', :schedule_id => schedule.id
-        queued_call.not_before.should == '2012-12-20T10:00:00Z'
+        expect(queued_call.not_before).to eq('2012-12-20T10:00:00Z')
       end
 
       it "obey queue upper time bound" do
         schedule = channel.project.schedules.make :time_from => '10:00', :time_to => '12:00'
-        BrokerClient.should_receive(:notify_call_queued)
+        expect(BrokerClient).to receive(:notify_call_queued)
         channel.call 'foo', :not_before => '2012-12-20T13:00:00', :schedule_id => schedule.id
-        queued_call.not_before.should == '2012-12-21T10:00:00'
+        expect(queued_call.not_before).to eq('2012-12-21T10:00:00')
       end
 
       it "uses selected time zone for 'not before' date" do
-        BrokerClient.should_receive(:notify_call_queued)
+        expect(BrokerClient).to receive(:notify_call_queued)
         channel.call_flow.project.update_attribute :time_zone, 'Buenos Aires'
         channel.reload.call 'foo', :not_before => '2012-12-20T10:00:00', :time_zone => 'Paris'
-        queued_call.not_before.should eq(Time.parse('2012-12-20T09:00:00 UTC'))
+        expect(queued_call.not_before).to eq(Time.parse('2012-12-20T09:00:00 UTC'))
       end
 
       it "uses project's time zone for 'not before' date" do
-        BrokerClient.should_receive(:notify_call_queued)
+        expect(BrokerClient).to receive(:notify_call_queued)
         channel.call_flow.project.update_attribute :time_zone, 'Buenos Aires'
         channel.reload.call 'foo', :not_before => '2012-12-20T10:00:00'
-        queued_call.not_before.should eq(Time.parse('2012-12-20T13:00:00 UTC'))
+        expect(queued_call.not_before).to eq(Time.parse('2012-12-20T13:00:00 UTC'))
       end
 
       it "uses project's time zone when not before is nil" do
-        BrokerClient.should_receive(:notify_call_queued)
+        expect(BrokerClient).to receive(:notify_call_queued)
         channel.call_flow.project.update_attribute :time_zone, 'Buenos Aires'
         channel.reload.call 'foo'
-        queued_call.time_zone.should eq('America/Argentina/Buenos_Aires')
+        expect(queued_call.time_zone).to eq('America/Argentina/Buenos_Aires')
       end
 
       it "calls with variables" do
-        BrokerClient.should_receive(:notify_call_queued)
+        expect(BrokerClient).to receive(:notify_call_queued)
         call_log = channel.call 'foo', vars: {'bar' => '1', 'baz' => 'eee'}
-        queued_call.variables.should eq({'bar' => 1, 'baz' => 'eee'})
+        expect(queued_call.variables).to eq({'bar' => 1, 'baz' => 'eee'})
       end
 
       it "calls with numeric-like variables" do
-        BrokerClient.should_receive(:notify_call_queued)
+        expect(BrokerClient).to receive(:notify_call_queued)
         call_log = channel.call 'foo', vars: {'bar' => '123', 'quux' => '0001', 'zero' => '0'}
-        queued_call.variables.should eq({'bar' => 123, 'quux' => '0001', 'zero' => 0})
+        expect(queued_call.variables).to eq({'bar' => 123, 'quux' => '0001', 'zero' => 0})
       end
 
       it "stores contact and schedule call" do
         channel.call 'foo', contact_id: 7, scheduled_call_id: 13
-        queued_call.contact_id.should eq(7)
-        queued_call.scheduled_call_id.should eq(13)
+        expect(queued_call.contact_id).to eq(7)
+        expect(queued_call.scheduled_call_id).to eq(13)
       end
     end
 
     it "call create_channel on broker client when create" do
       channel = a_channel.make_unsaved
-      BrokerClient.should_receive(:create_channel) do |channel_id|
+      expect(BrokerClient).to receive(:create_channel) do |channel_id|
         channel_id == channel.id
       end
       channel.save!
@@ -175,32 +175,32 @@ describe Channel do
       channel = a_channel.make
 
       call_log = channel.call 'foo'
-      channel.queued_calls.count.should eq(1)
+      expect(channel.queued_calls.count).to eq(1)
 
       channel.disable!
 
-      channel.should_not be_enabled
-      channel.reload.queued_calls.should be_empty
-      call_log.state.should == :cancelled
+      expect(channel).not_to be_enabled
+      expect(channel.reload.queued_calls).to be_empty
+      expect(call_log.state).to eq(:cancelled)
     end
 
     if a_channel.is_a?(Channels::Sip)
       it "register? and_return true" do
         channel = a_channel.new :config => { 'register' => 'true' }
-        channel.register?.should_not be_nil
+        expect(channel.register?).not_to be_nil
       end
 
       it "register? and_return false" do
         channel = a_channel.new
-        channel.register?.should be(false)
+        expect(channel.register?).to be(false)
       end
     end
   end
 
   it "should assign a guid" do
     channel = Channels::Voxeo.make_unsaved
-    channel.guid.should be_nil
+    expect(channel.guid).to be_nil
     channel.save!
-    channel.guid.should_not be_nil
+    expect(channel.guid).not_to be_nil
   end
 end

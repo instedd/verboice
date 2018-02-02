@@ -21,19 +21,19 @@ describe Schedule do
   context "validations" do
     subject { Schedule.make }
 
-    it { should belong_to(:project) }
-    it { should validate_presence_of(:account) }
-    it { should validate_presence_of(:name) }
-    it { should_not allow_value("ABC").for(:retries) }
-    it { should allow_value("5").for(:retries) }
-    it { should allow_value("1,2,3").for(:retries) }
-    it { should allow_value("1.5").for(:retries) }
-    it { should allow_value("2m, 15m, 1h, 1d").for(:retries) }
-    it { should allow_value("2 minutes, 15 minutes, 1 hour, 1 day").for(:retries) }
-    it { should_not allow_value("2 garbage").for(:retries) }
-    it { should_not allow_value("1,,2").for(:retries) }
-    it { should validate_presence_of(:time_from) }
-    it { should validate_presence_of(:time_to) }
+    it { is_expected.to belong_to(:project) }
+    it { is_expected.to validate_presence_of(:account) }
+    it { is_expected.to validate_presence_of(:name) }
+    it { is_expected.not_to allow_value("ABC").for(:retries) }
+    it { is_expected.to allow_value("5").for(:retries) }
+    it { is_expected.to allow_value("1,2,3").for(:retries) }
+    it { is_expected.to allow_value("1.5").for(:retries) }
+    it { is_expected.to allow_value("2m, 15m, 1h, 1d").for(:retries) }
+    it { is_expected.to allow_value("2 minutes, 15 minutes, 1 hour, 1 day").for(:retries) }
+    it { is_expected.not_to allow_value("2 garbage").for(:retries) }
+    it { is_expected.not_to allow_value("1,,2").for(:retries) }
+    it { is_expected.to validate_presence_of(:time_from) }
+    it { is_expected.to validate_presence_of(:time_to) }
 
     before(:each) do
       Timecop.freeze(Time.parse("2012-04-04T12:00:00Z"))
@@ -46,18 +46,18 @@ describe Schedule do
     it "convert time to string" do
       subject.time_from = Time.parse '10:03'
       subject.time_to = Time.parse '10:03'
-      subject.time_from_str.should == '10:03'
-      subject.time_to_str.should == '10:03'
+      expect(subject.time_from_str).to eq('10:03')
+      expect(subject.time_to_str).to eq('10:03')
     end
 
     it "parses time from string" do
       subject.time_from_str = '10:03'
-      subject.time_from.as_seconds.should == Time.parse('10:03').as_seconds
+      expect(subject.time_from.as_seconds).to eq(Time.parse('10:03').as_seconds)
     end
 
     it "parses empty time from string" do
       subject.time_from_str = ''
-      subject.time_from.should be_nil
+      expect(subject.time_from).to be_nil
     end
 
     context "next available time" do
@@ -73,15 +73,15 @@ describe Schedule do
         end
 
         it "returns same value if it falls inside range" do
-          subject.next_available_time(t '2012-05-05T12:00:00Z').should == t('2012-05-05T12:00:00Z')
+          expect(subject.next_available_time(t '2012-05-05T12:00:00Z')).to eq(t('2012-05-05T12:00:00Z'))
         end
 
         it "moves time forward if it falls behind the beginning" do
-          subject.next_available_time(t '2012-05-05T08:00:00Z').should == t('2012-05-05T10:00:00Z')
+          expect(subject.next_available_time(t '2012-05-05T08:00:00Z')).to eq(t('2012-05-05T10:00:00Z'))
         end
 
         it "moves time to next day if it falls after the end" do
-          subject.next_available_time(t '2012-05-05T15:00:00Z').should == t('2012-05-06T10:00:00Z')
+          expect(subject.next_available_time(t '2012-05-05T15:00:00Z')).to eq(t('2012-05-06T10:00:00Z'))
         end
       end
 
@@ -92,19 +92,19 @@ describe Schedule do
         end
 
         it "returns same value if it falls inside range after midnight" do
-          subject.next_available_time(t '2012-05-05T02:00:00Z').should == t('2012-05-05T02:00:00Z')
+          expect(subject.next_available_time(t '2012-05-05T02:00:00Z')).to eq(t('2012-05-05T02:00:00Z'))
         end
 
         it "returns same value if it falls inside range before midnight" do
-          subject.next_available_time(t '2012-05-05T20:00:00Z').should == t('2012-05-05T20:00:00Z')
+          expect(subject.next_available_time(t '2012-05-05T20:00:00Z')).to eq(t('2012-05-05T20:00:00Z'))
         end
 
         it "moves time forward if it falls outside the range" do
-          subject.next_available_time(t '2012-05-05T10:00:00Z').should == t('2012-05-05T18:00:00Z')
+          expect(subject.next_available_time(t '2012-05-05T10:00:00Z')).to eq(t('2012-05-05T18:00:00Z'))
         end
 
         it "moves time forward if it falls in the past" do
-          subject.next_available_time(t '2012-03-03T10:00:00Z').should == t('2012-04-04T18:00:00Z')
+          expect(subject.next_available_time(t '2012-03-03T10:00:00Z')).to eq(t('2012-04-04T18:00:00Z'))
         end
       end
 
@@ -115,19 +115,19 @@ describe Schedule do
 
         it "returns same day if current day is in weekdays" do
           # tuesday
-          subject.next_available_time(t '2012-05-01T00:00:00Z').day.should == t('2012-05-01T00:00:00Z').day
+          expect(subject.next_available_time(t '2012-05-01T00:00:00Z').day).to eq(t('2012-05-01T00:00:00Z').day)
         end
 
         it "returns next day in same week if current day is between weekdays" do
           # wednesday
-          subject.next_available_time(t '2012-05-02T00:00:00Z').day.should == t('2012-05-04T00:00:00Z').day
+          expect(subject.next_available_time(t '2012-05-02T00:00:00Z').day).to eq(t('2012-05-04T00:00:00Z').day)
           # thursday
-          subject.next_available_time(t '2012-05-03T00:00:00Z').day.should == t('2012-05-04T00:00:00Z').day
+          expect(subject.next_available_time(t '2012-05-03T00:00:00Z').day).to eq(t('2012-05-04T00:00:00Z').day)
         end
 
         it "returns next day in next week if current day is after weekdays" do
           # saturday
-          subject.next_available_time(t '2012-05-05T00:00:00Z').day.should == t('2012-05-06T00:00:00Z').day
+          expect(subject.next_available_time(t '2012-05-05T00:00:00Z').day).to eq(t('2012-05-06T00:00:00Z').day)
         end
       end
 
@@ -143,15 +143,15 @@ describe Schedule do
           end
 
           it "returns same value if it falls inside range" do
-            subject.next_available_time(t '2012-05-05T16:00:00Z').should == t('2012-05-05 16:00:00 UTC')
+            expect(subject.next_available_time(t '2012-05-05T16:00:00Z')).to eq(t('2012-05-05 16:00:00 UTC'))
           end
 
           it "moves time forward if it falls behind the beginning" do
-            subject.next_available_time(t '2012-05-05T11:00:00Z').should == t('2012-05-05 13:00:00 UTC')
+            expect(subject.next_available_time(t '2012-05-05T11:00:00Z')).to eq(t('2012-05-05 13:00:00 UTC'))
           end
 
           it "moves time to next day if it falls after the end" do
-            subject.next_available_time(t '2012-05-05T18:00:00Z').should == t('2012-05-06 13:00:00 UTC')
+            expect(subject.next_available_time(t '2012-05-05T18:00:00Z')).to eq(t('2012-05-06 13:00:00 UTC'))
           end
         end
       end
@@ -166,7 +166,7 @@ describe Schedule do
         end
 
         it 'should cancel call of queued call' do
-          QueuedCall.any_instance.should_receive(:cancel_call!)
+          expect_any_instance_of(QueuedCall).to receive(:cancel_call!)
           subject.destroy
         end
       end

@@ -29,15 +29,15 @@ describe Telemetry::ActiveChannelsCollector do
     stats = Telemetry::ActiveChannelsCollector.collect_stats period
     counters = stats[:counters]
 
-    counters.size.should eq(2)
+    expect(counters.size).to eq(2)
 
-    counters.should include({
+    expect(counters).to include({
       metric: 'active_channels',
       key: {type: 'twilio'},
       value: 2
     })
 
-    counters.should include({
+    expect(counters).to include({
       metric: 'active_channels',
       key: {type: 'sip_server'},
       value: 1

@@ -58,14 +58,14 @@ describe "calls", integration: true do
     wait_call(call_log)
 
     address = @project.contact_addresses.where(address: "verboice_#{@sip_channel.id}").first
-    address.should_not be_nil
+    expect(address).not_to be_nil
 
     variable = @project.project_variables.where(name: "number").first
-    variable.should_not be_nil
+    expect(variable).not_to be_nil
 
     persisted_variable = address.contact.persisted_variables.where(project_variable_id: variable.id).first
-    persisted_variable.should_not be_nil
-    persisted_variable.value.should eq(digit.to_s)
+    expect(persisted_variable).not_to be_nil
+    expect(persisted_variable.value).to eq(digit.to_s)
   end
 
   it "captures multiple digits" do
@@ -101,14 +101,14 @@ describe "calls", integration: true do
     wait_call(call_log)
 
     address = @project.contact_addresses.where(address: "verboice_#{@sip_channel.id}").first
-    address.should_not be_nil
+    expect(address).not_to be_nil
 
     variable = @project.project_variables.where(name: "number").first
-    variable.should_not be_nil
+    expect(variable).not_to be_nil
 
     persisted_variable = address.contact.persisted_variables.where(project_variable_id: variable.id).first
-    persisted_variable.should_not be_nil
-    persisted_variable.value.should eq(number.to_s)
+    expect(persisted_variable).not_to be_nil
+    expect(persisted_variable.value).to eq(number.to_s)
   end
 
   it "listens to a specific digit" do
@@ -169,7 +169,7 @@ describe "calls", integration: true do
     wait_call(call_log)
 
     audio = RecordedAudio.where(call_log_id: call_log.id).first
-    audio.should_not be_nil
+    expect(audio).not_to be_nil
 
     assert_dtmf("asterisk-recordings/#{call_log.id}/results/#{audio.key}.wav", 9)
   end

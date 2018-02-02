@@ -32,7 +32,7 @@ describe Api::ProjectsController do
     get :index
 
     response = JSON.parse(@response.body)
-    response.length.should == 1
+    expect(response.length).to eq(1)
     assert_project_json response[0]
   end
 
@@ -44,13 +44,13 @@ describe Api::ProjectsController do
   end
 
   def assert_project_json(json)
-    json['id'].should eq(project.id)
-    json['name'].should eq(project.name)
-    json['call_flows'].length.should eq(1)
-    json['call_flows'][0]['id'].should eq(call_flow.id)
-    json['call_flows'][0]['name'].should eq(call_flow.name)
-    json['schedules'].length.should eq(1)
-    json['schedules'][0].should eq(schedule.name)
-    json['contact_vars'].should eq([variable.name])
+    expect(json['id']).to eq(project.id)
+    expect(json['name']).to eq(project.name)
+    expect(json['call_flows'].length).to eq(1)
+    expect(json['call_flows'][0]['id']).to eq(call_flow.id)
+    expect(json['call_flows'][0]['name']).to eq(call_flow.name)
+    expect(json['schedules'].length).to eq(1)
+    expect(json['schedules'][0]).to eq(schedule.name)
+    expect(json['contact_vars']).to eq([variable.name])
   end
 end

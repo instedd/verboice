@@ -21,18 +21,18 @@ module Parsers
   module UserFlowNode
     describe UserCommand do
       it "should deliver the right subclass to parse a given input" do
-        (UserCommand.for self, 'id' => 27, 'type' => 'menu').class.should eq(Menu)
-        (UserCommand.for self, 'id' => 27, 'type' => 'play').class.should eq(Play)
-        (UserCommand.for self, 'id' => 27, 'type' => 'capture').class.should eq(Capture)
-        (UserCommand.for self, 'id' => 27, 'type' => 'goto').class.should eq(Goto)
-        (UserCommand.for self, 'id' => 27, 'type' => 'transfer').class.should eq(Transfer)
-        (UserCommand.for self, 'id' => 27, 'type' => 'branch').class.should eq(Branch)
-        (UserCommand.for self, 'id' => 27, 'type' => 'hang_up').class.should eq(HangUp)
-        (UserCommand.for self, 'id' => 27, 'type' => 'record').class.should eq(Record)
-        (UserCommand.for self, 'id' => 27, 'type' => 'external').class.should eq(External)
-        (UserCommand.for self, 'id' => 27, 'type' => 'mark_as_failed').class.should eq(MarkAsFailed)
-        (UserCommand.for self, 'id' => 27, 'type' => 'hang_up_and_call_back').class.should eq(HangUpAndCallBack)
-        (UserCommand.for self, 'id' => 27, 'type' => 'mark_as_successful').class.should eq(MarkAsSuccessful)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'menu').class).to eq(Menu)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'play').class).to eq(Play)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'capture').class).to eq(Capture)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'goto').class).to eq(Goto)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'transfer').class).to eq(Transfer)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'branch').class).to eq(Branch)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'hang_up').class).to eq(HangUp)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'record').class).to eq(Record)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'external').class).to eq(External)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'mark_as_failed').class).to eq(MarkAsFailed)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'hang_up_and_call_back').class).to eq(HangUpAndCallBack)
+        expect((UserCommand.for self, 'id' => 27, 'type' => 'mark_as_successful').class).to eq(MarkAsSuccessful)
       end
     end
   end

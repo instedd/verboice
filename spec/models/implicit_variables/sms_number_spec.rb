@@ -23,20 +23,20 @@ module ImplicitVariables
     let(:contact) { Contact.make }
 
     it "should tell key" do
-      SmsNumber.key.should eq('sms_number')
+      expect(SmsNumber.key).to eq('sms_number')
     end
 
     it "should default to the contact's address" do
-      SmsNumber.new(contact).value.should eq(contact.first_address)
+      expect(SmsNumber.new(contact).value).to eq(contact.first_address)
     end
 
     it "should return persisted variable value if persisted" do
       contact.persisted_variables.create! :implicit_key => SmsNumber.key, :value => '456'
-      SmsNumber.new(contact).value.should eq('456')
+      expect(SmsNumber.new(contact).value).to eq('456')
     end
 
     it "should return nil when use default is false" do
-      SmsNumber.new(contact).value(false).should be_nil
+      expect(SmsNumber.new(contact).value(false)).to be_nil
     end
 
   end

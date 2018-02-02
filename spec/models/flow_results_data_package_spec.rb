@@ -29,23 +29,23 @@ describe FlowResultsDataPackage do
     subject { call_flow.current_data_package }
 
     it "creates a flow results data package if it is new" do
-      call_flow.flow_results_data_packages.length.should eq(1)
+      expect(call_flow.flow_results_data_packages.length).to eq(1)
 
-      subject.uuid.should_not be_nil
-      subject.call_flow.should eq(call_flow)
-      subject.from.should eq(Date.new(2017, 12, 1))
-      subject.until.should be_nil
+      expect(subject.uuid).not_to be_nil
+      expect(subject.call_flow).to eq(call_flow)
+      expect(subject.from).to eq(Date.new(2017, 12, 1))
+      expect(subject.until).to be_nil
     end
 
     it "loads an existing data package if available for call flow" do
       reloaded_call_flow = CallFlow.find(call_flow.id)
       # I just want to ensure that loading new CallFlow instances from existing
       # CallFlow database records doesn't end up creating a new data package each time
-      reloaded_call_flow.flow_results_data_packages.length.should eq(1)
+      expect(reloaded_call_flow.flow_results_data_packages.length).to eq(1)
 
       loaded_package = reloaded_call_flow.current_data_package
-      loaded_package.id.should eq(subject.id)
-      loaded_package.uuid.should eq(subject.uuid)
+      expect(loaded_package.id).to eq(subject.id)
+      expect(loaded_package.uuid).to eq(subject.uuid)
     end
 
     it "creates new package if CallFlow flow changed" do
@@ -68,14 +68,14 @@ describe FlowResultsDataPackage do
 
       # Since we modified the CallFlow,
       # I want to ensure to deprecate the original datapackage
-      new_package.id.should_not eq(old_data_package.id)
-      new_package.uuid.should_not eq(old_data_package.uuid)
+      expect(new_package.id).not_to eq(old_data_package.id)
+      expect(new_package.uuid).not_to eq(old_data_package.uuid)
 
       # Here we ensure data packages coverage
-      new_package.from.should eq(FlowResultsDataPackage.find(old_data_package.id).until)
+      expect(new_package.from).to eq(FlowResultsDataPackage.find(old_data_package.id).until)
 
       # This is another invariant: the current data package has no end of validity period
-      new_package.until.should be_nil
+      expect(new_package.until).to be_nil
     end
 
     # CallFlows managed by a third party app are opaque for Verboice and as
@@ -84,9 +84,9 @@ describe FlowResultsDataPackage do
       call_flow.mode = :callback_url
       call_flow.save!
 
-      call_flow.flow_results_data_packages.length.should eq(1)
+      expect(call_flow.flow_results_data_packages.length).to eq(1)
 
-      subject.should be_nil
+      expect(subject).to be_nil
     end
   end
 
@@ -101,16 +101,16 @@ describe FlowResultsDataPackage do
     subject { call_flow }
 
     it "has no data packages" do
-      subject.current_data_package.should be_nil
-      subject.flow_results_data_packages.length.should eq(0)
+      expect(subject.current_data_package).to be_nil
+      expect(subject.flow_results_data_packages.length).to eq(0)
     end
 
     it "starts up a data package if it changes to flow mode" do
       subject.mode = :flow
       subject.save!
 
-      subject.current_data_package.should_not be_nil
-      subject.flow_results_data_packages.length.should eq(1)
+      expect(subject.current_data_package).not_to be_nil
+      expect(subject.flow_results_data_packages.length).to eq(1)
     end
   end
 
@@ -138,10 +138,10 @@ describe FlowResultsDataPackage do
         schema = File.join(Rails.root, 'spec/fixtures/data_package_schema.json')
         JSON::Validator.validate!(schema, json)
 
-        json["profile"].should eq("flow-results-package")
-        json["name"].should eq(data_package.name)
-        json["flow-results-specification"].should eq("1.0.0-rc1")
-        json["resources"][0]["path"].should eq("http://foo.com/responses")
+        expect(json["profile"]).to eq("flow-results-package")
+        expect(json["name"]).to eq(data_package.name)
+        expect(json["flow-results-specification"]).to eq("1.0.0-rc1")
+        expect(json["resources"][0]["path"]).to eq("http://foo.com/responses")
       end
     end
   end
@@ -166,7 +166,7 @@ describe FlowResultsDataPackage do
 
       json = JSON.parse data_package.floip_schema.to_json
 
-      json["fields"].should_not be_nil
+      expect(json["fields"]).not_to be_nil
     end
 
     it "must include questions" do
@@ -189,8 +189,8 @@ describe FlowResultsDataPackage do
       data_package = call_flow.current_data_package
       json = JSON.parse data_package.floip_schema.to_json
 
-      json["fields"].should_not be_nil
-      json["questions"].should eq({
+      expect(json["fields"]).not_to be_nil
+      expect(json["questions"]).to eq({
         "1" => {
           "type" => "numeric",
           "label" => "Capture sth"
@@ -223,7 +223,7 @@ describe FlowResultsDataPackage do
       call_flow.save!
 
       data_package = call_flow.current_data_package
-      data_package.questions.should eq([])
+      expect(data_package.questions).to eq([])
     end
 
     it "maps capture step to FLOIP numeric question" do
@@ -234,7 +234,7 @@ describe FlowResultsDataPackage do
       call_flow.save!
 
       data_package = call_flow.current_data_package
-      data_package.questions.should eq([FlowResults::Question::Numeric.new(1, 'Age')])
+      expect(data_package.questions).to eq([FlowResults::Question::Numeric.new(1, 'Age')])
     end
 
     it "maps menu step to FLOIP select one question" do
@@ -263,7 +263,7 @@ describe FlowResultsDataPackage do
       call_flow.save!
 
       data_package = call_flow.current_data_package
-      data_package.questions.should eq([FlowResults::Question::SelectOne.new(1, 'Favorite icecream flavor', ["1","2","3"])])
+      expect(data_package.questions).to eq([FlowResults::Question::SelectOne.new(1, 'Favorite icecream flavor', ["1","2","3"])])
     end
 
     it "indexes questions by id" do
@@ -272,7 +272,7 @@ describe FlowResultsDataPackage do
         FlowResults::Question::SelectOne.new("42", "Bar", ["6", "7", "8"]),
         FlowResults::Question::Numeric.new("84", "Baz")
       ]
-      FlowResultsDataPackage.schema_questions(questions).keys.should eq(["23", "42", "84"])
+      expect(FlowResultsDataPackage.schema_questions(questions).keys).to eq(["23", "42", "84"])
     end
 
     describe("#responses") do
@@ -297,7 +297,7 @@ describe FlowResultsDataPackage do
 
       it "computes its responses" do
         data_package = call_flow.current_data_package
-        data_package.responses.should eq([])
+        expect(data_package.responses).to eq([])
       end
 
       it "works" do

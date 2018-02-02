@@ -30,7 +30,7 @@ describe CallFlowsController do
   describe "Download call results" do
     def download_equals(file)
       response = get :download_results, :format => :csv, id: call_flow.id, project_id: call_flow.project.id
-      response.body.should eq File.read(File.join(Rails.root, file))
+      expect(response.body).to eq File.read(File.join(Rails.root, file))
     end
 
     before(:each) { Timecop.freeze(Time.utc(2012, 1, 1, 0, 0, 0)) }
@@ -89,7 +89,7 @@ describe CallFlowsController do
   describe "GET index" do
     it "assigns all call_flows as @call_flows" do
       get :index, {:project_id => project.to_param}
-      assigns(:call_flows).should eq([call_flow])
+      expect(assigns(:call_flows)).to eq([call_flow])
     end
   end
 
@@ -103,27 +103,27 @@ describe CallFlowsController do
 
       it "assigns a newly created call_flow as @call_flow" do
         post :create, {:call_flow => CallFlow.plan, :project_id => project.to_param}
-        assigns(:call_flow).should be_a(CallFlow)
-        assigns(:call_flow).should be_persisted
+        expect(assigns(:call_flow)).to be_a(CallFlow)
+        expect(assigns(:call_flow)).to be_persisted
       end
 
       it "redirects to the created call_flow" do
         post :create, {:call_flow => CallFlow.plan, :project_id => project.to_param}
-        response.should render_template("index")
+        expect(response).to render_template("index")
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved call_flow as @call_flow" do
-        CallFlow.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CallFlow).to receive(:save).and_return(false)
         post :create, {:call_flow => {}, :project_id => project.to_param}
-        assigns(:call_flow).should be_a_new(CallFlow)
+        expect(assigns(:call_flow)).to be_a_new(CallFlow)
       end
 
       it "re-renders the 'new' template" do
-        CallFlow.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CallFlow).to receive(:save).and_return(false)
         post :create, {:call_flow => {}, :project_id => project.to_param}
-        response.should render_template("index")
+        expect(response).to render_template("index")
       end
     end
 
@@ -139,39 +139,39 @@ describe CallFlowsController do
       other_project = Project.make
       Permission.create!(account_id: account.id, type: "Project", model_id: other_project.id, role: :user)
       post :create, {:call_flow => CallFlow.plan, :project_id => other_project.to_param}
-      response.status.should eq(401)
+      expect(response.status).to eq(401)
     end
   end
 
   describe "PUT update" do
     describe "with valid params" do
       it "updates the requested call_flow" do
-        CallFlow.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
+        expect_any_instance_of(CallFlow).to receive(:update_attributes).with({'these' => 'params'})
         put :update, {:id => call_flow.to_param, :call_flow => {'these' => 'params'}, :project_id => project.to_param}
       end
 
       it "assigns the requested call_flow as @call_flow" do
         put :update, {:id => call_flow.to_param, :call_flow => CallFlow.plan, :project_id => project.to_param}
-        assigns(:call_flow).should eq(call_flow)
+        expect(assigns(:call_flow)).to eq(call_flow)
       end
 
       it "redirects to the call_flow" do
         put :update, {:id => call_flow.to_param, :call_flow => CallFlow.plan, :project_id => project.to_param}
-        response.should render_template("index")
+        expect(response).to render_template("index")
       end
     end
 
     describe "with invalid params" do
       it "assigns the call_flow as @call_flow" do
-        CallFlow.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CallFlow).to receive(:save).and_return(false)
         put :update, {:id => call_flow.to_param, :call_flow => {}, :project_id => project.to_param}
-        assigns(:call_flow).should eq(call_flow)
+        expect(assigns(:call_flow)).to eq(call_flow)
       end
 
       it "re-renders the 'edit' template" do
-        CallFlow.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(CallFlow).to receive(:save).and_return(false)
         put :update, {:id => call_flow.to_param, :call_flow => {}, :project_id => project.to_param}
-        response.should render_template("index")
+        expect(response).to render_template("index")
       end
     end
   end
@@ -185,7 +185,7 @@ describe CallFlowsController do
 
     it "redirects to the call_flows list" do
       delete :destroy, {:id => call_flow.to_param, :project_id => project.to_param}
-      response.should redirect_to(project_call_flows_path(project))
+      expect(response).to redirect_to(project_call_flows_path(project))
     end
   end
 

@@ -29,7 +29,7 @@ module Parsers
           'jump' => 3
 
 
-        play.equivalent_flow.first.should eq(
+        expect(play.equivalent_flow.first).to eq(
           Compiler.parse do
             Goto 3
           end.first

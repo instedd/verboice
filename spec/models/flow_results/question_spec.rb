@@ -44,9 +44,9 @@ describe FlowResults::Question do
       'timeout' => 10 }
 
     q = FlowResults::Question.from_step(step)
-    q.should be_a(FlowResults::Question::Numeric)
-    q.type.should eq(:numeric)
-    q.label.should eq("Capture number one")
+    expect(q).to be_a(FlowResults::Question::Numeric)
+    expect(q.type).to eq(:numeric)
+    expect(q.label).to eq("Capture number one")
   end
 
   it "maps a menu to a FLOIP select one question" do
@@ -70,25 +70,25 @@ describe FlowResults::Question do
     }
 
     q = FlowResults::Question.from_step(step)
-    q.should be_a(FlowResults::Question::SelectOne)
-    q.type.should eq(:select_one)
-    q.label.should eq("Initial menu")
-    q.choices.should eq(["1", "2"])
+    expect(q).to be_a(FlowResults::Question::SelectOne)
+    expect(q.type).to eq(:select_one)
+    expect(q.label).to eq("Initial menu")
+    expect(q.choices).to eq(["1", "2"])
   end
 
   it "maps non-capturing step types to nil" do
     step = { "type" => "an_unknown_type" }
     q = FlowResults::Question.from_step(step)
-    q.should be_nil
+    expect(q).to be_nil
   end
 
   it "converts numeric question to hash" do
     h = FlowResults::Question::Numeric.new("1", "Foo").to_h
-    h.should eq({"1" => {"type" => "numeric", "label" => "Foo"}})
+    expect(h).to eq({"1" => {"type" => "numeric", "label" => "Foo"}})
   end
 
   it "converts select one question to hash" do
     h = FlowResults::Question::SelectOne.new("2", "Bar", ["3", "5", "7"]).to_h
-    h.should eq({"2" => {"type" => "select_one", "label" => "Bar", "choices" => ["3", "5", "7"]}})
+    expect(h).to eq({"2" => {"type" => "select_one", "label" => "Bar", "choices" => ["3", "5", "7"]}})
   end
 end

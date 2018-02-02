@@ -28,7 +28,7 @@ module Parsers
           'type' => 'hang_up',
           'name' => 'Hang up'
 
-        hang_up.equivalent_flow.first.should eq(
+        expect(hang_up.equivalent_flow.first).to eq(
           Compiler.parse do
             Label 1
             Trace call_flow_id: 1, step_id: 1, step_name: 'Hang up', store: '"Verboice ended call."'

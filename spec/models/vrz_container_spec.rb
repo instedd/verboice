@@ -51,42 +51,42 @@ describe VrzContainer do
 
     # Mock zip open
     zip_block = nil
-    Zip::ZipOutputStream.should_receive(:open) do |the_path, &block|
+    expect(Zip::ZipOutputStream).to receive(:open) do |the_path, &block|
       zip_block = block
-      the_path.should eq(path)
+      expect(the_path).to eq(path)
     end
 
     # Mock zip stream
     stream = double('stream')
-    stream.should_receive(:put_next_entry).with('workflow.yml')
-    stream.should_receive(:print).with(@call_flow.user_flow.to_yaml)
+    expect(stream).to receive(:put_next_entry).with('workflow.yml')
+    expect(stream).to receive(:print).with(@call_flow.user_flow.to_yaml)
 
-    stream.should_receive(:put_next_entry).with("Service #{@external_service.guid}.yml")
-    stream.should_receive(:print).with(@external_service.attributes.tap do |attributes|
+    expect(stream).to receive(:put_next_entry).with("Service #{@external_service.guid}.yml")
+    expect(stream).to receive(:print).with(@external_service.attributes.tap do |attributes|
       attributes.delete 'id'
       attributes.delete 'project_id'
     end.to_yaml)
 
-    stream.should_receive(:put_next_entry).with("Step #{@external_step.guid}.yml")
-    stream.should_receive(:print).with(@external_step.attributes.tap do |attributes|
+    expect(stream).to receive(:put_next_entry).with("Step #{@external_step.guid}.yml")
+    expect(stream).to receive(:print).with(@external_step.attributes.tap do |attributes|
       attributes.delete 'id'
       attributes.delete 'external_service_id'
       attributes['external_service_guid'] = @external_step.external_service.guid
     end.to_yaml)
 
-    stream.should_receive(:put_next_entry).with("localized_resource #{@resource.guid} - #{@localized_resource.language} - #{@localized_resource.guid}.yml")
-    stream.should_receive(:print).with(@localized_resource.attributes.tap do |attributes|
+    expect(stream).to receive(:put_next_entry).with("localized_resource #{@resource.guid} - #{@localized_resource.language} - #{@localized_resource.guid}.yml")
+    expect(stream).to receive(:print).with(@localized_resource.attributes.tap do |attributes|
       attributes.delete 'audio'
       attributes.delete 'id'
       attributes.delete 'resource_id'
       attributes['resource_guid'] = @localized_resource.resource.guid
     end.to_yaml)
 
-    stream.should_receive(:put_next_entry).with("resource_audio #{@resource.guid} - #{@localized_resource.language} - #{@localized_resource.guid}.wav")
-    stream.should_receive(:print).with(@localized_resource.audio)
+    expect(stream).to receive(:put_next_entry).with("resource_audio #{@resource.guid} - #{@localized_resource.language} - #{@localized_resource.guid}.wav")
+    expect(stream).to receive(:print).with(@localized_resource.audio)
 
-    stream.should_receive(:put_next_entry).with("resource #{@resource.guid}.yml")
-    stream.should_receive(:print).with(@resource.attributes.tap do |attributes|
+    expect(stream).to receive(:put_next_entry).with("resource #{@resource.guid}.yml")
+    expect(stream).to receive(:print).with(@resource.attributes.tap do |attributes|
       attributes.delete 'id'
       attributes.delete 'project_id'
     end.to_yaml)
@@ -112,27 +112,27 @@ describe VrzContainer do
 
     end
 
-    CallFlow.count.should == 1
-    CallFlow.first.user_flow.should == @call_flow.user_flow
+    expect(CallFlow.count).to eq(1)
+    expect(CallFlow.first.user_flow).to eq(@call_flow.user_flow)
 
-    Resource.count.should == 1
-    Resource.first.project.should == @project
-    Resource.first.guid.should == @resource.guid
+    expect(Resource.count).to eq(1)
+    expect(Resource.first.project).to eq(@project)
+    expect(Resource.first.guid).to eq(@resource.guid)
 
-    LocalizedResource.count.should == 1
-    LocalizedResource.first.guid.should == @localized_resource.guid
-    LocalizedResource.first.resource.attributes.except('id', 'created_at', 'updated_at').should == @resource.attributes.except('id', 'created_at', 'updated_at')
-    LocalizedResource.first.audio.should == @localized_resource.audio
-    LocalizedResource.first.type.should == "UploadLocalizedResource"
-    LocalizedResource.first.attributes.except('id', 'created_at', 'updated_at', 'resource_id').should == @localized_resource.attributes.except('id', 'created_at', 'updated_at', 'resource_id')
+    expect(LocalizedResource.count).to eq(1)
+    expect(LocalizedResource.first.guid).to eq(@localized_resource.guid)
+    expect(LocalizedResource.first.resource.attributes.except('id', 'created_at', 'updated_at')).to eq(@resource.attributes.except('id', 'created_at', 'updated_at'))
+    expect(LocalizedResource.first.audio).to eq(@localized_resource.audio)
+    expect(LocalizedResource.first.type).to eq("UploadLocalizedResource")
+    expect(LocalizedResource.first.attributes.except('id', 'created_at', 'updated_at', 'resource_id')).to eq(@localized_resource.attributes.except('id', 'created_at', 'updated_at', 'resource_id'))
 
-    ExternalService.count.should == 1
-    ExternalService.first.guid.should == @external_service.guid
-    ExternalService.first.project.should == @project
+    expect(ExternalService.count).to eq(1)
+    expect(ExternalService.first.guid).to eq(@external_service.guid)
+    expect(ExternalService.first.project).to eq(@project)
 
-    ExternalServiceStep.count.should == 1
-    ExternalServiceStep.first.guid.should == @external_step.guid
-    ExternalServiceStep.first.external_service.attributes.except('id', 'created_at', 'updated_at', 'external_service_id').should == @external_service.attributes.except('id', 'created_at', 'updated_at', 'external_service_id')
+    expect(ExternalServiceStep.count).to eq(1)
+    expect(ExternalServiceStep.first.guid).to eq(@external_step.guid)
+    expect(ExternalServiceStep.first.external_service.attributes.except('id', 'created_at', 'updated_at', 'external_service_id')).to eq(@external_service.attributes.except('id', 'created_at', 'updated_at', 'external_service_id'))
   end
 
   it 'imports when resources and external services do exist' do
@@ -158,28 +158,28 @@ describe VrzContainer do
 
     end
 
-    CallFlow.count.should == 1
-    CallFlow.first.user_flow.should == @call_flow.user_flow
+    expect(CallFlow.count).to eq(1)
+    expect(CallFlow.first.user_flow).to eq(@call_flow.user_flow)
 
-    Resource.count.should == 1
-    Resource.first.project.should == @project
-    Resource.first.guid.should == @resource.guid
+    expect(Resource.count).to eq(1)
+    expect(Resource.first.project).to eq(@project)
+    expect(Resource.first.guid).to eq(@resource.guid)
 
-    LocalizedResource.count.should == 1
-    LocalizedResource.first.guid.should == @localized_resource.guid
-    LocalizedResource.first.resource.attributes.except('updated_at').should == @resource.attributes.except('updated_at')
-    LocalizedResource.first.audio.should == @localized_resource.audio
-    LocalizedResource.first.type.should == "UploadLocalizedResource"
-    LocalizedResource.first.attributes.except('updated_at').should == @localized_resource.attributes.except('updated_at')
+    expect(LocalizedResource.count).to eq(1)
+    expect(LocalizedResource.first.guid).to eq(@localized_resource.guid)
+    expect(LocalizedResource.first.resource.attributes.except('updated_at')).to eq(@resource.attributes.except('updated_at'))
+    expect(LocalizedResource.first.audio).to eq(@localized_resource.audio)
+    expect(LocalizedResource.first.type).to eq("UploadLocalizedResource")
+    expect(LocalizedResource.first.attributes.except('updated_at')).to eq(@localized_resource.attributes.except('updated_at'))
 
-    ExternalService.count.should == 1
-    ExternalService.first.guid.should == @external_service.guid
-    ExternalService.first.project.should == @project
-    ExternalService.first.name.should == 'new external service name'
+    expect(ExternalService.count).to eq(1)
+    expect(ExternalService.first.guid).to eq(@external_service.guid)
+    expect(ExternalService.first.project).to eq(@project)
+    expect(ExternalService.first.name).to eq('new external service name')
 
-    ExternalServiceStep.count.should == 1
-    ExternalServiceStep.first.guid.should == @external_step.guid
-    ExternalServiceStep.first.name.should == 'new external service step name'
+    expect(ExternalServiceStep.count).to eq(1)
+    expect(ExternalServiceStep.first.guid).to eq(@external_step.guid)
+    expect(ExternalServiceStep.first.name).to eq('new external service step name')
   end
 
   it 'doesnt overrides resources and external steps from another project' do
@@ -212,49 +212,49 @@ describe VrzContainer do
     # p "last resource project: #{LocalizedResource.last.project.to_yaml}"
     # p "original resource project: #{@localized_resource.project.to_yaml}"
 
-    CallFlow.count.should == 2
-    CallFlow.first.user_flow.should == nil
-    CallFlow.last.user_flow.should == @call_flow.user_flow
+    expect(CallFlow.count).to eq(2)
+    expect(CallFlow.first.user_flow).to eq(nil)
+    expect(CallFlow.last.user_flow).to eq(@call_flow.user_flow)
 
-    Resource.count.should == 2
-    Resource.first.project.should == @project
-    Resource.first.guid.should == @resource.guid
+    expect(Resource.count).to eq(2)
+    expect(Resource.first.project).to eq(@project)
+    expect(Resource.first.guid).to eq(@resource.guid)
 
-    Resource.last.project.should == @second_call_flow.project
-    Resource.last.guid.should == @resource.guid
+    expect(Resource.last.project).to eq(@second_call_flow.project)
+    expect(Resource.last.guid).to eq(@resource.guid)
 
-    LocalizedResource.count.should == 2
-    LocalizedResource.first.guid.should == @localized_resource.guid
-    LocalizedResource.first.resource.should == @resource
-    LocalizedResource.first.audio.should == @localized_resource.audio
-    LocalizedResource.first.type.should == "UploadLocalizedResource"
-    LocalizedResource.first.should == @localized_resource
-    LocalizedResource.first.project.should == @project
+    expect(LocalizedResource.count).to eq(2)
+    expect(LocalizedResource.first.guid).to eq(@localized_resource.guid)
+    expect(LocalizedResource.first.resource).to eq(@resource)
+    expect(LocalizedResource.first.audio).to eq(@localized_resource.audio)
+    expect(LocalizedResource.first.type).to eq("UploadLocalizedResource")
+    expect(LocalizedResource.first).to eq(@localized_resource)
+    expect(LocalizedResource.first.project).to eq(@project)
 
-    LocalizedResource.last.guid.should == @localized_resource.guid
-    LocalizedResource.last.resource.guid.should == @resource.guid
-    LocalizedResource.last.audio.should == @localized_resource.audio
-    LocalizedResource.last.project.should == @second_call_flow.project
-    LocalizedResource.last.type.should == "UploadLocalizedResource"
-    LocalizedResource.last.attributes.except('id','updated_at', 'created_at', 'resource_id').should == @localized_resource.attributes.except('id','updated_at', 'created_at', 'resource_id')
+    expect(LocalizedResource.last.guid).to eq(@localized_resource.guid)
+    expect(LocalizedResource.last.resource.guid).to eq(@resource.guid)
+    expect(LocalizedResource.last.audio).to eq(@localized_resource.audio)
+    expect(LocalizedResource.last.project).to eq(@second_call_flow.project)
+    expect(LocalizedResource.last.type).to eq("UploadLocalizedResource")
+    expect(LocalizedResource.last.attributes.except('id','updated_at', 'created_at', 'resource_id')).to eq(@localized_resource.attributes.except('id','updated_at', 'created_at', 'resource_id'))
 
-    ExternalService.count.should == 2
-    ExternalService.first.guid.should == @external_service.guid
-    ExternalService.first.project.should == @project
-    ExternalService.first.name.should == 'new external service name'
+    expect(ExternalService.count).to eq(2)
+    expect(ExternalService.first.guid).to eq(@external_service.guid)
+    expect(ExternalService.first.project).to eq(@project)
+    expect(ExternalService.first.name).to eq('new external service name')
 
-    ExternalService.last.guid.should == @external_service.guid
-    ExternalService.last.project.should == @second_call_flow.project
-    ExternalService.last.name.should == 'external service name'
+    expect(ExternalService.last.guid).to eq(@external_service.guid)
+    expect(ExternalService.last.project).to eq(@second_call_flow.project)
+    expect(ExternalService.last.name).to eq('external service name')
 
-    ExternalServiceStep.count.should == 2
-    ExternalServiceStep.first.guid.should == @external_step.guid
-    ExternalServiceStep.first.name.should == 'new external service step name'
-    ExternalServiceStep.first.project.should == @project
+    expect(ExternalServiceStep.count).to eq(2)
+    expect(ExternalServiceStep.first.guid).to eq(@external_step.guid)
+    expect(ExternalServiceStep.first.name).to eq('new external service step name')
+    expect(ExternalServiceStep.first.project).to eq(@project)
 
-    ExternalServiceStep.last.guid.should == @external_step.guid
-    ExternalServiceStep.last.name.should == 'external step name'
-    ExternalServiceStep.last.project.should == @second_call_flow.project
+    expect(ExternalServiceStep.last.guid).to eq(@external_step.guid)
+    expect(ExternalServiceStep.last.name).to eq('external step name')
+    expect(ExternalServiceStep.last.project).to eq(@second_call_flow.project)
   end
 
   def in_temp_dir

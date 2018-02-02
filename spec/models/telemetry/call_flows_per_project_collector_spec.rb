@@ -22,7 +22,7 @@ describe Telemetry::CallFlowsPerProjectCollector do
     p1.call_flows.make
     p2.call_flows.make
 
-    stats(period).should eq({
+    expect(stats(period)).to eq({
       "counters" => [
         {
           "metric"  => "call_flows",
@@ -50,18 +50,18 @@ describe Telemetry::CallFlowsPerProjectCollector do
 
     counters = stats(period)['counters']
 
-    counters.size.should eq(2)
+    expect(counters.size).to eq(2)
 
     project_1_stat = counters.find{|x| x['key']['project_id'] == project_1.id}
     project_2_stat = counters.find{|x| x['key']['project_id'] == project_2.id}
 
-    project_1_stat.should eq({
+    expect(project_1_stat).to eq({
       "metric"  => "call_flows",
       "key"   => {"project_id" => project_1.id},
       "value" => 0
     })
 
-    project_2_stat.should eq({
+    expect(project_2_stat).to eq({
       "metric"  => "call_flows",
       "key"   => {"project_id" => project_2.id},
       "value" => 0

@@ -15,7 +15,7 @@ describe Telemetry::LanguagesPerProjectCollector do
     Timecop.freeze(d1)
     Project.make languages: [:eng]
 
-    stats(period)["sets"].should eq([
+    expect(stats(period)["sets"]).to eq([
       {
       "metric" => "languages",
       "key" => {"project_id" => p1.id},

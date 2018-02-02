@@ -9,7 +9,7 @@ describe "project lifespan tracking" do
   let!(:project) { account.projects.make }
 
   it "tracks account and project creation" do
-    Timespan.count.should eq(2)
+    expect(Timespan.count).to eq(2)
     verify_lifespan(account, account.created_at)
     verify_lifespan(project, project.created_at)
   end
@@ -63,8 +63,8 @@ describe "project lifespan tracking" do
 
   def verify_lifespan(record, last_update)
     timespan = get_timespan(record)
-    timespan.since.to_i.should eq(record.created_at.to_i)
-    timespan.until.to_i.should eq(last_update.to_i)
+    expect(timespan.since.to_i).to eq(record.created_at.to_i)
+    expect(timespan.until.to_i).to eq(last_update.to_i)
   end
   
   def updates_lifespan(records, &block)

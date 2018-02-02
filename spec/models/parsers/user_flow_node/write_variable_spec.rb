@@ -30,7 +30,7 @@ module Parsers
           'variable' => 'foo',
           'value' => 42
 
-        write_var.equivalent_flow.first.should eq(
+        expect(write_var.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :write_variable, 1, 'WriteVariable'
@@ -48,7 +48,7 @@ module Parsers
           'variable' => '',
           'value' => 42
 
-        write_var.equivalent_flow.first.should eq(
+        expect(write_var.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :write_variable, 1, 'WriteVariable'

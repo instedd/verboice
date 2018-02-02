@@ -22,12 +22,12 @@ describe CallFlow do
   context "callbacks" do
     it "sets name to callback url if name is empty" do
       call_flow = CallFlow.make :name => nil, :callback_url => 'foo', :mode => :callback_url
-      call_flow.name.should == call_flow.callback_url
+      expect(call_flow.name).to eq(call_flow.callback_url)
     end
 
     it "keeps name if name set" do
       call_flow = CallFlow.make :name => 'bar', :callback_url => 'foo', :mode => :callback_url
-      call_flow.name.should == 'bar'
+      expect(call_flow.name).to eq('bar')
     end
   end
 
@@ -38,12 +38,12 @@ describe CallFlow do
 
     it "commands is flow when present" do
       @call_flow.flow = Commands::AnswerCommand.new
-      @call_flow.commands.should == @call_flow.flow
+      expect(@call_flow.commands).to eq(@call_flow.flow)
     end
 
     it "commands when callback url is present" do
       @call_flow.callback_url = 'http://example.com'
-      @call_flow.commands.should == Compiler.make { |b| b.Answer; b.Callback(@call_flow.callback_url) }
+      expect(@call_flow.commands).to eq(Compiler.make { |b| b.Answer; b.Callback(@call_flow.callback_url) })
     end
   end
 
@@ -53,13 +53,13 @@ describe CallFlow do
     call_flow.save!
 
     call_flow.reload
-    call_flow.flow.should == Compiler.make { PlayUrl 'foo' }
+    expect(call_flow.flow).to eq(Compiler.make { PlayUrl 'foo' })
   end
 
   it "should update the flow when it's user flow get's updated" do
     resource = TextLocalizedResource.make
     call_flow = CallFlow.make id: 4
-    call_flow.flow.should be_nil
+    expect(call_flow.flow).to be_nil
     call_flow.user_flow = [
       {
         'id' => 1,
@@ -73,7 +73,7 @@ describe CallFlow do
     ]
 
     call_flow.save!
-    call_flow.reload.flow.should eq(
+    expect(call_flow.reload.flow).to eq(
       Compiler.make do
         Answer()
         StartUserStep :play, 1, "Play number one"
@@ -85,7 +85,7 @@ describe CallFlow do
 
   it "should provide an error flow" do
     call_flow = CallFlow.make id: 4
-    call_flow.error_flow.should eq(
+    expect(call_flow.error_flow).to eq(
       Compiler.make do
         Trace call_flow_id: 4, step_id: 'current_step', step_name: '', store: '"User hung up."'
       end
@@ -115,7 +115,7 @@ describe CallFlow do
     call_flow.save!
 
     call_flow.reload
-    call_flow.variables.should eq(['some_variable'])
+    expect(call_flow.variables).to eq(['some_variable'])
   end
 
   it "should store its user flow's external steps" do
@@ -161,7 +161,7 @@ describe CallFlow do
     call_flow.save!
 
     call_flow.reload
-    call_flow.external_services.pluck(:guid).should eq([service.guid])
+    expect(call_flow.external_services.pluck(:guid)).to eq([service.guid])
   end
 
   describe "clean external service" do
@@ -171,9 +171,9 @@ describe CallFlow do
     let!(:external_step_2) { ExternalServiceStep.make external_service: external_service }
 
     it "should do nothing if no user flow is present" do
-      call_flow.user_flow.should be_nil
+      expect(call_flow.user_flow).to be_nil
       call_flow.clean_external_service external_service
-      call_flow.user_flow.should be_nil
+      expect(call_flow.user_flow).to be_nil
     end
 
     context "only external step" do
@@ -183,7 +183,7 @@ describe CallFlow do
 
       it "should remove external step" do
         call_flow.clean_external_service external_service
-        call_flow.user_flow.should eq([])
+        expect(call_flow.user_flow).to eq([])
       end
     end
 
@@ -197,11 +197,11 @@ describe CallFlow do
       end
 
       it "should remove external step" do
-        call_flow.user_flow.select{|s| s['type'] == 'external'}.should be_empty
+        expect(call_flow.user_flow.select{|s| s['type'] == 'external'}).to be_empty
       end
 
       it "should preserve the other step removing the next link" do
-        call_flow.user_flow.should == [{"id"=>2, "type"=>"play", "root"=>true, "next"=>nil}]
+        expect(call_flow.user_flow).to eq([{"id"=>2, "type"=>"play", "root"=>true, "next"=>nil}])
       end
     end
 
@@ -215,11 +215,11 @@ describe CallFlow do
       end
 
       it "should remove external step" do
-        call_flow.user_flow.select{|s| s['type'] == 'external'}.should be_empty
+        expect(call_flow.user_flow.select{|s| s['type'] == 'external'}).to be_empty
       end
 
       it "should preserve the other step, setting the root to true" do
-        call_flow.user_flow.should == [{"id"=>2, "type"=>"play", "root"=>true, "next"=>nil}]
+        expect(call_flow.user_flow).to eq([{"id"=>2, "type"=>"play", "root"=>true, "next"=>nil}])
       end
     end
 
@@ -234,11 +234,11 @@ describe CallFlow do
       end
 
       it "should remove external step" do
-        call_flow.user_flow.select{|s| s['type'] == 'external'}.should be_empty
+        expect(call_flow.user_flow.select{|s| s['type'] == 'external'}).to be_empty
       end
 
       it "should preserve the other steps, linking them" do
-        call_flow.user_flow.should == [{"id"=>1, "type"=>"play", "root"=>true, "next"=>3}, {"id"=>3, "type"=>"play", "root"=>false, "next"=>nil}]
+        expect(call_flow.user_flow).to eq([{"id"=>1, "type"=>"play", "root"=>true, "next"=>3}, {"id"=>3, "type"=>"play", "root"=>false, "next"=>nil}])
       end
     end
 
@@ -252,7 +252,7 @@ describe CallFlow do
       end
 
       it "should remove goto link" do
-        call_flow.user_flow.should == [{"id"=>2, "type"=>"goto", "root"=>true, "next"=>nil, "jump"=>nil}]
+        expect(call_flow.user_flow).to eq([{"id"=>2, "type"=>"goto", "root"=>true, "next"=>nil, "jump"=>nil}])
       end
     end
   end
@@ -269,7 +269,7 @@ describe CallFlow do
     call_flow.destroy
 
     channels.each do |channel|
-      channel.call_flow_id.should be_nil
+      expect(channel.call_flow_id).to be_nil
     end
 
   end

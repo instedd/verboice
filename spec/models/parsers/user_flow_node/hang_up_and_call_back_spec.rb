@@ -28,7 +28,7 @@ module Parsers
           'type' => 'hang_up_and_call_back',
           'name' => 'HangUpAndCallBack'
 
-        mark_as_failed.equivalent_flow.first.should eq(
+        expect(mark_as_failed.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :hangup_and_callback, 1, 'HangUpAndCallBack'

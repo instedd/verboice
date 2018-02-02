@@ -31,15 +31,15 @@ describe Api::SchedulesController do
     get :index, :project_id => project.id
 
     response = JSON.parse(@response.body)
-    response.size.should == 1
-    response[0].with_indifferent_access[:name].should == schedule.name
+    expect(response.size).to eq(1)
+    expect(response[0].with_indifferent_access[:name]).to eq(schedule.name)
   end
 
   it "should expose an schedule" do
     get :show, :project_id => project.id, :name => schedule.name
 
     response = JSON.parse(@response.body).with_indifferent_access
-    response[:name].should == schedule.name
+    expect(response[:name]).to eq(schedule.name)
   end
 
   it "create custom schedule" do
@@ -49,11 +49,11 @@ describe Api::SchedulesController do
 
     assert_response :ok
     response = JSON.parse(@response.body).with_indifferent_access
-    response[:name].should eq("foo"), "Expected response to contain schedule name 'foo', but was: #{@response.body}"
+    expect(response[:name]).to eq("foo"), "Expected response to contain schedule name 'foo', but was: #{@response.body}"
 
     schedules = project.schedules.all
-    schedules.size.should == 1
-    schedules[0].name.should == data[:name]
+    expect(schedules.size).to eq(1)
+    expect(schedules[0].name).to eq(data[:name])
   end
 
   it "should response with the creation errors" do
@@ -62,17 +62,17 @@ describe Api::SchedulesController do
     post :create, project_id: project.id, format: :json
     assert_response :ok
 
-    project.schedules.count.should == 0
+    expect(project.schedules.count).to eq(0)
 
     response = JSON.parse(@response.body).with_indifferent_access
-    response[:summary].should == "There were problems creating the Schedule"
-    response[:properties].should == [{"name" => "can't be blank"}, {"time_from"=>"can't be blank"}, {"time_to"=>"can't be blank"}]
+    expect(response[:summary]).to eq("There were problems creating the Schedule")
+    expect(response[:properties]).to eq([{"name" => "can't be blank"}, {"time_from"=>"can't be blank"}, {"time_to"=>"can't be blank"}])
   end
 
   it "should delete an schedule" do
     delete :destroy, :name => schedule.name, :project_id => project.id
     assert_response :ok
 
-    project.schedules.count.should == 0
+    expect(project.schedules.count).to eq(0)
   end
 end

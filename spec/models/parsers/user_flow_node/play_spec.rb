@@ -31,7 +31,7 @@ module Parsers
             "guid" => 5
           }
 
-        play.equivalent_flow.first.should eq(
+        expect(play.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :play, 1, "Play"
@@ -46,7 +46,7 @@ module Parsers
           'type' => 'play',
           'name' => 'Play'
 
-        play.equivalent_flow.first.should eq(
+        expect(play.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :play, 1, "Play"
@@ -61,7 +61,7 @@ module Parsers
           'name' => 'Play number one',
           'resource' => {}
 
-        play.equivalent_flow.first.should eq(
+        expect(play.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 27
             c.StartUserStep :play, 27, "Play number one"
@@ -78,7 +78,7 @@ module Parsers
             "guid" => nil
           }
 
-        play.equivalent_flow.first.should eq(
+        expect(play.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 27
             c.StartUserStep :play, 27, "Play number one"

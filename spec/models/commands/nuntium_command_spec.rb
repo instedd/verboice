@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Commands::NuntiumCommand do
   it 'should serialize parameters with channel_id if present' do
     command = Commands::NuntiumCommand.new('resource_guid', 7, :caller)
-    command.serialize_parameters.should eq({
+    expect(command.serialize_parameters).to eq({
       expr: nil,
       resource_guid: 'resource_guid',
       rcpt_type: :caller,
@@ -13,7 +13,7 @@ describe Commands::NuntiumCommand do
 
   it 'should serialize parameters without channel_id if channel is missing' do
     command = Commands::NuntiumCommand.new('resource_guid', nil, :caller)
-    command.serialize_parameters.should eq({
+    expect(command.serialize_parameters).to eq({
       expr: nil,
       resource_guid: 'resource_guid',
       rcpt_type: :caller

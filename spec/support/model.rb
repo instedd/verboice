@@ -71,7 +71,7 @@ RSpec::Matchers.define :have_records do |*expected|
     !@error_message
   end
 
-  failure_message_for_should do |model|
+  failure_message do |model|
     @error_message
   end
 

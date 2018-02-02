@@ -38,7 +38,7 @@ describe Api::ChannelsController do
       get :get, :name => chan.name
 
       assert_response :ok
-      response.body.should eq(chan.to_json)
+      expect(response.body).to eq(chan.to_json)
     end
 
     it "should return not found for non existing channel by id" do
@@ -52,7 +52,7 @@ describe Api::ChannelsController do
       get :get_by_id, :id => chan.id
 
       assert_response :ok
-      response.body.should eq(chan.to_json)
+      expect(response.body).to eq(chan.to_json)
     end
 
     it "should return shared channel from id" do
@@ -64,7 +64,7 @@ describe Api::ChannelsController do
       get :get_by_id, :id => shared_read_chan.id
 
       assert_response :ok
-      response.body.should eq(shared_read_chan.to_json(account_id: @account.id))
+      expect(response.body).to eq(shared_read_chan.to_json(account_id: @account.id))
     end
   end
 
@@ -76,7 +76,7 @@ describe Api::ChannelsController do
       get :list
 
       assert_response :ok
-      response.body.should eq([chan1.name, chan2.name].to_json)
+      expect(response.body).to eq([chan1.name, chan2.name].to_json)
     end
   end
 
@@ -88,7 +88,7 @@ describe Api::ChannelsController do
       get :all
 
       assert_response :ok
-      response.body.should eq([chan1, chan2].to_json)
+      expect(response.body).to eq([chan1, chan2].to_json)
     end
 
     it "should include shared channels" do
@@ -105,7 +105,7 @@ describe Api::ChannelsController do
       get :all
 
       assert_response :ok
-      response.body.should eq([chan, shared_read_chan, shared_admin_chan].to_json(account_id: @account.id))
+      expect(response.body).to eq([chan, shared_read_chan, shared_admin_chan].to_json(account_id: @account.id))
     end
   end
 
@@ -117,11 +117,11 @@ describe Api::ChannelsController do
       assert_response :ok
 
       channels = @account.channels.all
-      channels.length.should == 1
-      channels[0].account.should == @account
-      channels[0].call_flow_id.should == call_flow.id
-      channels[0].name.should == data[:name]
-      channels[0].class.should == Channels::Custom
+      expect(channels.length).to eq(1)
+      expect(channels[0].account).to eq(@account)
+      expect(channels[0].call_flow_id).to eq(call_flow.id)
+      expect(channels[0].name).to eq(data[:name])
+      expect(channels[0].class).to eq(Channels::Custom)
     end
 
     it "create a custom sip channel" do
@@ -146,18 +146,18 @@ describe Api::ChannelsController do
       assert_response :ok
 
       channels = @account.channels.all
-      channels.length.should == 1
-      channels[0].account.should == @account
-      channels[0].call_flow_id.should == call_flow.id
-      channels[0].name.should == data[:name]
-      channels[0].username.should == data[:config][:username]
-      channels[0].password.should == data[:config][:password]
-      channels[0].number.should == data[:config][:number]
-      channels[0].limit.should == data[:config][:limit]
-      channels[0].domain.should == data[:config][:domain]
-      channels[0].direction.should == data[:config][:direction]
-      channels[0].register.should == data[:config][:register]
-      channels[0].class.should == Channels::CustomSip
+      expect(channels.length).to eq(1)
+      expect(channels[0].account).to eq(@account)
+      expect(channels[0].call_flow_id).to eq(call_flow.id)
+      expect(channels[0].name).to eq(data[:name])
+      expect(channels[0].username).to eq(data[:config][:username])
+      expect(channels[0].password).to eq(data[:config][:password])
+      expect(channels[0].number).to eq(data[:config][:number])
+      expect(channels[0].limit).to eq(data[:config][:limit])
+      expect(channels[0].domain).to eq(data[:config][:domain])
+      expect(channels[0].direction).to eq(data[:config][:direction])
+      expect(channels[0].register).to eq(data[:config][:register])
+      expect(channels[0].class).to eq(Channels::CustomSip)
     end
 
     it "create custom channel errors" do
@@ -166,11 +166,11 @@ describe Api::ChannelsController do
       post :create, format: :json
       assert_response :ok
 
-      @account.channels.count.should == 0
+      expect(@account.channels.count).to eq(0)
 
       response = JSON.parse(@response.body).with_indifferent_access
-      response[:summary].should == "There were problems creating the Channel"
-      response[:properties].should == ["name" => "can't be blank"]
+      expect(response[:summary]).to eq("There were problems creating the Channel")
+      expect(response[:properties]).to eq(["name" => "can't be blank"])
     end
   end
 
@@ -195,9 +195,9 @@ describe Api::ChannelsController do
       assert_response :ok
 
       chan = chan.reload
-      chan.name.should eq('updated name')
-      chan.username.should eq('updated username')
-      chan.password.should eq('updated secret')
+      expect(chan.name).to eq('updated name')
+      expect(chan.username).to eq('updated username')
+      expect(chan.password).to eq('updated secret')
     end
 
     it "should tell erros" do
@@ -210,10 +210,10 @@ describe Api::ChannelsController do
       assert_response :ok
 
       response = JSON.parse(@response.body).with_indifferent_access
-      response[:summary].should == "There were problems updating the Channel"
-      response[:properties].should == ["name" => "can't be blank"]
+      expect(response[:summary]).to eq("There were problems updating the Channel")
+      expect(response[:properties]).to eq(["name" => "can't be blank"])
 
-      chan.reload.name.should eq('the_channel')
+      expect(chan.reload.name).to eq('the_channel')
     end
   end
 
@@ -229,7 +229,7 @@ describe Api::ChannelsController do
       delete :destroy, :name => chan.name
       assert_response :ok
 
-      @account.channels.count.should == 0
+      expect(@account.channels.count).to eq(0)
     end
   end
 
@@ -242,12 +242,12 @@ describe Api::ChannelsController do
     it "enables a channel" do
       chan = Channel.all_leaf_subclasses.sample.make :name => 'foo', :account => @account, :enabled => false
 
-      chan.should_not be_enabled
+      expect(chan).not_to be_enabled
 
       post :enable, :id => chan.id
       assert_response :ok
 
-      chan.reload.should be_enabled
+      expect(chan.reload).to be_enabled
     end
   end
 
@@ -260,12 +260,12 @@ describe Api::ChannelsController do
     it "disables a channel" do
       chan = Channel.all_leaf_subclasses.sample.make :name => 'foo', :account => @account
 
-      chan.should be_enabled
+      expect(chan).to be_enabled
 
       post :disable, :id => chan.id
       assert_response :ok
 
-      chan.reload.should_not be_enabled
+      expect(chan.reload).not_to be_enabled
     end
   end
 end

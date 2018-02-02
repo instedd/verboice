@@ -31,8 +31,8 @@ describe OauthController do
 
     let!(:mock_client) do
       double('oauth2_google_client').tap do |mock_client|
-        OAuth2::Client.should_receive(:google).and_return(mock_client)
-        mock_client.stub(:auth_code).and_return(mock_auth_strategy)
+        expect(OAuth2::Client).to receive(:google).and_return(mock_client)
+        allow(mock_client).to receive(:auth_code).and_return(mock_auth_strategy)
       end
     end
 
@@ -44,7 +44,7 @@ describe OauthController do
 
       before(:each) do
         Timecop.freeze(DateTime.new(2011,1,1,8,0,0))
-        mock_auth_strategy.should_receive(:get_token).with("SAMPLECODE", anything).and_return(mock_token)
+        expect(mock_auth_strategy).to receive(:get_token).with("SAMPLECODE", anything).and_return(mock_token)
       end
 
       after(:each) do
@@ -57,29 +57,29 @@ describe OauthController do
         }.to change(OAuthToken, :count).by(1)
 
         token = OAuthToken.first
-        token.account_id.should eq(@account.id)
-        token.access_token.should eq("ACCESS")
-        token.refresh_token.should eq("REFRESH")
-        token.expires_at.should eq(DateTime.new(2011,1,1,9,0,0))
+        expect(token.account_id).to eq(@account.id)
+        expect(token.access_token).to eq("ACCESS")
+        expect(token.refresh_token).to eq("REFRESH")
+        expect(token.expires_at).to eq(DateTime.new(2011,1,1,9,0,0))
 
-        @account.google_oauth_token.should eq(token)
+        expect(@account.google_oauth_token).to eq(token)
       end
 
       it "should update existing oauth token" do
         old_token = OAuthToken.make :access_token => "OLD_ACCESS", :account => @account
-        @account.reload.google_oauth_token.should eq(old_token)
+        expect(@account.reload.google_oauth_token).to eq(old_token)
 
         get :google_callback, :code => "SAMPLECODE"
 
-        OAuthToken.count.should eq(1)
+        expect(OAuthToken.count).to eq(1)
 
         token = OAuthToken.first
-        token.account_id.should eq(@account.id)
-        token.access_token.should eq("ACCESS")
-        token.refresh_token.should eq("REFRESH")
-        token.expires_at.should eq(DateTime.new(2011,1,1,9,0,0))
+        expect(token.account_id).to eq(@account.id)
+        expect(token.access_token).to eq("ACCESS")
+        expect(token.refresh_token).to eq("REFRESH")
+        expect(token.expires_at).to eq(DateTime.new(2011,1,1,9,0,0))
 
-        @account.reload.google_oauth_token.should eq(token)
+        expect(@account.reload.google_oauth_token).to eq(token)
       end
 
 

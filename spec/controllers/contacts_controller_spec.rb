@@ -31,7 +31,7 @@ describe ContactsController do
   describe "GET index" do
     it "assigns all project contacts as @contacts" do
       get :index, {:project_id => @project.id}
-      assigns(:contacts).should eq([contact])
+      expect(assigns(:contacts)).to eq([contact])
     end
   end
 
@@ -65,28 +65,28 @@ describe ContactsController do
       called '0123', Time.utc(2014, 1, 1, 0, 0, 0), state: :failed
 
       response = get :index, format: :csv, project_id: project_csv.id
-      response.body.should eq File.read(File.join(Rails.root, 'spec/fixtures/phone_book.csv'))
+      expect(response.body).to eq File.read(File.join(Rails.root, 'spec/fixtures/phone_book.csv'))
     end
   end
 
   describe "GET new" do
     it "assigns a new contact as @contact" do
       get :new, {:project_id => @project.id}
-      assigns(:contact).should be_a_new(Contact)
+      expect(assigns(:contact)).to be_a_new(Contact)
     end
   end
 
   describe "GET edit" do
     it "assigns the requested contact as @contact" do
       get :edit, {:project_id => @project.id, :id => contact.to_param}
-      assigns(:contact).should eq(contact)
+      expect(assigns(:contact)).to eq(contact)
     end
 
     it "fails if the requested contact is not in current project" do
       expect {
         get :edit, {:project_id => @project.id, :id => other_contact.to_param}
       }.to raise_error(ActiveRecord::RecordNotFound)
-      assigns(:contact).should be_nil
+      expect(assigns(:contact)).to be_nil
     end
   end
 
@@ -100,32 +100,32 @@ describe ContactsController do
 
       it "assigns a newly created contact as @contact" do
         post :create, {:project_id => @project.id, :contact => {:addresses_attributes => [{:address => '123'}]}}
-        assigns(:contact).should be_a(Contact)
-        assigns(:contact).should be_persisted
+        expect(assigns(:contact)).to be_a(Contact)
+        expect(assigns(:contact)).to be_persisted
       end
 
       it "redirects to index" do
         post :create, {:project_id => @project.id, :contact => {:addresses_attributes => [{:address => '123'}]}}
-        response.should redirect_to(project_contacts_url(@project))
+        expect(response).to redirect_to(project_contacts_url(@project))
       end
 
       it "assigns the current project to the contact" do
         post :create, {:project_id => @project.id, :contact => {:addresses_attributes => [{:address => '123'}]}}
-        assigns(:contact).project.should eq(@project)
+        expect(assigns(:contact).project).to eq(@project)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved contact as @contact" do
-        Contact.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Contact).to receive(:save).and_return(false)
         post :create, {:project_id => @project.id, :contact => {}}
-        assigns(:contact).should be_a_new(Contact)
+        expect(assigns(:contact)).to be_a_new(Contact)
       end
 
       it "re-renders the 'new' template" do
-        Contact.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Contact).to receive(:save).and_return(false)
         post :create, {:project_id => @project.id, :contact => {}}
-        response.should render_template("new")
+        expect(response).to render_template("new")
       end
     end
   end
@@ -133,32 +133,32 @@ describe ContactsController do
   describe "PUT update" do
     describe "with valid params" do
       it "updates the requested contact" do
-        Contact.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
+        expect_any_instance_of(Contact).to receive(:update_attributes).with({'these' => 'params'})
         put :update, {:project_id => @project.id, :id => contact.to_param, :contact => {'these' => 'params'}}
       end
 
       it "assigns the requested contact as @contact" do
         put :update, {:project_id => @project.id, :id => contact.to_param, :contact => Contact.plan}
-        assigns(:contact).should eq(contact)
+        expect(assigns(:contact)).to eq(contact)
       end
 
       it "redirects to index" do
         put :update, {:project_id => @project.id, :id => contact.to_param, :contact => Contact.plan}
-        response.should redirect_to(project_contacts_url(@project))
+        expect(response).to redirect_to(project_contacts_url(@project))
       end
     end
 
     describe "with invalid params" do
       it "assigns the contact as @contact" do
-        Contact.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Contact).to receive(:save).and_return(false)
         put :update, {:project_id => @project.id, :id => contact.to_param, :contact => {}}
-        assigns(:contact).should eq(contact)
+        expect(assigns(:contact)).to eq(contact)
       end
 
       it "re-renders the 'edit' template" do
-        Contact.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Contact).to receive(:save).and_return(false)
         put :update, {:project_id => @project.id, :id => contact.to_param, :contact => {}}
-        response.should render_template("edit")
+        expect(response).to render_template("edit")
       end
     end
 
@@ -166,7 +166,7 @@ describe ContactsController do
       expect {
         put :update, {:project_id => @project.id, :id => other_contact.to_param}
       }.to raise_error(ActiveRecord::RecordNotFound)
-      assigns(:contact).should be_nil
+      expect(assigns(:contact)).to be_nil
     end
   end
 
@@ -179,15 +179,15 @@ describe ContactsController do
 
     it "redirects to the contacts list" do
       delete :destroy, {:project_id => @project.id, :id => contact.to_param}
-      response.should redirect_to(project_contacts_url(@project))
+      expect(response).to redirect_to(project_contacts_url(@project))
     end
 
     it "fails if the requested contact is not in current project" do
       expect {
         delete :destroy, {:project_id => @project.id, :id => other_contact.to_param}
       }.to raise_error(ActiveRecord::RecordNotFound)
-      assigns(:contact).should be_nil
-      Contact.find(other_contact.id).should eq(other_contact)
+      expect(assigns(:contact)).to be_nil
+      expect(Contact.find(other_contact.id)).to eq(other_contact)
     end
   end
 
@@ -198,12 +198,12 @@ describe ContactsController do
 
     it "can view contacts" do
       get :index, {:project_id => @other_project.id}
-      assigns(:contacts).should eq([other_contact])
+      expect(assigns(:contacts)).to eq([other_contact])
     end
 
     it "edit contact" do
       get :edit, {:project_id => @other_project.id, :id => other_contact.to_param}
-      assigns(:contact).should eq(other_contact)
+      expect(assigns(:contact)).to eq(other_contact)
     end
 
     it "destroy the requested contact from shared project" do

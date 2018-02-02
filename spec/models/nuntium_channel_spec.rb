@@ -22,70 +22,70 @@ describe NuntiumChannel do
 
   it "should create a new Pigeon channel when it's a new record" do
     nc = NuntiumChannel.new
-    nc.channel.should_not be_nil
+    expect(nc.channel).not_to be_nil
   end
 
   it "should create a Pigeon channel of the given kind" do
     nc = NuntiumChannel.new kind: 'foo'
-    nc.channel.kind.should eq('foo')
+    expect(nc.channel.kind).to eq('foo')
   end
 
   it "kind should be readonly once set initially" do
     nc = NuntiumChannel.new kind: 'foo'
     nc.kind = 'bar'
-    nc.kind.should eq('foo')
+    expect(nc.kind).to eq('foo')
   end
 
   it "should set channel_name before validating the record" do
     nc = NuntiumChannel.new kind: 'foo'
-    nc.channel_name.should be_blank
-    nc.should_not be_valid
-    nc.channel_name.should_not be_blank
-    nc.channel_name.should == nc.channel.name
+    expect(nc.channel_name).to be_blank
+    expect(nc).not_to be_valid
+    expect(nc.channel_name).not_to be_blank
+    expect(nc.channel_name).to eq(nc.channel.name)
   end
 
   it "should save the Pigeon channel when saving the record" do
     nc = NuntiumChannel.new kind: 'foo', name: 'bar'
     nc.account = account
-    nc.channel.should_receive(:save!)
-    nc.save.should be(true)
+    expect(nc.channel).to receive(:save!)
+    expect(nc.save).to be(true)
   end
 
   it "should find the Pigeon channel if channel_name is present (ie. it's a persisted record)" do
     nc = NuntiumChannel.new kind: 'foo', name: 'bar'
     nc.account = account
-    nc.channel.should_receive(:save!)
-    nc.save.should be(true)
+    expect(nc.channel).to receive(:save!)
+    expect(nc.save).to be(true)
 
     nc2 = NuntiumChannel.find(nc.id)
-    Pigeon::NuntiumChannel.should_receive(:find).with(nc.channel_name).and_return(nc.channel)
-    nc2.channel.should == nc.channel
+    expect(Pigeon::NuntiumChannel).to receive(:find).with(nc.channel_name).and_return(nc.channel)
+    expect(nc2.channel).to eq(nc.channel)
   end
 
   it "should create the Pigeon channel with account restrictions and propagate enabled status" do
     nc = NuntiumChannel.new kind: 'foo', name: 'bar', enabled: false
     nc.account = account
-    nc.channel.should_receive(:save!)
-    nc.save.should be(true)
+    expect(nc.channel).to receive(:save!)
+    expect(nc.save).to be(true)
 
-    nc.channel.restrictions.should include({ "name" => "account_id", "value" => account.id.to_s })
-    nc.channel.enabled.should be(false)
+    expect(nc.channel.restrictions).to include({ "name" => "account_id", "value" => account.id.to_s })
+    expect(nc.channel.enabled).to be(false)
   end
 
   it "should destroy the Pigeon channel when destroying the record" do
     nc = NuntiumChannel.new kind: 'foo', name: 'bar'
     nc.account = account
-    nc.channel.should_receive(:save!)
-    nc.save.should be(true)
+    expect(nc.channel).to receive(:save!)
+    expect(nc.save).to be(true)
 
-    nc.channel.should_receive(:destroy)
+    expect(nc.channel).to receive(:destroy)
     nc.destroy
   end
 
   it "save should not raise an exception when there is a Pigeon validation error" do
     nc = NuntiumChannel.new kind: 'foo', name: 'bar'
     nc.account = account
-    nc.channel.should_receive(:save!).and_raise(Pigeon::ChannelInvalid.new(nc.channel))
-    nc.save.should be(false)
+    expect(nc.channel).to receive(:save!).and_raise(Pigeon::ChannelInvalid.new(nc.channel))
+    expect(nc.save).to be(false)
   end
 end

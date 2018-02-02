@@ -36,15 +36,15 @@ describe Api::ContactsController do
   it "gets all contacts" do
     get :index, project_id: project.id
 
-    response.should be_ok
+    expect(response).to be_ok
 
     json = JSON.parse response.body
-    json.length.should eq(1)
+    expect(json.length).to eq(1)
 
     json = json[0]
-    json['id'].should eq(contact.id)
-    json['addresses'].should eq(contact.addresses.map(&:address))
-    json['vars'].should eq({"var1" => "foo"})
+    expect(json['id']).to eq(contact.id)
+    expect(json['addresses']).to eq(contact.addresses.map(&:address))
+    expect(json['vars']).to eq({"var1" => "foo"})
   end
 
   it "gets contacts if user is admin but not owner" do
@@ -56,15 +56,15 @@ describe Api::ContactsController do
 
     get :index, project_id: project.id
 
-    response.should be_ok
+    expect(response).to be_ok
 
     json = JSON.parse response.body
-    json.length.should eq(1)
+    expect(json.length).to eq(1)
 
     json = json[0]
-    json['id'].should eq(contact.id)
-    json['addresses'].should eq(contact.addresses.map(&:address))
-    json['vars'].should eq({"var1" => "foo"})
+    expect(json['id']).to eq(contact.id)
+    expect(json['addresses']).to eq(contact.addresses.map(&:address))
+    expect(json['vars']).to eq({"var1" => "foo"})
   end
 
   it "gets contacts if user is admin but not owner" do
@@ -76,116 +76,116 @@ describe Api::ContactsController do
 
     get :index, project_id: project.id
 
-    response.should be_ok
+    expect(response).to be_ok
 
     json = JSON.parse response.body
-    json.length.should eq(1)
+    expect(json.length).to eq(1)
 
     json = json[0]
-    json['id'].should eq(contact.id)
-    json['addresses'].should eq(contact.addresses.map(&:address))
-    json['vars'].should eq({"var1" => "foo"})
+    expect(json['id']).to eq(contact.id)
+    expect(json['addresses']).to eq(contact.addresses.map(&:address))
+    expect(json['vars']).to eq({"var1" => "foo"})
   end
 
   it "gets contact by address" do
     get :show_by_address, project_id: project.id, address: contact.addresses.first.address
 
-    response.should be_ok
+    expect(response).to be_ok
 
     json = JSON.parse response.body
-    json['id'].should eq(contact.id)
-    json['addresses'].should eq(contact.addresses.map(&:address))
-    json['vars'].should eq({"var1" => "foo"})
+    expect(json['id']).to eq(contact.id)
+    expect(json['addresses']).to eq(contact.addresses.map(&:address))
+    expect(json['vars']).to eq({"var1" => "foo"})
   end
 
   it "updates a contact's var by address" do
     put :update_by_address, project_id: project.id, address: contact.addresses.first.address, vars: {var1: "bar"}
 
     @contact_var.reload
-    @contact_var.value.should eq("bar")
+    expect(@contact_var.value).to eq("bar")
 
-    response.should be_ok
+    expect(response).to be_ok
 
     json = JSON.parse response.body
-    json['id'].should eq(contact.id)
-    json['addresses'].should eq(contact.addresses.map(&:address))
-    json['vars'].should eq({"var1" => "bar"})
+    expect(json['id']).to eq(contact.id)
+    expect(json['addresses']).to eq(contact.addresses.map(&:address))
+    expect(json['vars']).to eq({"var1" => "bar"})
   end
 
   it "updates a contact's var (that didn't have a previous value) by address" do
     put :update_by_address, project_id: project.id, address: contact.addresses.first.address, vars: {var2: "bar"}
 
     var = PersistedVariable.where(contact_id: contact.id, project_variable_id: @project_var2.id).first
-    var.value.should eq("bar")
+    expect(var.value).to eq("bar")
 
-    response.should be_ok
+    expect(response).to be_ok
 
     json = JSON.parse response.body
-    json['id'].should eq(contact.id)
-    json['addresses'].should eq(contact.addresses.map(&:address))
-    json['vars'].should eq({"var1" => "foo", "var2" => "bar"})
+    expect(json['id']).to eq(contact.id)
+    expect(json['addresses']).to eq(contact.addresses.map(&:address))
+    expect(json['vars']).to eq({"var1" => "foo", "var2" => "bar"})
   end
 
   it "updates all contacts vars" do
     put :update_all, project_id: project.id, vars: {var1: "bar"}
 
     @contact_var.reload
-    @contact_var.value.should eq("bar")
+    expect(@contact_var.value).to eq("bar")
 
     json = JSON.parse response.body
-    json.length.should eq(1)
+    expect(json.length).to eq(1)
 
     json = json[0]
-    json['id'].should eq(contact.id)
-    json['addresses'].should eq(contact.addresses.map(&:address))
-    json['vars'].should eq({"var1" => "bar"})
+    expect(json['id']).to eq(contact.id)
+    expect(json['addresses']).to eq(contact.addresses.map(&:address))
+    expect(json['vars']).to eq({"var1" => "bar"})
   end
 
   it "updates all contacts vars (when a var didn't have a previous value)" do
     put :update_all, project_id: project.id, vars: {var2: "bar"}
 
     json = JSON.parse response.body
-    json.length.should eq(1)
+    expect(json.length).to eq(1)
 
     json = json[0]
-    json['id'].should eq(contact.id)
-    json['addresses'].should eq(contact.addresses.map(&:address))
-    json['vars'].should eq({"var1" => "foo", "var2" => "bar"})
+    expect(json['id']).to eq(contact.id)
+    expect(json['addresses']).to eq(contact.addresses.map(&:address))
+    expect(json['vars']).to eq({"var1" => "foo", "var2" => "bar"})
   end
 
   it "creates a new contact with a single address" do
-    lambda do
+    expect do
       post :create, project_id: project.id, address: '123', vars: {var1: 'foo'}
-    end.should change(project.contacts, :count).by(1)
+    end.to change(project.contacts, :count).by(1)
 
     json = JSON.parse response.body
-    json['addresses'].should eq(['123'])
-    json['vars'].should eq({"var1" => "foo"})
+    expect(json['addresses']).to eq(['123'])
+    expect(json['vars']).to eq({"var1" => "foo"})
 
-    project.contacts.find(json['id']).should be_present
+    expect(project.contacts.find(json['id'])).to be_present
   end
 
   it "creates a new contact with no variables given" do
-    lambda do
+    expect do
       post :create, project_id: project.id, address: '123'
-    end.should change(project.contacts, :count).by(1)
+    end.to change(project.contacts, :count).by(1)
 
     json = JSON.parse response.body
-    json['addresses'].should eq(['123'])
-    json['vars'].should eq({})
+    expect(json['addresses']).to eq(['123'])
+    expect(json['vars']).to eq({})
 
-    project.contacts.find(json['id']).should be_present
+    expect(project.contacts.find(json['id'])).to be_present
   end
 
   it "creates a new contact with a multiple addresses" do
-    lambda do
+    expect do
       post :create, project_id: project.id, addresses: ['123', '456'], vars: {var1: 'foo'}
-    end.should change(project.contacts, :count).by(1)
+    end.to change(project.contacts, :count).by(1)
 
     json = JSON.parse response.body
-    json['addresses'].should eq(['123', '456'])
-    json['vars'].should eq({"var1" => "foo"})
+    expect(json['addresses']).to eq(['123', '456'])
+    expect(json['vars']).to eq({"var1" => "foo"})
 
-    project.contacts.find(json['id']).should be_present
+    expect(project.contacts.find(json['id'])).to be_present
   end
 end

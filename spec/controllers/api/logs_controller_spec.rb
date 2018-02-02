@@ -31,21 +31,21 @@ describe Api::LogsController do
 
     it "should list all entries" do
       get :list, :call_id => @call.id, :format => :csv
-      assigns(:log).should eq(@call)
-      assigns(:entries).should eq([@entry1, @entry2, @entry3])
+      expect(assigns(:log)).to eq(@call)
+      expect(assigns(:entries)).to eq([@entry1, @entry2, @entry3])
     end
 
     it "should list entries after some entry id" do
       get :list, :call_id => @call.id, :format => :csv, :after => @entry1.id
-      assigns(:log).should eq(@call)
-      assigns(:entries).should eq([@entry2, @entry3])
+      expect(assigns(:log)).to eq(@call)
+      expect(assigns(:entries)).to eq([@entry2, @entry3])
     end
 
     it "should not list entries of other account" do
       get :list, :call_id => @other_call.id, :format => :csv
-      assigns(:log).should be_nil
-      assigns(:entries).should be_nil
-      response.response_code.should eq(404)
+      expect(assigns(:log)).to be_nil
+      expect(assigns(:entries)).to be_nil
+      expect(response.response_code).to eq(404)
     end
 
   end

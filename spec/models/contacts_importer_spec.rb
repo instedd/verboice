@@ -12,7 +12,7 @@ describe ContactsImporter do
       file.close
 
       uploaded = Rack::Test::UploadedFile.new(file.path, 'text/csv')
-      uploaded.stub(:tempfile).and_return(uploaded)
+      allow(uploaded).to receive(:tempfile).and_return(uploaded)
       uploaded
     end
 
@@ -23,27 +23,27 @@ describe ContactsImporter do
 
     it "should succeed with a valid CSV file" do
       valid_file = uploaded_file "Phone,foo,bar\n1,2,3\n"
-      @importer.save_csv(valid_file).should be_nil
-      File.file?(@importer.csv_filename).should be(true)
+      expect(@importer.save_csv(valid_file)).to be_nil
+      expect(File.file?(@importer.csv_filename)).to be(true)
     end
 
     it "should return false for nil" do
-      @importer.save_csv(nil).should eq("You didn't specify a CSV file")
+      expect(@importer.save_csv(nil)).to eq("You didn't specify a CSV file")
     end
 
     it "should return false for an empty file" do
       empty_file = uploaded_file ''
-      @importer.save_csv(empty_file).should eq("The CSV file must not be empty")
+      expect(@importer.save_csv(empty_file)).to eq("The CSV file must not be empty")
     end
 
     it "should return false for an invalid CSV file" do
       invalid_file = uploaded_file "foo,bar\n\""
-      @importer.save_csv(invalid_file).should eq("Error reading CSV: Unclosed quoted field on line 2.")
+      expect(@importer.save_csv(invalid_file)).to eq("Error reading CSV: Unclosed quoted field on line 2.")
     end
 
     it "should return false if not all rows have the same number of columns" do
       invalid_file = uploaded_file "foo,bar\na,b\nc"
-      @importer.save_csv(invalid_file).should eq("All rows in the CSV must have the same number of columns")
+      expect(@importer.save_csv(invalid_file)).to eq("All rows in the CSV must have the same number of columns")
     end
 
   end
@@ -59,18 +59,18 @@ describe ContactsImporter do
         @importer.rows_preview = [['Phone', 'Color'], ['123', 'Foobar']]
 
         specs = @importer.guess_column_specs
-        specs.size.should == 2
-        specs[0][:action].should == 'phone_number'
-        specs[0][:name].should == 'Phone number'
-        specs[1][:action].should == 'new_variable'
-        specs[1][:name].should == 'Color'
+        expect(specs.size).to eq(2)
+        expect(specs[0][:action]).to eq('phone_number')
+        expect(specs[0][:name]).to eq('Phone number')
+        expect(specs[1][:action]).to eq('new_variable')
+        expect(specs[1][:name]).to eq('Color')
       end
 
       it "ignores columns with blank headers" do
         @importer.rows_preview = [['Phone', 'Color', ''], ['123', 'Foobar', nil]]
 
         specs = @importer.guess_column_specs
-        specs.last[:action].should == 'ignore'
+        expect(specs.last[:action]).to eq('ignore')
       end
     end
 
@@ -86,17 +86,17 @@ describe ContactsImporter do
         @importer.rows_preview = [['Phone', 'Color', 'Age', 'Language'], ['123', 'Foobar', 'Lala', 'Spanish']]
 
         specs = @importer.guess_column_specs
-        specs.size.should == 4
-        specs[0][:action].should == 'phone_number'
-        specs[0][:name].should == 'Phone number'
-        specs[1][:action].should == 'existing_variable'
-        specs[1][:name].should == 'color'
-        specs[1][:id].should eq(@var_color.id)
-        specs[2][:action].should == 'existing_variable'
-        specs[2][:name].should == 'age'
-        specs[2][:id].should eq(@var_age.id)
-        specs[3][:action].should == 'existing_variable'
-        specs[3][:name].should == 'language'
+        expect(specs.size).to eq(4)
+        expect(specs[0][:action]).to eq('phone_number')
+        expect(specs[0][:name]).to eq('Phone number')
+        expect(specs[1][:action]).to eq('existing_variable')
+        expect(specs[1][:name]).to eq('color')
+        expect(specs[1][:id]).to eq(@var_color.id)
+        expect(specs[2][:action]).to eq('existing_variable')
+        expect(specs[2][:name]).to eq('age')
+        expect(specs[2][:id]).to eq(@var_age.id)
+        expect(specs[3][:action]).to eq('existing_variable')
+        expect(specs[3][:name]).to eq('language')
       end
     end
   end
@@ -122,41 +122,41 @@ describe ContactsImporter do
       importer.import
 
       vars = project.project_variables.all
-      vars.length.should eq(1)
+      expect(vars.length).to eq(1)
 
       var = vars[0]
-      var.name.should eq("age")
+      expect(var.name).to eq("age")
 
       contacts = project.contacts.all
-      contacts.length.should eq(2)
+      expect(contacts.length).to eq(2)
 
       contact = contacts[0]
       addresses = contact.addresses.all
-      addresses.length.should eq(1)
+      expect(addresses.length).to eq(1)
 
       address = addresses[0]
-      address.address.should eq("1234")
+      expect(address.address).to eq("1234")
 
       persisted_vars = contact.persisted_variables.all
-      persisted_vars.length.should eq(1)
+      expect(persisted_vars.length).to eq(1)
 
       persisted_var = persisted_vars[0]
-      persisted_var.project_variable_id.should eq(var.id)
-      persisted_var.value.should eq("56")
+      expect(persisted_var.project_variable_id).to eq(var.id)
+      expect(persisted_var.value).to eq("56")
 
       contact = contacts[1]
       addresses = contact.addresses.all
-      addresses.length.should eq(1)
+      expect(addresses.length).to eq(1)
 
       address = addresses[0]
-      address.address.should eq("hello")
+      expect(address.address).to eq("hello")
 
       persisted_vars = contact.persisted_variables.all
-      persisted_vars.length.should eq(1)
+      expect(persisted_vars.length).to eq(1)
 
       persisted_var = persisted_vars[0]
-      persisted_var.project_variable_id.should eq(var.id)
-      persisted_var.value.should eq("78")
+      expect(persisted_var.project_variable_id).to eq(var.id)
+      expect(persisted_var.value).to eq("78")
     end
 
     it "creates new contacts with large file" do
@@ -169,18 +169,18 @@ describe ContactsImporter do
       importer.import
 
       vars = project.project_variables.all
-      vars.length.should eq(1)
+      expect(vars.length).to eq(1)
 
       var = vars[0]
-      var.name.should eq("age")
+      expect(var.name).to eq("age")
 
       contacts = project.contacts.all
-      contacts.length.should eq(250)
+      expect(contacts.length).to eq(250)
 
       contacts.each do |contact|
-        contact.should have(1).addresses
-        contact.addresses.first.address[0..2].should eq('999')
-        contact.should have(1).persisted_variables
+        expect(contact).to have(1).addresses
+        expect(contact.addresses.first.address[0..2]).to eq('999')
+        expect(contact).to have(1).persisted_variables
       end
     end
 
@@ -194,41 +194,41 @@ describe ContactsImporter do
         importer.import
 
         vars = project.project_variables.all
-        vars.length.should eq(1)
+        expect(vars.length).to eq(1)
 
         var = vars[0]
-        var.name.should eq("age")
+        expect(var.name).to eq("age")
 
         contacts = project.contacts.all
-        contacts.length.should eq(2)
+        expect(contacts.length).to eq(2)
 
         contact = contacts[0]
         addresses = contact.addresses.all
-        addresses.length.should eq(1)
+        expect(addresses.length).to eq(1)
 
         address = addresses[0]
-        address.address.should eq("1234")
+        expect(address.address).to eq("1234")
 
         persisted_vars = contact.persisted_variables.all
-        persisted_vars.length.should eq(1)
+        expect(persisted_vars.length).to eq(1)
 
         persisted_var = persisted_vars[0]
-        persisted_var.project_variable_id.should eq(var.id)
-        persisted_var.value.should eq("56")
+        expect(persisted_var.project_variable_id).to eq(var.id)
+        expect(persisted_var.value).to eq("56")
 
         contact = contacts[1]
         addresses = contact.addresses.all
-        addresses.length.should eq(1)
+        expect(addresses.length).to eq(1)
 
         address = addresses[0]
-        address.address.should eq("hello")
+        expect(address.address).to eq("hello")
 
         persisted_vars = contact.persisted_variables.all
-        persisted_vars.length.should eq(1)
+        expect(persisted_vars.length).to eq(1)
 
         persisted_var = persisted_vars[0]
-        persisted_var.project_variable_id.should eq(var.id)
-        persisted_var.value.should eq("78")
+        expect(persisted_var.project_variable_id).to eq(var.id)
+        expect(persisted_var.value).to eq("78")
       end
     end
 
@@ -245,27 +245,27 @@ describe ContactsImporter do
       importer.import
 
       vars = project.project_variables.all
-      vars.length.should eq(1)
+      expect(vars.length).to eq(1)
 
       var = vars[0]
-      var.name.should eq("age")
+      expect(var.name).to eq("age")
 
       contacts = project.contacts.all
-      contacts.length.should eq(1)
+      expect(contacts.length).to eq(1)
 
       contact = contacts[0]
       addresses = contact.addresses.all
-      addresses.length.should eq(1)
+      expect(addresses.length).to eq(1)
 
       address = addresses[0]
-      address.address.should eq("1234")
+      expect(address.address).to eq("1234")
 
       persisted_vars = contact.persisted_variables.all
-      persisted_vars.length.should eq(1)
+      expect(persisted_vars.length).to eq(1)
 
       persisted_var = persisted_vars[0]
-      persisted_var.project_variable_id.should eq(var.id)
-      persisted_var.value.should eq("56")
+      expect(persisted_var.project_variable_id).to eq(var.id)
+      expect(persisted_var.value).to eq("56")
     end
 
     it "imports into existing implicit variable" do
@@ -275,25 +275,25 @@ describe ContactsImporter do
       importer.import
 
       vars = project.project_variables.all
-      vars.length.should eq(0)
+      expect(vars.length).to eq(0)
 
       contacts = project.contacts.all
-      contacts.length.should eq(1)
+      expect(contacts.length).to eq(1)
 
       contact = contacts[0]
       addresses = contact.addresses.all
-      addresses.length.should eq(1)
+      expect(addresses.length).to eq(1)
 
       address = addresses[0]
-      address.address.should eq("1234")
+      expect(address.address).to eq("1234")
 
       persisted_vars = contact.persisted_variables.all
-      persisted_vars.length.should eq(1)
+      expect(persisted_vars.length).to eq(1)
 
       persisted_var = persisted_vars[0]
-      persisted_var.project_variable_id.should be_nil
-      persisted_var.implicit_key.should eq("language")
-      persisted_var.value.should eq("es")
+      expect(persisted_var.project_variable_id).to be_nil
+      expect(persisted_var.implicit_key).to eq("language")
+      expect(persisted_var.value).to eq("es")
     end
 
     it "imports into existing contact with existing variable value" do
@@ -310,27 +310,27 @@ describe ContactsImporter do
       importer.import
 
       vars = project.project_variables.all
-      vars.length.should eq(1)
+      expect(vars.length).to eq(1)
 
       var = vars[0]
-      var.name.should eq("age")
+      expect(var.name).to eq("age")
 
       contacts = project.contacts.all
-      contacts.length.should eq(1)
+      expect(contacts.length).to eq(1)
 
       contact = contacts[0]
       addresses = contact.addresses.all
-      addresses.length.should eq(1)
+      expect(addresses.length).to eq(1)
 
       address = addresses[0]
-      address.address.should eq("1234")
+      expect(address.address).to eq("1234")
 
       persisted_vars = contact.persisted_variables.all
-      persisted_vars.length.should eq(1)
+      expect(persisted_vars.length).to eq(1)
 
       persisted_var = persisted_vars[0]
-      persisted_var.project_variable_id.should eq(var.id)
-      persisted_var.value.should eq("56")
+      expect(persisted_var.project_variable_id).to eq(var.id)
+      expect(persisted_var.value).to eq("56")
     end
   end
 end

@@ -30,7 +30,7 @@ module Parsers
           'name' => 'Detect Language',
           'resource' => {'guid' => '12349'}
 
-        language.equivalent_flow.first.should eq(
+        expect(language.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :language, 1, "Detect Language"

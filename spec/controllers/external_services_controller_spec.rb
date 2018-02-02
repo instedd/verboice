@@ -31,7 +31,7 @@ describe ExternalServicesController do
   describe "GET index" do
     it "assigns all project external_services as external_services" do
       get :index, {:project_id => project.to_param}
-      controller.external_services.should eq([external_service])
+      expect(controller.external_services).to eq([external_service])
     end
   end
 
@@ -45,34 +45,34 @@ describe ExternalServicesController do
 
       it "assigns a newly created external_service as external_service" do
         post :create, {:external_service => ExternalService.plan, :project_id => project.to_param}
-        controller.external_service.should be_a(ExternalService)
-        controller.external_service.should be_persisted
+        expect(controller.external_service).to be_a(ExternalService)
+        expect(controller.external_service).to be_persisted
       end
 
       it "assigns the project to the created external_service" do
         post :create, {:external_service => ExternalService.plan, :project_id => project.to_param}
-        controller.external_service.project.should eq(project)
+        expect(controller.external_service.project).to eq(project)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved external_service as @external_service" do
-        ExternalService.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(ExternalService).to receive(:save).and_return(false)
         post :create, {:external_service => {}, :project_id => project.to_param}
-        controller.external_service.should be_a_new(ExternalService)
+        expect(controller.external_service).to be_a_new(ExternalService)
       end
 
       it "re-renders the 'index' template" do
-        ExternalService.any_instance.stub(:save).and_return(false)
-        ExternalService.any_instance.stub(:errors).and_return(errors)
+        allow_any_instance_of(ExternalService).to receive(:save).and_return(false)
+        allow_any_instance_of(ExternalService).to receive(:errors).and_return(errors)
         post :create, {:external_service => {}, :project_id => project.to_param}
-        response.should render_template("index")
+        expect(response).to render_template("index")
       end
     end
 
     it "fails if the requested external_service is not in current account projects" do
       post :create, {:project_id => other_external_service.project.to_param, :external_service => ExternalService.plan}
-      response.status.should eq(404)
+      expect(response.status).to eq(404)
     end
   end
 
@@ -80,33 +80,33 @@ describe ExternalServicesController do
     describe "with valid params" do
       it "updates the requested external_service" do
         put :update, {:id => external_service.to_param, :external_service => {:name => 'new name'}, :project_id => project.to_param}
-        external_service.reload.name.should eq('new name')
+        expect(external_service.reload.name).to eq('new name')
       end
 
       it "assigns the requested external_service as @external_service" do
         put :update, {:id => external_service.to_param, :external_service => ExternalService.plan, :project_id => project.to_param}
-        controller.external_service.should eq(external_service)
+        expect(controller.external_service).to eq(external_service)
       end
     end
 
     describe "with invalid params" do
       it "assigns the external_service as @external_service" do
-        ExternalService.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(ExternalService).to receive(:save).and_return(false)
         put :update, {:id => external_service.to_param, :external_service => {}, :project_id => project.to_param}
-        controller.external_service.should eq(external_service)
+        expect(controller.external_service).to eq(external_service)
       end
 
       it "re-renders the 'index' template" do
-        ExternalService.any_instance.stub(:save).and_return(false)
-        ExternalService.any_instance.stub(:errors).and_return(errors)
+        allow_any_instance_of(ExternalService).to receive(:save).and_return(false)
+        allow_any_instance_of(ExternalService).to receive(:errors).and_return(errors)
         put :update, {:id => external_service.to_param, :external_service => {}, :project_id => project.to_param}
-        response.should render_template("index")
+        expect(response).to render_template("index")
       end
     end
 
     it "fails if the requested external_service is not in current account projects" do
       put :update, {:id => other_external_service.to_param, :external_service => ExternalService.plan, :project_id => other_external_service.project.to_param}
-      response.status.should eq(404)
+      expect(response.status).to eq(404)
     end
   end
 
@@ -119,29 +119,29 @@ describe ExternalServicesController do
 
     it "fails if the requested external_service is not in current account projects" do
       delete :update, {:id => other_external_service.to_param, :external_service => ExternalService.plan, :project_id => other_external_service.project.to_param}
-      response.status.should eq(404)
+      expect(response.status).to eq(404)
     end
 
     it "cleans external_service call flows before destroy" do
-      ExternalService.any_instance.should_receive(:clean_call_flows)
+      expect_any_instance_of(ExternalService).to receive(:clean_call_flows)
       delete :destroy, {:id => external_service.to_param, :project_id => project.to_param}
     end
   end
 
   describe "PUT update_manifest" do
     before(:each) do
-      ExternalService.any_instance.stub(:update_manifest!)
+      allow_any_instance_of(ExternalService).to receive(:update_manifest!)
     end
 
     it "updates the manifest of the requested external_service" do
-      ExternalService.any_instance.should_receive(:update_manifest!)
+      expect_any_instance_of(ExternalService).to receive(:update_manifest!)
       put :update_manifest, {:id => external_service.to_param, :project_id => project.to_param}
     end
 
 
      it "fails if the requested external_service is not in current account projects" do
       put :update_manifest, {:id => other_external_service.to_param, :project_id => other_external_service.project.to_param}
-      response.status.should eq(404)
+      expect(response.status).to eq(404)
     end
   end
 end

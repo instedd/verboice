@@ -23,21 +23,21 @@ module ImplicitVariables
     let(:contact) { Contact.make }
 
     it "should tell key" do
-      Language.key.should eq('language')
+      expect(Language.key).to eq('language')
     end
 
     it "should default to project default language" do
-      contact.project.should_receive(:default_language).and_return('default language')
-      Language.new(contact).value.should eq('default language')
+      expect(contact.project).to receive(:default_language).and_return('default language')
+      expect(Language.new(contact).value).to eq('default language')
     end
 
     it "should return persisted variable value if persisted" do
       contact.persisted_variables.create! :implicit_key => Language.key, :value => 'persisted language'
-      Language.new(contact).value.should eq('persisted language')
+      expect(Language.new(contact).value).to eq('persisted language')
     end
 
     it "should return nil when use default is false" do
-      Language.new(contact).value(false).should be_nil
+      expect(Language.new(contact).value(false)).to be_nil
     end
 
   end

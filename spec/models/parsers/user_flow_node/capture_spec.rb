@@ -40,7 +40,7 @@ module Parsers
           'min_input_length' => 1,
           'timeout' => 10
 
-        capture.equivalent_flow.first.should eq(
+        expect(capture.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :input, 1, "Capture number one"
@@ -97,7 +97,7 @@ module Parsers
           'type' => 'capture',
           'name' => 'Capture'
 
-        capture.equivalent_flow.first.should eq(capture_flow)
+        expect(capture.equivalent_flow.first).to eq(capture_flow)
 
         capture = Capture.new call_flow,
           'id' => 4,
@@ -106,7 +106,7 @@ module Parsers
           'name' => 'Capture',
           'valid_values' => ''
 
-        capture.equivalent_flow.first.should eq(capture_flow)
+        expect(capture.equivalent_flow.first).to eq(capture_flow)
 
         capture = Capture.new call_flow,
           'id' => 4,
@@ -115,7 +115,7 @@ module Parsers
           'name' => 'Capture',
           'valid_values' => '   '
 
-        capture.equivalent_flow.first.should eq(capture_flow)
+        expect(capture.equivalent_flow.first).to eq(capture_flow)
       end
 
       it "should accept an empty input" do
@@ -154,7 +154,7 @@ module Parsers
             "guid" => 2
           }
 
-        capture.equivalent_flow.first.should eq(capture_flow)
+        expect(capture.equivalent_flow.first).to eq(capture_flow)
       end
 
       it "should accept an empty input for all values" do
@@ -186,7 +186,7 @@ module Parsers
           'name' => 'Capture',
           'min_input_length' => 0
 
-        capture.equivalent_flow.first.should eq(capture_flow)
+        expect(capture.equivalent_flow.first).to eq(capture_flow)
       end
 
       it "should have a default next step" do
@@ -239,7 +239,7 @@ module Parsers
 
           capture.solve_links_with [ play ]
 
-          capture.equivalent_flow.first.should eq(capture_flow)
+          expect(capture.equivalent_flow.first).to eq(capture_flow)
       end
     end
   end

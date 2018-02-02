@@ -84,7 +84,7 @@ module Parsers
 
         menu.solve_links_with [ play1, play2, play3, play4 ]
 
-        menu.equivalent_flow.first.should eq(
+        expect(menu.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :menu, 1, "Menu number one"
@@ -142,7 +142,7 @@ module Parsers
 
       it "should compile to a minimum verboice equivalent flow" do
         menu = Menu.new call_flow, 'id' => 27, 'type' => 'menu'
-        menu.equivalent_flow.make.should eq(
+        expect(menu.equivalent_flow.make).to eq(
           Compiler.make do |c|
             c.StartUserStep :menu, 27, ""
             c.AssignValue 'attempt_number27', 1
@@ -164,8 +164,8 @@ module Parsers
       end
 
       it "should handle a menu input stream"do
-        (Menu.can_handle? 'id' => 27, 'type' => 'menu').should be true
-        (Menu.can_handle? 'id' => 27, 'type' => 'answer').should be false
+        expect(Menu.can_handle? 'id' => 27, 'type' => 'menu').to be true
+        expect(Menu.can_handle? 'id' => 27, 'type' => 'answer').to be false
       end
 
       it "should build with a collection of options" do
@@ -182,13 +182,13 @@ module Parsers
               'next' => 14
             }
           ]
-        menu.options.size.should eq(2)
-        menu.options.first['number'].should eq(1)
-        menu.options.first['description'].should eq('foo')
-        menu.options.first['next'].should eq(10)
-        menu.options.last['number'].should eq(2)
-        menu.options.last['description'].should eq('bar')
-        menu.options.first['next'].should eq(10)
+        expect(menu.options.size).to eq(2)
+        expect(menu.options.first['number']).to eq(1)
+        expect(menu.options.first['description']).to eq('foo')
+        expect(menu.options.first['next']).to eq(10)
+        expect(menu.options.last['number']).to eq(2)
+        expect(menu.options.last['description']).to eq('bar')
+        expect(menu.options.first['next']).to eq(10)
       end
 
       it "should resolve it's next links from a given list of commands" do
@@ -211,8 +211,8 @@ module Parsers
           'type' => 'menu'
 
         menu.solve_links_with [ menu_2, menu_3 ]
-        menu.options[0]['next'].should eq(menu_2)
-        menu.options[1]['next'].should eq(menu_3)
+        expect(menu.options[0]['next']).to eq(menu_2)
+        expect(menu.options[1]['next']).to eq(menu_3)
       end
 
       it "should respond if it's a root or not" do
@@ -221,8 +221,8 @@ module Parsers
           'type' => 'menu'
         menu_2 = Menu.new call_flow, 'id' => 14,
           'type' => 'menu'
-        menu_1.is_root?.should be true
-        menu_2.is_root?.should be false
+        expect(menu_1.is_root?).to be true
+        expect(menu_2.is_root?).to be false
       end
     end
   end

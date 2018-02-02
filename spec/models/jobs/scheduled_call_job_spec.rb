@@ -8,22 +8,22 @@ describe Jobs::ScheduledCallJob do
   let!(:job) { Jobs::ScheduledCallJob.new(scheduled_call.id, from, to) }
 
   before :each do
-    ScheduledCall.stub(:find).with(scheduled_call.id).and_return(scheduled_call)
+    allow(ScheduledCall).to receive(:find).with(scheduled_call.id).and_return(scheduled_call)
   end
 
   it 'should perform calls' do
-    scheduled_call.should_receive(:make_calls).with(from, to)
+    expect(scheduled_call).to receive(:make_calls).with(from, to)
 
     job.perform
   end
 
   it 'should perform once' do
-    job.max_attempts.should eq(1)
+    expect(job.max_attempts).to eq(1)
   end
 
   [:success, :failure].each do |m|
     it "should scheduled next job when #{m}" do
-      scheduled_call.should_receive(:schedule_job)
+      expect(scheduled_call).to receive(:schedule_job)
 
       job.send(m)
     end

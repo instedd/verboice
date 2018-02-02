@@ -33,7 +33,7 @@ module Parsers
             'name' => 'External Service',
             'external_step_guid' => external_service_step.guid
 
-          external.equivalent_flow.first.should eq(
+          expect(external.equivalent_flow.first).to eq(
             Compiler.parse do |c|
               c.Label 1
               c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
@@ -54,7 +54,7 @@ module Parsers
               {'name' => 'variable_with_value', 'value' => 'fixed value'}
             ]
 
-          external.equivalent_flow.first.should eq(
+          expect(external.equivalent_flow.first).to eq(
             Compiler.parse do |c|
               c.Label 1
               c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
@@ -84,7 +84,7 @@ module Parsers
               {'name' => 'response_one', 'variable' => 'my_var'}
             ]
 
-          external.equivalent_flow.first.should eq(
+          expect(external.equivalent_flow.first).to eq(
             Compiler.parse do |c|
               c.Label 1
               c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
@@ -107,7 +107,7 @@ module Parsers
             'name' => 'External Service',
             'external_step_guid' => external_service_step.guid
 
-          external.equivalent_flow.first.should eq(
+          expect(external.equivalent_flow.first).to eq(
             Compiler.parse do |c|
               c.Label 1
               c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
@@ -127,7 +127,7 @@ module Parsers
             'name' => 'External Service',
             'external_step_guid' => external_service_step.guid
 
-          external.equivalent_flow.first.should eq(
+          expect(external.equivalent_flow.first).to eq(
             Compiler.parse do |c|
               c.Label 1
               c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
@@ -147,7 +147,7 @@ module Parsers
             'name' => 'External Service',
             'external_step_guid' => external_service_step.guid
 
-          external.equivalent_flow.first.should eq(
+          expect(external.equivalent_flow.first).to eq(
             Compiler.parse do |c|
               c.Label 1
               c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
@@ -167,7 +167,7 @@ module Parsers
             'name' => 'External Service',
             'external_step_guid' => external_service_step.guid
 
-          external.equivalent_flow.first.should eq(
+          expect(external.equivalent_flow.first).to eq(
             Compiler.parse do |c|
               c.Label 1
               c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
@@ -190,7 +190,7 @@ module Parsers
             'name' => 'External Service',
             'external_step_guid' => external_service_step.guid
 
-          external.equivalent_flow.first.should eq(
+          expect(external.equivalent_flow.first).to eq(
             Compiler.parse do |c|
               c.Label 1
               c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid
@@ -211,7 +211,7 @@ module Parsers
               {'name' => 'variable_with_value', 'value' => 'fixed value'}
             ]
 
-          external.equivalent_flow.first.should eq(
+          expect(external.equivalent_flow.first).to eq(
             Compiler.parse do |c|
               c.Label 1
               c.StartUserStep :external_service, 1, 'External Service', external_step_guid: external_service_step.guid

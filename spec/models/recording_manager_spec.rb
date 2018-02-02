@@ -24,15 +24,15 @@ describe RecordingManager do
 
   it "should retrieve an absolute path for a recording of an aplication" do
     manager = RecordingManager.for project
-    manager.recording_path_for('key').should eq(File.join Rails.root, "data","projects", "#{project.id}" ,"recordings", "key.wav")
+    expect(manager.recording_path_for('key')).to eq(File.join Rails.root, "data","projects", "#{project.id}" ,"recordings", "key.wav")
   end
 
   it "should retrieve an absolute path for a result of a call_log" do
     manager = RecordingManager.for call_log
-    manager.result_path_for(2).should eq(File.join Rails.root, "data","call_logs", "#{call_log.id}" ,"results", "2.wav")
+    expect(manager.result_path_for(2)).to eq(File.join Rails.root, "data","call_logs", "#{call_log.id}" ,"results", "2.wav")
   end
 
   it "should format recording" do
-    RecordingManager.format_recording(12345, 'explanation').should eq('12345-explanation')
+    expect(RecordingManager.format_recording(12345, 'explanation')).to eq('12345-explanation')
   end
 end

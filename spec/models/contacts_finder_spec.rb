@@ -13,18 +13,18 @@ describe ContactsFinder do
 
   it "should find project contacts" do
     contacts = finder.find
-    contacts.size.should eq(2)
-    contacts.should include(contact_a)
-    contacts.should include(contact_b)
+    expect(contacts.size).to eq(2)
+    expect(contacts).to include(contact_a)
+    expect(contacts).to include(contact_b)
   end
 
   it "should not include contacts from other project" do
     other_project = Project.make
     other_contact = Contact.make project: other_project
 
-    Contact.all.count.should eq(3)
+    expect(Contact.all.count).to eq(3)
 
-    finder.find.should_not include(other_contact)
+    expect(finder.find).not_to include(other_contact)
   end
 
   context "filtering" do
@@ -36,8 +36,8 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :eq, value: '17'}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_a)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_a)
     end
 
     it "should find contact by variable eq value" do
@@ -47,8 +47,8 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :eq, value: '17'}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_a)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_a)
     end
 
     it "should find contact by multiple variable eq value" do
@@ -61,8 +61,8 @@ describe ContactsFinder do
         {project_variable_id: sex.id, operator: :eq, value: 'female'}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_a)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_a)
     end
 
     it "should find contact by variable geq value" do
@@ -73,9 +73,9 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :geq, value: '17'}
       ])
 
-      contacts.size.should eq(2)
-      contacts.should include(contact_a)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(2)
+      expect(contacts).to include(contact_a)
+      expect(contacts).to include(contact_b)
     end
 
     it "should find contact by variable gt value" do
@@ -86,8 +86,8 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :gt, value: '17'}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_b)
     end
 
     it "should find contact by variable geq value using numeric ordering instead of lexicographic" do
@@ -98,8 +98,8 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :geq, value: '20'}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_a)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_a)
     end
 
     it "should find contact by variable leq value" do
@@ -110,9 +110,9 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :leq, value: '23'}
       ])
 
-      contacts.size.should eq(2)
-      contacts.should include(contact_a)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(2)
+      expect(contacts).to include(contact_a)
+      expect(contacts).to include(contact_b)
     end
 
     it "should find contact by variable lt value" do
@@ -123,8 +123,8 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :lt, value: '23'}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_a)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_a)
     end
 
     it "should find variable by defined" do
@@ -134,8 +134,8 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :defined}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_a)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_a)
     end
 
     it "should find variable by undefined when variable is missing" do
@@ -145,8 +145,8 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :undefined}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_b)
     end
 
     it "should find variable by undefined when variable is null" do
@@ -157,8 +157,8 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :undefined}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_b)
     end
 
     it "should find contacts with undefined or blank variable when searching for blank value" do
@@ -168,9 +168,9 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :eq, value: ''}
       ])
 
-      contacts.size.should eq(2)
-      contacts.should include(contact_a)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(2)
+      expect(contacts).to include(contact_a)
+      expect(contacts).to include(contact_b)
     end
 
     it "should find variable by includes value" do
@@ -181,16 +181,16 @@ describe ContactsFinder do
         {project_variable_id: diseases.id, operator: :includes, value: 'h1n1'}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_a)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_a)
 
       contacts = finder.find([
         {project_variable_id: diseases.id, operator: :includes, value: 'cholera'}
       ])
 
-      contacts.size.should eq(2)
-      contacts.should include(contact_a)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(2)
+      expect(contacts).to include(contact_a)
+      expect(contacts).to include(contact_b)
     end
 
     it "should find variable by includes numerical value" do
@@ -201,16 +201,16 @@ describe ContactsFinder do
         {project_variable_id: diseases.id, operator: :includes, value: '20'}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_b)
 
       contacts = finder.find([
         {project_variable_id: diseases.id, operator: :includes, value: '10'}
       ])
 
-      contacts.size.should eq(2)
-      contacts.should include(contact_a)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(2)
+      expect(contacts).to include(contact_a)
+      expect(contacts).to include(contact_b)
     end
 
     it "should find with implicit variables" do
@@ -221,8 +221,8 @@ describe ContactsFinder do
         {implicit_key: 'language', operator: :eq, value: 'es'}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_b)
     end
 
     it "should find with variable compared to variable" do
@@ -238,8 +238,8 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :geq, other_project_variable_id: other.id}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_b)
     end
 
     it "should find with variable compared to implicit variable" do
@@ -253,8 +253,8 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :leq, other_implicit_key: 'other'}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_a)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_a)
     end
 
     it "should find with variable equal to variable" do
@@ -270,8 +270,8 @@ describe ContactsFinder do
         {project_variable_id: age.id, operator: :eq, other_project_variable_id: other.id}
       ])
 
-      contacts.size.should eq(1)
-      contacts.should include(contact_b)
+      expect(contacts.size).to eq(1)
+      expect(contacts).to include(contact_b)
     end
 
     context "by address" do
@@ -297,7 +297,7 @@ describe ContactsFinder do
           {field_name: "address", operator: :eq, value: '15'}
         ])
 
-        contacts.should include(contact_b)
+        expect(contacts).to include(contact_b)
       end
 
       it "should find contacts by address containing a numerical value" do
@@ -305,7 +305,7 @@ describe ContactsFinder do
           {field_name: "address", operator: :includes, value: '3'}
         ])
 
-        contacts.should include(contact_a)
+        expect(contacts).to include(contact_a)
       end
 
       it "should find contacts by address defined" do
@@ -313,7 +313,7 @@ describe ContactsFinder do
           {field_name: "address", operator: :defined}
         ])
 
-        contacts.should include(contact_a, contact_b, contact_c)
+        expect(contacts).to include(contact_a, contact_b, contact_c)
       end
 
       it "should find contacts by address undefined" do
@@ -321,7 +321,7 @@ describe ContactsFinder do
           {field_name: "address", operator: :undefined}
         ])
 
-        contacts.should include(contact_d)
+        expect(contacts).to include(contact_d)
       end
 
       it "should find contacts by address greater than a value" do
@@ -329,7 +329,7 @@ describe ContactsFinder do
           {field_name: "address", operator: :geq, value: '35'}
         ])
 
-        contacts.should include(contact_b, contact_c)
+        expect(contacts).to include(contact_b, contact_c)
       end
 
       it "should find contacts by address equal to a variable" do
@@ -340,7 +340,7 @@ describe ContactsFinder do
           {field_name: "address", operator: :eq, other_project_variable_id: age.id}
         ])
 
-        contacts.should include(contact_a)
+        expect(contacts).to include(contact_a)
       end
 
     end
@@ -359,7 +359,7 @@ describe ContactsFinder do
       PersistedVariable.make contact: contact_d, project_variable: age, value: '15'
 
       contacts = finder.find([], {sorting: {project_variable_id: age.id, direction: 'ASC'}})
-      contacts.map(&:id).should eq([contact_b, contact_d, contact_c, contact_a].map(&:id))
+      expect(contacts.map(&:id)).to eq([contact_b, contact_d, contact_c, contact_a].map(&:id))
     end
 
     it "should sort contacts by persisted variable including nulls" do
@@ -368,7 +368,7 @@ describe ContactsFinder do
       PersistedVariable.make contact: contact_c, project_variable: age, value: '20'
 
       contacts = finder.find([], {sorting: {project_variable_id: age.id, direction: 'ASC'}})
-      contacts.map(&:id).should eq([contact_d, contact_b, contact_c, contact_a].map(&:id))
+      expect(contacts.map(&:id)).to eq([contact_d, contact_b, contact_c, contact_a].map(&:id))
     end
 
     it "should sort contacts by persisted variable in descending order" do
@@ -378,7 +378,7 @@ describe ContactsFinder do
       PersistedVariable.make contact: contact_d, project_variable: age, value: '15'
 
       contacts = finder.find([], {sorting: {project_variable_id: age.id, direction: 'DESC'}})
-      contacts.map(&:id).should eq([contact_a, contact_c, contact_d, contact_b].map(&:id))
+      expect(contacts.map(&:id)).to eq([contact_a, contact_c, contact_d, contact_b].map(&:id))
     end
 
     it "should sort contacts by address" do
@@ -389,7 +389,7 @@ describe ContactsFinder do
       contact_d.addresses.create(project_id: project.id, address: '15')
 
       contacts = finder.find([], {sorting: {address: true, direction: 'ASC'}})
-      contacts.map(&:id).should eq([contact_b, contact_d, contact_c, contact_a].map(&:id))
+      expect(contacts.map(&:id)).to eq([contact_b, contact_d, contact_c, contact_a].map(&:id))
     end
 
     it "should sort contacts by address in descending order" do
@@ -400,7 +400,7 @@ describe ContactsFinder do
       contact_d.addresses.create(project_id: project.id, address: '15')
 
       contacts = finder.find([], {sorting: {address: true, direction: 'DESC'}})
-      contacts.map(&:id).should eq([contact_a, contact_c, contact_d, contact_b].map(&:id))
+      expect(contacts.map(&:id)).to eq([contact_a, contact_c, contact_d, contact_b].map(&:id))
     end
 
     it "should sort contacts by address handling multiple and no addresses using the first one" do
@@ -415,7 +415,7 @@ describe ContactsFinder do
       contact_c.addresses.create(project_id: project.id, address: '60')
 
       contacts = finder.find([], {sorting: {address: true, direction: 'ASC'}})
-      contacts.map(&:id).should eq([contact_d, contact_b, contact_c, contact_a].map(&:id))
+      expect(contacts.map(&:id)).to eq([contact_d, contact_b, contact_c, contact_a].map(&:id))
     end
 
     it "should sort contacts by implicit variable" do
@@ -428,7 +428,7 @@ describe ContactsFinder do
       PersistedVariable.make contact: contact_d, implicit_key: 'sms_number', value: '15'
 
       contacts = finder.find([], {sorting: {implicit_key: 'language', direction: 'ASC'}})
-      contacts.map(&:id).should eq([contact_d, contact_b, contact_c, contact_a].map(&:id))
+      expect(contacts.map(&:id)).to eq([contact_d, contact_b, contact_c, contact_a].map(&:id))
     end
 
     it "should sort contacts by last activity" do
@@ -438,7 +438,7 @@ describe ContactsFinder do
       contact_d.update_column :last_activity_at, 1.day.ago
 
       contacts = finder.find([], {sorting: {last_activity: true, direction: 'ASC'}})
-      contacts.map(&:id).should eq([contact_c, contact_b, contact_a, contact_d].map(&:id))
+      expect(contacts.map(&:id)).to eq([contact_c, contact_b, contact_a, contact_d].map(&:id))
     end
 
   end

@@ -21,12 +21,12 @@ describe Parsers::Twiml do
   context "can parse?" do
     it "parse" do
       xml = Nokogiri.XML '<Response><Say>Hello</Say></Response>'
-      Parsers::Twiml.can_parse?(xml).should_not be_nil
+      expect(Parsers::Twiml.can_parse?(xml)).not_to be_nil
     end
 
     it "not parse" do
       xml = Nokogiri.XML '<phoneml></phoneml>'
-      Parsers::Twiml.can_parse?(xml).should be false
+      expect(Parsers::Twiml.can_parse?(xml)).to be false
     end
   end
 
@@ -161,27 +161,27 @@ describe Parsers::Twiml do
     it "parses basic command" do
       xml = "<Response><Record/></Response>"
       parsed = Parsers::Xml.parse(xml)
-      parsed.should be_a(Commands::RecordCommand)
+      expect(parsed).to be_a(Commands::RecordCommand)
     end
 
     it "parses command with timeout and stop keys" do
       xml = "<Response><Record timeout='10' finishOnKey='1234'/></Response>"
       parsed = Parsers::Xml.parse(xml)
-      parsed.should be_a(Commands::RecordCommand)
-      parsed.timeout.should == 10
-      parsed.stop_keys.should == '1234'
+      expect(parsed).to be_a(Commands::RecordCommand)
+      expect(parsed.timeout).to eq(10)
+      expect(parsed.stop_keys).to eq('1234')
     end
 
     it "parses command with action and method" do
       xml = "<Response><Record action='http://foo' method='get'/></Response>"
       parsed = Parsers::Xml.parse(xml)
-      parsed.should be_a(Commands::RecordCommand)
+      expect(parsed).to be_a(Commands::RecordCommand)
       callback_command = parsed.next
-      callback_command.should == Commands::CallbackCommand.new('http://foo', method: 'get')
+      expect(callback_command).to eq(Commands::CallbackCommand.new('http://foo', method: 'get'))
     end
   end
 
   def assert_parse(xml, result)
-    Parsers::Xml.parse(xml).should == result
+    expect(Parsers::Xml.parse(xml)).to eq(result)
   end
 end

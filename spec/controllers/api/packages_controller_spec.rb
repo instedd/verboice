@@ -34,7 +34,7 @@ describe Api::FlowResults::PackagesController do
   end
 
   def assert_json_api_not_found_error(response)
-    response.should be_not_found
+    expect(response).to be_not_found
     json = JSON.parse response.body
     assert_json_api_compliance(json)
   end
@@ -46,19 +46,19 @@ describe Api::FlowResults::PackagesController do
       it "gets data packages for a call flow" do
         get :index, project_id: project.id, call_flow_id: call_flow.id
 
-        response.should be_ok
+        expect(response).to be_ok
 
         json = JSON.parse response.body
 
         assert_json_api_compliance(json)
 
-        json["data"].length.should eq(1)
+        expect(json["data"].length).to eq(1)
 
         package = json["data"][0]
-        package["type"].should eq("packages")
-        package["id"].should eq(call_flow.current_data_package.uuid)
+        expect(package["type"]).to eq("packages")
+        expect(package["id"]).to eq(call_flow.current_data_package.uuid)
 
-        json["links"]["self"].should eq(api_project_call_flow_flow_results_packages_url(project.id, call_flow.id))
+        expect(json["links"]["self"]).to eq(api_project_call_flow_flow_results_packages_url(project.id, call_flow.id))
       end
     end
 
@@ -89,7 +89,7 @@ describe Api::FlowResults::PackagesController do
       it "returns 404 when user cannot read project" do
         project2 = Project.make
 
-        account.id.should_not eq(project2.account.id)
+        expect(account.id).not_to eq(project2.account.id)
 
         call_flow = project2.call_flows.make :name => "Flow", :mode => :flow
         get :index, project_id: project2.id, call_flow_id: call_flow.id
@@ -116,7 +116,7 @@ describe Api::FlowResults::PackagesController do
 
       get :show, project_id: project.id, call_flow_id: call_flow.id, id: call_flow.current_data_package.uuid
 
-      response.should be_ok
+      expect(response).to be_ok
 
       json = JSON.parse response.body
       assert_json_api_compliance(json)
@@ -126,7 +126,7 @@ describe Api::FlowResults::PackagesController do
       JSON::Validator.validate!(schema, descriptor.to_json)
 
       expected_relationship_link = responses_api_project_call_flow_flow_results_package_url(project.id, call_flow.id, call_flow.current_data_package.uuid)
-      json["data"]["relationships"]["responses"]["links"]["related"].should eq(expected_relationship_link)
+      expect(json["data"]["relationships"]["responses"]["links"]["related"]).to eq(expected_relationship_link)
     end
 
     it "returns 404 when requested package is not current call flow package" do
@@ -138,7 +138,7 @@ describe Api::FlowResults::PackagesController do
     it "returns 404 when user cannot read project" do
       project2 = Project.make
 
-      account.id.should_not eq(project2.account.id)
+      expect(account.id).not_to eq(project2.account.id)
 
       call_flow = project2.call_flows.make :name => "Flow", :mode => :flow
       get :show, project_id: project2.id, call_flow_id: call_flow.id, id: call_flow.current_data_package.uuid
@@ -152,15 +152,15 @@ describe Api::FlowResults::PackagesController do
 
       get :responses, project_id: project.id, call_flow_id: call_flow.id, id: call_flow.current_data_package.uuid
 
-      response.should be_ok
+      expect(response).to be_ok
 
       json = JSON.parse response.body
       assert_json_api_compliance(json)
 
       data = json["data"]
-      data["type"].should eq("flow-results-data")
-      data["id"].should eq(call_flow.current_data_package.uuid)
-      data["attributes"]["responses"].should eq([])
+      expect(data["type"]).to eq("flow-results-data")
+      expect(data["id"]).to eq(call_flow.current_data_package.uuid)
+      expect(data["attributes"]["responses"]).to eq([])
     end
   end
 end

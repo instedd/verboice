@@ -25,14 +25,14 @@ describe ExternalService do
     external_service.url = 'http://service-url.com'
     xml = '<verboice-service><name>my_service</name></verboice-service>'
     response = double('response', :to_str => xml)
-    RestClient.should_receive(:get).with(external_service.url).and_return(response)
+    expect(RestClient).to receive(:get).with(external_service.url).and_return(response)
 
     external_service.update_manifest!
-    external_service.reload.xml.should eq(xml)
+    expect(external_service.reload.xml).to eq(xml)
   end
 
   it 'has empty global variables upon creation' do
-    external_service.global_variables.should be_empty
+    expect(external_service.global_variables).to be_empty
   end
 
   describe 'global settings' do
@@ -47,26 +47,26 @@ describe ExternalService do
 
       external_service.global_variables_attributes = attrs
 
-      external_service.global_variables.should have(1).items
+      expect(external_service.global_variables).to have(1).items
       variable = external_service.global_variables.first
-      variable.value.should eq('new_var_value_1')
+      expect(variable.value).to eq('new_var_value_1')
     end
 
     it 'should return global variables value' do
-      external_service.global_variable_value_for('var_name_1').should eq('var_value_1')
-      external_service.global_variable_value_for('var_name_2').should be_nil
+      expect(external_service.global_variable_value_for('var_name_1')).to eq('var_value_1')
+      expect(external_service.global_variable_value_for('var_name_2')).to be_nil
     end
   end
 
   describe 'clean call flows' do
     before(:each) do
-      external_service.stub(:call_flows).and_return([double('call_flow_1'), double('call_flow_2')])
+      allow(external_service).to receive(:call_flows).and_return([double('call_flow_1'), double('call_flow_2')])
     end
 
     it 'should clean associated call flows' do
       external_service.call_flows.each do |call_flow|
-        call_flow.should_receive(:clean_external_service).with(external_service)
-        call_flow.should_receive(:save!)
+        expect(call_flow).to receive(:clean_external_service).with(external_service)
+        expect(call_flow).to receive(:save!)
       end
 
       external_service.clean_call_flows

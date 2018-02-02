@@ -28,7 +28,7 @@ module Parsers
           'type' => 'mark_as_successful',
           'name' => 'MarkAsSuccessful'
 
-        mark_as_successful.equivalent_flow.first.should eq(
+        expect(mark_as_successful.equivalent_flow.first).to eq(
           Compiler.parse do |c|
             c.Label 1
             c.StartUserStep :mark_as_successful, 1, "MarkAsSuccessful"

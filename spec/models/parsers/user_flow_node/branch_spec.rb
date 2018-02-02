@@ -82,7 +82,7 @@ module Parsers
 
         branch.solve_links_with [ play1, play2, play3 ]
 
-        branch.equivalent_flow.first.should eq(
+        expect(branch.equivalent_flow.first).to eq(
           Compiler.parse do
             Label 1
             StartUserStep :branch, 1, "Branch number one"
@@ -121,8 +121,8 @@ module Parsers
       end
 
       it "should handle a branch input stream"do
-        (Branch.can_handle? 'id' => 27, 'type' => 'branch').should be(true)
-        (Branch.can_handle? 'id' => 27, 'type' => 'answer').should be(false)
+        expect(Branch.can_handle? 'id' => 27, 'type' => 'branch').to be(true)
+        expect(Branch.can_handle? 'id' => 27, 'type' => 'answer').to be(false)
       end
 
       it "should resolve it's next links from a given list of commands" do
@@ -146,8 +146,8 @@ module Parsers
           'resource' => {"guid" => 123}
 
         branch.solve_links_with [ play_1, play_2 ]
-        branch.options[0]['next'].should eq(play_1)
-        branch.options[1]['next'].should eq(play_2)
+        expect(branch.options[0]['next']).to eq(play_1)
+        expect(branch.options[1]['next']).to eq(play_2)
       end
 
       it "should respond if it's a root or not" do
@@ -158,8 +158,8 @@ module Parsers
         branch_2 = Branch.new call_flow, 'id' => 14,
           'type' => 'branch',
           'explanation_message' => {"guid" => 123}
-        branch_1.is_root?.should be(true)
-        branch_2.is_root?.should be(false)
+        expect(branch_1.is_root?).to be(true)
+        expect(branch_2.is_root?).to be(false)
       end
 
       def id

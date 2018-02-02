@@ -30,74 +30,74 @@ describe Api::CallsController do
 
   context "call" do
     before(:each) do
-      BrokerClient.stub(:notify_call_queued)
+      allow(BrokerClient).to receive(:notify_call_queued)
     end
 
     it "calls" do
       get :call, :address => 'foo', :channel => channel.name, :callback => 'bar'
       call_log = CallLog.last
       result = JSON.parse(@response.body)
-      result['call_id'].should == call_log.id
-      call_log.channel_id.should eq(channel.id)
+      expect(result['call_id']).to eq(call_log.id)
+      expect(call_log.channel_id).to eq(channel.id)
     end
 
     it "calls with channel id" do
       get :call, :address => 'foo', :channel_id => channel.id, :callback => 'bar'
       call_log = CallLog.last
       result = JSON.parse(@response.body)
-      result['call_id'].should == call_log.id
-      call_log.channel_id.should eq(channel.id)
+      expect(result['call_id']).to eq(call_log.id)
+      expect(call_log.channel_id).to eq(channel.id)
     end
 
     it "schedule call in the future" do
       time = Time.now.utc + 1.hour
       get :call, :address => 'foo', :not_before => time, :channel => channel.name
-      QueuedCall.first.not_before.time.to_i.should == time.to_i
+      expect(QueuedCall.first.not_before.time.to_i).to eq(time.to_i)
     end
 
     it "schedule call with deadline" do
       time = Time.now.utc + 1.hour
       get :call, :address => 'foo', :not_after => time, :channel => channel.name
-      QueuedCall.first.not_after.time.to_i.should == time.to_i
+      expect(QueuedCall.first.not_after.time.to_i).to eq(time.to_i)
     end
 
     it "doesn't schedule overdue call" do
       time = Time.now.utc - 1.hour
       get :call, :address => 'foo', :not_after => time, :channel => channel.name
-      QueuedCall.count.should be(0)
+      expect(QueuedCall.count).to be(0)
     end
 
     it "schedule call in specific schedule" do
       get :call, :address => 'foo', :channel => channel.name, :schedule => schedule.name
-      QueuedCall.first.schedule.should == schedule
+      expect(QueuedCall.first.schedule).to eq(schedule)
     end
 
     it "calls with call flow id" do
       call_flow_2 = CallFlow.make project: project
       get :call, :address => 'foo', :channel => channel.name, :callback => 'bar', :call_flow_id => call_flow_2.id
-      CallLog.last.call_flow.should eq(call_flow_2)
+      expect(CallLog.last.call_flow).to eq(call_flow_2)
     end
 
     it "calls with call flow name" do
       call_flow_2 = CallFlow.make project: project
       get :call, :address => 'foo', :channel => channel.name, :callback => 'bar', :call_flow => call_flow_2.name
-      CallLog.last.call_flow.should eq(call_flow_2)
+      expect(CallLog.last.call_flow).to eq(call_flow_2)
     end
 
     it "rejects a call without a channel" do
       get :call
-      response.should_not be_success
+      expect(response).not_to be_success
     end
 
     it "rejects a call with empty address" do
       get :call, :channel => channel.name
-      response.should_not be_success
+      expect(response).not_to be_success
     end
 
     it "rejects a call using a disabled channel" do
       channel.disable!
       get :call, :address => 'foo', :channel_id => channel.id, :callback => 'bar'
-      response.should_not be_success
+      expect(response).not_to be_success
     end
   end
 
@@ -106,8 +106,8 @@ describe Api::CallsController do
     call_log = CallLog.make :call_flow => CallFlow.make(project: project)
     get :state, :id => call_log.id.to_s
     result = JSON.parse(@response.body)
-    result['call_id'].should == call_log.id
-    result['state'].should == call_log.state.to_s
+    expect(result['call_id']).to eq(call_log.id)
+    expect(result['state']).to eq(call_log.state.to_s)
   end
 
   it "cancells a call" do
@@ -118,12 +118,12 @@ describe Api::CallsController do
     post :cancel, :id => call_log.id
 
     result = JSON.parse(@response.body)
-    result['call_id'].should eq(call_log.id)
-    result['state'].should eq('canceled')
+    expect(result['call_id']).to eq(call_log.id)
+    expect(result['state']).to eq('canceled')
 
     call_log = CallLog.find_by_id(call_log.id)
-    call_log.state.should eq(:canceled)
+    expect(call_log.state).to eq(:canceled)
 
-    QueuedCall.find_by_id(queued_call.id).should be_nil
+    expect(QueuedCall.find_by_id(queued_call.id)).to be_nil
   end
 end

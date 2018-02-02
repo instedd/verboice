@@ -26,15 +26,15 @@ describe ContactStats do
     it 'returns one stat object per given contact' do
       stats = ContactStats.for project
 
-      stats.length.should eq contacts.length
-      stats.map{|s| s.contact.id}.sort.should eq contacts.map(&:id).sort
+      expect(stats.length).to eq contacts.length
+      expect(stats.map{|s| s.contact.id}.sort).to eq contacts.map(&:id).sort
     end
 
     it 'is empty if the user never called' do
       stats = ContactStats.for project
 
       [:first_call, :last_call, :last_call_flow_name, :last_used_channel, :last_successful_call, :last_call_flow_name].each do |stat|
-        stats.map{|s| s.send(stat)}.should eq [nil, nil, nil]
+        expect(stats.map{|s| s.send(stat)}).to eq [nil, nil, nil]
       end      
     end
 
@@ -43,8 +43,8 @@ describe ContactStats do
       called '1111', at: Time.utc(2013, 1, 1, 0, 0, 0)
 
       stats = ContactStats.for project
-      stats.map{|s| s.first_call}.should eq [Time.utc(2012, 1, 1, 0, 0, 0), nil, nil]
-      stats.map{|s| s.last_call}.should eq [Time.utc(2013, 1, 1, 0, 0, 0), nil, nil]      
+      expect(stats.map{|s| s.first_call}).to eq [Time.utc(2012, 1, 1, 0, 0, 0), nil, nil]
+      expect(stats.map{|s| s.last_call}).to eq [Time.utc(2013, 1, 1, 0, 0, 0), nil, nil]      
     end
 
     it 'processes more than one call for the same contact but different addresses' do
@@ -52,8 +52,8 @@ describe ContactStats do
       called '1111', at: Time.utc(2013, 1, 1, 0, 0, 0)
 
       stats = ContactStats.for project
-      stats.map{|s| s.first_call}.should eq [Time.utc(2012, 1, 1, 0, 0, 0), nil, nil]
-      stats.map{|s| s.last_call}.should eq [Time.utc(2013, 1, 1, 0, 0, 0), nil, nil]
+      expect(stats.map{|s| s.first_call}).to eq [Time.utc(2012, 1, 1, 0, 0, 0), nil, nil]
+      expect(stats.map{|s| s.last_call}).to eq [Time.utc(2013, 1, 1, 0, 0, 0), nil, nil]
     end
 
     it 'processes more than one call for the same contact but different call flows' do
@@ -61,7 +61,7 @@ describe ContactStats do
       called '1111', at: Time.utc(2013, 1, 1, 0, 0, 0), flow: other_call_flow
 
       stats = ContactStats.for project
-      stats.map{|s| s.last_call_flow_name}.should eq ["Other callflow", nil, nil]
+      expect(stats.map{|s| s.last_call_flow_name}).to eq ["Other callflow", nil, nil]
     end
 
     it 'processes more than one call for the same contact but different channels' do
@@ -69,7 +69,7 @@ describe ContactStats do
       called '1111', at: Time.utc(2013, 1, 1, 0, 0, 0), through: other_channel
 
       stats = ContactStats.for project
-      stats.map{|s| s.last_used_channel}.should eq ["Other channel", nil, nil]
+      expect(stats.map{|s| s.last_used_channel}).to eq ["Other channel", nil, nil]
     end
 
     it 'processes successful and unsuccessful calls' do
@@ -78,10 +78,10 @@ describe ContactStats do
       called '1111', at: Time.utc(2014, 1, 1, 0, 0, 0), state: :failed, flow: other_call_flow
 
       stats = ContactStats.for project
-      stats.map{|s| s.first_call}.should eq [Time.utc(2012, 1, 1, 0, 0, 0), nil, nil]
-      stats.map{|s| s.last_call}.should eq [Time.utc(2014, 1, 1, 0, 0, 0), nil, nil]      
-      stats.map{|s| s.last_successful_call}.should eq [Time.utc(2013, 1, 1, 0, 0, 0), nil, nil]      
-      stats.map{|s| s.last_successful_call_flow_name}.should eq ["Other callflow", nil, nil]      
+      expect(stats.map{|s| s.first_call}).to eq [Time.utc(2012, 1, 1, 0, 0, 0), nil, nil]
+      expect(stats.map{|s| s.last_call}).to eq [Time.utc(2014, 1, 1, 0, 0, 0), nil, nil]      
+      expect(stats.map{|s| s.last_successful_call}).to eq [Time.utc(2013, 1, 1, 0, 0, 0), nil, nil]      
+      expect(stats.map{|s| s.last_successful_call_flow_name}).to eq ["Other callflow", nil, nil]      
     end
   end
 end

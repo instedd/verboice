@@ -20,7 +20,7 @@ require 'spec_helper'
 describe Parsers::UserFlow do
   let(:call_flow) do
     app = double('call_flow')
-    app.stub(:id).and_return 5
+    allow(app).to receive(:id).and_return 5
     app
   end
 
@@ -199,7 +199,7 @@ describe Parsers::UserFlow do
   end
 
   it "should retrieve an equivalent flow in verboice internal representation" do
-    (Parsers::UserFlow.new call_flow, user_flow).equivalent_flow.should eq(
+    expect((Parsers::UserFlow.new call_flow, user_flow).equivalent_flow).to eq(
       Compiler.make do
         Answer()
         StartUserStep :play, 1, "Play number one"
@@ -292,7 +292,7 @@ describe Parsers::UserFlow do
   end
 
   it "should provide a hash of step names and IDs" do
-    (Parsers::UserFlow.new call_flow, user_flow).step_names.should eq({
+    expect((Parsers::UserFlow.new call_flow, user_flow).step_names).to eq({
       27 => "Play number 27",
       3  => 'Menu number one',
       4  => 'Say number 4',

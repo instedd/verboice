@@ -29,7 +29,7 @@ describe SchedulesController do
   describe "GET index" do
     it "assigns all schedules as @schedules" do
       get :index, {:project_id => project.to_param}
-      controller.schedules.should eq([schedule])
+      expect(controller.schedules).to eq([schedule])
     end
   end
 
@@ -43,27 +43,27 @@ describe SchedulesController do
 
       it "assigns a newly created schedule as @schedule" do
         post :create, {:schedule => Schedule.plan, :project_id => project.to_param}
-        controller.schedule.should be_a(Schedule)
-        controller.schedule.should be_persisted
+        expect(controller.schedule).to be_a(Schedule)
+        expect(controller.schedule).to be_persisted
       end
 
       it "renders 'box_content' template" do
         post :create, {:schedule => Schedule.plan, :project_id => project.to_param}
-        response.should render_template('box_content')
+        expect(response).to render_template('box_content')
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved schedule as @schedule" do
-        Schedule.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Schedule).to receive(:save).and_return(false)
         post :create, {:schedule => {}, :project_id => project.to_param}
-        controller.schedule.should be_a_new(Schedule)
+        expect(controller.schedule).to be_a_new(Schedule)
       end
 
       it "re-renders the 'box_content' template" do
-        Schedule.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Schedule).to receive(:save).and_return(false)
         post :create, {:schedule => {}, :project_id => project.to_param}
-        response.should render_template("box_content")
+        expect(response).to render_template("box_content")
       end
     end
   end
@@ -72,31 +72,31 @@ describe SchedulesController do
     describe "with valid params" do
       it "updates the requested schedule" do
         put :update, {:project_id => project.id, :id => schedule.to_param, :schedule => {:name => 'new name'}}
-        schedule.reload.name.should eq('new name')
+        expect(schedule.reload.name).to eq('new name')
       end
 
       it "assigns the requested schedule as @schedule" do
         put :update, {:id => schedule.to_param, :schedule => Schedule.plan, :project_id => project.to_param}
-        controller.schedule.should eq(schedule)
+        expect(controller.schedule).to eq(schedule)
       end
 
       it "renders 'box_content' template" do
         put :update, {:id => schedule.to_param, :schedule => Schedule.plan, :project_id => project.to_param}
-        response.should render_template('box_content')
+        expect(response).to render_template('box_content')
       end
     end
 
     describe "with invalid params" do
       it "assigns the schedule as @schedule" do
-        Schedule.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Schedule).to receive(:save).and_return(false)
         put :update, {:id => schedule.to_param, :schedule => {}, :project_id => project.to_param}
-        controller.schedule.should eq(schedule)
+        expect(controller.schedule).to eq(schedule)
       end
 
       it "re-renders the 'box_content' template" do
-        Schedule.any_instance.stub(:save).and_return(false)
+        allow_any_instance_of(Schedule).to receive(:save).and_return(false)
         put :update, {:id => schedule.to_param, :schedule => {}, :project_id => project.to_param}
-        response.should render_template("box_content")
+        expect(response).to render_template("box_content")
       end
     end
   end
@@ -110,7 +110,7 @@ describe SchedulesController do
 
     it "redirects to the schedules list" do
       delete :destroy, {:id => schedule.to_param, :project_id => project.to_param}
-      response.should redirect_to(project_schedules_path(project))
+      expect(response).to redirect_to(project_schedules_path(project))
     end
   end
 end
