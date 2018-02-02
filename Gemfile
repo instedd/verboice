@@ -36,10 +36,11 @@ gem 'omniauth'
 gem 'omniauth-openid'
 gem 'recurring_select', git: "https://github.com/instedd/recurring_select", branch: 'instedd'
 gem 'listings', '~> 0.1.7'
-gem 'instedd_telemetry', github: "instedd/telemetry_rails", ref: "aee5fc99e3dbe06e6cdd077c8042a2ada0bb6995"
+gem 'instedd_telemetry', github: "instedd/telemetry_rails", branch: 'master'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
+  gem 'sass',         '~> 3.2.5'
   gem 'coffee-rails', '~> 3.2.2'
   gem 'uglifier', '>= 1.0.3'
 end
