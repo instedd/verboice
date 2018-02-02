@@ -9,7 +9,7 @@
     %p
       = label_tag :channel_id, 'Channel'
       %br/
-      = select_tag :channel_id, options_from_collection_for_select(channels, 'id', 'name'), :prompt => 'Select a Channel...', :class => 'w30'
+      = select_tag :channel_id, options_from_collection_for_select(channels, 'id', 'name', disabled: channels.select {|c| !c.enabled?}.map(&:id)), :prompt => 'Select a Channel...', :class => 'w30'
     %p
       = label_tag :schedule_id, 'Schedule'
       %br/

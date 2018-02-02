@@ -104,7 +104,7 @@ class ProjectsController < ApplicationController
 
   def load_enqueue_call_fields
     load_project
-    @channels = current_account.enabled_channels.all
+    @channels = current_account.channels.all
 
     shared_channels = current_account.shared_channels.all.map(&:channel)
     shared_channels.each { |c| c.name = "#{c.name} (shared)" }
