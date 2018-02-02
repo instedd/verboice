@@ -19,7 +19,8 @@
 ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
-require 'rspec/autorun'
+require 'devise'
+require 'shoulda/matchers'
 
 require 'webmock/rspec'
 require 'listings/rspec'
@@ -56,6 +57,8 @@ RSpec.configure do |config|
   # rspec-rails.
   config.infer_base_class_for_anonymous_controllers = false
 
+  config.infer_spec_type_from_file_location!
+
   # Exclude integration specs by default
   config.filter_run_excluding :integration => true unless config.filter_manager.inclusions[:integration]
 
@@ -64,6 +67,8 @@ RSpec.configure do |config|
   config.before(:each) do
     Timecop.return
   end
+
+  config.include Devise::TestHelpers, :type => :controller
 
   def expect_em_http(method, url, options = {})
     http = double('http')

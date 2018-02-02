@@ -18,8 +18,6 @@
 require 'spec_helper'
 
 describe OauthController do
-  include Devise::TestHelpers
-
   before(:each) do
     @account = Account.make
     sign_in @account

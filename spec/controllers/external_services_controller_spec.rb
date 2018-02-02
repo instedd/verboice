@@ -18,8 +18,6 @@
 require 'spec_helper'
 
 describe ExternalServicesController do
-  include Devise::TestHelpers
-
   before(:each) do
     sign_in account
   end

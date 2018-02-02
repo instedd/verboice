@@ -18,8 +18,6 @@
 require 'spec_helper'
 
 describe ResourcesController do
-  include Devise::TestHelpers
-
   before(:each) do
     @account = Account.make
     @project = @account.projects.make
@@ -53,7 +51,7 @@ describe ResourcesController do
     it "fails if the requested resource is not in current project" do
       expect {
         get :show, {:project_id => @project.id, :id => other_resource.to_param}
-      }.should raise_error
+      }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 

@@ -24,7 +24,6 @@ module Parsers
       let(:call_flow) { CallFlow.make }
 
       it "should compile to a verboice equivalent flow" do
-        File.stub(:exists?).and_return{true}
         mark_as_failed = HangUpAndCallBack.new call_flow, 'id' => 1,
           'type' => 'hang_up_and_call_back',
           'name' => 'HangUpAndCallBack'

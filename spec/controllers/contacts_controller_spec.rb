@@ -18,8 +18,6 @@
 require 'spec_helper'
 
 describe ContactsController do
-  include Devise::TestHelpers
-
   before(:each) do
     @account = Account.make
     @project = @account.projects.make
@@ -87,7 +85,7 @@ describe ContactsController do
     it "fails if the requested contact is not in current project" do
       expect {
         get :edit, {:project_id => @project.id, :id => other_contact.to_param}
-      }.should raise_error
+      }.to raise_error(ActiveRecord::RecordNotFound)
       assigns(:contact).should be_nil
     end
   end
@@ -167,7 +165,7 @@ describe ContactsController do
     it "fails if the requested contact is not in current project" do
       expect {
         put :update, {:project_id => @project.id, :id => other_contact.to_param}
-      }.should raise_error
+      }.to raise_error(ActiveRecord::RecordNotFound)
       assigns(:contact).should be_nil
     end
   end
@@ -187,7 +185,7 @@ describe ContactsController do
     it "fails if the requested contact is not in current project" do
       expect {
         delete :destroy, {:project_id => @project.id, :id => other_contact.to_param}
-      }.should raise_error
+      }.to raise_error(ActiveRecord::RecordNotFound)
       assigns(:contact).should be_nil
       Contact.find(other_contact.id).should eq(other_contact)
     end

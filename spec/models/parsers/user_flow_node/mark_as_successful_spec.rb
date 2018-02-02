@@ -24,7 +24,6 @@ module Parsers
       let(:call_flow) { CallFlow.make }
 
       it "should compile to a verboice equivalent flow" do
-        File.stub(:exists?).and_return{true}
         mark_as_successful = MarkAsSuccessful.new call_flow, 'id' => 1,
           'type' => 'mark_as_successful',
           'name' => 'MarkAsSuccessful'

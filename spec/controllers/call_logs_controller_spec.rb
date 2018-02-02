@@ -18,8 +18,6 @@
 require 'spec_helper'
 
 describe CallLogsController do
-  include Devise::TestHelpers
-
   let(:account) { Account.make }
   let(:project) { Project.make :account => account }
   let(:call_flow) { CallFlow.make :project => project }

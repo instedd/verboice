@@ -24,7 +24,6 @@ module Parsers
       let(:call_flow) { CallFlow.make }
 
       it "should compile to a verboice equivalent flow" do
-        File.stub(:exists?).and_return{true}
         capture = Capture.new call_flow,
           'id' => 1,
           'root' => true,
@@ -120,7 +119,6 @@ module Parsers
       end
 
       it "should accept an empty input" do
-        File.stub(:exists?).and_return{true}
         capture_flow = Compiler.parse do |c|
           c.Label 4
           c.StartUserStep :input, 4, "Capture"
@@ -160,7 +158,6 @@ module Parsers
       end
 
       it "should accept an empty input for all values" do
-        File.stub(:exists?).and_return{true}
         capture_flow = Compiler.parse do |c|
           c.Label 4
           c.StartUserStep :input, 4, "Capture"
@@ -193,7 +190,6 @@ module Parsers
       end
 
       it "should have a default next step" do
-        File.stub(:exists?).and_return{true}
         capture_flow = Compiler.parse do |c|
             c.Label 4
             c.StartUserStep :input, 4, "Capture"

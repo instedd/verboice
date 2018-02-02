@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe ChannelsController do
-  include Devise::TestHelpers
-
   let(:account) { Account.make }
   let(:project) { account.projects.make }
   let!(:call_flow) { CallFlow.make project: project }

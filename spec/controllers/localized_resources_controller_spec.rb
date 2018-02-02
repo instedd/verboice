@@ -18,8 +18,6 @@
 require 'spec_helper'
 
 describe LocalizedResourcesController do
-  include Devise::TestHelpers
-
   before(:each) do
     @account = Account.make
     @project = @account.projects.make
@@ -52,8 +50,8 @@ describe LocalizedResourcesController do
     describe "GET play_recording" do
 
       it "should return audio" do
-        controller.should_receive(:send_data).with(@localized_resource.recorded_audio).and_return{controller.render :nothing => true}
         get :play_recording, {:project_id => @project.id, :resource_id => @resource.id, :id => @localized_resource.id}
+        response.body.should eql @localized_resource.recorded_audio
       end
 
     end
@@ -89,8 +87,10 @@ describe LocalizedResourcesController do
     describe "GET play_file" do
 
       it "should return file" do
-        controller.should_receive(:send_data).with(@localized_resource.uploaded_audio, :filename => @localized_resource.filename).and_return{controller.render :nothing => true}
+        # controller.should_receive(:send_data).with(@localized_resource.uploaded_audio, :filename => @localized_resource.filename).and_return(controller.render :nothing => true)
         get :play_file, {:project_id => @project.id, :resource_id => @resource.id, :id => @localized_resource.id}
+        response.body.should eql @localized_resource.uploaded_audio
+        response.headers["Content-Disposition"].should eql "attachment; filename=\"#{@localized_resource.filename}\""
       end
 
     end

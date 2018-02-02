@@ -18,8 +18,6 @@
 require 'spec_helper'
 
 describe ProjectsController do
-  include Devise::TestHelpers
-
   let!(:account) { Account.make }
   let!(:project) { Project.make :account => account }
 
@@ -190,7 +188,7 @@ describe ProjectsController do
     it 'should fail if there is no call flow' do
       expect {
         post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id
-      }.to_not change(QueuedCall, :count).by(1)
+      }.to_not change(QueuedCall, :count)
       response.should be_redirect
       flash[:error].should eq('You need to select a Call Flow')
     end
@@ -199,9 +197,9 @@ describe ProjectsController do
       channel.disable!
       expect {
         post :enqueue_call, :id => project.id, :addresses => "1", :channel_id => channel.id, :schedule_id => schedule.id, :call_flow_id => call_flow.id
-      }.to_not change(QueuedCall, :count).by(1)
+      }.to_not change(QueuedCall, :count)
       response.should be_redirect
-      flash[:error].should eq('You need to select a channel')
+      flash[:error].should eq('The channel is disabled')
     end
 
     it 'should not enqueue multiple calls to the same number' do

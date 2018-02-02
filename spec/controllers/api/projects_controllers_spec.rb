@@ -18,11 +18,10 @@
 require 'spec_helper'
 
 describe Api::ProjectsController do
-  include Devise::TestHelpers
-
   before(:each) do
     sign_in account
   end
+
   let!(:account) { Account.make }
   let!(:project) { account.projects.make }
   let!(:call_flow) { project.call_flows.make }

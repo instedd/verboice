@@ -18,10 +18,7 @@
 require 'spec_helper'
 
 describe Api::LogsController do
-  include Devise::TestHelpers
-
   describe 'list' do
-
     before(:each) do
       @call = CallLog.make
       @other_call = CallLog.make

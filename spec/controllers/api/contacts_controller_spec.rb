@@ -18,8 +18,6 @@
 require 'spec_helper'
 
 describe Api::ContactsController do
-  include Devise::TestHelpers
-
   let!(:account) { Account.make }
   let!(:project) { Project.make account: account }
   let!(:contact) { project.contacts.make }

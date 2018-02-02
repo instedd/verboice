@@ -68,8 +68,8 @@ group :development do
 end
 
 group :test do
-  gem 'test-unit-minitest', require: nil # Needed for backwards compatibility of ruby 2.x with ralis 3.2
-  gem "shoulda-matchers"
+  gem 'test-unit'
+  gem "shoulda-matchers", require: false
   gem 'webmock'
   gem 'fakefs', :require => 'fakefs/safe'
   gem 'database_cleaner'

@@ -18,11 +18,10 @@
 require 'spec_helper'
 
 describe Api::SchedulesController do
-  include Devise::TestHelpers
-
   before(:each) do
     sign_in account
   end
+
   let!(:account) { Account.make }
   let!(:project) { Project.make account: account }
   let(:schedule) { Schedule.make project: project }

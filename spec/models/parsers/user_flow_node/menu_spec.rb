@@ -23,7 +23,6 @@ module Parsers
 
       let(:call_flow) { CallFlow.make }
       it "should compile to a verboice equivalent flow" do
-        File.stub(:exists?).and_return{true}
         menu = Menu.new call_flow, 'id' => 1,
           'type' => 'menu',
           'name' => 'Menu number one',
@@ -165,8 +164,8 @@ module Parsers
       end
 
       it "should handle a menu input stream"do
-        (Menu.can_handle? 'id' => 27, 'type' => 'menu').should be_true
-        (Menu.can_handle? 'id' => 27, 'type' => 'answer').should be_false
+        (Menu.can_handle? 'id' => 27, 'type' => 'menu').should be true
+        (Menu.can_handle? 'id' => 27, 'type' => 'answer').should be false
       end
 
       it "should build with a collection of options" do
@@ -222,8 +221,8 @@ module Parsers
           'type' => 'menu'
         menu_2 = Menu.new call_flow, 'id' => 14,
           'type' => 'menu'
-        menu_1.is_root?.should be_true
-        menu_2.is_root?.should be_false
+        menu_1.is_root?.should be true
+        menu_2.is_root?.should be false
       end
     end
   end
