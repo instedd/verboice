@@ -68,6 +68,7 @@ group :development do
   gem 'licit'
   gem 'thin'
   gem 'rails-dev-tweaks'
+  gem 'zeus'
 end
 
 group :test do

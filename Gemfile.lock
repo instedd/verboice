@@ -386,6 +386,8 @@ GEM
     webmock (1.7.10)
       addressable (~> 2.2, > 2.2.5)
       crack (>= 0.1.7)
+    zeus (0.15.14)
+      method_source (>= 0.6.7)
     zip-zip (0.3)
       rubyzip (>= 1.0.0)
 
@@ -453,4 +455,5 @@ DEPENDENCIES
   timecop
   uglifier (>= 1.0.3)
   webmock
+  zeus
   zip-zip
