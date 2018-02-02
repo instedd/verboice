@@ -117,17 +117,20 @@ run_queued_call_if_before_not_after() ->
 
 dont_run_queued_call_if_not_after() ->
   mock_broker:start(),
-  meck:new(channel_queue),
 
   Project = project:make(),
   Flow = call_flow:make([{project_id, Project}, {broker_flow, [answer, hangup]}]),
   Channel = channel:make([{call_flow_id, Flow}]),
   NotAfter = util:time_from_now(-6000),
-  queued_call:make([{project_id, Project}, {channel_id, Channel}, {call_flow_id, Flow}, {address, <<"123">>}, {not_after, NotAfter}]),
+  QueuedCall = queued_call:make([{project_id, Project}, {channel_id, Channel}, {call_flow_id, Flow}, {address, <<"123">>}, {not_after, NotAfter}]),
   scheduler:load(),
 
-  QueuedCalls = gen_server:call(scheduler, get_queued_calls),
-  ?assertEqual([], QueuedCalls).
+  % TODO: add some hookup to the broker in order to properly test this.
+  timer:sleep(1000),
+
+  CallLog = call_log:find(QueuedCall#queued_call.call_log_id),
+
+  ?assertEqual(<<"expired">>, CallLog#call_log.state).
 
 play_resource_with_default_language() ->
   Project = project:make(),

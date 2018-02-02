@@ -16,7 +16,8 @@ gem 'attr_encrypted'
 gem 'foreman'
 gem 'oauth2', :require => 'oauth2'
 gem 'delayed_job_active_record'
-gem 'rubyzip', :require => 'zip/zip'
+gem 'rubyzip'
+gem 'zip-zip'
 gem 'rest-client'
 gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribute.git"
 gem 'csv_builder'
@@ -56,6 +57,7 @@ group :development, :test do
   gem 'syntax'
   gem 'timecop'
   gem 'quiet_assets'
+  gem 'json-schema'
 end
 
 group :development do
@@ -65,6 +67,7 @@ group :development do
   gem 'licit'
   gem 'thin'
   gem 'rails-dev-tweaks'
+  gem 'zeus'
 end
 
 group :test do

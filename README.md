@@ -37,6 +37,17 @@ $ docker-compose run --rm web rake db:test:prepare
 $ docker-compose run --rm web rspec
 ```
 
+Testing with Zeus
+-----------------
+
+Compounding Docker and Rails load times makes for a terrible out of the box testing experience. To mitigate that, we use Zeus (https://github.com/burke/zeus). Zeus pre-loads your Rails application so you only pay the initialization cost once.
+
+The `Dockerfile.dev` creates an image with Zeus already installed on it. To run tests with Zeus, first you need to:
+
+1. From the app root, run: `zeus init`. This is a one time process that will create a couple of files `custom_plan.rb` and `zeus.json`.
+1. To start Zeus, from the app root, run: `zeus start`.
+1. From another terminal, run `zeus test spec` to run tests.
+
 Deploying with Capistrano
 -------------------------
 

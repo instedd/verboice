@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20170124193643) do
+ActiveRecord::Schema.define(:version => 20171211152836) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -226,6 +226,18 @@ ActiveRecord::Schema.define(:version => 20170124193643) do
 
   add_index "feeds", ["key"], :name => "index_feeds_on_key"
   add_index "feeds", ["project_id"], :name => "index_feeds_on_project_id"
+
+  create_table "flow_results_data_packages", :force => true do |t|
+    t.string   "uuid"
+    t.integer  "call_flow_id"
+    t.datetime "from"
+    t.datetime "until"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "flow_results_data_packages", ["call_flow_id"], :name => "index_flow_results_data_packages_on_call_flow_id"
+  add_index "flow_results_data_packages", ["uuid"], :name => "index_flow_results_data_packages_on_uuid"
 
   create_table "hibernated_sessions", :force => true do |t|
     t.string   "session_id"

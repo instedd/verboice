@@ -1,6 +1,6 @@
 -module(queued_call).
 -compile([{parse_transform, lager_transform}]).
--export([reschedule/1, start_session/1]).
+-export([reschedule/1, start_session/1, should_skip/2, should_skip/1]).
 -define(TABLE_NAME, "queued_calls").
 -include("session.hrl").
 -define(MAP, [
@@ -65,6 +65,8 @@ start_session(Session, QueuedCall) ->
     queued_call = QueuedCall,
     project = Project
   }.
+
+should_skip(QueuedCall) -> should_skip(QueuedCall, calendar:universal_time()).
 
 should_skip(#queued_call{not_after = undefined}, _) -> false;
 should_skip(#queued_call{not_after = {datetime, NotAfter}}, RetryTime) ->

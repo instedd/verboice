@@ -155,7 +155,7 @@ GEM
     delayed_job_active_record (4.0.1)
       activerecord (>= 3.0, < 4.2)
       delayed_job (>= 3.0, < 4.1)
-    devise (1.5.2)
+    devise (1.5.4)
       bcrypt-ruby (~> 3.0)
       orm_adapter (~> 0.0.3)
       warden (~> 1.1)
@@ -219,10 +219,12 @@ GEM
       haml-rails
       rails (>= 3.0)
     journey (1.0.4)
-    jquery-rails (3.1.2)
+    jquery-rails (3.1.4)
       railties (>= 3.0, < 5.0)
       thor (>= 0.14, < 2.0)
     json (1.8.6)
+    json-schema (2.5.0)
+      addressable (~> 2.3)
     kaminari (0.17.0)
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
@@ -234,11 +236,12 @@ GEM
       kaminari
       rails
       sass-rails
-    mail (2.5.4)
+    mail (2.5.5)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     meta_programming (0.2.2)
     metaclass (0.0.1)
+    method_source (0.9.0)
     mime-types (1.25.1)
     mini_portile (0.6.2)
     mocha (0.10.5)
@@ -253,7 +256,7 @@ GEM
     net-ssh (2.9.4)
     net-ssh-gateway (1.2.0)
       net-ssh (>= 2.6.5)
-    netrc (0.10.2)
+    netrc (0.11.0)
     newrelic_rpm (3.7.3.204)
     nokogiri (1.6.6.2)
       mini_portile (~> 0.6.0)
@@ -312,7 +315,7 @@ GEM
     rake (12.0.0)
     rdoc (3.12.2)
       json (~> 1.4)
-    rest-client (1.7.2)
+    rest-client (1.7.3)
       mime-types (>= 1.16, < 3.0)
       netrc (~> 0.7)
     rspec (3.6.0)
@@ -339,7 +342,7 @@ GEM
       rspec-support (~> 3.6.0)
     rspec-support (3.6.0)
     ruby-openid (2.5.0)
-    rubyzip (0.9.6.1)
+    rubyzip (1.2.1)
     rvm (1.11.3.3)
     rvm-capistrano (1.0.2)
       capistrano (>= 2.0.0)
@@ -381,6 +384,10 @@ GEM
     webmock (1.7.10)
       addressable (~> 2.2, > 2.2.5)
       crack (>= 0.1.7)
+    zeus (0.15.14)
+      method_source (>= 0.6.7)
+    zip-zip (0.3)
+      rubyzip (>= 1.0.0)
 
 PLATFORMS
   ruby
@@ -413,6 +420,7 @@ DEPENDENCIES
   instedd-rails
   instedd_telemetry!
   jquery-rails
+  json-schema
   language_list
   licit
   listings (~> 0.1.7)
@@ -446,6 +454,8 @@ DEPENDENCIES
   timecop
   uglifier (>= 1.0.3)
   webmock
+  zeus
+  zip-zip
 
 BUNDLED WITH
    1.15.4

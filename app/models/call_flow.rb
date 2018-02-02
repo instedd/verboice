@@ -30,6 +30,7 @@ class CallFlow < ActiveRecord::Base
   has_many :call_flow_external_services, :dependent => :destroy
   has_many :external_services, :through => :call_flow_external_services
   has_many :impersonate_records, :dependent => :destroy
+  has_many :flow_results_data_packages, :dependent => :destroy, :autosave => true
 
   has_one :account, :through => :project
   has_one :google_oauth_token, :through => :account
@@ -50,7 +51,8 @@ class CallFlow < ActiveRecord::Base
   before_save :clear_flow, :if => lambda { mode_callback_url?}
   before_save :clear_callback_url, :if => lambda { mode_flow? }
   before_save :update_flow_with_user_flow
-  
+  before_save :update_data_package
+
   enum_attr :mode, %w(callback_url ^flow)
   config_accessor :callback_url_user, :callback_url_password
   attr_encrypted :config, :key => ENCRYPTION_KEY, :marshal => true
@@ -118,6 +120,12 @@ class CallFlow < ActiveRecord::Base
     @force_update_flow_with_user_flow = true
   end
 
+  def current_data_package
+    # A call flow has many historical data packages.
+    # The current one is the only one whose period hasn't ended (i.e.: until == nil)
+    flow_results_data_packages.find_by_until(nil)
+  end
+
   private
 
   def set_name_to_callback_url
@@ -136,6 +144,20 @@ class CallFlow < ActiveRecord::Base
     true
   end
 
+  def update_data_package
+    update_time = Time.now
+
+    if (mode_changed? && mode != :flow) || user_flow_changed?
+      close_package(update_time)
+    end
+
+    if mode == :flow && (new_record? || user_flow_changed? || mode_changed?)
+      new_flow_results_data_package(update_time)
+    end
+
+    true
+  end
+
   def clear_flow
     self.flow = self.user_flow = nil
     true
@@ -150,6 +172,19 @@ class CallFlow < ActiveRecord::Base
     external_services = ExternalService.where('guid in (?)', guids)
     external_services.each do |external_service|
       self.call_flow_external_services.build external_service: external_service
+    end
+  end
+
+  def new_flow_results_data_package(from)
+    self.flow_results_data_packages.build(:uuid => SecureRandom.uuid, :from => from)
+  end
+
+  def close_package(update_time)
+    old_package = current_data_package
+
+    if (old_package)
+      old_package.until = update_time
+      old_package.save!
     end
   end
 end

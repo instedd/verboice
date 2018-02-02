@@ -80,16 +80,8 @@ load_queued_calls(State = #state{last_id = LastId}) ->
 process_call(Call, State = #state{last_id = LastId, waiting_calls = WaitingCalls}) ->
   NewWaitingCalls = case should_trigger(Call) of
     true ->
-      case should_skip(Call) of
-        false ->
-          channel_queue:enqueue(Call),
-          WaitingCalls;
-        true ->
-          poirot:log(info, "Call 'not after' date overdue ~p", [Call#queued_call.id]),
-          Call:delete(),
-          io:format("call: ~p~n", [Call]),
-          WaitingCalls
-      end;
+      channel_queue:enqueue(Call),
+      WaitingCalls;
     false ->
       enqueue(Call, WaitingCalls)
   end,
@@ -117,8 +109,3 @@ should_trigger(#queued_call{not_before = undefined}) -> true;
 should_trigger(#queued_call{not_before = {datetime, NotBefore}}) ->
   NotBefore =< calendar:universal_time();
 should_trigger(_) -> false.
-
-should_skip(#queued_call{not_after = undefined}) -> false;
-should_skip(#queued_call{not_after = {datetime, NotAfter}}) ->
-  NotAfter =< calendar:universal_time();
-should_skip(_) -> false.
