@@ -279,11 +279,18 @@ class Channel < ActiveRecord::Base
 
   def as_json(options = {})
     options = { only: [:id, :name, :config, :account_id, :guid] }.merge(options)
-    super(options).merge({
+    json = super(options).merge({
       kind: kind.try(:downcase).try(:gsub, ' ', '_'),
       call_flow: call_flow.try(:name),
       call_flow_id: call_flow.try(:id),
       enabled: enabled
     })
+
+    render_account_id = options[:account_id]
+    if render_account_id && render_account_id != account_id
+      json.merge!({shared_by: account.email})
+    end
+
+    json
   end
 end

@@ -32,7 +32,7 @@ module Api
       channel = current_account.channels.find_by_id(id) || current_account.shared_channels.find_by_model_id(id).try(:channel)
 
       if channel.present?
-        render :json => channel
+        render :json => channel.to_json(account_id: current_account.id)
       else
         head :not_found
       end
@@ -107,7 +107,7 @@ module Api
     def all
       owned_channels = current_account.channels.all
       shared_channels = current_account.shared_channels.all.map(&:channel)
-      render :json => (owned_channels + shared_channels).uniq
+      render json: (owned_channels + shared_channels).uniq.to_json(account_id: current_account.id)
     end
 
   end

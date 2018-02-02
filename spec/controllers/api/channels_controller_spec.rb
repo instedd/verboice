@@ -66,7 +66,7 @@ describe Api::ChannelsController do
       get :get_by_id, :id => shared_read_chan.id
 
       assert_response :ok
-      response.body.should eq(shared_read_chan.to_json)
+      response.body.should eq(shared_read_chan.to_json(account_id: @account.id))
     end
   end
 
@@ -107,7 +107,7 @@ describe Api::ChannelsController do
       get :all
 
       assert_response :ok
-      response.body.should eq([chan, shared_read_chan, shared_admin_chan].to_json)
+      response.body.should eq([chan, shared_read_chan, shared_admin_chan].to_json(account_id: @account.id))
     end
   end
 
