@@ -1,5 +1,12 @@
 GIT
-  remote: git://github.com/instedd/alto_guisso.git
+  remote: https://github.com/edave/enumerated_attribute.git
+  revision: ec1021d11874f37d30589f91814d069884348fdf
+  specs:
+    enumerated_attribute (0.2.16)
+      meta_programming (>= 0.2.1)
+
+GIT
+  remote: https://github.com/instedd/alto_guisso.git
   revision: f9452bb8eb0b8a2788b3f290d5bdb4f545f89427
   branch: master
   specs:
@@ -7,7 +14,7 @@ GIT
       rack-oauth2
 
 GIT
-  remote: git://github.com/instedd/alto_guisso_rails.git
+  remote: https://github.com/instedd/alto_guisso_rails.git
   revision: 9d4aa030f4e02ce63014aa7519078780e2eb25d0
   branch: master
   specs:
@@ -18,32 +25,6 @@ GIT
       rack-oauth2
       rails (>= 3.0)
       ruby-openid
-
-GIT
-  remote: git://github.com/instedd/ruby-hub_client.git
-  revision: dc96567ccd1a1c5e1f3eb851c86da6cd8c6c64f8
-  branch: master
-  specs:
-    hub_client (0.0.1)
-      alto_guisso
-      rest-client
-
-GIT
-  remote: git://github.com/instedd/telemetry_rails.git
-  revision: 9c15d46229960ec9052d25cb7769298ffbdfb614
-  branch: master
-  specs:
-    instedd_telemetry (0.0.1)
-      global_phone
-      global_phone_dbgen
-      rails
-
-GIT
-  remote: https://github.com/edave/enumerated_attribute.git
-  revision: ec1021d11874f37d30589f91814d069884348fdf
-  specs:
-    enumerated_attribute (0.2.16)
-      meta_programming (>= 0.2.1)
 
 GIT
   remote: https://github.com/instedd/poirot.git
@@ -76,6 +57,25 @@ GIT
       jquery-rails (>= 3.0)
       rails (>= 3.2)
       sass-rails (>= 3.1)
+
+GIT
+  remote: https://github.com/instedd/ruby-hub_client.git
+  revision: dc96567ccd1a1c5e1f3eb851c86da6cd8c6c64f8
+  branch: master
+  specs:
+    hub_client (0.0.1)
+      alto_guisso
+      rest-client
+
+GIT
+  remote: https://github.com/instedd/telemetry_rails.git
+  revision: 9c15d46229960ec9052d25cb7769298ffbdfb614
+  branch: master
+  specs:
+    instedd_telemetry (0.0.1)
+      global_phone
+      global_phone_dbgen
+      rails
 
 GIT
   remote: https://github.com/tbuehl/machinist.git
