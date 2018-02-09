@@ -26,6 +26,7 @@ RUN mkdir -p tmp/www log
 RUN make compile
 
 ENV BROKER_BIND=any
+ENV ERL_CRASH_DUMP_SECONDS=0
 
 # Run
 CMD make run
