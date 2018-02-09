@@ -31,7 +31,7 @@ check_all() ->
   end.
 
 verify_write_permission_on_sip_file(FileName) ->
-  {ok, BaseConfigPath} = application:get_env(verboice, asterisk_config_dir),
+  BaseConfigPath = verboice_config:asterisk_config_dir(),
   case filelib:is_dir(BaseConfigPath) of
     false ->
       [{status, error}, {message, list_to_binary("Asterisk config dir does not exist.")}];
@@ -47,13 +47,13 @@ verify_write_permission_on_sip_file(FileName) ->
   end.
 
 verify_write_permission_on_audio_directory() ->
-  {ok, AudioDirPath} = application:get_env(verboice, asterisk_sounds_dir),
+  AudioDirPath = verboice_config:asterisk_sounds_dir(),
   AudioTestDir = filename:join([AudioDirPath, "verboice"]),
   AudioTestFile = filename:join([AudioTestDir,  "test" ++ ".gsm"]),
   verify_write_permission_on_directory(AudioTestDir, "audio files", AudioTestFile).
 
 verify_write_permission_on_recording_directory() ->
-  {ok, RecordDir} = application:get_env(verboice, record_dir),
+  RecordDir = verboice_config:record_dir(),
   RecordTestFile = filename:join([RecordDir, util:to_string("sanity_check"), "results", "test" ++ ".wav"]),
   filelib:ensure_dir(RecordTestFile),
   verify_write_permission_on_directory(RecordDir, "recording files", RecordTestFile).

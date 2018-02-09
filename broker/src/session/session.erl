@@ -351,7 +351,7 @@ notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, add
 notify_status_to_hub(Status, Session = #session{call_log = CallLog, js_context = JS, project = Project}) ->
   case Status of
     completed ->
-      HubEnabled = application:get_env(verboice, hub_enabled, false),
+      HubEnabled = verboice_config:hub_enabled(),
       case HubEnabled of
         false ->
           ok;
@@ -542,7 +542,7 @@ default_variables(#session{address = Address, contact = Contact, queued_call = Q
 create_default_erjs_context(CallLogId, PhoneNumber) ->
   erjs_context:new([
     {record_url, fun(Key) ->
-      {ok, BaseUrl} = application:get_env(base_url),
+      BaseUrl = verboice_config:base_url(),
       BaseUrl ++ "/calls/" ++ CallLogId ++ "/results/" ++ util:to_string(Key)
     end},
     {'_get_var', fun(Name, Context) ->
@@ -566,12 +566,7 @@ create_default_erjs_context(CallLogId, PhoneNumber) ->
         Result
       end},
     {phone_number, util:to_string(PhoneNumber)},
-    {<<"hub_url">>, begin
-      case application:get_env(verboice, hub_url) of
-        {ok, HubUrl} -> HubUrl;
-        _ -> ""
-      end
-    end}
+    {<<"hub_url">>, verboice_config:hub_url()}
   ]).
 
 initialize_context(Context, #queued_call{variables = Vars}) ->

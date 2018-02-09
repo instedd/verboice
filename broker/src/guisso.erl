@@ -8,9 +8,9 @@ get_trusted_token(App, Email) ->
   oauth2:client_credentials_token(oauth2_config(), Scope).
 
 oauth2_config() ->
-  {ok, Url} = application:get_env(verboice, guisso_url),
-  {ok, ClientId} = application:get_env(verboice, guisso_client_id),
-  {ok, ClientSecret} = application:get_env(verboice, guisso_client_secret),
+  Url = verboice_config:guisso_url(),
+  ClientId = verboice_config:guisso_client_id(),
+  ClientSecret = verboice_config:guisso_client_secret(),
 
   #oauth2_config{
     base_url = Url,

@@ -71,3 +71,6 @@ dialyzer: compile .apps.plt .deps.plt
 
 release:
 	./rebar generate skip_deps=true
+
+xref: compile
+	./rebar xref skip_deps=true

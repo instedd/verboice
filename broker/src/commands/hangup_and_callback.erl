@@ -36,7 +36,7 @@ run(Args, Session) ->
       scheduler:enqueue(QueuedCall),
       {hibernate, Session};
     _ ->
-      NotBefore = util:time_from_now(application:get_env(verboice, seconds_for_call_back, 15)),
+      NotBefore = util:time_from_now(verboice_config:seconds_for_call_back()),
       scheduler:enqueue(#queued_call{
         not_before = {datetime, NotBefore},
         session_id = Session#session.session_id,

@@ -36,11 +36,11 @@ filename(RecordDir, CallLogId, Key) ->
   filename:join([RecordDir, util:to_string(CallLogId), "results", Key ++ ".wav"]).
 
 local_filename(CallLogId, Key) ->
-  {ok, RecordDir} = application:get_env(record_dir),
+  RecordDir = verboice_config:record_dir(),
   filename(RecordDir, CallLogId, Key).
 
 asterisk_filename(CallLogId, Key) ->
-  case application:get_env(asterisk_record_dir) of
-    {ok, RecordDir} -> filename(RecordDir, CallLogId, Key);
-    _ -> local_filename(CallLogId, Key)
+  case verboice_config:asterisk_record_dir() of
+    undefined -> local_filename(CallLogId, Key);
+    RecordDir -> filename(RecordDir, CallLogId, Key)
   end.

@@ -25,7 +25,7 @@ destroy_channel(Id) -> twilio_channel_srv:channel_destroyed(Id), ok.
 dispatch(_Session = #session{session_id = SessionId, channel = Channel, address = Address}) ->
   AccountSid = channel:account_sid(Channel),
   AuthToken = channel:auth_token(Channel),
-  {ok, CallbackUrl} = application:get_env(twilio_callback_url),
+  CallbackUrl = verboice_config:twilio_callback_url(),
   CallbackUri = uri:parse(CallbackUrl),
 
   RequestUrl = ["https://api.twilio.com/2010-04-01/Accounts/", AccountSid, "/Calls"],

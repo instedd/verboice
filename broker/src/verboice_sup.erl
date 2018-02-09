@@ -35,13 +35,10 @@ pbx_supervisors() -> [].
 
 
 init([]) ->
-  {ok, DbName} = application:get_env(db_name),
-  {ok, DbUser} = application:get_env(db_user),
-  {ok, DbPass} = application:get_env(db_pass),
-  DbHost = case application:get_env(db_host) of
-    {ok, Value} -> Value;
-    undefined -> "localhost"
-  end,
+  DbName = verboice_config:db_name(),
+  DbUser = verboice_config:db_user(),
+  DbPass = verboice_config:db_pass(),
+  DbHost = verboice_config:db_host(),
 
   {ok, { {one_for_one, 5, 10}, [
     {mysql, {mysql, start_link, [db, DbHost, undefined, DbUser, DbPass, DbName, fun log/4, utf8]},

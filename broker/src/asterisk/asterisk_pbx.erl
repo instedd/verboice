@@ -9,7 +9,7 @@ new(Pid) ->
 pid({?MODULE, Pid}) -> Pid.
 
 sound_path_for(Name, _) ->
-  {ok, SoundsDir} = application:get_env(asterisk_sounds_dir),
+  SoundsDir = verboice_config:asterisk_sounds_dir(),
   filename:join([SoundsDir, "verboice", Name ++ ".gsm"]).
 
 sound_quality(_) ->

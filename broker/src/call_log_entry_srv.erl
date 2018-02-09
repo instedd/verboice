@@ -19,13 +19,10 @@ trace(CallLogId, CallFlowId, StepId, StepName, Result) ->
 %% @private
 init({}) ->
   poirot_local_saver:start(),
-  {ok, DbName} = application:get_env(db_name),
-  {ok, DbUser} = application:get_env(db_user),
-  {ok, DbPass} = application:get_env(db_pass),
-  DbHost = case application:get_env(db_host) of
-    {ok, Value} -> Value;
-    undefined -> "localhost"
-  end,
+  DbName = verboice_config:db_name(),
+  DbUser = verboice_config:db_user(),
+  DbPass = verboice_config:db_pass(),
+  DbHost = verboice_config:db_host(),
 
   mysql:connect(log, DbHost, undefined, DbUser, DbPass, DbName, true),
   db:set_db(log),

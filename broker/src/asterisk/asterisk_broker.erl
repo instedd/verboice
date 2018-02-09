@@ -42,8 +42,8 @@ dial_address(Channel = #channel{id = Id}, Address) ->
 
 dispatch(#session{session_id = SessionId, channel = Channel, address = Address}) ->
   DialAddress = dial_address(Channel, Address),
-  {ok, BrokerPort} = application:get_env(broker_port),
-  BrokerHost = application:get_env(verboice, broker_host, "localhost"),
+  BrokerHost = verboice_config:broker_host(),
+  BrokerPort = verboice_config:broker_port(),
   ami_client:originate([
     {channel, DialAddress},
     {application, "AGI"},

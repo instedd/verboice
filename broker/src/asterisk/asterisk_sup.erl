@@ -23,11 +23,8 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    AmiHost = case os:getenv("AMI_HOST") of
-      false -> application:get_env(verboice, ami_host, "localhost");
-      EnvHost -> EnvHost
-    end,
-    AmiPort = application:get_env(verboice, ami_port, 5038),
+    AmiHost = verboice_config:ami_host(),
+    AmiPort = verboice_config:ami_port(),
     {ok, { {one_for_all, 5, 10}, [
       ?CHILD(ami_client, worker, [{ami_host, AmiHost}, {ami_port, AmiPort}]),
       ?CHILD(ami_events, worker),

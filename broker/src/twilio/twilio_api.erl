@@ -24,7 +24,7 @@ update_voice_url(Channel, PhoneNumber) ->
       AccountSid = channel:account_sid(Channel),
       AuthToken = channel:auth_token(Channel),
       RequestUrl = "https://api.twilio.com/2010-04-01/Accounts/" ++ AccountSid ++ "/IncomingPhoneNumbers/" ++ binary_to_list(PhoneSid) ++ ".json",
-      {ok, TwilioCallbackUrl} = application:get_env(twilio_callback_url),
+      TwilioCallbackUrl = verboice_config:twilio_callback_url(),
       RequestBody = [{'VoiceUrl', list_to_binary(TwilioCallbackUrl)}],
       uri:post_form(RequestBody, [{basic_auth, {AccountSid, AuthToken}}], RequestUrl),
       ok;

@@ -25,5 +25,7 @@ RUN mkdir -p tmp/www log
 # Compile
 RUN make compile
 
+ENV BROKER_BIND=any
+
 # Run
 CMD make run

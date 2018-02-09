@@ -5,7 +5,7 @@ load(Config) ->
   case Config of
     undefined -> [];
     CryptConfig ->
-      {ok, Secret} = application:get_env(verboice, crypt_secret),
+      Secret = verboice_config:crypt_secret(),
       [PlainConfig] = marshal:decode(aes:decrypt(Secret, base64:decode(CryptConfig))),
       PlainConfig
   end.

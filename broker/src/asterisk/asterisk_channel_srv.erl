@@ -118,7 +118,7 @@ handle_cast(regenerate_config, State = #state{config_job_state = JobState, regis
   NewState = case JobState of
     idle ->
       spawn_link(fun() ->
-        {ok, BaseConfigPath} = application:get_env(asterisk_config_dir),
+        BaseConfigPath = verboice_config:asterisk_config_dir(),
         ConfigFilePath = filename:join(BaseConfigPath, "pjsip_verboice.conf"),
         {ChannelIndex, RegistryIndex} = asterisk_config:generate(ConfigFilePath),
         ami_client:sip_reload(),

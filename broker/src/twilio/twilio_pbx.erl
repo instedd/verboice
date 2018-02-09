@@ -83,7 +83,7 @@ user_hangup(?PBX) ->
 
 %% @private
 init({}) ->
-  {ok, CallbackUrl} = application:get_env(twilio_callback_url),
+  CallbackUrl = verboice_config:twilio_callback_url(),
   {ok, #state{callback_url = CallbackUrl}, 1000}.
 
 %% @private
