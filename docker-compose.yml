@@ -10,18 +10,23 @@ services:
 
   broker:
     build: ./broker
-    environment:
-      AMI_HOST: 'asterisk'
+    command: /bin/sh -c 'make && make run'
     volumes:
       - ./broker:/app
       - asterisk:/usr/local/etc/asterisk
-      - sounds:/usr/local/var/lib/asterisk/sounds
+      - sounds:/usr/local/var/lib/asterisk/sounds/verboice
       - deps:/app/deps
       - ebin:/app/ebin
     depends_on:
       - db
+    environment:
+      AMI_HOST: asterisk-bridge
+      BROKER_HOST: 172.88.0.88
+      DB_HOST: db
     tty: true
-    pid: host
+    networks:
+      default:
+        ipv4_address: 172.88.0.88
 
   web: &rails
     build:
@@ -31,7 +36,6 @@ services:
       DATABASE_HOST: 'db'
       BROKER_HOST: 'broker'
       BROKER_PORT: 9999
-    pid: host
     volumes:
       - .:/app
       - bundle_23:/usr/local/bundle
@@ -43,10 +47,21 @@ services:
       - 3001:80
 
   asterisk:
-    image: respoke/asterisk:13.15
+    image: instedd/verboice-asterisk
+    environment:
+      BROKER_HOST: 172.88.0.88
+      LOCAL_NET: 172.88.0.0/16
+      EXTERNAL_ADDRESS: '192.168.0.108'
     volumes:
-      - asterisk:/etc/asterisk
-      - sounds:/var/lib/asterisk/sounds
+      - asterisk:/etc/asterisk/verboice
+      - sounds:/var/lib/asterisk/sounds/verboice
+    network_mode: host
+
+  asterisk-bridge:
+    image: instedd/host_bridge
+    environment:
+      INPUT_PORT: 5038
+    privileged: true
 
 volumes:
   db:
@@ -55,3 +70,11 @@ volumes:
   sounds:
   deps:
   ebin:
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.88.0.0/16
+          gateway: 172.88.0.1
