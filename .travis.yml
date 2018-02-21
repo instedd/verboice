@@ -26,6 +26,13 @@ script:
   - docker-compose run --rm web rspec
   - docker-compose run --rm broker make eunit
 
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: "./travis-build.sh"
+  on:
+    all_branches: true
+
 notifications:
   slack:
     secure: GpzXwTvHwT3GV8QXktjODXPvXvmxV5CmJNu+MPKe1t4OGrtORRocZgEsmyH/rahuqq7zFCMGqLg4x2nKhLIcGM1+sleTz9lEPVSqE2jmk0NOwyrwa0G16dURZH4x8bb9w+EFaciGD2x83VkhaAaYdXpPXJ9SSqxdp66/0TRkQ6k=
