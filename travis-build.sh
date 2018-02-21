@@ -19,7 +19,7 @@ if [ "$TRAVIS_TAG" = "" ]; then
 
     # This case should be removed once the feature/docker-full branch is merged into master
     feature/docker-full)
-      DOCKER_TAG="dev"
+      DOCKER_TAG="test"
       ;;
 
     *)

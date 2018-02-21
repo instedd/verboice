@@ -16,8 +16,8 @@ install:
 
 before_script:
   - docker-compose build
-  - docker-compose run --rm broker ./rebar get-deps
-  - docker-compose run --rm broker ./rebar compile
+  - docker-compose run --rm broker sh -c './rebar get-deps'
+  - docker-compose run --rm broker sh -c './rebar compile'
   - docker-compose run --rm web bundle install
   - docker-compose run --rm web rake db:setup
   - docker-compose run --rm web rake db:test:prepare
