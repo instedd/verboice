@@ -20,7 +20,8 @@ start() ->
       {asterisk_agi_use_pipe_separator, false},
       {broker_port, 19000},
       {base_url, "http://localhost:3000"},
-      {hub_enabled, false}
+      {hub_enabled, false},
+      {seconds_between_calls, 2}
     ]}
   ]}),
 
