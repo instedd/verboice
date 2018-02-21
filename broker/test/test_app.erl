@@ -19,7 +19,8 @@ start() ->
       {asterisk_sounds_dir, "/usr/local/asterisk/var/lib/asterisk/sounds"},
       {asterisk_agi_use_pipe_separator, false},
       {broker_port, 19000},
-      {base_url, "http://localhost:3000"}
+      {base_url, "http://localhost:3000"},
+      {hub_enabled, false}
     ]}
   ]}),
 
