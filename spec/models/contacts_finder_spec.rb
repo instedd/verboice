@@ -403,13 +403,13 @@ describe ContactsFinder do
       expect(contacts.map(&:id)).to eq([contact_a, contact_c, contact_d, contact_b].map(&:id))
     end
 
-    it "should sort contacts by address handling multiple and no addresses using the first one" do
+    it "should sort contacts by address handling multiple and no addresses using the min one" do
       ContactAddress.delete_all
 
       contact_a.addresses.create(project_id: project.id, address: '30')
 
-      contact_b.addresses.create(project_id: project.id, address: '10')
       contact_b.addresses.create(project_id: project.id, address: '40')
+      contact_b.addresses.create(project_id: project.id, address: '10')
 
       contact_c.addresses.create(project_id: project.id, address: '20')
       contact_c.addresses.create(project_id: project.id, address: '60')

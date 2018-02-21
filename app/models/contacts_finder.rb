@@ -109,7 +109,7 @@ private
        "LEFT JOIN persisted_variables AS sorting_var ON sorting_var.contact_id = contacts.id AND sorting_var.implicit_key = '#{implicit_key}'"]
     elsif options[:address]
       ["sorting_address.first_address",
-       "LEFT JOIN (SELECT contact_id, COALESCE(address) as first_address FROM contact_addresses WHERE project_id = #{@project.id} GROUP BY contact_id ORDER BY contact_addresses.id) AS sorting_address ON sorting_address.contact_id = contacts.id"]
+       "LEFT JOIN (SELECT contact_id, MIN(address) as first_address FROM contact_addresses WHERE project_id = #{@project.id} GROUP BY contact_id) AS sorting_address ON sorting_address.contact_id = contacts.id"]
     elsif options[:last_activity]
       ["contacts.last_activity_at", nil]
     end
