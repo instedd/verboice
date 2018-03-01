@@ -17,11 +17,6 @@ if [ "$TRAVIS_TAG" = "" ]; then
       DOCKER_TAG="$PROJECT_VERSION-dev"
       ;;
 
-    # This case should be removed once the feature/docker-full branch is merged into master
-    feature/docker-full)
-      DOCKER_TAG="test"
-      ;;
-
     *)
       exit 0
       ;;

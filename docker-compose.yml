@@ -38,7 +38,7 @@ services:
       BROKER_PORT: 9999
     volumes:
       - .:/app
-      - bundle_23:/usr/local/bundle
+      - bundle:/usr/local/bundle
     tmpfs: /app/tmp
     depends_on:
       - db
@@ -65,7 +65,7 @@ services:
 
 volumes:
   db:
-  bundle_23:
+  bundle:
   asterisk:
   sounds:
   deps:
