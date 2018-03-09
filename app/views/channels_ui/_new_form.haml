@@ -1,7 +1,6 @@
 .row
   %h4.col.s12 Setup a new #{@channel.kind} channel
 
-
 = form_for(@config, as: :config, url: {controller: :channels_ui, action: :create}, html: {autocomplete: 'off'}, builder: MaterializeFormBuilder) do |f|
   - if @config.errors[:base].present?
     %i.material-icons.red-text.left error

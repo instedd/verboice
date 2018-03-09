@@ -2,29 +2,34 @@
 
 %h5 Choose from different channel options according to your project needs
 
-%div.item-list
-  %div.item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :callcentric)}')"}
+%ul.collection
+  %li.collection-item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :callcentric)}')"}
     %h5 Callcentric
-    %p
+    .grey-text
       Callcentric is a service that lets you make and receive free phone calls
       to other Callcentric members; and to traditional phones
+    %i.material-icons.arrow-right chevron_right
 
-  %div.item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :nexmo)}')"}
+  %li.collection-item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :nexmo)}')"}
     %h5 Nexmo
-    %p
+    .grey-text
       Nexmo is a global aggregator with support for Voice and SMS in over 200 countries
+    %i.material-icons.arrow-right chevron_right
 
-  %div.item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :sip_client)}')"}
+  %li.collection-item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :sip_client)}')"}
     %h5 SIP Client
-    %p
+    .grey-text
       Connect to VoIP SIP providers
+    %i.material-icons.arrow-right chevron_right
 
-  %div.item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :skype)}')"}
+  %li.collection-item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :skype)}')"}
     %h5 Skype
-    %p
+    .grey-text
       Use Skype Connect accounts
+    %i.material-icons.arrow-right chevron_right
 
-  %div.item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :twilio)}')"}
+  %li.collection-item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :twilio)}')"}
     %h5 Twilio
-    %p
+    .grey-text
       Twilio is a cloud based tool that allows software developers to programmatically make and receive phone calls and send and receive text messages using its web service APIs.
+    %i.material-icons.arrow-right chevron_right
