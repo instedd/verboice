@@ -11,5 +11,5 @@ function sendCreated(channel) {
 }
 
 window.onload = function() {
-  parent.postMessage({type: 'resize', height: document.body.scrollHeight}, "*");
+  parent.postMessage({type: 'resize', height: document.documentElement.scrollHeight}, "*");
 }
