@@ -255,6 +255,10 @@ class Channel < ActiveRecord::Base
     [["#{kind} channel", "#{name}-#{kind}"]]
   end
 
+  def api_kind
+    kind.try(:downcase).try(:gsub, ' ', '_')
+  end
+
   def errors_count
     0
   end

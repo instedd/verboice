@@ -4,7 +4,7 @@ class ChannelsUiController < ApplicationController
   layout 'channels_ui'
 
   def new
-    load_config_from_channel()
+    load_config_from_channel() if @channel
   end
 
   def create
@@ -18,6 +18,18 @@ class ChannelsUiController < ApplicationController
   end
 
   def show
+    @channel = current_account.channels.find_by_id(params[:id])
+    load_config_from_channel()
+  end
+
+  def update
+    @channel = current_account.channels.find_by_id(params[:id])
+    load_config_to_channel()
+
+    unless @channel.save
+      load_config_from_channel()
+      render action: "show"
+    end
   end
 
   private
@@ -37,8 +49,9 @@ class ChannelsUiController < ApplicationController
   end
 
   def load_config_from_channel
+    @kind = @channel.api_kind
     @config =
-      case params[:kind]
+      case @kind
       when "callcentric"
         ext =
           if @channel.number && @channel.username && @channel.number.starts_with?(@channel.username)

@@ -125,7 +125,7 @@ Verboice::Application.routes.draw do
     end
   end
 
-  resources :channels_ui, only: [:new, :create, :show] do
+  resources :channels_ui, only: [:new, :create, :show, :update] do
   end
 
   namespace :api do
