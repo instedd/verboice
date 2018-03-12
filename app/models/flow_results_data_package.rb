@@ -81,6 +81,7 @@ class FlowResultsDataPackage < ActiveRecord::Base
             response[:timestamp],
             entry.id,
             call_log.address,
+            call_log.id,
             response[:step_id],
             response[:value],
             {}
