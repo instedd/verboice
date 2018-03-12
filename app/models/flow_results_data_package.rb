@@ -49,6 +49,7 @@ class FlowResultsDataPackage < ActiveRecord::Base
         field("timestamp", "Timestamp", "datetime"),
         field("row_id", "Row ID", "string"),
         field("contact_id", "Contact ID", "string"),
+        field("session_id", "Session ID", "string"),
         field("question_id", "Question ID", "string"),
         field("response", "Response", "any"),
         field("response_metadata", "Response Metadata", "object")

@@ -166,8 +166,45 @@ describe FlowResultsDataPackage do
 
       json = JSON.parse data_package.floip_schema.to_json
 
-      expect(json["fields"]).not_to be_nil
+      expect(json["fields"].map(&:with_indifferent_access)).to eq([
+        {
+          "name" => "timestamp",
+          "title" => "Timestamp",
+          "type" => "datetime"
+        },
+        {
+          "name" => "row_id",
+          "title" => "Row ID",
+          "type" => "string"
+        },
+        {
+          "name" => "contact_id",
+          "title" => "Contact ID",
+          "type" => "string"
+        },
+        {
+          "name" => "session_id",
+          "title" => "Session ID",
+          "type" => "string"
+        },
+        {
+          "name" => "question_id",
+          "title" => "Question ID",
+          "type" => "string"
+        },
+        {
+          "name" => "response",
+          "title" => "Response",
+          "type" => "any"
+        },
+        {
+          "name" => "response_metadata",
+          "title" => "Response Metadata",
+          "type" => "object"
+        }
+      ])
     end
+
 
     it "must include questions" do
       call_flow = CallFlow.make :name => "Flow", :mode => :flow
