@@ -1,7 +1,12 @@
 class ChannelsUiController < ApplicationController
+  skip_before_filter :check_guisso_cookie
   before_filter :authenticate_api_account!
   before_filter :new_channel, only: [:new, :create]
   layout 'channels_ui'
+
+  def current_account
+    nil
+  end
 
   def new
     load_config_from_channel() if @channel

@@ -12,6 +12,7 @@
     = f.error_message :base
 
   %input{type: :hidden, name: :kind, value: @kind}
+  %input{type: :hidden, name: :access_token, value: params[:access_token]}
   .row
     = f.text_field :name, helper: 'A friendly name for the channel, so you can identify it'
 
