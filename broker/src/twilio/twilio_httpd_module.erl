@@ -3,8 +3,28 @@
 
 -include_lib("inets/include/httpd.hrl").
 -include("db.hrl").
+-compile([{parse_transform, lager_transform}]).
 
-do(#mod{request_uri = RequestUri, method = "POST", entity_body = Body}) ->
+do(#mod{request_uri = RequestUri, method = "POST", entity_body = Body, data = Data}) ->
+  % httpd_utils:if_not_already_handled(Data, fun ->
+  % end)
+  case proplists:get_value(status, Data) of
+    {_StatusCode, _PhraseArgs, _Reason} ->
+      {proceed, Data};
+    undefined ->
+      case proplists:get_value(response, Data) of
+        undefined ->
+          handle(RequestUri, Body);
+
+        _Response ->
+          {proceed, Data}
+      end
+  end;
+
+do(#mod{data = Data}) ->
+  {proceed, Data}.
+
+handle(RequestUri, Body) ->
   Params = uri:parse_qs(Body),
   QSParams = uri:parse_qs(RequestUri),
   CallSid = proplists:get_value("CallSid", Params),
@@ -38,8 +58,5 @@ do(#mod{request_uri = RequestUri, method = "POST", entity_body = Body}) ->
   end,
 
   Response = [{response, {200, ResponseBody}}],
-  {proceed, Response};
+  {proceed, Response}.
 
-do(ModData) ->
-  io:format("Unhandled: ~p~n", [ModData]),
-  {proceed, [ModData]}.

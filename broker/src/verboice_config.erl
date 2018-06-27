@@ -30,6 +30,7 @@ load_config() ->
   load(guisso_client_secret, string),
   load(guisso_url, string),
   load(twilio_callback_url, string),
+  load(africas_talking_callback_url, string),
   load(hub_enabled, bool),
   load(hub_url, string),
   ok.

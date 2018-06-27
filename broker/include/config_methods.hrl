@@ -24,6 +24,7 @@
 ?METHOD_TPL(guisso_client_secret).
 ?METHOD_TPL(guisso_url).
 ?METHOD_TPL(twilio_callback_url).
+?METHOD_TPL(africas_talking_callback_url).
 ?METHOD_TPL(hub_enabled).
 ?METHOD_TPL(hub_url).
 

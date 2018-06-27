@@ -26,7 +26,8 @@ start_link() ->
 -ifndef(TEST).
 pbx_supervisors() -> [
   ?CHILD(asterisk_sup, supervisor),
-  ?CHILD(twilio_sup, supervisor)
+  ?CHILD(twilio_sup, supervisor),
+  ?CHILD(africas_talking_sup, supervisor)
 ].
 -else.
 pbx_supervisors() -> [].

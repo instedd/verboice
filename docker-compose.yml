@@ -63,6 +63,13 @@ services:
       INPUT_PORT: 5038
     privileged: true
 
+  ngrok:
+    image: wernight/ngrok
+    ports:
+      - 4040:4040
+    environment:
+      NGROK_PORT: 'broker:8080'
+
 volumes:
   db:
   bundle:

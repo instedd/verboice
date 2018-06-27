@@ -1,6 +1,6 @@
 -module(channel).
 -compile([{parse_transform, lager_transform}]).
--export([find_all_sip/0, find_all_twilio/0,
+-export([find_all_sip/0, find_all_twilio/0, find_all_africas_talking/0,
          domain/1, number/1, username/1, password/1,
          broker/1, is_outbound/1, limit/1, register/1,
          log_broken_channels/2,
@@ -17,6 +17,9 @@ find_all_sip() ->
 
 find_all_twilio() ->
   find_all([{enabled, 1}, {type, "Channels::Twilio"}]).
+
+find_all_africas_talking() ->
+  find_all([{enabled, 1}, {type, "Channels::AfricasTalking"}]).
 
 domain(Channel = #channel{type = <<"Channels::TemplateBasedSip">>}) ->
   case proplists:get_value("kind", Channel#channel.config) of
