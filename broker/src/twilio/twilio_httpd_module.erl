@@ -6,57 +6,42 @@
 -compile([{parse_transform, lager_transform}]).
 
 do(#mod{request_uri = RequestUri, method = "POST", entity_body = Body, data = Data}) ->
-  % httpd_utils:if_not_already_handled(Data, fun ->
-  % end)
-  case proplists:get_value(status, Data) of
-    {_StatusCode, _PhraseArgs, _Reason} ->
-      {proceed, Data};
-    undefined ->
-      case proplists:get_value(response, Data) of
-        undefined ->
-          handle(RequestUri, Body);
+  httpd_utils:if_not_already_handled(Data, fun() ->
+    Params = uri:parse_qs(Body),
+    QSParams = uri:parse_qs(RequestUri),
+    CallSid = proplists:get_value("CallSid", Params),
 
-        _Response ->
-          {proceed, Data}
-      end
-  end;
+    ResponseBody = case twilio_pbx:find(CallSid) of
+      undefined ->
+        Pbx = twilio_pbx:new(CallSid),
+        case proplists:get_value("VerboiceSid", QSParams) of
+          undefined ->
+            AccountSid = proplists:get_value("AccountSid", Params),
+            Number = util:normalize_phone_number(proplists:get_value("To", Params)),
+            CallerId = util:normalize_phone_number(proplists:get_value("From", Params)),
+            Channel = twilio_channel_srv:find_channel(AccountSid, Number),
+
+            {ok, SessionPid} = session:new(),
+
+            % FIX this may lead to a race condition if the session reaches a flush before the resume is called
+            session:answer(SessionPid, Pbx, Channel#channel.id, CallerId);
+          SessionId ->
+            SessionPid = session:find(SessionId), %TODO: return error if session was not found
+            session:answer(SessionPid, Pbx)
+        end,
+
+        Pbx:resume(Params);
+      Pbx ->
+        CallStatus = proplists:get_value("CallStatus", Params),
+        case CallStatus of
+          "completed" -> Pbx:user_hangup(), "OK";
+          _ -> Pbx:resume(Params)
+        end
+    end,
+
+    Response = [{response, {200, ResponseBody}}],
+    {proceed, Response}
+  end);
 
 do(#mod{data = Data}) ->
   {proceed, Data}.
-
-handle(RequestUri, Body) ->
-  Params = uri:parse_qs(Body),
-  QSParams = uri:parse_qs(RequestUri),
-  CallSid = proplists:get_value("CallSid", Params),
-
-  ResponseBody = case twilio_pbx:find(CallSid) of
-    undefined ->
-      Pbx = twilio_pbx:new(CallSid),
-      case proplists:get_value("VerboiceSid", QSParams) of
-        undefined ->
-          AccountSid = proplists:get_value("AccountSid", Params),
-          Number = util:normalize_phone_number(proplists:get_value("To", Params)),
-          CallerId = util:normalize_phone_number(proplists:get_value("From", Params)),
-          Channel = twilio_channel_srv:find_channel(AccountSid, Number),
-
-          {ok, SessionPid} = session:new(),
-
-          % FIX this may lead to a race condition if the session reaches a flush before the resume is called
-          session:answer(SessionPid, Pbx, Channel#channel.id, CallerId);
-        SessionId ->
-          SessionPid = session:find(SessionId), %TODO: return error if session was not found
-          session:answer(SessionPid, Pbx)
-      end,
-
-      Pbx:resume(Params);
-    Pbx ->
-      CallStatus = proplists:get_value("CallStatus", Params),
-      case CallStatus of
-        "completed" -> Pbx:user_hangup(), "OK";
-        _ -> Pbx:resume(Params)
-      end
-  end,
-
-  Response = [{response, {200, ResponseBody}}],
-  {proceed, Response}.
-
