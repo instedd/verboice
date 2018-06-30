@@ -102,7 +102,6 @@ handle_call({resume, Params}, From, State = #state{session = Session, waiting = 
   gen_server:reply(Session, Reply),
   {noreply, State#state{awaiter = From, waiting = undefined}};
 
-
 handle_call({resume, Params}, From, State = #state{session = Session, waiting = {record, FileName}}) ->
   Reply = case proplists:get_value("RecordingUrl", Params) of
     undefined -> timeout;

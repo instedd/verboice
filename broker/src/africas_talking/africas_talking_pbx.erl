@@ -91,7 +91,7 @@ handle_call({resume, _Params}, From, State = #state{session = undefined}) ->
   {noreply, State#state{awaiter = From}};
 
 handle_call({resume, Params}, From, State = #state{session = Session, waiting = {capture, Min}}) ->
-  Reply = case proplists:get_value("Digits", Params) of
+  Reply = case proplists:get_value("dtmfDigits", Params) of
     undefined -> timeout;
     Digits ->
       if
@@ -135,10 +135,7 @@ handle_call({play, Resource}, _From, State) ->
   {reply, ok, append(resource_command(Resource, State), State)};
 
 handle_call({capture, Resource, Timeout, FinishOnKey, Min, Max}, From, State) ->
-  Command =
-    {'Gather', [{timeout, Timeout}, {finishOnKey, FinishOnKey}, {numDigits, Max}],
-      [resource_command(Resource, State)]
-    },
+  Command = {'GetDigits', [{timeout, Timeout}, {finishOnKey, FinishOnKey}, {numDigits, Max}], [resource_command(Resource, State)]},
   flush(From, append_with_callback(Command, State#state{waiting = {capture, Min}}));
 
 handle_call({record, FileName, StopKeys, Timeout}, From, State) ->
@@ -179,7 +176,7 @@ handle_info(_Info, State) ->
 terminate(_Reason, State) ->
   case State#state.awaiter of
     undefined -> ok;
-    _ -> flush(nobody, State)
+    _ -> flush(nobody, append('Hangup', State))
   end.
 
 %% @private
@@ -190,7 +187,7 @@ resource_command({text, Language, Text}, _) ->
   {'Say', [{language, Language}], [binary_to_list(Text)]};
 
 resource_command({file, Name}, #state{callback_url = CallbackUrl}) ->
-  {'Play', [[CallbackUrl, Name, ".mp3"]]};
+  {'Play', [{url, [[CallbackUrl, Name, ".mp3"]]}], []};
 
 resource_command({url, Url}, _) ->
   {'Play', [Url]}.
