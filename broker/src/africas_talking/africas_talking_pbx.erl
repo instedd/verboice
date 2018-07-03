@@ -174,9 +174,10 @@ handle_info(_Info, State) ->
 
 %% @private
 terminate(_Reason, State) ->
+  TerminateCmd = {'Say', [{language, "en"}], ["."]},
   case State#state.awaiter of
     undefined -> ok;
-    _ -> flush(nobody, append('Hangup', State))
+    _ -> flush(nobody, append(TerminateCmd, State))
   end.
 
 %% @private
