@@ -41,23 +41,14 @@ dispatch(_Session = #session{session_id = SessionId, channel = Channel, address 
       AfricasTalkingId = proplists:get_value(<<"sessionId">>, Entries),
       africas_talking_sid:start(AfricasTalkingId, session:find(SessionId)),
       ok;
-    {ok, {{_, _, Reason}, _, Msg}} -> parse_exception(Reason, Msg);
+    {ok, {{_, _, Reason}, _, Msg}} ->
+      parse_exception(Reason, Msg);
     _ ->
       timer:apply_after(timer:minutes(1), broker, notify_ready, [?MODULE]),
       {error, unavailable}
   end.
 
 % TODO. Parse exception in Africa's Talking
-parse_exception(Reason, Body) ->
-  try
-    {Doc, []} = xmerl_scan:string(Body),
-    [Exception] = xmerl_xs:select("/TwilioResponse/RestException", Doc),
-    FullCode = case xmerl_xs:value_of(xmerl_xs:select("./Code", Exception)) of
-      [Code] -> "twilio:" ++ Code;
-      _ -> undefined
-    end,
-    [Message] = xmerl_xs:value_of(xmerl_xs:select("./Message", Exception)),
-    {error, Message, FullCode}
-  catch
-    _ -> {error, Reason}
-  end.
+parse_exception(Reason, Msg) ->
+  lager:info("Call failed with body ~p ", [Msg]),
+  {error, Reason}.
