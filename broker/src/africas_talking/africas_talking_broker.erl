@@ -23,28 +23,31 @@ create_channel(Id) -> africas_talking_channel_srv:channel_updated(Id), ok.
 destroy_channel(Id) -> africas_talking_channel_srv:channel_destroyed(Id), ok.
 
 dispatch(_Session = #session{session_id = SessionId, channel = Channel, address = Address}) ->
-  AccountSid = channel:account_sid(Channel),
-  AuthToken = channel:auth_token(Channel),
-  CallbackUrl = verboice_config:twilio_callback_url(),
-  CallbackUri = uri:parse(CallbackUrl),
+  ApiKey = channel:api_key(Channel),
+  Username = channel:username(Channel),
 
-  RequestUrl = ["https://api.twilio.com/2010-04-01/Accounts/", AccountSid, "/Calls"],
+  RequestUrl = ["https://voice.sandbox.africastalking.com/call"],
   RequestBody = [
-    {'From', util:normalize_phone_number(channel:number(Channel))},
-    {'To', util:normalize_phone_number(Address)},
-    {'Url', uri:format(CallbackUri#uri{query_string = [{'VerboiceSid', SessionId}]})}
+    {'from', iolist_to_binary(channel:number(Channel))},
+    {'to', iolist_to_binary(Address)},
+    {'username', iolist_to_binary(Username)}
   ],
 
-  Response = uri:post_form(RequestBody, [{basic_auth, {AccountSid, AuthToken}}], RequestUrl),
-  lager:info("Twilio response: ~p~n", [Response]),
+  Response = uri:post_form(RequestBody, [{api_key, ApiKey}, {accept, "application/json"}], RequestUrl),
   case Response of
-    {ok, {{_, 201, _}, _, _}} -> ok;
+    {ok, {{_, 200, _}, _, RawResponse}} ->
+      {ok, {JSONResponse}} = json:decode(RawResponse),
+      [{Entries}] = proplists:get_value(<<"entries">>, JSONResponse),
+      AfricasTalkingId = proplists:get_value(<<"sessionId">>, Entries),
+      africas_talking_sid:start(AfricasTalkingId, session:find(SessionId)),
+      ok;
     {ok, {{_, _, Reason}, _, Msg}} -> parse_exception(Reason, Msg);
     _ ->
       timer:apply_after(timer:minutes(1), broker, notify_ready, [?MODULE]),
       {error, unavailable}
   end.
 
+% TODO. Parse exception in Africa's Talking
 parse_exception(Reason, Body) ->
   try
     {Doc, []} = xmerl_scan:string(Body),

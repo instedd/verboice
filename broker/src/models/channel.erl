@@ -5,7 +5,7 @@
          broker/1, is_outbound/1, limit/1, register/1,
          log_broken_channels/2,
          disable_by_id/1, disable_by_ids/1,
-         account_sid/1, auth_token/1]).
+         account_sid/1, auth_token/1, api_key/1]).
 
 -define(CACHE, true).
 -define(TABLE_NAME, "channels").
@@ -47,6 +47,9 @@ account_sid(#channel{config = Config}) ->
 auth_token(#channel{config = Config}) ->
   proplists:get_value("auth_token", Config).
 
+api_key(#channel{config = Config}) ->
+  proplists:get_value("api_key", Config).
+
 is_outbound(#channel{type = <<"Channels::TemplateBasedSip">>}) ->
   true;
 
@@ -76,6 +79,7 @@ limit(#channel{config = Config}) ->
   end.
 
 broker(#channel{type = <<"Channels::Twilio">>}) -> twilio_broker;
+broker(#channel{type = <<"Channels::AfricasTalking">>}) -> africas_talking_broker;
 broker(_) -> asterisk_broker.
 
 log_broken_channels(PrevStatus, NewStatus) ->

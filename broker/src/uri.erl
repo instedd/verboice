@@ -76,6 +76,14 @@ httpc_options(Method, Uri, [{basic_auth, {User, Password}} | T], Headers, HTTPOp
 httpc_options(Method, Uri, [{oauth2, AccessToken} | T], Headers, HTTPOptions, Options) ->
   NewHeaders = [{"Authorization", oauth2:authorization_header(Method, Uri, AccessToken)} | Headers],
   httpc_options(Method, Uri, T, NewHeaders, HTTPOptions, Options);
+% - - - Africas Talking - - - %
+httpc_options(Method, Uri, [{api_key, ApiKey} | T], Headers, HTTPOptions, Options) ->
+  NewHeaders = [{"ApiKey", ApiKey} | Headers],
+  httpc_options(Method, Uri, T, NewHeaders, HTTPOptions, Options);
+httpc_options(Method, Uri, [{accept, Accept} | T], Headers, HTTPOptions, Options) ->
+  NewHeaders = [{"Accept", Accept} | Headers],
+  httpc_options(Method, Uri, T, NewHeaders, HTTPOptions, Options);
+% - - - - - - - - - - - - - - %
 httpc_options(Method, Uri, [Unknown | T], Headers, HTTPOptions, Options) ->
   httpc_options(Method, Uri, T, Headers, HTTPOptions, [Unknown | Options]).
 
