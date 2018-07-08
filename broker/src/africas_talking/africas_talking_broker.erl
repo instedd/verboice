@@ -26,7 +26,8 @@ dispatch(_Session = #session{session_id = SessionId, channel = Channel, address 
   ApiKey = channel:api_key(Channel),
   Username = channel:username(Channel),
 
-  RequestUrl = ["https://voice.sandbox.africastalking.com/call"],
+  % ReequestUrl for testing against the sandbox: https://voice.sandbox.africastalking.com/call
+  RequestUrl = ["https://voice.africastalking.com/call"],
   RequestBody = [
     {'from', iolist_to_binary(channel:number(Channel))},
     {'to', iolist_to_binary(Address)},
@@ -38,7 +39,7 @@ dispatch(_Session = #session{session_id = SessionId, channel = Channel, address 
     {ok, {{_, 200, _}, _, RawResponse}} ->
       {ok, {JSONResponse}} = json:decode(RawResponse),
       [{Entries}] = proplists:get_value(<<"entries">>, JSONResponse),
-      AfricasTalkingId = proplists:get_value(<<"sessionId">>, Entries),
+      AfricasTalkingId = binary_to_list(proplists:get_value(<<"sessionId">>, Entries)),
       africas_talking_sid:start(AfricasTalkingId, session:find(SessionId)),
       ok;
     {ok, {{_, _, Reason}, _, Msg}} ->
