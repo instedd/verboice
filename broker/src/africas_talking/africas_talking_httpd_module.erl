@@ -5,7 +5,7 @@
 -include("db.hrl").
 -compile([{parse_transform, lager_transform}]).
 
-do(#mod{request_uri = "/africas_talking/" ++ _, method = "POST", entity_body = Body, data = Data}) ->
+do(#mod{request_uri = "/africas_talking" ++ _, method = "POST", entity_body = Body, data = Data}) ->
   Params = uri:parse_qs(Body),
   CallSid = proplists:get_value("sessionId", Params),
   Pbx = africas_talking_pbx:find(CallSid),

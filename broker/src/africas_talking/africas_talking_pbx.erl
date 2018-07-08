@@ -83,7 +83,7 @@ user_hangup(?PBX) ->
 
 %% @private
 init({}) ->
-  CallbackUrl = verboice_config:africas_talking_callback_url(),
+  CallbackUrl = verboice_config:broker_httpd_base_url() ++ "africas_talking",
   {ok, #state{callback_url = CallbackUrl}, 1000}.
 
 %% @private
@@ -144,7 +144,7 @@ handle_call({record, FileName, StopKeys, Timeout}, From, State) ->
   flush(From, append_with_callback(Command, State#state{waiting = {record, FileName}}));
 
 handle_call({dial, Number, _CallerId}, From, State) ->
-  Command = {'Dial', [{action, State#state.callback_url}], [binary_to_list(Number)]},
+  Command = {'Dial', [{phoneNumbers, "+" ++ binary_to_list(Number)}], []},
   flush(From, append(Command, State#state{waiting = dial}));
 
 handle_call(user_hangup, _From, State) ->
@@ -187,8 +187,8 @@ code_change(_OldVsn, State, _Extra) ->
 resource_command({text, Language, Text}, _) ->
   {'Say', [{language, Language}], [binary_to_list(Text)]};
 
-resource_command({file, Name}, #state{callback_url = CallbackUrl}) ->
-  {'Play', [{url, [[CallbackUrl, Name, ".mp3"]]}], []};
+resource_command({file, Name}, _) ->
+  {'Play', [{url, [[verboice_config:broker_httpd_base_url(), Name, ".mp3"]]}], []};
 
 resource_command({url, Url}, _) ->
   {'Play', [Url]}.
