@@ -17,7 +17,6 @@
 
 class Channels::AfricasTalking < Channel
   config_accessor :username
-  config_accessor :password
   config_accessor :api_key
   config_accessor :number
   config_accessor :limit
