@@ -14,11 +14,11 @@ start_link() ->
 reload_channels() ->
   gen_server:cast(?SERVER, reload_channels).
 
-channel_updated(ChannelId) ->
-  gen_server:cast(?SERVER, {reload_and_update_channels, [ChannelId]}).
+channel_updated(_ChannelId) ->
+  gen_server:cast(?SERVER, reload_channels).
 
 channel_destroyed(_ChannelId) ->
-  gen_server:cast(?SERVER, {reload_and_update_channels, []}).
+  gen_server:cast(?SERVER, reload_channels).
 
 find_channel(Number) ->
   gen_server:call(?SERVER, {find_channel, Number}).
@@ -55,7 +55,6 @@ handle_call(_Request, _From, State) ->
 handle_cast(reload_channels, State) ->
   Channels = channel:find_all_africas_talking(),
   NewRegistry = build_registry(Channels),
-  % configure_channels_at_twilio(Channels),
 
   {noreply, State#state{registry = NewRegistry}};
 

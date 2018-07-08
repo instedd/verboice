@@ -35,6 +35,6 @@ class Channels::AfricasTalking < Channel
   end
 
   def broker
-    :twilio_broker
+    :africas_talking_broker
   end
 end
