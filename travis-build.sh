@@ -17,6 +17,10 @@ if [ "$TRAVIS_TAG" = "" ]; then
       DOCKER_TAG="$PROJECT_VERSION-dev"
       ;;
 
+    feature-rc/*)
+      DOCKER_TAG=${TRAVIS_BRANCH##feature-rc/}
+      ;;
+
     *)
       exit 0
       ;;
