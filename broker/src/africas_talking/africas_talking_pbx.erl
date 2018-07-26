@@ -87,6 +87,14 @@ init({}) ->
   {ok, #state{callback_url = CallbackUrl}, 1000}.
 
 %% @private
+finishOnKeyOrDefault([]) -> "#";
+finishOnKeyOrDefault(key) -> key.
+
+%% @private
+numDigitsWithoutInfinity("infinity") -> 99;
+numDigitsWithoutInfinity(number) -> erlang:display(number), number.
+
+%% @private
 handle_call({resume, _Params}, From, State = #state{session = undefined}) ->
   {noreply, State#state{awaiter = From}};
 
@@ -135,7 +143,7 @@ handle_call({play, Resource}, _From, State) ->
   {reply, ok, append(resource_command(Resource, State), State)};
 
 handle_call({capture, Resource, Timeout, FinishOnKey, Min, Max}, From, State) ->
-  Command = {'GetDigits', [{timeout, Timeout}, {finishOnKey, FinishOnKey}, {numDigits, Max}], [resource_command(Resource, State)]},
+  Command = {'GetDigits', [{timeout, Timeout}, {finishOnKey, finishOnKeyOrDefault(FinishOnKey)}, {numDigits, numDigitsWithoutInfinity(Max)}], [resource_command(Resource, State)]},
   flush(From, append_with_callback(Command, State#state{waiting = {capture, Min}}));
 
 handle_call({record, FileName, StopKeys, Timeout}, From, State) ->
@@ -155,7 +163,8 @@ handle_call(user_hangup, _From, State) ->
   {reply, ok, State, timer:seconds(5)};
 
 handle_call(hangup, _From, State) ->
-  {noreply, HangupState} = flush(undefined, append('Hangup', State)),
+  TerminateCmd = {'Say', [{language, "en"}], ["."]},
+  {noreply, HangupState} = flush(undefined, append(TerminateCmd, State)),
   {reply, ok, HangupState};
 
 handle_call(terminate, _From, State) ->
@@ -191,7 +200,7 @@ resource_command({file, Name}, _) ->
   {'Play', [{url, [[verboice_config:broker_httpd_base_url(), Name, ".mp3"]]}], []};
 
 resource_command({url, Url}, _) ->
-  {'Play', [Url]}.
+  {'Play', [{url, [Url]}], []}.
 
 append(Command, State = #state{commands = Commands}) ->
   State#state{commands = [Command | Commands]}.
