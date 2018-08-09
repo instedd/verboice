@@ -87,12 +87,10 @@ init({}) ->
   {ok, #state{callback_url = CallbackUrl}, 1000}.
 
 %% @private
-finishOnKeyOrDefault([]) -> "#";
-finishOnKeyOrDefault(key) -> key.
-
-%% @private
-numDigitsWithoutInfinity("infinity") -> 99;
-numDigitsWithoutInfinity(number) -> erlang:display(number), number.
+numDigitsWithoutInfinity(infinity) -> 99;
+% ".inf" param is received whenever max < min and the flow that was generated using the Verboice Designer
+numDigitsWithoutInfinity(".inf") -> 99;
+numDigitsWithoutInfinity(Number) -> Number.
 
 %% @private
 handle_call({resume, _Params}, From, State = #state{session = undefined}) ->
@@ -142,8 +140,12 @@ handle_call({resume, _Params}, From, State = #state{session = Session}) ->
 handle_call({play, Resource}, _From, State) ->
   {reply, ok, append(resource_command(Resource, State), State)};
 
+handle_call({capture, Resource, Timeout, [], Min, Max}, From, State) ->
+  Command = {'GetDigits', [{timeout, Timeout}, {numDigits, numDigitsWithoutInfinity(Max)}], [resource_command(Resource, State)]},
+  flush(From, append_with_callback(Command, State#state{waiting = {capture, Min}}));
+
 handle_call({capture, Resource, Timeout, FinishOnKey, Min, Max}, From, State) ->
-  Command = {'GetDigits', [{timeout, Timeout}, {finishOnKey, finishOnKeyOrDefault(FinishOnKey)}, {numDigits, numDigitsWithoutInfinity(Max)}], [resource_command(Resource, State)]},
+  Command = {'GetDigits', [{timeout, Timeout}, {finishOnKey, FinishOnKey}, {numDigits, numDigitsWithoutInfinity(Max)}], [resource_command(Resource, State)]},
   flush(From, append_with_callback(Command, State#state{waiting = {capture, Min}}));
 
 handle_call({record, FileName, StopKeys, Timeout}, From, State) ->
