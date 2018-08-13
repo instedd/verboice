@@ -4,8 +4,8 @@ class ChannelsUiController < ApplicationController
   before_filter :new_channel, only: [:new, :create]
   layout 'channels_ui'
 
-  def current_account
-    nil
+  def check_guisso_cookie
+    true
   end
 
   def new
