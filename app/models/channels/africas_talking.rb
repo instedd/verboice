@@ -36,4 +36,12 @@ class Channels::AfricasTalking < Channel
   def broker
     :africas_talking_broker
   end
+
+  def self.kind
+    "Africa's Talking"
+  end
+
+  def api_kind
+    "africas_talking"
+  end
 end

@@ -50,6 +50,8 @@ class ChannelsUiController < ApplicationController
         Channels::CustomSip.new
       when "twilio"
         Channels::Twilio.new
+      when "africas_talking"
+        Channels::AfricasTalking.new
       end
   end
 
@@ -105,6 +107,16 @@ class ChannelsUiController < ApplicationController
           limit: @channel.limit,
           errors: @channel.errors
         })
+
+      when "africas_talking"
+        OpenStruct.new({
+          name: @channel.name,
+          username: @channel.username,
+          api_key: @channel.api_key,
+          number: @channel.number,
+          limit: @channel.limit,
+          errors: @channel.errors
+        })
     end
   end
 
@@ -134,6 +146,12 @@ class ChannelsUiController < ApplicationController
       @channel.name = params[:config][:name]
       @channel.account_sid = params[:config][:account_sid]
       @channel.auth_token = params[:config][:auth_token]
+      @channel.number = params[:config][:number]
+      @channel.limit = params[:config][:limit]
+    when "africas_talking"
+      @channel.name = params[:config][:name]
+      @channel.username = params[:config][:username]
+      @channel.api_key = params[:config][:api_key]
       @channel.number = params[:config][:number]
       @channel.limit = params[:config][:limit]
     end
