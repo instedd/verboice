@@ -51,5 +51,6 @@ dispatch(#session{session_id = SessionId, channel = Channel, address = Address})
     {async, true},
     {actionid, SessionId},
     {timeout, 60000},
-    {variable, ["verboice_session_id=", SessionId]}
+    {variable, ["verboice_session_id=", SessionId]},
+    {callerId, ["<", channel:number(Channel), ">"]}
   ]).
