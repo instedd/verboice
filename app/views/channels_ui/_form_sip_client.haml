@@ -1,0 +1,17 @@
+.row
+  = f.text_field :username, label: 'SIP username'
+
+.row
+  = f.password_field :password, label: 'SIP password', value: @config[:password]
+
+.row
+  = f.text_field :number, label: 'Phone number'
+
+.row
+  = f.text_field :limit, colspan: 's4', helper: 'Number of concurrent calls'
+
+.row
+  = f.text_field :domain, label: 'Domain', helper: 'The SIP domain (hostname or IP address)'
+
+.row
+  = f.check_box :register, label: 'Register to the remote server'

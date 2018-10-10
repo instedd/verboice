@@ -1,0 +1,29 @@
+.item-list {
+  margin-top: 50px;
+
+  .item {
+    margin: 20px 0px;
+  }
+}
+
+.collection {
+  border: none;
+
+  .collection-item {
+    background-color: transparent;
+    padding-left: 0px;
+    padding-right: 50px;
+    min-height: 120px;
+    position: relative;
+
+    .arrow-right {
+      position: absolute;
+      right: 5px;
+      top: calc(50% - 10px);
+    }
+  }
+}
+
+.clickable {
+  cursor: pointer;
+}

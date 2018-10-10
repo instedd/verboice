@@ -1,0 +1,11 @@
+.row
+  = f.text_field :username, label: 'Nexmo API Key'
+
+.row
+  = f.password_field :password, label: 'Nexmo API Secret', value: @config[:password]
+
+.row
+  = f.text_field :number, label: 'Nexmo phone number'
+
+.row
+  = f.text_field :limit, colspan: 's4', helper: 'Number of concurrent calls'

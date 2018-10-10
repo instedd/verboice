@@ -1,0 +1,43 @@
+%h4 Choose a channel type
+
+%h5 Choose from different channel options according to your project needs
+
+%ul.collection
+  %li.collection-item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :callcentric, access_token: params[:access_token])}')"}
+    %h5 Callcentric
+    .grey-text
+      Callcentric is a service that lets you make and receive free phone calls
+      to other Callcentric members; and to traditional phones
+    %i.material-icons.arrow-right chevron_right
+
+  %li.collection-item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :nexmo, access_token: params[:access_token])}')"}
+    %h5 Nexmo
+    .grey-text
+      Nexmo is a global aggregator with support for Voice and SMS in over 200 countries
+    %i.material-icons.arrow-right chevron_right
+
+  %li.collection-item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :sip_client, access_token: params[:access_token])}')"}
+    %h5 SIP Client
+    .grey-text
+      Connect to VoIP SIP providers
+    %i.material-icons.arrow-right chevron_right
+
+  %li.collection-item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :skype, access_token: params[:access_token])}')"}
+    %h5 Skype
+    .grey-text
+      Use Skype Connect accounts
+    %i.material-icons.arrow-right chevron_right
+
+  %li.collection-item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :twilio, access_token: params[:access_token])}')"}
+    %h5 Twilio
+    .grey-text
+      Twilio is a cloud based tool that allows software developers to programmatically make and receive phone calls and send and receive text messages using its web service APIs.
+    %i.material-icons.arrow-right chevron_right
+
+  %li.collection-item.clickable{onclick: "navigate('#{new_channels_ui_path(kind: :africas_talking, access_token: params[:access_token])}')"}
+    %h5 Africa's Talking
+    .grey-text
+      Africa's Talking is also a cloud based tool that allows software developers
+      to programmatically manage phone calls and text messages using an API similar
+      to Twilio's.
+    %i.material-icons.arrow-right chevron_right

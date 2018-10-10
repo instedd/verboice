@@ -1,0 +1,11 @@
+.row
+  = f.text_field :username, label: 'SIP User', helper: 'The SIP User in the Skype Manager SIP Profile'
+
+.row
+  = f.password_field :password, label: 'SIP Password', value: @config[:password], helper: 'The Password in the Skype Manager SIP Profile'
+
+.row
+  = f.text_field :number, label: 'Skype phone number'
+
+.row
+  = f.text_field :limit, colspan: 's4', helper: 'Number of concurrent calls'
