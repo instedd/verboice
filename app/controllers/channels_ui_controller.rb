@@ -44,7 +44,7 @@ class ChannelsUiController < ApplicationController
       case params[:kind]
       when "callcentric", "nexmo", "skype"
         channel = Channels::TemplateBasedSip.new
-        channel.kind = params[:kind]
+        channel.kind = params[:kind].titleize
         channel
       when "sip_client"
         Channels::CustomSip.new
