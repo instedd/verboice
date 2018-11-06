@@ -1,6 +1,6 @@
 function fixIntercomLocation() {
   var footerPos = $('#footer').offset()
-  if (footerPos && Intercom) {
+  if (footerPos && typeof Intercom !== 'undefined') {
     var footerTop = footerPos.top - 20
     var bottom = $(window).scrollTop() + $(window).height();
     var padding = Math.max(0, bottom - footerTop)
