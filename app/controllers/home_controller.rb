@@ -16,7 +16,14 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class HomeController < ApplicationController
+  after_filter :intercom_shutdown, only: [:index]
+
   def index
     set_fixed_width_content
+  end
+
+  protected
+  def intercom_shutdown
+    IntercomRails::ShutdownHelper.intercom_shutdown(session, cookies, request.domain)
   end
 end
