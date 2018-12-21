@@ -66,6 +66,34 @@ describe Api::ChannelsController do
       assert_response :ok
       expect(response.body).to eq(shared_read_chan.to_json(account_id: @account.id))
     end
+
+    it "get should include status when channel status is computed by BrokerClient" do
+      chan = Channels::CustomSip.make account: @account, call_flow: call_flow
+      allow(BrokerClient).to receive(:channel_status).and_return({
+        "some_id" => {:messages => ["not found"], :ok => false},
+        "other_id" => {:messages => nil, :ok => true},
+        chan.id => {:messages => ["connection error"], :ok => false}
+      })
+      get :get, :name => chan.name
+
+      response = JSON.parse(@response.body).with_indifferent_access
+      expect(response["status"]["messages"]).to eq(["connection error"])
+      expect(response["status"]["ok"]).to eq(false)
+    end
+
+    it "get_by_id should include status when channel status is computed by BrokerClient" do
+      chan = Channels::CustomSip.make account: @account, call_flow: call_flow
+      allow(BrokerClient).to receive(:channel_status).and_return({
+        18 => {:messages => ["NOT FOUND"], :ok => false},
+        21 => {:messages => nil, :ok => true},
+        chan.id => {:messages => ["NOT FOUND"], :ok => false}
+      })
+      get :get_by_id, :id => chan.id
+
+      response = JSON.parse(@response.body).with_indifferent_access
+      expect(response["status"]["messages"]).to eq(["NOT FOUND"])
+      expect(response["status"]["ok"]).to eq(false)
+    end
   end
 
   describe "list" do
@@ -106,6 +134,20 @@ describe Api::ChannelsController do
 
       assert_response :ok
       expect(response.body).to eq([chan, shared_read_chan, shared_admin_chan].to_json(account_id: @account.id))
+    end
+
+    it "should include status for channels with their status computed by BrokerClient" do
+      chan1 = Channels::CustomSip.make account: @account, call_flow: call_flow
+      chan2 = Channels::CustomSip.make account: @account, call_flow: call_flow
+      allow(BrokerClient).to receive(:channel_status).and_return({
+        chan1.id => {:messages => nil, :ok => true},
+      })
+
+      get :all
+
+      response = JSON.parse(@response.body)
+      expect(response[0]["status"]).to eq({"messages" => nil, "ok" => true})
+      expect(response[1]["status"]).to be_nil
     end
   end
 
