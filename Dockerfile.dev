@@ -1,4 +1,4 @@
-FROM ruby:2.3.4
+FROM ruby:2.3.8
 
 # Install dependencies
 RUN apt-get update && \
@@ -7,9 +7,4 @@ RUN apt-get update && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ADD Gemfile /app/
-ADD Gemfile.lock /app/
 WORKDIR /app
-
-# Install the application
-ADD . /app
