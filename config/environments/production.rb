@@ -82,6 +82,7 @@ Verboice::Application.configure do
 
   if ENV["RAILS_LOG_TO_STDOUT"].present?
     logger           = Logger.new(STDOUT)
+    logger.level     = config.log_level
     logger.formatter = FormattedRailsLogger::Formatter.new
     config.logger    = ActiveSupport::TaggedLogging.new(logger)
   end
