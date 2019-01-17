@@ -40,6 +40,7 @@ gem 'listings', '~> 0.1.7'
 gem 'instedd_telemetry', github: "instedd/telemetry_rails", branch: 'master'
 gem 'rails-assets-material-components-web', source: 'https://rails-assets.org'
 gem 'intercom-rails'
+gem 'test-unit'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.5'
@@ -75,7 +76,6 @@ group :development do
 end
 
 group :test do
-  gem 'test-unit'
   gem "shoulda-matchers", require: false
   gem 'webmock'
   gem 'fakefs', :require => 'fakefs/safe'
