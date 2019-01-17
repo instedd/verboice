@@ -295,6 +295,10 @@ class Channel < ActiveRecord::Base
       json.merge!({shared_by: account.email})
     end
 
+    if options[:status] && options[:status][id]
+      json.merge!({status: options[:status][id]})
+    end
+
     json
   end
 end

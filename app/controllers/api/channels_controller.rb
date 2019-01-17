@@ -16,12 +16,13 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 module Api
   class ChannelsController < ApiController
+    before_filter :load_channel_status, only: [:get, :get_by_id, :all]
 
     def get
       channel = current_account.channels.find_by_name params[:name]
 
       if channel.present?
-        render :json => channel
+        render :json => channel.as_json(status: @channel_status)
       else
         head :not_found
       end
@@ -32,7 +33,7 @@ module Api
       channel = current_account.channels.find_by_id(id) || current_account.shared_channels.find_by_model_id(id).try(:channel)
 
       if channel.present?
-        render :json => channel.to_json(account_id: current_account.id)
+        render :json => channel.to_json(account_id: current_account.id, status: @channel_status)
       else
         head :not_found
       end
@@ -107,8 +108,17 @@ module Api
     def all
       owned_channels = current_account.channels.all
       shared_channels = current_account.shared_channels.all.map(&:channel)
-      render json: (owned_channels + shared_channels).uniq.to_json(account_id: current_account.id)
+      render json: (owned_channels + shared_channels).uniq.to_json(account_id: current_account.id, status: @channel_status)
     end
 
+    private
+
+    def load_channel_status
+      channels = current_account.channels.includes(:call_flow).all
+      shared_channels = current_account.shared_channels.all
+      all_channels = channels + shared_channels.map(&:channel)
+      grouped_channels = all_channels.each_with_object(Hash.new { |h,k| h[k] = [] }) { |ch, h| h[ch.broker] << ch.id }
+      @channel_status = BrokerClient.channel_status(grouped_channels) rescue {}
+    end
   end
 end
