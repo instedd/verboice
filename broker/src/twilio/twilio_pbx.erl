@@ -1,6 +1,6 @@
 -module(twilio_pbx).
 -compile([{parse_transform, lager_transform}]).
--export([pid/1, answer/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2, sound_quality/1, dial/4, record/4]).
+-export([pid/1, answer/1, reject/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2, sound_quality/1, dial/4, record/4]).
 -behaviour(pbx).
 
 -export([start_link/1, find/1, new/1, resume/2, user_hangup/1]).
@@ -32,6 +32,9 @@ new(CallSid) ->
 pid(?PBX) -> Pid.
 
 answer(?PBX(_)) -> ok.
+
+reject(?PBX) ->
+  gen_server:call(Pid, reject).
 
 hangup(?PBX) ->
   gen_server:call(Pid, hangup).
@@ -159,6 +162,10 @@ handle_call(user_hangup, _From, State) ->
 handle_call(hangup, _From, State) ->
   {noreply, HangupState} = flush(undefined, append('Hangup', State)),
   {reply, ok, HangupState};
+
+handle_call(reject, _From, State) ->
+  {noreply, RejectState} = flush(undefined, append('Reject', State)),
+  {reply, ok, RejectState};
 
 handle_call(terminate, _From, State) ->
   {stop, normal, ok, State}.

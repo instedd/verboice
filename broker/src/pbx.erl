@@ -9,6 +9,7 @@
 
 -callback answer(pbx()) -> any().
 -callback hangup(pbx()) -> any().
+-callback reject(pbx()) -> any().
 -callback play(resource(), pbx()) -> any().
 -callback capture(any(), any(), any(), any(), any(), pbx()) -> any().
 -callback terminate(pbx()) -> any().

@@ -1,6 +1,6 @@
 -module(pbx_mock).
 % -behaviour(pbx).
--export([new/1, pid/1, answer/1, hangup/1, terminate/1, can_play/2, play/2]). %, capture/6, record/4, terminate/1, sound_path_for/2, dial/4]).
+-export([new/1, pid/1, answer/1, reject/1, hangup/1, terminate/1, can_play/2, play/2]). %, capture/6, record/4, terminate/1, sound_path_for/2, dial/4]).
 -export([validate/1]).
 
 -behaviour(gen_server).
@@ -15,6 +15,7 @@ new(Sequence) ->
 pid({pbx_mock, Pid}) -> Pid.
 
 answer({pbx_mock, Pid}) -> invoke(Pid, answer, []).
+reject({pbx_mock, Pid}) -> invoke(Pid, reject, []).
 hangup({pbx_mock, Pid}) -> invoke(Pid, hangup, []).
 can_play(ResourceKind, {pbx_mock, Pid}) -> invoke(Pid, can_play, [ResourceKind]).
 play(Resource, {pbx_mock, Pid}) -> invoke(Pid, play, [Resource]).

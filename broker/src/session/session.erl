@@ -111,58 +111,78 @@ ready({answer, Pbx, ChannelId, CallerId}, State = #state{session_id = SessionId}
   lager:info("Session (~p) answer", [SessionId]),
   monitor(process, Pbx:pid()),
 
-  NewSession = case State#state.session of
+  Channel = channel:find(ChannelId),
+  StartedAt = calendar:universal_time(),
+
+  case Channel#channel.call_flow_id of
     undefined ->
-      StartedAt = calendar:universal_time(),
-      Channel = channel:find(ChannelId),
-      CallFlow = call_flow:find(Channel#channel.call_flow_id),
-      Project = project:find(CallFlow#call_flow.project_id),
-      Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
       CallLog = call_log_srv:new(SessionId, #call_log{
         account_id = Channel#channel.account_id,
-        project_id = CallFlow#call_flow.project_id,
         state = "active",
         direction = "incoming",
         channel_id = ChannelId,
         address = CallerId,
-        started_at = StartedAt,
-        call_flow_id = CallFlow#call_flow.id,
-        contact_id = Contact#contact.id
-      }),
-      Flow = call_flow:flow(CallFlow),
-      {StatusUrl, StatusUser, StatusPass, StatusIncludeVars} = project:status_callback(Project),
-
-      #session{
-        session_id = SessionId,
-        pbx = Pbx,
-        channel = Channel,
-        flow = Flow,
-        call_flow = CallFlow,
-        call_log = CallLog,
-        project = Project,
-        address = CallerId,
-        contact = Contact,
-        status_callback_url = StatusUrl,
-        status_callback_include_vars = StatusIncludeVars,
-        status_callback_user = StatusUser,
-        status_callback_password = StatusPass,
         started_at = StartedAt
-      };
-    Session -> Session#session{pbx = Pbx}
-  end,
+      }),
+      Session = #session{
+        call_log = CallLog
+      },
+      Pbx:reject(),
+      Pbx:terminate(),
+      finalize({failed, no_call_flow_id}, State#state{session = Session});
 
-  poirot:add_meta([
-    {address, CallerId},
-    {project_id, NewSession#session.project#project.id},
-    {call_log_id, (NewSession#session.call_log):id()},
-    {channel_id, ChannelId},
-    {channel_name, NewSession#session.channel#channel.name}
-  ]),
+    CallFlowId ->
+      NewSession = case State#state.session of
+        undefined ->
+          CallFlow = call_flow:find(CallFlowId),
+          Project = project:find(CallFlow#call_flow.project_id),
+          Contact = get_contact(CallFlow#call_flow.project_id, CallerId, 1),
+          CallLog = call_log_srv:new(SessionId, #call_log{
+            account_id = Channel#channel.account_id,
+            project_id = CallFlow#call_flow.project_id,
+            state = "active",
+            direction = "incoming",
+            channel_id = ChannelId,
+            address = CallerId,
+            started_at = StartedAt,
+            call_flow_id = CallFlowId,
+            contact_id = Contact#contact.id
+          }),
+          Flow = call_flow:flow(CallFlow),
+          {StatusUrl, StatusUser, StatusPass, StatusIncludeVars} = project:status_callback(Project),
 
-  notify_status('in-progress', NewSession),
-  FlowPid = spawn_run(NewSession, State#state.resume_ptr),
+          #session{
+            session_id = SessionId,
+            pbx = Pbx,
+            channel = Channel,
+            flow = Flow,
+            call_flow = CallFlow,
+            call_log = CallLog,
+            project = Project,
+            address = CallerId,
+            contact = Contact,
+            status_callback_url = StatusUrl,
+            status_callback_include_vars = StatusIncludeVars,
+            status_callback_user = StatusUser,
+            status_callback_password = StatusPass,
+            started_at = StartedAt
+          };
+        Session -> Session#session{pbx = Pbx}
+      end,
 
-  {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), flow_pid = FlowPid, session = NewSession}}.
+      poirot:add_meta([
+        {address, CallerId},
+        {project_id, NewSession#session.project#project.id},
+        {call_log_id, (NewSession#session.call_log):id()},
+        {channel_id, ChannelId},
+        {channel_name, NewSession#session.channel#channel.name}
+      ]),
+
+      notify_status('in-progress', NewSession),
+      FlowPid = spawn_run(NewSession, State#state.resume_ptr),
+
+      {next_state, in_progress, State#state{pbx_pid = Pbx:pid(), flow_pid = FlowPid, session = NewSession}}
+  end.
 
 ready({dial, _, _, QueuedCall = #queued_call{address = undefined}}, _From, State) ->
   lager:error("Refusing to make a call to an undefined address (queued call id ~p)", [QueuedCall#queued_call.id]),
@@ -470,6 +490,7 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
     hangup ->                    [{fail_reason, "hangup"}];
     busy ->                      [{fail_reason, "busy"}];
     no_answer ->                 [{fail_reason, "no-answer"}];
+    no_call_flow_id ->           [{fail_reason, "no-call-flow"}, {fail_details, "No Incoming Flow Defined"}];
     {error, ErrDetails} ->       [{fail_reason, "error"}, {fail_details, ErrDetails}];
     {error, ErrDetails, Code} -> [{fail_reason, "error"}, {fail_details, ErrDetails}, {fail_code, Code}];
     {internal_error, Details} -> [{fail_reason, "internal error"}, {fail_details, io_lib:format("~p", [Details])}];

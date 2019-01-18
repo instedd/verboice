@@ -15,6 +15,7 @@ end}).
 session_test_() ->
   ?setup([
     ?test(run_simple_flow),
+    ?test(reject_when_no_call_flow_is_defined),
     ?test(run_queued_call),
     ?test(run_queued_call_if_not_before_already_passed),
     ?test(dont_run_queued_call_if_not_before),
@@ -33,6 +34,18 @@ run_simple_flow() ->
   Pbx = pbx_mock:new([
     {answer, [], ok},
     {hangup, [], ok}
+  ]),
+
+  session:answer(SessionPid, Pbx, Channel:id(), <<"1234">>),
+
+  ?assertEqual(normal, test_app:wait_process(SessionPid)),
+  ?assertEqual(ok, Pbx:validate()).
+
+reject_when_no_call_flow_is_defined() ->
+  Channel = channel:make([]),
+  {ok, SessionPid} = session:new(),
+  Pbx = pbx_mock:new([
+    {reject, [], ok}
   ]),
 
   session:answer(SessionPid, Pbx, Channel:id(), <<"1234">>),

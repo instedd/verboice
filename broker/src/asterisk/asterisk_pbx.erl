@@ -1,5 +1,5 @@
 -module(asterisk_pbx).
--export([new/1, pid/1, answer/1, hangup/1, can_play/2, play/2, capture/6, record/5, terminate/1, sound_path_for/2, sound_quality/1, dial/4]).
+-export([new/1, pid/1, answer/1, reject/1, hangup/1, can_play/2, play/2, capture/6, record/5, terminate/1, sound_path_for/2, sound_quality/1, dial/4]).
 
 -behaviour(pbx).
 
@@ -20,6 +20,9 @@ terminate({?MODULE, Pid}) ->
 
 answer({?MODULE, Pid}) ->
   agi_session:answer(Pid).
+
+reject({?MODULE, Pid}) ->
+  agi_session:hangup(Pid).
 
 hangup({?MODULE, Pid}) ->
   agi_session:hangup(Pid).
