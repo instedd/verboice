@@ -18,6 +18,10 @@ module Api
   class CallsController < ApiController
 
     def call
+      if request.env && request.env["guisso.oauth2.token"] && request.env["guisso.oauth2.token"]["client"]
+        params[:guisso_client_name] = request.env["guisso.oauth2.token"]["client"]["name"]
+      end
+
       begin
         params[:flow] = request.body.read if request.post?
         call_log = current_account.call params

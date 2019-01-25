@@ -126,8 +126,19 @@ class Channel < ActiveRecord::Base
       project = current_call_flow.project
     elsif options[:project_id]
       project = account.find_project_by_id(options[:project_id])
-    else
+    elsif self.project
       project = self.project
+    else
+      if options[:guisso_client_name]
+        project_name = "#{options[:guisso_client_name]} default"
+      else
+        project_name = "Default"
+      end
+      project = account.projects.find_by_name(project_name)
+
+      if !project
+        project = Project.new(account: account, name: project_name)
+      end
     end
 
     schedule = options.has_key?(:schedule_id) ? project.schedules.find(options[:schedule_id]) : nil

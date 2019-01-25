@@ -84,6 +84,33 @@ describe Channel do
         expect(queued_call.call_flow).to be_nil
       end
 
+      it "call with no call flow and custom callback url" do
+        expect(BrokerClient).to receive(:notify_call_queued)
+
+        channel.call_flow = nil
+
+        channel.call 'foo', :callback_url => 'bar'
+        expect(queued_call.callback_url).to eq('bar')
+        expect(queued_call.call_flow).to be_nil
+      end
+
+      it "call with no call flow and custom callback url uses the default project" do
+        expect(BrokerClient).to receive(:notify_call_queued)
+
+        project = Project.new(account: channel.account, name: 'default')
+        project.save
+
+
+        channel.call_flow = nil
+
+        channel.call 'foo', :callback_url => 'bar'
+        expect(queued_call.callback_url).to eq('bar')
+
+        expect(queued_call.project).to eq(project)
+        expect(queued_call.call_flow).to be_nil
+      end
+
+
       it "call with custom flow" do
         expect(BrokerClient).to receive(:notify_call_queued)
         channel.call 'foo', :flow => %(<Response><Hangup/></Response>)
