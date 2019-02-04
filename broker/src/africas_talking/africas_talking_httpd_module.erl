@@ -35,7 +35,9 @@ do(#mod{request_uri = "/africas_talking" ++ _, method = "POST", entity_body = Bo
           FoundPbx ->
             FoundPbx:resume(Params)
           end,
-          Response = [{response, {200, ResponseBody}}],
+          Length = integer_to_list(iolist_size(ResponseBody)),
+          Head = [{content_type, "text/plain"}, {content_length, Length}, {code, 200}],
+          Response = [{response, {response, Head, ResponseBody}}],
           {proceed, Response}
         end);
     % TODO. If the call fails and the session is still active, a user_hangup is logged,
