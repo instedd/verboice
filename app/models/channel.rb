@@ -138,6 +138,7 @@ class Channel < ActiveRecord::Base
 
       if !project
         project = Project.new(account: account, name: project_name)
+        project.save
       end
     end
 
