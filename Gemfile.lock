@@ -166,6 +166,8 @@ GEM
       orm_adapter (~> 0.0.3)
       warden (~> 1.1)
     diff-lcs (1.3)
+    domain_name (0.5.20180417)
+      unf (>= 0.0.5, < 1.0.0)
     dotenv (0.11.1)
       dotenv-deployment (~> 0.0.2)
     dotenv-deployment (0.0.2)
@@ -212,6 +214,8 @@ GEM
     hashie (3.6.0)
     highline (1.6.19)
     hike (1.2.3)
+    http-cookie (1.0.3)
+      domain_name (~> 0.5)
     httpauth (0.1)
     httpclient (2.8.3)
     i18n (0.9.5)
@@ -330,7 +334,8 @@ GEM
     rake (12.3.2)
     rdoc (3.12.2)
       json (~> 1.4)
-    rest-client (1.7.3)
+    rest-client (1.8.0)
+      http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
       netrc (~> 0.7)
     rspec (3.6.0)
@@ -394,6 +399,9 @@ GEM
     uglifier (1.2.0)
       execjs (>= 0.3.0)
       multi_json (>= 1.0.2)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.7.5)
     warden (1.2.7)
       rack (>= 1.0)
     webmock (1.7.10)
@@ -455,7 +463,7 @@ DEPENDENCIES
   rails-assets-material-components-web!
   rails-dev-tweaks
   recurring_select!
-  rest-client
+  rest-client (= 1.8.0)
   rspec
   rspec-collection_matchers
   rspec-rails
@@ -476,4 +484,4 @@ DEPENDENCIES
   zip-zip
 
 BUNDLED WITH
-   1.17.2
+   1.17.3

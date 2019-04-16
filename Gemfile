@@ -19,7 +19,7 @@ gem 'oauth2', :require => 'oauth2'
 gem 'delayed_job_active_record'
 gem 'rubyzip'
 gem 'zip-zip'
-gem 'rest-client'
+gem 'rest-client', "1.8.0"
 gem 'enumerated_attribute', :git => "https://github.com/edave/enumerated_attribute.git"
 gem 'csv_builder'
 gem 'newrelic_rpm'
