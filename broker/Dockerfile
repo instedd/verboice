@@ -1,5 +1,9 @@
 FROM erlang:17.5.6
 
+# Hack to keep using this old erlang image based on debian:jessie
+# (removes reference to jessie-updates repository)
+RUN sed -i '/jessie-updates/d' /etc/apt/sources.list
+
 # Install dependencies
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y libzmq3-dev sox libsox-fmt-mp3 festival postfix curl ruby && \
