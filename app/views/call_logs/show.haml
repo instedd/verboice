@@ -16,7 +16,7 @@
     = format_timestamp(@log.finished_at)
   .item
     %b Duration:
-    = distance_of_time_in_words(@log.finished_at, @log.started_at, true) if @log.finished_at
+    = distance_of_time_in_words(@log.finished_at, @log.started_at, true) if @log.finished_at and @log.started_at
   .item
     %b Phone number:
     = @log.address
