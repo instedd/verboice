@@ -17,9 +17,7 @@ Getting Started
 Docker development
 ------------------
 
-IMPORTANT: as of Sep 23rd, 2016, only Verboice's web app and DB components are dockerised. This is mainly useful to test interactions with other InSTEDD platform components that DON'T involve actually making or receiving calls (for example: managing channels with the help of Guisso and Pigeon).
-
-`docker-compose.yml` file build a development environment mounting the current folder and running rails in development environment.
+We use [`dockerdev`](https://github.com/waj/dockerdev) to get domain names for the components of the app - so it can interoperate with other apps from the InSTEDD platform. Although it's optional, your first step to have Verboice running on Docker should be to install `dockerdev` - it needs to be running before creating any Verboice container, network and other objects.
 
 Run the following commands to have a stable development environment.
 
