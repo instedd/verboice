@@ -28,6 +28,13 @@ GIT
       ruby-openid
 
 GIT
+  remote: https://github.com/instedd/machinist.git
+  revision: 2b6ea4c2e876d4e9b3b22cc975057268788c7ff5
+  branch: 1.0-maintenance
+  specs:
+    machinist (1.0.6)
+
+GIT
   remote: https://github.com/instedd/poirot.git
   revision: ea1615dbd6f93b1808521e3869d1fca3a4ede894
   branch: master
@@ -77,13 +84,6 @@ GIT
       global_phone
       global_phone_dbgen
       rails
-
-GIT
-  remote: https://github.com/tbuehl/machinist.git
-  revision: 2b6ea4c2e876d4e9b3b22cc975057268788c7ff5
-  branch: 1.0-maintenance
-  specs:
-    machinist (1.0.6)
 
 GEM
   remote: http://rubygems.org/
