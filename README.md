@@ -67,3 +67,10 @@ Verboice will forward any conversation with a logged user identifying them throu
 If you don't want to use Intercom, you can simply omit `INTERCOM_APP_ID` or set it to `''`.
 
 To test the feature in development, add the `INTERCOM_APP_ID` variable and its value to the `environment` object inside the `web` service in `docker-compose.yml`.
+
+GUISSO
+------
+
+Verboice leverages the `alto_guisso` gem to connect with [GUISSO](https://github.com/instedd/guisso).
+
+To set it up, you just have to register Verboice as a new Application in your GUISSO instance, and copy the `guisso.yml` file to your local `config/guisso.yml`.
