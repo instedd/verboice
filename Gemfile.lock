@@ -293,7 +293,7 @@ GEM
     orm_adapter (0.0.5)
     polyglot (0.3.5)
     power_assert (1.1.1)
-    puma (2.16.0)
+    puma (3.12.2)
     quiet_assets (1.1.0)
       railties (>= 3.1, < 5.0)
     rack (1.4.7)
@@ -457,7 +457,7 @@ DEPENDENCIES
   omniauth
   omniauth-openid
   poirot_rails!
-  puma (= 2.16.0)
+  puma (= 3.12.2)
   quiet_assets
   rails (~> 3.2.0)
   rails-assets-material-components-web!
