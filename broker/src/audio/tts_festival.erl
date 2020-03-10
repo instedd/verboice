@@ -1,6 +1,11 @@
 -module(tts_festival).
 -export([synthesize/4, synthesize/3]).
 
+command_args(undefined, TempFile, InputFile) ->
+  ["-o", TempFile, InputFile];
+command_args(Voice, TempFile, InputFile) ->
+  ["-eval", "(voice.select '" ++ Voice ++ ")", "-o", TempFile, InputFile].
+
 synthesize(Text, Project, Language, TargetPath) ->
   Voice = Project:voice(Language),
   synthesize(Text, Voice, TargetPath).
@@ -16,11 +21,12 @@ synthesize(Text, Voice, TargetPath) when is_binary(Text) ->
 synthesize(Text, Voice, TargetPath) ->
   TempFile = TargetPath ++ ".wav",
   InputFile = TargetPath ++ ".txt",
+  CommandArgs = command_args(Voice, TempFile, InputFile),
   file:write_file(InputFile, Text, [{encoding, latin1}]),
   try
     Exec = os:find_executable("text2wave"),
     Port = open_port({spawn_executable, Exec}, [exit_status,
-      {args, ["-eval", "(voice.select '" ++ Voice ++ ")", "-o", TempFile, InputFile]}]),
+      {args, CommandArgs}]),
     receive
       {Port, {exit_status, N}} ->
         case N of
@@ -34,4 +40,3 @@ synthesize(Text, Voice, TargetPath) ->
     file:delete(TempFile),
     file:delete(InputFile)
   end.
-
