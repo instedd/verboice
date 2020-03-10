@@ -1,5 +1,6 @@
 class ChannelsUiController < ApplicationController
   skip_before_filter :check_guisso_cookie
+  skip_after_filter :intercom_rails_auto_include
   before_filter :authenticate_api_account!
   before_filter :new_channel, only: [:new, :create]
   layout 'channels_ui'
