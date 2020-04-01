@@ -10,10 +10,12 @@ onWorkflow ->
       @next_id = attrs.next
       @address = ko.observable attrs.address
       @channel = ko.observable attrs.channel
-      
+
       @successful_after_check = ko.observable(_.isString(attrs.successful_after))
       @successful_after_input = ko.observable(attrs.successful_after or "")
       @successful_after = ko.computed () => if @successful_after_check() then @successful_after_input() else null
+
+      @record_call = ko.observable(attrs.record_call)
 
       @is_address_invalid = ko.computed () =>
         not @address()
@@ -39,6 +41,7 @@ onWorkflow ->
         address: @address()
         channel: @channel()
         successful_after: @successful_after()
+        record_call: @record_call()
       )
 
     default_name: () =>

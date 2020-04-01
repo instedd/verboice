@@ -30,6 +30,7 @@ module Parsers
         @next = params['next']
         @root_index = params['root']
         @successful_after = params['successful_after']
+        @record_call = params['record_call']
       end
 
       def is_root?

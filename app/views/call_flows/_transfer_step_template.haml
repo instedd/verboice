@@ -41,6 +41,11 @@
               %li 10 seconds
               %li 2 minutes
               %li 1 hour
+      .content
+        %hr
+        %input{ type: 'checkbox', 'data-bind' => 'checked: record_call, attr: { id: ("record_call_" + id) }' }
+        %label{ title: 'When checked, the forwarded call will be recorded.', 'data-bind' => 'attr: { for: ("record_call_" + id) }'} Record call
+        %br
 
       .bottom-actions
         = render partial: 'bottom_actions'
