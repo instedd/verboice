@@ -35,7 +35,7 @@ module Parsers
             Label 1
             StartUserStep :transfer, 1, "Transfer"
             Trace call_flow_id: 1, step_id: 1, step_name: 'Transfer', store: '"Transfer to 1234-5678 in channel foo."'
-            Dial '1234-5678', {:channel => 'foo'}
+            Dial '1234-5678', {:channel => 'foo', :key => 1, :description => 'Transfer'}
             SetStepResult [:eval, "dial_status"]
           end.first
         )
@@ -52,7 +52,25 @@ module Parsers
             Label 2
             StartUserStep :transfer, 2, "Transfer"
             Trace call_flow_id: 1, step_id: 2, step_name: 'Transfer', store: '"Transfer to 1234-5678 in current channel."'
-            Dial '1234-5678', {:channel => nil}
+            Dial '1234-5678', {:channel => nil, :key => 2, :description => 'Transfer'}
+            SetStepResult [:eval, "dial_status"]
+          end.first
+        )
+      end
+
+      it "should compile with call recording" do
+        transfer = Transfer.new call_flow, 'id' => 3,
+          'type' => 'transfer',
+          'name' => 'Transfer and Record',
+          'address' => '1234-5678',
+          'record_call' => true
+
+        expect(transfer.equivalent_flow.first).to eq(
+          Compiler.parse do
+            Label 3
+            StartUserStep :transfer, 3, "Transfer and Record"
+            Trace call_flow_id: 1, step_id: 3, step_name: 'Transfer and Record', store: '"Transfer to 1234-5678 in current channel."'
+            Dial '1234-5678', {:channel => nil, :key => 3, :description => 'Transfer and Record', :record_call => true}
             SetStepResult [:eval, "dial_status"]
           end.first
         )

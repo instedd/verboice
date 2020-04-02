@@ -47,7 +47,7 @@ module Parsers
           c.Label @id
           c.StartUserStep :transfer, @id, @name
           c.Trace context_for %("Transfer to #{@address} in #{channel_name}.")
-          c.Dial @address, {:channel => @channel, :successful_after => @successful_after}
+          c.Dial @address, {:channel => @channel, :successful_after => @successful_after, :record_call => @record_call, :key => @id, :description => @name}
           c.SetStepResult [:eval, "dial_status"]
           c.append @next.equivalent_flow if @next
         end
