@@ -17,10 +17,12 @@ services:
       - sounds:/usr/local/var/lib/asterisk/sounds/verboice
       - deps:/app/deps
       - ebin:/app/ebin
+      - verboice-data:/data
     depends_on:
       - db
     environment:
       AMI_HOST: asterisk-bridge
+      ASTERISK_RECORD_DIR: /data/call_logs/
       BROKER_HOST: 172.88.0.88
       DB_HOST: db
     tty: true
@@ -39,6 +41,7 @@ services:
     volumes:
       - .:/app
       - bundle:/usr/local/bundle
+      - verboice-data:/app/data
     tmpfs: /app/tmp
     depends_on:
       - db
@@ -55,6 +58,7 @@ services:
     volumes:
       - asterisk:/etc/asterisk/verboice
       - sounds:/var/lib/asterisk/sounds/verboice
+      - verboice-data:/data
     network_mode: host
 
   asterisk-bridge:
@@ -77,6 +81,7 @@ volumes:
   sounds:
   deps:
   ebin:
+  verboice-data:
 
 networks:
   default:
