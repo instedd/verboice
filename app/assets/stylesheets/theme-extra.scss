@@ -176,7 +176,7 @@ ul.call-log-details li div span.grey { color:#999999 }
 ul.call-log-details li.orange div { background-position:left -48px }
 ul.call-log-details li.orange div span { color:#ff6600 }
 
-.user-flow-log {
+.call-log {
   min-height: 0px;
   padding: 0px;
   width: 800px;
@@ -208,6 +208,17 @@ ul.call-log-details li.orange div span { color:#ff6600 }
       }
     }
   }
+}
+
+.call-log-attachtments {
+  @extend .call-log;
+  .description {
+    color: #999999;
+  }
+}
+
+.user-flow-log {
+  @extend .call-log;
 }
 
 .butt-right { background: url(http://theme.instedd.org/theme/images/buttons/mark/greyRight.png) no-repeat right top; color:#000000 !important; padding:2px 15px 2px 4px; display:inline-block; vertical-align:middle }
