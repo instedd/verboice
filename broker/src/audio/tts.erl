@@ -4,14 +4,14 @@
 
 synthesize(Text, Project, Language, TargetPath) ->
   Synth = case Project:tts_engine() of
-    "built-in" ->
+    "ispeech" ->
+      poirot:log(info, "Will use iSpeech to synthesize"),
+      tts_ispeech;
+    _ ->
       poirot:log(info, "Will use built in TTS engine"),
       case os:type() of
         {unix, darwin} -> tts_mac;
         {unix, _} -> tts_festival
-      end;
-    "ispeech" ->
-      poirot:log(info, "Will use iSpeech to synthesize"),
-      tts_ispeech
+      end
   end,
   Synth:synthesize(Text, Project, Language, TargetPath).
