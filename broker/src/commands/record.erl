@@ -10,9 +10,7 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact, p
   Timeout = proplists:get_value(timeout, Args, 10),
 
   CallLogId = CallLog:id(),
-  LocalFilename = local_filename(CallLogId, Key),
-  AsteriskFilename = asterisk_filename(CallLogId, Key),
-  filelib:ensure_dir(LocalFilename),
+  [LocalFilename, AsteriskFilename] = recording_utils:asterisk_and_local_filenames(CallLogId, Key),
 
   poirot:log(info, "Recording to filename: ~s, stop keys: ~s, timeout: ~B, as: ~s", [LocalFilename, StopKeys, Timeout, AsteriskFilename]),
   case Pbx:record(AsteriskFilename, LocalFilename, StopKeys, Timeout) of
@@ -30,17 +28,4 @@ run(Args, Session = #session{pbx = Pbx, call_log = CallLog, contact = Contact, p
 
     {error, Reason} ->
       throw({error_recording, Reason})
-  end.
-
-filename(RecordDir, CallLogId, Key) ->
-  filename:join([RecordDir, util:to_string(CallLogId), "results", Key ++ ".wav"]).
-
-local_filename(CallLogId, Key) ->
-  RecordDir = verboice_config:record_dir(),
-  filename(RecordDir, CallLogId, Key).
-
-asterisk_filename(CallLogId, Key) ->
-  case verboice_config:asterisk_record_dir() of
-    undefined -> local_filename(CallLogId, Key);
-    RecordDir -> filename(RecordDir, CallLogId, Key)
   end.
