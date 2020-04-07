@@ -40,33 +40,32 @@
       %b Failure information:
       = call_log_fail_info(@log)
 
-- if @log.recorded_audios
-  %br
-  %h3 Attachments
-  .tablewrapp.call-log-attachtments
-    %table
+%br
+%h3 Attachments
+.tablewrapp.call-log-attachtments
+  %table
+    %tr
+      %td.description
+        CSV
+      %td.icon
+        %div.i48grad-dataBase
+      %td
+      %td.details
+        = link_to 'Download', download_details_call_log_path(@log, :format => :csv), :class => "button fimport"
+    -@log.recorded_audios.each do |recorded_audio|
       %tr
         %td.description
-          CSV
+          = recorded_audio.description
         %td.icon
-          %div.i48grad-dataBase
+          %div.i48grad-sound
         %td
+          %audio{controls: true, controlsList: "nodownload"}
+            %source{src: result_call_log_path(@log, :key => recorded_audio.key), type: "audio/mpeg"}
         %td.details
-          = link_to 'Download', download_details_call_log_path(@log, :format => :csv), :class => "button fimport"
-      -@log.recorded_audios.each do |recorded_audio|
-        %tr
-          %td.description
-            = recorded_audio.description
-          %td.icon
-            %div.i48grad-sound
-          %td
-            %audio{controls: true, controlsList: "nodownload"}
-              %source{src: result_call_log_path(@log, :key => recorded_audio.key), type: "audio/mpeg"}
-          %td.details
-            = link_to 'Download', result_call_log_path(@log, :key => recorded_audio.key), :class => "button fimport"
+          = link_to 'Download', result_call_log_path(@log, :key => recorded_audio.key), :class => "button fimport"
 
 %br
-%h3 Workflow logs
+%h3 Workflow Logs
 .tablewrapp.user-flow-log
   %table
     -@activities.each do |activity|
