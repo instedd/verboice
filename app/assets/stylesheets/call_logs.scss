@@ -17,6 +17,10 @@
 }
 
 .call-log-header {
+  .item {
+    padding-bottom: 18px;
+    font-size: 16px;
+  }
   a.call-log-fail-info {
     text-decoration: underline;
   }
@@ -28,6 +32,9 @@
     span {
       word-wrap: break-word;
     }
+  }
+  tr {
+    height: 48px;
   }
 }
 

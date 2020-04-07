@@ -39,10 +39,33 @@
     .item
       %b Failure information:
       = call_log_fail_info(@log)
-%br/
-%p
-  = link_to 'Download CSV', download_details_call_log_path(@log, :format => :csv), :class => "button fimport"
 
+%br
+%h3 Attachments
+.tablewrapp.call-log-attachtments
+  %table
+    %tr
+      %td.description
+        CSV
+      %td.icon
+        %div.i48grad-dataBase
+      %td
+      %td.details
+        = link_to 'Download', download_details_call_log_path(@log, :format => :csv), :class => "button fimport"
+    -@log.recorded_audios.each do |recorded_audio|
+      %tr
+        %td.description
+          = recorded_audio.description
+        %td.icon
+          %div.i48grad-sound
+        %td
+          %audio{controls: true, controlsList: "nodownload"}
+            %source{src: result_call_log_path(@log, :key => recorded_audio.key), type: "audio/mpeg"}
+        %td.details
+          = link_to 'Download', result_call_log_path(@log, :key => recorded_audio.key), :class => "button fimport"
+
+%br
+%h3 Workflow Logs
 .tablewrapp.user-flow-log
   %table
     -@activities.each do |activity|
@@ -62,7 +85,7 @@
             = activity.fields['step_data']
 
 - if @log.pbx_logs_guid
-  %br/
+  %br
   %h3 Network Logs
   %table.GralTable.PbxLogTable
     %tr
@@ -74,4 +97,3 @@
         %td.call-log-pbx-details
           %span= pbx_log.details
   %br
-
