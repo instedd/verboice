@@ -1,6 +1,6 @@
 -module(africas_talking_pbx).
 -compile([{parse_transform, lager_transform}]).
--export([pid/1, answer/1, reject/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2, sound_quality/1, dial/6, record/4]).
+-export([pid/1, answer/1, reject/1, hangup/1, can_play/2, play/2, capture/6, terminate/1, sound_path_for/2, sound_quality/1, dial/6, record/5]).
 -behaviour(pbx).
 
 -export([start_link/1, find/1, new/1, resume/2, user_hangup/1]).
@@ -52,7 +52,7 @@ capture(Caption, Timeout, FinishOnKey, Min, Max, ?PBX(Pid)) ->
     X -> X
   end.
 
-record(FileName, StopKeys, Timeout, ?PBX(Pid)) ->
+record(_AsteriskFileName, FileName, StopKeys, Timeout, ?PBX(Pid)) ->
   case gen_server:call(Pid, {record, FileName, StopKeys, Timeout}, timer:minutes(5)) of
     hangup -> throw(hangup);
     X -> X
