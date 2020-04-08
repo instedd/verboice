@@ -16,16 +16,16 @@
 # along with Verboice.  If not, see <http://www.gnu.org/licenses/>.
 
 class Commands::DialCommand < Command
-  attr_accessor :number
-  attr_accessor :channel_name
-  attr_accessor :caller_id
-  attr_accessor :successful_after
+  attr_accessor :number, :channel_name, :caller_id, :successful_after, :record_call, :key, :description
 
   def initialize(number, options = {})
     @number = number
     @channel_name = options[:channel]
     @caller_id = options[:caller_id]
     @successful_after = options[:successful_after]
+    @record_call = options[:record_call]
+    @key = options[:key]
+    @description = options[:description]
   end
 
   def serialize_parameters
@@ -33,6 +33,9 @@ class Commands::DialCommand < Command
     params[:channel_name] = @channel_name if @channel_name.present?
     params[:caller_id] = @caller_id if @caller_id.present?
     params[:successful_after] = @successful_after if @successful_after.present?
+    params[:record_call] = true if @record_call
+    params[:key] = @key if @key.present?
+    params[:description] = @description if @description.present?
     params
   end
 end

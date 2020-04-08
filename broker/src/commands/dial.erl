@@ -3,7 +3,7 @@
 -include("session.hrl").
 -include("db.hrl").
 
-run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, js_context = JS}) ->
+run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, js_context = JS, call_log = CallLog, contact = Contact, project = Project}) ->
   RawNumber = proplists:get_value(number, Args),
   CallerId = proplists:get_value(caller_id, Args),
   Number = util:interpolate_js(util:as_binary(RawNumber), JS),
@@ -28,12 +28,22 @@ run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, js_context = J
                           Expr -> util:parse_short_time(Expr)
                         end,
 
+  Key = util:to_string(proplists:get_value(key, Args)),
+  Description = proplists:get_value(description, Args),
+
+  [LocalFilename, AsteriskFilename] = case proplists:get_value(record_call, Args) of
+    true -> CallLogId = CallLog:id(),
+            recording_utils:asterisk_and_local_filenames(CallLogId, Key);
+    _ -> [undefined, undefined]
+  end,
+
   poirot:log(info, "Dialing ~s through channel ~s", [Number, Channel#channel.name]),
 
   DialStart = erlang:now(),
 
   try
-    Result = Pbx:dial(Channel, Number, CallerId),
+    Result = Pbx:dial(Channel, Number, CallerId, LocalFilename, AsteriskFilename),
+    persist_recording(AsteriskFilename, [Contact, Project, CallLog:id(), Key, Description]),
     ResultJS = erjs_context:set(dial_status, Result, JS),
     NewJS = maybe_mark_session_successful(DialStart, SuccessAfterSeconds, ResultJS),
 
@@ -44,6 +54,17 @@ run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, js_context = J
       UpdatedJS = maybe_mark_session_successful(DialStart, SuccessAfterSeconds, JS),
       throw({hangup, Session#session{js_context = UpdatedJS}})
   end.
+
+persist_recording(undefined, _) -> undefined;
+persist_recording(_AsteriskFilename, [Contact, Project, CallLogId, Key, Description]) -> 
+  RecordedAudio = #recorded_audio{
+    contact_id = Contact#contact.id,
+    project_id = Project#project.id,
+    call_log_id = CallLogId,
+    key = Key,
+    description = Description
+  },
+  RecordedAudio:save().
 
 maybe_mark_session_successful(_DialStart, undefined, JS) ->
   JS;
