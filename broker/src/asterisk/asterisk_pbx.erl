@@ -1,5 +1,5 @@
 -module(asterisk_pbx).
--export([new/1, pid/1, answer/1, reject/1, hangup/1, can_play/2, play/2, capture/6, record/5, terminate/1, sound_path_for/2, sound_quality/1, dial/4]).
+-export([new/1, pid/1, answer/1, reject/1, hangup/1, can_play/2, play/2, capture/6, record/5, terminate/1, sound_path_for/2, sound_quality/1, dial/6]).
 
 -behaviour(pbx).
 
@@ -87,12 +87,25 @@ record(AsteriskFilename, FileName, StopKeys, Timeout, {?MODULE, Pid}) ->
     file:delete(TempFile)
   end.
 
-dial(Channel, Address, undefined, {?MODULE, Pid}) ->
+monitor_session(_Pid, undefined) ->
+  undefined;
+monitor_session(Pid, AsteriskFilename) ->
+  agi_session:mix_monitor(Pid, [AsteriskFilename]).
+
+stop_monitoring(_Pid, undefined, _LocalFilename) ->
+  undefined;
+stop_monitoring(Pid, AsteriskFilename, LocalFilename) ->
+  agi_session:stop_mix_monitor(Pid),
+  file:rename(AsteriskFilename, LocalFilename).
+
+dial(Channel, Address, undefined, LocalFilename, AsteriskFilename, {?MODULE, Pid}) ->
+  monitor_session(Pid, AsteriskFilename),
   DialAddress = case asterisk_broker:dial_address(Channel, Address) of
                   AsBinary when is_binary(AsBinary) -> binary_to_list(AsBinary);
                   AsList -> AsList
                 end,
   agi_session:dial(Pid, [DialAddress, "60", "mg"]),
+  stop_monitoring(Pid, AsteriskFilename, LocalFilename),
   case agi_session:get_variable(Pid, "DIALSTATUS") of
     hangup -> throw(hangup);
     {ok, Value} -> case Value of
@@ -103,6 +116,6 @@ dial(Channel, Address, undefined, {?MODULE, Pid}) ->
       _ -> failed
     end
   end;
-dial(Channel, Address, CallerId, Pbx = {?MODULE, Pid}) ->
+dial(Channel, Address, CallerId, LocalFilename, AsteriskFilename, Pbx = {?MODULE, Pid}) ->
   agi_session:set_callerid(Pid, CallerId),
-  dial(Channel, Address, undefined, Pbx).
+  dial(Channel, Address, undefined, LocalFilename, AsteriskFilename, Pbx).
