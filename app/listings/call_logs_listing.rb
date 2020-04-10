@@ -34,13 +34,17 @@ class CallLogsListing < Listings::Base
   layout filters: :top
 
   filter :id, render: false
-  filter :direction, select_css_class: 'w10'
+  filter :direction, values: :direction_values, select_css_class: 'w10'
   filter :state, select_css_class: 'w10'
   filter :address, title: 'Caller ID', render: false
   filter :channel_id, render: false
   filter channel: :name, title: 'Channel'
   filter :project_id, render: false
   filter project: :name, title: 'Project'
+
+  def direction_values
+    %w(outgoing incoming)
+  end
 
   custom_filter :after do |items, value|
     items.where "started_at >= ?", Time.smart_parse(value)
