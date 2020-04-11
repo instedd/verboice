@@ -23,7 +23,12 @@ class CallLogsListing < Listings::Base
   end
 
   model do
-    CallLog.for_account(listing_account).order('call_logs.id DESC')
+    CallLog.for_account(listing_account)
+    .joins("LEFT OUTER JOIN recorded_audios ON recorded_audios.call_log_id = call_logs.id")
+    .select("call_logs.*, CASE WHEN count(distinct recorded_audios.id) > 0 THEN 'Yes' ELSE 'No' END as has_recordings")
+    .group('call_logs.id')
+    .order('call_logs.id DESC')
+    .all # For some reason, this line is necessary to recorded_audios_count be included in the model
   end
 
   def listing_account
@@ -34,13 +39,14 @@ class CallLogsListing < Listings::Base
   layout filters: :top
 
   filter :id, render: false
-  filter :direction, select_css_class: 'w10'
-  filter :state, select_css_class: 'w10'
+  filter :direction, title: 'Direction', select_css_class: 'w10'
+  filter :state, title: 'State', select_css_class: 'w10'
   filter :address, title: 'Caller ID', render: false
   filter :channel_id, render: false
-  filter channel: :name, title: 'Channel'
+  filter channel: :name, title: 'Channel', select_css_class: 'w10'
   filter :project_id, render: false
-  filter project: :name, title: 'Project'
+  filter project: :name, title: 'Project', select_css_class: 'w10'
+  filter :has_recordings, title: 'Recordings', select_css_class: 'w10'
 
   custom_filter :after do |items, value|
     items.where "started_at >= ?", Time.smart_parse(value)
@@ -66,7 +72,7 @@ class CallLogsListing < Listings::Base
       value
     end
   end
-  column :direction, searchable: true
+  column :direction, title: 'Direction', searchable: true
   column channel: :name, title: 'Channel'
   column schedule: :name, title: 'Schedule'
   column project: :name, title: 'Project' do |_,value|
@@ -77,7 +83,7 @@ class CallLogsListing < Listings::Base
     end
   end
   column call_flow: :name, title: 'Call Flow'
-  column :state, searchable: true do |log, value|
+  column :state, title: 'State', searchable: true do |log, value|
     text = if log.fail_reason.present?
       "#{value.capitalize} (#{log.fail_reason})"
     else
