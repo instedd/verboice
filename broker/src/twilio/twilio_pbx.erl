@@ -68,9 +68,9 @@ sound_path_for(Name, ?PBX(_)) ->
 sound_quality(?PBX(_)) ->
   "44100".
 
-dial(_Channel, Number, CallerId, _LocalFilename, _AsteriskFilename, ?PBX(Pid)) ->
+dial(_Channel, Number, CallerId, LocalFilename, _AsteriskFilename, ?PBX(Pid)) ->
   % FIXME: implement session recording
-  case gen_server:call(Pid, {dial, Number, CallerId}, timer:minutes(60)) of
+  case gen_server:call(Pid, {dial, Number, CallerId, LocalFilename}, timer:minutes(60)) of
     hangup -> throw(hangup) ;
     X -> X
   end.
@@ -149,9 +149,11 @@ handle_call({record, FileName, StopKeys, Timeout}, From, State) ->
     {'Record', [{timeout, Timeout}, {finishOnKey, StopKeys}], []},
   flush(From, append_with_callback(Command, State#state{waiting = {record, FileName}}));
 
-handle_call({dial, Number, _CallerId}, From, State) ->
+handle_call({dial, Number, _CallerId, LocalFilename}, From, State) ->
   Command = {'Dial', [{action, State#state.callback_url}], [binary_to_list(Number)]},
-  flush(From, append(Command, State#state{waiting = dial}));
+  CommandWithRecording = dial_with_recording(Command, LocalFilename),
+  lager:info("Going to `Dial` with Command ~p~n", [CommandWithRecording]),
+  flush(From, append(CommandWithRecording, State#state{waiting = dial}));
 
 handle_call(user_hangup, _From, State) ->
   case State#state.session of
@@ -181,6 +183,10 @@ handle_info(timeout, State) ->
 
 handle_info(_Info, State) ->
   {noreply, State}.
+
+dial_with_recording(Command, undefined) -> Command;
+dial_with_recording({'Dial', CommandParameters, CommandBody}, _Filename) ->
+  {'Dial', CommandParameters ++ [{record, "record-from-answer-dual"}], CommandBody}.
 
 %% @private
 terminate(_Reason, State) ->
