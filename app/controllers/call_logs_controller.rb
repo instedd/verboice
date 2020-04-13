@@ -17,7 +17,7 @@
 
 class CallLogsController < ApplicationController
   before_filter :authenticate_account!
-  before_filter :prepare_log_detail, only: [:show, :progress, :download_details]
+  before_filter :prepare_log_detail, only: [:show, :progress, :play_result, :download_details]
 
   def index
   end
@@ -37,7 +37,6 @@ class CallLogsController < ApplicationController
   end
 
   def play_result
-    @log = current_account.call_logs.find params[:id]
     send_file RecordingManager.for(@log).result_path_for(params[:key]), :x_sendfile => true
   end
 
