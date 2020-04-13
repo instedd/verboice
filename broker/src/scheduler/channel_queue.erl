@@ -1,5 +1,6 @@
 -module(channel_queue).
 -export([start_link/1, whereis_channel/1, enqueue/1, wakeup/1, unmonitor_session/2]).
+-compile([{parse_transform, lager_transform}]).
 
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -117,22 +118,29 @@ do_dispatch(State = #state{current_calls = C, queued_calls = Q, sessions = S}) -
     {{value, Call}, Q2} ->
       case Call#queued_call.id =:= undefined orelse Call:exists() of
         true ->
-          case broker:dispatch(State#state.channel, Call) of
-            {ok, SessionPid} ->
-              contact_scheduled_call:record_last_call(Call),
-              Call:delete(),
-              monitor(process, SessionPid),
-              NewSessions = ordsets:add_element(SessionPid, S),
-              do_dispatch(State#state{current_calls = C + 1, queued_calls = Q2, sessions = NewSessions});
-            error ->
-              Call:delete(),
-              do_dispatch(State#state{queued_calls = Q2});
-            unavailable ->
-              State#state{active = false}
+          try
+            case broker:dispatch(State#state.channel, Call) of
+              {ok, SessionPid} ->
+                contact_scheduled_call:record_last_call(Call),
+                Call:delete(),
+                monitor(process, SessionPid),
+                NewSessions = ordsets:add_element(SessionPid, S),
+                do_dispatch(State#state{current_calls = C + 1, queued_calls = Q2, sessions = NewSessions});
+              error ->
+                Call:delete(),
+                do_dispatch(State#state{queued_calls = Q2});
+              unavailable ->
+                State#state{active = false}
+            end
+          catch
+            _:Error ->
+              lager:error("Unhandled error while dispatching queued call (~p). Error: ~p", [Call#queued_call.call_log_id, Error]),
+              catch Call:delete(),
+              do_dispatch(State#state{queued_calls = Q2})
           end;
+
         false ->
           error_logger:info_msg("Ignoring queued call ~p which seems has been deleted", [Call#queued_call.id]),
           do_dispatch(State#state{queued_calls = Q2})
       end
   end.
-

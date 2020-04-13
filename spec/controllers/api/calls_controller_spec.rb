@@ -110,6 +110,11 @@ describe Api::CallsController do
     expect(result['state']).to eq(call_log.state.to_s)
   end
 
+  it "call state for an unknown call" do
+    get :state, :id => 12345678
+    assert_response :not_found
+  end
+
   it "cancells a call" do
     project = Project.make account: @controller.current_account
     call_log = CallLog.make :call_flow => CallFlow.make(project: project)

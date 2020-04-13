@@ -37,13 +37,16 @@ handle_call({dispatch, Channel, QueuedCall}, _From, State = #state{real_broker =
       session:find(SessionId)
   end,
 
-  case session:dial(SessionPid, RealBroker, Channel, QueuedCall) of
+  try session:dial(SessionPid, RealBroker, Channel, QueuedCall) of
     ok ->
       {reply, {ok, SessionPid}, State};
     error ->
       {reply, error, State};
     unavailable ->
       {reply, unavailable, State#state{ready_channels = sets:add_element(Channel#channel.id, ReadyChannels)}}
+  catch
+    _:_ ->
+      {reply, error, State}
   end;
 
 handle_call(notify_ready, _From, State = #state{ready_channels = ReadyChannels}) ->
