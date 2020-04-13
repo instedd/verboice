@@ -37,7 +37,14 @@ class CallLogsController < ApplicationController
   end
 
   def play_result
-    send_file RecordingManager.for(@log).result_path_for(params[:key]), :x_sendfile => true
+    if current_account.projects.find_by_id(@log.project_id)
+      # Checks if the current_user is the owner of @log.project
+      # ideally it should use ApplicationController#check_project_admin
+      # but it can be done without some further refactors
+      send_file RecordingManager.for(@log).result_path_for(params[:key]), :x_sendfile => true
+    else
+      head :unauthorized
+    end
   end
 
   def download_details
