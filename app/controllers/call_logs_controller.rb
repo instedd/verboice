@@ -37,7 +37,7 @@ class CallLogsController < ApplicationController
   end
 
   def play_result
-    if current_account.projects.find_by_id(@log.project_id)
+    if current_account.projects.find_by_id(@log.project_id) || !current_account.shared_projects.where(:model_id => @log.project_id, :role => 'admin').empty?
       # Checks if the current_user is the owner of @log.project
       # ideally it should use ApplicationController#check_project_admin
       # but it can be done without some further refactors
