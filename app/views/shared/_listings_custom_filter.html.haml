@@ -1,0 +1,6 @@
+%label= title
+%select{name: key, class: select_css_class}
+  %option{value: ''} All
+  - values.each do |value|
+    %option{value: value}
+      = value
