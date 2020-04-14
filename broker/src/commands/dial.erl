@@ -43,7 +43,6 @@ run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, js_context = J
 
   try
     Result = Pbx:dial(Channel, Number, CallerId, LocalFilename, AsteriskFilename),
-    persist_recording(AsteriskFilename, [Contact, Project, CallLog:id(), Key, Description]),
     ResultJS = erjs_context:set(dial_status, Result, JS),
     NewJS = maybe_mark_session_successful(DialStart, SuccessAfterSeconds, ResultJS),
 
@@ -53,6 +52,8 @@ run(Args, Session = #session{pbx = Pbx, channel = CurrentChannel, js_context = J
     hangup ->
       UpdatedJS = maybe_mark_session_successful(DialStart, SuccessAfterSeconds, JS),
       throw({hangup, Session#session{js_context = UpdatedJS}})
+  after
+    persist_recording(AsteriskFilename, [Contact, Project, CallLog:id(), Key, Description])
   end.
 
 persist_recording(undefined, _) -> undefined;
