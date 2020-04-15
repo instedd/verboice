@@ -73,10 +73,10 @@ class CallLogsListing < Listings::Base
 
   def all_channel_names
     Channel
-    .where('id IN (?)', listing_account.readable_channel_ids)
-    .order("name")
-    .pluck("distinct name")
-    .reject(&:nil?)
+      .where('id IN (?)', listing_account.readable_channel_ids)
+      .order("name")
+      .pluck("distinct name")
+      .reject(&:nil?)
   end
 
   def all_project_names
