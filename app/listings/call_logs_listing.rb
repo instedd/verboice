@@ -68,8 +68,15 @@ class CallLogsListing < Listings::Base
   end
 
   def all_call_log_states
-    CallLog.order("state").pluck("distinct state").reject(&:nil?)
-  end
+    %w[
+      active
+      cancelled
+      completed
+      expired
+      failed
+      queued
+    ]
+ end
 
   def all_channel_names
     Channel
