@@ -74,6 +74,10 @@ class Account < ActiveRecord::Base
     projects.pluck(:id) + ProjectPermission.where(account_id: id).pluck(:model_id)
   end
 
+  def readable_channel_ids
+    channels.pluck(:id) + ChannelPermission.where(account_id: id).pluck(:model_id)
+  end
+
   def find_call_flow_by_id(flow_id)
     find_call_flow { CallFlow.find_by_id(flow_id.to_i) }
   end

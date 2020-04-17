@@ -248,7 +248,7 @@ GEM
       activesupport (>= 3.0.0)
     language_list (1.0.0)
     licit (0.2.2)
-    listings (0.1.7)
+    listings (0.1.13)
       bootstrap-kaminari-views
       haml-rails
       kaminari
@@ -447,7 +447,7 @@ DEPENDENCIES
   json-schema
   language_list
   licit
-  listings (~> 0.1.7)
+  listings (= 0.1.13)
   machinist!
   mocha
   mysql2 (~> 0.3.21)

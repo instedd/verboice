@@ -23,7 +23,17 @@ class CallLogsListing < Listings::Base
   end
 
   model do
-    CallLog.for_account(listing_account).order('call_logs.id DESC')
+    CallLog
+      .for_account(listing_account)
+      .select(%(
+        call_logs.*,
+        (SELECT name from channels where channels.id = call_logs.channel_id) as channel_name,
+        (SELECT name from projects where projects.id = call_logs.project_id) as project_name,
+        (SELECT name from schedules where schedules.id = call_logs.schedule_id) as schedule_name,
+        (SELECT name from call_flows where call_flows.id = call_logs.call_flow_id) as call_flow_name,
+        CASE WHEN (SELECT count(*) FROM recorded_audios WHERE recorded_audios.call_log_id = call_logs.id) > 0 THEN 'Yes' ELSE 'No' END as recordings
+      ))
+      .order('call_logs.id DESC')
   end
 
   def listing_account
@@ -34,13 +44,55 @@ class CallLogsListing < Listings::Base
   layout filters: :top
 
   filter :id, render: false
-  filter :direction, select_css_class: 'w10'
-  filter :state, select_css_class: 'w10'
+  filter :direction, values: :direction_values, select_css_class: 'w10'
+  filter :state, values: :all_call_log_states, select_css_class: 'w10'
   filter :address, title: 'Caller ID', render: false
   filter :channel_id, render: false
-  filter channel: :name, title: 'Channel'
   filter :project_id, render: false
-  filter project: :name, title: 'Project'
+  custom_filter :channel_name, render: 'shared/channel_name_listings_filter' do |items, value|
+    items.where("(SELECT name from channels where channels.id = call_logs.channel_id) = ?", value)
+  end
+  custom_filter :project_name, render: 'shared/project_name_listings_filter' do |items, value|
+    items.where("(SELECT name from projects where projects.id = call_logs.project_id) = ?", value)
+  end
+  custom_filter :recordings, render: 'shared/recordings_listings_filter' do |items, value|
+    items.where("CASE WHEN (SELECT count(*) FROM recorded_audios WHERE recorded_audios.call_log_id = call_logs.id) > 0 THEN 'Yes' ELSE 'No' END = ?", value)
+  end
+
+  def direction_values
+    %w(outgoing incoming)
+  end
+
+  def recording_values
+    %w(Yes No)
+  end
+
+  def all_call_log_states
+    %w[
+      active
+      cancelled
+      completed
+      expired
+      failed
+      queued
+    ]
+ end
+
+  def all_channel_names
+    Channel
+      .where('id IN (?)', listing_account.readable_channel_ids)
+      .order("name")
+      .pluck("distinct name")
+      .reject(&:nil?)
+  end
+
+  def all_project_names
+    Project
+      .where('id IN (?)', listing_account.readable_project_ids)
+      .order("name")
+      .pluck("distinct name")
+      .reject(&:nil?)
+  end
 
   custom_filter :after do |items, value|
     items.where "started_at >= ?", Time.smart_parse(value)
@@ -67,16 +119,22 @@ class CallLogsListing < Listings::Base
     end
   end
   column :direction, searchable: true
-  column channel: :name, title: 'Channel'
-  column schedule: :name, title: 'Schedule'
-  column project: :name, title: 'Project' do |_,value|
+  column :channel_name, query_column: :channel_name, title: 'Channel' do |_,value|
+    if format == :html
+      listings_link_to_filter value, :channel_name, value
+    else
+      value
+    end
+  end
+  column :schedule_name, query_column: :schedule_name, title: 'Schedule'
+  column :project_name, query_column: :project_name, title: 'Project' do |_,value|
     if format == :html
       listings_link_to_filter value, :project_name, value
     else
       value
     end
   end
-  column call_flow: :name, title: 'Call Flow'
+  column :call_flow_name, query_column: :call_flow_name, title: 'Call Flow'
   column :state, searchable: true do |log, value|
     text = if log.fail_reason.present?
       "#{value.capitalize} (#{log.fail_reason})"
@@ -91,6 +149,13 @@ class CallLogsListing < Listings::Base
   end
   column :fail_details, title: "Failure" do |log, value|
     value if log.state == :failed
+  end
+  column :recordings, query_column: :recordings, title: 'Recordings' do |_, value|
+    if format == :html
+      content_tag(:div, listings_link_to_filter(value, :recordings, value))
+    else
+      value
+    end
   end
   column '' do |log|
     if format == :html

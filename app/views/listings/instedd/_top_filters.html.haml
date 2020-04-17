@@ -1,8 +1,6 @@
 .filter
   - listing.filters_to_render.each do |filter_view|
-    %label= filter_view.human_name
-    %select{name: filter_view.key, class: filter_view.descriptor.props[:select_css_class] || "w20"}
-      %option{value: ''} All
-      - filter_view.values.each do |value|
-        %option{value: value}
-          = filter_view.value_for(value)
+    - if filter_view.is_a?(Listings::CustomFilterView)
+      = listings_partial_render filter_view.partial_name, listing, filter: filter_view
+    - else
+      = render partial: 'shared/listings_custom_filter', locals: { title: filter_view.human_name, key: filter_view.key, values: filter_view.values, select_css_class: filter_view.descriptor.props[:select_css_class] || "w20" }
