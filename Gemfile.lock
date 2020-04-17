@@ -85,18 +85,6 @@ GIT
       global_phone_dbgen
       rails
 
-GIT
-  remote: https://github.com/manastech/listings
-  revision: 274b12bf3b6e8f8d673c51cff403e3c7b7c88586
-  branch: feature/computed
-  specs:
-    listings (0.1.12)
-      bootstrap-kaminari-views
-      haml-rails
-      kaminari
-      rails
-      sass-rails
-
 GEM
   remote: http://rubygems.org/
   remote: https://rails-assets.org/
@@ -260,6 +248,12 @@ GEM
       activesupport (>= 3.0.0)
     language_list (1.0.0)
     licit (0.2.2)
+    listings (0.1.13)
+      bootstrap-kaminari-views
+      haml-rails
+      kaminari
+      rails
+      sass-rails
     mail (2.5.5)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
@@ -453,7 +447,7 @@ DEPENDENCIES
   json-schema
   language_list
   licit
-  listings!
+  listings (= 0.1.13)
   machinist!
   mocha
   mysql2 (~> 0.3.21)
