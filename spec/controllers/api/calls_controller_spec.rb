@@ -124,10 +124,10 @@ describe Api::CallsController do
 
     result = JSON.parse(@response.body)
     expect(result['call_id']).to eq(call_log.id)
-    expect(result['state']).to eq('canceled')
+    expect(result['state']).to eq('cancelled')
 
     call_log = CallLog.find_by_id(call_log.id)
-    expect(call_log.state).to eq(:canceled)
+    expect(call_log.state).to eq(:cancelled)
 
     expect(QueuedCall.find_by_id(queued_call.id)).to be_nil
   end

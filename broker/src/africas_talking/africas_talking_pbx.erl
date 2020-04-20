@@ -129,7 +129,7 @@ handle_call({resume, Params}, From, State = #state{session = Session, waiting = 
     "busy" -> busy;
     "no-answer" -> no_answer;
     "failed" -> failed;
-    "canceled" -> canceled;
+    "canceled" -> cancelled;
     Other ->
       lager:warning("Unknown DialCallStatus: ~p", [Other]),
       failed
