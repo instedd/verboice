@@ -101,7 +101,7 @@ module Api
         qc.destroy
       end
 
-      call_log.state = "canceled"
+      call_log.state = "cancelled"
       call_log.save!
 
       render :json => {
