@@ -2,7 +2,7 @@ source 'http://rubygems.org'
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
 gem 'rails', '~> 3.2.0'
-gem "puma", "2.16.0"
+gem "puma", "3.12.6"
 
 gem 'haml-rails'
 gem "jquery-rails"
