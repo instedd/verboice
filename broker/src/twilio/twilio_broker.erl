@@ -28,7 +28,7 @@ dispatch(_Session = #session{session_id = SessionId, channel = Channel, address 
   CallbackUrl = verboice_config:twilio_callback_url(),
   CallbackUri = uri:parse(CallbackUrl),
 
-  RequestUrl = [verboice_config:twilio_base_url() ++ "/Accounts/", AccountSid, "/Calls"],
+  RequestUrl = [channel:base_url(Channel) ++ "/Accounts/", AccountSid, "/Calls"],
   RequestBody = [
     {'From', util:normalize_phone_number(channel:number(Channel))},
     {'To', util:normalize_phone_number(Address)},
