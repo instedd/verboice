@@ -25,6 +25,7 @@
 ?METHOD_TPL(guisso_url).
 ?METHOD_TPL(broker_httpd_base_url).
 ?METHOD_TPL(twilio_callback_url).
+?METHOD_TPL(twilio_base_url).
 ?METHOD_TPL(hub_enabled).
 ?METHOD_TPL(hub_url).
 

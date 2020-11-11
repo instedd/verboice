@@ -31,6 +31,7 @@ load_config() ->
   load(guisso_url, string),
   load(broker_httpd_base_url,string),
   load(twilio_callback_url, string),
+  load(twilio_base_url, string),
   load(hub_enabled, bool),
   load(hub_url, string),
   ok.
