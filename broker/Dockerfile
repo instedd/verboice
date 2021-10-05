@@ -4,6 +4,9 @@ FROM erlang:17.5.6
 # (removes reference to jessie-updates repository)
 RUN sed -i '/jessie-updates/d' /etc/apt/sources.list
 
+# # Cleanup expired Let's Encrypt CA (Sept 30, 2021)
+RUN sed -i '/^mozilla\/DST_Root_CA_X3/s/^/!/' /etc/ca-certificates.conf && update-ca-certificates -f
+
 # Install dependencies
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y libzmq3-dev sox libsox-fmt-mp3 festival postfix curl ruby && \
