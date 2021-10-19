@@ -15,10 +15,10 @@ GIT
 
 GIT
   remote: https://github.com/instedd/alto_guisso_rails.git
-  revision: f3ef31a52a160cfa256ecc17618c23058db0dde7
+  revision: 3324e4e85040b4db6279099309e9cb6f836ee331
   branch: master
   specs:
-    alto_guisso_rails (0.0.1)
+    alto_guisso_rails (0.0.2)
       alto_guisso
       dalli
       omniauth
