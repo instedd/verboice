@@ -9,7 +9,7 @@ incoming_phone_numbers(Channel) ->
 incoming_phone_numbers(Channel, PhoneNumber) ->
   AccountSid = channel:account_sid(Channel),
   AuthToken = channel:auth_token(Channel),
-  RequestUrl = channel:base_url(Channel) ++ "/Accounts/" ++ AccountSid ++ "/IncomingPhoneNumbers.json",
+  RequestUrl = "https://api.twilio.com/2010-04-01/Accounts/" ++ AccountSid ++ "/IncomingPhoneNumbers.json",
   RequestUri = uri:parse(RequestUrl),
   case uri:get([{basic_auth, {AccountSid, AuthToken}}], RequestUri#uri{query_string = [{'PhoneNumber', PhoneNumber}]}) of
     {ok, {{_, 200, _}, _, Body}} -> {ok, {Data}} = json:decode(Body), {ok, Data};
@@ -23,7 +23,7 @@ update_voice_url(Channel, PhoneNumber) ->
     {ok, PhoneSid} ->
       AccountSid = channel:account_sid(Channel),
       AuthToken = channel:auth_token(Channel),
-      RequestUrl = channel:base_url(Channel) ++ "/Accounts/" ++ AccountSid ++ "/IncomingPhoneNumbers/" ++ binary_to_list(PhoneSid) ++ ".json",
+      RequestUrl = "https://api.twilio.com/2010-04-01/Accounts/" ++ AccountSid ++ "/IncomingPhoneNumbers/" ++ binary_to_list(PhoneSid) ++ ".json",
       TwilioCallbackUrl = verboice_config:twilio_callback_url(),
       RequestBody = [{'VoiceUrl', list_to_binary(TwilioCallbackUrl)}],
       uri:post_form(RequestBody, [{basic_auth, {AccountSid, AuthToken}}], RequestUrl),

@@ -106,8 +106,7 @@ class ChannelsUiController < ApplicationController
           auth_token: @channel.auth_token,
           number: @channel.number,
           limit: @channel.limit,
-          errors: @channel.errors,
-          base_url: @channel.base_url
+          errors: @channel.errors
         })
 
       when "africas_talking"
@@ -150,7 +149,6 @@ class ChannelsUiController < ApplicationController
       @channel.auth_token = params[:config][:auth_token]
       @channel.number = params[:config][:number]
       @channel.limit = params[:config][:limit]
-      @channel.base_url = params[:config][:base_url]
     when "africas_talking"
       @channel.name = params[:config][:name]
       @channel.username = params[:config][:username]

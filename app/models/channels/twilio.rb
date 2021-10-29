@@ -19,13 +19,10 @@ class Channels::Twilio < Channel
   config_accessor :account_sid
   config_accessor :auth_token
   config_accessor :number
-  config_accessor :base_url
 
   attr_protected :guid
 
   before_create :create_guid
-
-  validates :base_url, format: URI::regexp(["http", "https"]), allow_nil: true, allow_blank: true
 
   def create_guid
     self.guid ||= Guid.new.to_s
