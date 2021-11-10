@@ -10,7 +10,18 @@ do(#mod{request_uri = "/africas_talking" ++ _, method = "POST", entity_body = Bo
   CallSid = proplists:get_value("sessionId", Params),
   Pbx = africas_talking_pbx:find(CallSid),
   case proplists:get_value("callSessionState", Params) of
-    undefined ->
+    % TODO. If the call fails and the session is still active, a user_hangup is logged,
+    % which is not true. Handle those cases properly.
+    "Completed" ->
+      case Pbx of
+        undefined ->
+          ok;
+        FoundPbx ->
+          FoundPbx:user_hangup()
+      end,
+      {proceed, [{response, {200, "OK"}}]};
+    _ ->
+      lager:info("Receiving callSessionState ~p", [Params]),
       httpd_utils:if_not_already_handled(Data, fun() ->
         ResponseBody = case Pbx of
           undefined ->
@@ -39,20 +50,7 @@ do(#mod{request_uri = "/africas_talking" ++ _, method = "POST", entity_body = Bo
           Head = [{content_type, "text/plain"}, {content_length, Length}, {code, 200}],
           Response = [{response, {response, Head, ResponseBody}}],
           {proceed, Response}
-        end);
-    % TODO. If the call fails and the session is still active, a user_hangup is logged,
-    % which is not true. Handle those cases properly.
-    "Completed" ->
-      case Pbx of
-        undefined ->
-          ok;
-        FoundPbx ->
-          FoundPbx:user_hangup()
-      end,
-      {proceed, [{response, {200, "OK"}}]};
-    _ ->
-      lager:info("Receiving callSessionState ~p", [Params]),
-      {proceed, [{response, {200, "OK"}}]}
+        end)
   end;
 
 do(ModData) ->
