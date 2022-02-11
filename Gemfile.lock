@@ -276,6 +276,7 @@ GEM
       net-ssh (>= 2.6.5)
     netrc (0.11.0)
     newrelic_rpm (3.7.3.204)
+    nio4r (2.5.8)
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     oauth (0.4.7)
@@ -293,7 +294,8 @@ GEM
     orm_adapter (0.0.5)
     polyglot (0.3.5)
     power_assert (1.1.1)
-    puma (2.16.0)
+    puma (4.3.11)
+      nio4r (~> 2.0)
     quiet_assets (1.1.0)
       railties (>= 3.1, < 5.0)
     rack (1.4.7)
@@ -457,7 +459,7 @@ DEPENDENCIES
   omniauth
   omniauth-openid
   poirot_rails!
-  puma (= 2.16.0)
+  puma (= 4.3.11)
   quiet_assets
   rails (~> 3.2.0)
   rails-assets-material-components-web!
