@@ -9,17 +9,21 @@ do(#mod{request_uri = "/africas_talking" ++ _, method = "POST", entity_body = Bo
   Params = uri:parse_qs(Body),
   CallSid = proplists:get_value("sessionId", Params),
   Pbx = africas_talking_pbx:find(CallSid),
-  case proplists:get_value("callSessionState", Params) of
-    % TODO. If the call fails and the session is still active, a user_hangup is logged,
-    % which is not true. Handle those cases properly.
-    "Completed" ->
+
+  case proplists:get_value("isActive", Params) of
+    "0" ->
       case Pbx of
         undefined ->
           ok;
         FoundPbx ->
+          % TODO. Handle hangup properly (see "hangupClause") to determine whether
+          %       the user hang up or we ran into a communication problem (can't
+          %       reach, no such number, phone not connected, ...)
           FoundPbx:user_hangup()
       end,
       {proceed, [{response, {200, "OK"}}]};
+
+    % NOTE. Happens to be "1" but let's be broad
     _ ->
       lager:info("Receiving callSessionState ~p", [Params]),
       httpd_utils:if_not_already_handled(Data, fun() ->
