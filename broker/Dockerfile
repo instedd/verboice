@@ -15,7 +15,8 @@ RUN apt-get update && \
 # Install gems for tz
 RUN /usr/bin/gem install bundler -v 1.13.6
 RUN /usr/bin/gem install tzinfo -v 0.3.44
-RUN /usr/bin/gem install activesupport -v 3.2.22
+RUN /usr/bin/gem install concurrent-ruby -v 1.1.9 &&\
+    /usr/bin/gem install activesupport -v 3.2.22
 
 # Install broker deps
 ADD Makefile /app/
