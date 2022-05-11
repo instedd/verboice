@@ -485,7 +485,7 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
           "queued"
       end
   end,
-  lager:info("Call failed with reason ~p", [Reason]),
+  lager:info("Call failed with reason ~p and new state ~p", [Reason, NewState]),
   FailInfo = case Reason of
     hangup ->                    [{fail_reason, "hangup"}];
     busy ->                      [{fail_reason, "busy"}];
