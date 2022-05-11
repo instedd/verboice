@@ -496,7 +496,7 @@ finalize({failed, Reason}, State = #state{session = Session = #session{call_log 
     {internal_error, Details} -> [{fail_reason, "internal error"}, {fail_details, io_lib:format("~p", [Details])}];
     _ ->                         [{fail_reason, "unknown error"}]
   end,
-  CallLog:update([{state, NewState}, {finished_at, calendar:universal_time()}] ++ FailInfo),
+  ok = CallLog:update([{state, NewState}, {finished_at, calendar:universal_time()}] ++ FailInfo),
   StopReason = case Reason of
     {error, ErrDetails2} -> ErrDetails2;
     {error, ErrDetails2, _} -> ErrDetails2;
