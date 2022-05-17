@@ -11,6 +11,7 @@
 ?METHOD_TPL(record_dir).
 ?METHOD_TPL(seconds_between_calls).
 ?METHOD_TPL(seconds_for_call_back).
+?METHOD_TPL(minutes_for_cancelling_active_calls).
 ?METHOD_TPL(db_name).
 ?METHOD_TPL(db_user).
 ?METHOD_TPL(db_pass).
