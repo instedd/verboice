@@ -1,5 +1,5 @@
 -module(call_log).
--export([error/3, info/3, trace/3]).
+-export([error/3, info/3, trace/3, cancel_active_calls_for_minutes/2]).
 -define(TABLE_NAME, "call_logs").
 -include_lib("erl_dbmodel/include/model.hrl").
 
@@ -12,3 +12,6 @@ info(Message, Details, #call_log{id = CallId}) ->
 trace(Message, Details, #call_log{id = CallId}) ->
   call_log_entry:create("trace", CallId, Message, Details).
 
+cancel_active_calls_for_minutes(N, Reason) ->
+  N_Minutes_Ago = util:seconds_ago(N * 60),
+  call_log:update_all([{state, "failed"}, {fail_reason, Reason}], [{state, "active"}, {started_at, '<', N_Minutes_Ago}]).

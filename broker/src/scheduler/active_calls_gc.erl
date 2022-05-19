@@ -30,7 +30,9 @@ handle_cast(_Msg, State) ->
   {noreply, State}.
 
 handle_info(cancel_active_calls, State) ->
-  % TODO: Do it!
+  N = verboice_config:minutes_for_cancelling_active_calls(),
+  Reason = "active_calls_gc N=" ++ integer_to_list(N),
+  call_log:cancel_active_calls_for_minutes(N, Reason),
   erlang:send_after(?INTERVAL,self(),cancel_active_calls),
   {noreply, State};
 
