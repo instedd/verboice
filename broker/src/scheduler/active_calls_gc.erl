@@ -3,10 +3,9 @@
 % This GC runs every INTERVAL. It cancels every active call for N (default=120) minutes.
 % This time (N) is configurable via the ENV variable minutes_for_cancelling_active_calls.
 -module(active_calls_gc).
--export([start_link/0]).
-
+-export([code_change/3, handle_call/3, handle_cast/2, handle_info/2, init/1, start_link/0, terminate/2]).
+-compile([{parse_transform, lager_transform}]).
 -behaviour(gen_server).
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
 
@@ -32,7 +31,8 @@ handle_cast(_Msg, State) ->
 handle_info(cancel_active_calls, State) ->
   N = verboice_config:minutes_for_cancelling_active_calls(),
   Reason = "active_calls_gc N=" ++ integer_to_list(N),
-  call_log:cancel_active_calls_for_minutes(N, Reason),
+  Count = call_log:cancel_active_calls_for_minutes(N, Reason),
+  lager:info("Active calls GC run with N=~p and Count=~p", [N, Count]),
   erlang:send_after(?INTERVAL,self(),cancel_active_calls),
   {noreply, State};
 

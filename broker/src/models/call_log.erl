@@ -14,4 +14,6 @@ trace(Message, Details, #call_log{id = CallId}) ->
 
 cancel_active_calls_for_minutes(N, Reason) ->
   N_Minutes_Ago = util:seconds_ago(N * 60),
-  call_log:update_all([{state, "failed"}, {fail_reason, Reason}], [{state, "active"}, {started_at, '<', N_Minutes_Ago}]).
+  Count = call_log:update_all([{state, "failed"}, {fail_reason, Reason}], [{state, "active"}, {started_at, '<', N_Minutes_Ago}]),
+  true = is_number(Count) and (Count > -1),
+  Count.
