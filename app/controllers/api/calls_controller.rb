@@ -95,12 +95,6 @@ module Api
       call_log = current_account.call_logs.where(:id => params[:id]).first
       return head :not_found if call_log.nil?
 
-      queued_calls = QueuedCall.where(call_log_id: call_log.id).all
-      queued_calls.each do |qc|
-        qc.cancel_call!
-        qc.destroy
-      end
-
       call_log.state = "cancelled"
       call_log.save!
 
