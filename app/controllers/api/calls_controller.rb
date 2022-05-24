@@ -97,7 +97,6 @@ module Api
 
       queued_calls = QueuedCall.where(call_log_id: call_log.id).all
       queued_calls.each do |qc|
-        qc.cancel_call!
         qc.destroy
       end
 
