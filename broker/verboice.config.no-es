@@ -10,6 +10,7 @@
 
     {seconds_between_calls, 8},
     {seconds_for_call_back, 30},
+    {minutes_between_active_calls_gc_runs, 10},
     {minutes_for_cancelling_active_calls, 120},
 
     {db_name, "verboice_development"},
