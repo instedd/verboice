@@ -28,7 +28,7 @@ handle_cast(_Msg, State) ->
 
 handle_info(cancel_active_calls, State) ->
   N = verboice_config:minutes_for_cancelling_active_calls(),
-  Count = call_log:cancel_active_calls_for_minutes(N),
+  Count = call_log:cancel_active_calls_for_minutes(calendar:universal_time(), N),
   lager:info("GC cancelled ~p calls that stayed active for more than ~p minutes", [Count, N]),
   Interval = ?MILLISECS_IN_ONE_MINUTE * verboice_config:minutes_between_active_calls_gc_runs(),
   erlang:send_after(Interval, self(), cancel_active_calls),
