@@ -1,8 +1,8 @@
 % Active calls GC: Garbage collector for active calls.
 % When a call remains active for too long Verboice considers there was an error and cancels it.
 % This GC runs every X minutes and cancels every active call for more than N minutes.
-% The value X defaults to 10 minutes and is configurable through via the environment variable `minutes_between_active_calls_gc_runs`.
-% The value N defaults to 120 minutes and is configurable through the environment variable `minutes_for_cancelling_active_calls`.-module(active_calls_gc).
+% The value X defaults to 10 minutes and is configurable via the ENV variable `minutes_between_active_calls_gc_runs`.
+% The value N defaults to 120 minutes and is configurable via the ENV variable `minutes_for_cancelling_active_calls`.
 -module(active_calls_gc).
 -export([code_change/3, handle_call/3, handle_cast/2, handle_info/2, init/1, start_link/0, terminate/2]).
 -compile([{parse_transform, lager_transform}]).
