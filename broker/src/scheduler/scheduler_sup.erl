@@ -15,7 +15,8 @@ init({}) ->
   Children = [
     ?CHILD(channel_mgr, worker),
     ?CHILD(scheduler, worker),
-    ?CHILD(channel_sup, supervisor)
+    ?CHILD(channel_sup, supervisor),
+    ?CHILD(active_calls_gc, worker)
   ],
   RestartStrategy = {one_for_all, 5, 10},
   {ok, {RestartStrategy, Children}}.

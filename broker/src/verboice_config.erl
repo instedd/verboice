@@ -17,6 +17,8 @@ load_config() ->
   load(record_dir, string),
   load(seconds_between_calls, int),
   load(seconds_for_call_back, int),
+  load(minutes_between_active_calls_gc_runs, int),
+  load(minutes_for_cancelling_active_calls, int),
   load(db_name, string),
   load(db_user, string),
   load(db_pass, string),

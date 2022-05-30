@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20200420225523) do
+ActiveRecord::Schema.define(:version => 20220526143259) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -115,6 +115,7 @@ ActiveRecord::Schema.define(:version => 20200420225523) do
   add_index "call_logs", ["call_flow_id"], :name => "index_call_logs_on_call_flow_id"
   add_index "call_logs", ["contact_id"], :name => "index_call_logs_on_contact_id"
   add_index "call_logs", ["project_id"], :name => "index_call_logs_on_project_id"
+  add_index "call_logs", ["state"], :name => "index_call_logs_on_state"
 
   create_table "channels", :force => true do |t|
     t.integer  "account_id"

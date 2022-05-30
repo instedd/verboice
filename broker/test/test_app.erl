@@ -21,7 +21,8 @@ start() ->
       {broker_port, 19000},
       {base_url, "http://localhost:3000"},
       {hub_enabled, false},
-      {seconds_between_calls, 2}
+      {seconds_between_calls, 2},
+      {minutes_between_active_calls_gc_runs, 10}
     ]}
   ]}),
 
