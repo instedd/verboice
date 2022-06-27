@@ -60,6 +60,8 @@ services:
       - sounds:/var/lib/asterisk/sounds/verboice
       - verboice-data:/data
     network_mode: host
+    depends_on:
+      - asterisk-bridge
 
   asterisk-bridge:
     image: instedd/host_bridge
