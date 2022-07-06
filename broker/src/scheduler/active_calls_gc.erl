@@ -52,15 +52,16 @@ notify_failed_to_callback_url(Call) ->
 handle_info(cancel_active_calls, State) ->
   N = verboice_config:minutes_for_cancelling_active_calls(),
   N_Minutes_Ago = util:seconds_ago(N * 60),
-  
-  % First the callback url is notified
+  CallsStartedBefore = call_log:find_all([{state, "active"}, {started_at, '<', N_Minutes_Ago}]),
+
   lists:foreach(fun(Call) ->
-      notify_failed_to_callback_url(Call)
-    end, call_log:calls_started_before(N_Minutes_Ago)),
+      % First the callback url is notified
+      notify_failed_to_callback_url(Call),
+      % Then the call logs are updated to mark them as failed
+      call_log:update(call_log:update(Call#call_log{state ="failed", fail_reason = "active-for-too-long"}))
+    end, CallsStartedBefore),
   
-  % Then the call logs are updated to mark them as failed
-  Count = call_log:cancel_active_calls_started_before(N_Minutes_Ago),
-  lager:info("GC cancelled ~p calls that stayed active for more than ~p minutes", [Count, N]),
+  lager:info("GC cancelled ~p calls that stayed active for more than ~p minutes", [length(CallsStartedBefore), N]),
   {noreply, State};
 
 handle_info(_Info, State) ->
