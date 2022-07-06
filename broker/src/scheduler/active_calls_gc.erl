@@ -1,5 +1,6 @@
 % Active calls GC: Garbage collector for active calls.
 % When a call remains active for too long Verboice considers there was an error and cancels it.
+% This calls remain "falsely active": they don't have sessions anymore, they are canceled through the call_log info.
 % This GC runs every X minutes and cancels every active call for more than N minutes.
 % The value X defaults to 10 minutes and is configurable via the ENV variable `minutes_between_active_calls_gc_runs`.
 % The value N defaults to 120 minutes and is configurable via the ENV variable `minutes_for_cancelling_active_calls`.
@@ -9,6 +10,10 @@
 -behaviour(gen_server).
 
 -define(SERVER, ?MODULE).
+
+-include("session.hrl").
+-include("db.hrl").
+-include("uri.hrl").
 
 start_link() ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, {}, []).
@@ -24,9 +29,36 @@ handle_call(_Request, _From, State) ->
 handle_cast(_Msg, State) ->
   {noreply, State}.
 
+notify_failed_to_callback_url(Call) ->
+  case Call#call_log.callback_url of
+    undefined -> ok;
+    <<>> -> ok;
+    Url ->
+      CallSid = util:to_string(Call#call_log.id),
+      SessionVars = case Call#call_log.js_context of
+        "" -> [];
+        undefined -> [];
+        _ -> session:session_vars(Call#call_log.js_context)
+      end,
+      spawn(fun() ->
+        Uri = uri:parse(binary_to_list(Url)),
+        QueryString = [{"CallSid", CallSid}, {"CallStatus", "failed"}, {"CallDuration", 0} | SessionVars],
+        MergedQueryString = Uri#uri.query_string ++ QueryString,
+        NewUri = Uri#uri{query_string = MergedQueryString},
+        NewUri:get([{full_result, false}])
+      end)
+  end.
+
 handle_info(cancel_active_calls, State) ->
   N = verboice_config:minutes_for_cancelling_active_calls(),
   N_Minutes_Ago = util:seconds_ago(N * 60),
+  
+  % First the callback url is notified
+  lists:foreach(fun(Call) ->
+      notify_failed_to_callback_url(Call)
+    end, call_log:calls_started_before(N_Minutes_Ago)),
+  
+  % Then the call logs are updated to mark them as failed
   Count = call_log:cancel_active_calls_started_before(N_Minutes_Ago),
   lager:info("GC cancelled ~p calls that stayed active for more than ~p minutes", [Count, N]),
   {noreply, State};
