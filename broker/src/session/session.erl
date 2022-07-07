@@ -293,6 +293,7 @@ in_progress({hibernate, NewSession, Ptr}, _From, State = #state{session = _Sessi
 prepare_session(QueuedCall, Channel, #state{session_id = SessionId, session = undefined}) ->
   Session = QueuedCall:start_session(),
   NewCallLog = call_log_srv:new(SessionId, call_log:find(QueuedCall#queued_call.call_log_id)),
+  NewCallLog:update([{callback_url, Session#session.status_callback_url}, {js_context, Session#session.js_context}]),
   Contact = get_contact(QueuedCall#queued_call.project_id, QueuedCall#queued_call.address, QueuedCall#queued_call.call_log_id),
 
   poirot:add_meta([
@@ -320,7 +321,10 @@ notify_status(Status, Session, Reason) ->
   notify_status_to_callback_url(Status, Session, Reason),
   notify_status_to_hub(Status, Session).
 
+% TODO: remove duplication with session:notify_failed_to_callback_url
 notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams, started_at = StartedAt, js_context = JS}, Reason) ->
+  % A step on the FSM has happened, JS context could have varied, update it.
+  CallLog:update([{js_context, JS}]),
   case Session#session.status_callback_url of
     undefined -> ok;
     <<>> -> ok;
