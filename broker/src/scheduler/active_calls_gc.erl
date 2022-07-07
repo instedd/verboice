@@ -29,6 +29,7 @@ handle_call(_Request, _From, State) ->
 handle_cast(_Msg, State) ->
   {noreply, State}.
 
+% TODO: remove duplication with session:notify_status_to_callback_url
 notify_failed_to_callback_url(Call) ->
   case Call#call_log.callback_url of
     undefined -> ok;
