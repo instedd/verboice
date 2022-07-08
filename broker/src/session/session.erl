@@ -324,7 +324,7 @@ notify_status(Status, Session, Reason) ->
 % TODO: remove duplication with session:notify_failed_to_callback_url
 notify_status_to_callback_url(Status, Session = #session{call_log = CallLog, address = Address, callback_params = CallbackParams, started_at = StartedAt, js_context = JS}, Reason) ->
   % A step on the FSM has happened, JS context could have varied, update it.
-  CallLog:update([{js_context, JS}]),
+  CallLog:update([{js_context, session_vars(JS)}]),
   case Session#session.status_callback_url of
     undefined -> ok;
     <<>> -> ok;
