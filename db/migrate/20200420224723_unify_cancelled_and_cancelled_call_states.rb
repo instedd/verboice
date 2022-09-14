@@ -2,8 +2,8 @@ class UnifyCancelledAndCancelledCallStates < ActiveRecord::Migration
   def up
     ActiveRecord::Base.connection.execute <<-SQL
       UPDATE `call_logs`
-      SET `state` = "cancelled"
-      WHERE `state` = "canceled"
+      SET `state` = 'cancelled'
+      WHERE `state` = 'canceled'
     SQL
   end
 
