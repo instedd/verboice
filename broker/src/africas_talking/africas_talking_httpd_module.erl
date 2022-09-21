@@ -57,6 +57,5 @@ do(#mod{request_uri = "/africas_talking" ++ _, method = "POST", entity_body = Bo
         end)
   end;
 
-do(ModData) ->
-  io:format("Unhandled: ~p~n", [ModData]),
-  {proceed, [ModData]}.
+do(#mod{data = Data}) ->
+  {proceed, Data}.
