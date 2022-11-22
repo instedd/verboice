@@ -153,7 +153,7 @@ GEM
     csv_builder (2.1.1)
       actionpack (>= 3.0.0)
     daemons (1.2.3)
-    dalli (2.7.9)
+    dalli (3.2.3)
     database_cleaner (1.5.0)
     decent_exposure (1.0.1)
     delayed_job (4.0.1)
