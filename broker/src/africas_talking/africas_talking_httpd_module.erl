@@ -21,6 +21,7 @@ do(#mod{request_uri = "/africas_talking" ++ _, method = "POST", entity_body = Bo
           %       reach, no such number, phone not connected, ...)
           FoundPbx:user_hangup()
       end,
+      lager:error("____POST to /africas_talking with body ~p and empty response 200 OK", [Body]),
       {proceed, [{response, {200, "OK"}}]};
 
     % NOTE. Happens to be "1" but let's be broad
@@ -53,6 +54,7 @@ do(#mod{request_uri = "/africas_talking" ++ _, method = "POST", entity_body = Bo
           Length = integer_to_list(iolist_size(ResponseBody)),
           Head = [{content_type, "text/plain"}, {content_length, Length}, {code, 200}],
           Response = [{response, {response, Head, ResponseBody}}],
+          lager:error("____POST to /africas_talking with body ~p and response ~p", [Body, Response]),
           {proceed, Response}
         end)
   end;

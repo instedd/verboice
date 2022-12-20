@@ -37,12 +37,14 @@ dispatch(_Session = #session{session_id = SessionId, channel = Channel, address 
   Response = uri:post_form(RequestBody, [{api_key, ApiKey}, {accept, "application/json"}], RequestUrl),
   case Response of
     {ok, {{_, 200, _}, _, RawResponse}} ->
+      lager:error("____Request to ~p with body ~p gave status 200 and response ~p", [RequestUrl, RequestBody, RawResponse]),
       {ok, {JSONResponse}} = json:decode(RawResponse),
       [{Entries}] = proplists:get_value(<<"entries">>, JSONResponse),
       AfricasTalkingId = binary_to_list(proplists:get_value(<<"sessionId">>, Entries)),
       africas_talking_sid:start(AfricasTalkingId, session:find(SessionId)),
       ok;
-    {ok, {{_, _, Reason}, _, Msg}} ->
+    {ok, {{_, StatusCode, Reason}, _, Msg}} ->
+      lager:error("____Request to ~p with body ~p gave status ~p and reason ~p", [RequestUrl, RequestBody, StatusCode, Reason]),
       parse_exception(Reason, Msg);
     _ ->
       timer:apply_after(timer:minutes(1), broker, notify_ready, [?MODULE]),
