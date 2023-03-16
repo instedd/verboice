@@ -52,11 +52,14 @@ api_key(#channel{config = Config}) ->
 
 base_url(#channel{type = <<"Channels::Twilio">>, config = Config}) ->
   BaseUrl = proplists:get_value("base_url", Config),
-  FallbackUrl = verboice_config:twilio_base_url(),
-  case BaseUrl of
-    nil -> FallbackUrl;
-    "" -> FallbackUrl;
-    _ -> BaseUrl
+  case io_lib:char_list(BaseUrl) of
+    true ->
+      case string:strip(BaseUrl) of
+        "" -> verboice_config:twilio_base_url();
+        _ -> BaseUrl
+      end;
+    false ->
+      verboice_config:twilio_base_url()
   end;
 
 base_url(_) -> nil.
