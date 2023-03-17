@@ -2,7 +2,7 @@
 -export([error/3, info/3, trace/3]).
 -define(TABLE_NAME, "call_logs").
 -define(MAP, [
-  {js_context, binary_serializer}
+  {session_vars, yaml_serializer}
 ]).
 -include_lib("erl_dbmodel/include/model.hrl").
 
@@ -14,4 +14,3 @@ info(Message, Details, #call_log{id = CallId}) ->
 
 trace(Message, Details, #call_log{id = CallId}) ->
   call_log_entry:create("trace", CallId, Message, Details).
-
