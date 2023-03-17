@@ -1,6 +1,8 @@
 -module(binary_serializer).
 -export([load/1, dump/1]).
 
+load(null) -> undefined;
+load(undefined) -> undefined;
 load(Binary) ->
   Z = zlib:open(),
   zlib:inflateInit(Z),
@@ -8,6 +10,8 @@ load(Binary) ->
   zlib:close(Z),
   Term.
 
+dump(null) -> null;
+dump(undefined) -> null;
 dump(Term) ->
   Z = zlib:open(),
   zlib:deflateInit(Z),

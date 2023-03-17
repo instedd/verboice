@@ -1,6 +1,9 @@
 -module(call_log).
 -export([error/3, info/3, trace/3]).
 -define(TABLE_NAME, "call_logs").
+-define(MAP, [
+  {js_context, binary_serializer}
+]).
 -include_lib("erl_dbmodel/include/model.hrl").
 
 error(Message, Details, #call_log{id = CallId}) ->
