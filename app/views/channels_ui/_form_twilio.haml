@@ -11,4 +11,6 @@
   = f.text_field :limit, colspan: 's4', helper: 'Number of concurrent calls'
 
 .row
-  = f.text_field :base_url, label: 'Twilio base URL'
+  = f.text_field :base_url,
+    label: "Custom Twilio base URL (defaults to <code>https://api.twilio.com/2010-04-01</code>)".html_safe,
+    placeholder: "https://api.twilio.com/2010-04-01"
