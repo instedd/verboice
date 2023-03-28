@@ -1,29 +1,32 @@
 FROM erlang:17.5.6
 
 # Hack to keep using this old erlang image based on debian:jessie
-# (removes reference to jessie-updates repository)
-RUN sed -i '/jessie-updates/d' /etc/apt/sources.list
+# (removes reference to jessie-updates repository and use archive.debian.org)
+RUN sed -i '/jessie-updates/d' /etc/apt/sources.list && \
+    sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+    sed -i 's/security.debian.org/archive.debian.org/g' /etc/apt/sources.list
 
 # # Cleanup expired Let's Encrypt CA (Sept 30, 2021)
 RUN sed -i '/^mozilla\/DST_Root_CA_X3/s/^/!/' /etc/ca-certificates.conf && update-ca-certificates -f
 
-# Install dependencies
-RUN apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y libzmq3-dev sox libsox-fmt-mp3 festival postfix curl ruby && \
-  apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Install dependencies (must use --force-yes because apt keys expired)
+RUN apt-get -q update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes \
+      libzmq3-dev sox libsox-fmt-mp3 festival postfix curl ruby && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install gems for tz
-RUN /usr/bin/gem install bundler -v 1.13.6
-RUN /usr/bin/gem install tzinfo -v 0.3.44
-RUN /usr/bin/gem install concurrent-ruby -v 1.1.9 &&\
-    /usr/bin/gem install activesupport -v 3.2.22
+RUN /usr/bin/gem install --no-ri --no-rdoc bundler -v 1.13.6 && \
+    /usr/bin/gem install --no-ri --no-rdoc tzinfo -v 0.3.44 && \
+    /usr/bin/gem install --no-ri --no-rdoc concurrent-ruby -v 1.1.9 && \
+    /usr/bin/gem install --no-ri --no-rdoc activesupport -v 3.2.22
+
+WORKDIR /app
 
 # Install broker deps
 ADD Makefile /app/
 ADD rebar /app/
 ADD rebar.config /app/
-
-WORKDIR /app
 RUN make deps
 
 # Install the application
