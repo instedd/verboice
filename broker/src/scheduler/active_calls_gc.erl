@@ -31,22 +31,30 @@ handle_cast(_Msg, State) ->
 
 % TODO: remove duplication with session:notify_status_to_callback_url
 notify_failed_to_callback_url(Call) ->
-  case Call#call_log.callback_url of
+  Project = project:find(Call#call_log.project_id),
+  {StatusUrl, StatusUser, StatusPass, StatusIncludeVars} = project:status_callback(Project),
+  case StatusUrl of
     undefined -> ok;
     <<>> -> ok;
     Url ->
       CallSid = util:to_string(Call#call_log.id),
-      SessionVars = case Call#call_log.js_context of
-        "" -> [];
-        undefined -> [];
-        _ -> session:session_vars(Call#call_log.js_context)
+      SessionVars = case StatusIncludeVars of
+        true -> Call#call_log.session_vars;
+        1 -> Call#call_log.session_vars;
+        _ -> []
       end,
       spawn(fun() ->
         Uri = uri:parse(binary_to_list(Url)),
         QueryString = [{"CallSid", CallSid}, {"CallStatus", "failed"}, {"CallDuration", 0} | SessionVars],
+        AuthOptions = case StatusUser of
+          undefined -> [];
+          [] -> [];
+          <<>> -> [];
+          User -> [{basic_auth, {User, StatusPass}}]
+        end,
         MergedQueryString = Uri#uri.query_string ++ QueryString,
         NewUri = Uri#uri{query_string = MergedQueryString},
-        NewUri:get([{full_result, false}])
+        NewUri:get([{full_result, false} | AuthOptions])
       end)
   end.
 
@@ -61,7 +69,7 @@ handle_info(cancel_active_calls, State) ->
       % Then the call logs are updated to mark them as failed
       call_log:update(call_log:update(Call#call_log{state ="failed", fail_reason = "active-for-too-long"}))
     end, CallsStartedBefore),
-  
+
   lager:info("GC cancelled ~p calls that stayed active for more than ~p minutes", [length(CallsStartedBefore), N]),
   {noreply, State};
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20220705120759) do
+ActiveRecord::Schema.define(:version => 20230317093035) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                               :default => "", :null => false
@@ -109,8 +109,7 @@ ActiveRecord::Schema.define(:version => 20220705120759) do
     t.integer  "contact_id"
     t.string   "fail_details"
     t.string   "fail_code"
-    t.string   "callback_url"
-    t.text     "js_context"
+    t.string   "session_vars"
   end
 
   add_index "call_logs", ["account_id", "id"], :name => "index_call_logs_on_account_id_and_id"
