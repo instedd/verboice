@@ -19,10 +19,14 @@ class Channels::Twilio < Channel
   config_accessor :account_sid
   config_accessor :auth_token
   config_accessor :number
+  config_accessor :base_url
 
   attr_protected :guid
 
   before_create :create_guid
+  before_validation :clean_base_url
+
+  validates :base_url, format: URI::regexp(["http", "https"]), allow_nil: true
 
   def create_guid
     self.guid ||= Guid.new.to_s
@@ -34,5 +38,16 @@ class Channels::Twilio < Channel
 
   def broker
     :twilio_broker
+  end
+
+  private
+
+  def clean_base_url
+    self.base_url =
+      if base_url.blank?
+        nil
+      else
+        base_url.strip.chomp('/')
+      end
   end
 end

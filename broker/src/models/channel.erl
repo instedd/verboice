@@ -5,7 +5,7 @@
          broker/1, is_outbound/1, limit/1, register/1,
          log_broken_channels/2,
          disable_by_id/1, disable_by_ids/1,
-         account_sid/1, auth_token/1, api_key/1]).
+         account_sid/1, auth_token/1, api_key/1, base_url/1]).
 
 -define(CACHE, true).
 -define(TABLE_NAME, "channels").
@@ -49,6 +49,20 @@ auth_token(#channel{config = Config}) ->
 
 api_key(#channel{config = Config}) ->
   proplists:get_value("api_key", Config).
+
+base_url(#channel{type = <<"Channels::Twilio">>, config = Config}) ->
+  BaseUrl = proplists:get_value("base_url", Config),
+  case io_lib:char_list(BaseUrl) of
+    true ->
+      case string:strip(BaseUrl) of
+        "" -> verboice_config:twilio_base_url();
+        _ -> BaseUrl
+      end;
+    false ->
+      verboice_config:twilio_base_url()
+  end;
+
+base_url(_) -> nil.
 
 is_outbound(#channel{type = <<"Channels::TemplateBasedSip">>}) ->
   true;

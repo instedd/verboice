@@ -29,6 +29,7 @@
     {guisso_url, ""},
 
     {twilio_callback_url, "http://localhost:8080/"},
+    {twilio_base_url, "https://api.twilio.com/2010-04-01"},
 
     {hub_enabled, true},
     {hub_url, ""}

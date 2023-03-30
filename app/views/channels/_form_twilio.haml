@@ -10,3 +10,6 @@
 .field
   = f.label :limit
   = f.text_field :limit, readonly: readonly
+.field
+  = f.label :base_url, "Custom base URL (defaults to <code>https://api.twilio.com/2010-04-01</code>)".html_safe
+  = f.text_field :base_url, readonly: readonly, placeholder: "https://api.twilio.com/2010-04-01"
