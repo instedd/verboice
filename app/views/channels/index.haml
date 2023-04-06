@@ -29,10 +29,11 @@
               &mdash; disabled
             - unless status_ok
               %br
-              - status[:messages].each do |message|
-                %label.error
-                  = message
-                %br
+              - if status[:messages]
+                - status[:messages].each do |message|
+                  %label.error
+                    = message
+                  %br
           %td
             %button.farrow{:type => :button}
     %tr
