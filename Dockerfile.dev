@@ -3,6 +3,9 @@ FROM ruby:2.3.8
 # Cleanup expired Let's Encrypt CA (Sept 30, 2021)
 RUN sed -i '/^mozilla\/DST_Root_CA_X3/s/^/!/' /etc/ca-certificates.conf && update-ca-certificates -f
 
+RUN echo 'deb http://archive.debian.org/debian stretch main\n\
+  deb http://archive.debian.org/debian-security stretch/updates main' > /etc/apt/sources.list
+
 # Install dependencies
 RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y \
