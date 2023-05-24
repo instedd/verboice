@@ -10,18 +10,18 @@ jobs:
 
       - name: Set environment up
         run: |
-          docker-compose pull
-          docker-compose build
-          docker-compose run --rm broker sh -c './rebar get-deps'
-          docker-compose run --rm broker sh -c './rebar compile'
-          docker-compose run --rm web bundle install
-          docker-compose run --rm web rake db:setup
-          docker-compose run --rm web rake db:test:prepare
+          docker compose pull
+          docker compose build
+          docker compose run --rm broker sh -c './rebar get-deps'
+          docker compose run --rm broker sh -c './rebar compile'
+          docker compose run --rm web bundle install
+          docker compose run --rm web rake db:setup
+          docker compose run --rm web rake db:test:prepare
 
       - name: Run specs
         run: |
-          docker-compose run --rm web rspec
-          docker-compose run --rm broker make eunit
+          docker compose run --rm web rspec
+          docker compose run --rm broker make eunit
 
   build:
     needs: test
