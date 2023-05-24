@@ -3,6 +3,7 @@ version: '2.0'
 services:
   db:
     image: mysql:5.7
+    platform: linux/amd64
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     volumes:
@@ -10,6 +11,7 @@ services:
 
   broker:
     build: ./broker
+    platform: linux/amd64
     command: /bin/sh -c 'make && make run'
     volumes:
       - ./broker:/app
@@ -31,6 +33,7 @@ services:
         ipv4_address: 172.88.0.88
 
   web: &rails
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -51,6 +54,7 @@ services:
 
   asterisk:
     image: instedd/verboice-asterisk
+    platform: linux/amd64
     environment:
       BROKER_HOST: 172.88.0.88
       LOCAL_NET: 172.88.0.0/16
