@@ -45,9 +45,9 @@ services:
     tmpfs: /app/tmp
     depends_on:
       - db
-    command: rails server -b 0.0.0.0 -p 80
+    command: rails server -b 0.0.0.0 -p 3000
     ports:
-      - 80
+      - 3000
 
   asterisk:
     image: instedd/verboice-asterisk
