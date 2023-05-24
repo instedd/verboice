@@ -22,17 +22,17 @@ We use [`dockerdev`](https://github.com/waj/dockerdev) to get domain names for t
 Run the following commands to have a stable development environment.
 
 ```
-$ docker-compose run --rm --no-deps web bundle install
-$ docker-compose run --rm web bash
+$ docker compose run --rm --no-deps web bundle install
+$ docker compose run --rm web bash
 root@web_1 $ rake db:setup db:seed
-$ docker-compose up
+$ docker compose up
 ```
 
 You can also run the frontend unit tests inside the docker container. Here's how:
 
 ```
-$ docker-compose run --rm web rake db:test:prepare
-$ docker-compose run --rm web rspec
+$ docker compose run --rm web rake db:test:prepare
+$ docker compose run --rm web rspec
 ```
 
 Testing with Zeus
