@@ -361,7 +361,7 @@ GEM
       rspec-mocks (~> 3.6.0)
       rspec-support (~> 3.6.0)
     rspec-support (3.6.0)
-    ruby-openid (2.7.0)
+    ruby-openid (2.9.1)
     rubyzip (1.2.1)
     rvm (1.11.3.3)
     rvm-capistrano (1.0.2)
