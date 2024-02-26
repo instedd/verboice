@@ -87,12 +87,12 @@ describe Telemetry::CallsPerDayPerChannelCollector do
       "counters" => [
         {
           "metric" => "calls",
-          "key" => { "date" => (to - 4.days).to_date.iso8601, "channel_id" => channel_1.id, "state" => "completed" },
+          "key" => { "date" => (to - 1.day).to_date.iso8601, "channel_id" => channel_1.id, "state" => "completed" },
           "value" => 1
         },
         {
           "metric" => "calls",
-          "key" => { "date" => (to - 1.day).to_date.iso8601, "channel_id" => channel_1.id, "state" => "completed" },
+          "key" => { "date" => (to - 4.days).to_date.iso8601, "channel_id" => channel_1.id, "state" => "completed" },
           "value" => 1
         }
       ]
