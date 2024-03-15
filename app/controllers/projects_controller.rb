@@ -121,7 +121,8 @@ class ProjectsController < ApplicationController
     # build a hash from contact_id to all his addresses
     # eg. { 1 => ['123','456'], 2 => ['789'] }
     all_contacts = Hash.new { |hash,key| hash[key] = [] }
-    all_contacts = @project.contact_addresses.order(:id).inject(all_contacts) do |contacts, contact_address|
+    addresses_contacts = @project.contact_addresses.where(address: addresses).pluck(:contact_id)
+    all_contacts = @project.contact_addresses.where(contact_id: addresses_contacts).order(:id).inject(all_contacts) do |contacts, contact_address|
       contacts[contact_address.contact_id] << contact_address.address
       contacts
     end
