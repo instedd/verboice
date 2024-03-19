@@ -30,7 +30,7 @@ Verboice::Application.routes.draw do
 
   match '/' => 'home#index',  :as => 'home'
 
-  devise_for :accounts, controllers: {omniauth_callbacks: "omniauth_callbacks" , sessions: "sessions"}
+  devise_for :accounts, :skip => [ ( :registrations if Guisso.enabled? ) ], controllers: {omniauth_callbacks: "omniauth_callbacks" , sessions: "sessions"}
   guisso_for :account
 
   resources :feeds, controller: :feed_server do
